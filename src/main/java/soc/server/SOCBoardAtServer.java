@@ -273,14 +273,12 @@ public class SOCBoardAtServer extends SOCBoardLarge
             return false;
 
         boolean hadAny = false;
-        Iterator<SOCVillage> villIter = villages.values().iterator();
-        while (villIter.hasNext())
+        for (SOCVillage v : villages.values())
         {
-            SOCVillage v = villIter.next();
             if (v.diceNum != dice)
                 continue;
 
-            hadAny |= v.distributeCloth(game, rollRes);
+            hadAny |= v.distributeCloth( game, rollRes );
         }
 
         return hadAny;
@@ -396,9 +394,11 @@ public class SOCBoardAtServer extends SOCBoardLarge
         // Clears cachedGetlandHexCoords.
         // Also checks vs game option BC: Break up clumps of # or more same-type hexes/ports
 
-        final int PORTS_TYPES_MAINLAND[], PORTS_TYPES_ISLANDS[];  // port types, or null if none
-        final int PORT_LOC_FACING_MAINLAND[], PORT_LOC_FACING_ISLANDS[];  // port edge locations and facings
-            // Either PORTS_TYPES_MAINLAND or PORTS_TYPES_ISLANDS can be null.
+        final int[] PORTS_TYPES_MAINLAND;  // port types, or null if none
+        final int[] PORTS_TYPES_ISLANDS;
+        final int[] PORT_LOC_FACING_MAINLAND;  // port edge locations and facings
+        final int[] PORT_LOC_FACING_ISLANDS;
+        // Either PORTS_TYPES_MAINLAND or PORTS_TYPES_ISLANDS can be null.
             // PORTS_TYPES_MAINLAND will be checked for "clumps" of several adjacent 3-for-1 or 2-for-1
             // ports in makeNewBoard_shufflePorts. PORTS_TYPES_ISLANDS will not be checked.
 
@@ -1229,8 +1229,8 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 // Check the newly placed land area(s) for clumps;
                 // ones placed in previous method calls are ignored
                 List<Integer> unvisited = new ArrayList<>();  // contains each hex's coordinate
-                for (int i = 0; i < landPath.length; ++i)
-                    unvisited.add( landPath[i] );
+                for (int value : landPath)
+                    unvisited.add( value );
 
                 clumpsNotOK = makeNewBoard_checkLandHexResourceClumps(unvisited, clumpSize);
             } else {
@@ -1581,7 +1581,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         {
             ArrayList<Integer> frequentGold = new ArrayList<>();
             for (Integer hexCoord : redHexes)
-                if (getHexTypeFromCoord(hexCoord.intValue()) == GOLD_HEX)
+                if (getHexTypeFromCoord( hexCoord ) == GOLD_HEX)
                     frequentGold.add(hexCoord);
 
             if (! frequentGold.isEmpty())
@@ -2066,8 +2066,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
             if (moveFrom != null)
             {
                 moveAnyRedFromHexes = new HashSet<>( moveFrom.length );
-                for (int i = 0; i < moveFrom.length; ++i)
-                    moveAnyRedFromHexes.add( moveFrom[i] );
+                for (int value : moveFrom) moveAnyRedFromHexes.add( value );
             } else {
                 moveAnyRedFromHexes = null;
             }
@@ -2434,7 +2433,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
      *             {@link #landAreasLegalNodes}<tt>[landAreaNumber]</tt> != null
      */
     private void makeNewBoard_fillNodesOnLandFromHexes
-        (final int landHexCoords[], final int startIdx, final int pastEndIdx,
+        ( final int[] landHexCoords, final int startIdx, final int pastEndIdx,
          final int landAreaNumber, final boolean addToExistingLA, final boolean nodesAreInfill)
         throws IllegalStateException
     {
@@ -2570,29 +2569,28 @@ public class SOCBoardAtServer extends SOCBoardLarge
         final boolean debugHalfAreGold =
             (null != System.getProperty(PROP_JSETTLERS_DEBUG_BOARD_FOG__GOLD));
 
-        for (int i = 0; i < hexCoords.length; ++i)
+        for (final int hexCoord : hexCoords)
         {
-            final int hexCoord = hexCoords[i];
             if (hexCoord == 0)
                 continue;
 
             final int r = hexCoord >> 8,
-                      c = hexCoord & 0xFF;
+                c = hexCoord & 0xFF;
             int hexType = hexLayoutLg[r][c];
             if (hexType == FOG_HEX)
-                throw new IllegalStateException("Already fog: 0x" + Integer.toHexString(hexCoord));
+                throw new IllegalStateException( "Already fog: 0x" + Integer.toHexString( hexCoord ) );
             if (debugHalfAreGold && (hexType != WATER_HEX) && rand.nextBoolean())
                 hexType = GOLD_HEX;
 
-            fogHiddenHexes.put( hexCoord, (hexType << 8) | (numberLayoutLg[r][c] & 0xFF));
+            fogHiddenHexes.put( hexCoord, (hexType << 8) | (numberLayoutLg[r][c] & 0xFF) );
             hexLayoutLg[r][c] = FOG_HEX;
             numberLayoutLg[r][c] = 0;
 
-            if ((hexType == WATER_HEX) && landHexLayout.contains(hexCoord))
+            if ((hexType == WATER_HEX) && landHexLayout.contains( hexCoord ))
             {
-                legalRoadEdges.addAll(getAdjacentEdgesToHex(hexCoord));
+                legalRoadEdges.addAll( getAdjacentEdgesToHex( hexCoord ) );
 
-                final List<Integer> cornerNodes = getAdjacentNodesToHex(hexCoord);
+                final List<Integer> cornerNodes = getAdjacentNodesToHex( hexCoord );
                 if (landAreasLegalNodes != null)
                 {
                     // We don't store hexes' Land Area numbers, but one of its corners is
@@ -2601,29 +2599,31 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     int lan = 0;
                     for (final int node : cornerNodes)
                     {
-                        lan = getNodeLandArea(node);
+                        lan = getNodeLandArea( node );
                         if (lan != 0)
                             break;
                     }
 
                     if ((lan != 0) && (landAreasLegalNodes[lan] != null))
                     {
-                        if (! nodesAreInfill)
+                        if (!nodesAreInfill)
                         {
-                            landAreasLegalNodes[lan].addAll(cornerNodes);
-                        } else {
+                            landAreasLegalNodes[lan].addAll( cornerNodes );
+                        }
+                        else
+                        {
                             for (final Integer nodeInt : cornerNodes)
                             {
-                                if (nodesOnLand.contains(nodeInt) || (0 != getNodeLandArea(nodeInt)))
+                                if (nodesOnLand.contains( nodeInt ) || (0 != getNodeLandArea( nodeInt )))
                                     continue;
 
-                                landAreasLegalNodes[lan].add(nodeInt);
+                                landAreasLegalNodes[lan].add( nodeInt );
                             }
                         }
                     }
                 }
 
-                nodesOnLand.addAll(cornerNodes);
+                nodesOnLand.addAll( cornerNodes );
             }
         }
 
@@ -2961,33 +2961,35 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * encoded as 0xRRCC for convenience:
      * 4 players max 0x14 rows, 0x15 columns.
      * 6 players max 0x16 rows, 0x17 cols.
-     *<P>
+     * <p>
      * {@link SOCBoardLarge}'s default size is slightly different: 0x10 rows, 0x12 columns:<BR>
      * {@link SOCBoardLarge#BOARDHEIGHT_LARGE BOARDHEIGHT_LARGE} by
      * {@link SOCBoardLarge#BOARDWIDTH_LARGE BOARDWIDTH_LARGE}.
      */
-    private static final int FALLBACK_BOARDSIZE[] = { 0x1415, 0x1617 };
+    private static final int[] FALLBACK_BOARDSIZE = {0x1415, 0x1617};
 
-    /** Fallback sea board layout: Visual Shift and Trim ("VS") */
-    private static final int FALLBACK_VIS_SHIFT[][] = {{-2,1, 3,0}, {-2,0, 2,0}};
+    /**
+     * Fallback sea board layout: Visual Shift and Trim ("VS")
+     */
+    private static final int[][] FALLBACK_VIS_SHIFT = {{-2, 1, 3, 0}, {-2, 0, 2, 0}};
 
     /**
      * Fallback board layout for 4 players: Main island's ports, clockwise from its northwest.
      * Each port has 2 consecutive elements.
      * First: Port edge coordinate, in hex: 0xRRCC.
      * Second: Port Facing direction: {@link SOCBoard#FACING_E FACING_E}, etc.
-     *<P>
+     * <p>
      * Port Facing is the direction from the port edge, to the land hex touching it
      * which will have 2 nodes where a port settlement/city can be built.
      */
-    private static final int PORT_EDGE_FACING_MAINLAND_4PL[] =
-    {
-        0x0204, FACING_SE,  0x0207, FACING_SW,
-        0x040A, FACING_SW,  0x070C, FACING_W,
-        0x0A0A, FACING_NW,  0x0C07, FACING_NW,
-        0x0C04, FACING_NE,  0x0903, FACING_E,
-        0x0503, FACING_E
-    };
+    private static final int[] PORT_EDGE_FACING_MAINLAND_4PL =
+        {
+            0x0204, FACING_SE, 0x0207, FACING_SW,
+            0x040A, FACING_SW, 0x070C, FACING_W,
+            0x0A0A, FACING_NW, 0x0C07, FACING_NW,
+            0x0C04, FACING_NE, 0x0903, FACING_E,
+            0x0503, FACING_E
+        };
 
     /**
      * Fallback board layout, 4 players: Outlying islands' ports.
@@ -2995,21 +2997,21 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * First: Coordinate, in hex: 0xRRCC.
      * Second: Facing
      */
-    private static final int PORT_EDGE_FACING_ISLANDS_4PL[] =
-    {
-        0x080F, FACING_NW,   // - northeast island
-        0x0C10, FACING_SW,  0x100D, FACING_NW,        // - southeast island
-        0x1007, FACING_SE    // - southwest island
-    };
+    private static final int[] PORT_EDGE_FACING_ISLANDS_4PL =
+        {
+            0x080F, FACING_NW,   // - northeast island
+            0x0C10, FACING_SW, 0x100D, FACING_NW,        // - southeast island
+            0x1007, FACING_SE    // - southwest island
+        };
 
     /**
      * Port types for the 4 outlying-island ports on the 4-player fallback board.
      * For the mainland's port types, use {@link SOCBoard4p#PORTS_TYPE_V1}.
      */
-    private static final int PORT_TYPE_ISLANDS_4PL[] =
-    {
-        MISC_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
-    };
+    private static final int[] PORT_TYPE_ISLANDS_4PL =
+        {
+            MISC_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
+        };
 
     /**
      * Fallback board layout for 4 players: Dice-number path (hex coordinates)
@@ -3017,66 +3019,69 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * The outlying islands have no dice path.
      * For the mainland's dice numbers, see {@link SOCBoard4p#makeNewBoard_diceNums_v1}.
      */
-    private static final int LANDHEX_DICEPATH_MAINLAND_4PL[] =
-    {
-        // clockwise from northwest
-        0x0305, 0x0307, 0x0309, 0x050A, 0x070B,
-        0x090A, 0x0B09, 0x0B07, 0x0B05, 0x0904,
-        0x0703, 0x0504, 0x0506, 0x0508, 0x0709,
-        0x0908, 0x0906, 0x0705, 0x0707
-    };
+    private static final int[] LANDHEX_DICEPATH_MAINLAND_4PL =
+        {
+            // clockwise from northwest
+            0x0305, 0x0307, 0x0309, 0x050A, 0x070B,
+            0x090A, 0x0B09, 0x0B07, 0x0B05, 0x0904,
+            0x0703, 0x0504, 0x0506, 0x0508, 0x0709,
+            0x0908, 0x0906, 0x0705, 0x0707
+        };
 
     /**
      * Fallback board layout, 4 players: All the outlying islands' land hex coordinates.
-     *<P>
+     * <p>
      * The first outlying island (land area 2) is upper-right on board.
      * Second island (landarea 3) is lower-right.
      * Third island (landarea 4) is lower-left.
+     *
      * @see #LANDHEX_COORD_ISLANDS_EACH
      * @see #LANDHEX_LANDAREA_RANGES_ISLANDS_4PL
      */
-    private static final int LANDHEX_COORD_ISLANDS_ALL_4PL[] =
-    {
-        0x030F, 0x050E, 0x0510, 0x070F, 0x0711,
-        0x0D0E, 0x0D10, 0x0D12, 0x0F0D, 0x0F0F,
-        0x0F03, 0x0F05, 0x1106, 0x1108
-    };
+    private static final int[] LANDHEX_COORD_ISLANDS_ALL_4PL =
+        {
+            0x030F, 0x050E, 0x0510, 0x070F, 0x0711,
+            0x0D0E, 0x0D10, 0x0D12, 0x0F0D, 0x0F0F,
+            0x0F03, 0x0F05, 0x1106, 0x1108
+        };
 
     /**
      * Fallback board layout for 4 players: Each outlying island's land hex coordinates.
+     *
      * @see #LANDHEX_COORD_ISLANDS_ALL_4PL
      * @see #LANDHEX_LANDAREA_RANGES_ISLANDS_4PL
      */
     @SuppressWarnings("unused")  // TODO is this field useful to keep for reference?
-    private static final int LANDHEX_COORD_ISLANDS_EACH[][] =
-    {
-        { 0x030F, 0x050E, 0x0510, 0x070F, 0x0711 },
-        { 0x0D0E, 0x0D10, 0x0D12, 0x0F0D, 0x0F0F },
-        { 0x0F03, 0x0F05, 0x1106, 0x1108 }
-    };
+    private static final int[][] LANDHEX_COORD_ISLANDS_EACH =
+        {
+            {0x030F, 0x050E, 0x0510, 0x070F, 0x0711},
+            {0x0D0E, 0x0D10, 0x0D12, 0x0F0D, 0x0F0F},
+            {0x0F03, 0x0F05, 0x1106, 0x1108}
+        };
 
     /**
      * 4-player island hex counts and land area numbers within {@link #LANDHEX_COORD_ISLANDS_ALL_4PL}.
      * Allows us to shuffle them all together ({@link #LANDHEX_TYPE_ISLANDS_4PL}).
+     *
      * @see #LANDHEX_COORD_ISLANDS_EACH
      */
-    private static final int LANDHEX_LANDAREA_RANGES_ISLANDS_4PL[] =
-    {
-        2, 5,  // landarea 2 is an island with 5 hexes
-        3, 5,  // landarea 3
-        4, 4   // landarea 4
-    };
+    private static final int[] LANDHEX_LANDAREA_RANGES_ISLANDS_4PL =
+        {
+            2, 5,  // landarea 2 is an island with 5 hexes
+            3, 5,  // landarea 3
+            4, 4   // landarea 4
+        };
 
     /**
      * Fallback board layout, 4 players: Land hex types for the 3 small islands,
      * to be used with (for the main island) {@link SOCBoard4p#makeNewBoard_landHexTypes_v1}[].
      */
-    private static final int LANDHEX_TYPE_ISLANDS_4PL[] =
-    {
-        CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX, DESERT_HEX,
-        WOOD_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX
-    };
+    private static final int[] LANDHEX_TYPE_ISLANDS_4PL =
+        {
+            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX, DESERT_HEX,
+            WOOD_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX
+        };
 
     /**
      * Fallback board layout, 4 players: Dice numbers for the outlying islands.
@@ -3084,12 +3089,12 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * adjacent, and as long as GOLD_HEXes have rare numbers, all is OK.
      * To make the islands more attractive, avoids the infrequntly rolled 2 and 12.
      */
-    private static final int LANDHEX_DICENUM_ISLANDS_4PL[] =
-    {
-        5, 4, 6, 3, 8,
-        10, 9, 11, 5, 9,
-        4, 10, 5  // leave 1 un-numbered, for the DESERT_HEX
-    };
+    private static final int[] LANDHEX_DICENUM_ISLANDS_4PL =
+        {
+            5, 4, 6, 3, 8,
+            10, 9, 11, 5, 9,
+            4, 10, 5  // leave 1 un-numbered, for the DESERT_HEX
+        };
 
     /**
      * Fallback board layout for 6 players: Dice-number path (hex coordinates)
@@ -3097,72 +3102,74 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * The outlying islands have no dice path.
      * For the mainland's dice numbers, see {@link SOCBoard6p#makeNewBoard_diceNums_v2}.
      */
-    private static final int LANDHEX_DICEPATH_MAINLAND_6PL[] =
-    {
-        // clockwise inward from western corner
-        0x0904, 0x0705, 0x0506, 0x0307, 0x0309, 0x030B, 0x050C, 0x070D,
-        0x090E, 0x0B0D, 0x0D0C, 0x0F0B, 0x0F09, 0x0F07, 0x0D06, 0x0B05,  // end of outside of spiral
-        0x0906, 0x0707, 0x0508, 0x050A, 0x070B,
-        0x090C, 0x0B0B, 0x0D0A, 0x0D08, 0x0B07,  // end of middle layer of spiral
-        0x0908, 0x0709, 0x090A, 0x0B09
-    };
+    private static final int[] LANDHEX_DICEPATH_MAINLAND_6PL =
+        {
+            // clockwise inward from western corner
+            0x0904, 0x0705, 0x0506, 0x0307, 0x0309, 0x030B, 0x050C, 0x070D,
+            0x090E, 0x0B0D, 0x0D0C, 0x0F0B, 0x0F09, 0x0F07, 0x0D06, 0x0B05,  // end of outside of spiral
+            0x0906, 0x0707, 0x0508, 0x050A, 0x070B,
+            0x090C, 0x0B0B, 0x0D0A, 0x0D08, 0x0B07,  // end of middle layer of spiral
+            0x0908, 0x0709, 0x090A, 0x0B09
+        };
 
     /**
      * Fallback board layout for 6 players: Main island's ports, clockwise from its western corner (like dice path).
      * Each port has 2 consecutive elements.
      * First: Port edge coordinate, in hex: 0xRRCC.
      * Second: Port Facing direction: {@link SOCBoard#FACING_E FACING_E}, etc.
-     *<P>
+     * <p>
      * Port Facing is the direction from the port edge, to the land hex touching it
      * which will have 2 nodes where a port settlement/city can be built.
      */
-    private static final int PORT_EDGE_FACING_MAINLAND_6PL[] =
-    {
-        0x0704, FACING_E,   0x0405, FACING_SE,
-        0x0208, FACING_SE,  0x020B, FACING_SW,
-        0x060D, FACING_SW,  0x090F, FACING_W,
-        0x0C0D, FACING_NW,  0x100B, FACING_NW,
-        0x1008, FACING_NE,  0x0E05, FACING_NE,
-        0x0B04, FACING_E
-    };
+    private static final int[] PORT_EDGE_FACING_MAINLAND_6PL =
+        {
+            0x0704, FACING_E, 0x0405, FACING_SE,
+            0x0208, FACING_SE, 0x020B, FACING_SW,
+            0x060D, FACING_SW, 0x090F, FACING_W,
+            0x0C0D, FACING_NW, 0x100B, FACING_NW,
+            0x1008, FACING_NE, 0x0E05, FACING_NE,
+            0x0B04, FACING_E
+        };
 
     /**
      * Fallback board layout, 6 players: All the outlying islands' land hex coordinates.
-     *<P>
+     * <p>
      * The first outlying island (land area 2) is upper-right on board.
      * Second island (landarea 3) is lower-right.
      * Third island (landarea 4) is lower-left.
+     *
      * @see #LANDHEX_LANDAREA_RANGES_ISLANDS_6PL
      */
-    private static final int LANDHEX_COORD_ISLANDS_ALL_6PL[] =
-    {
-        0x0311, 0x0313, 0x0510, 0x0512, 0x0514, 0x0711, 0x0713, 0x0914,
-        0x0D10, 0x0D12, 0x0D14, 0x0F0F, 0x0F11, 0x0F13, 0x1112, 0x1114,
-        0x1305, 0x1307, 0x1309, 0x130B, 0x130D
-    };
+    private static final int[] LANDHEX_COORD_ISLANDS_ALL_6PL =
+        {
+            0x0311, 0x0313, 0x0510, 0x0512, 0x0514, 0x0711, 0x0713, 0x0914,
+            0x0D10, 0x0D12, 0x0D14, 0x0F0F, 0x0F11, 0x0F13, 0x1112, 0x1114,
+            0x1305, 0x1307, 0x1309, 0x130B, 0x130D
+        };
 
     /**
      * 4-player island hex counts and land area numbers within {@link #LANDHEX_COORD_ISLANDS_ALL_4PL}.
      * Allows us to shuffle them all together ({@link #LANDHEX_TYPE_ISLANDS_6PL}).
+     *
      * @see #LANDHEX_COORD_ISLANDS_EACH
      */
-    private static final int LANDHEX_LANDAREA_RANGES_ISLANDS_6PL[] =
-    {
-        2, 8,  // landarea 2 is an island with 8 hexes
-        3, 8,  // landarea 3
-        4, 5   // landarea 4
-    };
+    private static final int[] LANDHEX_LANDAREA_RANGES_ISLANDS_6PL =
+        {
+            2, 8,  // landarea 2 is an island with 8 hexes
+            3, 8,  // landarea 3
+            4, 5   // landarea 4
+        };
 
     /**
      * Fallback board layout, 6 players: Land hex types for the 3 small islands,
      * to be used with (for the main island) {@link SOCBoard6p#makeNewBoard_landHexTypes_v2}[].
      */
-    private static final int LANDHEX_TYPE_ISLANDS_6PL[] =
-    {
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        DESERT_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX
-    };
+    private static final int[] LANDHEX_TYPE_ISLANDS_6PL =
+        {
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            DESERT_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX
+        };
 
     /**
      * Fallback board layout, 6 players: Dice numbers for the outlying islands.
@@ -3170,11 +3177,11 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * adjacent, and as long as GOLD_HEXes have rare numbers, all is OK.
      * To make the islands more attractive, avoids the infrequntly rolled 2 and 12.
      */
-    private static final int LANDHEX_DICENUM_ISLANDS_6PL[] =
-    {
-        3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11
-        // leave 1 un-numbered, for the DESERT_HEX
-    };
+    private static final int[] LANDHEX_DICENUM_ISLANDS_6PL =
+        {
+            3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11
+            // leave 1 un-numbered, for the DESERT_HEX
+        };
 
     /**
      * Fallback board layout, 6 players: Outlying islands' ports.
@@ -3182,21 +3189,21 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * First: Coordinate, in hex: 0xRRCC.
      * Second: Facing
      */
-    private static final int PORT_EDGE_FACING_ISLANDS_6PL[] =
-    {
-        0x0812, FACING_NE,  0x0310, FACING_E,    // - northeast island
-        0x0C12, FACING_SW,  0x1010, FACING_NE,   // - southeast island
-        0x1209, FACING_SW    // - southwest island
-    };
+    private static final int[] PORT_EDGE_FACING_ISLANDS_6PL =
+        {
+            0x0812, FACING_NE, 0x0310, FACING_E,    // - northeast island
+            0x0C12, FACING_SW, 0x1010, FACING_NE,   // - southeast island
+            0x1209, FACING_SW    // - southwest island
+        };
 
     /**
      * Port types for the 4 outlying-island ports on the 6-player fallback board.
      * For the mainland's port types, use {@link SOCBoard6p#PORTS_TYPE_V2}.
      */
-    private static final int PORT_TYPE_ISLANDS_6PL[] =
-    {
-        MISC_PORT, MISC_PORT, CLAY_PORT, WOOD_PORT, MISC_PORT
-    };
+    private static final int[] PORT_TYPE_ISLANDS_6PL =
+        {
+            MISC_PORT, MISC_PORT, CLAY_PORT, WOOD_PORT, MISC_PORT
+        };
 
 
     ////////////////////////////////////////////
@@ -3214,10 +3221,12 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * 4 players max (0x12, 0x11).
      * 6 players max (0x12, 0x16).
      */
-    private static final int NSHO_BOARDSIZE[] = { 0x120F, 0x1211, 0x1216 };
+    private static final int[] NSHO_BOARDSIZE = {0x120F, 0x1211, 0x1216};
 
-    /** New Shores: Visual Shift and Trim ("VS") */
-    private static final int NSHO_VIS_SHIFT[][] = {{-2,0, 1,0}, {-2,1}, {-1,0}};
+    /**
+     * New Shores: Visual Shift and Trim ("VS")
+     */
+    private static final int[][] NSHO_VIS_SHIFT = {{-2, 0, 1, 0}, {-2, 1}, {-1, 0}};
 
     /** New Shores: Starting robber hex (needed on 3-player board only) */
     private static final int NSHO_ROBBER_HEX_3PL = 0x0305;
@@ -3226,158 +3235,168 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * New Shores: Starting pirate water hex coordinate for 3, 4, 6 players.
      * The 6-player layout starts with the pirate off the board.
      */
-    private static final int NSHO_PIRATE_HEX[] = { 0x090E, 0x0910, 0 };
+    private static final int[] NSHO_PIRATE_HEX = {0x090E, 0x0910, 0};
 
-    /** New Shores: Land hex types for the main island. Shuffled. */
-    private static final int NSHO_LANDHEX_TYPE_MAIN[][] =
-    {
+    /**
+     * New Shores: Land hex types for the main island. Shuffled.
+     */
+    private static final int[][] NSHO_LANDHEX_TYPE_MAIN =
         {
-            // 3 players:
-            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-        },
-        SOCBoard4p.makeNewBoard_landHexTypes_v1,  // 4 players
-        SOCBoard6p.makeNewBoard_landHexTypes_v2   // 6 players
-    };
+            {
+                // 3 players:
+                CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+                WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+            },
+            SOCBoard4p.makeNewBoard_landHexTypes_v1,  // 4 players
+            SOCBoard6p.makeNewBoard_landHexTypes_v2   // 6 players
+        };
 
     /**
      * New Shores: Land hex coordinates for the main island.
      * Defines the path and sequence of dice numbers in {@link #NSHO_DICENUM_MAIN}.
      * Land hex types (shuffled) are {@link #NSHO_LANDHEX_TYPE_MAIN}.
+     *
      * @see #NSHO_LANDHEX_COORD_ISL
      */
-    private static final int NSHO_LANDHEX_COORD_MAIN[][] =
-    {{
-        // 3 players: clockwise from west (dice numbers are shuffled)
-        0x0B03, 0x0904, 0x0705, 0x0707, 0x0908,
-        0x0B09, 0x0D08, 0x0F07, 0x0F05, 0x0D04,
-        0x0B05, 0x0906, 0x0B07, 0x0D06
-    }, {
-        // 4 players: clockwise from northwest (dice path)
-        0x0705, 0x0707, 0x0709, 0x090A, 0x0B0B,
-        0x0D0A, 0x0F09, 0x0F07, 0x0F05, 0x0D04,
-        0x0B03, 0x0904, 0x0906, 0x0908, 0x0B09,
-        0x0D08, 0x0D06, 0x0B05, 0x0B07
-    }, {
-        // 6 players: clockwise from west (dice path)
-        0x0906, 0x0707, 0x0508, 0x0309, 0x030B, 0x030D, 0x050E,
-        0x070F, 0x0910, 0x0B0F, 0x0D0E, 0x0F0D, 0x0F0B, 0x0F09,
-        0x0D08, 0x0B07, 0x0908, 0x0709, 0x050A, 0x050C, 0x070D,
-        0x090E, 0x0B0D, 0x0D0C, 0x0D0A, 0x0B09, 0x090A, 0x070B,
-        0x090C, 0x0B0B
-    }};
+    private static final int[][] NSHO_LANDHEX_COORD_MAIN =
+        {{
+            // 3 players: clockwise from west (dice numbers are shuffled)
+            0x0B03, 0x0904, 0x0705, 0x0707, 0x0908,
+            0x0B09, 0x0D08, 0x0F07, 0x0F05, 0x0D04,
+            0x0B05, 0x0906, 0x0B07, 0x0D06
+        }, {
+            // 4 players: clockwise from northwest (dice path)
+            0x0705, 0x0707, 0x0709, 0x090A, 0x0B0B,
+            0x0D0A, 0x0F09, 0x0F07, 0x0F05, 0x0D04,
+            0x0B03, 0x0904, 0x0906, 0x0908, 0x0B09,
+            0x0D08, 0x0D06, 0x0B05, 0x0B07
+        }, {
+            // 6 players: clockwise from west (dice path)
+            0x0906, 0x0707, 0x0508, 0x0309, 0x030B, 0x030D, 0x050E,
+            0x070F, 0x0910, 0x0B0F, 0x0D0E, 0x0F0D, 0x0F0B, 0x0F09,
+            0x0D08, 0x0B07, 0x0908, 0x0709, 0x050A, 0x050C, 0x070D,
+            0x090E, 0x0B0D, 0x0D0C, 0x0D0A, 0x0B09, 0x090A, 0x070B,
+            0x090C, 0x0B0B
+        }};
 
     /**
      * New Shores: Dice numbers for hexes on the main island along {@link #NSHO_LANDHEX_COORD_MAIN}.
      * Shuffled for 3-player board only.
+     *
      * @see #NSHO_DICENUM_ISL
      */
-    private static final int NSHO_DICENUM_MAIN[][] =
-    {
-        { 2, 3, 4, 5, 5, 6, 6, 8, 8, 9, 10, 10, 11, 11 },  // 3 players
-        SOCBoard4p.makeNewBoard_diceNums_v1,  // 4 players
-        SOCBoard6p.makeNewBoard_diceNums_v2   // 6 players
-    };
+    private static final int[][] NSHO_DICENUM_MAIN =
+        {
+            {2, 3, 4, 5, 5, 6, 6, 8, 8, 9, 10, 10, 11, 11},  // 3 players
+            SOCBoard4p.makeNewBoard_diceNums_v1,  // 4 players
+            SOCBoard6p.makeNewBoard_diceNums_v2   // 6 players
+        };
 
     /**
      * New Shores: Port edges and facings. There are no ports on the small islands, only the main one.
-     *<P>
+     * <p>
      * Clockwise, starting at northwest corner of board.
      * Each port has 2 elements: Edge coordinate (0xRRCC), Port Facing.
-     *<P>
+     * <p>
      * Port Facing is the direction from the port edge, to the land hex touching it
      * which will have 2 nodes where a port settlement/city can be built.
-     *<P>
+     * <p>
      * Port types ({@link #NSHO_PORT_TYPE}) are shuffled.
      */
-    private static final int NSHO_PORT_EDGE_FACING[][] =
-    {{
-        0x0704, FACING_E,   0x0708, FACING_W,   0x0A09, FACING_SW,  0x0F08, FACING_W,
-        0x1006, FACING_NE,  0x0F04, FACING_E,   0x0C02, FACING_NE,  0x0A02, FACING_SE
-    }, {
-        0x0604, FACING_SE,  0x0607, FACING_SW,  0x080A, FACING_SW,  0x0B0C, FACING_W,
-        0x0E0A, FACING_NW,  0x1007, FACING_NW,  0x1004, FACING_NE,  0x0D03, FACING_E,
-        0x0903, FACING_E
-    }, {
-        0x020B, FACING_SW,  0x040E, FACING_SW,  0x0710, FACING_W,   0x0A10, FACING_NW,
-        0x0D0F, FACING_W,   0x100D, FACING_NW,  0x100A, FACING_NE,  0x0E07, FACING_NE,
-        0x0A05, FACING_NE,  0x0706, FACING_E,   0x0407, FACING_SE
-    }};
+    private static final int[][] NSHO_PORT_EDGE_FACING =
+        {{
+            0x0704, FACING_E, 0x0708, FACING_W, 0x0A09, FACING_SW, 0x0F08, FACING_W,
+            0x1006, FACING_NE, 0x0F04, FACING_E, 0x0C02, FACING_NE, 0x0A02, FACING_SE
+        }, {
+            0x0604, FACING_SE, 0x0607, FACING_SW, 0x080A, FACING_SW, 0x0B0C, FACING_W,
+            0x0E0A, FACING_NW, 0x1007, FACING_NW, 0x1004, FACING_NE, 0x0D03, FACING_E,
+            0x0903, FACING_E
+        }, {
+            0x020B, FACING_SW, 0x040E, FACING_SW, 0x0710, FACING_W, 0x0A10, FACING_NW,
+            0x0D0F, FACING_W, 0x100D, FACING_NW, 0x100A, FACING_NE, 0x0E07, FACING_NE,
+            0x0A05, FACING_NE, 0x0706, FACING_E, 0x0407, FACING_SE
+        }};
 
-    /** New Shores: Port types on main island; will be shuffled. */
-    private static final int NSHO_PORT_TYPE[][] =
-    {
-        { 0, 0, 0, CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT },  // 3 players
-        SOCBoard4p.PORTS_TYPE_V1,  // 4 players
-        SOCBoard6p.PORTS_TYPE_V2   // 6 players
-    };
+    /**
+     * New Shores: Port types on main island; will be shuffled.
+     */
+    private static final int[][] NSHO_PORT_TYPE =
+        {
+            {0, 0, 0, CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT},  // 3 players
+            SOCBoard4p.PORTS_TYPE_V1,  // 4 players
+            SOCBoard6p.PORTS_TYPE_V2   // 6 players
+        };
 
-    /** New Shores: Land hex types on the several small islands. Shuffled. */
-    private static final int NSHO_LANDHEX_TYPE_ISL[][] =
-    {{
-        CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, GOLD_HEX, GOLD_HEX
-    }, {
-        CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX
-    }, {
-        CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX, GOLD_HEX
-    }};
+    /**
+     * New Shores: Land hex types on the several small islands. Shuffled.
+     */
+    private static final int[][] NSHO_LANDHEX_TYPE_ISL =
+        {{
+            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, GOLD_HEX, GOLD_HEX
+        }, {
+            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX
+        }, {
+            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX, GOLD_HEX
+        }};
 
     /**
      * New Shores: Island hex counts and land area numbers within {@link #NSHO_LANDHEX_COORD_ISL}.
      * Allows them to be defined, shuffled, and placed together.
      */
-    private static final int NSHO_LANDHEX_LANDAREA_RANGES[][] =
-    {{
-        2, 2,  // landarea 2 is the northwest island with 2 hexes
-        3, 4,  // landarea 3 NE, 4 hexes
-        4, 2,  // landarea 4 SE, 2 hexes
-    }, {
-        2, 2,
-        3, 5,
-        4, 2
-    }, {
-        2, 3,
-        3, 3,
-        4, 1,  // single-hex islands on east side of board
-        5, 1,
-        6, 1,
-        7, 1
-    }};
+    private static final int[][] NSHO_LANDHEX_LANDAREA_RANGES =
+        {{
+            2, 2,  // landarea 2 is the northwest island with 2 hexes
+            3, 4,  // landarea 3 NE, 4 hexes
+            4, 2,  // landarea 4 SE, 2 hexes
+        }, {
+            2, 2,
+            3, 5,
+            4, 2
+        }, {
+            2, 3,
+            3, 3,
+            4, 1,  // single-hex islands on east side of board
+            5, 1,
+            6, 1,
+            7, 1
+        }};
 
     /**
      * New Shores: Land hex coordinates for the several small islands.
      * Each island is a separate land area, split up the array using {@link #NSHO_LANDHEX_LANDAREA_RANGES}.
      * Dice numbers on the islands (shuffled together) are {@link #NSHO_DICENUM_ISL}.
+     *
      * @see #NSHO_LANDHEX_COORD_MAIN
      */
-    private static final int NSHO_LANDHEX_COORD_ISL[][] =
-    {{
-        0x0305, 0x0307,
-        0x050A, 0x050C, 0x070B, 0x090C,
-        0x0D0C, 0x0F0B
-    }, {
-        0x0305, 0x0307,
-        0x030B, 0x050C, 0x050E, 0x070D, 0x090E,
-        0x0D0E, 0x0F0D
-    }, {
-        0x0305, 0x0504, 0x0703,
-        0x0B03, 0x0D04, 0x0F05,
-        0x0311,   0x0713,   0x0B13,   0x0F11
-    }};
+    private static final int[][] NSHO_LANDHEX_COORD_ISL =
+        {{
+            0x0305, 0x0307,
+            0x050A, 0x050C, 0x070B, 0x090C,
+            0x0D0C, 0x0F0B
+        }, {
+            0x0305, 0x0307,
+            0x030B, 0x050C, 0x050E, 0x070D, 0x090E,
+            0x0D0E, 0x0F0D
+        }, {
+            0x0305, 0x0504, 0x0703,
+            0x0B03, 0x0D04, 0x0F05,
+            0x0311, 0x0713, 0x0B13, 0x0F11
+        }};
 
     /**
      * New Shores: Dice numbers for hexes on the several small islands
      * ({@link #NSHO_LANDHEX_COORD_ISL}).  Shuffled.
+     *
      * @see #NSHO_DICENUM_MAIN
      */
-    private static final int NSHO_DICENUM_ISL[][] =
-    {{
-        3, 4, 4, 5, 8, 9, 10, 12
-    }, {
-        2, 3, 4, 5, 6, 8, 9, 10, 11
-    }, {
-        2, 3, 4, 5, 6, 8, 9, 10, 11, 12
-    }};
+    private static final int[][] NSHO_DICENUM_ISL =
+        {{
+            3, 4, 4, 5, 8, 9, 10, 12
+        }, {
+            2, 3, 4, 5, 6, 8, 9, 10, 11
+        }, {
+            2, 3, 4, 5, 6, 8, 9, 10, 11, 12
+        }};
 
 
     ////////////////////////////////////////////
@@ -3392,22 +3411,24 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * 3 or 4 players max row 0x12, max col 0x12.
      * 6 players max row 0x12, max col 0x18.
      */
-    private static final int FOG_ISL_BOARDSIZE[] = { 0x1212, 0x1218 };
+    private static final int[] FOG_ISL_BOARDSIZE = {0x1212, 0x1218};
 
-    /** Fog Island: Visual Shift and Trim ("VS") */
-    private static final int FOG_ISL_VIS_SHIFT[][] = {{-3,1, 2,0}, {-2,0, 1,0}, {-1,0, 1,2}};
+    /**
+     * Fog Island: Visual Shift and Trim ("VS")
+     */
+    private static final int[][] FOG_ISL_VIS_SHIFT = {{-3, 1, 2, 0}, {-2, 0, 1, 0}, {-1, 0, 1, 2}};
 
     /**
      * Fog Island: Starting robber hex coordinate for 3, 4 players.
      * The 6-player layout doesn't specify a starting location, so robber starts on any desert hex.
      */
-    private static final int FOG_ISL_ROBBER_HEX[] = { 0x030B, 0x0B03 };
+    private static final int[] FOG_ISL_ROBBER_HEX = {0x030B, 0x0B03};
 
     /**
      * Fog Island: Pirate ship's starting hex coordinate for 3,4,6 players.
      * The 4-player board has the pirate start at a port hex, which looks cluttered.
      */
-    private static final int FOG_ISL_PIRATE_HEX[] = { 0x0910, 0x0910, 0x0912 };
+    private static final int[] FOG_ISL_PIRATE_HEX = {0x0910, 0x0910, 0x0912};
 
     //
     // 3-player
@@ -3416,104 +3437,104 @@ public class SOCBoardAtServer extends SOCBoardLarge
     /**
      * Fog Island: Land hex types for the large southwest and northeast islands.
      */
-    private static final int FOG_ISL_LANDHEX_TYPE_MAIN_3PL[] =
-    {
-        // 14 hexes total: southwest, northeast islands are 7 each
-        CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-    };
+    private static final int[] FOG_ISL_LANDHEX_TYPE_MAIN_3PL =
+        {
+            // 14 hexes total: southwest, northeast islands are 7 each
+            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+        };
 
     /**
      * Fog Island: Land hex coordinates for the large southwest and northeast islands.
      */
-    private static final int FOG_ISL_LANDHEX_COORD_MAIN_3PL[] =
-    {
-        // Southwest island: 7 hexes centered on rows 9, b, d, f, columns 3-7
-        0x0904, 0x0B03, 0x0B05, 0x0D04, 0x0D06, 0x0F05, 0x0F07,
+    private static final int[] FOG_ISL_LANDHEX_COORD_MAIN_3PL =
+        {
+            // Southwest island: 7 hexes centered on rows 9, b, d, f, columns 3-7
+            0x0904, 0x0B03, 0x0B05, 0x0D04, 0x0D06, 0x0F05, 0x0F07,
 
-        // Northeast island: 7 hexes centered on rows 3, 5, 7, 9, columns a-e
-        0x030B, 0x050A, 0x050C, 0x070B, 0x070D, 0x090C, 0x090E
-    };
+            // Northeast island: 7 hexes centered on rows 3, 5, 7, 9, columns a-e
+            0x030B, 0x050A, 0x050C, 0x070B, 0x070D, 0x090C, 0x090E
+        };
 
     /**
      * Fog Island: Dice numbers for hexes on the large southwest and northeast islands.
      * Shuffled, no required path; as long as 6 and 8 aren't adjacent, all is OK.
      */
-    private static final int FOG_ISL_DICENUM_MAIN_3PL[] =
-    {
-        3, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 11, 11, 12
-    };
+    private static final int[] FOG_ISL_DICENUM_MAIN_3PL =
+        {
+            3, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 11, 11, 12
+        };
 
     /**
      * Fog Island: Port edges and facings on the large southwest and northeast islands.
      * Each port has 2 elements: Edge coordinate (0xRRCC), Port Facing.
-     *<P>
+     * <p>
      * Port Facing is the direction from the port edge, to the land hex touching it
      * which will have 2 nodes where a port settlement/city can be built.
-     *<P>
+     * <p>
      * Each port's type will be {@link #FOG_ISL_PORT_TYPE_3PL}.
      */
-    private static final int FOG_ISL_PORT_EDGE_FACING_3PL[] =
-    {
-        // Southwest island: 4 ports; placing counterclockwise from northwest end
-        0x0903, FACING_E,   0x0C02, FACING_NE,
-        0x0F04, FACING_E,   0x1006, FACING_NE,
+    private static final int[] FOG_ISL_PORT_EDGE_FACING_3PL =
+        {
+            // Southwest island: 4 ports; placing counterclockwise from northwest end
+            0x0903, FACING_E, 0x0C02, FACING_NE,
+            0x0F04, FACING_E, 0x1006, FACING_NE,
 
-        // Northeast island: 4 ports; placing counterclockwise from southeast end
-        0x080E, FACING_SW,  0x060D, FACING_SW,
-        0x030C, FACING_W,   0x0409, FACING_SE
-    };
+            // Northeast island: 4 ports; placing counterclockwise from southeast end
+            0x080E, FACING_SW, 0x060D, FACING_SW,
+            0x030C, FACING_W, 0x0409, FACING_SE
+        };
 
     /**
      * Fog Island: Port types on the large southwest and northeast islands.
      * Since these won't be shuffled, they will line up with {@link #FOG_ISL_PORT_EDGE_FACING_3PL}.
      */
-    private static final int FOG_ISL_PORT_TYPE_3PL[] =
-    {
-        // Southwest island: 4 ports; placing counterclockwise from northwest end
-        MISC_PORT, WHEAT_PORT, SHEEP_PORT, MISC_PORT,
+    private static final int[] FOG_ISL_PORT_TYPE_3PL =
+        {
+            // Southwest island: 4 ports; placing counterclockwise from northwest end
+            MISC_PORT, WHEAT_PORT, SHEEP_PORT, MISC_PORT,
 
-        // Northeast island: 4 ports; placing counterclockwise from southeast end
-        ORE_PORT, WOOD_PORT, MISC_PORT, CLAY_PORT
-    };
+            // Northeast island: 4 ports; placing counterclockwise from southeast end
+            ORE_PORT, WOOD_PORT, MISC_PORT, CLAY_PORT
+        };
 
     /**
      * Fog Island: Land and water hex types for the fog island.
      * Shared by 3-player and 4-player layouts.
      */
-    private static final int FOG_ISL_LANDHEX_TYPE_FOG[] =
-    {
-        // 12 hexes total (includes 2 water)
-        WATER_HEX, WATER_HEX,
-        CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, WHEAT_HEX, WHEAT_HEX, WOOD_HEX,
-        GOLD_HEX, GOLD_HEX
-    };
+    private static final int[] FOG_ISL_LANDHEX_TYPE_FOG =
+        {
+            // 12 hexes total (includes 2 water)
+            WATER_HEX, WATER_HEX,
+            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, WHEAT_HEX, WHEAT_HEX, WOOD_HEX,
+            GOLD_HEX, GOLD_HEX
+        };
 
     /**
      * Fog Island: Land and water hex coordinates for the fog island.
      * Hex types for the fog island are {@link #FOG_ISL_LANDHEX_TYPE_FOG}.
      */
-    private static final int FOG_ISL_LANDHEX_COORD_FOG_3PL[] =
-    {
-        // Fog island: 12 hexes, from northwest to southeast;
-        // the main part of the fog island is a diagonal line
-        // of hexes from (1, 4) to (D, A).
-        0x0305, 0x0307, 0x0504,
-        0x0506, 0x0707, 0x0908, 0x0B09, 0x0D0A, 0x0F0B,
-        0x0D0C, 0x0D0E, 0x0F0D
-    };
+    private static final int[] FOG_ISL_LANDHEX_COORD_FOG_3PL =
+        {
+            // Fog island: 12 hexes, from northwest to southeast;
+            // the main part of the fog island is a diagonal line
+            // of hexes from (1, 4) to (D, A).
+            0x0305, 0x0307, 0x0504,
+            0x0506, 0x0707, 0x0908, 0x0B09, 0x0D0A, 0x0F0B,
+            0x0D0C, 0x0D0E, 0x0F0D
+        };
 
     /**
      * Fog Island: Dice numbers for hexes on the fog island.
      * Shuffled, no required path; as long as 6 and 8 aren't adjacent, all is OK.
      */
-    private static final int FOG_ISL_DICENUM_FOG_3PL[] =
-    {
-        // 10 numbered hexes (excludes 2 water)
-        3, 3, 4, 5, 6, 8, 9, 10, 11, 12
-    };
+    private static final int[] FOG_ISL_DICENUM_FOG_3PL =
+        {
+            // 10 numbered hexes (excludes 2 water)
+            3, 3, 4, 5, 6, 8, 9, 10, 11, 12
+        };
 
     //
     // 4-player
@@ -3522,92 +3543,92 @@ public class SOCBoardAtServer extends SOCBoardLarge
     /**
      * Fog Island: Land hex types for the large southwest and northeast islands.
      */
-    private static final int FOG_ISL_LANDHEX_TYPE_MAIN_4PL[] =
-    {
-        // 17 hexes total for southwest, northeast islands
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-    };
+    private static final int[] FOG_ISL_LANDHEX_TYPE_MAIN_4PL =
+        {
+            // 17 hexes total for southwest, northeast islands
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+        };
 
     /**
      * Fog Island: Land hex coordinates for the large southwest and northeast islands.
      */
-    private static final int FOG_ISL_LANDHEX_COORD_MAIN_4PL[] =
-    {
-        // Southwest island: 10 hexes centered on rows 7-f, columns 3-9
-        0x0703, 0x0904, 0x0B03, 0x0B05, 0x0D04, 0x0D06, 0x0D08, 0x0F05, 0x0F07,0x0F09,
+    private static final int[] FOG_ISL_LANDHEX_COORD_MAIN_4PL =
+        {
+            // Southwest island: 10 hexes centered on rows 7-f, columns 3-9
+            0x0703, 0x0904, 0x0B03, 0x0B05, 0x0D04, 0x0D06, 0x0D08, 0x0F05, 0x0F07, 0x0F09,
 
-        // Northeast island: 7 hexes centered on rows 3-9, columns b-f
-        0x030B, 0x030D, 0x050C, 0x050E, 0x070D, 0x070F, 0x090E
-    };
+            // Northeast island: 7 hexes centered on rows 3-9, columns b-f
+            0x030B, 0x030D, 0x050C, 0x050E, 0x070D, 0x070F, 0x090E
+        };
 
     /**
      * Fog Island: Dice numbers for hexes on the large southwest and northeast islands.
      * Shuffled, no required path; as long as 6 and 8 aren't adjacent, all is OK.
      */
-    private static final int FOG_ISL_DICENUM_MAIN_4PL[] =
-    {
-        2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 12
-    };
+    private static final int[] FOG_ISL_DICENUM_MAIN_4PL =
+        {
+            2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 12
+        };
 
     /**
      * Fog Island: Port edges and facings on the large southwest and northeast islands.
      * Each port has 2 elements: Edge coordinate (0xRRCC), Port Facing.
-     *<P>
+     * <p>
      * Port Facing is the direction from the port edge, to the land hex touching it
      * which will have 2 nodes where a port settlement/city can be built.
-     *<P>
+     * <p>
      * Each port's type will be {@link #FOG_ISL_PORT_TYPE_4PL}.
      */
-    private static final int FOG_ISL_PORT_EDGE_FACING_4PL[] =
-    {
-        // Southwest island: 5 ports; placing counterclockwise from northern end
-        0x0802, FACING_NE,  0x0C02, FACING_NE,  0x0F04, FACING_E,
-        0x1005, FACING_NW,  0x1008, FACING_NE,
+    private static final int[] FOG_ISL_PORT_EDGE_FACING_4PL =
+        {
+            // Southwest island: 5 ports; placing counterclockwise from northern end
+            0x0802, FACING_NE, 0x0C02, FACING_NE, 0x0F04, FACING_E,
+            0x1005, FACING_NW, 0x1008, FACING_NE,
 
-        // Northeast island: 4 ports; placing counterclockwise from southeast end
-        0x090F, FACING_W,   0x060F, FACING_SW,
-        0x030E, FACING_W,   0x020C, FACING_SE
-    };
+            // Northeast island: 4 ports; placing counterclockwise from southeast end
+            0x090F, FACING_W, 0x060F, FACING_SW,
+            0x030E, FACING_W, 0x020C, FACING_SE
+        };
 
     /**
      * Fog Island: Port types on the large southwest and northeast islands.
      * Since these won't be shuffled, they will line up with {@link #FOG_ISL_PORT_EDGE_FACING_4PL}.
      */
-    private static final int FOG_ISL_PORT_TYPE_4PL[] =
-    {
-        // Southwest island: 5 ports; placing counterclockwise from northern end
-        MISC_PORT, CLAY_PORT, MISC_PORT, WHEAT_PORT, SHEEP_PORT,
+    private static final int[] FOG_ISL_PORT_TYPE_4PL =
+        {
+            // Southwest island: 5 ports; placing counterclockwise from northern end
+            MISC_PORT, CLAY_PORT, MISC_PORT, WHEAT_PORT, SHEEP_PORT,
 
-        // Northeast island: 4 ports; placing counterclockwise from southeast end
-        WOOD_PORT, ORE_PORT, MISC_PORT, MISC_PORT
-    };
+            // Northeast island: 4 ports; placing counterclockwise from southeast end
+            WOOD_PORT, ORE_PORT, MISC_PORT, MISC_PORT
+        };
 
     /**
      * Fog Island: Land and water hex coordinates for the fog island.
      * Hex types for the fog island are {@link #FOG_ISL_LANDHEX_TYPE_FOG}.
      */
-    private static final int FOG_ISL_LANDHEX_COORD_FOG_4PL[] =
-    {
-        // Fog island: 12 hexes, from northwest to southeast;
-        // the main part of the fog island is a diagonal line
-        // of hexes from (3, 7) to (F, D).
-        0x0305, 0x0506, 0x0707, 0x0908,
-        0x0307, 0x0508, 0x0709, 0x090A, 0x0B0B, 0x0D0C, 0x0F0D,
-        0x0D0E
-    };
+    private static final int[] FOG_ISL_LANDHEX_COORD_FOG_4PL =
+        {
+            // Fog island: 12 hexes, from northwest to southeast;
+            // the main part of the fog island is a diagonal line
+            // of hexes from (3, 7) to (F, D).
+            0x0305, 0x0506, 0x0707, 0x0908,
+            0x0307, 0x0508, 0x0709, 0x090A, 0x0B0B, 0x0D0C, 0x0F0D,
+            0x0D0E
+        };
 
     /**
      * Fog Island: Dice numbers for hexes on the fog island.
      * Shuffled, no required path; as long as 6 and 8 aren't adjacent, all is OK.
      */
-    private static final int FOG_ISL_DICENUM_FOG_4PL[] =
-    {
-        // 10 numbered hexes (excludes 2 water)
-        3, 4, 5, 6, 8, 9, 10, 11, 11, 12
-    };
+    private static final int[] FOG_ISL_DICENUM_FOG_4PL =
+        {
+            // 10 numbered hexes (excludes 2 water)
+            3, 4, 5, 6, 8, 9, 10, 11, 11, 12
+        };
 
     //
     // 6-player
@@ -3616,129 +3637,129 @@ public class SOCBoardAtServer extends SOCBoardLarge
     /**
      * Fog Island: Land hex types for the northern main island.
      */
-    private static final int FOG_ISL_LANDHEX_TYPE_MAIN_6PL[] =
-    {
-        // 24 hexes on main island
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
-        ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX,
-        DESERT_HEX
-    };
+    private static final int[] FOG_ISL_LANDHEX_TYPE_MAIN_6PL =
+        {
+            // 24 hexes on main island
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
+            ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX,
+            DESERT_HEX
+        };
 
     /**
      * Fog Island: Land hex coordinates for the northern main island.
      */
-    private static final int FOG_ISL_LANDHEX_COORD_MAIN_6PL[] =
-    {
-        // 24 hexes centered on rows 3-9, columns 5-0x13 (northmost row is 8 hexes across)
-        0x0305, 0x0307, 0x0309, 0x030B, 0x030D, 0x030F, 0x0311, 0x0313,
-        0x0506, 0x0508, 0x050A, 0x050C, 0x050E, 0x0510, 0x0512,
-        0x0707, 0x0709, 0x070B, 0x070D, 0x070F, 0x0711,
-        0x090A, 0x090C, 0x090E
-    };
+    private static final int[] FOG_ISL_LANDHEX_COORD_MAIN_6PL =
+        {
+            // 24 hexes centered on rows 3-9, columns 5-0x13 (northmost row is 8 hexes across)
+            0x0305, 0x0307, 0x0309, 0x030B, 0x030D, 0x030F, 0x0311, 0x0313,
+            0x0506, 0x0508, 0x050A, 0x050C, 0x050E, 0x0510, 0x0512,
+            0x0707, 0x0709, 0x070B, 0x070D, 0x070F, 0x0711,
+            0x090A, 0x090C, 0x090E
+        };
 
     /**
      * Fog Island: Dice numbers for hexes on the northern main island.
      * Shuffled, no required path; as long as 6 and 8 aren't adjacent, all is OK.
      */
-    private static final int FOG_ISL_DICENUM_MAIN_6PL[] =
-    {
-        // 23 numbered hexes (excludes 1 desert)
-        2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 6, 8, 8, 8, 9, 9, 10, 10, 11, 11, 11, 12, 12
-    };
+    private static final int[] FOG_ISL_DICENUM_MAIN_6PL =
+        {
+            // 23 numbered hexes (excludes 1 desert)
+            2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 6, 8, 8, 8, 9, 9, 10, 10, 11, 11, 11, 12, 12
+        };
 
     /**
      * Fog Island: Port edges and facings on the northern main island.
      * Each port has 2 elements: Edge coordinate (0xRRCC), Port Facing.
-     *<P>
+     * <p>
      * Port Facing is the direction from the port edge, to the land hex touching it
      * which will have 2 nodes where a port settlement/city can be built.
-     *<P>
+     * <p>
      * Each port's type will be from {@link #FOG_ISL_PORT_TYPE_6PL}
      * which is shuffled.
      */
-    private static final int FOG_ISL_PORT_EDGE_FACING_6PL[] =
-    {
-        // 9 ports; placing counterclockwise from northwest end
-        0x0505, FACING_E,   0x0808, FACING_NE,  0x0A0C, FACING_NW,
-        0x080F, FACING_NW,  0x0513, FACING_W,   0x0212, FACING_SE,
-        0x020D, FACING_SW,  0x0208, FACING_SE,  0x0205, FACING_SW
-    };
+    private static final int[] FOG_ISL_PORT_EDGE_FACING_6PL =
+        {
+            // 9 ports; placing counterclockwise from northwest end
+            0x0505, FACING_E, 0x0808, FACING_NE, 0x0A0C, FACING_NW,
+            0x080F, FACING_NW, 0x0513, FACING_W, 0x0212, FACING_SE,
+            0x020D, FACING_SW, 0x0208, FACING_SE, 0x0205, FACING_SW
+        };
 
     /**
      * Fog Island: Port types on the northern main island.
      * These will be shuffled. Port locations are in {@link #FOG_ISL_PORT_EDGE_FACING_6PL}.
      */
-    private static final int FOG_ISL_PORT_TYPE_6PL[] =
-    {
-        // 9 ports; 4 generic (3:1), 1 each of 2:1.
-        MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
-    };
+    private static final int[] FOG_ISL_PORT_TYPE_6PL =
+        {
+            // 9 ports; 4 generic (3:1), 1 each of 2:1.
+            MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
+        };
 
     /**
      * Fog Island: Land and water hex types for the fog island.
      */
-    private static final int FOG_ISL_LANDHEX_TYPE_FOG_6PL[] =
-    {
-        // 25 hexes total (includes 12 water)
-        WATER_HEX, WATER_HEX, WATER_HEX, WATER_HEX, WATER_HEX, WATER_HEX,
-        WATER_HEX, WATER_HEX, WATER_HEX, WATER_HEX, WATER_HEX, WATER_HEX,
-        CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, GOLD_HEX
-    };
+    private static final int[] FOG_ISL_LANDHEX_TYPE_FOG_6PL =
+        {
+            // 25 hexes total (includes 12 water)
+            WATER_HEX, WATER_HEX, WATER_HEX, WATER_HEX, WATER_HEX, WATER_HEX,
+            WATER_HEX, WATER_HEX, WATER_HEX, WATER_HEX, WATER_HEX, WATER_HEX,
+            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, GOLD_HEX
+        };
 
     /**
      * Fog Island: Land and water hex coordinates for the fog island.
      * Hex types for the fog island are {@link #FOG_ISL_LANDHEX_TYPE_FOG_6PL}.
      */
-    private static final int FOG_ISL_LANDHEX_COORD_FOG_6PL[] =
-    {
-        // Fog island: 25 hexes, in a wide arc from southwest to southeast.
-        // The westernmost hex is centered at column 3, easternmost at 0x15.
-        // The 2 thick rows along the south are row D and F.
-        0x0703, 0x0715, 0x0904, 0x0914,
-        0x0B03, 0x0B05, 0x0B07, 0x0B11, 0x0B13, 0x0B15,
-        0x0D04, 0x0D06, 0x0D08, 0x0D0A, 0x0D0C, 0x0D0E, 0x0D10, 0x0D12, 0x0D14,
-        0x0F07, 0x0F09, 0x0F0B, 0x0F0D, 0x0F0F, 0x0F11
-    };
+    private static final int[] FOG_ISL_LANDHEX_COORD_FOG_6PL =
+        {
+            // Fog island: 25 hexes, in a wide arc from southwest to southeast.
+            // The westernmost hex is centered at column 3, easternmost at 0x15.
+            // The 2 thick rows along the south are row D and F.
+            0x0703, 0x0715, 0x0904, 0x0914,
+            0x0B03, 0x0B05, 0x0B07, 0x0B11, 0x0B13, 0x0B15,
+            0x0D04, 0x0D06, 0x0D08, 0x0D0A, 0x0D0C, 0x0D0E, 0x0D10, 0x0D12, 0x0D14,
+            0x0F07, 0x0F09, 0x0F0B, 0x0F0D, 0x0F0F, 0x0F11
+        };
 
     /**
      * Fog Island: Dice numbers for hexes on the fog island.
      * Shuffled, no required path; as long as 6 and 8 aren't adjacent, all is OK.
      */
-    private static final int FOG_ISL_DICENUM_FOG_6PL[] =
-    {
-        // 13 numbered hexes total (excludes 12 water)
-        2, 2, 3, 4, 5, 5, 6, 8, 9, 9, 10, 11, 12
-    };
+    private static final int[] FOG_ISL_DICENUM_FOG_6PL =
+        {
+            // 13 numbered hexes total (excludes 12 water)
+            2, 2, 3, 4, 5, 5, 6, 8, 9, 9, 10, 11, 12
+        };
 
     /**
      * Fog Island: Land hex types for the gold corners (6-player only).
      */
-    private static final int FOG_ISL_LANDHEX_TYPE_GC[] =
-    {
-        GOLD_HEX, GOLD_HEX
-    };
+    private static final int[] FOG_ISL_LANDHEX_TYPE_GC =
+        {
+            GOLD_HEX, GOLD_HEX
+        };
 
     /**
      * Fog Island: Land hex coordinates for the gold corners (6-player only).
      */
-    private static final int FOG_ISL_LANDHEX_COORD_GC[] =
-    {
-        0x0F05, 0x0F13
-    };
+    private static final int[] FOG_ISL_LANDHEX_COORD_GC =
+        {
+            0x0F05, 0x0F13
+        };
 
     /**
      * Fog Island: Dice numbers for hexes on the gold corners (6-player only).
      */
-    private static final int FOG_ISL_DICENUM_GC[] =
-    {
-        4, 10
-    };
+    private static final int[] FOG_ISL_DICENUM_GC =
+        {
+            4, 10
+        };
 
 
     ////////////////////////////////////////////
@@ -3752,19 +3773,23 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * 3 or 4 players max row 0x12, max col 0x10.
      * 6 players max row 0x12, max col 0x16.
      */
-    private static final int FOUR_ISL_BOARDSIZE[] = { 0x1210, 0x1216 };
+    private static final int[] FOUR_ISL_BOARDSIZE = {0x1210, 0x1216};
 
-    /** Four Islands: Visual Shift and Trim ("VS") */
-    private static final int FOUR_ISL_VIS_SHIFT[][] = {{-3,0, 3,6}, {-3,0, 3,6},  {-2,0, 2,2}};
+    /**
+     * Four Islands: Visual Shift and Trim ("VS")
+     */
+    private static final int[][] FOUR_ISL_VIS_SHIFT = {{-3, 0, 3, 6}, {-3, 0, 3, 6}, {-2, 0, 2, 2}};
 
     /**
      * Four Islands: Starting robber hex coordinate for 3, 4 players.
      * The 6-player layout starts with the robber off the board.
      */
-    private static final int FOUR_ISL_ROBBER_HEX[] = { 0x0F05, 0x050A };
+    private static final int[] FOUR_ISL_ROBBER_HEX = {0x0F05, 0x050A};
 
-    /** Four Islands: Pirate ship's starting hex coordinate for 3,4,6 players */
-    private static final int FOUR_ISL_PIRATE_HEX[] = { 0x0908, 0x090E, 0x0902 };
+    /**
+     * Four Islands: Pirate ship's starting hex coordinate for 3,4,6 players
+     */
+    private static final int[] FOUR_ISL_PIRATE_HEX = {0x0908, 0x090E, 0x0902};
 
     //
     // 3-player
@@ -3773,84 +3798,84 @@ public class SOCBoardAtServer extends SOCBoardLarge
     /**
      * Four Islands: Land hex types for all 4 islands.
      */
-    private static final int FOUR_ISL_LANDHEX_TYPE_3PL[] =
-    {
-        // 20 hexes total: 4 each of 5 resources
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
-        ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-    };
+    private static final int[] FOUR_ISL_LANDHEX_TYPE_3PL =
+        {
+            // 20 hexes total: 4 each of 5 resources
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
+            ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+        };
 
     /**
      * Four Islands: Land hex coordinates for all 4 islands.
      * The 4 island land areas are given by {@link #FOUR_ISL_LANDHEX_LANDAREA_RANGES_3PL}.
      */
-    private static final int FOUR_ISL_LANDHEX_COORD_3PL[] =
-    {
-        // Northwest island: 4 hexes centered on rows 5,7, columns 3-6
-        0x0504, 0x0506, 0x0703, 0x0705,
+    private static final int[] FOUR_ISL_LANDHEX_COORD_3PL =
+        {
+            // Northwest island: 4 hexes centered on rows 5,7, columns 3-6
+            0x0504, 0x0506, 0x0703, 0x0705,
 
-        // Southwest island: 6 hexes centered on rows b,d,f, columns 3-7
-        0x0B03, 0x0B05, 0x0B07, 0x0D04, 0x0D06, 0x0F05,
+            // Southwest island: 6 hexes centered on rows b,d,f, columns 3-7
+            0x0B03, 0x0B05, 0x0B07, 0x0D04, 0x0D06, 0x0F05,
 
-        // Northeast island: 6 hexes centered on rows 3,5,7, columns 9-c
-        0x0309, 0x030B, 0x050A, 0x050C, 0x0709, 0x070B,
+            // Northeast island: 6 hexes centered on rows 3,5,7, columns 9-c
+            0x0309, 0x030B, 0x050A, 0x050C, 0x0709, 0x070B,
 
-        // Southeast island: 4 hexes centered on rows b,d, columns a-d
-        0x0B0B, 0x0B0D, 0x0D0A, 0x0D0C
-    };
+            // Southeast island: 4 hexes centered on rows b,d, columns a-d
+            0x0B0B, 0x0B0D, 0x0D0A, 0x0D0C
+        };
 
     /**
      * Four Islands: Dice numbers for all 4 islands.
      * Shuffled, no required path; as long as 6 and 8 aren't adjacent, all is OK.
      */
-    private static final int FOUR_ISL_DICENUM_3PL[] =
-    {
-        // 20 hexes total, no deserts
-        2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12
-    };
+    private static final int[] FOUR_ISL_DICENUM_3PL =
+        {
+            // 20 hexes total, no deserts
+            2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12
+        };
 
     /**
      * Four Islands: Island hex counts and land area numbers within {@link #FOUR_ISL_LANDHEX_COORD_3PL}.
      * Allows them to be defined, shuffled, and placed together.
      */
-    private static final int FOUR_ISL_LANDHEX_LANDAREA_RANGES_3PL[] =
-    {
+    private static final int[] FOUR_ISL_LANDHEX_LANDAREA_RANGES_3PL =
+        {
             1, 4,  // landarea 1 is the northwest island with 4 hexes
             2, 6,  // landarea 2 SW
             3, 6,  // landarea 3 NE
             4, 4   // landarea 4 SE
-    };
+        };
 
     /**
      * Four Islands: Port edges and facings on all 4 islands.
      * Each port has 2 elements: Edge coordinate (0xRRCC), Port Facing.
-     *<P>
+     * <p>
      * Port Facing is the direction from the port edge, to the land hex touching it
      * which will have 2 nodes where a port settlement/city can be built.
-     *<P>
+     * <p>
      * Each port's type will be from {@link #FOUR_ISL_PORT_TYPE_3PL}.
      */
-    private static final int FOUR_ISL_PORT_EDGE_FACING_3PL[] =
-    {
-        0x0602, FACING_SE,  0x0606, FACING_NW, // Northwest island
-        0x0A03, FACING_SW,  0x0C02, FACING_NE,  0x0E06, FACING_NW,  // SW island
-        0x040C, FACING_SW,  0x080A, FACING_NE, // NE island
-        0x0C09, FACING_SE,  0x0C0D, FACING_NW  // SE island
-    };
+    private static final int[] FOUR_ISL_PORT_EDGE_FACING_3PL =
+        {
+            0x0602, FACING_SE, 0x0606, FACING_NW, // Northwest island
+            0x0A03, FACING_SW, 0x0C02, FACING_NE, 0x0E06, FACING_NW,  // SW island
+            0x040C, FACING_SW, 0x080A, FACING_NE, // NE island
+            0x0C09, FACING_SE, 0x0C0D, FACING_NW  // SE island
+        };
 
     /**
      * Four Islands: Port types on all 4 islands.  OK to shuffle.
      */
-    private static final int FOUR_ISL_PORT_TYPE_3PL[] =
-    {
-        MISC_PORT, ORE_PORT,
-        WOOD_PORT, MISC_PORT, SHEEP_PORT,
-        MISC_PORT, CLAY_PORT,
-        MISC_PORT, WHEAT_PORT
-    };
+    private static final int[] FOUR_ISL_PORT_TYPE_3PL =
+        {
+            MISC_PORT, ORE_PORT,
+            WOOD_PORT, MISC_PORT, SHEEP_PORT,
+            MISC_PORT, CLAY_PORT,
+            MISC_PORT, WHEAT_PORT
+        };
 
     //
     // 4-player
@@ -3859,80 +3884,80 @@ public class SOCBoardAtServer extends SOCBoardLarge
     /**
      * Four Islands: Land hex types for all 4 islands.
      */
-    private static final int FOUR_ISL_LANDHEX_TYPE_4PL[] =
-    {
-        // 23 hexes total: 4 or 5 each of 5 resources
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
-        ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-    };
+    private static final int[] FOUR_ISL_LANDHEX_TYPE_4PL =
+        {
+            // 23 hexes total: 4 or 5 each of 5 resources
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
+            ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+        };
 
     /**
      * Four Islands: Land hex coordinates for all 4 islands.
      */
-    private static final int FOUR_ISL_LANDHEX_COORD_4PL[] =
-    {
-        // Northwest island: 4 hexes centered on rows 3,5,7, columns 3-5
-        0x0305, 0x0504, 0x0703, 0x0705,
+    private static final int[] FOUR_ISL_LANDHEX_COORD_4PL =
+        {
+            // Northwest island: 4 hexes centered on rows 3,5,7, columns 3-5
+            0x0305, 0x0504, 0x0703, 0x0705,
 
-        // Southwest island: 7 hexes centered on rows b,d,f, columns 3-8
-        0x0B03, 0x0B05, 0x0D04, 0x0D06, 0x0D08, 0x0F05, 0x0F07,
+            // Southwest island: 7 hexes centered on rows b,d,f, columns 3-8
+            0x0B03, 0x0B05, 0x0D04, 0x0D06, 0x0D08, 0x0F05, 0x0F07,
 
-        // Northeast island: 8 hexes centered on rows 3,5,7, columns 8-c, outlier at (9,8)
-        0x0309, 0x030B, 0x0508, 0x050A, 0x050C, 0x0709, 0x070B, 0x0908,
+            // Northeast island: 8 hexes centered on rows 3,5,7, columns 8-c, outlier at (9,8)
+            0x0309, 0x030B, 0x0508, 0x050A, 0x050C, 0x0709, 0x070B, 0x0908,
 
-        // Southeast island: 4 hexes centered on rows b,d,f, columns b-d
-        0x0B0B, 0x0B0D, 0x0D0C, 0x0F0B
-    };
+            // Southeast island: 4 hexes centered on rows b,d,f, columns b-d
+            0x0B0B, 0x0B0D, 0x0D0C, 0x0F0B
+        };
 
     /**
      * Four Islands: Dice numbers for hexes on all 4 islands.
      * Shuffled, no required path; as long as 6 and 8 aren't adjacent, all is OK.
      */
-    private static final int FOUR_ISL_DICENUM_4PL[] =
-    {
-        // 23 hexes total, no deserts
-        2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11, 12
-    };
+    private static final int[] FOUR_ISL_DICENUM_4PL =
+        {
+            // 23 hexes total, no deserts
+            2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11, 12
+        };
 
     /**
      * Four Islands: Island hex counts and land area numbers within {@link #FOUR_ISL_LANDHEX_COORD_4PL}.
      * Allows them to be defined, shuffled, and placed together.
      */
-    private static final int FOUR_ISL_LANDHEX_LANDAREA_RANGES_4PL[] =
-    {
+    private static final int[] FOUR_ISL_LANDHEX_LANDAREA_RANGES_4PL =
+        {
             1, 4,  // landarea 1 is the northwest island with 4 hexes
             2, 7,  // landarea 2 SW
             3, 8,  // landarea 3 NE
             4, 4   // landarea 4 SE
-    };
+        };
 
     /**
      * Four Islands: Port edges and facings on all 4 islands.
      * Each port has 2 elements: Edge coordinate (0xRRCC), Port Facing.
-     *<P>
+     * <p>
      * Each port's type will be from {@link #FOUR_ISL_PORT_TYPE_4PL}.
      */
-    private static final int FOUR_ISL_PORT_EDGE_FACING_4PL[] =
-    {
-        0x0503, FACING_E,   0x0803, FACING_NW,
-        0x0C02, FACING_NE,  0x0C06, FACING_SW,  0x0F04, FACING_E,
-        0x0807, FACING_SE,  0x060C, FACING_NW,
-        0x0A0C, FACING_SE,  0x0C0D, FACING_NW
-    };
+    private static final int[] FOUR_ISL_PORT_EDGE_FACING_4PL =
+        {
+            0x0503, FACING_E, 0x0803, FACING_NW,
+            0x0C02, FACING_NE, 0x0C06, FACING_SW, 0x0F04, FACING_E,
+            0x0807, FACING_SE, 0x060C, FACING_NW,
+            0x0A0C, FACING_SE, 0x0C0D, FACING_NW
+        };
 
     /**
      * Four Islands: Port types on all 4 islands.  OK to shuffle.
      */
-    private static final int FOUR_ISL_PORT_TYPE_4PL[] =
-    {
-        WHEAT_PORT, MISC_PORT,
-        CLAY_PORT, MISC_PORT, SHEEP_PORT,
-        MISC_PORT, WOOD_PORT,
-        ORE_PORT, MISC_PORT
-    };
+    private static final int[] FOUR_ISL_PORT_TYPE_4PL =
+        {
+            WHEAT_PORT, MISC_PORT,
+            CLAY_PORT, MISC_PORT, SHEEP_PORT,
+            MISC_PORT, WOOD_PORT,
+            ORE_PORT, MISC_PORT
+        };
 
     //
     // 6-player
@@ -3941,95 +3966,95 @@ public class SOCBoardAtServer extends SOCBoardLarge
     /**
      * Six Islands: Land hex types for all 6 islands.
      */
-    private static final int FOUR_ISL_LANDHEX_TYPE_6PL[] =
-    {
-        // 32 hexes total: 6 or 7 each of 5 resources
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
-        ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-    };
+    private static final int[] FOUR_ISL_LANDHEX_TYPE_6PL =
+        {
+            // 32 hexes total: 6 or 7 each of 5 resources
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
+            ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+        };
 
     /**
      * Six Islands: Land hex coordinates for all 6 islands.
      */
-    private static final int FOUR_ISL_LANDHEX_COORD_6PL[] =
-    {
-        // All 3 Northern islands are centered on rows 3,5,7.
+    private static final int[] FOUR_ISL_LANDHEX_COORD_6PL =
+        {
+            // All 3 Northern islands are centered on rows 3,5,7.
 
-        // Northwest island: 6 hexes centered on columns 3-7
-        0x0305, 0x0307, 0x0504, 0x0506, 0x0703, 0x0705,
+            // Northwest island: 6 hexes centered on columns 3-7
+            0x0305, 0x0307, 0x0504, 0x0506, 0x0703, 0x0705,
 
-        // Center North island: 5 hexes  on columns 9-c
-        0x030B, 0x050A, 0x050C, 0x0709, 0x070B,
+            // Center North island: 5 hexes  on columns 9-c
+            0x030B, 0x050A, 0x050C, 0x0709, 0x070B,
 
-        // Northeast island: 5 hexes  on columns f-0x12
-        0x030F, 0x0311, 0x0510, 0x0512, 0x0711,
+            // Northeast island: 5 hexes  on columns f-0x12
+            0x030F, 0x0311, 0x0510, 0x0512, 0x0711,
 
-        // All 3 Southern islands are centered on rows b,d,f.
+            // All 3 Southern islands are centered on rows b,d,f.
 
-        // Southwest island: 5 hexes centered on columns 4-7
-        0x0B05, 0x0D04, 0x0D06, 0x0F05, 0x0F07,
+            // Southwest island: 5 hexes centered on columns 4-7
+            0x0B05, 0x0D04, 0x0D06, 0x0F05, 0x0F07,
 
-        // Center South island: 5 hexes on columns a-d
-        0x0B0B, 0x0B0D, 0x0D0A, 0x0D0C, 0x0F0B,
+            // Center South island: 5 hexes on columns a-d
+            0x0B0B, 0x0B0D, 0x0D0A, 0x0D0C, 0x0F0B,
 
-        // Southeast island: 6 hexes on columns f-0x13
-        0x0B11, 0x0B13, 0x0D10, 0x0D12, 0x0F0F, 0x0F11
-    };
+            // Southeast island: 6 hexes on columns f-0x13
+            0x0B11, 0x0B13, 0x0D10, 0x0D12, 0x0F0F, 0x0F11
+        };
 
     /**
      * Six Islands: Dice numbers for hexes on all 6 islands.
      * Shuffled, no required path; as long as 6 and 8 aren't adjacent, all is OK.
      */
-    private static final int FOUR_ISL_DICENUM_6PL[] =
-    {
-        // 32 hexes total, no deserts
-        2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6,
-        8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 11, 11, 12, 12
-    };
+    private static final int[] FOUR_ISL_DICENUM_6PL =
+        {
+            // 32 hexes total, no deserts
+            2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6,
+            8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 11, 11, 12, 12
+        };
 
     /**
      * Six Islands: Island hex counts and land area numbers within {@link #FOUR_ISL_LANDHEX_COORD_6PL}.
      * Allows them to be defined, shuffled, and placed together.
      */
-    private static final int FOUR_ISL_LANDHEX_LANDAREA_RANGES_6PL[] =
-    {
+    private static final int[] FOUR_ISL_LANDHEX_LANDAREA_RANGES_6PL =
+        {
             1, 6,  // landarea 1 is the northwest island with 6 hexes
             2, 5,  // landarea 2 is center north
             3, 5,  // landarea 3 NE
             4, 5,  // SW
             5, 5,  // S
             6, 6   // SE
-    };
+        };
 
     /**
      * Six Islands: Port edges and facings on all 6 islands.
      * Each port has 2 elements: Edge coordinate (0xRRCC), Port Facing.
-     *<P>
+     * <p>
      * Each port's type will be from {@link #FOUR_ISL_PORT_TYPE_6PL}.
      */
-    private static final int FOUR_ISL_PORT_EDGE_FACING_6PL[] =
-    {
-        // 1 row here per island, same order as hexes
-        0x0206, FACING_SE,  0x0606, FACING_NW,  0x0804, FACING_NE,
-        0x020B, FACING_SW,
-        0x0211, FACING_SW,  0x060F, FACING_NE,
-        0x0D03, FACING_E,   0x0E07, FACING_SW,
-        0x0E09, FACING_NE,
-        0x0D13, FACING_W,   0x100E, FACING_NE
-    };
+    private static final int[] FOUR_ISL_PORT_EDGE_FACING_6PL =
+        {
+            // 1 row here per island, same order as hexes
+            0x0206, FACING_SE, 0x0606, FACING_NW, 0x0804, FACING_NE,
+            0x020B, FACING_SW,
+            0x0211, FACING_SW, 0x060F, FACING_NE,
+            0x0D03, FACING_E, 0x0E07, FACING_SW,
+            0x0E09, FACING_NE,
+            0x0D13, FACING_W, 0x100E, FACING_NE
+        };
 
     /**
      * Six Islands: Port types on all 6 islands.  OK to shuffle.
      */
-    private static final int FOUR_ISL_PORT_TYPE_6PL[] =
-    {
-        // 5 3:1, 6 2:1 ports (extra is sheep)
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT,
-        MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT
-    };
+    private static final int[] FOUR_ISL_PORT_TYPE_6PL =
+        {
+            // 5 3:1, 6 2:1 ports (extra is sheep)
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT,
+            MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT
+        };
 
 
     ////////////////////////////////////////////
@@ -4042,203 +4067,205 @@ public class SOCBoardAtServer extends SOCBoardLarge
     //   at a coordinate within PIR_ISL_INIT_PIECES.
     //
 
-    /** Pirate Islands: Visual Shift and Trim ("VS"), same for all player counts */
-    private static final int PIR_ISL_VIS_SHIFT[] = {3, -1};
+    /**
+     * Pirate Islands: Visual Shift and Trim ("VS"), same for all player counts
+     */
+    private static final int[] PIR_ISL_VIS_SHIFT = {3, -1};
 
     /**
      * Pirate Islands: Board size:
      * 4 players max row 0x10, max col 0x12.
      * 6 players max row 0x10, max col 0x16.
      */
-    private static final int PIR_ISL_BOARDSIZE[] = { 0x1012, 0x1016 };
+    private static final int[] PIR_ISL_BOARDSIZE = {0x1012, 0x1016};
 
     /**
      * Pirate Islands: Starting pirate water hex coordinate for 4, 6 players.
      */
-    private static final int PIR_ISL_PIRATE_HEX[] = { 0x0D0A, 0x0D0A };
+    private static final int[] PIR_ISL_PIRATE_HEX = {0x0D0A, 0x0D0A};
 
     /**
      * Pirate Islands: Land hex types for the large eastern starting island.
      * Each row from west to east.  These won't be shuffled.
      */
-    private static final int PIR_ISL_LANDHEX_TYPE_MAIN[][] =
-    {{
-        // 4-player: 17 hexes; 7 rows, each row 2 or 3 hexes across
-        WHEAT_HEX, CLAY_HEX, ORE_HEX, WOOD_HEX,
-        WOOD_HEX, SHEEP_HEX, WOOD_HEX,
-        WHEAT_HEX, CLAY_HEX, SHEEP_HEX,
-        SHEEP_HEX, WOOD_HEX, SHEEP_HEX,
-        ORE_HEX, WOOD_HEX, WHEAT_HEX, CLAY_HEX
-    }, {
-        // 6-player: 24 hexes; 7 rows, each row 3 or 4 hexes across
-        SHEEP_HEX, WHEAT_HEX, CLAY_HEX,
-        ORE_HEX, CLAY_HEX, WOOD_HEX,
-        WOOD_HEX, WOOD_HEX, SHEEP_HEX, WOOD_HEX,
-        WHEAT_HEX, WHEAT_HEX, ORE_HEX, SHEEP_HEX,
-        SHEEP_HEX, SHEEP_HEX, CLAY_HEX, SHEEP_HEX,
-        WHEAT_HEX, ORE_HEX, CLAY_HEX,
-        WOOD_HEX, WHEAT_HEX, WOOD_HEX
-    }};
+    private static final int[][] PIR_ISL_LANDHEX_TYPE_MAIN =
+        {{
+            // 4-player: 17 hexes; 7 rows, each row 2 or 3 hexes across
+            WHEAT_HEX, CLAY_HEX, ORE_HEX, WOOD_HEX,
+            WOOD_HEX, SHEEP_HEX, WOOD_HEX,
+            WHEAT_HEX, CLAY_HEX, SHEEP_HEX,
+            SHEEP_HEX, WOOD_HEX, SHEEP_HEX,
+            ORE_HEX, WOOD_HEX, WHEAT_HEX, CLAY_HEX
+        }, {
+            // 6-player: 24 hexes; 7 rows, each row 3 or 4 hexes across
+            SHEEP_HEX, WHEAT_HEX, CLAY_HEX,
+            ORE_HEX, CLAY_HEX, WOOD_HEX,
+            WOOD_HEX, WOOD_HEX, SHEEP_HEX, WOOD_HEX,
+            WHEAT_HEX, WHEAT_HEX, ORE_HEX, SHEEP_HEX,
+            SHEEP_HEX, SHEEP_HEX, CLAY_HEX, SHEEP_HEX,
+            WHEAT_HEX, ORE_HEX, CLAY_HEX,
+            WOOD_HEX, WHEAT_HEX, WOOD_HEX
+        }};
 
     /**
      * Pirate Islands: Land hex coordinates for the large eastern starting island.
      * Indexes line up with {@link #PIR_ISL_LANDHEX_TYPE_MAIN}, because they won't be shuffled.
      */
-    private static final int PIR_ISL_LANDHEX_COORD_MAIN[][] =
-    {{
-        // 4-player: 17 hexes; 7 rows, centered on columns b - 0x10
-        0x010C, 0x010E, 0x030D, 0x030F,
-        0x050C, 0x050E, 0x0510,
-        0x070B, 0x070D, 0x070F,
-        0x090C, 0x090E, 0x0910,
-        0x0B0D, 0x0B0F, 0x0D0C, 0x0D0E
-    }, {
-        // 6-player: 24 hexes; 7 rows, centered on columns d - 0x14
-        0x010E, 0x0110, 0x0112,
-        0x030F, 0x0311, 0x0313,
-        0x050E, 0x0510, 0x0512, 0x0514,
-        0x070D, 0x070F, 0x0711, 0x0713,
-        0x090E, 0x0910, 0x0912, 0x0914,
-        0x0B0F, 0x0B11, 0x0B13,
-        0x0D0E, 0x0D10, 0x0D12
-    }};
+    private static final int[][] PIR_ISL_LANDHEX_COORD_MAIN =
+        {{
+            // 4-player: 17 hexes; 7 rows, centered on columns b - 0x10
+            0x010C, 0x010E, 0x030D, 0x030F,
+            0x050C, 0x050E, 0x0510,
+            0x070B, 0x070D, 0x070F,
+            0x090C, 0x090E, 0x0910,
+            0x0B0D, 0x0B0F, 0x0D0C, 0x0D0E
+        }, {
+            // 6-player: 24 hexes; 7 rows, centered on columns d - 0x14
+            0x010E, 0x0110, 0x0112,
+            0x030F, 0x0311, 0x0313,
+            0x050E, 0x0510, 0x0512, 0x0514,
+            0x070D, 0x070F, 0x0711, 0x0713,
+            0x090E, 0x0910, 0x0912, 0x0914,
+            0x0B0F, 0x0B11, 0x0B13,
+            0x0D0E, 0x0D10, 0x0D12
+        }};
 
     /**
      * Pirate Islands: Dice numbers for hexes on the large eastern starting island.
      * Will be placed along {@link #PIR_ISL_LANDHEX_COORD_MAIN}.
      */
-    private static final int PIR_ISL_DICENUM_MAIN[][] =
-    {{
-        4, 5, 9, 10, 3, 8, 5, 6, 9, 12, 11, 8, 9, 5, 2, 10, 4
-    }, {
-        5, 4, 9, 3, 10, 11, 12, 6, 4, 10,
-        6, 4, 5, 8,  // <-- center row
-        2, 10, 3, 5, 11, 9, 8, 9, 5, 4
-    }};
+    private static final int[][] PIR_ISL_DICENUM_MAIN =
+        {{
+            4, 5, 9, 10, 3, 8, 5, 6, 9, 12, 11, 8, 9, 5, 2, 10, 4
+        }, {
+            5, 4, 9, 3, 10, 11, 12, 6, 4, 10,
+            6, 4, 5, 8,  // <-- center row
+            2, 10, 3, 5, 11, 9, 8, 9, 5, 4
+        }};
 
     /**
      * Pirate Islands: Port edges and facings on the large eastern starting island.
      * Clockwise, starting at northwest corner of island.
      * Each port has 2 elements: Edge coordinate (0xRRCC), Port Facing.
-     *<P>
+     * <p>
      * Port Facing is the direction from the port edge, to the land hex touching it
      * which will have 2 nodes where a port settlement/city can be built.
-     *<P>
+     * <p>
      * Each port's type will be {@link #PIR_ISL_PORT_TYPE}[i].
      */
-    private static final int PIR_ISL_PORT_EDGE_FACING[][] =
-    {{
-        // 4 players
-        0x000B, FACING_SE,  0x000D, FACING_SE,  0x010F, FACING_W,
-        0x0310, FACING_W,   0x0710, FACING_W,   0x0A10, FACING_NW,
-        0x0C0F, FACING_NW,  0x0E0C, FACING_NW
-    }, {
-        // 6 players
-        0x000F, FACING_SE,  0x0011, FACING_SE,  0x0113, FACING_W,
-        0x0314, FACING_W,   0x0714, FACING_W,   0x0B14, FACING_W,
-        0x0D13, FACING_W,   0x0E11, FACING_NE,  0x0E0F, FACING_NE
-    }};
+    private static final int[][] PIR_ISL_PORT_EDGE_FACING =
+        {{
+            // 4 players
+            0x000B, FACING_SE, 0x000D, FACING_SE, 0x010F, FACING_W,
+            0x0310, FACING_W, 0x0710, FACING_W, 0x0A10, FACING_NW,
+            0x0C0F, FACING_NW, 0x0E0C, FACING_NW
+        }, {
+            // 6 players
+            0x000F, FACING_SE, 0x0011, FACING_SE, 0x0113, FACING_W,
+            0x0314, FACING_W, 0x0714, FACING_W, 0x0B14, FACING_W,
+            0x0D13, FACING_W, 0x0E11, FACING_NE, 0x0E0F, FACING_NE
+        }};
 
     /**
      * Pirate Islands: Port types on the large eastern starting island.  Will be shuffled.
      */
-    private static final int PIR_ISL_PORT_TYPE[][] =
-    {{
-        // 4 players:
-        MISC_PORT, MISC_PORT, MISC_PORT,
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
-    }, {
-        // 6 players:
-        MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
-    }};
+    private static final int[][] PIR_ISL_PORT_TYPE =
+        {{
+            // 4 players:
+            MISC_PORT, MISC_PORT, MISC_PORT,
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
+        }, {
+            // 6 players:
+            MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
+        }};
 
     /**
      * Pirate Islands: Hex land types on the several pirate islands.
      * Only the first several have dice numbers.
      */
-    private static final int PIR_ISL_LANDHEX_TYPE_PIRI[][] =
-    {{
-        // 4 players, see PIR_ISL_LANDHEX_COORD_PIRI for layout details
-        ORE_HEX, GOLD_HEX, WHEAT_HEX, ORE_HEX, GOLD_HEX, WHEAT_HEX, ORE_HEX,
-        CLAY_HEX, CLAY_HEX, DESERT_HEX, DESERT_HEX, DESERT_HEX, SHEEP_HEX
-    }, {
-        // 6 players
-        GOLD_HEX, ORE_HEX, GOLD_HEX, ORE_HEX, GOLD_HEX, ORE_HEX, GOLD_HEX, ORE_HEX,
-        DESERT_HEX, DESERT_HEX, DESERT_HEX, DESERT_HEX, DESERT_HEX
-    }};
+    private static final int[][] PIR_ISL_LANDHEX_TYPE_PIRI =
+        {{
+            // 4 players, see PIR_ISL_LANDHEX_COORD_PIRI for layout details
+            ORE_HEX, GOLD_HEX, WHEAT_HEX, ORE_HEX, GOLD_HEX, WHEAT_HEX, ORE_HEX,
+            CLAY_HEX, CLAY_HEX, DESERT_HEX, DESERT_HEX, DESERT_HEX, SHEEP_HEX
+        }, {
+            // 6 players
+            GOLD_HEX, ORE_HEX, GOLD_HEX, ORE_HEX, GOLD_HEX, ORE_HEX, GOLD_HEX, ORE_HEX,
+            DESERT_HEX, DESERT_HEX, DESERT_HEX, DESERT_HEX, DESERT_HEX
+        }};
 
     /**
      * Pirate Islands: Land hex coordinates for the several pirate islands.
      * Hex types for the pirate island are {@link #PIR_ISL_LANDHEX_TYPE_PIRI}.
      * Only the first several have dice numbers ({@link #PIR_ISL_DICENUM_PIRI}).
      */
-    private static final int PIR_ISL_LANDHEX_COORD_PIRI[][] =
-    {{
-        // 4 players: With dice numbers: Northwest and southwest islands, center-west island
-        0x0106, 0x0104, 0x0502, 0x0D06, 0x0D04, 0x0902, 0x0705,
-        //            Without numbers: Northwest, southwest, north-center, south-center
-        0x0303, 0x0B03, 0x0309, 0x0508, 0x0908, 0x0B09
-    }, {
-        // 6 players: With dice numbers: Scattered from north to south
-        0x0104, 0x0108, 0x0502, 0x0506, 0x0902, 0x0906, 0x0D04, 0x0D08,
-        //            Without numbers: Scattered north to south, center or west
-        0x030B, 0x0504, 0x0709, 0x0904, 0x0B0B
-    }};
+    private static final int[][] PIR_ISL_LANDHEX_COORD_PIRI =
+        {{
+            // 4 players: With dice numbers: Northwest and southwest islands, center-west island
+            0x0106, 0x0104, 0x0502, 0x0D06, 0x0D04, 0x0902, 0x0705,
+            //            Without numbers: Northwest, southwest, north-center, south-center
+            0x0303, 0x0B03, 0x0309, 0x0508, 0x0908, 0x0B09
+        }, {
+            // 6 players: With dice numbers: Scattered from north to south
+            0x0104, 0x0108, 0x0502, 0x0506, 0x0902, 0x0906, 0x0D04, 0x0D08,
+            //            Without numbers: Scattered north to south, center or west
+            0x030B, 0x0504, 0x0709, 0x0904, 0x0B0B
+        }};
 
     /**
      * Pirate Islands: Dice numbers for the first few land hexes along {@link #PIR_ISL_LANDHEX_COORD_PIRI}
      */
-    private static final int PIR_ISL_DICENUM_PIRI[][] =
-    {{
-        // 4 players
-        6, 11, 4, 6, 3, 10, 8
-    }, {
-        // 6 players
-        3, 6, 11, 8, 11, 6, 3, 8
-    }};
+    private static final int[][] PIR_ISL_DICENUM_PIRI =
+        {{
+            // 4 players
+            6, 11, 4, 6, 3, 10, 8
+        }, {
+            // 6 players
+            3, 6, 11, 8, 11, 6, 3, 8
+        }};
 
     /**
      * Pirate Islands: The hex-coordinate path for the Pirate Fleet; SOCBoardLarge additional part <tt>"PP"</tt>.
      * First element is the pirate starting position.  {@link #piratePathIndex} is already 0.
      */
-    private static final int PIR_ISL_PPATH[][] =
-    {{
-        // 4 players
-        0x0D0A, 0x0D08, 0x0B07, 0x0906, 0x0707, 0x0506, 0x0307,
-        0x0108, 0x010A, 0x030B, 0x050A, 0x0709, 0x090A, 0x0B0B
-    }, {
-        // 6 players
-        0x0D0A, 0x0B09, 0x0908, 0x0707, 0x0508, 0x0309, 0x010A,
-        0x010C, 0x030D, 0x050C, 0x070B, 0x090C, 0x0B0D, 0x0D0C
-    }};
+    private static final int[][] PIR_ISL_PPATH =
+        {{
+            // 4 players
+            0x0D0A, 0x0D08, 0x0B07, 0x0906, 0x0707, 0x0506, 0x0307,
+            0x0108, 0x010A, 0x030B, 0x050A, 0x0709, 0x090A, 0x0B0B
+        }, {
+            // 6 players
+            0x0D0A, 0x0B09, 0x0908, 0x0707, 0x0508, 0x0309, 0x010A,
+            0x010C, 0x030D, 0x050C, 0x070B, 0x090C, 0x0B0D, 0x0D0C
+        }};
 
     /**
      * Pirate Islands: Sea edges legal/valid for each player to build ships directly to their Fortress.
      * Each player has 1 array, in same player order as {@link #PIR_ISL_INIT_PIECES}:
      * Given out to non-vacant players, not strictly matching player number.
-     *<P>
+     * <p>
      * Note {@link SOCPlayer#doesTradeRouteContinuePastNode(SOCBoard, boolean, int, int, int)}
      * assumes there is just 1 legal sea edge, not 2, next to each player's free initial settlement,
      * so it won't need to check if the ship route would branch in 2 directions there.
-     *<P>
+     * <p>
      * See {@link #getLegalSeaEdges(SOCGame)} for how this is rearranged to be sent to
      * active player clients as part of a {@code SOCPotentialSettlements} message,
      * and the format of each player's array.
      */
-    private static final int PIR_ISL_SEA_EDGES[][][] =
-    {{
-        // 4 players
-        { 0xC07, -0xC0B, 0xD07, -0xD0B, 0xE04, -0xE0A },
-        { 0x207, -0x20B, 0x107, -0x10B, 0x004, -0x00A },
-        { 0x803, -0x80A, 0x903, 0x905, 0xA03, 0xA04 },
-        { 0x603, -0x60A, 0x503, 0x505, 0x403, 0x404 }
-    }, {
-        // 6 players
-        { 0xC04, -0xC0D }, { 0x204, -0x20D },
-        { 0x803, -0x80C }, { 0x603, -0x60C },
-        { 0x003, -0x00C }, { 0xE03, -0xE0C }
-    }};
+    private static final int[][][] PIR_ISL_SEA_EDGES =
+        {{
+            // 4 players
+            {0xC07, -0xC0B, 0xD07, -0xD0B, 0xE04, -0xE0A},
+            {0x207, -0x20B, 0x107, -0x10B, 0x004, -0x00A},
+            {0x803, -0x80A, 0x903, 0x905, 0xA03, 0xA04},
+            {0x603, -0x60A, 0x503, 0x505, 0x403, 0x404}
+        }, {
+            // 6 players
+            {0xC04, -0xC0D}, {0x204, -0x20D},
+            {0x803, -0x80C}, {0x603, -0x60C},
+            {0x003, -0x00C}, {0xE03, -0xE0C}
+        }};
 
     /**
      * Pirate Islands: Initial piece coordinates for each player,
@@ -4249,22 +4276,22 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * and the node on the pirate island where they are allowed to build
      * a settlement on the way to the fortress (layout part "LS").
      */
-    private static final int PIR_ISL_INIT_PIECES[][] =
-    {{
-        // 4 players
-        0x0C0C, 0x0C0B, 0x0E04, 0x0E07,
-        0x020C, 0x020B, 0x0004, 0x0007,
-        0x080B, 0x080A, 0x0A03, 0x0805,
-        0x060B, 0x060A, 0x0403, 0x0605
-    }, {
-        // 6 players
-        0x0C0E, 0x0C0D, 0x0C04, 0x0C08,
-        0x020E, 0x020D, 0x0204, 0x0208,
-        0x080D, 0x080C, 0x0803, 0x0807,
-        0x060D, 0x060C, 0x0603, 0x0607,
-        0x000D, 0x000C, 0x0003, 0x0009,
-        0x0E0D, 0x0E0C, 0x0E03, 0x0E09
-    }};
+    private static final int[][] PIR_ISL_INIT_PIECES =
+        {{
+            // 4 players
+            0x0C0C, 0x0C0B, 0x0E04, 0x0E07,
+            0x020C, 0x020B, 0x0004, 0x0007,
+            0x080B, 0x080A, 0x0A03, 0x0805,
+            0x060B, 0x060A, 0x0403, 0x0605
+        }, {
+            // 6 players
+            0x0C0E, 0x0C0D, 0x0C04, 0x0C08,
+            0x020E, 0x020D, 0x0204, 0x0208,
+            0x080D, 0x080C, 0x0803, 0x0807,
+            0x060D, 0x060C, 0x0603, 0x0607,
+            0x000D, 0x000C, 0x0003, 0x0009,
+            0x0E0D, 0x0E0C, 0x0E03, 0x0E09
+        }};
 
 
     ////////////////////////////////////////////
@@ -4277,87 +4304,90 @@ public class SOCBoardAtServer extends SOCBoardLarge
     /**
      * Through The Desert: Board size for 3, 4, 6 players: Each is 0xrrcc (max row, max col).
      */
-    private static final int TTDESERT_BOARDSIZE[] = { 0x120F, 0x1212, 0x1218 };
+    private static final int[] TTDESERT_BOARDSIZE = {0x120F, 0x1212, 0x1218};
 
-    /** Through The Desert: Visual Shift and Trim ("VS") */
-    private static final int TTDESERT_VIS_SHIFT[][] = {{-2,0, 1,0}, {-2,0, 1,2}, {-2,0, 1,2}};
+    /**
+     * Through The Desert: Visual Shift and Trim ("VS")
+     */
+    private static final int[][] TTDESERT_VIS_SHIFT = {{-2, 0, 1, 0}, {-2, 0, 1, 2}, {-2, 0, 1, 2}};
 
     /**
      * Through The Desert: Starting pirate water hex coordinate for 3, 4, 6 players.
      */
-    private static final int TTDESERT_PIRATE_HEX[] = { 0x090E, 0x0910, 0x0F11 };
+    private static final int[] TTDESERT_PIRATE_HEX = {0x090E, 0x0910, 0x0F11};
 
     /**
      * Through The Desert: Land hex types for the main island (land areas 1, 2). These will be shuffled.
      * The main island also includes 3 or 5 deserts that aren't shuffled, so they aren't in this array.
-     *<P>
+     * <p>
      * The main island has just 1 <tt>GOLD_HEX</tt>, which will always be placed in landarea 2,
      * the small strip of land past the desert.  This is handled by
      * {@link #makeNewBoard_placeHexes_arrangeGolds(int[], int[], String)}.
      *
      * @see #TTDESERT_LANDHEX_COORD_MAIN
      */
-    private static final int TTDESERT_LANDHEX_TYPE_MAIN[][] =
-    {{
-        // 3-player: 17 (14+3) hexes
-        CLAY_HEX, CLAY_HEX, CLAY_HEX,
-        ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX,
-        GOLD_HEX
-    }, {
-        // 4-player: 20 (17+3) hexes
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
-        ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX,
-        GOLD_HEX
-    }, {
-        // 6-player: 30 (21+9) hexes
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
-        ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX,
-        GOLD_HEX
-    }};
+    private static final int[][] TTDESERT_LANDHEX_TYPE_MAIN =
+        {{
+            // 3-player: 17 (14+3) hexes
+            CLAY_HEX, CLAY_HEX, CLAY_HEX,
+            ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX,
+            GOLD_HEX
+        }, {
+            // 4-player: 20 (17+3) hexes
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
+            ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX,
+            GOLD_HEX
+        }, {
+            // 6-player: 30 (21+9) hexes
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
+            ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX,
+            GOLD_HEX
+        }};
 
     /**
      * Through The Desert: Land Area 1, 2: Land hex coordinates for the main island,
      * excluding its desert strip but including the small fertile area on the desert's far side.
      * Landarea 1 is most of the island.
      * Landarea 2 is the small fertile strip.
+     *
      * @see #TTDESERT_LANDHEX_COORD_DESERT
      * @see #TTDESERT_LANDHEX_COORD_SMALL
      */
-    private static final int TTDESERT_LANDHEX_COORD_MAIN[][] =
-    {{
-        // 3-player: 14 hexes; 6 rows, hex centers on columns 3-9
-        0x0508, 0x0707, 0x0709, 0x0906, 0x0908,
-        0x0B03, 0x0B05, 0x0B07, 0x0B09,
-        0x0D04, 0x0D06, 0x0D08, 0x0F05, 0x0F07,
-        // Past the desert: 3 more:
-        0x0305, 0x0504, 0x0703
-    }, {
-        // 4-player: 17 hexes; 7 rows, columns 3-B
-        0x0309, 0x0508, 0x050A,
-        0x0707, 0x0709, 0x070B,
-        0x0906, 0x0908, 0x090A,
-        0x0B03, 0x0B05, 0x0B07, 0x0B09,
-        0x0D04, 0x0D06, 0x0D08, 0x0F07,
-        // Past the desert: 3 more:
-        0x0305, 0x0504, 0x0703
-    }, {
-        // 6-player: 21 hexes; 5 rows, columns 3-0x10
-        0x0709, 0x070B, 0x070D, 0x070F,
-        0x0904, 0x0906, 0x0908, 0x090A, 0x090C, 0x090E, 0x0910,
-        0x0B03, 0x0B05, 0x0B07, 0x0B09, 0x0B0B, 0x0B0D, 0x0B0F,
-        0x0D04, 0x0D06, 0x0F05,
-        // Past the desert: 9 more:
-        0x0506, 0x0504, 0x0305, 0x0307, 0x0309, /* 1-hex gap, */ 0x030D, 0x030F, 0x0311, 0x0313
-    }};
+    private static final int[][] TTDESERT_LANDHEX_COORD_MAIN =
+        {{
+            // 3-player: 14 hexes; 6 rows, hex centers on columns 3-9
+            0x0508, 0x0707, 0x0709, 0x0906, 0x0908,
+            0x0B03, 0x0B05, 0x0B07, 0x0B09,
+            0x0D04, 0x0D06, 0x0D08, 0x0F05, 0x0F07,
+            // Past the desert: 3 more:
+            0x0305, 0x0504, 0x0703
+        }, {
+            // 4-player: 17 hexes; 7 rows, columns 3-B
+            0x0309, 0x0508, 0x050A,
+            0x0707, 0x0709, 0x070B,
+            0x0906, 0x0908, 0x090A,
+            0x0B03, 0x0B05, 0x0B07, 0x0B09,
+            0x0D04, 0x0D06, 0x0D08, 0x0F07,
+            // Past the desert: 3 more:
+            0x0305, 0x0504, 0x0703
+        }, {
+            // 6-player: 21 hexes; 5 rows, columns 3-0x10
+            0x0709, 0x070B, 0x070D, 0x070F,
+            0x0904, 0x0906, 0x0908, 0x090A, 0x090C, 0x090E, 0x0910,
+            0x0B03, 0x0B05, 0x0B07, 0x0B09, 0x0B0B, 0x0B0D, 0x0B0F,
+            0x0D04, 0x0D06, 0x0F05,
+            // Past the desert: 9 more:
+            0x0506, 0x0504, 0x0305, 0x0307, 0x0309, /* 1-hex gap, */ 0x030D, 0x030F, 0x0311, 0x0313
+        }};
 
     /**
      * Through The Desert: Land Areas 1, 2:
@@ -4368,118 +4398,120 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * Landarea 1 is most of the island.
      * Landarea 2 is the small fertile strip on the other side of the desert.
      */
-    private static final int TTDESERT_LANDHEX_RANGES_MAIN[][] =
-    {{
-        // 3 players
-        1, TTDESERT_LANDHEX_COORD_MAIN[0].length - 3,
-        2, 3
-    }, {
-        // 4 players
-        1, TTDESERT_LANDHEX_COORD_MAIN[1].length - 3,
-        2, 3
-    }, {
-        // 6 players
-        1, TTDESERT_LANDHEX_COORD_MAIN[2].length - 9,
-        2, 9
-    }};
+    private static final int[][] TTDESERT_LANDHEX_RANGES_MAIN =
+        {{
+            // 3 players
+            1, TTDESERT_LANDHEX_COORD_MAIN[0].length - 3,
+            2, 3
+        }, {
+            // 4 players
+            1, TTDESERT_LANDHEX_COORD_MAIN[1].length - 3,
+            2, 3
+        }, {
+            // 6 players
+            1, TTDESERT_LANDHEX_COORD_MAIN[2].length - 9,
+            2, 9
+        }};
 
     /**
      * Through The Desert: Land hex coordinates for the strip of desert hexes on the main island.
+     *
      * @see #TTDESERT_LANDHEX_COORD_MAIN
      */
-    private static final int TTDESERT_LANDHEX_COORD_DESERT[][] =
-    {
-        { 0x0307, 0x0506, 0x0705 },  // 3-player
-        { 0x0307, 0x0506, 0x0705 },  // 4-player same as 3-player
-        { 0x0508, 0x050A, 0x050C, 0x050E, 0x0510 }  // 6-player
-    };
+    private static final int[][] TTDESERT_LANDHEX_COORD_DESERT =
+        {
+            {0x0307, 0x0506, 0x0705},  // 3-player
+            {0x0307, 0x0506, 0x0705},  // 4-player same as 3-player
+            {0x0508, 0x050A, 0x050C, 0x050E, 0x0510}  // 6-player
+        };
 
     /**
      * Through The Desert: Dice numbers for hexes on the main island,
      * including the strip of land past the desert.  Will be shuffled.
      * Will be placed along {@link #TTDESERT_LANDHEX_COORD_MAIN}.
+     *
      * @see #TTDESERT_DICENUM_SMALL
      */
-    private static final int TTDESERT_DICENUM_MAIN[][] =
-    {{
-        // 3 players
-        2, 3, 3, 4, 4, 4, 5, 6, 6, 6, 8, 8, 9, 9, 10, 10, 11
-    }, {
-        // 4 players
-        3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 8, 9, 9, 10, 10, 10, 11, 11, 11, 12
-    }, {
-        // 6 players
-        2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5,
-        6, 6, 6, 6, 8, 8, 9, 9, 9, 10, 10, 10,
-        11, 11, 11, 12, 12, 12
-    }};
+    private static final int[][] TTDESERT_DICENUM_MAIN =
+        {{
+            // 3 players
+            2, 3, 3, 4, 4, 4, 5, 6, 6, 6, 8, 8, 9, 9, 10, 10, 11
+        }, {
+            // 4 players
+            3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 8, 9, 9, 10, 10, 10, 11, 11, 11, 12
+        }, {
+            // 6 players
+            2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5,
+            6, 6, 6, 6, 8, 8, 9, 9, 9, 10, 10, 10,
+            11, 11, 11, 12, 12, 12
+        }};
 
     /**
      * Through The Desert: Port edges and facings on the main island.
      * Clockwise, starting at northwest corner of island.
      * Each port has 2 elements: Edge coordinate (0xRRCC), Port Facing.
-     *<P>
+     * <p>
      * Port Facing is the direction from the port edge, to the land hex touching it
      * which will have 2 nodes where a port settlement/city can be built.
-     *<P>
+     * <p>
      * Each port's type will be {@link #TTDESERT_PORT_TYPE}[i][j].
      */
-    private static final int TTDESERT_PORT_EDGE_FACING[][] =
-    {{
-        // 3 players
-        0x0408, FACING_SW,  0x0A09, FACING_SW,  0x0C09, FACING_NW,
-        0x0F08, FACING_W,   0x1005, FACING_NW,  0x0F04, FACING_E,
-        0x0C02, FACING_NE,  0x0A04, FACING_SE
-    }, {
-        // 4 players
-        0x030A, FACING_W,   0x060B, FACING_SW,  0x080B, FACING_NW,
-        0x0C09, FACING_NW,  0x0F08, FACING_W,   0x1006, FACING_NE,
-        0x0E04, FACING_NW,  0x0D03, FACING_E,   0x0905, FACING_E
-    }, {
-        // 6 players
-        0x0D03, FACING_E,   0x0A02, FACING_SE,  0x0803, FACING_SE,
-        0x0807, FACING_SE,  0x0710, FACING_W,   0x0A10, FACING_NW,
-        0x0C0E, FACING_NE,  0x0C0A, FACING_NE,  0x0C07, FACING_NW,
-        0x0E06, FACING_NW,  0x1004, FACING_NE
-    }};
+    private static final int[][] TTDESERT_PORT_EDGE_FACING =
+        {{
+            // 3 players
+            0x0408, FACING_SW, 0x0A09, FACING_SW, 0x0C09, FACING_NW,
+            0x0F08, FACING_W, 0x1005, FACING_NW, 0x0F04, FACING_E,
+            0x0C02, FACING_NE, 0x0A04, FACING_SE
+        }, {
+            // 4 players
+            0x030A, FACING_W, 0x060B, FACING_SW, 0x080B, FACING_NW,
+            0x0C09, FACING_NW, 0x0F08, FACING_W, 0x1006, FACING_NE,
+            0x0E04, FACING_NW, 0x0D03, FACING_E, 0x0905, FACING_E
+        }, {
+            // 6 players
+            0x0D03, FACING_E, 0x0A02, FACING_SE, 0x0803, FACING_SE,
+            0x0807, FACING_SE, 0x0710, FACING_W, 0x0A10, FACING_NW,
+            0x0C0E, FACING_NE, 0x0C0A, FACING_NE, 0x0C07, FACING_NW,
+            0x0E06, FACING_NW, 0x1004, FACING_NE
+        }};
 
     /**
      * Through The Desert: Port types on the main island.  Will be shuffled.
      * The small islands have no ports.
      * Each port's edge and facing will be {@link #TTDESERT_PORT_EDGE_FACING}[i][j].
      */
-    private static final int TTDESERT_PORT_TYPE[][] =
-    {{
-        // 3 players:
-        MISC_PORT, MISC_PORT, MISC_PORT,
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
-    }, {
-        // 4 players:
-        MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
-    }, {
-        // 6 players:
-        MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
-    }};
+    private static final int[][] TTDESERT_PORT_TYPE =
+        {{
+            // 3 players:
+            MISC_PORT, MISC_PORT, MISC_PORT,
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
+        }, {
+            // 4 players:
+            MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
+        }, {
+            // 6 players:
+            MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
+        }};
 
     /**
      * Through The Desert: Hex land types on the several small islands.
      * Coordinates for these islands are {@link #TTDESERT_LANDHEX_COORD_SMALL}.
      */
-    private static final int TTDESERT_LANDHEX_TYPE_SMALL[][] =
-    {{
-        // 3 players
-        ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, GOLD_HEX
-    }, {
-        // 4 players
-        CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, GOLD_HEX
-    }, {
-        // 6 players
-        ORE_HEX, SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, GOLD_HEX, GOLD_HEX
-    }};
+    private static final int[][] TTDESERT_LANDHEX_TYPE_SMALL =
+        {{
+            // 3 players
+            ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, GOLD_HEX
+        }, {
+            // 4 players
+            CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, GOLD_HEX
+        }, {
+            // 6 players
+            ORE_HEX, SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, GOLD_HEX, GOLD_HEX
+        }};
 
     /**
      * Through The Desert: Land Areas 4 to n:
@@ -4489,24 +4521,24 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * Dice numbers are {@link #TTDESERT_DICENUM_SMALL}.
      * Total land area count for this layout varies, will be 3 + (<tt>TTDESERT_LANDHEX_RANGES_SMALL[i].length</tt> / 2).
      */
-    private static final int TTDESERT_LANDHEX_RANGES_SMALL[][] =
-    {{
-        // 3 players
-        4, 2,  // landarea 3 is an island with 2 hexes (see TTDESERT_LANDHEX_COORD_SMALL)
-        5, 1,  // landarea 4
-        6, 2   // landarea 5
-    }, {
-        // 4 players
-        4, 3,
-        5, 2,
-        6, 2
-    }, {
-        // 6 players
-        4, 2,
-        5, 1,
-        6, 4,
-        7, 1
-    }};
+    private static final int[][] TTDESERT_LANDHEX_RANGES_SMALL =
+        {{
+            // 3 players
+            4, 2,  // landarea 3 is an island with 2 hexes (see TTDESERT_LANDHEX_COORD_SMALL)
+            5, 1,  // landarea 4
+            6, 2   // landarea 5
+        }, {
+            // 4 players
+            4, 3,
+            5, 2,
+            6, 2
+        }, {
+            // 6 players
+            4, 2,
+            5, 1,
+            6, 4,
+            7, 1
+        }};
 
     /**
      * Through The Desert: Land Areas 3 to n:
@@ -4515,40 +4547,41 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * Dice numbers are {@link #TTDESERT_DICENUM_SMALL}.
      * Land area numbers are split up via {@link #TTDESERT_LANDHEX_RANGES_SMALL}.
      */
-    private static final int TTDESERT_LANDHEX_COORD_SMALL[][] =
-    {{
-        // 3 players
-        0x030B, 0x050C,  // landarea 3 is an island with 2 hexes (see TTDESERT_LANDHEX_RANGES_SMALL)
-        0x090C,          // landarea 4
-        0x0D0C, 0x0F0B   // landarea 5
-    }, {
-        // 4 players
-        0x030D, 0x050E, 0x070F,
-        0x0B0D, 0x0B0F,
-        0x0F0B, 0x0F0D
-    }, {
-        // 6 players
-        0x0F09, 0x0F0B,
-        0x0F0F,
-        0x0F13, 0x0D12, 0x0D14, 0x0B15,
-        0x0715
-    }};
+    private static final int[][] TTDESERT_LANDHEX_COORD_SMALL =
+        {{
+            // 3 players
+            0x030B, 0x050C,  // landarea 3 is an island with 2 hexes (see TTDESERT_LANDHEX_RANGES_SMALL)
+            0x090C,          // landarea 4
+            0x0D0C, 0x0F0B   // landarea 5
+        }, {
+            // 4 players
+            0x030D, 0x050E, 0x070F,
+            0x0B0D, 0x0B0F,
+            0x0F0B, 0x0F0D
+        }, {
+            // 6 players
+            0x0F09, 0x0F0B,
+            0x0F0F,
+            0x0F13, 0x0D12, 0x0D14, 0x0B15,
+            0x0715
+        }};
 
     /**
      * Through The Desert: Dice numbers for all the small islands ({@link #TTDESERT_LANDHEX_COORD_SMALL}).
+     *
      * @see #TTDESERT_DICENUM_MAIN
      */
-    private static final int TTDESERT_DICENUM_SMALL[][] =
-    {{
-        // 3 players
-        5, 5, 8, 9, 11
-    }, {
-        // 4 players
-        2, 3, 4, 5, 6, 9, 12
-    }, {
-        // 6 players
-        2, 3, 4, 8, 8, 9, 10, 11
-    }};
+    private static final int[][] TTDESERT_DICENUM_SMALL =
+        {{
+            // 3 players
+            5, 5, 8, 9, 11
+        }, {
+            // 4 players
+            2, 3, 4, 5, 6, 9, 12
+        }, {
+            // 6 players
+            2, 3, 4, 8, 8, 9, 10, 11
+        }};
 
 
     ////////////////////////////////////////////
@@ -4566,172 +4599,174 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * 4 players max row 0x12, max col 0x14.
      * 6 players max row 0x12, max col 0x18.
      */
-    private static final int FOR_TRI_BOARDSIZE[] = { 0x1214, 0x1218 };
+    private static final int[] FOR_TRI_BOARDSIZE = {0x1214, 0x1218};
 
-    /** Forgotten Tribe: Visual Shift and Trim ("VS") */
-    private static final int FOR_TRI_VIS_SHIFT[][] = {{-2,0, 2,2}, {-2,0, 1,2}};
+    /**
+     * Forgotten Tribe: Visual Shift and Trim ("VS")
+     */
+    private static final int[][] FOR_TRI_VIS_SHIFT = {{-2, 0, 2, 2}, {-2, 0, 1, 2}};
 
     /**
      * Forgotten Tribe: Starting pirate water hex coordinate for 4, 6 players.
      */
-    private static final int FOR_TRI_PIRATE_HEX[] = { 0x0309, 0x030F };
+    private static final int[] FOR_TRI_PIRATE_HEX = {0x0309, 0x030F};
 
     /**
      * Forgotten Tribe: Land hex types for the main island. Shuffled.
      */
-    private static final int FOR_TRI_LANDHEX_TYPE_MAIN[][] =
-    {{
-        // 4-player: 18 hexes
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX,
-        WHEAT_HEX, WHEAT_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-    }, {
-        // 6-player: 29 hexes
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
-        ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-    }};
+    private static final int[][] FOR_TRI_LANDHEX_TYPE_MAIN =
+        {{
+            // 4-player: 18 hexes
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX,
+            WHEAT_HEX, WHEAT_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+        }, {
+            // 6-player: 29 hexes
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
+            ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+        }};
 
     /**
      * Forgotten Tribe: Land hex coordinates for the main island.
      * 3 eastern-coast hexes included here which shouldn't be given too-favorable
      * dice numbers are {@link #FOR_TRI_LANDHEX_COORD_MAIN_FAR_COASTAL}.
      */
-    private static final int FOR_TRI_LANDHEX_COORD_MAIN[][] =
-    {{
-        // 4-player: 18 hexes; 3 rows, centered on columns 3 - e
-        0x0703, 0x0705, 0x0707, 0x0709, 0x070B, 0x070D,
-        0x0904, 0x0906, 0x0908, 0x090A, 0x090C, 0x090E,
-        0x0B03, 0x0B05, 0x0B07, 0x0B09, 0x0B0B, 0x0B0D
-    }, {
-        // 6-player: 29 hexes; 3 rows, centered on columns 3 - 0x15
-        0x0703, 0x0705, 0x0707, 0x0709, 0x070B, 0x070D, 0x070F, 0x0711, 0x0713, 0x0715,
-        0x0904, 0x0906, 0x0908, 0x090A, 0x090C, 0x090E, 0x0910, 0x0912, 0x0914,
-        0x0B03, 0x0B05, 0x0B07, 0x0B09, 0x0B0B, 0x0B0D, 0x0B0F, 0x0B11, 0x0B13, 0x0B15
-    }};
+    private static final int[][] FOR_TRI_LANDHEX_COORD_MAIN =
+        {{
+            // 4-player: 18 hexes; 3 rows, centered on columns 3 - e
+            0x0703, 0x0705, 0x0707, 0x0709, 0x070B, 0x070D,
+            0x0904, 0x0906, 0x0908, 0x090A, 0x090C, 0x090E,
+            0x0B03, 0x0B05, 0x0B07, 0x0B09, 0x0B0B, 0x0B0D
+        }, {
+            // 6-player: 29 hexes; 3 rows, centered on columns 3 - 0x15
+            0x0703, 0x0705, 0x0707, 0x0709, 0x070B, 0x070D, 0x070F, 0x0711, 0x0713, 0x0715,
+            0x0904, 0x0906, 0x0908, 0x090A, 0x090C, 0x090E, 0x0910, 0x0912, 0x0914,
+            0x0B03, 0x0B05, 0x0B07, 0x0B09, 0x0B0B, 0x0B0D, 0x0B0F, 0x0B11, 0x0B13, 0x0B15
+        }};
 
     /**
      * Forgotten Tribe: 3 Land hex coordinates on main island (within
      * {@link #FOR_TRI_LANDHEX_COORD_MAIN}) on the short eastern side.
      * These shouldn't be given the favorable "red" dice numbers 6 or 8, nor 5 or 9.
      */
-    private static final int FOR_TRI_LANDHEX_COORD_MAIN_FAR_COASTAL[][] =
-    {{
-        // 4-player:
-        0x070D, 0x090E, 0x0B0D
-    }, {
-        // 6-player:
-        0x0715, 0x0914, 0x0B15
-    }};
+    private static final int[][] FOR_TRI_LANDHEX_COORD_MAIN_FAR_COASTAL =
+        {{
+            // 4-player:
+            0x070D, 0x090E, 0x0B0D
+        }, {
+            // 6-player:
+            0x0715, 0x0914, 0x0B15
+        }};
 
     /**
      * Forgotten Tribe: Dice numbers for hexes on the main island. Shuffled.
      */
-    private static final int FOR_TRI_DICENUM_MAIN[][] =
-    {{
-        2, 3, 3, 4, 4, 5, 5, 6, 6,
-        8, 8, 9, 9, 10, 10, 11, 11, 12
-    }, {
-        2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6,
-        8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11, 12
-    }};
+    private static final int[][] FOR_TRI_DICENUM_MAIN =
+        {{
+            2, 3, 3, 4, 4, 5, 5, 6, 6,
+            8, 8, 9, 9, 10, 10, 11, 11, 12
+        }, {
+            2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6,
+            8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11, 12
+        }};
 
     /**
      * Forgotten Tribe: Port edges and facings. There are no ports on the main island, only the surrounding islands.
-     *<P>
+     * <p>
      * Clockwise, starting at northwest corner of board.
      * Each port has 2 elements: Edge coordinate (0xRRCC), Port Facing.
-     *<P>
+     * <p>
      * Port Facing is the direction from the port edge, to the land hex touching it
      * which will have 2 nodes where a port settlement/city can be built.
-     *<P>
+     * <p>
      * Port types ({@link #FOR_TRI_PORT_TYPE}) are shuffled.
      */
-    private static final int FOR_TRI_PORT_EDGE_FACING[][] =
-    {{
-        // 4 players
-        0x0204, FACING_SE,  0x020A, FACING_SE,  0x0611, FACING_SW,
-        0x0C11, FACING_NW,  0x100B, FACING_NW,  0x1004, FACING_NE
-    }, {
-        // 6 players
-        0x0207, FACING_SW,  0x020A, FACING_SE,  0x0210, FACING_SE, 0x0213, FACING_SW,
-        0x1010, FACING_NE,  0x100D, FACING_NW,  0x1006, FACING_NE, 0x1004, FACING_NE
-    }};
+    private static final int[][] FOR_TRI_PORT_EDGE_FACING =
+        {{
+            // 4 players
+            0x0204, FACING_SE, 0x020A, FACING_SE, 0x0611, FACING_SW,
+            0x0C11, FACING_NW, 0x100B, FACING_NW, 0x1004, FACING_NE
+        }, {
+            // 6 players
+            0x0207, FACING_SW, 0x020A, FACING_SE, 0x0210, FACING_SE, 0x0213, FACING_SW,
+            0x1010, FACING_NE, 0x100D, FACING_NW, 0x1006, FACING_NE, 0x1004, FACING_NE
+        }};
 
     /**
      * Forgotten Tribe: Port types; will be shuffled.
      */
-    private static final int FOR_TRI_PORT_TYPE[][] =
-    {{
-        // 4 players: 6 ports:
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT, MISC_PORT
-    }, {
-        // 6 players: 8 ports:
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT,
-        MISC_PORT, MISC_PORT, MISC_PORT
-    }};
+    private static final int[][] FOR_TRI_PORT_TYPE =
+        {{
+            // 4 players: 6 ports:
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT, MISC_PORT
+        }, {
+            // 6 players: 8 ports:
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT,
+            MISC_PORT, MISC_PORT, MISC_PORT
+        }};
 
     /**
      * Forgotten Tribe: Hex land types on the several small islands.
      * None have dice numbers.  Not shuffled; coordinates for these
      * land hexes are {@link #FOR_TRI_LANDHEX_COORD_ISL}.
      */
-    private static final int FOR_TRI_LANDHEX_TYPE_ISL[][] =
-    {{
-        // 4 players: Clockwise from northwest corner of board:
-        GOLD_HEX, ORE_HEX,    DESERT_HEX, ORE_HEX, WHEAT_HEX,    SHEEP_HEX,
-        WOOD_HEX,    GOLD_HEX, DESERT_HEX, CLAY_HEX,    CLAY_HEX, DESERT_HEX
-    }, {
-        // 6 players: Northern islands west to east, then southern west to east:
-        GOLD_HEX, WHEAT_HEX,    CLAY_HEX, ORE_HEX,    DESERT_HEX, DESERT_HEX,
-        SHEEP_HEX, SHEEP_HEX,   GOLD_HEX, GOLD_HEX,   DESERT_HEX, DESERT_HEX
-    }};
+    private static final int[][] FOR_TRI_LANDHEX_TYPE_ISL =
+        {{
+            // 4 players: Clockwise from northwest corner of board:
+            GOLD_HEX, ORE_HEX, DESERT_HEX, ORE_HEX, WHEAT_HEX, SHEEP_HEX,
+            WOOD_HEX, GOLD_HEX, DESERT_HEX, CLAY_HEX, CLAY_HEX, DESERT_HEX
+        }, {
+            // 6 players: Northern islands west to east, then southern west to east:
+            GOLD_HEX, WHEAT_HEX, CLAY_HEX, ORE_HEX, DESERT_HEX, DESERT_HEX,
+            SHEEP_HEX, SHEEP_HEX, GOLD_HEX, GOLD_HEX, DESERT_HEX, DESERT_HEX
+        }};
 
     /**
      * Forgotten Tribe: Land hex coordinates for the several small islands.
      * Hex types for these small islands are {@link #FOR_TRI_LANDHEX_TYPE_ISL}.
      * None have dice numbers.
      */
-    private static final int FOR_TRI_LANDHEX_COORD_ISL[][] =
-    {{
-        // 4 players: Clockwise from northwest corner of board:
-        0x0305, 0x0307,    0x030B, 0x030D, 0x030F,    0x0711,
-        0x0B11,    0x0F0F, 0x0F0D, 0x0F0B,    0x0F07, 0x0F05
-    }, {
-        // 6 players: Northern islands west to east, then southern west to east:
-        0x0305, 0x0307,    0x030B, 0x030D,    0x0311, 0x0313,
-        0x0F05, 0x0F07,    0x0F0B, 0x0F0D,    0x0F11, 0x0F13
-    }};
+    private static final int[][] FOR_TRI_LANDHEX_COORD_ISL =
+        {{
+            // 4 players: Clockwise from northwest corner of board:
+            0x0305, 0x0307, 0x030B, 0x030D, 0x030F, 0x0711,
+            0x0B11, 0x0F0F, 0x0F0D, 0x0F0B, 0x0F07, 0x0F05
+        }, {
+            // 6 players: Northern islands west to east, then southern west to east:
+            0x0305, 0x0307, 0x030B, 0x030D, 0x0311, 0x0313,
+            0x0F05, 0x0F07, 0x0F0B, 0x0F0D, 0x0F11, 0x0F13
+        }};
 
     /**
      * Forgotten Tribe: Special Victory Point Edges: edge coordinates where ship placement gives an SVP.
      * SOCBoardLarge additional part {@code "VE"}.
      */
-    private static final int FOR_TRI_SVP_EDGES[][] =
-    {{
-        // 4 players
-        0x0205, 0x020B, 0x020F, 0x0712,
-        0x1005, 0x100A, 0x100F, 0x0B12
-    }, {
-        // 6 players
-        0x0204, 0x0206, 0x020B, 0x020C, 0x0211,
-        0x1007, 0x100B, 0x100C, 0x1011, 0x1013
-    }};
+    private static final int[][] FOR_TRI_SVP_EDGES =
+        {{
+            // 4 players
+            0x0205, 0x020B, 0x020F, 0x0712,
+            0x1005, 0x100A, 0x100F, 0x0B12
+        }, {
+            // 6 players
+            0x0204, 0x0206, 0x020B, 0x020C, 0x0211,
+            0x1007, 0x100B, 0x100C, 0x1011, 0x1013
+        }};
 
     /**
      * Forgotten Tribe: Dev Card Edges: Edge coordinates where ship placement gives a free development card.
      * SOCBoardLarge additional part {@code "CE"}.
      */
-    private static final int FOR_TRI_DEV_CARD_EDGES[][] =
-    {{
-        // 4 players
-        0x0304, 0x0310, 0x0F04, 0x0F10
-    }, {
-        // 6 players
-        0x0304, 0x020D, 0x0314, 0x0F04, 0x100A, 0x0F14
-    }};
+    private static final int[][] FOR_TRI_DEV_CARD_EDGES =
+        {{
+            // 4 players
+            0x0304, 0x0310, 0x0F04, 0x0F10
+        }, {
+            // 6 players
+            0x0304, 0x020D, 0x0314, 0x0F04, 0x100A, 0x0F14
+        }};
 
 
     ////////////////////////////////////////////
@@ -4749,124 +4784,126 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * 4 players max row 0x12, max col 0x12.
      * 6 players max row 0x12, max col 0x16.
      */
-    private static final int CLVI_BOARDSIZE[] = { 0x1212, 0x1216 };
+    private static final int[] CLVI_BOARDSIZE = {0x1212, 0x1216};
 
-    /** Cloth Villages: Visual Shift and Trim ("VS") */
-    private static final int CLVI_VIS_SHIFT[][] = {{-2,0, 1,1}, {-2,-1, 1,1}};
+    /**
+     * Cloth Villages: Visual Shift and Trim ("VS")
+     */
+    private static final int[][] CLVI_VIS_SHIFT = {{-2, 0, 1, 1}, {-2, -1, 1, 1}};
 
     /**
      * Cloth Villages: Starting robber hex coordinate for 4, 6 players.
      */
-    private static final int CLVI_ROBBER_HEX[] = { 0x0703, 0x0703 };
+    private static final int[] CLVI_ROBBER_HEX = {0x0703, 0x0703};
 
     /**
      * Cloth Villages: Starting pirate water hex coordinate for 4, 6 players.
      */
-    private static final int CLVI_PIRATE_HEX[] = { 0x0910, 0x0914 };
+    private static final int[] CLVI_PIRATE_HEX = {0x0910, 0x0914};
 
     /**
      * Cloth Villages: Land hex types for the main island. Shuffled.
      */
-    private static final int CLVI_LANDHEX_TYPE_MAIN[][] =
-    {{
-        // 4-player:
-        CLAY_HEX, CLAY_HEX, CLAY_HEX,
-        ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-    }, {
-        // 6-player:
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
-        ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-    }};
+    private static final int[][] CLVI_LANDHEX_TYPE_MAIN =
+        {{
+            // 4-player:
+            CLAY_HEX, CLAY_HEX, CLAY_HEX,
+            ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+        }, {
+            // 6-player:
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
+            ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+        }};
 
     /**
      * Cloth Villages: Land hex coordinates for the main islands.
      */
-    private static final int CLVI_LANDHEX_COORD_MAIN[][] =
-    {{
-        // 4-player: Each 10 hexes; 3 rows, main row centered on columns 4 - c
-        0x0305, 0x0307, 0x0309, 0x030B, 0x030D,
-        0x0504, 0x0506, 0x050C, 0x050E, 0x0703,
+    private static final int[][] CLVI_LANDHEX_COORD_MAIN =
+        {{
+            // 4-player: Each 10 hexes; 3 rows, main row centered on columns 4 - c
+            0x0305, 0x0307, 0x0309, 0x030B, 0x030D,
+            0x0504, 0x0506, 0x050C, 0x050E, 0x0703,
 
-        0x0D04, 0x0D06, 0x0D0C, 0x0D0E, 0x0B0F,
-        0x0F05, 0x0F07, 0x0F09, 0x0F0B, 0x0F0D
-    }, {
-        // 6-player: Each 13 hexes; 3 rows, main row centered on columns 4 - 0x10
-        0x0305, 0x0307, 0x0309, 0x030B, 0x030D, 0x030F, 0x0311,
-        0x0504, 0x0506, 0x0510, 0x0512, 0x0703, 0x0713,
+            0x0D04, 0x0D06, 0x0D0C, 0x0D0E, 0x0B0F,
+            0x0F05, 0x0F07, 0x0F09, 0x0F0B, 0x0F0D
+        }, {
+            // 6-player: Each 13 hexes; 3 rows, main row centered on columns 4 - 0x10
+            0x0305, 0x0307, 0x0309, 0x030B, 0x030D, 0x030F, 0x0311,
+            0x0504, 0x0506, 0x0510, 0x0512, 0x0703, 0x0713,
 
-        0x0D04, 0x0D06, 0x0D10, 0x0D12, 0x0B03, 0x0B13,
-        0x0F05, 0x0F07, 0x0F09, 0x0F0B, 0x0F0D, 0x0F0F, 0x0F11
-    }};
+            0x0D04, 0x0D06, 0x0D10, 0x0D12, 0x0B03, 0x0B13,
+            0x0F05, 0x0F07, 0x0F09, 0x0F0B, 0x0F0D, 0x0F0F, 0x0F11
+        }};
 
     /**
      * Cloth Villages: Dice numbers for hexes on the main island. Shuffled.
      */
-    private static final int CLVI_DICENUM_MAIN[][] =
-    {{
-        2, 2, 3, 3, 4, 4, 5, 5, 6, 6,
-        8, 8, 9, 9, 10, 10, 11, 11, 12, 12
-    }, {
-        2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 6, 6, 6,
-        8, 8, 8, 9, 9, 10, 10, 11, 11, 11, 11, 12, 12
-    }};
+    private static final int[][] CLVI_DICENUM_MAIN =
+        {{
+            2, 2, 3, 3, 4, 4, 5, 5, 6, 6,
+            8, 8, 9, 9, 10, 10, 11, 11, 12, 12
+        }, {
+            2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 6, 6, 6,
+            8, 8, 8, 9, 9, 10, 10, 11, 11, 11, 11, 12, 12
+        }};
 
     /**
      * Cloth Villages: Port edges and facings. There are no ports on the small islands, only the main ones.
-     *<P>
+     * <p>
      * West to east on each island.
      * Each port has 2 elements: Edge coordinate (0xRRCC), Port Facing.
-     *<P>
+     * <p>
      * Port Facing is the direction from the port edge, to the land hex touching it
      * which will have 2 nodes where a port settlement/city can be built.
-     *<P>
+     * <p>
      * Port types ({@link #CLVI_PORT_TYPE}) are shuffled.
      */
-    private static final int CLVI_PORT_EDGE_FACING[][] =
-    {{
-        // 4 players
-        0x0503, FACING_E,  0x0205, FACING_SW,  0x020A, FACING_SE,  0x050F, FACING_W,
-        0x0D03, FACING_E,  0x1006, FACING_NE,  0x100B, FACING_NW,  0x0E0E, FACING_NW,  0x0B10, FACING_W
-    }, {
-        // 6 players
-        0x0503, FACING_E,  0x0205, FACING_SW,  0x020A, FACING_SE,  0x020E, FACING_SE,  0x0513, FACING_W,
-        0x0D03, FACING_E,  0x1006, FACING_NE,  0x1009, FACING_NW,  0x100F, FACING_NW,
-        0x0E12, FACING_NW, 0x0B14, FACING_W
-    }};
+    private static final int[][] CLVI_PORT_EDGE_FACING =
+        {{
+            // 4 players
+            0x0503, FACING_E, 0x0205, FACING_SW, 0x020A, FACING_SE, 0x050F, FACING_W,
+            0x0D03, FACING_E, 0x1006, FACING_NE, 0x100B, FACING_NW, 0x0E0E, FACING_NW, 0x0B10, FACING_W
+        }, {
+            // 6 players
+            0x0503, FACING_E, 0x0205, FACING_SW, 0x020A, FACING_SE, 0x020E, FACING_SE, 0x0513, FACING_W,
+            0x0D03, FACING_E, 0x1006, FACING_NE, 0x1009, FACING_NW, 0x100F, FACING_NW,
+            0x0E12, FACING_NW, 0x0B14, FACING_W
+        }};
 
     /**
      * Cloth Villages: Port types; will be shuffled.
      * Port edge coordinates and facings are {@link #CLVI_PORT_EDGE_FACING}.
      */
-    private static final int CLVI_PORT_TYPE[][] =
-    {{
-        // 4 players: 5 special, 4 generic:
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT,
-        MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT
-    }, {
-        // 6 players: 6 special, 5 generic:
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT,
-        MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT
-    }};
+    private static final int[][] CLVI_PORT_TYPE =
+        {{
+            // 4 players: 5 special, 4 generic:
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT,
+            MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT
+        }, {
+            // 6 players: 6 special, 5 generic:
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT,
+            MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT
+        }};
 
     /**
      * Cloth Villages: Hex land types on the several small middle islands, west to east.
      * None have dice numbers.  Not shuffled; coordinates for these
      * land hexes are {@link #CLVI_LANDHEX_COORD_ISL}.
      */
-    private static final int CLVI_LANDHEX_TYPE_ISL[][] =
-    {{
-        // 4 players:
-        GOLD_HEX, DESERT_HEX, DESERT_HEX, GOLD_HEX
-    }, {
-        // 6 players:
-        GOLD_HEX, DESERT_HEX, DESERT_HEX, DESERT_HEX, DESERT_HEX, GOLD_HEX
-    }};
+    private static final int[][] CLVI_LANDHEX_TYPE_ISL =
+        {{
+            // 4 players:
+            GOLD_HEX, DESERT_HEX, DESERT_HEX, GOLD_HEX
+        }, {
+            // 6 players:
+            GOLD_HEX, DESERT_HEX, DESERT_HEX, DESERT_HEX, DESERT_HEX, GOLD_HEX
+        }};
 
     /**
      * Cloth Villages: Land hex coordinates for the several small middle islands, west to east.
@@ -4874,14 +4911,14 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * None have dice numbers.
      * Each has two villages, see {@link #CLVI_CLOTH_VILLAGE_AMOUNTS_NODES_DICE}.
      */
-    private static final int CLVI_LANDHEX_COORD_ISL[][] =
-    {{
-        // 4 players:
-        0x0906, 0x0709, 0x0B09, 0x090C
-    }, {
-        // 6 players:
-        0x0906, 0x0709, 0x0B09, 0x070D, 0x0B0D, 0x0910
-    }};
+    private static final int[][] CLVI_LANDHEX_COORD_ISL =
+        {{
+            // 4 players:
+            0x0906, 0x0709, 0x0B09, 0x090C
+        }, {
+            // 6 players:
+            0x0906, 0x0709, 0x0B09, 0x070D, 0x0B0D, 0x0910
+        }};
 
     /**
      * Cloth Villages: Small islands' cloth village node locations and dice numbers.
@@ -4891,24 +4928,25 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * Further indexes are the locations and dice,
      * paired for each village: [i] = node, [i+1] = dice number.
      * SOCBoardLarge additional part {@code "CV"}.
-     *<P>
+     * <p>
      * Each small island has two villages; the islands' coordinates are {@link #CLVI_LANDHEX_COORD_ISL}.
+     *
      * @see SOCGameOption#K_SC_CLVI
      * @see #setVillageAndClothLayout(int[])
      */
-    private static final int CLVI_CLOTH_VILLAGE_AMOUNTS_NODES_DICE[][] =
-    {{
-        // 4 players:
-        SOCVillage.STARTING_GENERAL_CLOTH,  // Board's "general supply" cloth count is same for 4pl, 6pl
-        SOCVillage.STARTING_CLOTH,
-        0x0806, 10,  0x0A06, 9,  0x0609, 11,  0x0809, 8,  0x0A09, 6,  0x0C09, 3,  0x080C, 4,  0x0A0C, 5
-    }, {
-        // 6 players:
-        SOCVillage.STARTING_GENERAL_CLOTH,
-        SOCVillage.STARTING_CLOTH,
-        0x0806, 4,   0x0A06, 9,  0x0609, 2,  0x0809, 5,   0x0A09, 6,  0x0C09, 12,
-        0x060D, 10,  0x080D, 8,  0x0A0D, 9,  0x0C0D, 10,  0x0810, 4,  0x0A10, 5
-    }};
+    private static final int[][] CLVI_CLOTH_VILLAGE_AMOUNTS_NODES_DICE =
+        {{
+            // 4 players:
+            SOCVillage.STARTING_GENERAL_CLOTH,  // Board's "general supply" cloth count is same for 4pl, 6pl
+            SOCVillage.STARTING_CLOTH,
+            0x0806, 10, 0x0A06, 9, 0x0609, 11, 0x0809, 8, 0x0A09, 6, 0x0C09, 3, 0x080C, 4, 0x0A0C, 5
+        }, {
+            // 6 players:
+            SOCVillage.STARTING_GENERAL_CLOTH,
+            SOCVillage.STARTING_CLOTH,
+            0x0806, 4, 0x0A06, 9, 0x0609, 2, 0x0809, 5, 0x0A09, 6, 0x0C09, 12,
+            0x060D, 10, 0x080D, 8, 0x0A0D, 9, 0x0C0D, 10, 0x0810, 4, 0x0A10, 5
+        }};
 
 
     ////////////////////////////////////////////
@@ -4926,30 +4964,32 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * 4 players max row 0x0E, max col 0x12.
      * 6 players max row 0x10, max col 0x14 (incl ports' hexes).
      */
-    private static final int WOND_BOARDSIZE[] = { 0x0E12, 0x1014 };
+    private static final int[] WOND_BOARDSIZE = {0x0E12, 0x1014};
 
-    /** Wonders: Visual Shift and Trim ("VS") */
-    private static final int WOND_VIS_SHIFT[][] = {{4,-1, 3,0}, {-1,-1}};
+    /**
+     * Wonders: Visual Shift and Trim ("VS")
+     */
+    private static final int[][] WOND_VIS_SHIFT = {{4, -1, 3, 0}, {-1, -1}};
 
     /**
      * Wonders: Land hex types for the main island, excluding the desert. Shuffled.
      */
-    private static final int WOND_LANDHEX_TYPE_MAIN[][] =
-    {{
-        // 4-player:
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
-        ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-    }, {
-        // 6-player:
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
-        ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-        WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-    }};
+    private static final int[][] WOND_LANDHEX_TYPE_MAIN =
+        {{
+            // 4-player:
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
+            ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+        }, {
+            // 6-player:
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX,
+            ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+        }};
 
     /**
      * Wonders: Land hex coordinates for the main island, excluding
@@ -4958,157 +4998,157 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * Main part on rows 7 and 9, with outlying parts north and south.
      * 2 hexes included here adjacent to the desert are {@link #WOND_LANDHEX_COORD_MAIN_AT_DESERT}.
      */
-    private static final int WOND_LANDHEX_COORD_MAIN[][] =
-    {{
-        // 4-player:
-        0x0108, 0x010A, 0x010E, 0x0307, 0x0309, 0x030D, 0x0508, 0x050E, 0x0510,
-        0x0707, 0x0709, 0x070B, 0x070D, 0x070F,
-        0x0906, 0x0908, 0x090A, 0x090C, 0x090E, 0x0910,
-        0x0B09, 0x0D08
-    }, {
-        // 6-player:
-        0x0307, 0x0309, 0x030D, 0x030F, 0x0506, 0x0508, 0x050C, 0x050E, 0x0705, 0x0707, 0x0709, 0x070D, 0x070F,
-        0x0904, 0x0906, 0x0908, 0x090A, 0x090C, 0x090E, 0x0910,
-        0x0B05, 0x0B07, 0x0B09, 0x0B0B, 0x0B0D, 0x0B0F, 0x0B11,
-        0x0D0A, 0x0D0E, 0x0F09, 0x0F0D
-    }};
+    private static final int[][] WOND_LANDHEX_COORD_MAIN =
+        {{
+            // 4-player:
+            0x0108, 0x010A, 0x010E, 0x0307, 0x0309, 0x030D, 0x0508, 0x050E, 0x0510,
+            0x0707, 0x0709, 0x070B, 0x070D, 0x070F,
+            0x0906, 0x0908, 0x090A, 0x090C, 0x090E, 0x0910,
+            0x0B09, 0x0D08
+        }, {
+            // 6-player:
+            0x0307, 0x0309, 0x030D, 0x030F, 0x0506, 0x0508, 0x050C, 0x050E, 0x0705, 0x0707, 0x0709, 0x070D, 0x070F,
+            0x0904, 0x0906, 0x0908, 0x090A, 0x090C, 0x090E, 0x0910,
+            0x0B05, 0x0B07, 0x0B09, 0x0B0B, 0x0B0D, 0x0B0F, 0x0B11,
+            0x0D0A, 0x0D0E, 0x0F09, 0x0F0D
+        }};
 
     /**
      * Wonders: 2 land hex coordinates on main island (within {@link #WOND_LANDHEX_COORD_MAIN})
      * adjacent to the deserts ({@link #WOND_LANDHEX_COORD_DESERT}).
      * These shouldn't be given the favorable "red" dice numbers 6 or 8.
      */
-    private static final int WOND_LANDHEX_COORD_MAIN_AT_DESERT[][] =
-    {{
-        // 4-player:
-        0x0707, 0x0906
-    }, {
-        // 6-player:
-        0x0904, 0x0B05
-    }};
+    private static final int[][] WOND_LANDHEX_COORD_MAIN_AT_DESERT =
+        {{
+            // 4-player:
+            0x0707, 0x0906
+        }, {
+            // 6-player:
+            0x0904, 0x0B05
+        }};
 
     /**
      * Wonders: Land hex coordinates for the deserts in the southwest of the main island.
      * The rest of the main island's hexes are {@link #WOND_LANDHEX_COORD_MAIN}.
      * Main island hexes adjacent to the desert are {@link #WOND_LANDHEX_COORD_MAIN_AT_DESERT}.
      */
-    private static final int WOND_LANDHEX_COORD_DESERT[][] =
-    {{
-        // 4-player:
-        0x0705, 0x0904, 0x0B05
-    }, {
-        // 6-player:
-        0x0902, 0x0B03, 0x0D02, 0x0D04
-    }};
+    private static final int[][] WOND_LANDHEX_COORD_DESERT =
+        {{
+            // 4-player:
+            0x0705, 0x0904, 0x0B05
+        }, {
+            // 6-player:
+            0x0902, 0x0B03, 0x0D02, 0x0D04
+        }};
 
     /**
      * Wonders: Dice numbers for hexes on the main island. Shuffled.
      * Dice numbers for small islands are {@link #WOND_DICENUM_ISL}.
      */
-    private static final int WOND_DICENUM_MAIN[][] =
-    {{
-        2, 3, 3, 3, 4, 4, 5, 5, 6, 6,
-        8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11, 12
-    }, {
-        2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6,
-        8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12
-    }};
+    private static final int[][] WOND_DICENUM_MAIN =
+        {{
+            2, 3, 3, 3, 4, 4, 5, 5, 6, 6,
+            8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11, 12
+        }, {
+            2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6,
+            8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12
+        }};
 
     /**
      * Wonders: Port edges and facings. There are no ports on the small islands, only the main one.
-     *<P>
+     * <p>
      * North to South on main island.
      * Each port has 2 elements: Edge coordinate (0xRRCC), Port Facing.
-     *<P>
+     * <p>
      * Port Facing is the direction from the port edge, to the land hex touching it
      * which will have 2 nodes where a port settlement/city can be built.
-     *<P>
+     * <p>
      * Port types ({@link #WOND_PORT_TYPE}) are shuffled.
      */
-    private static final int WOND_PORT_EDGE_FACING[][] =
-    {{
-        // 4 players
-        0x0009, FACING_SE, 0x0206, FACING_SE,  0x030E, FACING_W,  0x0406, FACING_NE,  0x060C, FACING_SE,
-        0x0710, FACING_W,  0x0A07, FACING_NE,  0x0A0A, FACING_NW, 0x0A0E, FACING_NW
-    }, {
-        // 6 players
-        0x0208, FACING_SE,  0x020E, FACING_SE, 0x0405, FACING_SE,  0x050F, FACING_W,  0x0604, FACING_SE,  0x0710, FACING_W,
-        0x080B, FACING_SE,  0x0B12, FACING_W,  0x0C08, FACING_NE,  0x0C0C, FACING_NE, 0x0C0F, FACING_NW
-    }};
+    private static final int[][] WOND_PORT_EDGE_FACING =
+        {{
+            // 4 players
+            0x0009, FACING_SE, 0x0206, FACING_SE, 0x030E, FACING_W, 0x0406, FACING_NE, 0x060C, FACING_SE,
+            0x0710, FACING_W, 0x0A07, FACING_NE, 0x0A0A, FACING_NW, 0x0A0E, FACING_NW
+        }, {
+            // 6 players
+            0x0208, FACING_SE, 0x020E, FACING_SE, 0x0405, FACING_SE, 0x050F, FACING_W, 0x0604, FACING_SE, 0x0710, FACING_W,
+            0x080B, FACING_SE, 0x0B12, FACING_W, 0x0C08, FACING_NE, 0x0C0C, FACING_NE, 0x0C0F, FACING_NW
+        }};
 
     /**
      * Wonders: Port types; will be shuffled.
      * Port edge coordinates and facings are {@link #WOND_PORT_EDGE_FACING}.
      */
-    private static final int WOND_PORT_TYPE[][] =
-    {{
-        // 4 players: 5 special, 4 generic:
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT,
-        MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT
-    }, {
-        // 6 players: 6 special, 5 generic:
-        CLAY_PORT, ORE_PORT, SHEEP_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT,
-        MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT
-    }};
+    private static final int[][] WOND_PORT_TYPE =
+        {{
+            // 4 players: 5 special, 4 generic:
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT,
+            MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT
+        }, {
+            // 6 players: 6 special, 5 generic:
+            CLAY_PORT, ORE_PORT, SHEEP_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT,
+            MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT
+        }};
 
     /**
      * Wonders: Hex land types on the several small islands, west to east.
      * Not shuffled; coordinates for these land hexes are {@link #WOND_LANDHEX_COORD_ISL}.
      * Dice numbers are {@link #WOND_DICENUM_ISL}.
      */
-    private static final int WOND_LANDHEX_TYPE_ISL[][] =
-    {{
-        // 4 players:
-        GOLD_HEX, WOOD_HEX, WHEAT_HEX, CLAY_HEX, GOLD_HEX
-    }, {
-        // 6 players:
-        WOOD_HEX, GOLD_HEX, GOLD_HEX, GOLD_HEX
-    }};
+    private static final int[][] WOND_LANDHEX_TYPE_ISL =
+        {{
+            // 4 players:
+            GOLD_HEX, WOOD_HEX, WHEAT_HEX, CLAY_HEX, GOLD_HEX
+        }, {
+            // 6 players:
+            WOOD_HEX, GOLD_HEX, GOLD_HEX, GOLD_HEX
+        }};
 
     /**
      * Wonders: Land hex coordinates for the several small islands, west to east.
      * Hex types for these small islands are {@link #WOND_LANDHEX_TYPE_ISL}.
      * Dice numbers are {@link #WOND_DICENUM_ISL}.
      */
-    private static final int WOND_LANDHEX_COORD_ISL[][] =
-    {{
-        // 4 players:
-        0x0502, 0x0303, 0x0104, 0x0D0C, 0x0D0E
-    }, {
-        // 6 players:
-        0x0502, 0x0303, 0x0F11, 0x0512
-    }};
+    private static final int[][] WOND_LANDHEX_COORD_ISL =
+        {{
+            // 4 players:
+            0x0502, 0x0303, 0x0104, 0x0D0C, 0x0D0E
+        }, {
+            // 6 players:
+            0x0502, 0x0303, 0x0F11, 0x0512
+        }};
 
     /**
      * Wonders: Dice numbers for hexes on the several small islands, same order as {@link #WOND_LANDHEX_COORD_ISL}.
      * Not shuffled.
      */
-    private static final int WOND_DICENUM_ISL[][] =
-    {{
-        6, 4, 5, 2, 8
-    }, {
-        4, 6, 8, 6
-    }};
+    private static final int[][] WOND_DICENUM_ISL =
+        {{
+            6, 4, 5, 2, 8
+        }, {
+            4, 6, 8, 6
+        }};
 
     /**
      * Wonders: Special Node locations.  Subarrays for each of 3 types:
      * Great wall at desert wasteland; great bridge at strait; no-build nodes next to strait.
      * See {@link SOCScenario#K_SC_WOND} for details.
-     *<P>
+     * <p>
      * SOCBoardLarge additional Layout Parts {@code "N1", "N2", "N3"}.
      */
-    private static final int WOND_SPECIAL_NODES[][][] =
-    {{
-        // 4 players:
-        { 0x0606, 0x0806, 0x0805, 0x0A05, 0x0A06 },
-        { 0x020B, 0x020C },
-        { 0x000B, 0x020A, 0x020D, 0x040C },
-    }, {
-        // 6 players:
-        { 0x0803, 0x0A03, 0x0A04, 0x0C04, 0x0C05 },
-        { 0x040A, 0x040B, 0x0E0B, 0x0E0C },
-        { 0x020A, 0x0409, 0x040C, 0x060B, 0x0C0B, 0x0E0A, 0x0E0D, 0x100C }
-    }};
+    private static final int[][][] WOND_SPECIAL_NODES =
+        {{
+            // 4 players:
+            {0x0606, 0x0806, 0x0805, 0x0A05, 0x0A06},
+            {0x020B, 0x020C},
+            {0x000B, 0x020A, 0x020D, 0x040C},
+        }, {
+            // 6 players:
+            {0x0803, 0x0A03, 0x0A04, 0x0C04, 0x0C05},
+            {0x040A, 0x040B, 0x0E0B, 0x0E0C},
+            {0x020A, 0x0409, 0x040C, 0x060B, 0x0C0B, 0x0E0A, 0x0E0D, 0x100C}
+        }};
 
 
     ////////////////////////////////////////////

@@ -274,23 +274,23 @@ public class SOCBuildPossibility
     @Override
     public String toString()
     {
-        String str = "SOCBP:player=" + player + "|piece=" + piece + "|score=" + score + "|speedup=";
+        StringBuilder str = new StringBuilder( "SOCBP:player=" + player + "|piece=" + piece + "|score=" + score + "|speedup=" );
 
         if (buildingSpeedup != null)
         {
             for (int i = SOCBuildingSpeedEstimate.MIN;
                     i < SOCBuildingSpeedEstimate.MAXPLUSONE; i++)
             {
-                str += (" " + buildingSpeedup[i]);
+                str.append( " " ).append( buildingSpeedup[i] );
             }
         }
         else
         {
-            str += "null";
+            str.append( "null" );
         }
 
-        str += ("|eta=" + eta + "|priority=" + priority + "|children=" + children.size());
+        str.append( "|eta=" ).append( eta ).append( "|priority=" ).append( priority ).append( "|children=" ).append( children.size() );
 
-        return str;
+        return str.toString();
     }
 }

@@ -400,7 +400,7 @@ import java.util.Vector;
      */
     public String toString()
     {
-        StringBuffer sb = new StringBuffer("Connection[");
+        StringBuilder sb = new StringBuilder("Connection[");
         if (data != null)
             sb.append(data);
         else

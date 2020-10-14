@@ -82,9 +82,6 @@ public class SOCRobotDismiss extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCRobotDismiss:game=" + game;
-
-        return s;
+        return "SOCRobotDismiss:game=" + game;
     }
-
 }

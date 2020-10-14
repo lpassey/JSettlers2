@@ -177,18 +177,14 @@ public class SOCSetSeatLock extends SOCMessage
             return toCmd(game, playerNumber, state);
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append(SETSEATLOCK + sep + game);
-            for (int pn = 0; pn < states.length; ++pn)
+            sb.append( SETSEATLOCK + sep ).append( game );
+            for (SeatLockState seatLockState : states)
             {
-                sb.append(sep2_char);
-                final SeatLockState st = states[pn];
-                sb.append
-                    ((st == SeatLockState.LOCKED) ? "true"
-                     : (st == SeatLockState.UNLOCKED) ? "false"
-                       : "clear");   // st == SeatLockState.CLEAR_ON_RESET
-
+                sb.append( sep2_char );
+                sb.append( (seatLockState == SeatLockState.LOCKED) ? "true"
+                        : (seatLockState == SeatLockState.UNLOCKED) ? "false"
+                        : "clear" );   // st == SeatLockState.CLEAR_ON_RESET
             }
-
             return sb.toString();
         }
     }

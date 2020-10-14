@@ -943,7 +943,7 @@ import soc.util.Version;
                 while (st.hasMoreTokens())
                     optNames.add(st.nextToken());
 
-                StringBuffer opts = new StringBuffer();
+                StringBuilder opts = new StringBuilder();
                 final Map<String, SOCGameOption> knowns =
                     (isPractice) ? client.practiceServGameOpts.optionSet : client.tcpServGameOpts.optionSet;
                 for (String oname : optNames)

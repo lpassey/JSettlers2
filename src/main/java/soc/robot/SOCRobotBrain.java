@@ -1226,8 +1226,8 @@ public class SOCRobotBrain extends Thread
             toList.add("  " + msgDesc + " turn: No messages received.");
         } else {
             toList.add("  " + msgDesc + " turn: " + n + " messages received:");
-            for (int i = 0; i < n; ++i)
-                toList.add("\t" + msgV.get(i));
+            for (Object o : msgV)
+                toList.add( "\t" + o );
         }
     }
 
@@ -2866,12 +2866,12 @@ public class SOCRobotBrain extends Thread
             SOCPossiblePiece topPiece = buildingPlan.pop();
 
             //D.ebugPrintln("$ POPPED "+topPiece);
-            if ((topPiece != null) && (topPiece instanceof SOCPossibleRoad))
+            if (topPiece instanceof SOCPossibleRoad)
             {
                 SOCPossiblePiece secondPiece = (buildingPlan.isEmpty()) ? null : buildingPlan.peek();
 
                 //D.ebugPrintln("secondPiece="+secondPiece);
-                if ((secondPiece != null) && (secondPiece instanceof SOCPossibleRoad))
+                if (secondPiece instanceof SOCPossibleRoad)
                 {
                     roadBuildingPlan = true;
 
@@ -4116,18 +4116,14 @@ public class SOCRobotBrain extends Thread
             if (tracker == null)
                 continue;
 
-            Iterator<SOCPossibleRoad> posRoadsIter = tracker.getPossibleRoads().values().iterator();
-
-            while (posRoadsIter.hasNext())
+            for (SOCPossibleRoad socPossibleRoad : tracker.getPossibleRoads().values())
             {
-                posRoadsIter.next().clearThreats();
+                socPossibleRoad.clearThreats();
             }
 
-            Iterator<SOCPossibleSettlement> posSetsIter = tracker.getPossibleSettlements().values().iterator();
-
-            while (posSetsIter.hasNext())
+            for (SOCPossibleSettlement socPossibleSettlement : tracker.getPossibleSettlements().values())
             {
-                posSetsIter.next().clearThreats();
+                socPossibleSettlement.clearThreats();
             }
         }
 
@@ -4186,11 +4182,10 @@ public class SOCRobotBrain extends Thread
 
         if (tracker != null)
         {
-            Iterator<SOCPossibleSettlement> posSetsIter = tracker.getPossibleSettlements().values().iterator();
 
-            while (posSetsIter.hasNext())
+            for (SOCPossibleSettlement socPossibleSettlement : tracker.getPossibleSettlements().values())
             {
-                posSetsIter.next().updateSpeedup();
+                socPossibleSettlement.updateSpeedup();
             }
         }
 
@@ -4199,11 +4194,10 @@ public class SOCRobotBrain extends Thread
         ///
         if (tracker != null)
         {
-            Iterator<SOCPossibleCity> posCitiesIter = tracker.getPossibleCities().values().iterator();
 
-            while (posCitiesIter.hasNext())
+            for (SOCPossibleCity socPossibleCity : tracker.getPossibleCities().values())
             {
-                posCitiesIter.next().updateSpeedup();
+                socPossibleCity.updateSpeedup();
             }
         }
     }
@@ -4250,11 +4244,10 @@ public class SOCRobotBrain extends Thread
 
             if (tracker.getPlayer().getPlayerNumber() == newCityPN)
             {
-                Iterator<SOCPossibleSettlement> posSetsIter = tracker.getPossibleSettlements().values().iterator();
 
-                while (posSetsIter.hasNext())
+                for (SOCPossibleSettlement socPossibleSettlement : tracker.getPossibleSettlements().values())
                 {
-                    posSetsIter.next().updateSpeedup();
+                    socPossibleSettlement.updateSpeedup();
                 }
 
                 break;
@@ -4271,11 +4264,10 @@ public class SOCRobotBrain extends Thread
 
             if (tracker.getPlayer().getPlayerNumber() == newCityPN)
             {
-                Iterator<SOCPossibleCity> posCitiesIter = tracker.getPossibleCities().values().iterator();
 
-                while (posCitiesIter.hasNext())
+                for (SOCPossibleCity socPossibleCity : tracker.getPossibleCities().values())
                 {
-                    posCitiesIter.next().updateSpeedup();
+                    socPossibleCity.updateSpeedup();
                 }
 
                 break;
@@ -4333,18 +4325,15 @@ public class SOCRobotBrain extends Thread
 
             try
             {
-                Iterator<SOCPossibleRoad> posRoadsIter = tracker.getPossibleRoads().values().iterator();
 
-                while (posRoadsIter.hasNext())
+                for (SOCPossibleRoad socPossibleRoad : tracker.getPossibleRoads().values())
                 {
-                    posRoadsIter.next().clearThreats();
+                    socPossibleRoad.clearThreats();
                 }
 
-                Iterator<SOCPossibleSettlement> posSetsIter = tracker.getPossibleSettlements().values().iterator();
-
-                while (posSetsIter.hasNext())
+                for (SOCPossibleSettlement socPossibleSettlement : tracker.getPossibleSettlements().values())
                 {
-                    posSetsIter.next().clearThreats();
+                    socPossibleSettlement.clearThreats();
                 }
             }
             catch (Exception e)

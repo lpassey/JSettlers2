@@ -826,7 +826,7 @@ public class SOCPlayerInterface extends Frame
         {
             int ds = 0;
             Object pref = (localPrefs != null) ? (localPrefs.get(SOCPlayerClient.PREF_UI_SCALE_FORCE)) : null;
-            if ((pref != null) && (pref instanceof Integer))
+            if (pref instanceof Integer)
                 ds = (Integer) pref;
             displayScale = ((ds > 0) && (ds <= 3)) ? ds : md.getDisplayScaleFactor();
         }
@@ -2312,11 +2312,15 @@ public class SOCPlayerInterface extends Frame
     public void resetBoardRejected()
     {
         textDisplay.append("*** " + strings.get("reset.was.rejected") + "\n");  // "The board reset was rejected."
-        for (int i = 0; i < hands.length; ++i)
+        for (SOCHandPanel hand : hands)
         {
             // Clear all displayed votes
-            try { hands[i].resetBoardSetMessage(null); }
-            catch (IllegalStateException e) { /* ignore; discard message is showing */ }
+            try
+            {
+                hand.resetBoardSetMessage( null );
+            }
+            catch( IllegalStateException e )
+            { /* ignore; discard message is showing */ }
         }
         boardResetRequester = null;
         if (boardResetVoteDia != null)
@@ -2759,13 +2763,13 @@ public class SOCPlayerInterface extends Frame
      */
     public void startGame()
     {
-        for (int i = 0; i < hands.length; i++)
+        for (SOCHandPanel hand : hands)
         {
-            hands[i].removeStartBut();
+            hand.removeStartBut();
             // This button has two functions (and two labels).
             // If client joined and then started a game, remove it (as robot lockout).
             // If we're joining a game in progress, keep it (as "sit here").
-            hands[i].removeSitLockoutBut();
+            hand.removeSitLockoutBut();
         }
         updatePlayerLimitDisplay(false, true, -1);
         gameIsStarting = true;
@@ -3579,11 +3583,11 @@ public class SOCPlayerInterface extends Frame
         if (gameStats != null)
             gameStats.dispose();
         gameStats = new SOCGameStatistics(game);
-        for (int i = 0; i < hands.length; ++i)
+        for (SOCHandPanel hand : hands)
         {
-            hands[i].removePlayer();  // will cancel roll countdown timer, right-click menus, etc
-            hands[i].setEnabled(false);
-            hands[i].destroy();
+            hand.removePlayer();  // will cancel roll countdown timer, right-click menus, etc
+            hand.setEnabled( false );
+            hand.destroy();
         }
         final String prevChatText = chatDisplay.getText();
         final boolean[] boardDebugShow = boardPanel.debugShowPotentials.clone();
@@ -4222,7 +4226,7 @@ public class SOCPlayerInterface extends Frame
 
         public void diceRolledResources(final List<Integer> pnum, final List<SOCResourceSet> rsrc)
         {
-            StringBuffer sb = new StringBuffer("* ");
+            StringBuilder sb = new StringBuilder("* ");
             boolean noPlayersGained = true;
 
             final int n = pnum.size();
@@ -4839,7 +4843,7 @@ public class SOCPlayerInterface extends Frame
 
                 // popup if player is our client, or if won or recaptured
 
-                StringBuffer sb = new StringBuffer(strings.get("game.sc_piri.attfort.results"));  // "Pirate Fortress attack results:"
+                StringBuilder sb = new StringBuilder(strings.get("game.sc_piri.attfort.results"));  // "Pirate Fortress attack results:"
                 sb.append('\n');
                 sb.append(strings.get("game.sc_piri.attfort.def.strength", defStrength));  // "Defense strength: {0}"
                 sb.append('\n');

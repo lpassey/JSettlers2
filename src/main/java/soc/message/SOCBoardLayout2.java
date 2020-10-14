@@ -425,10 +425,10 @@ public class SOCBoardLayout2 extends SOCMessage
                 int[] ovi = (int[]) ov;
                 cmd.append("[");
                 cmd.append( ovi.length );
-                for (int i = 0; i < ovi.length; ++i)
+                for (int value : ovi)
                 {
-                    cmd.append(sep2_char);
-                    cmd.append( ovi[i] );
+                    cmd.append( sep2_char );
+                    cmd.append( value );
                 }
             } else {
                 cmd.append(ov.toString());

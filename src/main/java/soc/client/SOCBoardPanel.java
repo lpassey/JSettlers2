@@ -3796,7 +3796,7 @@ import javax.swing.JComponent;
          final boolean isRoadNotShip, final boolean isWarship)
     {
         // Draw a road or ship
-        int roadX[], roadY[];
+        int[] roadX, roadY;
         int hx, hy;
         if (edgeNum == -1)
             edgeNum = 0x00;
@@ -5053,9 +5053,8 @@ import javax.swing.JComponent;
             HashMap<Integer, SOCVillage> villages = ((SOCBoardLarge) board).getVillages();
             if (villages != null)
             {
-                Iterator<SOCVillage> villIter = villages.values().iterator();
-                while (villIter.hasNext())
-                    drawVillage(g, villIter.next());
+                for (SOCVillage socVillage : villages.values())
+                    drawVillage( g, socVillage );
             }
 
             // For scenario _SC_WOND, draw special nodes (layout parts N1, N2, N3)
@@ -5111,14 +5110,16 @@ import javax.swing.JComponent;
         }
 
         g.setColor(HEX_GRAPHICS_SET_SC_PIRI_PATH_COLORS[hexesGraphicsSetIndex]);
-        for (int i = 0; i < ppath.length; ++i)
+        for (int value : ppath)
         {
-            hc = ppath[i];
-            r = hc >> 8; c = hc & 0xFF;
-            int y = scaleToActual(r * halfdeltaY + HALF_HEXHEIGHT),
-                x = scaleToActual(c * halfdeltaX);
-            g.drawLine(xprev, yprev, x, y);
-            xprev = x; yprev = y;
+            hc = value;
+            r = hc >> 8;
+            c = hc & 0xFF;
+            int y = scaleToActual( r * halfdeltaY + HALF_HEXHEIGHT ),
+                x = scaleToActual( c * halfdeltaX );
+            g.drawLine( xprev, yprev, x, y );
+            xprev = x;
+            yprev = y;
         }
 
         if (g instanceof Graphics2D)
@@ -5600,8 +5601,7 @@ import javax.swing.JComponent;
             hy = scaleToActual(hy);
         }
 
-        final int[] xy = { hx, hy };
-        return xy;
+        return new int[]{ hx, hy };
     }
 
     /**
@@ -6033,13 +6033,14 @@ import javax.swing.JComponent;
         } else {
             // check if any debugShowPotentials flags are set, which are per-player
             boolean any = false;
-            for (int i = 0; i < debugShowPotentials.length; ++i)
-                if (debugShowPotentials[i])
+            for (boolean debugShowPotential : debugShowPotentials)
+            {
+                if (debugShowPotential)
                 {
                     any = true;
                     break;
                 }
-
+            }
             if (any)
                 scaledMissedImage = true;  // force redraw of empty board and its potentials
         }
@@ -6109,7 +6110,6 @@ import javax.swing.JComponent;
                 popupMenuSystime = e.getWhen();
                 e.consume();
                 doBoardMenuPopup(e.getX(), e.getY());
-                return;
             }
         } catch (Throwable th) {
             playerInterface.chatPrintStackTrace(th);
@@ -7066,7 +7066,7 @@ import javax.swing.JComponent;
 
         default:  // NONE, GAME_FORMING, PLACE_ROBBER, etc
 
-            if ((hoverTip.hoverPiece != null) && (hoverTip.hoverPiece instanceof SOCFortress))
+            if ( hoverTip.hoverPiece instanceof SOCFortress)
             {
                 popupMenu.showAtPirateFortress(x, y, (SOCFortress) (hoverTip.hoverPiece));
                 return;  // <--- early return: special case: fortress (_SC_PIRI) ---
@@ -8255,7 +8255,7 @@ import javax.swing.JComponent;
                     hoverPiece = p;
                     hoverID = id;
 
-                    StringBuffer sb = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
                     String pieceExtraDesc = null;  // {2} in localized string for SC_PIRI fortress, otherwise unused
                     String portDesc = portDescAtNode(id);
                     if (portDesc != null)
@@ -8434,26 +8434,34 @@ import javax.swing.JComponent;
                              (nlist != null) && ! hoverTextSet;
                              ++i, nlist = ((SOCBoardLarge) board).getAddedLayoutPart("N" + i))
                         {
-                            for (int j = 0; j < nlist.length; ++j)
+                            for (int value : nlist)
                             {
-                                if (nlist[j] == id)
+                                if (value == id)
                                 {
                                     String nlDesc = null;
 
-                                    try {
-                                        nlDesc = strings.get("board.nodelist._SC_WOND.N" + i);
-                                    } catch (MissingResourceException e) {}
+                                    try
+                                    {
+                                        nlDesc = strings.get( "board.nodelist._SC_WOND.N" + i );
+                                    }
+                                    catch( MissingResourceException e )
+                                    {
+                                    }
 
                                     if (nlDesc == null)
                                     {
-                                        try {
-                                            nlDesc = strings.get("board.nodelist.no_desc", i);
-                                        } catch (MissingResourceException e) {}
+                                        try
+                                        {
+                                            nlDesc = strings.get( "board.nodelist.no_desc", i );
+                                        }
+                                        catch( MissingResourceException e )
+                                        {
+                                        }
                                     }
 
                                     if (nlDesc != null)
                                     {
-                                        setHoverText(nlDesc, id);
+                                        setHoverText( nlDesc, id );
                                         hoverMode = PLACE_ROBBER;  // const used for hovering-at-node
                                         hoverID = id;
                                         hoverIsPort = false;
@@ -8663,7 +8671,7 @@ import javax.swing.JComponent;
                     final int htype = board.getHexTypeFromCoord(id);
                     final int dicenum = board.getNumberOnHexFromCoord(id);
 
-                    StringBuffer key = new StringBuffer("game.hex.hoverformat");
+                    StringBuilder key = new StringBuilder("game.hex.hoverformat");
                     String hname = "";
                     String addinfo = "";
                     int hid = htype;

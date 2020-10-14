@@ -326,7 +326,7 @@ import javax.swing.border.EmptyBorder;
             cpane.add(L);
 
             // Builder name; current level (if build in progress)
-            final StringBuffer sb = new StringBuffer();  // builder if any, current level
+            final StringBuilder sb = new StringBuilder();  // builder if any, current level
 
             if (owner != null)
             {

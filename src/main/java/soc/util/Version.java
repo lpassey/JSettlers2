@@ -91,7 +91,7 @@ public class Version {
           return "1.0." + (versionNumber - 1000);  // 1006 -> 1.0.6
       else
       {
-          StringBuffer sb = new StringBuffer(Integer.toString(versionNumber));
+          StringBuilder sb = new StringBuilder(Integer.toString(versionNumber));
           final int L = sb.length();
           sb.insert(L-2, '.');
           sb.insert(L-3, '.');

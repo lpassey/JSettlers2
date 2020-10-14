@@ -1256,9 +1256,9 @@ public class SOCServerMessageHandler
                 {
                     final String[] GAMETYPE_DEBUG_HELP = hand.getDebugCommandsHelp();
                     if (GAMETYPE_DEBUG_HELP != null)
-                        for (int i = 0; i < GAMETYPE_DEBUG_HELP.length; ++i)
-                            srv.messageToPlayer(c, gaName, SOCServer.PN_NON_EVENT,
-                                GAMETYPE_DEBUG_HELP[i]);
+                        for (String s : GAMETYPE_DEBUG_HELP)
+                            srv.messageToPlayer( c, gaName, SOCServer.PN_NON_EVENT,
+                                s );
                 }
             }
         }

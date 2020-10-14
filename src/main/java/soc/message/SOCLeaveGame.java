@@ -153,9 +153,6 @@ public class SOCLeaveGame extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCLeaveGame:nickname=" + nickname + "|host=" + host + "|game=" + game;
-
-        return s;
+        return "SOCLeaveGame:nickname=" + nickname + "|host=" + host + "|game=" + game;
     }
-
 }

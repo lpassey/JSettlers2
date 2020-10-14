@@ -837,8 +837,8 @@ public class SOCBoardLarge extends SOCBoard
                     foundNodes = true;
                 }
 
-                for (int j = 0; j < nodeList.length; ++j)
-                    landNodes.add( nodeList[j] );
+                for (int value : nodeList)
+                    landNodes.add( value );
             }
         }
 
@@ -901,12 +901,11 @@ public class SOCBoardLarge extends SOCBoard
     {
         HashSet<Integer> area = (lan > 0) ? landAreasLegalNodes[lan] : null;
 
-        for (int i = 0; i < nodes.length; ++i)
+        for (Integer iobj : nodes)
         {
-            Integer iobj = nodes[i];
-            nodesOnLand.add(iobj);
+            nodesOnLand.add( iobj );
             if (area != null)
-                area.add(iobj);
+                area.add( iobj );
         }
 
         // If new nodes weren't in layout part "AL", would need to add their edges
@@ -1893,11 +1892,9 @@ public class SOCBoardLarge extends SOCBoard
         if (seType != 0)
         {
             final Integer setypeObj = seType;
-            for (int i = 0; i < edges.length; ++i)
-                specialEdges.put( edges[i], setypeObj);
+            for (int edge : edges) specialEdges.put( edge, setypeObj );
         } else {
-            for (int i = 0; i < edges.length; ++i)
-                specialEdges.remove( edges[i] );
+            for (int edge : edges) specialEdges.remove( edge );
         }
     }
 
@@ -1942,10 +1939,8 @@ public class SOCBoardLarge extends SOCBoard
         vcl[0] = numCloth;
         vcl[1] = SOCVillage.STARTING_CLOTH;  // include for compat, in case STARTING_CLOTH changes in a later version
         int i=2;
-        Iterator<SOCVillage> villIter = villages.values().iterator();
-        while (villIter.hasNext())
+        for (SOCVillage v : villages.values())
         {
-            final SOCVillage v = villIter.next();
             vcl[i++] = v.getCoordinates();
             vcl[i++] = v.diceNum;
         }
@@ -3833,8 +3828,7 @@ public class SOCBoardLarge extends SOCBoard
             nodeIDtoPortType = new HashMap<>();
         else
             nodeIDtoPortType.clear();
-        for (int i = 0; i < ports.length; ++i)
-            ports[i].clear();
+        for (List<Integer> port : ports) port.clear();
 
         // Place the new ports
         for (int i = 0; i < portsCount; ++i)
@@ -4024,9 +4018,9 @@ public class SOCBoardLarge extends SOCBoard
             }
             else if (playerExcludedLandAreas != null)
             {
-                for (int j = 0; j < playerExcludedLandAreas.length; ++j)
+                for (int playerExcludedLandArea : playerExcludedLandAreas)
                 {
-                    if (la == playerExcludedLandAreas[j])
+                    if (la == playerExcludedLandArea)
                     {
                         ok = true;
                         break;

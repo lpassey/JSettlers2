@@ -185,7 +185,7 @@ public class SOCChannelMembers extends SOCMessage
     @Override
     public String toString()
     {
-        StringBuffer sb = new StringBuffer("SOCChannelMembers:channel=");
+        StringBuilder sb = new StringBuilder("SOCChannelMembers:channel=");
         sb.append(channel);
         sb.append("|members=");
         if (members != null)

@@ -227,8 +227,6 @@ public class SOCGameState extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCGameState:game=" + game + "|state=" + state;
-
-        return s;
+        return "SOCGameState:game=" + game + "|state=" + state;
     }
 }

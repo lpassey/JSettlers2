@@ -153,9 +153,7 @@ public class SOCLeaveChannel extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCLeaveChannel:nickname=" + nickname + "|host=" + host + "|channel=" + channel;
-
-        return s;
+        return "SOCLeaveChannel:nickname=" + nickname + "|host=" + host + "|channel=" + channel;
     }
 
 }

@@ -589,45 +589,43 @@ import soc.util.Version;
         // Declared up here for occasional reuse within the loop.
         TreeMap<String, SOCGameOption> optGroup = new TreeMap<>();
 
-        for (int i = 0; i < optArr.length; ++i)
+        for (final SOCGameOption op : optArr)
         {
-            final SOCGameOption op = optArr[i];
-
             if (op.optType == SOCGameOption.OTYPE_UNKNOWN)
             {
-                opts.remove(op.key);
+                opts.remove( op.key );
                 continue;  // <-- Removed, Go to next entry --
             }
 
-            if (op.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN))
+            if (op.hasFlag( SOCGameOption.FLAG_INACTIVE_HIDDEN ))
             {
-                if (! readOnly)
-                    opts.remove(op.key);  // don't send inactive options when requesting new game from client
+                if (!readOnly)
+                    opts.remove( op.key );  // don't send inactive options when requesting new game from client
                 continue;  // <-- Don't show inactive options --
             }
 
-            if (op.hasFlag(SOCGameOption.FLAG_INTERNAL_GAME_PROPERTY))
+            if (op.hasFlag( SOCGameOption.FLAG_INTERNAL_GAME_PROPERTY ))
             {
-                if (! readOnly)
-                    opts.remove(op.key);  // ignore internal-property options when requesting new game from client
+                if (!readOnly)
+                    opts.remove( op.key );  // ignore internal-property options when requesting new game from client
                 continue;  // <-- Don't show internal-property options --
             }
 
-            if (op.key.charAt(0) == '_')
+            if (op.key.charAt( 0 ) == '_')
             {
                 if (hideUnderscoreOpts)
                     continue;  // <-- Don't show options starting with '_'
 
-                if ((allSc != null) && allSc.containsKey(op.key.substring(1)))
+                if ((allSc != null) && allSc.containsKey( op.key.substring( 1 ) ))
                     continue;  // <-- Don't show options which are scenario names (use SC dropdown to pick at most one)
             }
 
-            if (sameGroupOpts.containsKey(op.key))
+            if (sameGroupOpts.containsKey( op.key ))
                 continue;  // <-- Part of a group: We'll init this opt soon with rest of that group --
 
-            final boolean sharesGroup = sameGroupOpts.containsValue(op.key);
+            final boolean sharesGroup = sameGroupOpts.containsValue( op.key );
 
-            initInterface_OptLine(op, bp, gbl, gbc);
+            initInterface_OptLine( op, bp, gbl, gbc );
             if (sharesGroup)
             {
                 // Group them under this one.
@@ -637,18 +635,18 @@ import soc.util.Version;
 
                 for (final String kf3 : sameGroupOpts.keySet())
                 {
-                    final String kf2 = sameGroupOpts.get(kf3);
-                    if ((kf2 == null) || ! kf2.equals(op.key))
+                    final String kf2 = sameGroupOpts.get( kf3 );
+                    if ((kf2 == null) || !kf2.equals( op.key ))
                         continue;  // <-- Goes with a a different option --
 
-                    SOCGameOption groupHeadOpt = opts.get(kf3);
+                    SOCGameOption groupHeadOpt = opts.get( kf3 );
                     if (groupHeadOpt == null)
                         continue;  // apparently was removed after initializing sameGroupOpts (internal-use opt?)
-                    optGroup.put(kf3, groupHeadOpt);
+                    optGroup.put( kf3, groupHeadOpt );
                 }
 
                 for (final SOCGameOption op3 : optGroup.values())
-                    initInterface_OptLine(op3, bp, gbl, gbc);
+                    initInterface_OptLine( op3, bp, gbl, gbc );
             }
 
         }  // for(opts)
@@ -1006,8 +1004,7 @@ import soc.util.Version;
     {
         JComboBox<String> ch = new JComboBox<>();
         final String[] chs = op.enumVals;
-        for (int i = 0; i < chs.length; ++i)
-            ch.addItem(chs[i]);
+        for (String s : chs) ch.addItem( s );
 
         int defaultIdx = op.getIntValue() - 1;  // enum numbering is 1-based
         if (defaultIdx > 0)
@@ -1530,7 +1527,7 @@ import soc.util.Version;
             return;  // should not happen, scenDropdown is created before scenInfo
 
         final Object scObj = scenDropdown.getSelectedItem();
-        if ((scObj == null) || ! (scObj instanceof SOCScenario))
+        if ( ! (scObj instanceof SOCScenario))
             return;  // "(none)" item is a String, not a scenario
 
         final SOCScenario scen = (SOCScenario) scObj;
@@ -1582,7 +1579,7 @@ import soc.util.Version;
     {
         String k = SOCPlayerClient.PREF_BOT_TRADE_REJECT_SEC;
         Object v = localPrefs.get(k);
-        if ((v != null) && (v instanceof Integer))
+        if ( v instanceof Integer )
         {
             int iv = (Integer) v;
             if (pi != null)
@@ -1593,7 +1590,7 @@ import soc.util.Version;
 
         k = SOCPlayerClient.PREF_UI_SCALE_FORCE;
         v = localPrefs.get(k);
-        if ((v != null) && (v instanceof Integer))
+        if (v instanceof Integer)
         {
             int iv = (Integer) v;
             if (iv > 3)
@@ -1834,7 +1831,7 @@ import soc.util.Version;
         if (readOnly)
             return;
         Object srcObj = e.getDocument().getProperty("owner");
-        if ((srcObj == null) || ! (srcObj instanceof JTextField))
+        if (! (srcObj instanceof JTextField))
             return;
         final String newText = ((JTextField) srcObj).getText().trim();
         final boolean notEmpty = (newText.length() > 0);

@@ -131,8 +131,8 @@ public class SOCResourceSet implements ResourceSet, Serializable, Cloneable
      */
     public boolean isEmpty()
     {
-        for (int i = 0; i < resources.length; ++i)
-            if (resources[i] != 0)
+        for (int resource : resources)
+            if (resource != 0)
                 return false;
 
         return true;
@@ -451,14 +451,13 @@ public class SOCResourceSet implements ResourceSet, Serializable, Cloneable
      */
     public String toString()
     {
-        String s = "clay=" + resources[SOCResourceConstants.CLAY]
+
+        return "clay=" + resources[SOCResourceConstants.CLAY]
             + "|ore=" + resources[SOCResourceConstants.ORE]
             + "|sheep=" + resources[SOCResourceConstants.SHEEP]
             + "|wheat=" + resources[SOCResourceConstants.WHEAT]
             + "|wood=" + resources[SOCResourceConstants.WOOD]
             + "|unknown=" + resources[SOCResourceConstants.UNKNOWN];
-
-        return s;
     }
 
     /**
@@ -469,14 +468,13 @@ public class SOCResourceSet implements ResourceSet, Serializable, Cloneable
      */
     public String toShortString()
     {
-        String s = "Resources: " + resources[SOCResourceConstants.CLAY] + " "
+
+        return "Resources: " + resources[SOCResourceConstants.CLAY] + " "
             + resources[SOCResourceConstants.ORE] + " "
             + resources[SOCResourceConstants.SHEEP] + " "
             + resources[SOCResourceConstants.WHEAT] + " "
             + resources[SOCResourceConstants.WOOD] + " "
             + resources[SOCResourceConstants.UNKNOWN];
-
-        return s;
     }
 
     /**

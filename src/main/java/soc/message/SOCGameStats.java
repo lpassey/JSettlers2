@@ -120,19 +120,17 @@ public class SOCGameStats extends SOCMessage
      */
     public static String toCmd(String ga, int[] sc, boolean[] rb)
     {
-        String cmd = GAMESTATS + sep + ga;
+        StringBuilder cmd = new StringBuilder( GAMESTATS + sep + ga );
 
-        for (int i = 0; i < sc.length; i++)
+        for (int value : sc)
         {
-            cmd += (sep2 + sc[i]);
+            cmd.append( sep2 ).append( value );
         }
-
-        for (int i = 0; i < rb.length; i++)
+        for (boolean b : rb)
         {
-            cmd += (sep2 + rb[i]);
+            cmd.append( sep2 ).append( b );
         }
-
-        return cmd;
+        return cmd.toString();
     }
 
     /**
@@ -179,18 +177,18 @@ public class SOCGameStats extends SOCMessage
      */
     public String toString()
     {
-        StringBuffer text = new StringBuffer("SOCGameStats:game=");
+        StringBuilder text = new StringBuilder("SOCGameStats:game=");
         text.append(game);
-        for (int i = 0; i < scores.length; i++)
+        for (int score : scores)
         {
-            text.append("|");
-            text.append(scores[i]);
+            text.append( "|" );
+            text.append( score );
         }
 
-        for (int i = 0; i < robots.length; i++)
+        for (boolean robot : robots)
         {
-            text.append("|");
-            text.append(robots[i]);
+            text.append( "|" );
+            text.append( robot );
         }
 
         return text.toString();

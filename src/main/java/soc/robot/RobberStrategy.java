@@ -239,35 +239,35 @@ public class RobberStrategy
        final boolean skipDeserts = game.isGameOptionSet("RD");  // can't move robber to desert
        SOCBoard gboard = (skipDeserts ? game.getBoard() : null);
 
-       for (int i = 0; i < hexes.length; i++)
+       for (int hex : hexes)
        {
            /**
             * only check hexes that we're not touching,
             * and not the robber hex, and possibly not desert hexes
             */
-           if ((hexes[i] != prevRobberHex)
-                   && ourPlayerData.getNumbers().hasNoResourcesForHex(hexes[i])
-                   && ! (skipDeserts && (gboard.getHexTypeFromCoord(hexes[i]) == SOCBoard.DESERT_HEX )))
+           if ((hex != prevRobberHex)
+               && ourPlayerData.getNumbers().hasNoResourcesForHex( hex )
+               && !(skipDeserts && (gboard.getHexTypeFromCoord( hex ) == SOCBoard.DESERT_HEX)))
            {
-               estimate.recalculateEstimates(victim.getNumbers(), hexes[i]);
+               estimate.recalculateEstimates( victim.getNumbers(), hex );
 
-               int[] speeds = estimate.getEstimatesFromNothingFast(victim.getPortFlags());
+               int[] speeds = estimate.getEstimatesFromNothingFast( victim.getPortFlags() );
                int totalSpeed = 0;
 
                for (int j = SOCBuildingSpeedEstimate.MIN;
-                        j < SOCBuildingSpeedEstimate.MAXPLUSONE; j++)
+                    j < SOCBuildingSpeedEstimate.MAXPLUSONE; j++)
                {
                    totalSpeed += speeds[j];
                }
 
-               log.debug("total Speed = " + totalSpeed);
+               log.debug( "total Speed = " + totalSpeed );
 
                if (totalSpeed > worstSpeed)
                {
-                   bestHex = hexes[i];
+                   bestHex = hex;
                    worstSpeed = totalSpeed;
-                   log.debug("bestHex = " + Integer.toHexString(bestHex));
-                   log.debug("worstSpeed = " + worstSpeed);
+                   log.debug( "bestHex = " + Integer.toHexString( bestHex ) );
+                   log.debug( "worstSpeed = " + worstSpeed );
                }
            }
        }

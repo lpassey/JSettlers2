@@ -1878,11 +1878,10 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         if (encounteredSelf.size() > 0)
         {
             // go from the farthest, inwards
-            for (int i = 0; i < encounteredSelf.size(); ++i)
+            for (ArrayList<Object> self : encounteredSelf)
             {
-                ArrayList<Object> self = encounteredSelf.get(i);
                 final int farNode = (Integer) self.get( 0 );
-                SOCShip nearestShip = (SOCShip) self.get(1);
+                SOCShip nearestShip = (SOCShip) self.get( 1 );
                 if (nearestShip.isClosed())
                     continue;  // already closed
 
@@ -1896,39 +1895,41 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                 {
                     // just 1 ship along that segment
                     recheck = isTradeRouteFarEndClosed
-                        (nearestShip, farNode, reAlready, reSelf);
-                } else {
+                        ( nearestShip, farNode, reAlready, reSelf );
+                }
+                else
+                {
                     // 2 or more ships
-                    final int nextNearEdge = ((SOCShip) self.get(2)).getCoordinates();
+                    final int nextNearEdge = ((SOCShip) self.get( 2 )).getCoordinates();
                     recheck = isTradeRouteFarEndClosed
-                        (nearestShip,
-                         game.getBoard().getNodeBetweenAdjacentEdges
-                             (nearestShip.getCoordinates(), nextNearEdge),
-                         reAlready, reSelf);
+                        ( nearestShip,
+                            game.getBoard().getNodeBetweenAdjacentEdges
+                                ( nearestShip.getCoordinates(), nextNearEdge ),
+                            reAlready, reSelf );
                 }
 
                 if (recheck == null)
                     continue;  // still not closed
 
                 // close the re-checked segment
-                segment.addAll(recheck);
+                segment.addAll( recheck );
                 for (SOCShip sh : recheck)
                     sh.setClosed();
 
                 if (isTradeRouteFarEndClosed_foundVillage != null)
                 {
-                    final boolean gotCloth = isTradeRouteFarEndClosed_foundVillage.addTradingPlayer(this);
+                    final boolean gotCloth = isTradeRouteFarEndClosed_foundVillage.addTradingPlayer( this );
                     final boolean flagNew =
-                        ! hasPlayerEvent(SOCPlayerEvent.CLOTH_TRADE_ESTABLISHED_VILLAGE);
+                        !hasPlayerEvent( SOCPlayerEvent.CLOTH_TRADE_ESTABLISHED_VILLAGE );
 
                     if (flagNew)
-                        setPlayerEvent(SOCPlayerEvent.CLOTH_TRADE_ESTABLISHED_VILLAGE);
+                        setPlayerEvent( SOCPlayerEvent.CLOTH_TRADE_ESTABLISHED_VILLAGE );
                     if (flagNew || gotCloth)
                     {
                         if (game.gameEventListener != null)
                             game.gameEventListener.playerEvent
-                                (game, this, SOCPlayerEvent.CLOTH_TRADE_ESTABLISHED_VILLAGE,
-                                 flagNew, isTradeRouteFarEndClosed_foundVillage);
+                                ( game, this, SOCPlayerEvent.CLOTH_TRADE_ESTABLISHED_VILLAGE,
+                                    flagNew, isTradeRouteFarEndClosed_foundVillage );
                     }
                 }
             }

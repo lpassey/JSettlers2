@@ -331,7 +331,7 @@ public class SOCBoardLayout extends SOCMessage
         if (sp == null)
             return null;
         String[] pieces = sp.split(SOCMessage.sep2);
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
         ret.append(pieces[0]);
         ret.append(sep2);
         for (int i = 0; i < 2; i++)

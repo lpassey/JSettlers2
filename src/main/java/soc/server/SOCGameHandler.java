@@ -1227,21 +1227,20 @@ public class SOCGameHandler extends GameHandler
         } else {
             gameSItoPlayer = new HashMap<>();
 
-            for (int i = 0; i < gameSITypes.length; ++i)
+            for (final String tkey : gameSITypes)
             {
-                final String tkey = gameSITypes[i];
-                ArrayList<SOCSpecialItem> gsi = gameData.getSpecialItems(tkey);
+                ArrayList<SOCSpecialItem> gsi = gameData.getSpecialItems( tkey );
                 if (gsi == null)
                     continue;  // shouldn't happen
 
                 final int L = gsi.size();
                 for (int gi = 0; gi < L; ++gi)  // use this loop type to avoid ConcurrentModificationException if locking bug
                 {
-                    final SOCSpecialItem si = gsi.get(gi);
+                    final SOCSpecialItem si = gsi.get( gi );
                     if (si == null)
                     {
-                        srv.messageToPlayer(c, gameName, SOCServer.PN_OBSERVER,
-                             new SOCSetSpecialItem(gameName, SOCSetSpecialItem.OP_CLEAR, tkey, gi, -1, -1));
+                        srv.messageToPlayer( c, gameName, SOCServer.PN_OBSERVER,
+                            new SOCSetSpecialItem( gameName, SOCSetSpecialItem.OP_CLEAR, tkey, gi, -1, -1 ) );
                         continue;
                     }
 
@@ -1249,12 +1248,12 @@ public class SOCGameHandler extends GameHandler
                     final SOCPlayer pl = si.getPlayer();
                     if (pl != null)
                     {
-                        ArrayList<SOCSpecialItem> iList = pl.getSpecialItems(tkey);
+                        ArrayList<SOCSpecialItem> iList = pl.getSpecialItems( tkey );
                         if (iList != null)
                         {
                             for (int k = 0; k < iList.size(); ++k)
                             {
-                                if (si == iList.get(k))
+                                if (si == iList.get( k ))
                                 {
                                     pi = k;
                                     break;
@@ -1263,18 +1262,18 @@ public class SOCGameHandler extends GameHandler
                         }
                     }
 
-                    srv.messageToPlayer(c, gameName, SOCServer.PN_OBSERVER,
-                        new SOCSetSpecialItem(gameData, SOCSetSpecialItem.OP_SET, tkey, gi, pi, si));
+                    srv.messageToPlayer( c, gameName, SOCServer.PN_OBSERVER,
+                        new SOCSetSpecialItem( gameData, SOCSetSpecialItem.OP_SET, tkey, gi, pi, si ) );
 
                     if (pi != -1)
                     {
                         // remember for use when sending per-player info
 
-                        ArrayList<SOCSpecialItem>[] toAllPl = gameSItoPlayer.get(tkey);
+                        ArrayList<SOCSpecialItem>[] toAllPl = gameSItoPlayer.get( tkey );
                         if (toAllPl == null)
                         {
                             toAllPl = new ArrayList[gameData.maxPlayers];
-                            gameSItoPlayer.put(tkey, toAllPl);
+                            gameSItoPlayer.put( tkey, toAllPl );
                         }
 
                         ArrayList<SOCSpecialItem> iList = toAllPl[pl.getPlayerNumber()];
@@ -1287,11 +1286,11 @@ public class SOCGameHandler extends GameHandler
                         int iLL = iList.size();
                         while (iLL <= pi)
                         {
-                            iList.add(null);
+                            iList.add( null );
                             ++iLL;
                         }
 
-                        iList.set(pi, si);
+                        iList.set( pi, si );
                     }
                 }
             }
@@ -1457,34 +1456,33 @@ public class SOCGameHandler extends GameHandler
             {
                 // per-player Special Item info
 
-                for (int j = 0; j < gameSITypes.length; ++j)
+                for (final String tkey : gameSITypes)
                 {
-                    final String tkey = gameSITypes[j];
-                    ArrayList<SOCSpecialItem> plsi = pl.getSpecialItems(tkey);
+                    ArrayList<SOCSpecialItem> plsi = pl.getSpecialItems( tkey );
                     if (plsi == null)
                         continue;  // shouldn't happen
 
                     // pi loop body checks gameSItoPlayer to see if already sent (object shared with game)
-                    final ArrayList<SOCSpecialItem>[] toAllPl = gameSItoPlayer.get(tkey);
+                    final ArrayList<SOCSpecialItem>[] toAllPl = gameSItoPlayer.get( tkey );
                     final ArrayList<SOCSpecialItem> iList = (toAllPl != null) ? toAllPl[i] : null;
 
                     final int L = plsi.size();
                     for (int pi = 0; pi < L; ++pi)  // use this loop type to avoid ConcurrentModificationException
                     {
-                        final SOCSpecialItem si = plsi.get(pi);
+                        final SOCSpecialItem si = plsi.get( pi );
                         if (si == null)
                         {
-                            srv.messageToPlayer(c, gameName, SOCServer.PN_OBSERVER,
+                            srv.messageToPlayer( c, gameName, SOCServer.PN_OBSERVER,
                                 new SOCSetSpecialItem
-                                    (gameName, SOCSetSpecialItem.OP_CLEAR, tkey, -1, pi, i));
+                                    ( gameName, SOCSetSpecialItem.OP_CLEAR, tkey, -1, pi, i ) );
                             continue;
                         }
 
-                        if ((iList != null) && (iList.size() > pi) && (iList.get(pi) == si))
+                        if ((iList != null) && (iList.size() > pi) && (iList.get( pi ) == si))
                             continue;  // already sent (shared with game)
 
-                        srv.messageToPlayer(c, gameName, SOCServer.PN_OBSERVER,
-                            new SOCSetSpecialItem(gameData, SOCSetSpecialItem.OP_SET, tkey, -1, pi, si));
+                        srv.messageToPlayer( c, gameName, SOCServer.PN_OBSERVER,
+                            new SOCSetSpecialItem( gameData, SOCSetSpecialItem.OP_SET, tkey, -1, pi, si ) );
                     }
                 }
             }
@@ -1607,8 +1605,7 @@ public class SOCGameHandler extends GameHandler
             {
                 final int n = gameMembers.size();
                 memberNames = new ArrayList<>( n );
-                for (int i = 0; i < n; ++i)
-                    memberNames.add(gameMembers.get(i).getData());
+                for (Connection gameMember : gameMembers) memberNames.add( gameMember.getData() );
             }
         }
         catch (Exception e)
@@ -1791,16 +1788,15 @@ public class SOCGameHandler extends GameHandler
             seCoord[i] = edges;
 
             final int edgeSEType = SOCBoardLarge.SPECIAL_EDGE_TYPES[i];
-            for (int j = 0; j < edges.length; ++j)
+            for (final int edge : edges)
             {
-                final int edge = edges[j];
-                final int seType = board.getSpecialEdgeType(edge);
+                final int seType = board.getSpecialEdgeType( edge );
 
                 if (seType != edgeSEType)
                     // removed (type 0) or changed type
                     srv.messageToPlayer
-                        (c, gaName, SOCServer.PN_OBSERVER,
-                         new SOCSimpleAction(gaName, -1, SOCSimpleAction.BOARD_EDGE_SET_SPECIAL, edge, seType));
+                        ( c, gaName, SOCServer.PN_OBSERVER,
+                            new SOCSimpleAction( gaName, -1, SOCSimpleAction.BOARD_EDGE_SET_SPECIAL, edge, seType ) );
             }
         }
 
@@ -4594,8 +4590,7 @@ public class SOCGameHandler extends GameHandler
             {
                 final Connection c = srv.getConnection(p.getName());
                 if (c != null)
-                    for (int i = 0; i < L; ++i)
-                        srv.messageToPlayer(c, gaName, pn, ((SOCMessage) pq.get(i)));
+                    for (Object o : pq) srv.messageToPlayer( c, gaName, pn, ((SOCMessage) o) );
 
                 pq.clear();
             }

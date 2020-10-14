@@ -514,7 +514,7 @@ public class StringConnection
     @Override
     public String toString()
     {
-        StringBuffer sb = new StringBuffer("StringConnection[");
+        StringBuilder sb = new StringBuilder("StringConnection[");
         if (data != null)
             sb.append(data);
         else

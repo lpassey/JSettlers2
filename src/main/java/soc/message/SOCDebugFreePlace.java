@@ -250,9 +250,7 @@ public class SOCDebugFreePlace extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCDebugFreePlace:game=" + game + "|playerNumber=" + playerNumber + "|pieceType=" + pieceType + "|coord=0x" + Integer.toHexString(coordinates);
-
-        return s;
+        return "SOCDebugFreePlace:game=" + game + "|playerNumber=" + playerNumber + "|pieceType=" + pieceType + "|coord=0x" + Integer.toHexString(coordinates);
     }
 
 }

@@ -185,7 +185,7 @@ public class SOCGameListAtServer extends SOCGameList
     public GameHandler getGameTypeHandler(final String gaName)
     {
         GameInfo gi = gameInfo.get(gaName);
-        if ((gi == null) || ! (gi instanceof GameInfoAtServer))
+        if (!(gi instanceof GameInfoAtServer))
             return null;
 
         return ((GameInfoAtServer) gi).handler;
@@ -200,7 +200,7 @@ public class SOCGameListAtServer extends SOCGameList
     public GameMessageHandler getGameTypeMessageHandler(final String gaName)
     {
         GameInfo gi = gameInfo.get(gaName);
-        if ((gi == null) || ! (gi instanceof GameInfoAtServer))
+        if (!(gi instanceof GameInfoAtServer))
             return null;
 
         return ((GameInfoAtServer) gi).messageHandler;
@@ -595,14 +595,14 @@ public class SOCGameListAtServer extends SOCGameList
      * @return A random string of that length
      * @since 2.3.00
      */
-    private StringBuffer randomAlphanumericLegibles(final int length)
+    private String randomAlphanumericLegibles(final int length)
     {
         final int L = ALPHANUMERIC_LEGIBLE_CHOICES.length();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length; ++i)
             sb.append(ALPHANUMERIC_LEGIBLE_CHOICES.charAt(rand.nextInt(L)));
 
-        return sb;
+        return sb.toString();
     }
 
     /**
@@ -921,7 +921,7 @@ public class SOCGameListAtServer extends SOCGameList
                 } else if (cliCanKnow)
                 {
                     //  Cannot join, but can see it
-                    StringBuffer sb = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
                     sb.append(SOCGames.MARKER_THIS_GAME_UNJOINABLE);
                     sb.append(g.getName());
                     gl.add(sb.toString());
@@ -943,9 +943,8 @@ public class SOCGameListAtServer extends SOCGameList
 
             } else {
                 // send deltas only
-                for (int i = 0; i < gl.size(); ++i)
+                for (Object ob : gl)
                 {
-                    Object ob = gl.get(i);
                     String gaName;
                     if (ob instanceof SOCGame)
                         gaName = ((SOCGame) ob).getName();
@@ -955,13 +954,13 @@ public class SOCGameListAtServer extends SOCGameList
                     if (cliCouldKnow)
                     {
                         // first send delete, if it's on their list already
-                        c.put(new SOCDeleteGame(gaName));
+                        c.put( new SOCDeleteGame( gaName ) );
                     }
                     // announce as 'new game' to client
                     if ((ob instanceof SOCGame) && (cliVers >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS))
-                        c.put(new SOCNewGameWithOptions((SOCGame) ob, cliVers));
+                        c.put( new SOCNewGameWithOptions( (SOCGame) ob, cliVers ) );
                     else
-                        c.put(new SOCNewGame(gaName));
+                        c.put( new SOCNewGame( gaName ) );
                 }
             }
         }

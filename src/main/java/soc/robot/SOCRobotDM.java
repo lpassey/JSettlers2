@@ -347,8 +347,8 @@ public class SOCRobotDM
     D.ebugPrintlnINFO("PLANSTUFF");
 
     SOCBuildingSpeedEstimate currentBSE = getEstimator(ourPlayerData.getNumbers());
-    int currentBuildingETAs[] = currentBSE.getEstimatesFromNowFast
-        (ourPlayerData.getResources(), ourPlayerData.getPortFlags());
+      int[] currentBuildingETAs = currentBSE.getEstimatesFromNowFast
+          ( ourPlayerData.getResources(), ourPlayerData.getPortFlags() );
 
     threatenedSettlements.clear();
     goodSettlements.clear();
@@ -506,19 +506,17 @@ public class SOCRobotDM
       //
       if (ourPlayerData.getNumPieces(SOCPlayingPiece.CITY) > 0)
       {
-          Iterator<SOCPossibleCity> posCitiesIter = ourPlayerTracker.getPossibleCities().values().iterator();
-          while (posCitiesIter.hasNext())
+          for (SOCPossibleCity posCity : ourPlayerTracker.getPossibleCities().values())
           {
-              SOCPossibleCity posCity = posCitiesIter.next();
-              D.ebugPrintlnINFO("Estimate speedup of city at "+game.getBoard().nodeCoordToString(posCity.getCoordinates()));
-              D.ebugPrintlnINFO("Speedup = "+posCity.getSpeedupTotal());
-              D.ebugPrintlnINFO("ETA = "+buildingETAs[SOCBuildingSpeedEstimate.CITY]);
+              D.ebugPrintlnINFO( "Estimate speedup of city at " + game.getBoard().nodeCoordToString( posCity.getCoordinates() ) );
+              D.ebugPrintlnINFO( "Speedup = " + posCity.getSpeedupTotal() );
+              D.ebugPrintlnINFO( "ETA = " + buildingETAs[SOCBuildingSpeedEstimate.CITY] );
               if ((brain != null) && brain.getDRecorder().isOn())
               {
-                  brain.getDRecorder().startRecording("CITY"+posCity.getCoordinates());
-                  brain.getDRecorder().record("Estimate speedup of city at "+game.getBoard().nodeCoordToString(posCity.getCoordinates()));
-                  brain.getDRecorder().record("Speedup = "+posCity.getSpeedupTotal());
-                  brain.getDRecorder().record("ETA = "+buildingETAs[SOCBuildingSpeedEstimate.CITY]);
+                  brain.getDRecorder().startRecording( "CITY" + posCity.getCoordinates() );
+                  brain.getDRecorder().record( "Estimate speedup of city at " + game.getBoard().nodeCoordToString( posCity.getCoordinates() ) );
+                  brain.getDRecorder().record( "Speedup = " + posCity.getSpeedupTotal() );
+                  brain.getDRecorder().record( "ETA = " + buildingETAs[SOCBuildingSpeedEstimate.CITY] );
                   brain.getDRecorder().stopRecording();
               }
               if ((favoriteCity == null) ||
@@ -538,47 +536,50 @@ public class SOCRobotDM
       //
       // pick something to build
       //
-      Iterator<SOCPossibleSettlement> posSetsIter = ourPlayerTracker.getPossibleSettlements().values().iterator();
-      while (posSetsIter.hasNext())
-      {
-          SOCPossibleSettlement posSet = posSetsIter.next();
+        for (SOCPossibleSettlement posSet : ourPlayerTracker.getPossibleSettlements().values())
+        {
+            if ((brain != null) && brain.getDRecorder().isOn())
+            {
+                brain.getDRecorder().startRecording( "SETTLEMENT" + posSet.getCoordinates() );
+                brain.getDRecorder().record( "Estimate speedup of stlmt at " + game.getBoard().nodeCoordToString( posSet.getCoordinates() ) );
+                brain.getDRecorder().record( "Speedup = " + posSet.getSpeedupTotal() );
+                brain.getDRecorder().record( "ETA = " + posSet.getETA() );
+                Stack<SOCPossibleRoad> roadPath = posSet.getRoadPath();
+                if (roadPath != null)
+                {
+                    brain.getDRecorder().record( "Path:" );
+                    for (SOCPossibleRoad posRoad : roadPath)
+                    {
+                        brain.getDRecorder().record( "Road at " + game.getBoard().edgeCoordToString( posRoad.getCoordinates() ) );
+                    }
+                }
+                brain.getDRecorder().stopRecording();
+            }
 
-          if ((brain != null) && brain.getDRecorder().isOn())
-          {
-              brain.getDRecorder().startRecording("SETTLEMENT"+posSet.getCoordinates());
-              brain.getDRecorder().record("Estimate speedup of stlmt at "+game.getBoard().nodeCoordToString(posSet.getCoordinates()));
-              brain.getDRecorder().record("Speedup = "+posSet.getSpeedupTotal());
-              brain.getDRecorder().record("ETA = "+posSet.getETA());
-              Stack<SOCPossibleRoad> roadPath = posSet.getRoadPath();
-              if (roadPath != null)
-              {
-                  brain.getDRecorder().record("Path:");
-                  Iterator<SOCPossibleRoad> rpIter = roadPath.iterator();
-                  while (rpIter.hasNext()) {
-                      SOCPossibleRoad posRoad = rpIter.next();
-                      brain.getDRecorder().record("Road at "+game.getBoard().edgeCoordToString(posRoad.getCoordinates()));
-                  }
-              }
-              brain.getDRecorder().stopRecording();
-          }
-
-          if (posSet.getETA() < bestETA) {
-              bestETA = posSet.getETA();
-              favoriteSettlement = posSet;
-          } else if (posSet.getETA() == bestETA) {
-              if (favoriteSettlement == null) {
-                  if ((favoriteCity == null) ||
-                      (posSet.getSpeedupTotal() > favoriteCity.getSpeedupTotal()))
-                  {
-                      favoriteSettlement = posSet;
-                  }
-              } else {
-                  if (posSet.getSpeedupTotal() > favoriteSettlement.getSpeedupTotal()) {
-                      favoriteSettlement = posSet;
-                  }
-              }
-          }
-      }
+            if (posSet.getETA() < bestETA)
+            {
+                bestETA = posSet.getETA();
+                favoriteSettlement = posSet;
+            }
+            else if (posSet.getETA() == bestETA)
+            {
+                if (favoriteSettlement == null)
+                {
+                    if ((favoriteCity == null) ||
+                        (posSet.getSpeedupTotal() > favoriteCity.getSpeedupTotal()))
+                    {
+                        favoriteSettlement = posSet;
+                    }
+                }
+                else
+                {
+                    if (posSet.getSpeedupTotal() > favoriteSettlement.getSpeedupTotal())
+                    {
+                        favoriteSettlement = posSet;
+                    }
+                }
+            }
+        }
 
       if (favoriteSettlement != null)
       {
@@ -759,21 +760,20 @@ public class SOCRobotDM
       if ((ourPlayerData.getNumPieces(SOCPlayingPiece.CITY) > 0)
           && (buildingETAs[SOCBuildingSpeedEstimate.CITY] <= bestETA))
       {
-          Iterator<SOCPossibleCity> posCitiesIter = ourPlayerTracker.getPossibleCities().values().iterator();
-          while (posCitiesIter.hasNext())
+          for (SOCPossibleCity posCity : ourPlayerTracker.getPossibleCities().values())
           {
-              SOCPossibleCity posCity = posCitiesIter.next();
               if ((brain != null) && brain.getDRecorder().isOn())
               {
-                  brain.getDRecorder().startRecording("CITY"+posCity.getCoordinates());
-                  brain.getDRecorder().record("Estimate speedup of city at "
-                      + game.getBoard().nodeCoordToString(posCity.getCoordinates()));
-                  brain.getDRecorder().record("Speedup = "+posCity.getSpeedupTotal());
-                  brain.getDRecorder().record("ETA = "+buildingETAs[SOCBuildingSpeedEstimate.CITY]);
+                  brain.getDRecorder().startRecording( "CITY" + posCity.getCoordinates() );
+                  brain.getDRecorder().record( "Estimate speedup of city at "
+                      + game.getBoard().nodeCoordToString( posCity.getCoordinates() ) );
+                  brain.getDRecorder().record( "Speedup = " + posCity.getSpeedupTotal() );
+                  brain.getDRecorder().record( "ETA = " + buildingETAs[SOCBuildingSpeedEstimate.CITY] );
                   brain.getDRecorder().stopRecording();
               }
               if ((favoriteCity == null) ||
-                      (posCity.getSpeedupTotal() > favoriteCity.getSpeedupTotal())) {
+                  (posCity.getSpeedupTotal() > favoriteCity.getSpeedupTotal()))
+              {
                   favoriteCity = posCity;
                   bestETA = buildingETAs[SOCBuildingSpeedEstimate.CITY];
                   choice = CITY_CHOICE;
@@ -787,39 +787,38 @@ public class SOCRobotDM
       if (ourPlayerData.getNumPieces(SOCPlayingPiece.SETTLEMENT) > 0)
       {
           scoreSettlementsForDumb(buildingETAs[SOCBuildingSpeedEstimate.SETTLEMENT], ourBSE);
-          Iterator<SOCPossibleSettlement> posSetsIter = ourPlayerTracker.getPossibleSettlements().values().iterator();
-          while (posSetsIter.hasNext())
+          for (SOCPossibleSettlement posSet : ourPlayerTracker.getPossibleSettlements().values())
           {
-              SOCPossibleSettlement posSet = posSetsIter.next();
               if ((brain != null) && brain.getDRecorder().isOn())
               {
-                  brain.getDRecorder().startRecording("SETTLEMENT"+posSet.getCoordinates());
-                  brain.getDRecorder().record("Estimate speedup of stlmt at "
-                      + game.getBoard().nodeCoordToString(posSet.getCoordinates()));
-                  brain.getDRecorder().record("Speedup = "+posSet.getSpeedupTotal());
-                  brain.getDRecorder().record("ETA = "+posSet.getETA());
+                  brain.getDRecorder().startRecording( "SETTLEMENT" + posSet.getCoordinates() );
+                  brain.getDRecorder().record( "Estimate speedup of stlmt at "
+                      + game.getBoard().nodeCoordToString( posSet.getCoordinates() ) );
+                  brain.getDRecorder().record( "Speedup = " + posSet.getSpeedupTotal() );
+                  brain.getDRecorder().record( "ETA = " + posSet.getETA() );
                   Stack<SOCPossibleRoad> roadPath = posSet.getRoadPath();
                   if (roadPath != null)
                   {
-                      brain.getDRecorder().record("Path:");
-                      Iterator<SOCPossibleRoad> rpIter = roadPath.iterator();
-                      while (rpIter.hasNext()) {
-                          SOCPossibleRoad posRoad = rpIter.next();
-                          brain.getDRecorder().record("Road at "+game.getBoard().edgeCoordToString(posRoad.getCoordinates()));
+                      brain.getDRecorder().record( "Path:" );
+                      for (SOCPossibleRoad posRoad : roadPath)
+                      {
+                          brain.getDRecorder().record( "Road at " + game.getBoard().edgeCoordToString( posRoad.getCoordinates() ) );
                       }
                   }
                   brain.getDRecorder().stopRecording();
               }
 
               if ((posSet.getRoadPath() == null)
-                  || (ourPlayerData.getNumPieces(SOCPlayingPiece.ROAD) >= posSet.getRoadPath().size()))
+                  || (ourPlayerData.getNumPieces( SOCPlayingPiece.ROAD ) >= posSet.getRoadPath().size()))
               {
                   if (posSet.getETA() < bestETA)
                   {
                       bestETA = posSet.getETA();
                       favoriteSettlement = posSet;
                       choice = SETTLEMENT_CHOICE;
-                  } else if (posSet.getETA() == bestETA) {
+                  }
+                  else if (posSet.getETA() == bestETA)
+                  {
                       if (favoriteSettlement == null)
                       {
                           if ((favoriteCity == null)
@@ -828,7 +827,9 @@ public class SOCRobotDM
                               favoriteSettlement = posSet;
                               choice = SETTLEMENT_CHOICE;
                           }
-                      } else {
+                      }
+                      else
+                      {
                           if (posSet.getSpeedupTotal() > favoriteSettlement.getSpeedupTotal())
                           {
                               favoriteSettlement = posSet;
@@ -919,135 +920,139 @@ public class SOCRobotDM
   {
     D.ebugPrintlnINFO("-- scoreSettlementsForDumb --");
 
-    Queue<Pair<SOCPossibleRoad, List<SOCPossibleRoad>>> queue
-        = new Queue<>();
-    Iterator<SOCPossibleSettlement> posSetsIter = ourPlayerTracker.getPossibleSettlements().values().iterator();
-    while (posSetsIter.hasNext())
-    {
-      SOCPossibleSettlement posSet = posSetsIter.next();
-      if (D.ebugOn)
+    Queue<Pair<SOCPossibleRoad, List<SOCPossibleRoad>>> queue = new Queue<>();
+      for (SOCPossibleSettlement posSet : ourPlayerTracker.getPossibleSettlements().values())
       {
-          D.ebugPrintlnINFO("Estimate speedup of stlmt at " + game.getBoard().nodeCoordToString(posSet.getCoordinates()));
-          D.ebugPrintlnINFO("***    speedup total = " + posSet.getSpeedupTotal());
-      }
+          if (D.ebugOn)
+          {
+              D.ebugPrintlnINFO( "Estimate speedup of stlmt at " + game.getBoard().nodeCoordToString( posSet.getCoordinates() ) );
+              D.ebugPrintlnINFO( "***    speedup total = " + posSet.getSpeedupTotal() );
+          }
 
-      ///
-      /// find the shortest path to this settlement
-      ///
-      final List<SOCPossibleRoad> necRoadList = posSet.getNecessaryRoads();
-      if (! necRoadList.isEmpty())
-      {
-          queue.clear();  // will use for BFS if needed:
+          ///
+          /// find the shortest path to this settlement
+          ///
+          final List<SOCPossibleRoad> necRoadList = posSet.getNecessaryRoads();
+          if (!necRoadList.isEmpty())
+          {
+              queue.clear();  // will use for BFS if needed:
               // Pair members are <SOCPossibleRoad, null or list of SOCPossibleRoad needed to build that road>.
               // Lists have most-distant necessary road at beginning (item 0), and most-immediate at end of list (n-1).
 
-          for (SOCPossibleRoad necRoad : necRoadList)
-          {
-              if (D.ebugOn)
-                  D.ebugPrintlnINFO("-- queuing necessary road at " + game.getBoard().edgeCoordToString(necRoad.getCoordinates()));
-              queue.put(new Pair<SOCPossibleRoad, List<SOCPossibleRoad>>(necRoad, null));
-          }
-
-          //
-          // Do a BFS of the necessary road paths looking for the shortest one.
-          //
-          boolean pathTooLong = false;
-          for (int maxIter = 50; maxIter > 0 && ! queue.empty(); --maxIter)
-          {
-              Pair<SOCPossibleRoad, List<SOCPossibleRoad>> dataPair = queue.get();
-              SOCPossibleRoad curRoad = dataPair.getA();
-              final List<SOCPossibleRoad> possRoadsToCur = dataPair.getB();
-              if (D.ebugOn)
-                  D.ebugPrintlnINFO("-- current road at " + game.getBoard().edgeCoordToString(curRoad.getCoordinates()));
-
-              final List<SOCPossibleRoad> necRoads = curRoad.getNecessaryRoads();
-              if (necRoads.isEmpty())
+              for (SOCPossibleRoad necRoad : necRoadList)
               {
-                  //
-                  // we have a path
-                  //
-                  D.ebugPrintlnINFO("Found a path!");
-                  Stack<SOCPossibleRoad> path = new Stack<>();
-                  path.push(curRoad);
-
                   if (D.ebugOn)
-                      D.ebugPrintlnINFO("possRoadsToCur = " + possRoadsToCur);
-                  if (possRoadsToCur != null)
-                      // push to path, iterating from nearest to curRoad until most distant
-                      for (int i = possRoadsToCur.size() - 1; i >= 0; --i)
-                          path.push(possRoadsToCur.get(i));
-
-                  posSet.setRoadPath(path);
-                  queue.clear();
-                  D.ebugPrintlnINFO("Done setting path.");
-              } else {
-                  final List<SOCPossibleRoad> possRoadsAndCur =
-                      (possRoadsToCur != null)
-                      ? new ArrayList<>( possRoadsToCur )
-                      : new ArrayList<SOCPossibleRoad>();
-                  possRoadsAndCur.add(curRoad);
-
-                  if (queue.size() + necRoads.size() > 40)
-                  {
-                      // Too many necessary, or dupes led to loop. Bug in necessary road construction?
-                      System.err.println("rDM.scoreSettlementsForDumb: Necessary Road Path too long for road/ship 0x"
-                          + Integer.toHexString(curRoad.getCoordinates()) + " for settle 0x"
-                          + Integer.toHexString(posSet.getCoordinates()));
-                      pathTooLong = true;
-                      queue.clear();
-                      break;
-                  }
-
-                  for (SOCPossibleRoad necRoad2 : necRoads)
-                  {
-                      if (D.ebugOn)
-                          D.ebugPrintlnINFO("-- queuing necessary road at " + game.getBoard().edgeCoordToString(necRoad2.getCoordinates()));
-                      queue.put( new Pair<>( necRoad2, possRoadsAndCur ));
-                  }
+                      D.ebugPrintlnINFO( "-- queuing necessary road at " + game.getBoard().edgeCoordToString( necRoad.getCoordinates() ) );
+                  queue.put( new Pair<SOCPossibleRoad, List<SOCPossibleRoad>>( necRoad, null ) );
               }
-          }
-          if (! queue.empty())
-          {
-              System.err.println("rDM.scoreSettlementsForDumb: Necessary Road Path length unresolved for settle 0x"
-                  + Integer.toHexString(posSet.getCoordinates()));
-              pathTooLong = true;
-          }
-          D.ebugPrintlnINFO("Done searching for path.");
 
-          //
-          // calculate ETA
-          //
-          if (pathTooLong) {
-              posSet.setETA(500);
-          } else {
-              SOCResourceSet targetResources = new SOCResourceSet();
-              targetResources.add(SOCSettlement.COST);
-              Stack<SOCPossibleRoad> path = posSet.getRoadPath();
-              if (path != null)
+              //
+              // Do a BFS of the necessary road paths looking for the shortest one.
+              //
+              boolean pathTooLong = false;
+              for (int maxIter = 50; maxIter > 0 && !queue.empty(); --maxIter)
               {
-                  final int pathLength = path.size();
-                  final SOCPossiblePiece pathFirst = (pathLength > 0) ? path.peek() : null;
-                  SOCResourceSet rtype =
-                      ((pathFirst != null) && (pathFirst instanceof SOCPossibleShip)
-                       && ! ((SOCPossibleShip) pathFirst).isCoastalRoadAndShip)  // TODO better coastal ETA scoring
-                      ? SOCShip.COST
-                      : SOCRoad.COST;
-                  for (int i = 0; i < pathLength; i++)
-                      targetResources.add(rtype);
-              }
-              posSet.setETA(ourBSE.calculateRollsFast
-                  (ourPlayerData.getResources(), targetResources, 100, ourPlayerData.getPortFlags()));
-          }
-      } else {
-          //
-          // no roads are necessary
-          //
-          posSet.setRoadPath(null);
-          posSet.setETA(settlementETA);
-      }
+                  Pair<SOCPossibleRoad, List<SOCPossibleRoad>> dataPair = queue.get();
+                  SOCPossibleRoad curRoad = dataPair.getA();
+                  final List<SOCPossibleRoad> possRoadsToCur = dataPair.getB();
+                  if (D.ebugOn)
+                      D.ebugPrintlnINFO( "-- current road at " + game.getBoard().edgeCoordToString( curRoad.getCoordinates() ) );
 
-      D.ebugPrintlnINFO("Settlement ETA = " + posSet.getETA());
-    }
+                  final List<SOCPossibleRoad> necRoads = curRoad.getNecessaryRoads();
+                  if (necRoads.isEmpty())
+                  {
+                      //
+                      // we have a path
+                      //
+                      D.ebugPrintlnINFO( "Found a path!" );
+                      Stack<SOCPossibleRoad> path = new Stack<>();
+                      path.push( curRoad );
+
+                      if (D.ebugOn)
+                          D.ebugPrintlnINFO( "possRoadsToCur = " + possRoadsToCur );
+                      if (possRoadsToCur != null)
+                          // push to path, iterating from nearest to curRoad until most distant
+                          for (int i = possRoadsToCur.size() - 1; i >= 0; --i)
+                              path.push( possRoadsToCur.get( i ) );
+
+                      posSet.setRoadPath( path );
+                      queue.clear();
+                      D.ebugPrintlnINFO( "Done setting path." );
+                  }
+                  else
+                  {
+                      final List<SOCPossibleRoad> possRoadsAndCur =
+                          (possRoadsToCur != null)
+                              ? new ArrayList<>( possRoadsToCur )
+                              : new ArrayList<SOCPossibleRoad>();
+                      possRoadsAndCur.add( curRoad );
+
+                      if (queue.size() + necRoads.size() > 40)
+                      {
+                          // Too many necessary, or dupes led to loop. Bug in necessary road construction?
+                          System.err.println( "rDM.scoreSettlementsForDumb: Necessary Road Path too long for road/ship 0x"
+                              + Integer.toHexString( curRoad.getCoordinates() ) + " for settle 0x"
+                              + Integer.toHexString( posSet.getCoordinates() ) );
+                          pathTooLong = true;
+                          queue.clear();
+                          break;
+                      }
+
+                      for (SOCPossibleRoad necRoad2 : necRoads)
+                      {
+                          if (D.ebugOn)
+                              D.ebugPrintlnINFO( "-- queuing necessary road at " + game.getBoard().edgeCoordToString( necRoad2.getCoordinates() ) );
+                          queue.put( new Pair<>( necRoad2, possRoadsAndCur ) );
+                      }
+                  }
+              }
+              if (!queue.empty())
+              {
+                  System.err.println( "rDM.scoreSettlementsForDumb: Necessary Road Path length unresolved for settle 0x"
+                      + Integer.toHexString( posSet.getCoordinates() ) );
+                  pathTooLong = true;
+              }
+              D.ebugPrintlnINFO( "Done searching for path." );
+
+              //
+              // calculate ETA
+              //
+              if (pathTooLong)
+              {
+                  posSet.setETA( 500 );
+              }
+              else
+              {
+                  SOCResourceSet targetResources = new SOCResourceSet();
+                  targetResources.add( SOCSettlement.COST );
+                  Stack<SOCPossibleRoad> path = posSet.getRoadPath();
+                  if (path != null)
+                  {
+                      final int pathLength = path.size();
+                      final SOCPossiblePiece pathFirst = (pathLength > 0) ? path.peek() : null;
+                      SOCResourceSet rtype =
+                          ((pathFirst instanceof SOCPossibleShip)
+                              && !((SOCPossibleShip) pathFirst).isCoastalRoadAndShip)  // TODO better coastal ETA scoring
+                              ? SOCShip.COST
+                              : SOCRoad.COST;
+                      for (int i = 0; i < pathLength; i++)
+                          targetResources.add( rtype );
+                  }
+                  posSet.setETA( ourBSE.calculateRollsFast
+                      ( ourPlayerData.getResources(), targetResources, 100, ourPlayerData.getPortFlags() ) );
+              }
+          }
+          else
+          {
+              //
+              // no roads are necessary
+              //
+              posSet.setRoadPath( null );
+              posSet.setETA( settlementETA );
+          }
+
+          D.ebugPrintlnINFO( "Settlement ETA = " + posSet.getETA() );
+      }
   }
 
   /**
@@ -1183,8 +1188,7 @@ public class SOCRobotDM
         if (! buildingPlan.empty())
         {
           SOCPossiblePiece planPeek = buildingPlan.peek();
-          if ((planPeek == null) ||
-              (! (planPeek instanceof SOCPossibleRoad)))
+          if ( ! (planPeek instanceof SOCPossibleRoad))
           {
             if (secondFavoriteRoad != null)
             {
@@ -1292,13 +1296,11 @@ public class SOCRobotDM
           //
           // check if we've connected to another road graph of this player
           //
-          Iterator<SOCLRPathData> lrPathsIter = pl.getLRPaths().iterator();
-          while (lrPathsIter.hasNext())
+          for (SOCLRPathData pathData : pl.getLRPaths())
           {
-              SOCLRPathData pathData = lrPathsIter.next();
               if ((startNode != pathData.getBeginning())
-                      && (startNode != pathData.getEnd())
-                      && ((coord == pathData.getBeginning()) || (coord == pathData.getEnd())))
+                  && (startNode != pathData.getEnd())
+                  && ((coord == pathData.getBeginning()) || (coord == pathData.getEnd())))
               {
                   pathEnd = true;
                   len += pathData.getLength();
@@ -1521,20 +1523,18 @@ public class SOCRobotDM
     ///
     if (ourPlayerData.getNumPieces(SOCPlayingPiece.ROAD) > 0)
     {
-      Iterator<SOCPossibleRoad> posRoadsIter = ourPlayerTracker.getPossibleRoads().values().iterator();
-      while (posRoadsIter.hasNext())
-      {
-        SOCPossibleRoad posRoad = posRoadsIter.next();
-        if (! posRoad.isRoadNotShip())
-            continue;  // ignore ships in this loop, ships have other conditions to check
-
-        if ((posRoad.getNecessaryRoads().isEmpty())
-            && (! threatenedRoads.contains(posRoad))
-            && (! goodRoads.contains(posRoad)))
+        for (SOCPossibleRoad posRoad : ourPlayerTracker.getPossibleRoads().values())
         {
-          goodRoads.add(posRoad);
+            if (!posRoad.isRoadNotShip())
+                continue;  // ignore ships in this loop, ships have other conditions to check
+
+            if ((posRoad.getNecessaryRoads().isEmpty())
+                && (!threatenedRoads.contains( posRoad ))
+                && (!goodRoads.contains( posRoad )))
+            {
+                goodRoads.add( posRoad );
+            }
         }
-      }
     }
 
     ///
@@ -1553,24 +1553,22 @@ public class SOCRobotDM
             ? ((SOCBoardLarge) board).getAdjacentEdgesToHex_arr(pirateHex)
             : null;
 
-        Iterator<SOCPossibleRoad> posRoadsIter = ourPlayerTracker.getPossibleRoads().values().iterator();
-        while (posRoadsIter.hasNext())
+        for (SOCPossibleRoad posRoad : ourPlayerTracker.getPossibleRoads().values())
         {
-            final SOCPossibleRoad posRoad = posRoadsIter.next();
             if (posRoad.isRoadNotShip())
                 continue;  // ignore roads in this loop, we want ships
 
             if (posRoad.getNecessaryRoads().isEmpty()
-                && (! threatenedRoads.contains(posRoad))
-                && (! goodRoads.contains(posRoad)))
+                && (!threatenedRoads.contains( posRoad ))
+                && (!goodRoads.contains( posRoad )))
             {
                 boolean edgeOK = true;
                 if (pirateEdges != null)
                 {
                     final int edge = posRoad.getCoordinates();
-                    for (int i = 0; i < pirateEdges.length; ++i)
+                    for (int pirateEdge : pirateEdges)
                     {
-                        if (edge == pirateEdges[i])
+                        if (edge == pirateEdge)
                         {
                             edgeOK = false;
                             break;
@@ -1579,7 +1577,7 @@ public class SOCRobotDM
                 }
 
                 if (edgeOK)
-                    goodRoads.add(posRoad);
+                    goodRoads.add( posRoad );
             }
         }
     }
@@ -1771,102 +1769,105 @@ public class SOCRobotDM
     {
       SOCPlayerTracker[] trackersCopy = SOCPlayerTracker.copyPlayerTrackers(playerTrackers);
       SOCPlayerTracker ourTrackerCopy = trackersCopy[ourPlayerNumber];
-      int originalWGETAs[] = new int[game.maxPlayers];
-      int WGETAdiffs[] = new int[game.maxPlayers];
+        int[] originalWGETAs = new int[game.maxPlayers];
+        int[] WGETAdiffs = new int[game.maxPlayers];
       Vector<SOCPlayerTracker> leaders = new Vector<>();
       int bestWGETA = 1000;
       // int bonus = 0;
 
-      Iterator<SOCPossibleCity> posCitiesIter = ourPlayerTracker.getPossibleCities().values().iterator();
-      while (posCitiesIter.hasNext())
-      {
-        SOCPossibleCity posCity = posCitiesIter.next();
-        if ((brain != null) && (brain.getDRecorder().isOn()))
+        for (SOCPossibleCity posCity : ourPlayerTracker.getPossibleCities().values())
         {
-          brain.getDRecorder().startRecording("CITY"+posCity.getCoordinates());
-          brain.getDRecorder().record("Estimate value of city at "
-              + game.getBoard().nodeCoordToString(posCity.getCoordinates()));
+            if ((brain != null) && (brain.getDRecorder().isOn()))
+            {
+                brain.getDRecorder().startRecording( "CITY" + posCity.getCoordinates() );
+                brain.getDRecorder().record( "Estimate value of city at "
+                    + game.getBoard().nodeCoordToString( posCity.getCoordinates() ) );
+            }
+
+            //
+            // see how building this piece impacts our winETA
+            //
+            leaders.clear();
+            if ((brain != null) && (brain.getDRecorder().isOn()))
+            {
+                brain.getDRecorder().suspend();
+            }
+            SOCPlayerTracker.updateWinGameETAs( trackersCopy );
+
+            // TODO refactor? This section is like a copy of calcWGETABonus, with something added in the middle
+
+            for (final SOCPlayerTracker trackerBefore : trackersCopy)
+            {
+                if (trackerBefore == null)
+                    continue;
+
+                final int pn = trackerBefore.getPlayer().getPlayerNumber();
+                D.ebugPrintlnINFO( "$$$ win game ETA for player " + pn + " = " + trackerBefore.getWinGameETA() );
+                originalWGETAs[pn] = trackerBefore.getWinGameETA();
+                WGETAdiffs[pn] = trackerBefore.getWinGameETA();
+                if (trackerBefore.getWinGameETA() < bestWGETA)
+                {
+                    bestWGETA = trackerBefore.getWinGameETA();
+                    leaders.removeAllElements();
+                    leaders.addElement( trackerBefore );
+                }
+                else if (trackerBefore.getWinGameETA() == bestWGETA)
+                {
+                    leaders.addElement( trackerBefore );
+                }
+            }
+            D.ebugPrintlnINFO( "^^^^ bestWGETA = " + bestWGETA );
+            if ((brain != null) && (brain.getDRecorder().isOn()))
+            {
+                brain.getDRecorder().resume();
+            }
+            //
+            // place the city
+            //
+            SOCCity tmpCity = new SOCCity( ourPlayerData, posCity.getCoordinates(), null );
+            game.putTempPiece( tmpCity );
+
+            ourTrackerCopy.addOurNewCity( tmpCity );
+
+            SOCPlayerTracker.updateWinGameETAs( trackersCopy );
+
+            float wgetaScore = calcWGETABonusAux( originalWGETAs, trackersCopy, leaders );
+
+            //
+            // remove the city
+            //
+            ourTrackerCopy.undoAddOurNewCity( posCity );
+            game.undoPutTempPiece( tmpCity );
+
+            D.ebugPrintlnINFO( "*** ETA for city = " + buildingETAs[SOCBuildingSpeedEstimate.CITY] );
+            if ((brain != null) && (brain.getDRecorder().isOn()))
+            {
+                brain.getDRecorder().record( "ETA = " + buildingETAs[SOCBuildingSpeedEstimate.CITY] );
+            }
+
+            float etaBonus = getETABonus( buildingETAs[SOCBuildingSpeedEstimate.CITY], leadersCurrentWGETA, wgetaScore );
+            D.ebugPrintlnINFO( "etaBonus = " + etaBonus );
+
+            posCity.addToScore( etaBonus );
+            //posCity.addToScore(wgetaScore);
+
+            if ((brain != null) && (brain.getDRecorder().isOn()))
+            {
+                brain.getDRecorder().record( "WGETA score = " + df1.format( wgetaScore ) );
+                brain.getDRecorder().record( "Total city score = " + df1.format( etaBonus ) );
+                brain.getDRecorder().stopRecording();
+            }
+
+            D.ebugPrintlnINFO( "$$$  final score = " + posCity.getScore() );
+
+            D.ebugPrintlnINFO( "$$$$$ possible city at " + Integer.toHexString( posCity.getCoordinates() ) + " has a score of " + posCity.getScore() );
+
+            if ((favoriteCity == null)
+                || (posCity.getScore() > favoriteCity.getScore()))
+            {
+                favoriteCity = posCity;
+            }
         }
-
-        //
-        // see how building this piece impacts our winETA
-        //
-        leaders.clear();
-        if ((brain != null) && (brain.getDRecorder().isOn())) {
-          brain.getDRecorder().suspend();
-        }
-        SOCPlayerTracker.updateWinGameETAs(trackersCopy);
-
-        // TODO refactor? This section is like a copy of calcWGETABonus, with something added in the middle
-
-        for (final SOCPlayerTracker trackerBefore : trackersCopy)
-        {
-          if (trackerBefore == null)
-            continue;
-
-          final int pn = trackerBefore.getPlayer().getPlayerNumber();
-          D.ebugPrintlnINFO("$$$ win game ETA for player " + pn + " = " + trackerBefore.getWinGameETA());
-          originalWGETAs[pn] = trackerBefore.getWinGameETA();
-          WGETAdiffs[pn] = trackerBefore.getWinGameETA();
-          if (trackerBefore.getWinGameETA() < bestWGETA)
-          {
-            bestWGETA = trackerBefore.getWinGameETA();
-            leaders.removeAllElements();
-            leaders.addElement(trackerBefore);
-          } else if (trackerBefore.getWinGameETA() == bestWGETA) {
-            leaders.addElement(trackerBefore);
-          }
-        }
-        D.ebugPrintlnINFO("^^^^ bestWGETA = "+bestWGETA);
-        if ((brain != null) && (brain.getDRecorder().isOn())) {
-          brain.getDRecorder().resume();
-        }
-        //
-        // place the city
-        //
-        SOCCity tmpCity = new SOCCity(ourPlayerData, posCity.getCoordinates(), null);
-        game.putTempPiece(tmpCity);
-
-        ourTrackerCopy.addOurNewCity(tmpCity);
-
-        SOCPlayerTracker.updateWinGameETAs(trackersCopy);
-
-        float wgetaScore = calcWGETABonusAux(originalWGETAs, trackersCopy, leaders);
-
-        //
-        // remove the city
-        //
-        ourTrackerCopy.undoAddOurNewCity(posCity);
-        game.undoPutTempPiece(tmpCity);
-
-        D.ebugPrintlnINFO("*** ETA for city = "+buildingETAs[SOCBuildingSpeedEstimate.CITY]);
-        if ((brain != null) && (brain.getDRecorder().isOn())) {
-          brain.getDRecorder().record("ETA = "+buildingETAs[SOCBuildingSpeedEstimate.CITY]);
-        }
-
-        float etaBonus = getETABonus(buildingETAs[SOCBuildingSpeedEstimate.CITY], leadersCurrentWGETA, wgetaScore);
-        D.ebugPrintlnINFO("etaBonus = "+etaBonus);
-
-        posCity.addToScore(etaBonus);
-        //posCity.addToScore(wgetaScore);
-
-        if ((brain != null) && (brain.getDRecorder().isOn()))
-        {
-          brain.getDRecorder().record("WGETA score = "+df1.format(wgetaScore));
-          brain.getDRecorder().record("Total city score = "+df1.format(etaBonus));
-          brain.getDRecorder().stopRecording();
-        }
-
-        D.ebugPrintlnINFO("$$$  final score = "+posCity.getScore());
-
-        D.ebugPrintlnINFO("$$$$$ possible city at "+Integer.toHexString(posCity.getCoordinates())+" has a score of "+posCity.getScore());
-
-        if ((favoriteCity == null)
-            || (posCity.getScore() > favoriteCity.getScore()))
-        {
-          favoriteCity = posCity;
-        }
-      }
     }
 
     if (favoriteSettlement != null) {
@@ -1884,7 +1885,8 @@ public class SOCRobotDM
     }
 
     final int road_eta_type =
-        ((favoriteRoad != null) && (favoriteRoad instanceof SOCPossibleShip)
+        ((favoriteRoad != null)
+            && (favoriteRoad instanceof SOCPossibleShip)
          && ! ((SOCPossibleShip) favoriteRoad).isCoastalRoadAndShip)  // TODO better ETA calc for coastal roads/ships
         ? SOCBuildingSpeedEstimate.SHIP
         : SOCBuildingSpeedEstimate.ROAD;
@@ -2274,33 +2276,34 @@ public class SOCRobotDM
     final SOCBoard board = game.getBoard();
     final int prevShipEdge = prevShip.getCoordinates();
     int[] nextPossiEdges = board.getAdjacentEdgesToNode_arr(prevShipNode);
-    for (int i = 0; i < nextPossiEdges.length; ++i)
-    {
-        final int edge = nextPossiEdges[i];
-        if ((edge == -9) || (edge == prevShipEdge) || ! lse.contains( edge ))
-            continue;
+      for (final int edge : nextPossiEdges)
+      {
+          if ((edge == -9) || (edge == prevShipEdge) || !lse.contains( edge ))
+              continue;
 
-        // be sure this edge takes us towards fortressNode
-        final int farNode = board.getAdjacentNodeFarEndOfEdge(edge, prevShipNode);
-        final int cShip = prevShipNode & 0xFF,
-                  cEdge = farNode & 0xFF;
-        if (cEdge > cShip)
-        {
-            continue;  // farNode is east, not west
-        } else if (cEdge == cShip) {
-            final int rShip = prevShipNode >> 8,
-                      rEdge = farNode >> 8,
-                      rFort = fortressNode >> 8;
-           if (Math.abs(rFort - rEdge) > Math.abs(rFort - rShip))
-               continue;  // farNode isn't closer to fortress
-        }
+          // be sure this edge takes us towards fortressNode
+          final int farNode = board.getAdjacentNodeFarEndOfEdge( edge, prevShipNode );
+          final int cShip = prevShipNode & 0xFF,
+              cEdge = farNode & 0xFF;
+          if (cEdge > cShip)
+          {
+              continue;  // farNode is east, not west
+          }
+          else if (cEdge == cShip)
+          {
+              final int rShip = prevShipNode >> 8,
+                  rEdge = farNode >> 8,
+                  rFort = fortressNode >> 8;
+              if (Math.abs( rFort - rEdge ) > Math.abs( rFort - rShip ))
+                  continue;  // farNode isn't closer to fortress
+          }
 
-        // OK
-        if (edge1 == -9)
-            edge1 = edge;
-        else
-            edge2 = edge;
-    }
+          // OK
+          if (edge1 == -9)
+              edge1 = edge;
+          else
+              edge2 = edge;
+      }
 
     if (edge1 == -9)
         return false;  // happens if we've built ships out to fortressNode already
@@ -2471,62 +2474,65 @@ public class SOCRobotDM
     }
     */
 
-    Iterator<SOCPossibleSettlement> posSetsIter = ourPlayerTracker.getPossibleSettlements().values().iterator();
-    while (posSetsIter.hasNext())
-    {
-      SOCPossibleSettlement posSet = posSetsIter.next();
-      D.ebugPrintlnINFO("*** scoring possible settlement at "+Integer.toHexString(posSet.getCoordinates()));
-      if (! threatenedSettlements.contains(posSet))
+      for (SOCPossibleSettlement posSet : ourPlayerTracker.getPossibleSettlements().values())
       {
-          threatenedSettlements.add(posSet);
-      } else if (! goodSettlements.contains(posSet)) {
-          goodSettlements.add(posSet);
+          D.ebugPrintlnINFO( "*** scoring possible settlement at " + Integer.toHexString( posSet.getCoordinates() ) );
+          if (!threatenedSettlements.contains( posSet ))
+          {
+              threatenedSettlements.add( posSet );
+          }
+          else if (!goodSettlements.contains( posSet ))
+          {
+              goodSettlements.add( posSet );
+          }
+
+          //
+          // only consider settlements we can build now
+          //
+          if (posSet.getNecessaryRoads().isEmpty())
+          {
+              D.ebugPrintlnINFO( "*** no roads needed" );
+              //
+              //  no roads needed
+              //
+              //
+              //  get wgeta score
+              //
+              SOCBoard board = game.getBoard();
+              SOCSettlement tmpSet = new SOCSettlement( ourPlayerData, posSet.getCoordinates(), board );
+              if ((brain != null) && (brain.getDRecorder().isOn()))
+              {
+                  brain.getDRecorder().startRecording( "SETTLEMENT" + posSet.getCoordinates() );
+                  brain.getDRecorder().record( "Estimate value of settlement at " + board.nodeCoordToString( posSet.getCoordinates() ) );
+              }
+
+              SOCPlayerTracker[] trackersCopy = SOCPlayerTracker.tryPutPiece( tmpSet, game, playerTrackers );
+              SOCPlayerTracker.updateWinGameETAs( trackersCopy );
+              float wgetaScore = calcWGETABonus( playerTrackers, trackersCopy );
+              D.ebugPrintlnINFO( "***  wgetaScore = " + wgetaScore );
+
+              D.ebugPrintlnINFO( "*** ETA for settlement = " + settlementETA );
+              if ((brain != null) && (brain.getDRecorder().isOn()))
+              {
+                  brain.getDRecorder().record( "ETA = " + settlementETA );
+              }
+
+              float etaBonus = getETABonus( settlementETA, leadersCurrentWGETA, wgetaScore );
+              D.ebugPrintlnINFO( "etaBonus = " + etaBonus );
+
+              //posSet.addToScore(wgetaScore);
+              posSet.addToScore( etaBonus );
+
+              if ((brain != null) && (brain.getDRecorder().isOn()))
+              {
+                  brain.getDRecorder().record( "WGETA score = " + df1.format( wgetaScore ) );
+                  brain.getDRecorder().record( "Total settlement score = " + df1.format( etaBonus ) );
+                  brain.getDRecorder().stopRecording();
+              }
+
+              SOCPlayerTracker.undoTryPutPiece( tmpSet, game );
+          }
       }
-
-      //
-      // only consider settlements we can build now
-      //
-      if (posSet.getNecessaryRoads().isEmpty())
-      {
-        D.ebugPrintlnINFO("*** no roads needed");
-        //
-        //  no roads needed
-        //
-        //
-        //  get wgeta score
-        //
-        SOCBoard board = game.getBoard();
-        SOCSettlement tmpSet = new SOCSettlement(ourPlayerData, posSet.getCoordinates(), board);
-        if ((brain != null) && (brain.getDRecorder().isOn())) {
-          brain.getDRecorder().startRecording("SETTLEMENT"+posSet.getCoordinates());
-          brain.getDRecorder().record("Estimate value of settlement at "+board.nodeCoordToString(posSet.getCoordinates()));
-        }
-
-        SOCPlayerTracker[] trackersCopy = SOCPlayerTracker.tryPutPiece(tmpSet, game, playerTrackers);
-        SOCPlayerTracker.updateWinGameETAs(trackersCopy);
-        float wgetaScore = calcWGETABonus(playerTrackers, trackersCopy);
-        D.ebugPrintlnINFO("***  wgetaScore = "+wgetaScore);
-
-        D.ebugPrintlnINFO("*** ETA for settlement = "+settlementETA);
-        if ((brain != null) && (brain.getDRecorder().isOn())) {
-          brain.getDRecorder().record("ETA = "+settlementETA);
-        }
-
-        float etaBonus = getETABonus(settlementETA, leadersCurrentWGETA, wgetaScore);
-        D.ebugPrintlnINFO("etaBonus = "+etaBonus);
-
-        //posSet.addToScore(wgetaScore);
-        posSet.addToScore(etaBonus);
-
-        if ((brain != null) && (brain.getDRecorder().isOn())) {
-          brain.getDRecorder().record("WGETA score = "+df1.format(wgetaScore));
-          brain.getDRecorder().record("Total settlement score = "+df1.format(etaBonus));
-          brain.getDRecorder().stopRecording();
-        }
-
-        SOCPlayerTracker.undoTryPutPiece(tmpSet, game);
-      }
-    }
   }
 
   /**
@@ -2712,8 +2718,8 @@ public class SOCRobotDM
       (final SOCPlayerTracker[] trackersBefore, final SOCPlayerTracker[] trackersAfter)
   {
     D.ebugPrintlnINFO("^^^^^ calcWGETABonus");
-    int originalWGETAs[] = new int[game.maxPlayers];
-    int WGETAdiffs[] = new int[game.maxPlayers];
+      int[] originalWGETAs = new int[game.maxPlayers];
+      int[] WGETAdiffs = new int[game.maxPlayers];
     Vector<SOCPlayerTracker> leaders = new Vector<>();  // Players winning soonest, based on ETA
     int bestWGETA = 1000;  // Lower is better
     float bonus = 0;
@@ -2762,7 +2768,7 @@ public class SOCRobotDM
   protected float calcWGETABonusAux
       (final int[] originalWGETAs, final SOCPlayerTracker[] trackersAfter, final Vector<SOCPlayerTracker> leaders)
   {
-    int WGETAdiffs[] = new int[game.maxPlayers];
+      int[] WGETAdiffs = new int[game.maxPlayers];
     int bestWGETA = 1000;
     float bonus = 0;
 
@@ -2907,8 +2913,8 @@ public class SOCRobotDM
 
     // TODO refactor? This section is like a copy of calcWGETABonus, with something added in the middle
 
-    int WGETAdiffs[] = new int[game.maxPlayers];
-    int originalWGETAs[] = new int[game.maxPlayers];
+      int[] WGETAdiffs = new int[game.maxPlayers];
+      int[] originalWGETAs = new int[game.maxPlayers];
     int bestWGETA = 1000;
     Vector<SOCPlayerTracker> leaders = new Vector<>();
     for (final SOCPlayerTracker tracker : playerTrackers)

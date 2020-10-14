@@ -97,8 +97,6 @@ public class NodeLenVis<T>
     @Override
     public String toString()
     {
-        String s = "NodeLenVis:n=" + Integer.toHexString(node) + "|l=" + len + "|vis=" + vis;
-
-        return s;
+        return "NodeLenVis:n=" + Integer.toHexString(node) + "|l=" + len + "|vis=" + vis;
     }
 }

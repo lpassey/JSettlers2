@@ -150,7 +150,7 @@ public class SOCPlayerStats extends SOCMessageTemplateMi
      *           or > {@link #STYPE_MAX}
      * @throws NullPointerException if {@code pl} null
      */
-    private static final int len(final SOCPlayer pl, final int stype)
+    private static int len(final SOCPlayer pl, final int stype)
         throws IllegalArgumentException, NullPointerException
     {
         switch (stype)

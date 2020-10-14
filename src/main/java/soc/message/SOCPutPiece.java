@@ -247,8 +247,6 @@ public class SOCPutPiece extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCPutPiece:game=" + game + "|playerNumber=" + playerNumber + "|pieceType=" + pieceType + "|coord=" + Integer.toHexString(coordinates);
-
-        return s;
+        return "SOCPutPiece:game=" + game + "|playerNumber=" + playerNumber + "|pieceType=" + pieceType + "|coord=" + Integer.toHexString(coordinates);
     }
 }

@@ -921,9 +921,10 @@ public class SOCGame implements Serializable, Cloneable
      * Values: {@link #VOTE_NONE}, {@link #VOTE_YES}, {@link #VOTE_NO}.
      * Indexed 0 to SOCGame.MAXPLAYERS-1.
      * Synchronize on this object before reading or writing.
+     *
      * @since 1.1.00
      */
-    private int boardResetVotes[];
+    private int[] boardResetVotes;
 
     /**
      * If a board reset vote is active, we're waiting to receive this many more votes.
@@ -2030,8 +2031,8 @@ public class SOCGame implements Serializable, Cloneable
     public int getPlayerCount()
     {
         int n = 0;
-        for (int pn = 0; pn < seats.length; ++pn)
-            if (seats[pn] == OCCUPIED)
+        for (int seat : seats)
+            if (seat == OCCUPIED)
                 ++n;
 
         return n;
@@ -3964,35 +3965,34 @@ public class SOCGame implements Serializable, Cloneable
     {
         int goldHexes = 0;
 
-        for (int i = 0; i < hexCoords.length; ++i)
+        for (final int hexCoord : hexCoords)
         {
-            final int hexCoord = hexCoords[i];
-            if ((hexCoord != 0) && (board.getHexTypeFromCoord(hexCoord) == SOCBoardLarge.FOG_HEX))
+            if ((hexCoord != 0) && (board.getHexTypeFromCoord( hexCoord ) == SOCBoardLarge.FOG_HEX))
             {
                 final int encodedHexInfo =
-                    ((SOCBoardLarge) board).revealFogHiddenHexPrep(hexCoord);
+                    ((SOCBoardLarge) board).revealFogHiddenHexPrep( hexCoord );
                 final int hexType = encodedHexInfo >> 8;
                 int diceNum = encodedHexInfo & 0xFF;
                 if (diceNum == 0xFF)
                     diceNum = 0;
 
-                revealFogHiddenHex(hexCoord, hexType, diceNum);
+                revealFogHiddenHex( hexCoord, hexType, diceNum );
                 if (currentPlayerNumber != -1)
                 {
                     if ((hexType >= SOCResourceConstants.CLAY) && (hexType <= SOCResourceConstants.WOOD))
-                        players[currentPlayerNumber].getResources().add(1, hexType);
+                        players[currentPlayerNumber].getResources().add( 1, hexType );
                     else if (hexType == SOCBoardLarge.GOLD_HEX)
                         ++goldHexes;
                 }
 
                 if (gameEventListener != null)
                     gameEventListener.gameEvent
-                        (this, SOCGameEvent.SGE_FOG_HEX_REVEALED, hexCoord );
+                        ( this, SOCGameEvent.SGE_FOG_HEX_REVEALED, hexCoord );
 
-                if (! initialSettlement)
+                if (!initialSettlement)
                     break;
-                    // No need to keep looking, because only one end of the road or ship's
-                    // edge is new; player was already at the other end, so it can't be fog.
+                // No need to keep looking, because only one end of the road or ship's
+                // edge is new; player was already at the other end, so it can't be fog.
             }
         }
 
@@ -4972,9 +4972,9 @@ public class SOCGame implements Serializable, Cloneable
 
                 ((SOCBoardLarge) board).addLegalNodes(nodeList, lan);
 
-                for (int j = 0; j < nodeList.length; ++j)
+                for (int value : nodeList)
                     for (int pn = maxPlayers - 1; pn >= 0; --pn)
-                        players[pn].addLegalSettlement(nodeList[j], true);
+                        players[pn].addLegalSettlement( value, true );
 
                 if (doEmptyNodeSet)
                 {
@@ -6700,8 +6700,8 @@ public class SOCGame implements Serializable, Cloneable
                 continue;
 
             final int rsCoord = rs.getCoordinates();
-            for (int j = 0; j < edges.length; ++j)
-                if (rsCoord == edges[j])
+            for (int edge : edges)
+                if (rsCoord == edge)
                     return (SOCShip) rs;  // <--- found adjacent ship ---
         }
 

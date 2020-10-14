@@ -98,8 +98,6 @@ public class SOCRollDice extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCRollDice:game=" + game;
-
-        return s;
+        return "SOCRollDice:game=" + game;
     }
 }

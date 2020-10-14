@@ -93,8 +93,6 @@ public class SOCRollDiceRequest extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCRollDiceRequest:game=" + game;
-
-        return s;
+        return "SOCRollDiceRequest:game=" + game;
     }
 }

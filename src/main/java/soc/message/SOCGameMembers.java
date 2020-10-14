@@ -122,7 +122,7 @@ public class SOCGameMembers extends SOCMessage
      */
     public static String toCmd(String ga, List<?> ml)
     {
-        String cmd = GAMEMEMBERS + sep + ga;
+        StringBuilder cmd = new StringBuilder( GAMEMEMBERS + sep + ga );
 
         try
         {
@@ -142,12 +142,12 @@ public class SOCGameMembers extends SOCMessage
                     str = obj.toString();  // fallback; expecting String or conn
                 }
 
-                cmd += (sep2 + str);
+                cmd.append( sep2 ).append( str );
             }
         }
         catch (Exception e) {}
 
-        return cmd;
+        return cmd.toString();
     }
 
     /**
@@ -245,7 +245,7 @@ public class SOCGameMembers extends SOCMessage
     @Override
     public String toString()
     {
-        StringBuffer sb = new StringBuffer("SOCGameMembers:game=");
+        StringBuilder sb = new StringBuilder("SOCGameMembers:game=");
         sb.append(game);
         sb.append("|members=");
         if (members != null)

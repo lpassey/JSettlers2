@@ -83,9 +83,7 @@ public class SOCBCastTextMsg extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCBCastTextMsg:text=" + text;
-
-        return s;
+        return "SOCBCastTextMsg:text=" + text;
     }
 
 }

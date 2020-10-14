@@ -116,9 +116,6 @@ public class SOCJoinChannelAuth extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCJoinChannelAuth:nickname=" + nickname + "|channel=" + channel;
-
-        return s;
+        return "SOCJoinChannelAuth:nickname=" + nickname + "|channel=" + channel;
     }
-
 }

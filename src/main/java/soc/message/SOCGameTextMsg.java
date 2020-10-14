@@ -247,9 +247,6 @@ public class SOCGameTextMsg extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCGameTextMsg:game=" + game + "|nickname=" + nickname + "|text=" + text;
-
-        return s;
+        return "SOCGameTextMsg:game=" + game + "|nickname=" + nickname + "|text=" + text;
     }
-
 }

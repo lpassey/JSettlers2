@@ -70,7 +70,7 @@ public class SOCGameOptionVersionException extends IllegalArgumentException
         if (problemOptionsTooNew == null)
             return "";
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         boolean hadAny = false;
         for (SOCGameOption opt : problemOptionsTooNew)
         {

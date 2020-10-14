@@ -217,11 +217,8 @@ public class SOCImARobot extends SOCMessage
      */
     public String toString()
     {
-        final String s = (cookie != null)
+        return (cookie != null)
             ? ("SOCImARobot:nickname=" + nickname + "|cookie=**|rbclass=" + rbclass)
             : ("SOCImARobot:nickname=" + nickname + "|cookie=null|rbclass=" + rbclass);
-
-        return s;
     }
-
 }

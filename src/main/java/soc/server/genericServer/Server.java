@@ -783,7 +783,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         if (D.ebugIsEnabled())
         {
             Exception cerr = c.getError();
-            if ((cerr == null) || (! (cerr instanceof SocketTimeoutException)) || ! c.wantsHideTimeoutMessage())
+            if (( ! (cerr instanceof SocketTimeoutException)) || !c.wantsHideTimeoutMessage())
             {
                 if (cKey != null)
                 {

@@ -387,12 +387,12 @@ public class SOCPlayerNumbers
         if (landHexCoords == null)
             return numbers;
 
-        for (int i = 0; i < landHexCoords.length; i++)
+        for (int landHexCoord : landHexCoords)
         {
-            if (landHexCoords[i] == robberHex)
+            if (landHexCoord == robberHex)
                 continue;
 
-            Vector<IntPair> pairs = numberAndResourceForHex.get( landHexCoords[i] );
+            Vector<IntPair> pairs = numberAndResourceForHex.get( landHexCoord );
             if (pairs == null)
                 continue;
 
@@ -434,12 +434,12 @@ public class SOCPlayerNumbers
         if (landHexCoords == null)
             return resources;
 
-        for (int i = 0; i < landHexCoords.length; i++)
+        for (int landHexCoord : landHexCoords)
         {
-            if (landHexCoords[i] == robberHex)
+            if (landHexCoord == robberHex)
                 continue;
 
-            Vector<IntPair> pairs = numberAndResourceForHex.get( landHexCoords[i] );
+            Vector<IntPair> pairs = numberAndResourceForHex.get( landHexCoord );
             if (pairs == null)
                 continue;
 
@@ -452,7 +452,9 @@ public class SOCPlayerNumbers
                     {
                         for (int r = SOCResourceConstants.CLAY; r <= SOCResourceConstants.WOOD; ++r)
                             resources.addElement( r );
-                    } else {
+                    }
+                    else
+                    {
                         resources.addElement( res );
                     }
                 }
@@ -646,21 +648,20 @@ public class SOCPlayerNumbers
     @Override
     public String toString()
     {
-        String str = "SOCPN:";
+        StringBuilder str = new StringBuilder( "SOCPN:" );
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD; i++)
         {
-            str += (i + ":");
+            str.append( i ).append( ":" );
 
             for (Integer num : numbersForResource[i])
             {
-                str += (num + ",");
+                str.append( num ).append( "," );
             }
 
-            str += "|";
+            str.append( "|" );
         }
 
-        return str;
+        return str.toString();
     }
 }

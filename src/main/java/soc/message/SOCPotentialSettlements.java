@@ -339,14 +339,13 @@ public class SOCPotentialSettlements extends SOCMessage
      */
     private static String toCmd(String ga, int pn, List<Integer> ps)
     {
-        String cmd = POTENTIALSETTLEMENTS + sep + ga + sep2 + pn;
+        StringBuilder cmd = new StringBuilder( POTENTIALSETTLEMENTS + sep + ga + sep2 + pn );
 
         for (Integer number : ps)
         {
-            cmd += (sep2 + number);
+            cmd.append( sep2 ).append( number );
         }
-
-        return cmd;
+        return cmd.toString();
     }
 
     /**
@@ -394,11 +393,10 @@ public class SOCPotentialSettlements extends SOCMessage
         {
             if (! ps.isEmpty())
             {
-                Iterator<Integer> iter = ps.iterator();
-                while (iter.hasNext())
+                for (Integer p : ps)
                 {
-                    cmd.append(sep2);
-                    cmd.append(iter.next().intValue());
+                    cmd.append( sep2 );
+                    cmd.append( p.intValue() );
                 }
             } else {
                 cmd.append(sep2);
@@ -424,12 +422,11 @@ public class SOCPotentialSettlements extends SOCMessage
                 cmd.append("LA");
                 cmd.append(i);
 
-                Iterator<Integer> pnIter = lan[i].iterator();
-                while (pnIter.hasNext())
+                for (Integer integer : lan[i])
                 {
-                    cmd.append(sep2);
-                    int number = pnIter.next();
-                    cmd.append(number);
+                    cmd.append( sep2 );
+                    int number = integer;
+                    cmd.append( number );
                 }
             }
         }
@@ -449,16 +446,16 @@ public class SOCPotentialSettlements extends SOCMessage
                     // 0 is used for padding the last SE list if empty;
                     // otherwise, at the end of the message, an empty list will have no tokens.
                 } else {
-                    for (int j = 0; j < lse_i.length; ++j)
+                    for (int value : lse_i)
                     {
-                        cmd.append(sep2);
-                        int k = lse_i[j];
+                        cmd.append( sep2 );
+                        int k = value;
                         if (k < 0)
                         {
-                            cmd.append('-');
+                            cmd.append( '-' );
                             k = -k;
                         }
-                        cmd.append(Integer.toHexString(k));
+                        cmd.append( Integer.toHexString( k ) );
                     }
                 }
             }
@@ -840,12 +837,10 @@ public class SOCPotentialSettlements extends SOCMessage
                     continue;
                 }
 
-                Iterator<Integer> laIter = nodes.iterator();
-                while (laIter.hasNext())
+                for (int number : nodes)
                 {
-                    int number = laIter.next();
-                    s.append(Integer.toHexString(number));
-                    s.append(' ');
+                    s.append( Integer.toHexString( number ) );
+                    s.append( ' ' );
                 }
             }
         }

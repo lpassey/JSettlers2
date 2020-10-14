@@ -642,7 +642,6 @@ import soc.util.Version;
         {
             // Hide fields used to start a server
             clickRunCancel();
-            return;
         }
 
         }  // try

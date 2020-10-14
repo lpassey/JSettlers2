@@ -2087,9 +2087,7 @@ public class SOCServer extends Server
                         {
                             throw (SQLException) e;
                         } else {
-                            SQLException sqle = new SQLException("Error during DB schema upgrade");
-                            sqle.initCause(e);
-                            throw sqle;
+                            throw new SQLException("Error during DB schema upgrade", e );
                         }
                     }
                 } else {
@@ -2185,26 +2183,20 @@ public class SOCServer extends Server
 
             db.cleanup(true);
 
-            SQLException sqle = new SQLException("Error running DB setup script");
-            sqle.initCause(iox);
-            throw sqle;
+            throw new SQLException("Error running DB setup script", iox );
         }
         catch (IllegalArgumentException iax)
         {
             // reminder: caught here only if thrown by db init, not by init_propsSetGameopts
 
             System.err.println("\n* Error in specified database properties: " + iax.getMessage());
-            SQLException sqle = new SQLException("Error with DB props");
-            sqle.initCause(iax);
-            throw sqle;
+            throw new SQLException("Error with DB props", iax );
         }
         catch (DBSettingMismatchException dx)
         {
             // initialize(..) already printed details to System.err
             System.err.println("\n* Mismatch between database settings and specified properties");
-            SQLException sqle = new SQLException("DB settings mismatch");
-            sqle.initCause(dx);
-            throw sqle;
+            throw new SQLException("DB settings mismatch", dx );
         }
 
         // No errors; continue normal startup.
@@ -6124,7 +6116,7 @@ public class SOCServer extends Server
      */
     private static String checkNickname_getRetryText(final int nameTimeout)
     {
-        StringBuffer sb = new StringBuffer("Please wait ");
+        StringBuilder sb = new StringBuilder("Please wait ");
         if (nameTimeout <= 90)
         {
             sb.append(nameTimeout);
@@ -6152,7 +6144,7 @@ public class SOCServer extends Server
      */
     private static String checkNickname_getVersionText(final int needsVersion)
     {
-        StringBuffer sb = new StringBuffer(MSG_NICKNAME_ALREADY_IN_USE_NEWER_VERSION_P1);
+        StringBuilder sb = new StringBuilder(MSG_NICKNAME_ALREADY_IN_USE_NEWER_VERSION_P1);
         sb.append(needsVersion);
         sb.append(MSG_NICKNAME_ALREADY_IN_USE_NEWER_VERSION_P2);
         return sb.toString();
@@ -6325,7 +6317,7 @@ public class SOCServer extends Server
                     shutNow = true;
             } else {
                 srvShutPasswordExpire = now + (45 * 1000L);
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 for (int i = 12 + rand.nextInt(5); i > 0; --i)
                     sb.append((char) (33 + rand.nextInt(126 - 33)));
                 srvShutPassword = sb.toString();

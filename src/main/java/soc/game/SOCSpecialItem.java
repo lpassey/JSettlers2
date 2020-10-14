@@ -730,9 +730,9 @@ public class SOCSpecialItem
                     for (SOCPlayingPiece pp : pieces)
                     {
                         final int node = pp.getCoordinates();
-                        for (int i = 0; i < nodes.length; ++i)
+                        for (int value : nodes)
                         {
-                            if (node == nodes[i])
+                            if (node == value)
                             {
                                 foundAtNode = true;
                                 break;
@@ -793,7 +793,7 @@ public class SOCSpecialItem
     @Override
     public boolean equals(Object other)
     {
-        if ((other == null) || ! (other instanceof SOCSpecialItem))
+        if ( ! (other instanceof SOCSpecialItem))
             return false;
 
         return ((coord == ((SOCSpecialItem) other).coord)

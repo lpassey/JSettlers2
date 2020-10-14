@@ -237,13 +237,11 @@ public class SOCRobotParameters implements Serializable
     @Override
     public String toString()
     {
-        String s = "mgl=" + maxGameLength + "|me=" + maxETA +
+        return "mgl=" + maxGameLength + "|me=" + maxETA +
                    "|ebf=" + etaBonusFactor + "|af=" + adversarialFactor +
                    "|laf=" + leaderAdversarialFactor + "|dcm=" + devCardMultiplier +
                    "|tm=" + threatMultiplier + "|st=" + strategyType +
                    "|tf=" + tradeFlag;
-
-        return s;
     }
 
 }

@@ -1007,10 +1007,7 @@ public class SOCDBHelper
                 // InstantiationException, IllegalAccessException, ClassNotFoundException
                 // (seen for org.gjt.mm.mysql.Driver)
                 driverNewInstanceFailed = true;
-                SQLException sx =
-                    new SQLException("JDBC driver is unavailable: " + driverclass + ": " + x);
-                sx.initCause(x);
-                throw sx;
+                throw new SQLException("JDBC driver is unavailable: " + driverclass + ": " + x, x );
             }
 
             // Do we have a setup script to run?
@@ -1042,9 +1039,7 @@ public class SOCDBHelper
                 throw (SQLException) x;
             }
 
-            SQLException sx = new SQLException("Unable to initialize user database");
-            sx.initCause(x);
-            throw sx;
+            throw new SQLException("Unable to initialize user database", x );
         }
 
         initialized = true;
@@ -1367,7 +1362,7 @@ public class SOCDBHelper
         if (writeIfNeeded)
             checkAll = true;
 
-        final ArrayList<String> mm = new ArrayList<String>();  // keyname, db value, props value, keyname, db value, ...
+        final ArrayList<String> mm = new ArrayList<>();  // keyname, db value, props value, keyname, db value, ...
         boolean anyMissing = false;  // is table missing any expected params like SETTING_BCRYPT_WORK__FACTOR?
 
         // bcryptWorkFactor
@@ -1744,9 +1739,7 @@ public class SOCDBHelper
                             // hashpw may throw IllegalArgumentException
                         createAccountCommand.setString(7, pw_store);
                     } catch (RuntimeException e) {
-                        SQLException sqlE = new SQLException("BCrypt exception");
-                        sqlE.initCause(e);
-                        throw sqlE;  // caught, printed, re-thrown below
+                        throw new SQLException("BCrypt exception", e );  // caught, printed, re-thrown below
                     }
                     // SCHEMA_VERSION_2000 adds fields, but its sql has same number of params (the new fields get 0)
                 }
@@ -1886,9 +1879,7 @@ public class SOCDBHelper
                         // hashpw may throw IllegalArgumentException
                     passwordUpdateCommand.setString(2, pw_store);
                 } catch (RuntimeException e) {
-                    SQLException sqlE = new SQLException("BCrypt exception");
-                    sqlE.initCause(e);
-                    throw sqlE;  // caught, printed, re-thrown below
+                    throw new SQLException("BCrypt exception", e );  // caught, printed, re-thrown below
                 }
                 passwordUpdateCommand.setString(3, userName);
             }
@@ -2409,7 +2400,7 @@ public class SOCDBHelper
         if (! isInitialized())
             throw new IllegalStateException();
 
-        List<String> li = new ArrayList<String>();
+        List<String> li = new ArrayList<>();
 
         li.add("Schema version");
         li.add
@@ -2486,8 +2477,8 @@ public class SOCDBHelper
             throw new IllegalStateException(e);
         }
 
-        HashMap<String,String> namesFromLC = new HashMap<String,String>();  // lowercase -> non-lowercase name
-        Map<String,List<String>> dupeMap = new HashMap<String,List<String>>();  // duplicates from namesFromLC
+        HashMap<String,String> namesFromLC = new HashMap<>();  // lowercase -> non-lowercase name
+        Map<String,List<String>> dupeMap = new HashMap<>();  // duplicates from namesFromLC
 
         Statement s = connection.createStatement();
         ResultSet rs = null;
@@ -2503,7 +2494,7 @@ public class SOCDBHelper
                     List<String> li = dupeMap.get(nmLC);
                     if (li == null)
                     {
-                        li = new ArrayList<String>();
+                        li = new ArrayList<>();
                         li.add(namesFromLC.get(nmLC));  // previously-found name with this lc
                         dupeMap.put(nmLC, li);
                     }
@@ -3017,7 +3008,7 @@ public class SOCDBHelper
 
         FileReader fr = new FileReader(setupScriptPath);
         BufferedReader br = new BufferedReader(fr);
-        List<String> sqls = new ArrayList<String>();
+        List<String> sqls = new ArrayList<>();
 
         // Read 1 line at a time, with continuations; build a list
         try
@@ -3137,7 +3128,7 @@ public class SOCDBHelper
                 ("Upgrade on oracle to schema 2.0.00 not yet implemented", "unused", "unused");
         }
 
-        final Set<String> upg_1200_allUsers = new HashSet<String>();  // built during pre-check, used during upgrade
+        final Set<String> upg_1200_allUsers = new HashSet<>();  // built during pre-check, used during upgrade
         if (schemaVersion < SCHEMA_VERSION_1200)
         {
             /* pre-checks */
@@ -3695,7 +3686,7 @@ public class SOCDBHelper
         if (beginText != null)
             System.err.println(beginText);
 
-        Map<String, String> userConvPW = new HashMap<String, String>();
+        Map<String, String> userConvPW = new HashMap<>();
         for (String uname : users)
         {
             userPasswordQuery.setString(1, uname);
@@ -3716,9 +3707,7 @@ public class SOCDBHelper
                         // hashpw may throw IllegalArgumentException
                     userConvPW.put(dbUserName, pwStore);
                 } catch (RuntimeException e) {
-                    SQLException sqlE = new SQLException("BCrypt exception");
-                    sqlE.initCause(e);
-                    throw sqlE;
+                    throw new SQLException("BCrypt exception", e );
                 }
         }
 
@@ -3888,8 +3877,8 @@ public class SOCDBHelper
                 sb.append(';');
                 runDDL(sb.toString());
             } else {
-                for (int i = 0; i < colNames.length; ++i)
-                    runDDL("ALTER TABLE " + tabName + " DROP " + colNames[i] + ';');
+                for (String colName : colNames)
+                    runDDL( "ALTER TABLE " + tabName + " DROP " + colName + ';' );
             }
 
             return true;
@@ -4132,12 +4121,11 @@ public class SOCDBHelper
 
         try
         {
-            final PreparedStatement ps = (prepareWithArrayParam)
+            saveGameCommand = (prepareWithArrayParam)
                 ? connection.prepareStatement
                     (SAVE_GAME_COMMAND_2000, new String[]{ "gameid" })
                 : connection.prepareStatement
                     (SAVE_GAME_COMMAND_2000, Statement.RETURN_GENERATED_KEYS);
-            saveGameCommand = ps;
         } catch(SQLFeatureNotSupportedException sfe) {
             System.err.println(testFailed + " (SQLFeatureNotSupportedException): " + testDesc + ": " + sfe);
             return false;
@@ -4593,9 +4581,7 @@ public class SOCDBHelper
             {
                 throw (SQLException) e;
             } else {
-                SQLException sx = new SQLException("Error during testDBHelper()");
-                sx.initCause(e);
-                throw sx;
+                throw new SQLException("Error during testDBHelper()", e );
             }
         }
 
@@ -4616,7 +4602,7 @@ public class SOCDBHelper
      * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
      * @since 1.2.00
      */
-    public static interface AuthPasswordRunnable
+    public interface AuthPasswordRunnable
     {
         /**
          * Called after user and password are authenticated or rejected, which may be a slow process which runs in
@@ -4628,7 +4614,7 @@ public class SOCDBHelper
          *     otherwise it's an immediate callback (user not found, password didn't use BCrypt hashing)
          *     and for consistency you might want to delay replying to the client.
          */
-        public void authResult(final String dbUserName, final boolean hadDelay);
+        void authResult( final String dbUserName, final boolean hadDelay );
     }
 
     /**
@@ -4742,7 +4728,7 @@ public class SOCDBHelper
             System.err.println("Schema upgrade: Encoding passwords for users");
 
             SecureRandom sr = new SecureRandom();
-            HashSet<String> users = new HashSet<String>();
+            HashSet<String> users = new HashSet<>();
             do
             {
                 users.clear();
@@ -4781,7 +4767,7 @@ public class SOCDBHelper
             System.err.println("Schema upgrade: Normalizing games into games2");
 
             // key = nickname_lc, value = nickname
-            final HashMap<String, String> allDBUsers = new HashMap<String, String>();
+            final HashMap<String, String> allDBUsers = new HashMap<>();
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery("SELECT nickname_lc, nickname FROM users");
             while (rs.next())
@@ -4801,7 +4787,7 @@ public class SOCDBHelper
 
             boolean hasGames;  // if so, some games were converted: should call psInsPlayer.executeBatch()
             boolean hasSetWinners;  // if so, some game winners were determined: psSetWinner.executeBatch()
-            HashMap<String, IntPair> winLossDBUsers = new HashMap<String, IntPair>();  // users' win,loss adds in this batch
+            HashMap<String, IntPair> winLossDBUsers = new HashMap<>();  // users' win,loss adds in this batch
 
             // begin transaction of first loop iteration
             final boolean wasConnAutocommit = enterTransactionMode();

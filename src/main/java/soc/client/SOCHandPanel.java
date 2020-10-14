@@ -1492,7 +1492,7 @@ import javax.swing.UIManager;
             for (SOCPlayer.SpecialVPInfo svpi : svpis)
             {
                 sb.append("\n");
-                sb.append(svpi.svp + ": " + svpi.desc);  // I18N: Server sends localized desc
+                sb.append( svpi.svp ).append( ": " ).append( svpi.desc );  // I18N: Server sends localized desc
             }
         }
 
@@ -2875,7 +2875,7 @@ import javax.swing.UIManager;
 
             if (game.getGameState() == SOCGame.OVER)
             {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 for (SOCInventoryItem item : player.getInventory().getByState(SOCInventory.KEPT))
                 {
@@ -4643,15 +4643,14 @@ import javax.swing.UIManager;
                     final int labelspc = fm.stringWidth("_") / 3;  // Bug in old stringWidth does not give correct size for ' '
                     int wmax = 0;
                     final JLabel[] rLabs = { clayLab, oreLab, sheepLab, wheatLab, woodLab };
-                    for (int i = 0; i < rLabs.length; ++i)
+                    for (final JLabel rl : rLabs)
                     {
-                        final JLabel rl = rLabs[i];
                         if (rl != null)
                         {
                             final String txt = rl.getText();
                             if (txt != null)
                             {
-                                final int w = fm.stringWidth(rl.getText());
+                                final int w = fm.stringWidth( rl.getText() );
                                 if (w > wmax)
                                     wmax = w;
                             }

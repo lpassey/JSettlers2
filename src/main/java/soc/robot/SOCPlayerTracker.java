@@ -292,9 +292,8 @@ public class SOCPlayerTracker
         //
         //D.ebugPrintln(">>>>> Making connections between pieces");
 
-        for (int tpn = 0; tpn < trackers.length; ++tpn)
+        for (final SOCPlayerTracker tracker : trackers)
         {
-            final SOCPlayerTracker tracker = trackers[tpn];
             if (tracker == null)
                 continue;
             final SOCPlayerTracker trackerCopy = trackersCopy[tracker.getPlayer().getPlayerNumber()];
@@ -324,11 +323,11 @@ public class SOCPlayerTracker
 
                     if (necRoadCopy != null)
                     {
-                        posRoadCopy.addNecessaryRoad(necRoadCopy);
+                        posRoadCopy.addNecessaryRoad( necRoadCopy );
                     }
                     else
                     {
-                        D.ebugPrintlnINFO("*** ERROR in copyPlayerTrackers : necRoadCopy == null");
+                        D.ebugPrintlnINFO( "*** ERROR in copyPlayerTrackers : necRoadCopy == null" );
                     }
                 }
 
@@ -348,11 +347,11 @@ public class SOCPlayerTracker
 
                         if (newPosRoadCopy != null)
                         {
-                            posRoadCopy.addNewPossibility(newPosRoadCopy);
+                            posRoadCopy.addNewPossibility( newPosRoadCopy );
                         }
                         else
                         {
-                            D.ebugPrintlnINFO("*** ERROR in copyPlayerTrackers : newPosRoadCopy == null");
+                            D.ebugPrintlnINFO( "*** ERROR in copyPlayerTrackers : newPosRoadCopy == null" );
                         }
 
                         break;
@@ -364,11 +363,11 @@ public class SOCPlayerTracker
 
                         if (newPosSettlementCopy != null)
                         {
-                            posRoadCopy.addNewPossibility(newPosSettlementCopy);
+                            posRoadCopy.addNewPossibility( newPosSettlementCopy );
                         }
                         else
                         {
-                            D.ebugPrintlnINFO("*** ERROR in copyPlayerTrackers : newPosSettlementCopy == null");
+                            D.ebugPrintlnINFO( "*** ERROR in copyPlayerTrackers : newPosSettlementCopy == null" );
                         }
 
                         break;
@@ -397,11 +396,11 @@ public class SOCPlayerTracker
 
                     if (necRoadCopy != null)
                     {
-                        posSetCopy.addNecessaryRoad(necRoadCopy);
+                        posSetCopy.addNecessaryRoad( necRoadCopy );
                     }
                     else
                     {
-                        D.ebugPrintlnINFO("*** ERROR in copyPlayerTrackers : necRoadCopy == null");
+                        D.ebugPrintlnINFO( "*** ERROR in copyPlayerTrackers : necRoadCopy == null" );
                     }
                 }
 
@@ -417,7 +416,7 @@ public class SOCPlayerTracker
 
                     if (trackerCopy2 == null)
                     {
-                        D.ebugPrintlnINFO("*** ERROR in copyPlayerTrackers : trackerCopy2 == null");
+                        D.ebugPrintlnINFO( "*** ERROR in copyPlayerTrackers : trackerCopy2 == null" );
                     }
                     else
                     {
@@ -426,11 +425,11 @@ public class SOCPlayerTracker
 
                         if (conflictCopy == null)
                         {
-                            D.ebugPrintlnINFO("*** ERROR in copyPlayerTrackers : conflictCopy == null");
+                            D.ebugPrintlnINFO( "*** ERROR in copyPlayerTrackers : conflictCopy == null" );
                         }
                         else
                         {
-                            posSetCopy.addConflict(conflictCopy);
+                            posSetCopy.addConflict( conflictCopy );
                         }
                     }
                 }
@@ -620,11 +619,9 @@ public class SOCPlayerTracker
         //
         // see if the new road was a possible road
         //
-        Iterator<SOCPossibleRoad> prIter = possibleRoads.values().iterator();
 
-        while (prIter.hasNext())
+        for (SOCPossibleRoad pr : possibleRoads.values())
         {
-            SOCPossibleRoad pr = prIter.next();
             if (pr.getCoordinates() == rs.getCoordinates())
             {
                 //
@@ -632,7 +629,7 @@ public class SOCPlayerTracker
                 //
                 //D.ebugPrintln("$$$ removing (wrong) "+Integer.toHexString(road.getCoordinates()));
                 possibleRoads.remove( pr.getCoordinates() );
-                removeFromNecessaryRoads(pr);
+                removeFromNecessaryRoads( pr );
 
                 break;
             }
@@ -659,12 +656,9 @@ public class SOCPlayerTracker
         //
         // see if the new road was a possible road
         //
-        Iterator<SOCPossibleRoad> prIter = possibleRoads.values().iterator();
 
-        while (prIter.hasNext())
+        for (SOCPossibleRoad pr : possibleRoads.values())
         {
-            SOCPossibleRoad pr = prIter.next();
-
             //
             // reset all expanded flags for possible roads
             //
@@ -677,7 +671,7 @@ public class SOCPlayerTracker
                 //
                 //D.ebugPrintln("$$$ removing "+Integer.toHexString(road.getCoordinates()));
                 possibleRoads.remove( pr.getCoordinates() );
-                removeFromNecessaryRoads(pr);
+                removeFromNecessaryRoads( pr );
 
                 break;
             }
@@ -1340,7 +1334,7 @@ public class SOCPlayerTracker
         for (Integer edge : closestAdjacs)
         {
             final SOCPossibleRoad rs = possibleRoads.get(edge);
-            if ((rs == null) || ! (rs instanceof SOCPossibleShip))
+            if ( ! (rs instanceof SOCPossibleShip))
                 continue;
 
             final int shipEdge = rs.getCoordinates();
@@ -2328,12 +2322,9 @@ public class SOCPlayerTracker
         /**
          * check settlements that need updating
          */
-        Iterator<SOCPossibleSettlement> posSetsIter = possibleSettlements.values().iterator();
 
-        while (posSetsIter.hasNext())
+        for (SOCPossibleSettlement posSet : possibleSettlements.values())
         {
-            SOCPossibleSettlement posSet = posSetsIter.next();
-
             if (!posSet.isThreatUpdated())
             {
                 //D.ebugPrintln("&&&& examining settlement at "+Integer.toHexString(posSet.getCoordinates()));
@@ -2354,7 +2345,7 @@ public class SOCPlayerTracker
                         if (posEnemySet != null)
                         {
                             //D.ebugPrintln("&&&& adding threat from settlement at "+Integer.toHexString(posEnemySet.getCoordinates()));
-                            posSet.addThreat(posEnemySet);
+                            posSet.addThreat( posEnemySet );
                         }
                     }
                 }
@@ -2375,8 +2366,8 @@ public class SOCPlayerTracker
                     //
                     //D.ebugPrintln("&&&& inheriting threats from road at "+Integer.toHexString(((SOCPossibleRoad)necRoadVec.firstElement()).getCoordinates()));
 
-                    for (SOCPossiblePiece nrThreat: necRoadList.get(0).getThreats())
-                        posSet.addThreat(nrThreat);
+                    for (SOCPossiblePiece nrThreat : necRoadList.get( 0 ).getThreats())
+                        posSet.addThreat( nrThreat );
                 }
                 else
                 {
@@ -2385,7 +2376,7 @@ public class SOCPlayerTracker
                     // if all of the roads have the same threat,
                     // then add that threat to this settlement
                     //
-                    final SOCPossibleRoad nr = necRoadList.get(0);
+                    final SOCPossibleRoad nr = necRoadList.get( 0 );
 
                     for (SOCPossiblePiece nrThreat : nr.getThreats())
                     {
@@ -2393,7 +2384,7 @@ public class SOCPlayerTracker
 
                         for (SOCPossibleRoad nr2 : necRoadList)
                         {
-                            if ((nr2 != nr) && ! nr2.getThreats().contains(nrThreat))
+                            if ((nr2 != nr) && !nr2.getThreats().contains( nrThreat ))
                             {
                                 allHaveIt = false;
 
@@ -2404,7 +2395,7 @@ public class SOCPlayerTracker
                         if (allHaveIt)
                         {
                             //D.ebugPrintln("&&&& adding threat from "+Integer.toHexString(nrThreat.getCoordinates()));
-                            posSet.addThreat(nrThreat);
+                            posSet.addThreat( nrThreat );
                         }
                     }
                 }
@@ -2582,12 +2573,9 @@ public class SOCPlayerTracker
         //
         // for each possible road with no necessary roads
         //
-        Iterator<SOCPossibleRoad> posRoadsIter = possibleRoads.values().iterator();
 
-        while (posRoadsIter.hasNext())
+        for (SOCPossibleRoad posRoad : possibleRoads.values())
         {
-            SOCPossibleRoad posRoad = posRoadsIter.next();
-
             if (posRoad.getNecessaryRoads().isEmpty())
             {
                 //
@@ -2596,34 +2584,34 @@ public class SOCPlayerTracker
                 final SOCRoutePiece dummyRS;
                 if (posRoad.isRoadNotShip()
                     || ((posRoad instanceof SOCPossibleShip) && ((SOCPossibleShip) posRoad).isCoastalRoadAndShip))
-                    dummyRS = new SOCRoad(dummy, posRoad.getCoordinates(), null);  // TODO better coastal handling
+                    dummyRS = new SOCRoad( dummy, posRoad.getCoordinates(), null );  // TODO better coastal handling
                 else
-                    dummyRS = new SOCShip(dummy, posRoad.getCoordinates(), null);
-                dummy.putPiece(dummyRS, true);
+                    dummyRS = new SOCShip( dummy, posRoad.getCoordinates(), null );
+                dummy.putPiece( dummyRS, true );
 
                 int newLRLength = dummy.calcLongestRoad2();
 
                 if (newLRLength <= lrLength)
                 {
-                    posRoad.setLRValue(0);
+                    posRoad.setLRValue( 0 );
                 }
                 else
                 {
-                    posRoad.setLRValue(newLRLength - lrLength);
+                    posRoad.setLRValue( newLRLength - lrLength );
                 }
 
                 //D.ebugPrintln("$$ updateLRValue for "+Integer.toHexString(posRoad.getCoordinates())+" is "+posRoad.getLRValue());
                 //
                 // update potential LR value
                 //
-                posRoad.setLRPotential(0);
-                updateLRPotential(posRoad, dummy, dummyRS, lrLength, LR_CALC_LEVEL);
-                dummy.removePiece(dummyRS, null);
+                posRoad.setLRPotential( 0 );
+                updateLRPotential( posRoad, dummy, dummyRS, lrLength, LR_CALC_LEVEL );
+                dummy.removePiece( dummyRS, null );
             }
             else
             {
-                posRoad.setLRValue(0);
-                posRoad.setLRPotential(0);
+                posRoad.setLRValue( 0 );
+                posRoad.setLRPotential( 0 );
             }
         }
 
@@ -2905,11 +2893,9 @@ public class SOCPlayerTracker
 
                     if ((settlementPiecesLeft > 0) && (!posSetsCopy.isEmpty()))
                     {
-                        Iterator<SOCPossibleSettlement> posSetsIter = posSetsCopy.values().iterator();
 
-                        while (posSetsIter.hasNext())
+                        for (SOCPossibleSettlement posSet : posSetsCopy.values())
                         {
-                            SOCPossibleSettlement posSet = posSetsIter.next();
                             int posSetETA = settlementETA + (posSet.getNumberOfNecessaryRoads() * roadETA);
 
                             if (posSetETA < fastestETA)
@@ -3036,18 +3022,14 @@ public class SOCPlayerTracker
                         //
                         twoCities = 500;
 
-                        Iterator<SOCPossibleCity> posCities0Iter = posCitiesCopy.values().iterator();
-
-                        while (posCities0Iter.hasNext())
+                        for (SOCPossibleCity posCity0 : posCitiesCopy.values())
                         {
-                            SOCPossibleCity posCity0 = posCities0Iter.next();
-
                             //
                             // update our building speed estimate
                             //
-                            tempPlayerNumbers.updateNumbers(posCity0.getCoordinates(), board);
-                            tempCityBSE[0].recalculateEstimates(tempPlayerNumbers);
-                            chosenCityBuildingSpeed[0] = tempCityBSE[0].getEstimatesFromNothingFast(tempPortFlags);
+                            tempPlayerNumbers.updateNumbers( posCity0.getCoordinates(), board );
+                            tempCityBSE[0].recalculateEstimates( tempPlayerNumbers );
+                            chosenCityBuildingSpeed[0] = tempCityBSE[0].getEstimatesFromNothingFast( tempPortFlags );
 
                             int tempCityETA = chosenCityBuildingSpeed[0][SOCBuildingSpeedEstimate.CITY];
 
@@ -3060,7 +3042,7 @@ public class SOCPlayerTracker
                                 twoCities = (cityETA + tempCityETA);
                             }
 
-                            tempPlayerNumbers.undoUpdateNumbers(posCity0.getCoordinates(), board);
+                            tempPlayerNumbers.undoUpdateNumbers( posCity0.getCoordinates(), board );
                         }
 
                         if (twoCities <= fastestETA)
@@ -3092,36 +3074,34 @@ public class SOCPlayerTracker
                             }
                             else
                             {
-                                Iterator<SOCPossibleSettlement> posSetsIter = posSetsCopy.values().iterator();
 
-                                while (posSetsIter.hasNext())
+                                for (SOCPossibleSettlement posSet : posSetsCopy.values())
                                 {
-                                    SOCPossibleSettlement posSet = posSetsIter.next();
                                     int posSetETA = settlementETA + (posSet.getNumberOfNecessaryRoads() * roadETA);
 
                                     final int posSetCoord = posSet.getCoordinates();
                                     if (posSetETA < fastestSetETA)
                                     {
                                         fastestSetETA = posSetETA;
-                                        tempPlayerNumbers.updateNumbers(posSetCoord, board);
+                                        tempPlayerNumbers.updateNumbers( posSetCoord, board );
 
                                         for (int portType = SOCBoard.MISC_PORT;
-                                                portType <= SOCBoard.WOOD_PORT;
-                                                portType++)
+                                             portType <= SOCBoard.WOOD_PORT;
+                                             portType++)
                                         {
                                             tempPortFlagsSet[i][portType] = tempPortFlags[portType];
                                         }
-                                        int portType = board.getPortTypeFromNodeCoord(posSetCoord);
+                                        int portType = board.getPortTypeFromNodeCoord( posSetCoord );
                                         if (portType != -1)
                                             tempPortFlagsSet[i][portType] = true;
 
-                                        tempSetBSE[i].recalculateEstimates(tempPlayerNumbers);
+                                        tempSetBSE[i].recalculateEstimates( tempPlayerNumbers );
                                         chosenSetBuildingSpeed[i] =
-                                            tempSetBSE[i].getEstimatesFromNothingFast(tempPortFlagsSet[i]);
+                                            tempSetBSE[i].getEstimatesFromNothingFast( tempPortFlagsSet[i] );
 
                                         for (int buildingType = SOCBuildingSpeedEstimate.MIN;
-                                                buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
-                                                buildingType++)
+                                             buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
+                                             buildingType++)
                                         {
                                             if ((ourBuildingSpeed[buildingType] - chosenSetBuildingSpeed[i][buildingType]) > 0)
                                             {
@@ -3130,33 +3110,33 @@ public class SOCPlayerTracker
                                             }
                                         }
 
-                                        tempPlayerNumbers.undoUpdateNumbers(posSetCoord, board);
+                                        tempPlayerNumbers.undoUpdateNumbers( posSetCoord, board );
                                         chosenSet[i] = posSet;
                                     }
                                     else if (posSetETA == fastestSetETA)
                                     {
                                         boolean[] veryTempPortFlags = new boolean[SOCBoard.WOOD_PORT + 1];
-                                        tempPlayerNumbers.updateNumbers(posSetCoord, board);
+                                        tempPlayerNumbers.updateNumbers( posSetCoord, board );
 
                                         for (int portType = SOCBoard.MISC_PORT;
-                                                portType <= SOCBoard.WOOD_PORT;
-                                                portType++)
+                                             portType <= SOCBoard.WOOD_PORT;
+                                             portType++)
                                         {
                                             veryTempPortFlags[portType] = tempPortFlags[portType];
                                         }
-                                        int portType = board.getPortTypeFromNodeCoord(posSetCoord);
+                                        int portType = board.getPortTypeFromNodeCoord( posSetCoord );
                                         if (portType != -1)
                                             veryTempPortFlags[portType] = true;
 
-                                        tempBSE.recalculateEstimates(tempPlayerNumbers);
+                                        tempBSE.recalculateEstimates( tempPlayerNumbers );
 
-                                        int[] tempBuildingSpeed = tempBSE.getEstimatesFromNothingFast(veryTempPortFlags);
+                                        int[] tempBuildingSpeed = tempBSE.getEstimatesFromNothingFast( veryTempPortFlags );
                                         int tempSpeedupTotal = 0;
 
                                         //	    boolean ok = true;
                                         for (int buildingType = SOCBuildingSpeedEstimate.MIN;
-                                                buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
-                                                buildingType++)
+                                             buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
+                                             buildingType++)
                                         {
                                             if ((ourBuildingSpeed[buildingType] - tempBuildingSpeed[buildingType]) >= 0)
                                             {
@@ -3183,7 +3163,7 @@ public class SOCPlayerTracker
                                         //	      }
                                         //	      System.out.println();
                                         //	    }
-                                        tempPlayerNumbers.undoUpdateNumbers(posSetCoord, board);
+                                        tempPlayerNumbers.undoUpdateNumbers( posSetCoord, board );
 
                                         if (tempSpeedupTotal > bestSpeedupTotal)
                                         {
@@ -3191,15 +3171,15 @@ public class SOCPlayerTracker
                                             bestSpeedupTotal = tempSpeedupTotal;
 
                                             for (int buildingType = SOCBuildingSpeedEstimate.MIN;
-                                                    buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
-                                                    buildingType++)
+                                                 buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
+                                                 buildingType++)
                                             {
                                                 chosenSetBuildingSpeed[i][buildingType] = tempBuildingSpeed[buildingType];
                                             }
 
                                             for (portType = SOCBoard.MISC_PORT;
-                                                    portType <= SOCBoard.WOOD_PORT;
-                                                    portType++)
+                                                 portType <= SOCBoard.WOOD_PORT;
+                                                 portType++)
                                             {
                                                 tempPortFlagsSet[i][portType] = veryTempPortFlags[portType];
                                             }
@@ -3281,21 +3261,19 @@ public class SOCPlayerTracker
                         if ((chosenCity[0] == null) && (citySpotsLeft > 0))
                         {
                             int bestCitySpeedupTotal = 0;
-                            Iterator<SOCPossibleCity> posCities0Iter = posCitiesCopy.values().iterator();
 
-                            while (posCities0Iter.hasNext())
+                            for (SOCPossibleCity posCity0 : posCitiesCopy.values())
                             {
-                                SOCPossibleCity posCity0 = posCities0Iter.next();
-                                tempPlayerNumbers.updateNumbers(posCity0.getCoordinates(), board);
-                                tempBSE.recalculateEstimates(tempPlayerNumbers);
+                                tempPlayerNumbers.updateNumbers( posCity0.getCoordinates(), board );
+                                tempBSE.recalculateEstimates( tempPlayerNumbers );
 
-                                int[] tempBuildingSpeed = tempBSE.getEstimatesFromNothingFast(tempPortFlags);
+                                int[] tempBuildingSpeed = tempBSE.getEstimatesFromNothingFast( tempPortFlags );
                                 int tempSpeedupTotal = 0;
 
                                 //		boolean ok = true;
                                 for (int buildingType = SOCBuildingSpeedEstimate.MIN;
-                                        buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
-                                        buildingType++)
+                                     buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
+                                     buildingType++)
                                 {
                                     if ((ourBuildingSpeed[buildingType] - tempBuildingSpeed[buildingType]) >= 0)
                                     {
@@ -3321,15 +3299,15 @@ public class SOCPlayerTracker
                                 //		  }
                                 //		  System.out.println();
                                 //		}
-                                tempPlayerNumbers.undoUpdateNumbers(posCity0.getCoordinates(), board);
+                                tempPlayerNumbers.undoUpdateNumbers( posCity0.getCoordinates(), board );
 
                                 if (tempSpeedupTotal >= bestCitySpeedupTotal)
                                 {
                                     bestCitySpeedupTotal = tempSpeedupTotal;
 
                                     for (int buildingType = SOCBuildingSpeedEstimate.MIN;
-                                            buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
-                                            buildingType++)
+                                         buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
+                                         buildingType++)
                                     {
                                         chosenCityBuildingSpeed[0][buildingType] = tempBuildingSpeed[buildingType];
                                     }
@@ -3346,34 +3324,32 @@ public class SOCPlayerTracker
                         {
                             int fastestSetETA = 500;
                             int bestSpeedupTotal = 0;
-                            Iterator<SOCPossibleSettlement> posSetsIter = posSetsCopy.values().iterator();
 
-                            while (posSetsIter.hasNext())
+                            for (SOCPossibleSettlement posSet : posSetsCopy.values())
                             {
-                                SOCPossibleSettlement posSet = posSetsIter.next();
                                 int posSetETA = settlementETA + (posSet.getNumberOfNecessaryRoads() * roadETA);
 
                                 if (posSetETA < fastestSetETA)
                                 {
                                     fastestSetETA = posSetETA;
-                                    tempPlayerNumbers.updateNumbers(posSet.getCoordinates(), board);
+                                    tempPlayerNumbers.updateNumbers( posSet.getCoordinates(), board );
 
                                     for (int portType = SOCBoard.MISC_PORT;
-                                            portType <= SOCBoard.WOOD_PORT;
-                                            portType++)
+                                         portType <= SOCBoard.WOOD_PORT;
+                                         portType++)
                                     {
                                         tempPortFlagsSet[0][portType] = tempPortFlags[portType];
                                     }
-                                    int portType = board.getPortTypeFromNodeCoord(posSet.getCoordinates());
+                                    int portType = board.getPortTypeFromNodeCoord( posSet.getCoordinates() );
                                     if (portType != -1)
                                         tempPortFlagsSet[0][portType] = true;
 
-                                    tempSetBSE[0].recalculateEstimates(tempPlayerNumbers);
-                                    chosenSetBuildingSpeed[0] = tempSetBSE[0].getEstimatesFromNothingFast(tempPortFlagsSet[0]);
+                                    tempSetBSE[0].recalculateEstimates( tempPlayerNumbers );
+                                    chosenSetBuildingSpeed[0] = tempSetBSE[0].getEstimatesFromNothingFast( tempPortFlagsSet[0] );
 
                                     for (int buildingType = SOCBuildingSpeedEstimate.MIN;
-                                            buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
-                                            buildingType++)
+                                         buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
+                                         buildingType++)
                                     {
                                         if ((ourBuildingSpeed[buildingType] - chosenSetBuildingSpeed[0][buildingType]) > 0)
                                         {
@@ -3382,33 +3358,33 @@ public class SOCPlayerTracker
                                         }
                                     }
 
-                                    tempPlayerNumbers.undoUpdateNumbers(posSet.getCoordinates(), board);
+                                    tempPlayerNumbers.undoUpdateNumbers( posSet.getCoordinates(), board );
                                     chosenSet[0] = posSet;
                                 }
                                 else if (posSetETA == fastestSetETA)
                                 {
                                     boolean[] veryTempPortFlags = new boolean[SOCBoard.WOOD_PORT + 1];
-                                    tempPlayerNumbers.updateNumbers(posSet.getCoordinates(), board);
+                                    tempPlayerNumbers.updateNumbers( posSet.getCoordinates(), board );
 
                                     for (int portType = SOCBoard.MISC_PORT;
-                                            portType <= SOCBoard.WOOD_PORT;
-                                            portType++)
+                                         portType <= SOCBoard.WOOD_PORT;
+                                         portType++)
                                     {
                                         veryTempPortFlags[portType] = tempPortFlags[portType];
                                     }
-                                    int portType = board.getPortTypeFromNodeCoord(posSet.getCoordinates());
+                                    int portType = board.getPortTypeFromNodeCoord( posSet.getCoordinates() );
                                     if (portType != -1)
                                         veryTempPortFlags[portType] = true;
 
-                                    tempBSE.recalculateEstimates(tempPlayerNumbers);
+                                    tempBSE.recalculateEstimates( tempPlayerNumbers );
 
-                                    int[] tempBuildingSpeed = tempBSE.getEstimatesFromNothingFast(veryTempPortFlags);
+                                    int[] tempBuildingSpeed = tempBSE.getEstimatesFromNothingFast( veryTempPortFlags );
                                     int tempSpeedupTotal = 0;
 
                                     //		  boolean ok = true;
                                     for (int buildingType = SOCBuildingSpeedEstimate.MIN;
-                                            buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
-                                            buildingType++)
+                                         buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
+                                         buildingType++)
                                     {
                                         if ((ourBuildingSpeed[buildingType] - tempBuildingSpeed[buildingType]) >= 0)
                                         {
@@ -3435,7 +3411,7 @@ public class SOCPlayerTracker
                                     //		    }
                                     //		    System.out.println();
                                     //		  }
-                                    tempPlayerNumbers.undoUpdateNumbers(posSet.getCoordinates(), board);
+                                    tempPlayerNumbers.undoUpdateNumbers( posSet.getCoordinates(), board );
 
                                     if (tempSpeedupTotal > bestSpeedupTotal)
                                     {
@@ -3443,15 +3419,15 @@ public class SOCPlayerTracker
                                         bestSpeedupTotal = tempSpeedupTotal;
 
                                         for (int buildingType = SOCBuildingSpeedEstimate.MIN;
-                                                buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
-                                                buildingType++)
+                                             buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
+                                             buildingType++)
                                         {
                                             chosenSetBuildingSpeed[0][buildingType] = tempBuildingSpeed[buildingType];
                                         }
 
                                         for (portType = SOCBoard.MISC_PORT;
-                                                portType <= SOCBoard.WOOD_PORT;
-                                                portType++)
+                                             portType <= SOCBoard.WOOD_PORT;
+                                             portType++)
                                         {
                                             tempPortFlagsSet[0][portType] = veryTempPortFlags[portType];
                                         }
@@ -3737,25 +3713,23 @@ public class SOCPlayerTracker
                         // pick the second city to build
                         //
                         int bestCitySpeedupTotal = 0;
-                        Iterator<SOCPossibleCity> posCities1Iter = posCitiesCopy.values().iterator();
 
-                        while (posCities1Iter.hasNext())
+                        for (SOCPossibleCity posCity1 : posCitiesCopy.values())
                         {
-                            SOCPossibleCity posCity1 = posCities1Iter.next();
-                            tempPlayerNumbers.updateNumbers(posCity1.getCoordinates(), board);
-                            D.ebugPrintlnINFO("tempPlayerNumbers = " + tempPlayerNumbers);
-                            tempBSE.recalculateEstimates(tempPlayerNumbers);
+                            tempPlayerNumbers.updateNumbers( posCity1.getCoordinates(), board );
+                            D.ebugPrintlnINFO( "tempPlayerNumbers = " + tempPlayerNumbers );
+                            tempBSE.recalculateEstimates( tempPlayerNumbers );
 
-                            int[] tempBuildingSpeed = tempBSE.getEstimatesFromNothingFast(tempPortFlags);
+                            int[] tempBuildingSpeed = tempBSE.getEstimatesFromNothingFast( tempPortFlags );
                             int tempSpeedupTotal = 0;
 
                             //boolean ok = true;
                             for (int buildingType = SOCBuildingSpeedEstimate.MIN;
-                                    buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
-                                    buildingType++)
+                                 buildingType < SOCBuildingSpeedEstimate.MAXPLUSONE;
+                                 buildingType++)
                             {
-                                D.ebugPrintlnINFO("ourBuildingSpeed[" + buildingType + "] = " + ourBuildingSpeed[buildingType]);
-                                D.ebugPrintlnINFO("tempBuildingSpeed[" + buildingType + "] = " + tempBuildingSpeed[buildingType]);
+                                D.ebugPrintlnINFO( "ourBuildingSpeed[" + buildingType + "] = " + ourBuildingSpeed[buildingType] );
+                                D.ebugPrintlnINFO( "tempBuildingSpeed[" + buildingType + "] = " + tempBuildingSpeed[buildingType] );
 
                                 if ((ourBuildingSpeed[buildingType] - tempBuildingSpeed[buildingType]) >= 0)
                                 {
@@ -3781,10 +3755,10 @@ public class SOCPlayerTracker
                             //	}
                             //	System.out.println();
                             //      }
-                            tempPlayerNumbers.undoUpdateNumbers(posCity1.getCoordinates(), board);
-                            D.ebugPrintlnINFO("tempPlayerNumbers = " + tempPlayerNumbers);
-                            D.ebugPrintlnINFO("WWW City at " + board.nodeCoordToString(posCity1.getCoordinates())
-                                + " has tempSpeedupTotal = " + tempSpeedupTotal);
+                            tempPlayerNumbers.undoUpdateNumbers( posCity1.getCoordinates(), board );
+                            D.ebugPrintlnINFO( "tempPlayerNumbers = " + tempPlayerNumbers );
+                            D.ebugPrintlnINFO( "WWW City at " + board.nodeCoordToString( posCity1.getCoordinates() )
+                                + " has tempSpeedupTotal = " + tempSpeedupTotal );
 
                             if (tempSpeedupTotal >= bestCitySpeedupTotal)
                             {
@@ -4071,71 +4045,63 @@ public class SOCPlayerTracker
             D.ebugPrintlnINFO("   LONGEST ROAD ETA = " + tracker.getLongestRoadETA());
             D.ebugPrintlnINFO("   LARGEST ARMY ETA = " + tracker.getLargestArmyETA());
 
-            Iterator<SOCPossibleRoad> prIter = tracker.getPossibleRoads().values().iterator();
-
-            while (prIter.hasNext())
+            for (SOCPossibleRoad pr : tracker.getPossibleRoads().values())
             {
-                SOCPossibleRoad pr = prIter.next();
                 if (pr.isRoadNotShip())
-                    D.ebugPrintINFO("%%% possible road at ");
+                    D.ebugPrintINFO( "%%% possible road at " );
                 else
-                    D.ebugPrintINFO("%%% possible ship at ");
-                D.ebugPrintlnINFO(Integer.toHexString(pr.getCoordinates()));
-                D.ebugPrintINFO("   eta:" + pr.getETA());
-                D.ebugPrintINFO("   this road/ship needs:");
+                    D.ebugPrintINFO( "%%% possible ship at " );
+                D.ebugPrintlnINFO( Integer.toHexString( pr.getCoordinates() ) );
+                D.ebugPrintINFO( "   eta:" + pr.getETA() );
+                D.ebugPrintINFO( "   this road/ship needs:" );
 
                 for (SOCPossibleRoad nr : pr.getNecessaryRoads())
-                    D.ebugPrintINFO(" " + Integer.toHexString(nr.getCoordinates()));
+                    D.ebugPrintINFO( " " + Integer.toHexString( nr.getCoordinates() ) );
 
                 D.ebugPrintlnINFO();
-                D.ebugPrintINFO("   this road/ship supports:");
+                D.ebugPrintINFO( "   this road/ship supports:" );
 
                 for (SOCPossiblePiece pp : pr.getNewPossibilities())
-                    D.ebugPrintINFO(" " + Integer.toHexString(pp.getCoordinates()));
+                    D.ebugPrintINFO( " " + Integer.toHexString( pp.getCoordinates() ) );
 
                 D.ebugPrintlnINFO();
-                D.ebugPrintINFO("   threats:");
+                D.ebugPrintINFO( "   threats:" );
 
                 for (SOCPossiblePiece threat : pr.getThreats())
-                    D.ebugPrintINFO(" " + threat.getPlayer().getPlayerNumber() + ":" + threat.getType() + ":"
-                        + Integer.toHexString(threat.getCoordinates()));
+                    D.ebugPrintINFO( " " + threat.getPlayer().getPlayerNumber() + ":" + threat.getType() + ":"
+                        + Integer.toHexString( threat.getCoordinates() ) );
 
                 D.ebugPrintlnINFO();
-                D.ebugPrintlnINFO("   LR value=" + pr.getLRValue() + " LR Potential=" + pr.getLRPotential());
+                D.ebugPrintlnINFO( "   LR value=" + pr.getLRValue() + " LR Potential=" + pr.getLRPotential() );
             }
 
-            Iterator<SOCPossibleSettlement> psIter = tracker.getPossibleSettlements().values().iterator();
-
-            while (psIter.hasNext())
+            for (SOCPossibleSettlement ps : tracker.getPossibleSettlements().values())
             {
-                SOCPossibleSettlement ps = psIter.next();
-                D.ebugPrintlnINFO("%%% possible settlement at " + Integer.toHexString(ps.getCoordinates()));
-                D.ebugPrintINFO("   eta:" + ps.getETA());
-                D.ebugPrintINFO("%%%   conflicts");
+                D.ebugPrintlnINFO( "%%% possible settlement at " + Integer.toHexString( ps.getCoordinates() ) );
+                D.ebugPrintINFO( "   eta:" + ps.getETA() );
+                D.ebugPrintINFO( "%%%   conflicts" );
                 for (SOCPossibleSettlement conflict : ps.getConflicts())
-                    D.ebugPrintINFO(" " + conflict.getPlayer().getPlayerNumber() + ":"
-                        + Integer.toHexString(conflict.getCoordinates()));
+                    D.ebugPrintINFO( " " + conflict.getPlayer().getPlayerNumber() + ":"
+                        + Integer.toHexString( conflict.getCoordinates() ) );
 
                 D.ebugPrintlnINFO();
-                D.ebugPrintINFO("%%%   necessary roads/ships");
+                D.ebugPrintINFO( "%%%   necessary roads/ships" );
                 for (SOCPossibleRoad nr : ps.getNecessaryRoads())
-                    D.ebugPrintINFO(" " + Integer.toHexString(nr.getCoordinates()));
+                    D.ebugPrintINFO( " " + Integer.toHexString( nr.getCoordinates() ) );
 
                 D.ebugPrintlnINFO();
-                D.ebugPrintINFO("   threats:");
+                D.ebugPrintINFO( "   threats:" );
                 for (SOCPossiblePiece threat : ps.getThreats())
-                    D.ebugPrintINFO(" " + threat.getPlayer().getPlayerNumber() + ":" + threat.getType() + ":"
-                        + Integer.toHexString(threat.getCoordinates()));
+                    D.ebugPrintINFO( " " + threat.getPlayer().getPlayerNumber() + ":" + threat.getType() + ":"
+                        + Integer.toHexString( threat.getCoordinates() ) );
 
                 D.ebugPrintlnINFO();
             }
 
-            Iterator<SOCPossibleCity> pcIter = tracker.getPossibleCities().values().iterator();
-            while (pcIter.hasNext())
+            for (SOCPossibleCity pc : tracker.getPossibleCities().values())
             {
-                SOCPossibleCity pc = pcIter.next();
-                D.ebugPrintlnINFO("%%% possible city at " + Integer.toHexString(pc.getCoordinates()));
-                D.ebugPrintlnINFO("   eta:" + pc.getETA());
+                D.ebugPrintlnINFO( "%%% possible city at " + Integer.toHexString( pc.getCoordinates() ) );
+                D.ebugPrintlnINFO( "   eta:" + pc.getETA() );
             }
         }
     }

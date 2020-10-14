@@ -1420,8 +1420,7 @@ public abstract class SOCBoard implements Serializable, Cloneable
      */
     public HashSet<Integer> initPlayerLegalSettlements()
     {
-        HashSet<Integer> legalSettlements = new HashSet<>( nodesOnLand );
-        return legalSettlements;
+        return new HashSet<>( nodesOnLand );
     }
 
     /**
@@ -1641,8 +1640,8 @@ public abstract class SOCBoard implements Serializable, Cloneable
             nodeIDtoPortType = new HashMap<>();
         else
             nodeIDtoPortType.clear();
-        for (int i = 0; i < ports.length; ++i)
-            ports[i].clear();
+        for (List<Integer> port : ports)
+            port.clear();
 
         // Place the new ports
         for (int i = 0; i < SOCBoard6p.PORTS_FACING_V2.length; ++i)
@@ -2659,7 +2658,7 @@ public abstract class SOCBoard implements Serializable, Cloneable
      */
     public final int[] getAdjacentNodesToNode_arr(final int coord)
     {
-        int nodes[] = new int[3];
+        int[] nodes = new int[3];
         for (int i = 0; i < 3; ++i)
             nodes[i] = getAdjacentNodeToNode(coord, i);
 
@@ -3203,7 +3202,7 @@ public abstract class SOCBoard implements Serializable, Cloneable
      */
     public String nodeCoordToString(int node)
     {
-        String str;
+        StringBuilder str;
 
         final List<Integer> hexes = getAdjacentHexesToNode(node);
         if (hexes.isEmpty())
@@ -3217,11 +3216,11 @@ public abstract class SOCBoard implements Serializable, Cloneable
 
         if (number == 0)
         {
-            str = "-";
+            str = new StringBuilder( "-" );
         }
         else
         {
-            str = Integer.toString(number);
+            str = new StringBuilder( Integer.toString( number ) );
         }
 
         for (int i = 1; i<hexes.size(); ++i)
@@ -3231,15 +3230,15 @@ public abstract class SOCBoard implements Serializable, Cloneable
 
             if (number == 0)
             {
-                str += "/-";
+                str.append( "/-" );
             }
             else
             {
-                str += ("/" + number);
+                str.append( "/" ).append( number );
             }
         }
 
-        return str;
+        return str.toString();
     }
 
     /**

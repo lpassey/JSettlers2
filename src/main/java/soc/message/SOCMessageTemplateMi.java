@@ -140,10 +140,10 @@ public abstract class SOCMessageTemplateMi extends SOCMessageMulti
         }
         if (parr != null)
         {
-            for (int i = 0; i < parr.length; ++i)
+            for (int value : parr)
             {
-                sb.append(sep);
-                sb.append(parr[i]);
+                sb.append( sep );
+                sb.append( value );
             }
         }
 
@@ -194,10 +194,10 @@ public abstract class SOCMessageTemplateMi extends SOCMessageMulti
         }
         if (pa != null)
         {
-            for (int i = 0; i < pa.length; ++i)
+            for (int value : pa)
             {
-                sb.append("|p=");
-                sb.append(pa[i]);
+                sb.append( "|p=" );
+                sb.append( value );
             }
         }
         return sb.toString();

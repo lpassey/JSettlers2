@@ -830,10 +830,8 @@ public class SOCPlayerElement extends SOCMessage
         else
             act = Integer.toString(actionType);
 
-        String s = "SOCPlayerElement:game=" + game + "|playerNum=" + playerNumber + "|actionType=" + act
+        return "SOCPlayerElement:game=" + game + "|playerNum=" + playerNumber + "|actionType=" + act
             + "|elementType=" + elementType + "|amount=" + amount + ((news) ? "|news=Y" : "");
-
-        return s;
     }
 
 }

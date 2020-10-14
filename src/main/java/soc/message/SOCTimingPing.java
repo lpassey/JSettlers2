@@ -97,8 +97,6 @@ public class SOCTimingPing extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCTimingPing:game=" + game ;
-
-        return s;
+        return "SOCTimingPing:game=" + game;
     }
 }

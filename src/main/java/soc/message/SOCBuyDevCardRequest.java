@@ -124,9 +124,7 @@ public class SOCBuyDevCardRequest extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCBuyDevCardRequest:game=" + game;
-
-        return s;
+        return "SOCBuyDevCardRequest:game=" + game;
     }
 
 }

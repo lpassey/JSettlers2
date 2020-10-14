@@ -346,18 +346,17 @@ public class SOCGameElements extends SOCMessageTemplateMi
 
         // "e5=9,e7=12" -> "5", "9, "7", "12"
         pieces = pieces[1].split(",");
-        for (int i = 0; i < pieces.length; ++i)
+        for (String piece : pieces)
         {
-            String piece = pieces[i];  // "e5=9"
-            if (piece.charAt(0) != 'e')
+            if (piece.charAt( 0 ) != 'e')
                 return null;
 
-            int j = piece.indexOf('=');
+            int j = piece.indexOf( '=' );
             if (j < 2)
                 return null;
 
-            ret.add(piece.substring(1, j));
-            ret.add(piece.substring(j + 1));
+            ret.add( piece.substring( 1, j ) );
+            ret.add( piece.substring( j + 1 ) );
         }
 
         return ret;

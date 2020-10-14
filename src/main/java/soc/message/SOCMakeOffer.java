@@ -112,14 +112,14 @@ public class SOCMakeOffer extends SOCMessage
      */
     public static String toCmd(String ga, SOCTradeOffer of)
     {
-        String cmd = MAKEOFFER + sep + ga;
-        cmd += (sep2 + of.getFrom());
+        StringBuilder cmd = new StringBuilder( MAKEOFFER + sep + ga );
+        cmd.append( sep2 ).append( of.getFrom() );
 
         boolean[] to = of.getTo();
 
-        for (int i = 0; i < to.length; i++)  // length should be == game.maxPlayers
+        for (boolean b : to)
         {
-            cmd += (sep2 + to[i]);
+            cmd.append( sep2 ).append( b );
         }
 
         SOCResourceSet give = of.getGiveSet();
@@ -127,7 +127,7 @@ public class SOCMakeOffer extends SOCMessage
         for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
                 i++)
         {
-            cmd += (sep2 + give.getAmount(i));
+            cmd.append( sep2 ).append( give.getAmount( i ) );
         }
 
         SOCResourceSet get = of.getGetSet();
@@ -135,10 +135,10 @@ public class SOCMakeOffer extends SOCMessage
         for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
                 i++)
         {
-            cmd += (sep2 + get.getAmount(i));
+            cmd.append( sep2 ).append( get.getAmount( i ) );
         }
 
-        return cmd;
+        return cmd.toString();
     }
 
     /**

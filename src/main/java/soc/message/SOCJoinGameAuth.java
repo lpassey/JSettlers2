@@ -285,9 +285,9 @@ public class SOCJoinGameAuth extends SOCMessage
         StringBuilder sb = new StringBuilder("SOCJoinGameAuth:game=" + game);
         if ((boardHeight != 0) || (boardWidth != 0))
         {
-            sb.append("|bh=" + boardHeight + "|bw=" + boardWidth);
+            sb.append( "|bh=" ).append( boardHeight ).append( "|bw=" ).append( boardWidth );
             if (layoutVS != null)
-                sb.append("|vs=" + Arrays.toString(layoutVS));
+                sb.append( "|vs=" ).append( Arrays.toString( layoutVS ) );
         }
 
         return sb.toString();

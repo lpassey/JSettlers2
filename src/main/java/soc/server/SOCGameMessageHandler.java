@@ -501,7 +501,7 @@ public class SOCGameMessageHandler
                     if (ga.clientVersionLowest < SOCDiceResultResources.VERSION_FOR_DICERESULTRESOURCES)
                     {
                         // Build a string to announce to v1.x.xx clients
-                    StringBuffer gainsText = new StringBuffer();
+                    StringBuilder gainsText = new StringBuilder();
 
                     noPlayersGained = true;  // for string spacing; might be false due to loop for new clients in game
                     for (int pn = 0; pn < ga.maxPlayers; ++pn)

@@ -167,8 +167,8 @@ public class SOCLastSettlement extends SOCMessage
         pieces[2] = Integer.toString(Integer.parseInt(pieces[2], 16));
 
         StringBuilder ret = new StringBuilder();
-        for (int i = 0; i < pieces.length; ++i)
-            ret.append(pieces[i]).append(sep2_char);
+        for (String piece : pieces)
+            ret.append( piece ).append( sep2_char );
 
         return ret.toString();
     }
@@ -178,8 +178,6 @@ public class SOCLastSettlement extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCLastSettlement:game=" + game + "|playerNumber=" + playerNumber + "|coord=" + Integer.toHexString(coordinates);
-
-        return s;
+        return "SOCLastSettlement:game=" + game + "|playerNumber=" + playerNumber + "|coord=" + Integer.toHexString(coordinates);
     }
 }

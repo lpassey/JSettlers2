@@ -182,7 +182,7 @@ public class SOCMoveRobber extends SOCMessage
         int i = s.lastIndexOf(SOCMessage.sep2_char);
 
         StringBuilder ret = new StringBuilder();
-        ret.append(s.substring(0, i + 1));
+        ret.append( s );
         String robberHex = s.substring(i + 1);
         ret.append(Integer.parseInt(robberHex, 16));
 
@@ -194,10 +194,9 @@ public class SOCMoveRobber extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCMoveRobber:game=" + game + "|playerNumber=" + playerNumber + "|coord="
+        return "SOCMoveRobber:game=" + game + "|playerNumber=" + playerNumber + "|coord="
             + ((coordinates >= 0)
               ? Integer.toHexString(coordinates)
               : ("-" + Integer.toHexString(- coordinates)));
-        return s;
     }
 }

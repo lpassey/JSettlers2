@@ -211,8 +211,6 @@ public class SOCJoinChannel extends SOCMessage
         else
             pwmask = "|password=***";
 
-        String s = "SOCJoinChannel:nickname=" + nickname + pwmask + "|host=" + host + "|channel=" + channel;
-        return s;
+        return "SOCJoinChannel:nickname=" + nickname + pwmask + "|host=" + host + "|channel=" + channel;
     }
-
 }

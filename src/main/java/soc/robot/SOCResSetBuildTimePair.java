@@ -97,8 +97,6 @@ public class SOCResSetBuildTimePair
      */
     public String toString()
     {
-        String str = "ResTime:res=" + resources + "|rolls=" + rolls;
-
-        return str;
+        return "ResTime:res=" + resources + "|rolls=" + rolls;
     }
 }

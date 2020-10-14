@@ -141,10 +141,10 @@ public class SOCChoosePlayerRequest extends SOCMessage
         if (canChooseNone)
             mes.append(sep2 + "NONE");
 
-        for (int i = 0; i < ch.length; i++)
+        for (boolean b : ch)
         {
-            mes.append(sep2_char);
-            mes.append(ch[i] ? "true" : "false");
+            mes.append( sep2_char );
+            mes.append( b ? "true" : "false" );
         }
 
         return mes.toString();
@@ -247,7 +247,7 @@ public class SOCChoosePlayerRequest extends SOCMessage
         StringBuilder sb = new StringBuilder("SOCChoosePlayerRequest:game=" + game);
         if (canChooseNone())
             sb.append("|canChooseNone=true");
-        sb.append("|choices=" + Arrays.toString(choices));  // "[true, false, ...]"
+        sb.append( "|choices=" ).append( Arrays.toString( choices ) );  // "[true, false, ...]"
         return sb.toString();
     }
 

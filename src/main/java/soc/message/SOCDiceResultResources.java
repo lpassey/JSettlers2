@@ -213,9 +213,7 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
                 throw new IllegalArgumentException("player count mismatch");
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            IllegalArgumentException iae = new IllegalArgumentException("too short");
-            iae.initCause(e);
-            throw iae;
+            throw new IllegalArgumentException("too short", e );
         }
     }
 
