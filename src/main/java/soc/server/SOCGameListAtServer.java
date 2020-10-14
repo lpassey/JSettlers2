@@ -116,9 +116,9 @@ public class SOCGameListAtServer extends SOCGameList
         if (! (SOCGame.boardFactory instanceof SOCBoardAtServer.BoardFactoryAtServer))
             SOCGame.boardFactory = new SOCBoardAtServer.BoardFactoryAtServer();
 
-        gameData = new Hashtable<String, SOCGame>();
-        gameMembers = new Hashtable<String, Vector<Connection>>();
-        gameChatBuffer = new Hashtable<String, SOCChatRecentBuffer>();
+        gameData = new Hashtable<>();
+        gameMembers = new Hashtable<>();
+        gameChatBuffer = new Hashtable<>();
     }
 
     /**
@@ -413,7 +413,7 @@ public class SOCGameListAtServer extends SOCGameList
         if (! oldConn.getData().equals(newConn.getData()))
             throw new IllegalArgumentException("keyname data");
 
-        List<SOCGame> unjoinables = new ArrayList<SOCGame>();
+        List<SOCGame> unjoinables = new ArrayList<>();
 
         final boolean sameVersion = (oldConn.getVersion() == newConn.getVersion());
         final SOCClientData scd = (SOCClientData) newConn.getAppData();
@@ -511,7 +511,7 @@ public class SOCGameListAtServer extends SOCGameList
         if (gaOwner != null)
             game.setOwner(gaOwner, gaLocaleStr);
 
-        Vector<Connection> members = new Vector<Connection>();
+        Vector<Connection> members = new Vector<>();
         gameMembers.put(gaName, members);
         gameChatBuffer.put(gaName, new SOCChatRecentBuffer());
 
@@ -595,7 +595,7 @@ public class SOCGameListAtServer extends SOCGameList
      * @return A random string of that length
      * @since 2.3.00
      */
-    private final StringBuffer randomAlphanumericLegibles(final int length)
+    private StringBuffer randomAlphanumericLegibles(final int length)
     {
         final int L = ALPHANUMERIC_LEGIBLE_CHOICES.length();
         StringBuffer sb = new StringBuffer();
@@ -760,7 +760,7 @@ public class SOCGameListAtServer extends SOCGameList
      */
     public List<SOCGame> memberGames(Connection c, final String firstGameName)
     {
-        List<SOCGame> cGames = new ArrayList<SOCGame>();
+        List<SOCGame> cGames = new ArrayList<>();
 
         synchronized(gameData)
         {
@@ -858,7 +858,7 @@ public class SOCGameListAtServer extends SOCGameList
         final boolean cliNotLimitedFeats = ! (alwaysCheckFeats || scd.hasLimitedFeats);
         final SOCFeatureSet cliLimitedFeats = cliNotLimitedFeats ? null : scd.feats;
 
-        ArrayList<Object> gl = new ArrayList<Object>();  // contains Strings and/or SOCGames;
+        ArrayList<Object> gl = new ArrayList<>();  // contains Strings and/or SOCGames;
                                    // strings are names of unjoinable games,
                                    // with the UNJOINABLE prefix.
         takeMonitor();

@@ -100,7 +100,7 @@ public class SOCChannels extends SOCMessage
      */
     public static SOCChannels parseDataStr(String s)
     {
-        List<String> cl = new ArrayList<String>();
+        List<String> cl = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(s, sep2);
 
         try

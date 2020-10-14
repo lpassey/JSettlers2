@@ -223,7 +223,7 @@ public class UserPreferences
      *     an exception.
      * @since 1.2.00
      */
-    public static final void clear(final String prefKeyList)
+    public static void clear(final String prefKeyList)
     {
         if ((prefKeyList == null) || (prefKeyList.length() == 0) || (userPrefs == null))
             return;

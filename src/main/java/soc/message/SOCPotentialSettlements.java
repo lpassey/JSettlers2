@@ -292,11 +292,11 @@ public class SOCPotentialSettlements extends SOCMessage
         {
             if (psNodesFromAll)
             {
-                ps = new ArrayList<Integer>();
+                ps = new ArrayList<>();
                 for (int i = 1; i < landAreasLegalNodes.length; ++i)
                     ps.addAll(landAreasLegalNodes[i]);
             } else {
-                ps = new ArrayList<Integer>(landAreasLegalNodes[startingLandArea]);
+                ps = new ArrayList<>( landAreasLegalNodes[startingLandArea] );
             }
         }
 
@@ -428,7 +428,7 @@ public class SOCPotentialSettlements extends SOCMessage
                 while (pnIter.hasNext())
                 {
                     cmd.append(sep2);
-                    int number = pnIter.next().intValue();
+                    int number = pnIter.next();
                     cmd.append(number);
                 }
             }
@@ -478,7 +478,7 @@ public class SOCPotentialSettlements extends SOCMessage
     {
         String ga;
         int pn;
-        List<Integer> ps = new ArrayList<Integer>();
+        List<Integer> ps = new ArrayList<>();
         HashSet<Integer>[] lan = null;  // landAreasLegalNodes
         int pan = 0;
         int[][] legalSeaEdges = null;
@@ -499,7 +499,7 @@ public class SOCPotentialSettlements extends SOCMessage
                     hadNA = true;
                     break;
                 }
-                ps.add(Integer.valueOf(Integer.parseInt(tok)));
+                ps.add( Integer.parseInt( tok ) );
             }
 
             if (hadNA)
@@ -544,7 +544,7 @@ public class SOCPotentialSettlements extends SOCMessage
                     final int areaNum = Integer.parseInt(tok.substring(2));
                     if (areaNum <= 0)
                         return null;  // malformed
-                    HashSet<Integer> ls = new HashSet<Integer>();
+                    HashSet<Integer> ls = new HashSet<>();
 
                     // Loop for node numbers, until next "LA#" (or "SE")
                     while (st.hasMoreTokens())
@@ -554,7 +554,7 @@ public class SOCPotentialSettlements extends SOCMessage
                             break;
                         if (areaNum == 0)
                             return null;  // WIP: LA0 must be empty
-                        ls.add(Integer.valueOf(Integer.parseInt(tok)));
+                        ls.add( Integer.parseInt( tok ) );
                     }
 
                     lan[areaNum] = ls;
@@ -563,10 +563,10 @@ public class SOCPotentialSettlements extends SOCMessage
                 // legalSeaEdges[][]: Parse the optional "SE" edge lists (SC_PIRI)
                 if (st.hasMoreTokens() && tok.equals("SE"))
                 {
-                    ArrayList<int[]> allLSE = new ArrayList<int[]>();
+                    ArrayList<int[]> allLSE = new ArrayList<>();
                     while (st.hasMoreTokens() && tok.equals("SE"))
                     {
-                        ArrayList<Integer> lse = new ArrayList<Integer>();
+                        ArrayList<Integer> lse = new ArrayList<>();
 
                         // Loop for edge coords, until next "SE"
                         while (st.hasMoreTokens())
@@ -578,7 +578,7 @@ public class SOCPotentialSettlements extends SOCMessage
                             if (edge != 0)
                                 // 0 is used for padding the last SE list if empty;
                                 // otherwise, at the end of the message, an empty list will have no tokens.
-                                lse.add(Integer.valueOf(edge));
+                                lse.add( edge );
                         }
 
                         final int L = lse.size();
@@ -681,7 +681,7 @@ public class SOCPotentialSettlements extends SOCMessage
             } else {
                 psListStatus = 1;
                 for (String coordStr : s.split(" "))
-                    ret.append(sep2_char).append(Integer.toString(Integer.parseInt(coordStr, 16)));
+                    ret.append(sep2_char).append( Integer.parseInt( coordStr, 16 ) );
             }
         }
 
@@ -819,7 +819,7 @@ public class SOCPotentialSettlements extends SOCMessage
         else
             for (Integer number : psNodes)
             {
-                s.append(Integer.toHexString(number.intValue()));
+                s.append(Integer.toHexString( number ));
                 s.append(' ');
             }
 
@@ -843,7 +843,7 @@ public class SOCPotentialSettlements extends SOCMessage
                 Iterator<Integer> laIter = nodes.iterator();
                 while (laIter.hasNext())
                 {
-                    int number = laIter.next().intValue();
+                    int number = laIter.next();
                     s.append(Integer.toHexString(number));
                     s.append(' ');
                 }

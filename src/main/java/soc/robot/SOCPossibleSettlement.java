@@ -64,10 +64,10 @@ public class SOCPossibleSettlement extends SOCPossiblePiece
         super(SOCPossiblePiece.SETTLEMENT, pl, co);
 
         if (nr == null)
-            nr = new ArrayList<SOCPossibleRoad>();
+            nr = new ArrayList<>();
         necessaryRoads = nr;
         eta = 0;
-        conflicts = new ArrayList<SOCPossibleSettlement>();
+        conflicts = new ArrayList<>();
         threatUpdatedFlag = false;
         hasBeenExpanded = false;
         numberOfNecessaryRoads = -1;
@@ -89,9 +89,9 @@ public class SOCPossibleSettlement extends SOCPossiblePiece
         //D.ebugPrintln(">>>> Copying possible settlement: "+ps);
         super(SOCPossiblePiece.SETTLEMENT, ps.getPlayer(), ps.getCoordinates());
 
-        necessaryRoads = new ArrayList<SOCPossibleRoad>(ps.getNecessaryRoads().size());
+        necessaryRoads = new ArrayList<>( ps.getNecessaryRoads().size() );
         eta = ps.getETA();
-        conflicts = new ArrayList<SOCPossibleSettlement>(ps.getConflicts().size());
+        conflicts = new ArrayList<>( ps.getConflicts().size() );
         threatUpdatedFlag = false;
         hasBeenExpanded = false;
 

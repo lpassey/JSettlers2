@@ -58,13 +58,13 @@ public interface SOCDevCardConstants
      * Send older clients {@link #UNKNOWN_FOR_VERS_1_X} and
      * {@link #KNIGHT_FOR_VERS_1_X} instead.
      */
-    public static final int VERSION_FOR_RENUMBERED_TYPES = 2000;
+    int VERSION_FOR_RENUMBERED_TYPES = 2000;
 
     /** Previous value for {@link #UNKNOWN} card type, for version 1.x clients or servers */
-    public static final int UNKNOWN_FOR_VERS_1_X = 9;
+    int UNKNOWN_FOR_VERS_1_X = 9;
 
     /** Previous value for {@link #KNIGHT} knight/robber card type, for version 1.x clients or servers */
-    public static final int KNIGHT_FOR_VERS_1_X = 0;
+    int KNIGHT_FOR_VERS_1_X = 0;
 
     /**
      * Minimum valid card type constant ({@link #UNKNOWN}).
@@ -72,7 +72,7 @@ public interface SOCDevCardConstants
      * @see #MAXPLUSONE
      * @since 1.1.00
      */
-    public static final int MIN = 0;
+    int MIN = 0;
 
     /**
      * Dev card of unknown type, for reporting to other players.
@@ -81,7 +81,7 @@ public interface SOCDevCardConstants
      * Before sending this from server, check if game option {@link SOCGameOption#K_PLAY_FO PLAY_FO}
      * or {@link SOCGameOption#K_PLAY_VPO PLAY_VPO} is set.
      */
-    public static final int UNKNOWN = 0;
+    int UNKNOWN = 0;
 
     /**
      * Minimum known card type ({@link #ROADS}).
@@ -89,19 +89,19 @@ public interface SOCDevCardConstants
      * @see #MAXPLUSONE
      * @since 2.0.00
      */
-    public static final int MIN_KNOWN = 1;
+    int MIN_KNOWN = 1;
 
     /** road building card */
-    public static final int ROADS = 1;
+    int ROADS = 1;
 
     /** discovery, year-of-plenty card */
-    public static final int DISC = 2;
+    int DISC = 2;
 
     /** monopoly card */
-    public static final int MONO = 3;
+    int MONO = 3;
 
     /** capitol, Governors House, Great Hall VP card */
-    public static final int CAP = 4;
+    int CAP = 4;
 
     /**
      * market VP card.
@@ -110,19 +110,19 @@ public interface SOCDevCardConstants
      * Since the 5th Edition victory point cards include
      * a Market and a Library, the same constant can't be both.
      */
-    public static final int MARKET = 5;
+    int MARKET = 5;
 
     /** university VP card */
-    public static final int UNIV = 6;
+    int UNIV = 6;
 
     /** temple, library VP card */
-    public static final int TEMP = 7;
+    int TEMP = 7;
 
     /** tower, chapel VP card.
      *<P>
      * Before v2.0.00 this constant was {@code TOW}.
      */
-    public static final int CHAPEL = 8;
+    int CHAPEL = 8;
 
     /** Knight, soldier, robber card.
      *<P>
@@ -130,7 +130,7 @@ public interface SOCDevCardConstants
      *<P>
      * Before v2.0.00 this constant had a different value: See {@link #KNIGHT_FOR_VERS_1_X}.
      */
-    public static final int KNIGHT = 9;
+    int KNIGHT = 9;
 
     /**
      * A value greater than the highest defined card type (currently {@link #KNIGHT}).
@@ -138,6 +138,6 @@ public interface SOCDevCardConstants
      * @see #MIN
      * @see #MIN_KNOWN
      */
-    public static final int MAXPLUSONE = 10;
+    int MAXPLUSONE = 10;
 
 }

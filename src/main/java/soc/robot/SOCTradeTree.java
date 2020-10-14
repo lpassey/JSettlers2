@@ -52,7 +52,7 @@ public class SOCTradeTree
     {
         resourceSet = set;
         needsToBeExpanded = true;
-        children = new Vector<SOCTradeTree>();
+        children = new Vector<>();
 
         if (par != null)
         {
@@ -74,7 +74,7 @@ public class SOCTradeTree
         resourceSet = set;
         parent = null;
         needsToBeExpanded = false;
-        children = new Vector<SOCTradeTree>();
+        children = new Vector<>();
     }
 
     /**

@@ -134,7 +134,7 @@ public class SOCGameElements extends SOCMessageTemplateMi
 
         private int value;
 
-        private GEType(final int v)
+        GEType( final int v )
         {
             value = v;
         }

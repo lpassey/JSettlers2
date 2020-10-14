@@ -876,7 +876,7 @@ public class SOCServerMessageHandler
         if (L > 0)
         {
             if (changes == null)
-                changes = new ArrayList<SOCScenario>();
+                changes = new ArrayList<>();
 
             for (String scKey : params)
             {
@@ -912,7 +912,7 @@ public class SOCServerMessageHandler
                 if (knownScens == null)
                     knownScens = SOCScenario.getAllKnownScenarios();
 
-                ArrayList<String> scKeys = new ArrayList<String>();
+                ArrayList<String> scKeys = new ArrayList<>();
                 for (final SOCScenario sc : SOCVersionedItem.itemsForVersion(cliVers, knownScens))
                     if ((changes == null) || ! changes.contains(sc))
                         scKeys.add(sc.key);
@@ -1162,7 +1162,7 @@ public class SOCServerMessageHandler
                     if (minRemain > gameMaxMins - 4)
                     {
                         srv.messageToPlayerKeyed(c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
-                            "reply.addtime.not_expire_soon", Integer.valueOf(minRemain));
+                            "reply.addtime.not_expire_soon", minRemain );
                             // "Ask again later: This game does not expire soon, it has {0} minutes remaining."
                         // This check time subtracts 4 minutes to keep too-frequent addtime requests
                         // from spamming all game members with announcements
@@ -1182,7 +1182,7 @@ public class SOCServerMessageHandler
                         ga.setExpiration(exp);
                         srv.messageToGameKeyed(ga, true, true, "reply.addtime.extended");  // ">>> Game time has been extended."
                         srv.messageToGameKeyed(ga, true, true, "stats.game.willexpire.urgent",
-                            Integer.valueOf(minRemain));
+                            minRemain );
                             // ">>> This game will expire in 45 minutes."
                     }
                 }
@@ -1510,7 +1510,7 @@ public class SOCServerMessageHandler
             // ">>> This game will expire in 15 minutes."
             srv.messageToPlayerKeyed(c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
                 ((isCheckTime) ? "stats.game.willexpire.urgent" : "stats.game.willexpire"),
-                Integer.valueOf((int) ((gameData.getExpiration() - System.currentTimeMillis()) / 60000)));
+                (int) ((gameData.getExpiration() - System.currentTimeMillis()) / 60000) );
         }
     }
 
@@ -1974,12 +1974,12 @@ public class SOCServerMessageHandler
                     // Build list of StringBuilder not String to do as little as possible
                     // inside synchronization block.
 
-                    final ArrayList<StringBuilder> sbs = new ArrayList<StringBuilder>();
+                    final ArrayList<StringBuilder> sbs = new ArrayList<>();
                     sbs.add(new StringBuilder(c.getLocalized("reply.who.conn_to_srv")));
                         // "Currently connected to server:"
 
                     final Integer nUnnamed = srv.getConnectedClientNames(sbs);
-                    if (nUnnamed.intValue() != 0)
+                    if (nUnnamed != 0)
                     {
                         StringBuilder sb = new StringBuilder("- ");
                         sb.append(c.getLocalized("reply.who.and_unnamed", nUnnamed));
@@ -2559,7 +2559,7 @@ public class SOCServerMessageHandler
 
                         if (disRequests == null)
                         {
-                            disRequests = new Vector<SOCReplaceRequest>();
+                            disRequests = new Vector<>();
                             disRequests.addElement(req);
                             srv.robotDismissRequests.put(gaName, disRequests);
                         } else {

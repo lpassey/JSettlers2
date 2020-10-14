@@ -57,10 +57,10 @@ public class SOCPossibleRoad extends SOCPossiblePiece
         super(SOCPossiblePiece.ROAD, pl, co);
 
         if (nr == null)
-            nr = new ArrayList<SOCPossibleRoad>();
+            nr = new ArrayList<>();
         necessaryRoads = nr;
         eta = 0;
-        newPossibilities = new ArrayList<SOCPossiblePiece>();
+        newPossibilities = new ArrayList<>();
         longestRoadValue = 0;
         longestRoadPotential = 0;
         threatUpdatedFlag = false;
@@ -80,9 +80,9 @@ public class SOCPossibleRoad extends SOCPossiblePiece
         //D.ebugPrintln(">>>> Copying possible road: "+pr);
         super(SOCPossiblePiece.ROAD, pr.getPlayer(), pr.getCoordinates());
 
-        necessaryRoads = new ArrayList<SOCPossibleRoad>(pr.getNecessaryRoads().size());
+        necessaryRoads = new ArrayList<>( pr.getNecessaryRoads().size() );
         eta = pr.getETA();
-        newPossibilities = new ArrayList<SOCPossiblePiece>(pr.getNewPossibilities().size());
+        newPossibilities = new ArrayList<>( pr.getNewPossibilities().size() );
         longestRoadValue = pr.getLRValue();
         longestRoadPotential = pr.getLRPotential();
         threatUpdatedFlag = false;

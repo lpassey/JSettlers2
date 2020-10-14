@@ -631,7 +631,7 @@ public interface PlayerClientListener
     }
 
     /** Listener to be called when {@link PlayerClientListener#isNonBlockingDialogVisible()} becomes false. */
-    public interface NonBlockingDialogDismissListener
+    interface NonBlockingDialogDismissListener
     {
         /**
          * Called on UI thread when a non-blocking dialog has just been dismissed.
@@ -640,7 +640,7 @@ public interface PlayerClientListener
          * @param wasCanceled  True if the dialog was closed or canceled, instead of selecting an action.
          *     Message popup dialogs have the "OK" button as their action and use {@code false} for this parameter.
          */
-        public void dialogDismissed(Object srcDialog, boolean wasCanceled);
+        void dialogDismissed( Object srcDialog, boolean wasCanceled );
     }
 
 }

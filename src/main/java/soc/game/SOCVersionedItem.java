@@ -247,7 +247,7 @@ public abstract class SOCVersionedItem implements Cloneable
             if (! it.isKnown)
             {
                 if (unknowns == null)
-                    unknowns = new ArrayList<String>();
+                    unknowns = new ArrayList<>();
 
                 unknowns.add(it.key);
             }
@@ -440,7 +440,7 @@ public abstract class SOCVersionedItem implements Cloneable
                 continue;
 
             if (ret == null)
-                ret = new ArrayList<I>();
+                ret = new ArrayList<>();
             ret.add(itm);
         }
 
@@ -466,7 +466,7 @@ public abstract class SOCVersionedItem implements Cloneable
      * @param s string to test
      * @return true if all characters are OK, false otherwise
      */
-    public static final boolean isAlphanumericUpcaseAscii(String s)
+    public static boolean isAlphanumericUpcaseAscii(String s)
     {
         for (int i = s.length()-1; i>=0; --i)
         {

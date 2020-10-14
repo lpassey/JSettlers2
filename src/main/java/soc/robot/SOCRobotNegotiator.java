@@ -132,7 +132,7 @@ public class SOCRobotNegotiator
         wantsAnotherOffer = new boolean[game.maxPlayers][SOCResourceConstants.MAXPLUSONE];
         resetWantsAnotherOffer();
 
-        offersMade = new Vector<SOCTradeOffer>();
+        offersMade = new Vector<>();
 
         targetPieces = new SOCPossiblePiece[game.maxPlayers];
         resetTargetPieces();

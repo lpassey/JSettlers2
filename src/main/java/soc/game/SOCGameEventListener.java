@@ -43,7 +43,7 @@ public interface SOCGameEventListener
      * @param detail  Game piece, coordinate, or other data about the event, or null, depending on <tt>evt</tt>
      * @see #playerEvent(SOCGame, SOCPlayer, SOCPlayerEvent, boolean, Object)
      */
-    public void gameEvent(final SOCGame ga, final SOCGameEvent evt, final Object detail);
+    void gameEvent( final SOCGame ga, final SOCGameEvent evt, final Object detail );
 
     /**
      * A player-specific game event has occurred.
@@ -57,7 +57,7 @@ public interface SOCGameEventListener
      *             Example: The {@link SOCVillage} for {@link SOCPlayerEvent#CLOTH_TRADE_ESTABLISHED_VILLAGE}.
      * @see #gameEvent(SOCGame, SOCGameEvent, Object)
      */
-    public void playerEvent(final SOCGame ga, final SOCPlayer pl, final SOCPlayerEvent evt,
-        final boolean flagsChanged, final Object obj);
+    void playerEvent( final SOCGame ga, final SOCPlayer pl, final SOCPlayerEvent evt,
+        final boolean flagsChanged, final Object obj );
 
 }

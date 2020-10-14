@@ -52,7 +52,7 @@ import java.net.SocketException;
      * @throws SocketException if our setEOF() has been called, thus
      *    new clients won't receive any data from us
      */
-    public abstract Connection accept() throws SocketException, IOException;
+    Connection accept() throws SocketException, IOException;
 
     /**
      * Close down server socket immediately:
@@ -62,6 +62,6 @@ import java.net.SocketException;
      * Like java.net.ServerSocket, any thread currently blocked in
      * accept() must throw a SocketException.
      */
-    public abstract void close() throws IOException;
+    void close() throws IOException;
 
 }

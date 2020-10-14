@@ -122,7 +122,7 @@ public abstract class SOCMessageTemplate1i extends SOCMessage
      */
     protected static String toCmd(final int messageType, String ga, int param)
     {
-        return Integer.toString(messageType) + sep + ga + sep2 + param;
+        return messageType + sep + ga + sep2 + param;
     }
 
     /**

@@ -130,12 +130,12 @@ public abstract class SOCPossiblePiece implements Serializable
     /**
      * this is the piece that we need to beat to build this one
      */
-    protected final ArrayList<SOCPossiblePiece> biggestThreats = new ArrayList<SOCPossiblePiece>();
+    protected final ArrayList<SOCPossiblePiece> biggestThreats = new ArrayList<>();
 
     /**
      * pieces that threaten this piece
      */
-    protected final ArrayList<SOCPossiblePiece> threats = new ArrayList<SOCPossiblePiece>();
+    protected final ArrayList<SOCPossiblePiece> threats = new ArrayList<>();
 
     /**
      * this flag is used for threat updating

@@ -287,7 +287,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * The player interfaces for all the {@link SOCPlayerClient#games} we're playing.
      * Accessed from GUI thread and network MessageHandler thread.
      */
-    private final Map<String, SOCPlayerInterface> playerInterfaces = new Hashtable<String, SOCPlayerInterface>();
+    private final Map<String, SOCPlayerInterface> playerInterfaces = new Hashtable<>();
 
     /**
      * Task for timeout when asking remote server for {@link SOCGameOptionInfo game options info}.
@@ -511,7 +511,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * The channels we've joined.
      * Accessed from GUI thread and network MessageHandler thread.
      */
-    protected Hashtable<String, ChannelFrame> channels = new Hashtable<String, ChannelFrame>();
+    protected Hashtable<String, ChannelFrame> channels = new Hashtable<>();
 
     /**
      * Utility for time-driven events in the display.
@@ -593,7 +593,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *     instead of same as main foreground {@link Color#BLACK}.
      * @since 2.0.00
      */
-    public static final Color[] getForegroundBackgroundColors
+    public static Color[] getForegroundBackgroundColors
         (final boolean isForLightBG, final boolean wantSystemColors)
     {
         if (! hasDeterminedOSColors)
@@ -674,7 +674,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @return true if high-contrast or reverse instead of usual JSettlers colors
      * @since 2.0.00
      */
-    public static final boolean isOSColorHighContrast()
+    public static boolean isOSColorHighContrast()
     {
         if (! hasDeterminedOSColors)
             getForegroundBackgroundColors(false, true);
@@ -702,7 +702,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @throws NullPointerException  if {@code c} is null
      * @since 2.0.00
      */
-    public static final int checkDisplayScaleFactor(final Component c)
+    public static int checkDisplayScaleFactor(final Component c)
         throws IllegalStateException, NullPointerException
     {
         try
@@ -755,7 +755,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *     if 1, makes no changes to font sizes.
      * @since 2.0.00
      */
-    public static final void scaleUIManagerFonts(final int displayScale)
+    public static void scaleUIManagerFonts(final int displayScale)
     {
         if ((displayScale <= 1) || didScaleUIManagerFonts)
             return;
@@ -835,14 +835,14 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         status.setEditable(false);
         channel = new JTextField(20);
 
-        DefaultListModel<JoinableListItem> lm = new DefaultListModel<JoinableListItem>();
-        chlist = new JList<JoinableListItem>(lm);
+        DefaultListModel<JoinableListItem> lm = new DefaultListModel<>();
+        chlist = new JList<>( lm );
         chlist.setVisibleRowCount(10);
         chlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         lm.addElement(JoinableListItem.BLANK);
 
-        lm = new DefaultListModel<JoinableListItem>();
-        gmlist = new JList<JoinableListItem>(lm);
+        lm = new DefaultListModel<>();
+        gmlist = new JList<>( lm );
         gmlist.setVisibleRowCount(10);
         gmlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         lm.addElement(JoinableListItem.BLANK);
@@ -1324,7 +1324,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             {
                 status.setText(STATUS_CANNOT_JOIN_THIS_GAME);
                 // popup
-                NotifyDialog.createAndShow(this, (JFrame) null,
+                NotifyDialog.createAndShow(this, null,
                     STATUS_CANNOT_JOIN_THIS_GAME,
                     client.strings.get("base.cancel"), true);
 
@@ -1925,7 +1925,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
                 if (changeScens != null)
                 {
-                    changes = new ArrayList<String>();
+                    changes = new ArrayList<>();
                     for (SOCScenario sc : changeScens)
                         changes.add(sc.key);
                 }
@@ -2460,7 +2460,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     {
         gameOptionsCancelTimeoutTask();
         newGameOptsFrame = NewGameOptionsFrame.createAndShow
-            (null, SwingMainDisplay.this, (String) null, opts.optionSet, isPractice, false);
+            (null, SwingMainDisplay.this, null, opts.optionSet, isPractice, false);
     }
 
     public void optionsReceived(ServerGametypeInfo opts, boolean isPractice, boolean isDash, boolean hasAllNow)
@@ -2498,7 +2498,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                     opts.newGameWaitingForOpts = false;
                 }
                 newGameOptsFrame = NewGameOptionsFrame.createAndShow
-                    (null, SwingMainDisplay.this, (String) null, opts.optionSet, isPractice, false);
+                    (null, SwingMainDisplay.this, null, opts.optionSet, isPractice, false);
             }
         }
     }

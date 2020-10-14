@@ -398,7 +398,7 @@ public class SOCPlayerClient
      * All the games we're currently playing. Includes networked or hosted games and those on practice server.
      * Accessed from GUI thread and network {@link MessageHandler} thread.
      */
-    protected Hashtable<String, SOCGame> games = new Hashtable<String, SOCGame>();
+    protected Hashtable<String, SOCGame> games = new Hashtable<>();
 
     /**
      * all announced game names on the remote server, including games which we can't
@@ -423,12 +423,12 @@ public class SOCPlayerClient
      * Both key and value are the game name, without the {@link #GAMENAME_PREFIX_CANNOT_JOIN} prefix.
      * @since 1.1.06
      */
-    protected Map<String,String> gamesUnjoinableOverride = new HashMap<String,String>();
+    protected Map<String,String> gamesUnjoinableOverride = new HashMap<>();
 
     /**
      * Map from game-name to the listener for that game.
      */
-    private final Map<String, PlayerClientListener> clientListeners = new HashMap<String, PlayerClientListener>();
+    private final Map<String, PlayerClientListener> clientListeners = new HashMap<>();
 
     /**
      * For new-game requests, map of game names to per-game local preference maps to pass to
@@ -437,12 +437,12 @@ public class SOCPlayerClient
      *
      * @since 1.2.00
      */
-    private final HashMap<String, Map<String, Object>> gameReqLocalPrefs = new HashMap<String, Map<String, Object>>();
+    private final HashMap<String, Map<String, Object>> gameReqLocalPrefs = new HashMap<>();
 
     /**
      * the ignore list
      */
-    protected Vector<String> ignoreList = new Vector<String>();
+    protected Vector<String> ignoreList = new Vector<>();
 
     /**
      * Number of practice games started; used for naming practice games
@@ -817,9 +817,9 @@ public class SOCPlayerClient
         if (pcl == null)
             return;
 
-        Map<SOCPlayer, Integer> scoresMap = new HashMap<SOCPlayer, Integer>();
+        Map<SOCPlayer, Integer> scoresMap = new HashMap<>();
         for (int i=0; i<scores.length; ++i)
-            scoresMap.put(ga.getPlayer(i), Integer.valueOf(scores[i]));
+            scoresMap.put(ga.getPlayer(i), scores[i] );
 
         pcl.gameEnded(scoresMap);
     }

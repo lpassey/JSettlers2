@@ -50,8 +50,7 @@ import java.util.Vector;
  */
 public class StringServerSocket implements SOCServerSocket
 {
-    protected static Hashtable<String, StringServerSocket> allSockets
-        = new Hashtable<String, StringServerSocket>();
+    protected static Hashtable<String, StringServerSocket> allSockets = new Hashtable<>();
 
     /**
      * Length of queue for accepting new connections; default 100.
@@ -74,8 +73,8 @@ public class StringServerSocket implements SOCServerSocket
     public StringServerSocket(String name)
     {
         socketName = name;
-        allConnected = new Vector<StringConnection>();
-        acceptQueue = new Vector<StringConnection>();
+        allConnected = new Vector<>();
+        acceptQueue = new Vector<>();
         out_setEOF = false;
         sync_out_setEOF = new Object();
         allSockets.put(name, this);

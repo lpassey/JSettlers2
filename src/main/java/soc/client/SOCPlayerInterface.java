@@ -827,7 +827,7 @@ public class SOCPlayerInterface extends Frame
             int ds = 0;
             Object pref = (localPrefs != null) ? (localPrefs.get(SOCPlayerClient.PREF_UI_SCALE_FORCE)) : null;
             if ((pref != null) && (pref instanceof Integer))
-                ds = ((Integer) pref).intValue();
+                ds = (Integer) pref;
             displayScale = ((ds > 0) && (ds <= 3)) ? ds : md.getDisplayScaleFactor();
         }
         client = md.getClient();
@@ -854,7 +854,7 @@ public class SOCPlayerInterface extends Frame
             if (v != null)
             {
                 if (v instanceof Integer)
-                    botTradeRejectSec = ((Integer) v).intValue();
+                    botTradeRejectSec = (Integer) v;
                 else
                     throw new IllegalArgumentException("value not Integer: " + k);
             }
@@ -907,7 +907,7 @@ public class SOCPlayerInterface extends Frame
          * more initialization stuff
          */
 
-        textInputHistory = new ArrayList<String>();
+        textInputHistory = new ArrayList<>();
         textInputHistory.add("");
 
         final Dimension boardExtraSize = boardPanel.getExtraSizeFromBoard(false);
@@ -1402,7 +1402,7 @@ public class SOCPlayerInterface extends Frame
      * @param middlePanel  The middle (6-player) or the bottom (4-player) handpanel in this column
      * @since 1.1.11
      */
-    private final void paintBordersHandColumn(Graphics g, SOCHandPanel middlePanel)
+    private void paintBordersHandColumn(Graphics g, SOCHandPanel middlePanel)
     {
         if (middlePanel == null)
             return;  // if called during board reset
@@ -2609,7 +2609,7 @@ public class SOCPlayerInterface extends Frame
             if (mname.equals(getClientNickname()))
                 continue;
             if (obs == null)
-                obs = new ArrayList<String>();
+                obs = new ArrayList<>();
             obs.add(mname);
         }
         if (obs != null)
@@ -4489,7 +4489,7 @@ public class SOCPlayerInterface extends Frame
             int i = 0;
             for (PlayerClientListener.UpdateType t : types)
             {
-                int value = stats.get(t).intValue();
+                int value = stats.get( t );
                 total += value;
                 v[i] = value;  ++i;
             }
@@ -4593,7 +4593,7 @@ public class SOCPlayerInterface extends Frame
         {
             int[] scoresArray = new int[scores.size()];
             for (Map.Entry<SOCPlayer, Integer> e : scores.entrySet())
-                scoresArray[e.getKey().getPlayerNumber()] = e.getValue().intValue();
+                scoresArray[e.getKey().getPlayerNumber()] = e.getValue();
 
             pi.updateAtOver(scoresArray);
         }

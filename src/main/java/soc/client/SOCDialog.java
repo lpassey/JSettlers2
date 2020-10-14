@@ -279,7 +279,7 @@ public abstract class SOCDialog
      * in a container use its font and background color.
      * @param c  Container such as a {@link JPanel}
      */
-    public final static void styleButtonsAndLabels(final Container c)
+    public static void styleButtonsAndLabels(final Container c)
     {
         final Font panelFont = c.getFont();
         final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();

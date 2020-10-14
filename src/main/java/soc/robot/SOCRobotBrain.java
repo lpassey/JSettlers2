@@ -792,8 +792,8 @@ public class SOCRobotBrain extends Thread
         gameIs6Player = (ga.maxPlayers > 4);
         pauseFaster = gameIs6Player;
         gameEventQ = mq;
-        turnEventsCurrent = new Vector<SOCMessage>();
-        turnEventsPrev = new Vector<SOCMessage>();
+        turnEventsCurrent = new Vector<>();
+        turnEventsPrev = new Vector<>();
         alive = true;
         counter = 0;
 
@@ -1128,7 +1128,7 @@ public class SOCRobotBrain extends Thread
      */
     public List<String> debugPrintBrainStatus()
     {
-        ArrayList<String> rbSta = new ArrayList<String>();
+        ArrayList<String> rbSta = new ArrayList<>();
 
         if ((ourPlayerData == null) || (game == null))
         {
@@ -3106,7 +3106,7 @@ public class SOCRobotBrain extends Thread
             // TODO smarter planning; consider settlement & dice number locations / hex types against
             // the port type from itm if not null; if null iterate inv items
             // but reject if chooses rejectedPlayInvItem again
-            final int edge = edges.get(0).intValue();
+            final int edge = edges.get( 0 );
 
             // Expected response from server: GAMESTATE(PLAY1) and
             // then SIMPLEREQUEST confirming placement location,
@@ -4780,11 +4780,11 @@ public class SOCRobotBrain extends Thread
          * make a tree of all the possible trades that we can
          * make with the bank or ports
          */
-        SOCTradeTree treeRoot = new SOCTradeTree(ourPlayerData.getResources(), (SOCTradeTree) null);
-        Hashtable<SOCResourceSet, SOCTradeTree> treeNodes = new Hashtable<SOCResourceSet, SOCTradeTree>();
+        SOCTradeTree treeRoot = new SOCTradeTree(ourPlayerData.getResources(), null );
+        Hashtable<SOCResourceSet, SOCTradeTree> treeNodes = new Hashtable<>();
         treeNodes.put(treeRoot.getResourceSet(), treeRoot);
 
-        Queue<SOCTradeTree> queue = new Queue<SOCTradeTree>();
+        Queue<SOCTradeTree> queue = new Queue<>();
         queue.put(treeRoot);
 
         while (! queue.empty())
@@ -4840,7 +4840,7 @@ public class SOCRobotBrain extends Thread
          * then pop outcomes off of the stack and perfoem
          * the trade to get each outcome
          */
-        Stack<SOCTradeTree> stack = new Stack<SOCTradeTree>();
+        Stack<SOCTradeTree> stack = new Stack<>();
         SOCTradeTree cursor = treeNodes.get(bestTradeOutcome);
 
         while (cursor != treeRoot)

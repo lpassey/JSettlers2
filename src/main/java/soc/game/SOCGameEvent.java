@@ -103,7 +103,7 @@ public enum SOCGameEvent
      */
     public final int flagValue;
 
-    private SOCGameEvent(final int fv)
+    SOCGameEvent( final int fv )
     {
         flagValue = fv;
     }

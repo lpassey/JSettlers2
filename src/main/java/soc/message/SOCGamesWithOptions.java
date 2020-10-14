@@ -65,7 +65,7 @@ public class SOCGamesWithOptions extends SOCMessageTemplateMs
     public SOCGamesWithOptions(List<?> ga, final int cliVers)
     {
         this(null);
-        pa = new ArrayList<String>();
+        pa = new ArrayList<>();
 
         for (int i = 0; i < ga.size(); ++i)
         {
@@ -144,7 +144,7 @@ public class SOCGamesWithOptions extends SOCMessageTemplateMs
     public static SOCGamesWithOptions parseDataStr(List<String> gl)
     {
         if (gl == null)
-            gl = new ArrayList<String>();
+            gl = new ArrayList<>();
         else if ((gl.size() % 2) != 0)
             return null;  // must have an even # of strings
 

@@ -67,10 +67,10 @@ import java.util.Vector;
      */
     public SOCChannelList()
     {
-        channelMutexes = new Hashtable<String, MutexFlag>();
-        channelMembers = new Hashtable<String, Vector<Connection>>();
-        channelChatBuffer = new Hashtable<String, SOCChatRecentBuffer>();
-        channelOwners = new Hashtable<String, String>();
+        channelMutexes = new Hashtable<>();
+        channelMembers = new Hashtable<>();
+        channelChatBuffer = new Hashtable<>();
+        channelOwners = new Hashtable<>();
         inUse = false;
     }
 
@@ -226,7 +226,7 @@ import java.util.Vector;
 
         if (result == null)
         {
-            result = new Vector<Connection>();
+            result = new Vector<>();
         }
 
         return result;

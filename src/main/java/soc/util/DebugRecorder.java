@@ -105,7 +105,7 @@ public class DebugRecorder
     {
         state = RECORDING;
         currentKey = key;
-        currentRecord = new Vector<String>();
+        currentRecord = new Vector<>();
     }
 
     /**

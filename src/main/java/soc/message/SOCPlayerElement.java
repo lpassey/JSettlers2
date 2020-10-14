@@ -341,7 +341,7 @@ public class SOCPlayerElement extends SOCMessage
 
         private int value;
 
-        private PEType(final int v)
+        PEType( final int v )
         {
             value = v;
         }

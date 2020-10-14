@@ -459,7 +459,7 @@ public class SOCGameHandler extends GameHandler
      *     Returns immediately if "".
      * @since 2.0.00
      */
-    private final void processDebugCommand_scenario
+    private void processDebugCommand_scenario
         (final Connection c, final SOCGame ga, final String argStr)
     {
         if (argStr.isEmpty())
@@ -772,7 +772,7 @@ public class SOCGameHandler extends GameHandler
      * @see SOCGame#forceEndTurn()
      * @since 1.1.00
      */
-    private final boolean forceEndGameTurn(SOCGame ga, final String plName)
+    private boolean forceEndGameTurn(SOCGame ga, final String plName)
     {
         final String gaName = ga.getName();
         final int cpn = ga.getCurrentPlayerNumber();
@@ -1225,7 +1225,7 @@ public class SOCGameHandler extends GameHandler
         {
             gameSItoPlayer = null;
         } else {
-            gameSItoPlayer = new HashMap<String, ArrayList<SOCSpecialItem>[]>();
+            gameSItoPlayer = new HashMap<>();
 
             for (int i = 0; i < gameSITypes.length; ++i)
             {
@@ -1280,7 +1280,7 @@ public class SOCGameHandler extends GameHandler
                         ArrayList<SOCSpecialItem> iList = toAllPl[pl.getPlayerNumber()];
                         if (iList == null)
                         {
-                            iList = new ArrayList<SOCSpecialItem>();
+                            iList = new ArrayList<>();
                             toAllPl[pl.getPlayerNumber()] = iList;
                         }
 
@@ -1606,7 +1606,7 @@ public class SOCGameHandler extends GameHandler
             synchronized(gameMembers)
             {
                 final int n = gameMembers.size();
-                memberNames = new ArrayList<String>(n);
+                memberNames = new ArrayList<>( n );
                 for (int i = 0; i < n; ++i)
                     memberNames.add(gameMembers.get(i).getData());
             }
@@ -1705,9 +1705,9 @@ public class SOCGameHandler extends GameHandler
             if (lan == null)
             {
                 psMsg = new SOCPotentialSettlements
-                    (gameName, -1, new ArrayList<Integer>(psSet));
+                    (gameName, -1, new ArrayList<>( psSet ));
             } else {
-                final List<Integer> psList = (psSet != null) ? new ArrayList<Integer>(psSet) : null;
+                final List<Integer> psList = (psSet != null) ? new ArrayList<>( psSet ) : null;
                 psMsg = new SOCPotentialSettlements
                     (gameName, -1, psList, pan, lan, SOCBoardAtServer.getLegalSeaEdges(gameData));
             }
@@ -1724,7 +1724,7 @@ public class SOCGameHandler extends GameHandler
             for (int pn = 0; pn < gameData.maxPlayers; ++pn)
             {
                 final SOCPlayer pl = gameData.getPlayer(pn);
-                final List<Integer> psList = new ArrayList<Integer>(pl.getPotentialSettlements());
+                final List<Integer> psList = new ArrayList<>( pl.getPotentialSettlements() );
 
                 // Some boards may have multiple land areas.
                 // See also above, and startGame which has very similar code.
@@ -1771,7 +1771,7 @@ public class SOCGameHandler extends GameHandler
      * @param board  Game's board layout
      * @param c      Client joining
      */
-    private final void joinGame_sendBoardSpecialEdgeChanges
+    private void joinGame_sendBoardSpecialEdgeChanges
         (final SOCGame game, final SOCBoardLarge board, final Connection c)
     {
         final String gaName = game.getName();
@@ -2165,7 +2165,7 @@ public class SOCGameHandler extends GameHandler
                  * just in case, check game-version vs robots-version,
                  * like at new-game (readyGameAskRobotsJoin).
                  */
-                foundNoRobots = ! findRobotAskJoinGame(ga, Integer.valueOf(playerNumber), true);
+                foundNoRobots = ! findRobotAskJoinGame(ga, playerNumber, true);
             }  // if (should try to find a robot)
 
             /**
@@ -2247,7 +2247,7 @@ public class SOCGameHandler extends GameHandler
              * is not already requested to play in this game
              */
 
-            final HashSet<String> gameBots = new HashSet<String>();
+            final HashSet<String> gameBots = new HashSet<>();
             for (int i = 0; i < ga.maxPlayers; i++)
             {
                 SOCPlayer pl = ga.getPlayer(i);
@@ -2287,7 +2287,7 @@ public class SOCGameHandler extends GameHandler
              */
             // D.ebugPrintln("@@@ JOIN GAME REQUEST for " + robotConn.getData());
 
-            final int seatNumber = ((Integer) seatNumberObj).intValue();
+            final int seatNumber = (Integer) seatNumberObj;
 
             if (ga.getSeatLock(seatNumber) != SOCGame.SeatLockState.UNLOCKED)
             {
@@ -2302,7 +2302,7 @@ public class SOCGameHandler extends GameHandler
              */
             if (requestedBots == null)
             {
-                requestedBots = new Hashtable<Connection, Object>();
+                requestedBots = new Hashtable<>();
                 requestedBots.put(robotConn, seatNumberObj);
                 srv.robotJoinRequests.put(gaName, requestedBots);
             }
@@ -2483,7 +2483,7 @@ public class SOCGameHandler extends GameHandler
 
         case SOCGame.WAITING_FOR_DISCARDS:
             {
-                ArrayList<String> names = new ArrayList<String>();
+                ArrayList<String> names = new ArrayList<>();
 
                 for (int i = 0; i < ga.maxPlayers; i++)
                     if (ga.getPlayer(i).getNeedToDiscard())
@@ -2617,7 +2617,7 @@ public class SOCGameHandler extends GameHandler
             ignoreAmountFromPirateFleet = 0;
 
         int count = 0, amount = 0, firstPN = -1;
-        ArrayList<String> names = new ArrayList<String>();
+        ArrayList<String> names = new ArrayList<>();
         int[] num = new int[ga.maxPlayers];
 
         for (int pn = 0; pn < ga.maxPlayers; ++pn)
@@ -2753,9 +2753,9 @@ public class SOCGameHandler extends GameHandler
 
             if ((ga.clientVersionHighest >= SOCDevCardAction.VERSION_FOR_MULTIPLE) || (joiningConn != null))
             {
-                List<Integer> vpCardsITypes = new ArrayList<Integer>();
+                List<Integer> vpCardsITypes = new ArrayList<>();
                 for (SOCInventoryItem i : vpCards)
-                    vpCardsITypes.add(Integer.valueOf(i.itype));
+                    vpCardsITypes.add( i.itype );
                 final SOCDevCardAction dcaMsg = new SOCDevCardAction(gname, pn, SOCDevCardAction.ADD_OLD, vpCardsITypes);
 
                 if (joiningConn != null)
@@ -2961,7 +2961,7 @@ public class SOCGameHandler extends GameHandler
         Connection peCon = srv.getConnection(peName);
         Connection viCon = srv.getConnection(viName);
         int[] notToPNs = {pePN, viPN};
-        List<Connection> sendNotTo = new ArrayList<Connection>(2);
+        List<Connection> sendNotTo = new ArrayList<>( 2 );
         sendNotTo.add(peCon);
         sendNotTo.add(viCon);
 
@@ -3441,7 +3441,7 @@ public class SOCGameHandler extends GameHandler
                 if (lan == null)
                     srv.messageToGameWithMon
                         (gaName, true, new SOCPotentialSettlements
-                            (gaName, -1, new ArrayList<Integer>(ga.getPlayer(0).getPotentialSettlements())));
+                            (gaName, -1, new ArrayList<>( ga.getPlayer( 0 ).getPotentialSettlements() )));
                 else
                     srv.messageToGameWithMon
                         (gaName, true, new SOCPotentialSettlements(gaName, -1, null, pan, lan, legalSeaEdges));
@@ -3704,7 +3704,7 @@ public class SOCGameHandler extends GameHandler
      * this is a debugging command that gives resources to a player.
      * Format: rsrcs: #cl #or #sh #wh #wo playername
      */
-    private final void debugGiveResources(Connection c, String mes, SOCGame game)
+    private void debugGiveResources(Connection c, String mes, SOCGame game)
     {
         final String gaName = game.getName();
         StringTokenizer st = new StringTokenizer(mes.substring(6));
@@ -3793,7 +3793,7 @@ public class SOCGameHandler extends GameHandler
      *  For card-types numbers, see {@link SOCDevCardConstants}
      *  or {@link #DEBUG_COMMANDS_HELP_DEV_TYPES}.
      */
-    private final void debugGiveDevCard(Connection c, String mes, SOCGame game)
+    private void debugGiveDevCard(Connection c, String mes, SOCGame game)
     {
         StringTokenizer st = new StringTokenizer(mes.substring(5));
         String name = "";
@@ -3867,7 +3867,7 @@ public class SOCGameHandler extends GameHandler
             srv.recordGameEvent(gaName, new SOCDevCardAction
                 (gaName, pnum, SOCDevCardAction.DRAW, cardType));
         }
-        srv.messageToGameKeyedSpecial(game, true, true, "debug.dev.gets", pl.getName(), Integer.valueOf(cardType));
+        srv.messageToGameKeyedSpecial(game, true, true, "debug.dev.gets", pl.getName(), cardType );
             // ""### joe gets a Road Building card."
     }
 
@@ -3900,15 +3900,15 @@ public class SOCGameHandler extends GameHandler
             {
                 final int i = Integer.parseInt(name.substring(1).trim());
                 if (i > max)
-                    err = "Max player number is " + Integer.toString(max);
+                    err = "Max player number is " + max;
                 else if (ga.isSeatVacant(i))
-                    err = "Player number " + Integer.toString(i) + " is vacant";
+                    err = "Player number " + i + " is vacant";
                 else
                     pl = ga.getPlayer(i);
             }
             catch (NumberFormatException e) {
                 err = "Player number format is # followed by the number (0 to "
-                    + Integer.toString(max) + " inclusive)";
+                    + max + " inclusive)";
             }
 
             if (err != null)
@@ -4200,7 +4200,7 @@ public class SOCGameHandler extends GameHandler
      *     player status; see {@link SOCGame#playerDiscardOrGainRandom(int, boolean)} for details
      * @since 1.1.00
      */
-    private final void forceGamePlayerDiscardOrGain
+    private void forceGamePlayerDiscardOrGain
         (final SOCGame cg, final int cpn, final Connection c, final String plName, final int pn)
         throws IllegalStateException
     {
@@ -4260,7 +4260,7 @@ public class SOCGameHandler extends GameHandler
         case SGE_FOG_HEX_REVEALED:
             {
                 final SOCBoard board = ga.getBoard();
-                final int hexCoord = ((Integer) detail).intValue(),
+                final int hexCoord = (Integer) detail,
                           hexType  = board.getHexTypeFromCoord(hexCoord),
                           diceNum  = board.getNumberOnHexFromCoord(hexCoord);
                 final String gaName = ga.getName();
@@ -4279,7 +4279,7 @@ public class SOCGameHandler extends GameHandler
                         ga.pendingMessagesOut.add
                             (new UnlocalizedString
                                 (true, "event.fog.reveal",  // "{0} gets 1 {1,rsrcs} by revealing the fog hex."
-                                 ga.getPlayer(cpn).getName(), Integer.valueOf(1), Integer.valueOf(res)));
+                                 ga.getPlayer(cpn).getName(), 1, res ));
                     }
                 }
             }
@@ -4425,7 +4425,7 @@ public class SOCGameHandler extends GameHandler
                 updatePlayerSVPPendingMessage(ga, pl, 1, "event.svp.sc_ftri.gift");  // "a gift from the Forgotten Tribe"
                 sendPlayerEventsBitmask = false;
                 srv.messageToGame(gaName, true, new SOCSimpleAction
-                    (gaName, -1, SOCSimpleAction.BOARD_EDGE_SET_SPECIAL, ((Integer) obj).intValue(), 0));
+                    (gaName, -1, SOCSimpleAction.BOARD_EDGE_SET_SPECIAL, (Integer) obj, 0));
             }
             break;
 
@@ -4484,7 +4484,7 @@ public class SOCGameHandler extends GameHandler
      * @return  Does the new settlement have more adjacent ships than roads?
      * @since 2.0.00
      */
-    private final boolean playerEvent_newSettlementIsByShip(final SOCGame ga, final SOCSettlement se)
+    private boolean playerEvent_newSettlementIsByShip(final SOCGame ga, final SOCSettlement se)
     {
         if (se == null)
             return true;  // shouldn't happen, but fail gracefully; most new areas are on new islands

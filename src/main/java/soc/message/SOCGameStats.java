@@ -163,7 +163,7 @@ public class SOCGameStats extends SOCMessage
 
             for (int i = 0; i < maxPlayers; i++)
             {
-                rb[i] = (Boolean.valueOf(st.nextToken())).booleanValue();
+                rb[i] = Boolean.valueOf( st.nextToken() );
             }
         }
         catch (Exception e)

@@ -74,7 +74,7 @@ import java.util.Vector;
     protected boolean inputConnected = false;
 
     /** Messages from server to client, sent in {@link Putter} thread */
-    private Vector<String> outQueue = new Vector<String>();
+    private Vector<String> outQueue = new Vector<>();
 
     /** initialize the connection data */
     NetConnection(Socket so, Server sve)
@@ -92,9 +92,9 @@ import java.util.Vector;
     public String getName()
     {
         if ((hst != null) && (s != null))
-            return "connection-" + hst + "-" + Integer.toString(s.getPort());
+            return "connection-" + hst + "-" + s.getPort();
         else
-            return "connection-(null)-" + Integer.toString(hashCode());
+            return "connection-(null)-" + hashCode();
     }
 
     /**
@@ -283,7 +283,7 @@ import java.util.Vector;
      * @return true for success, false and disconnects on failure
      *         (and sets {@link #error})
      */
-    private final boolean putAux(final String str)
+    private boolean putAux(final String str)
     {
         if ((error != null) || ! connected)
         {
@@ -422,9 +422,9 @@ import java.util.Vector;
             /* thread name for debug */
             String cn = host();
             if (cn != null)
-                setName("putter-" + cn + "-" + Integer.toString(s.getPort()));
+                setName("putter-" + cn + "-" + s.getPort() );
             else
-                setName("putter-(null)-" + Integer.toString(hashCode()));
+                setName("putter-(null)-" + hashCode() );
         }
 
         public void run()

@@ -438,7 +438,7 @@ public class SavedGameModel
         gameMinVersion = ga.getClientVersionMinRequired();
         devCardDeck = new ArrayList<>();
         for (final int card : ga.getDevCardDeck())
-            devCardDeck.add(Integer.valueOf(card));
+            devCardDeck.add( card );
 
         final boolean[] flags = ga.getFlagFieldsForSave();
         placingRobberForKnightCard = flags[0];

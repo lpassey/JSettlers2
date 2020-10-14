@@ -160,7 +160,7 @@ public class SOCGames extends SOCMessage
      */
     public static SOCGames parseDataStr(String s)
     {
-        ArrayList<String> ga = new ArrayList<String>();
+        ArrayList<String> ga = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(s, sep2);
 
         try

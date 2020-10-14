@@ -221,10 +221,10 @@ public class SOCRobotDM
 
     resourceChoices = new SOCResourceSet();
     resourceChoices.add(2, SOCResourceConstants.CLAY);
-    threatenedRoads = new ArrayList<SOCPossibleRoad>();
-    goodRoads = new ArrayList<SOCPossibleRoad>();
-    threatenedSettlements = new ArrayList<SOCPossibleSettlement>();
-    goodSettlements = new ArrayList<SOCPossibleSettlement>();
+    threatenedRoads = new ArrayList<>();
+    goodRoads = new ArrayList<>();
+    threatenedSettlements = new ArrayList<>();
+    goodSettlements = new ArrayList<>();
     SOCRobotParameters params = brain.getRobotParameters();
     maxGameLength = params.getMaxGameLength();
     maxETA = params.getMaxETA();
@@ -275,10 +275,10 @@ public class SOCRobotDM
 
     resourceChoices = new SOCResourceSet();
     resourceChoices.add(2, SOCResourceConstants.CLAY);
-    threatenedRoads = new ArrayList<SOCPossibleRoad>();
-    goodRoads = new ArrayList<SOCPossibleRoad>();
-    threatenedSettlements = new ArrayList<SOCPossibleSettlement>();
-    goodSettlements = new ArrayList<SOCPossibleSettlement>();
+    threatenedRoads = new ArrayList<>();
+    goodRoads = new ArrayList<>();
+    threatenedSettlements = new ArrayList<>();
+    goodSettlements = new ArrayList<>();
   }
 
 
@@ -920,7 +920,7 @@ public class SOCRobotDM
     D.ebugPrintlnINFO("-- scoreSettlementsForDumb --");
 
     Queue<Pair<SOCPossibleRoad, List<SOCPossibleRoad>>> queue
-        = new Queue<Pair<SOCPossibleRoad, List<SOCPossibleRoad>>>();
+        = new Queue<>();
     Iterator<SOCPossibleSettlement> posSetsIter = ourPlayerTracker.getPossibleSettlements().values().iterator();
     while (posSetsIter.hasNext())
     {
@@ -967,7 +967,7 @@ public class SOCRobotDM
                   // we have a path
                   //
                   D.ebugPrintlnINFO("Found a path!");
-                  Stack<SOCPossibleRoad> path = new Stack<SOCPossibleRoad>();
+                  Stack<SOCPossibleRoad> path = new Stack<>();
                   path.push(curRoad);
 
                   if (D.ebugOn)
@@ -983,7 +983,7 @@ public class SOCRobotDM
               } else {
                   final List<SOCPossibleRoad> possRoadsAndCur =
                       (possRoadsToCur != null)
-                      ? new ArrayList<SOCPossibleRoad>(possRoadsToCur)
+                      ? new ArrayList<>( possRoadsToCur )
                       : new ArrayList<SOCPossibleRoad>();
                   possRoadsAndCur.add(curRoad);
 
@@ -1002,7 +1002,7 @@ public class SOCRobotDM
                   {
                       if (D.ebugOn)
                           D.ebugPrintlnINFO("-- queuing necessary road at " + game.getBoard().edgeCoordToString(necRoad2.getCoordinates()));
-                      queue.put(new Pair<SOCPossibleRoad, List<SOCPossibleRoad>>(necRoad2, possRoadsAndCur));
+                      queue.put( new Pair<>( necRoad2, possRoadsAndCur ));
                   }
               }
           }
@@ -1253,13 +1253,13 @@ public class SOCRobotDM
     Pair<NodeLenVis<Integer>, List<Integer>> bestPathNode = null;
 
     final SOCBoard board = pl.getGame().getBoard();
-    Stack<Pair<NodeLenVis<Integer>, List<Integer>>> pending = new Stack<Pair<NodeLenVis<Integer>, List<Integer>>>();
+    Stack<Pair<NodeLenVis<Integer>, List<Integer>>> pending = new Stack<>();
         // Holds as-yet unvisited nodes:
         // Pair members are <NodeLenVis, null or node-coordinate list of all parents (from DFS traversal order)>.
         // Lists have most-distant node at beginning (item 0), and most-immediate at end of list (n-1).
         // That list is used at the end to build the returned Stack which is the road path needed.
     pending.push(new Pair<NodeLenVis<Integer>, List<Integer>>
-        (new NodeLenVis<Integer>(startNode, pathLength, new Vector<Integer>()), null));
+        ( new NodeLenVis<>( startNode, pathLength, new Vector<Integer>() ), null));
 
     while (! pending.empty())
     {
@@ -1337,7 +1337,7 @@ public class SOCRobotDM
             int j = board.getAdjacentEdgeToNode(coord, dir);
             if (pl.isLegalRoad(j))
             {
-                final Integer edge = Integer.valueOf(j);
+                final Integer edge = j;
                 boolean match = false;
 
                 for (Enumeration<Integer> ev = visited.elements(); ev.hasMoreElements(); )
@@ -1352,19 +1352,19 @@ public class SOCRobotDM
 
                 if (! match)
                 {
-                    Vector<Integer> newVis = new Vector<Integer>(visited);
+                    Vector<Integer> newVis = new Vector<>( visited );
                     newVis.addElement(edge);
 
                     List<Integer> nodeParentList = dataPair.getB();
                     if (nodeParentList == null)
-                        nodeParentList = new ArrayList<Integer>();
+                        nodeParentList = new ArrayList<>();
                     else
-                        nodeParentList = new ArrayList<Integer>(nodeParentList);  // clone before we add to it
+                        nodeParentList = new ArrayList<>( nodeParentList );  // clone before we add to it
                     nodeParentList.add(coord);  // curNode's coord will be parent to new pending element
 
                     j = board.getAdjacentNodeToNode(coord, dir);  // edge's other node
-                    pending.push(new Pair<NodeLenVis<Integer>, List<Integer>>
-                        (new NodeLenVis<Integer>(j, len + 1, newVis), nodeParentList));
+                    pending.push( new Pair<>
+                        ( new NodeLenVis<>( j, len + 1, newVis ), nodeParentList ));
 
                     pathEnd = false;
                 }
@@ -1397,7 +1397,7 @@ public class SOCRobotDM
         else
             rv = 500;
 
-        return Integer.valueOf(rv);  // <-- Early return: ! wantsStack ---
+        return rv;  // <-- Early return: ! wantsStack ---
     }
 
     if ((longest > lrLength) && (bestPathNode != null))
@@ -1409,12 +1409,12 @@ public class SOCRobotDM
       // List is ordered from farthest parent at 0 to bestPathNode's parent at (n-1),
       // so iterate same way to build the stack.
       //
-      Stack<SOCPossibleRoad> path = new Stack<SOCPossibleRoad>();
+      Stack<SOCPossibleRoad> path = new Stack<>();
       int coordC, coordP;
       List<Integer> nodeList = bestPathNode.getB();
       if ((nodeList == null) || nodeList.isEmpty())
           return null;  // <--- early return, no node list: should not happen ---
-      nodeList.add(Integer.valueOf(bestPathNode.getA().node));  // append bestPathNode
+      nodeList.add( bestPathNode.getA().node );  // append bestPathNode
 
       final int L = nodeList.size();
       coordP = nodeList.get(0);  // root ancestor
@@ -1480,7 +1480,7 @@ public class SOCRobotDM
     List<SOCLRPathData>[] savedLRPaths = new List[game.maxPlayers];
     for (int pn = 0; pn < game.maxPlayers; pn++)
     {
-      savedLRPaths[pn] = new ArrayList<SOCLRPathData>();
+      savedLRPaths[pn] = new ArrayList<>();
       savedLRPaths[pn].addAll(game.getPlayer(pn).getLRPaths());
     }
 
@@ -1773,7 +1773,7 @@ public class SOCRobotDM
       SOCPlayerTracker ourTrackerCopy = trackersCopy[ourPlayerNumber];
       int originalWGETAs[] = new int[game.maxPlayers];
       int WGETAdiffs[] = new int[game.maxPlayers];
-      Vector<SOCPlayerTracker> leaders = new Vector<SOCPlayerTracker>();
+      Vector<SOCPlayerTracker> leaders = new Vector<>();
       int bestWGETA = 1000;
       // int bonus = 0;
 
@@ -2065,7 +2065,7 @@ public class SOCRobotDM
    * for {@link SOCGameOption#K_SC_PIRI _SC_PIRI}.  See that method for parameter meanings and other info.
    * @since 2.0.00
    */
-  private final boolean scenarioGameStrategyPlan_SC_PIRI
+  private boolean scenarioGameStrategyPlan_SC_PIRI
       (final float bestScoreOrETA, float cardScoreOrETA, final boolean isScoreNotETA,
        final boolean bestPlanIsDevCard, final SOCBuildingSpeedEstimate ourBSE, final int leadersCurrentWGETA,
        final boolean forSpecialBuildingPhase)
@@ -2215,7 +2215,7 @@ public class SOCRobotDM
    * @return True if next ship is possible and was added to {@link #buildingPlan}
    * @since 2.0.00
    */
-  private final boolean scenarioGameStrategyPlan_SC_PIRI_buildNextShip()
+  private boolean scenarioGameStrategyPlan_SC_PIRI_buildNextShip()
   {
     SOCShip prevShip = ourPlayerData.getMostRecentShip();
     if (prevShip == null)
@@ -2277,7 +2277,7 @@ public class SOCRobotDM
     for (int i = 0; i < nextPossiEdges.length; ++i)
     {
         final int edge = nextPossiEdges[i];
-        if ((edge == -9) || (edge == prevShipEdge) || ! lse.contains(Integer.valueOf(edge)))
+        if ((edge == -9) || (edge == prevShipEdge) || ! lse.contains( edge ))
             continue;
 
         // be sure this edge takes us towards fortressNode
@@ -2323,7 +2323,7 @@ public class SOCRobotDM
    * for {@link SOCGameOption#K_SC_WOND _SC_WOND}.  See that method for parameter meanings and other info.
    * @since 2.0.00
    */
-  private final boolean scenarioGameStrategyPlan_SC_WOND
+  private boolean scenarioGameStrategyPlan_SC_WOND
       (final float bestScoreOrETA, float cardScoreOrETA, final boolean isScoreNotETA,
        final boolean bestPlanIsDevCard, final SOCBuildingSpeedEstimate ourBSE, final int leadersCurrentWGETA,
        final boolean forSpecialBuildingPhase)
@@ -2714,7 +2714,7 @@ public class SOCRobotDM
     D.ebugPrintlnINFO("^^^^^ calcWGETABonus");
     int originalWGETAs[] = new int[game.maxPlayers];
     int WGETAdiffs[] = new int[game.maxPlayers];
-    Vector<SOCPlayerTracker> leaders = new Vector<SOCPlayerTracker>();  // Players winning soonest, based on ETA
+    Vector<SOCPlayerTracker> leaders = new Vector<>();  // Players winning soonest, based on ETA
     int bestWGETA = 1000;  // Lower is better
     float bonus = 0;
 
@@ -2910,7 +2910,7 @@ public class SOCRobotDM
     int WGETAdiffs[] = new int[game.maxPlayers];
     int originalWGETAs[] = new int[game.maxPlayers];
     int bestWGETA = 1000;
-    Vector<SOCPlayerTracker> leaders = new Vector<SOCPlayerTracker>();
+    Vector<SOCPlayerTracker> leaders = new Vector<>();
     for (final SOCPlayerTracker tracker : playerTrackers)
     {
       if (tracker == null)

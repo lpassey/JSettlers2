@@ -222,17 +222,17 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * the robot's "brains", 1 for each game this robot is currently playing.
      * @see SOCDisplaylessPlayerClient#games
      */
-    protected Hashtable<String, SOCRobotBrain> robotBrains = new Hashtable<String, SOCRobotBrain>();
+    protected Hashtable<String, SOCRobotBrain> robotBrains = new Hashtable<>();
 
     /**
      * the message queues for the different brains
      */
-    protected Hashtable<String, CappedQueue<SOCMessage>> brainQs = new Hashtable<String, CappedQueue<SOCMessage>>();
+    protected Hashtable<String, CappedQueue<SOCMessage>> brainQs = new Hashtable<>();
 
     /**
      * a table of requests from the server to sit at games
      */
-    private Hashtable<String, Integer> seatRequests = new Hashtable<String, Integer>();
+    private Hashtable<String, Integer> seatRequests = new Hashtable<>();
 
     /**
      * Options for all games on the server we've been asked to join.
@@ -245,7 +245,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * set of "known options" will always be in sync.
      */
     protected Hashtable<String, Map<String, SOCGameOption>> gameOptions
-        = new Hashtable<String, Map<String, SOCGameOption>>();
+        = new Hashtable<>();
 
     /**
      * number of games this bot has played
@@ -556,7 +556,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                                 debugRandomPauseActive = true;
                                 debugRandomPauseUntil = System.currentTimeMillis() + (1000L * DEBUGRANDOMPAUSE_SECONDS);
                                 if (debugRandomPauseQueue == null)
-                                    debugRandomPauseQueue = new Vector<SOCMessage>();
+                                    debugRandomPauseQueue = new Vector<>();
                                 System.err.println("L379 -> do random pause: " + nickname);
                                 sendText(gm,
                                     "debugRandomPauseActive for " + DEBUGRANDOMPAUSE_SECONDS + " seconds");
@@ -907,7 +907,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         if (gaOpts != null)
             gameOptions.put(gaName, gaOpts);
 
-        seatRequests.put(gaName, Integer.valueOf(mes.getPlayerNumber()));
+        seatRequests.put(gaName, mes.getPlayerNumber() );
         if (put(SOCJoinGame.toCmd(nickname, password, SOCMessage.EMPTYSTR, gaName)))
         {
             D.ebugPrintlnINFO("**** sent SOCJoinGame ****");
@@ -977,7 +977,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             ga.serverVersion = (isPractice) ? sLocalVersion : sVersion;
             games.put(gaName, ga);
 
-            CappedQueue<SOCMessage> brainQ = new CappedQueue<SOCMessage>();
+            CappedQueue<SOCMessage> brainQ = new CappedQueue<>();
             brainQs.put(gaName, brainQ);
 
             SOCRobotBrain rb = createBrain(currentRobotParameters, ga, brainQ);
@@ -1014,7 +1014,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
         if (pn != null)
         {
-            put(SOCSitDown.toCmd(mes.getGame(), SOCMessage.EMPTYSTR, pn.intValue(), true));
+            put(SOCSitDown.toCmd(mes.getGame(), SOCMessage.EMPTYSTR, pn, true));
         } else {
             System.err.println("** Cannot sit down: Assert failed: null pn for game " + mes.getGame());
         }

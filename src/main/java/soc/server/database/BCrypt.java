@@ -495,7 +495,7 @@ public class BCrypt {
 	 * @param lr	an array containing the two 32-bit half blocks
 	 * @param off	the position in the array of the blocks
 	 */
-	private final void encipher(int lr[], int off) {
+	private void encipher(int lr[], int off) {
 		int i, n, l = lr[off], r = lr[off + 1];
 
 		l ^= P[0];
@@ -543,8 +543,8 @@ public class BCrypt {
 	 * Initialise the Blowfish key schedule
 	 */
 	private void init_key() {
-		P = (int[])P_orig.clone();
-		S = (int[])S_orig.clone();
+		P = P_orig.clone();
+		S = S_orig.clone();
 	}
 
 	/**
@@ -700,7 +700,7 @@ public class BCrypt {
 
 		B = new BCrypt();
 		hashed = B.crypt_raw(passwordb, saltb, rounds,
-		    (int[])bf_crypt_ciphertext.clone());
+			bf_crypt_ciphertext.clone() );
 
 		rs.append("$2");
 		if (minor >= 'a')
@@ -712,7 +712,7 @@ public class BCrypt {
 			throw new IllegalArgumentException(
 			    "rounds exceeds maximum (" + GENSALT_MAX_LOG2_ROUNDS + ")");
 		}
-		rs.append(Integer.toString(rounds));
+		rs.append( rounds );
 		rs.append("$");
 		rs.append(encode_base64(saltb, saltb.length));
 		rs.append(encode_base64(hashed,
@@ -745,7 +745,7 @@ public class BCrypt {
 			throw new IllegalArgumentException(
 			    "log_rounds exceeds maximum (" + GENSALT_MAX_LOG2_ROUNDS + ")");
 		}
-		rs.append(Integer.toString(log_rounds));
+		rs.append( log_rounds );
 		rs.append("$");
 		rs.append(encode_base64(rnd, rnd.length));
 		return rs.toString();

@@ -35,13 +35,13 @@ public interface SOCBuildPlan
     /**
      * Reset the build plan
      */
-    public void clear();
+    void clear();
 
     /**
      * Is this plan currently empty?
      * @return true if nothing is currently planned
      */
-    public boolean isEmpty();
+    boolean isEmpty();
 
     /**
      * Get the <em>i</em>th planned build item, without removing it from the plan.
@@ -60,26 +60,26 @@ public interface SOCBuildPlan
      * @return  Piece within plan
      * @see #advancePlan()
      */
-    public SOCPossiblePiece getPlannedPiece(int pieceNum);
+    SOCPossiblePiece getPlannedPiece( int pieceNum );
 
     /**
      * Return the depth of the plan: The number of pieces to be built. Non-linear plans to be discussed in future.
      * @return Number of pieces in this plan
      * @see #getPlannedPiece(int)
      */
-    public int getPlanDepth();
+    int getPlanDepth();
 
     /**
      * Step forward in the plan.  Equivalent to a pop in the stack implementation.
      * @return the piece at index 0 in the plan
      * @see #getPlannedPiece(int)
      */
-    public SOCPossiblePiece advancePlan();
+    SOCPossiblePiece advancePlan();
 
     /**
      * Calculate the total resources needed to build all pieces in this plan.
      * @return Total resources, from each piece's {@link SOCPossiblePiece#getResourcesToBuild()}
      */
-    public SOCResourceSet getTotalResourcesForBuildPlan();
+    SOCResourceSet getTotalResourcesForBuildPlan();
 
 }

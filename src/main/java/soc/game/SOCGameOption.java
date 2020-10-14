@@ -639,7 +639,7 @@ public class SOCGameOption
      */
     public static Map<String, SOCGameOption> initAllOptions()
     {
-        HashMap<String, SOCGameOption> opt = new HashMap<String, SOCGameOption>();
+        HashMap<String, SOCGameOption> opt = new HashMap<>();
 
         // I18N: Game option descriptions are also stored as gameopt.* in server/strings/toClient_*.properties
         //       to be sent to clients if needed.
@@ -760,8 +760,8 @@ public class SOCGameOption
             {
                 if  (! (oldValue instanceof Integer))
                     return;  // ignore unless int
-                final int ov = ((Integer) oldValue).intValue();
-                final int nv = ((Integer) newValue).intValue();
+                final int ov = (Integer) oldValue;
+                final int nv = (Integer) newValue;
                 if ((ov <= 4) && (nv > 4))
                 {
                     SOCGameOption plb = currentOpts.get("PLB");
@@ -1684,7 +1684,7 @@ public class SOCGameOption
      *          if this option has no restriction.
      *          Enum values range from 1 to n, not from 0 to n-1.
      */
-    public static final int getMaxEnumValueForVersion(final String optKey, final int vers)
+    public static int getMaxEnumValueForVersion(final String optKey, final int vers)
     {
         // SAMPLE CODE:
         /*
@@ -1715,7 +1715,7 @@ public class SOCGameOption
      * @since 1.1.08
      * @see #optionsTrimmedForSupport(SOCFeatureSet)
      */
-    public static final int getMaxIntValueForVersion(final String optKey, final int vers)
+    public static int getMaxIntValueForVersion(final String optKey, final int vers)
     {
         if (optKey.equals("PL"))  // Max players
         {
@@ -1873,7 +1873,7 @@ public class SOCGameOption
         if (opts == null)
             return null;
 
-        HashMap<String, SOCGameOption> opts2 = new HashMap<String, SOCGameOption>();
+        HashMap<String, SOCGameOption> opts2 = new HashMap<>();
         synchronized (opts)
         {
             for (Map.Entry<String, SOCGameOption> e : opts.entrySet())
@@ -2144,7 +2144,7 @@ public class SOCGameOption
         if ((ostr == null) || ostr.equals("-"))
             return null;
 
-        HashMap<String,SOCGameOption> ohash = new HashMap<String,SOCGameOption>();
+        HashMap<String,SOCGameOption> ohash = new HashMap<>();
 
         StringTokenizer st = new StringTokenizer(ostr, SOCMessage.sep2);
         String nvpair;
@@ -3066,7 +3066,7 @@ public class SOCGameOption
      * @return the list, or null if refreshDisplay wasn't called on any option
      * @since 1.1.13
      */
-    public static final List<SOCGameOption> getAndClearRefreshList()
+    public static List<SOCGameOption> getAndClearRefreshList()
     {
         List<SOCGameOption> refr = refreshList;
         refreshList = null;
@@ -3088,7 +3088,7 @@ public class SOCGameOption
     public void refreshDisplay()
     {
         if (refreshList == null)
-            refreshList = new ArrayList<SOCGameOption>();
+            refreshList = new ArrayList<>();
         else if (refreshList.contains(this))
             return;
 
@@ -3271,9 +3271,9 @@ public class SOCGameOption
          * @param newValue  New value; always the same class as <tt>oldValue</tt>
          * @param currentOpts  The current value of all {@link SOCGameOption}s in this set
          */
-        public void valueChanged
-            (final SOCGameOption opt, final Object oldValue, final Object newValue,
-             Map<String, SOCGameOption> currentOpts);
+        void valueChanged
+        ( final SOCGameOption opt, final Object oldValue, final Object newValue,
+            Map<String, SOCGameOption> currentOpts );
     }
 
 }

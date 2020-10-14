@@ -937,7 +937,7 @@ import soc.util.Version;
             try
             {
                 String gameName = null;
-                ArrayList<String> optNames = new ArrayList<String>();
+                ArrayList<String> optNames = new ArrayList<>();
                 errMsg = st.nextToken();
                 gameName = st.nextToken();
                 while (st.hasMoreTokens())
@@ -1183,7 +1183,7 @@ import soc.util.Version;
         {
             gameOpts = client.getNet().practiceServer.getGameOptions(gaName);
             if (gameOpts != null)
-                gameOpts = new HashMap<String,SOCGameOption>(gameOpts);  // changes here shouldn't change practiceServ's copy
+                gameOpts = new HashMap<>( gameOpts );  // changes here shouldn't change practiceServ's copy
         } else {
             if (client.serverGames != null)
                 gameOpts = client.serverGames.parseGameOptions(gaName);
@@ -1201,7 +1201,7 @@ import soc.util.Version;
                 throw new IllegalStateException("Internal error: Game opt _BHW not known");
             opt.setIntValue((bh << 8) | bw);
             if (gameOpts == null)
-                gameOpts = new HashMap<String,SOCGameOption>();  // unlikely: no-opts board has 0 height,width in message
+                gameOpts = new HashMap<>();  // unlikely: no-opts board has 0 height,width in message
             gameOpts.put("_BHW", opt);
         }
 
@@ -2049,7 +2049,7 @@ import soc.util.Version;
         final int maxPl = game.maxPlayers;
         final boolean[] ch = mes.getChoices();
 
-        List<SOCPlayer> choices = new ArrayList<SOCPlayer>();
+        List<SOCPlayer> choices = new ArrayList<>();
         for (int i = 0; i < maxPl; i++)
         {
             if (ch[i])
@@ -2705,17 +2705,17 @@ import soc.util.Version;
         final int[] rstat = mes.getParams();
 
         EnumMap<PlayerClientListener.UpdateType, Integer> stats
-            = new EnumMap<PlayerClientListener.UpdateType, Integer>(PlayerClientListener.UpdateType.class);
-        stats.put(PlayerClientListener.UpdateType.Clay, Integer.valueOf(rstat[SOCResourceConstants.CLAY]));
-        stats.put(PlayerClientListener.UpdateType.Ore, Integer.valueOf(rstat[SOCResourceConstants.ORE]));
-        stats.put(PlayerClientListener.UpdateType.Sheep, Integer.valueOf(rstat[SOCResourceConstants.SHEEP]));
-        stats.put(PlayerClientListener.UpdateType.Wheat, Integer.valueOf(rstat[SOCResourceConstants.WHEAT]));
-        stats.put(PlayerClientListener.UpdateType.Wood, Integer.valueOf(rstat[SOCResourceConstants.WOOD]));
+            = new EnumMap<>( PlayerClientListener.UpdateType.class );
+        stats.put(PlayerClientListener.UpdateType.Clay, rstat[SOCResourceConstants.CLAY] );
+        stats.put(PlayerClientListener.UpdateType.Ore, rstat[SOCResourceConstants.ORE] );
+        stats.put(PlayerClientListener.UpdateType.Sheep, rstat[SOCResourceConstants.SHEEP] );
+        stats.put(PlayerClientListener.UpdateType.Wheat, rstat[SOCResourceConstants.WHEAT] );
+        stats.put(PlayerClientListener.UpdateType.Wood, rstat[SOCResourceConstants.WOOD] );
         if (rstat.length > SOCResourceConstants.GOLD_LOCAL)
         {
             final int n = rstat[SOCResourceConstants.GOLD_LOCAL];
             if (n != 0)
-                stats.put(PlayerClientListener.UpdateType.GoldGains, Integer.valueOf(n));
+                stats.put(PlayerClientListener.UpdateType.GoldGains, n );
         }
         pcl.playerStats(stats);
     }
@@ -2724,7 +2724,7 @@ import soc.util.Version;
      * Handle the server's debug piece placement on/off message.
      * @since 1.1.12
      */
-    private final void handleDEBUGFREEPLACE(SOCDebugFreePlace mes)
+    private void handleDEBUGFREEPLACE(SOCDebugFreePlace mes)
     {
         PlayerClientListener pcl = client.getClientListener(mes.getGame());
         if (pcl == null)
@@ -2737,7 +2737,7 @@ import soc.util.Version;
      * Handle server responses from the "simple request" handler.
      * @since 1.1.18
      */
-    private final void handleSIMPLEREQUEST(SOCSimpleRequest mes)
+    private void handleSIMPLEREQUEST(SOCSimpleRequest mes)
     {
         PlayerClientListener pcl = client.getClientListener(mes.getGame());
         if (pcl == null)
@@ -2752,7 +2752,7 @@ import soc.util.Version;
      * @since 1.1.19
      */
     @SuppressWarnings("fallthrough")
-    private final void handleSIMPLEACTION(final SOCSimpleAction mes)
+    private void handleSIMPLEACTION(final SOCSimpleAction mes)
     {
         final String gaName = mes.getGame();
         PlayerClientListener pcl = client.getClientListener(gaName);
@@ -2831,7 +2831,7 @@ import soc.util.Version;
      * Handle moving a piece (a ship) around on the board.
      * @since 2.0.00
      */
-    private final void handleMOVEPIECE(SOCMovePiece mes)
+    private void handleMOVEPIECE(SOCMovePiece mes)
     {
         final String gaName = mes.getGame();
         SOCGame ga = client.games.get(gaName);
@@ -2849,7 +2849,7 @@ import soc.util.Version;
      * Handle removing a piece (a ship) from the board in certain scenarios.
      * @since 2.0.00
      */
-    private final void handleREMOVEPIECE(SOCRemovePiece mes)
+    private void handleREMOVEPIECE(SOCRemovePiece mes)
     {
         final String gaName = mes.getGame();
         SOCGame ga = client.games.get(gaName);
@@ -2960,7 +2960,7 @@ import soc.util.Version;
     private void handleINVENTORYITEMACTION(final SOCInventoryItemAction mes)
     {
         final boolean isReject = SOCDisplaylessPlayerClient.handleINVENTORYITEMACTION
-                (client.games, (SOCInventoryItemAction) mes);
+                (client.games, mes);
 
         PlayerClientListener pcl = client.getClientListener(mes.getGame());
         if (pcl == null)
@@ -2995,7 +2995,7 @@ import soc.util.Version;
     {
         // update game data:
 
-        SOCDisplaylessPlayerClient.handleSETSPECIALITEM(games, (SOCSetSpecialItem) mes);
+        SOCDisplaylessPlayerClient.handleSETSPECIALITEM(games, mes );
 
         final PlayerClientListener pcl = client.getClientListener(mes.getGame());
         if (pcl == null)

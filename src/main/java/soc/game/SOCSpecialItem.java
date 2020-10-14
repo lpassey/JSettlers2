@@ -227,7 +227,7 @@ public class SOCSpecialItem
      * @return A Special Item at no coordinate (-1) and unowned by any player, with cost/requirements if known,
      *     or {@code null} cost and requirements otherwise.
      */
-    public static final SOCSpecialItem makeKnownItem(final String typeKey, final int idx)
+    public static SOCSpecialItem makeKnownItem(final String typeKey, final int idx)
     {
         // If you update this method or add a scenario here, update soctest.game.TestSpecialItem method testMakeKnownItem.
 
@@ -899,7 +899,7 @@ public class SOCSpecialItem
             if (L == 0)
                 return null;
 
-            ArrayList<Requirement> ret = new ArrayList<Requirement>();
+            ArrayList<Requirement> ret = new ArrayList<>();
 
             int i = 0;
             char c;  // in parsing loop, c == req.charAt(i)

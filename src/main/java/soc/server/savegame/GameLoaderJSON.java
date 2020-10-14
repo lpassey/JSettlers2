@@ -141,10 +141,10 @@ public class GameLoaderJSON
         SavedGameModel.initGsonRegisterAdapters(gb);
         gb.registerTypeAdapter
             (new TypeToken<HashMap<GEType, Integer>>(){}.getType(),
-             new EnumKeyedMapDeserializer<GEType>(GEType.class));
+                new EnumKeyedMapDeserializer<>( GEType.class ));
         gb.registerTypeAdapter
             (new TypeToken<HashMap<PEType, Integer>>(){}.getType(),
-             new EnumKeyedMapDeserializer<PEType>(PEType.class));
+                new EnumKeyedMapDeserializer<>( PEType.class ));
 
         gsonb = gb;
     }

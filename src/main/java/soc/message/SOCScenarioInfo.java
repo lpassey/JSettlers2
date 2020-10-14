@@ -444,7 +444,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
             if (soleParam == null)
                 return null;
 
-            pa = new ArrayList<String>();
+            pa = new ArrayList<>();
             pa.add(soleParam);
         }
         else if (pa.isEmpty())

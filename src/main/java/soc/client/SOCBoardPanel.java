@@ -2103,7 +2103,7 @@ import javax.swing.JComponent;
      *   this row's {@link #edgeMap}[x,y] values will be set to
      *   edge coordinates offset from <tt>startHex</tt>.
      */
-    private final void initEdgeMapAux(int x1, int y1, int x2, int y2, int startHex)
+    private void initEdgeMapAux(int x1, int y1, int x2, int y2, int startHex)
     {
         final int hexVerticalXmod2 = x1 % 2;  // to find vertical-edge (vs middle) x-coordinates within each hex
         int x;
@@ -2219,7 +2219,7 @@ import javax.swing.JComponent;
         }
     }
 
-    private final void initHexMapAux(int x1, int y1, int x2, int y2, int startHex)
+    private void initHexMapAux(int x1, int y1, int x2, int y2, int startHex)
     {
         int x;
         int y;
@@ -2269,7 +2269,7 @@ import javax.swing.JComponent;
      *           and thus should be y1 + 4.
      * @param startHex  Starting hex ID (0x-coordinate of first hex in this row), to use with nodeMap[x1, y1].
      */
-    private final void initNodeMapAux(int x1, int y1, int x2, int y2, int startHex)
+    private void initNodeMapAux(int x1, int y1, int x2, int y2, int startHex)
     {
         int rowState = 0;  // current state; related to row# and logic for node coords from hex coords
         int row = 0;  // 0 for first row (y==y1), 1 for second, etc.
@@ -2426,7 +2426,7 @@ import javax.swing.JComponent;
         }  // for (y)
     }
 
-    private final void initHexIDtoNumAux(int begin, int end, int num)
+    private void initHexIDtoNumAux(int begin, int end, int num)
     {
         int i;
 
@@ -3215,7 +3215,7 @@ import javax.swing.JComponent;
      * @return  the scaled image
      * @since 1.1.20
      */
-    public static final BufferedImage getScaledImageUp(final Image src, final int w, final int h)
+    public static BufferedImage getScaledImageUp(final Image src, final int w, final int h)
     {
         BufferedImage bufi = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
@@ -3367,7 +3367,7 @@ import javax.swing.JComponent;
      * @param g       graphics
      * @param hexNum  hex location number (0-36)
      */
-    private final void drawHex(Graphics g, int hexNum)
+    private void drawHex(Graphics g, int hexNum)
     {
         final int portFacing;
         int hexType = board.getHexLayout()[hexNum];
@@ -3417,7 +3417,7 @@ import javax.swing.JComponent;
      *                   When {@link #isLargeBoard}, pass in the hex coordinate as hexNum.
      * @since 1.1.08
      */
-    private final void drawHex
+    private void drawHex
         (Graphics g, int x, int y, final int hexType, final int portFacing, final int hexNum)
     {
         if (hexType < 0)
@@ -3685,7 +3685,7 @@ import javax.swing.JComponent;
      * @param fillNotOutline  Fill the robber, not just outline
      *                (as for previous robber position)
      */
-    private final void drawRobber
+    private void drawRobber
         (Graphics g, final int hexID, final boolean fullNotGhost, final boolean fillNotOutline)
     {
         int hx, hy;
@@ -3791,7 +3791,7 @@ import javax.swing.JComponent;
      * @param isRoadNotShip  True to draw a road; false to draw a ship if {@link #isLargeBoard}
      * @param isWarship   True to draw a war ship (not normal ship) if {@link #isLargeBoard}, for scenario _SC_PIRI
      */
-    private final void drawRoadOrShip
+    private void drawRoadOrShip
         (Graphics g, int edgeNum, final int pn, final boolean isHilight,
          final boolean isRoadNotShip, final boolean isWarship)
     {
@@ -3952,7 +3952,7 @@ import javax.swing.JComponent;
         if (! ((pn == -1) && isHilight))
         {
             if (pn == -2)
-                if ((portHexCoords != null) && portHexCoords.contains(Integer.valueOf(edgeNum)))
+                if ((portHexCoords != null) && portHexCoords.contains( edgeNum ))
                     g.setColor(Color.white);  // pirate is on a port
                 else
                     g.setColor(Color.darkGray);
@@ -3971,7 +3971,7 @@ import javax.swing.JComponent;
     /**
      * draw a settlement
      */
-    private final void drawSettlement(Graphics g, int nodeNum, int pn, boolean isHilight, final boolean outlineOnly)
+    private void drawSettlement(Graphics g, int nodeNum, int pn, boolean isHilight, final boolean outlineOnly)
     {
         drawSettlementOrCity(g, nodeNum, pn, isHilight, outlineOnly, false);
     }
@@ -3979,7 +3979,7 @@ import javax.swing.JComponent;
     /**
      * draw a city
      */
-    private final void drawCity(Graphics g, int nodeNum, int pn, boolean isHilight)
+    private void drawCity(Graphics g, int nodeNum, int pn, boolean isHilight)
     {
         drawSettlementOrCity(g, nodeNum, pn, isHilight, false, true);
     }
@@ -3989,7 +3989,7 @@ import javax.swing.JComponent;
      * @param outlineOnly  If set for settlement, draw only the outline, not the filled polygon.  Ignored when {@code isCity}.
      * @since 1.1.08
      */
-    private final void drawSettlementOrCity
+    private void drawSettlementOrCity
         (Graphics g, final int nodeNum, final int pn, final boolean isHilight, final boolean outlineOnly, final boolean isCity)
     {
         final int hx, hy;
@@ -4100,7 +4100,7 @@ import javax.swing.JComponent;
      * @param edge  Edge coordinate
      * @since 2.0.00
      */
-    private final void drawSeaEdgeLine(Graphics g, final int edge)
+    private void drawSeaEdgeLine(Graphics g, final int edge)
     {
         final int[] enodes = board.getAdjacentNodesToEdge_arr(edge);
         final int[][] nodexy = { nodeToXY(enodes[0]), nodeToXY(enodes[1]) };
@@ -4124,7 +4124,7 @@ import javax.swing.JComponent;
      *     Intended for calls from not inside the "draw all pieces" loop.
      * @since 2.0.00
      */
-    private final void drawFortress
+    private void drawFortress
         (Graphics g, final SOCFortress fo, final int pn, final boolean isHilight, final boolean doTranslate)
     {
         final int strength = fo.getStrength();
@@ -4188,7 +4188,7 @@ import javax.swing.JComponent;
      * @param val  Value to show on the marker, or -1 for none
      * @since 2.0.00
      */
-    private final void drawMarker(Graphics g, final int x, final int y, final Color color, final int val)
+    private void drawMarker(Graphics g, final int x, final int y, final Color color, final int val)
     {
         g.translate(x, y);
 
@@ -4230,7 +4230,7 @@ import javax.swing.JComponent;
      *                   To show, {@code diceResult} must be at least 2
      *                   and gameState not {@link SOCGame#ROLL_OR_CARD}.
      */
-    private final void drawArrow(Graphics g, int pnum, int diceResult)
+    private void drawArrow(Graphics g, int pnum, int diceResult)
     {
         if (pnum < 0)
             return;
@@ -4375,7 +4375,7 @@ import javax.swing.JComponent;
      * @since 1.1.08
      * @see #drawPorts_LargeBoard(Graphics)
      */
-    private final void drawPortsRing(Graphics g)
+    private void drawPortsRing(Graphics g)
     {
         int hnum, hx, hy, ptype;
 
@@ -4453,7 +4453,7 @@ import javax.swing.JComponent;
      * @since 2.0.00
      * @see #drawPortsRing(Graphics)
      */
-    private final void drawPorts_LargeBoard(Graphics g)
+    private void drawPorts_LargeBoard(Graphics g)
     {
         int px, py;
 
@@ -4466,7 +4466,7 @@ import javax.swing.JComponent;
             return;  // <--- Too early: board not created & sent from server ---
 
         if (portHexCoords == null)
-            portHexCoords = new HashSet<Integer>();
+            portHexCoords = new HashSet<>();
         else
             portHexCoords.clear();  // in case ports have changed (SC_FTRI does that)
 
@@ -4499,7 +4499,7 @@ import javax.swing.JComponent;
                 seaFacing -= 6;
             final int seaHex = board.getAdjacentHexToEdge(edge, seaFacing);
             if (seaHex > 0)
-                portHexCoords.add(Integer.valueOf(seaHex));
+                portHexCoords.add( seaHex );
         }
     }
 
@@ -4774,7 +4774,7 @@ import javax.swing.JComponent;
      * such an edge, draw the port semi-transparently and a solid hilight line at the edge.
      * @since 2.0.00
      */
-    private final void drawBoard_SC_FTRI_placePort(Graphics g)
+    private void drawBoard_SC_FTRI_placePort(Graphics g)
     {
         drawSeaEdgeLines(g, Color.WHITE, player.getPortMovePotentialLocations(true));
 
@@ -4997,7 +4997,7 @@ import javax.swing.JComponent;
                     final int hexCoord = rshift | c;
                     final int hexType = (r < bh) ? board.getHexTypeFromCoord(hexCoord) : SOCBoard.WATER_HEX;
                     drawHex(g, x, y, hexType, -1, hexCoord);
-                    if ((landHexShow != null) && landHexShow.contains(Integer.valueOf(hexCoord)))
+                    if ((landHexShow != null) && landHexShow.contains( hexCoord ))
                     {
                        g.setColor(Color.RED);
                        g.drawRoundRect
@@ -5090,7 +5090,7 @@ import javax.swing.JComponent;
      * draw the path that the pirate fleet takes around the board.
      * @param ppath  Path of hex coordinates
      */
-    private final void drawBoardEmpty_drawPiratePath(Graphics g, final int[] ppath)
+    private void drawBoardEmpty_drawPiratePath(Graphics g, final int[] ppath)
     {
         int hc = ppath[ppath.length - 1];
         int r = hc >> 8, c = hc & 0xFF;
@@ -5133,7 +5133,7 @@ import javax.swing.JComponent;
      * Unknown types will be drawn gray.
      * @since 2.0.00
      */
-    private final void drawBoardEmpty_specialEdges(final Graphics g)
+    private void drawBoardEmpty_specialEdges(final Graphics g)
     {
         Iterator<Map.Entry<Integer, Integer>> seIter = ((SOCBoardLarge) board).getSpecialEdges();
         while (seIter.hasNext())
@@ -5180,7 +5180,7 @@ import javax.swing.JComponent;
      * @param color  Color to fill the markers
      * @since 2.0.00
      */
-    private final void drawBoardEmpty_specialNodes(final Graphics g, final String partKey, final Color color)
+    private void drawBoardEmpty_specialNodes(final Graphics g, final String partKey, final Color color)
     {
         final int[] nodes = ((SOCBoardLarge) board).getAddedLayoutPart(partKey);
         if (nodes == null)
@@ -5335,7 +5335,7 @@ import javax.swing.JComponent;
      * @param co  Color to draw the edge
      * @param offset  Approx unscaled internal-coordinate offset, outwards parallel to road
      */
-    private final void drawBoardEmpty_drawDebugShowPotentialRoad
+    private void drawBoardEmpty_drawDebugShowPotentialRoad
         (Graphics g, final int x, final int y, final int r, final int c,
          final boolean isVert, final Color co, final int offset)
     {
@@ -5520,7 +5520,7 @@ import javax.swing.JComponent;
      * @return  Array with screen {x, y} for this node, already scaled and/or rotated
      * @since 2.0.00
      */
-    private final int[] nodeToXY(final int nodeNum)
+    private int[] nodeToXY(final int nodeNum)
     {
         int hx, hy;
 
@@ -7198,7 +7198,7 @@ import javax.swing.JComponent;
      * @since 2.0.00
      * @see BoardPopupMenu#tryMoveShipFromHere()
      */
-    private final void tryMoveShipToEdge()
+    private void tryMoveShipToEdge()
     {
         boolean clearMode = true;
 
@@ -7300,7 +7300,7 @@ import javax.swing.JComponent;
      *     board's valid edge 0x00; -edge for the sea side of a coastal edge on the large board
      *     if {@code checkCoastal}.
      */
-    private final int findEdge(int x, int y, final boolean checkCoastal)
+    private int findEdge(int x, int y, final boolean checkCoastal)
     {
         // find which grid section the pointer is in
         int secX, secY;
@@ -7417,7 +7417,7 @@ import javax.swing.JComponent;
      * @param y  y coordinate, in unscaled board, not actual pixels
      * @return the coordinates of the node, or 0 if none
      */
-    private final int findNode(int x, int y)
+    private int findNode(int x, int y)
     {
         // find which grid section the pointer is in
         int secX, secY;
@@ -7462,7 +7462,7 @@ import javax.swing.JComponent;
      * @param y  y coordinate, in unscaled board, not actual pixels
      * @return the coordinates of the hex, or 0 if none
      */
-    private final int findHex(int x, int y)
+    private int findHex(int x, int y)
     {
         // find which grid section the pointer is in
         int secX, secY;
@@ -7472,7 +7472,7 @@ import javax.swing.JComponent;
             secX = ((x + 13) / halfdeltaX);
             secY = ((y - 20) / halfdeltaY);
             final int hex = (secY << 8) | secX;
-            if (-1 != ((SOCBoardLarge) board).getHexTypeFromCoord(hex))
+            if (-1 != board.getHexTypeFromCoord(hex))
                 return hex;
             return 0;
         }
@@ -7657,7 +7657,7 @@ import javax.swing.JComponent;
      * @see #renderPortImages()
      * @since 1.1.08
      */
-    private static final void loadHexesAndImages
+    private static void loadHexesAndImages
         (Image[] newHexes, String imageDir,
          MediaTracker tracker, Toolkit tk, Class<?> clazz,
          final boolean wantsRotated)

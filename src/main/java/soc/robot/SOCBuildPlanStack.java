@@ -67,7 +67,7 @@ public class SOCBuildPlanStack extends Stack<SOCPossiblePiece>
 
         for (Enumeration<SOCPossiblePiece> e = super.elements(); e.hasMoreElements(); )
         {
-            SOCPossiblePiece pp = (SOCPossiblePiece) e.nextElement();
+            SOCPossiblePiece pp = e.nextElement();
             rs.add(pp.getResourcesToBuild());
         }
 

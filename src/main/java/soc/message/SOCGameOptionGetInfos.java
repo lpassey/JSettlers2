@@ -285,7 +285,7 @@ public class SOCGameOptionGetInfos extends SOCMessage
      */
     public static SOCGameOptionGetInfos parseDataStr(String s)
     {
-        List<String> okey = new ArrayList<String>();
+        List<String> okey = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(s, sep2);
         boolean hasDash = false, hasTokenI18n = false, hasTokenAllChanges = false;
 

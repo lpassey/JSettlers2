@@ -92,7 +92,7 @@ public class SOCStringManager extends StringManager
      * Uses Hashtable to gain synchronization.
      */
     private static Hashtable<String, SOCStringManager> serverManagerForClientLocale
-        = new Hashtable<String, SOCStringManager>();
+        = new Hashtable<>();
 
     /**
      * Fallback for {@link #serverManagerForClientLocale} using server's default locale.
@@ -252,7 +252,7 @@ public class SOCStringManager extends StringManager
                 throw new IllegalArgumentException("Missing '{' before ',rsrcs}' in pattern: " + txtfmt);
 
             if (argsLocal == null)
-                argsLocal = (Object[]) (arguments.clone());
+                argsLocal = arguments.clone();
 
             final int pnum = Integer.parseInt(txtfmt.substring(i0 + 1, ir));
             final Object arg = argsLocal[pnum];
@@ -261,17 +261,17 @@ public class SOCStringManager extends StringManager
                 // [pnum] is rcount, [pnum+1] is rtype;
                 // replace the argument obj with its localized String
                 argsLocal[pnum] = getSOCResourceCount
-                    (((Integer) arguments[pnum + 1]).intValue(), (Integer) arg);
+                    ( (Integer) arguments[pnum + 1], (Integer) arg);
             }
             else if (arg instanceof SOCResourceSet)
             {
                 final SOCResourceSet rset = (SOCResourceSet) (arg);
-                ArrayList<String> resList = new ArrayList<String>();
+                ArrayList<String> resList = new ArrayList<>();
                 for (int rtype = SOCResourceConstants.CLAY; rtype <= SOCResourceConstants.WOOD; ++rtype)
                 {
                     int n = rset.getAmount(rtype);
                     if (n > 0)
-                        resList.add(getSOCResourceCount(rtype, Integer.valueOf(n)));
+                        resList.add(getSOCResourceCount(rtype, n ));
                 }
 
                 // replace the argument obj
@@ -300,7 +300,7 @@ public class SOCStringManager extends StringManager
                 throw new IllegalArgumentException("Missing '{' before ',list}' in pattern: " + txtfmt);
 
             if (argsLocal == null)
-                argsLocal = (Object[]) (arguments.clone());
+                argsLocal = arguments.clone();
 
             final int pnum = Integer.parseInt(txtfmt.substring(i0 + 1, ir));
             final Object arg = argsLocal[pnum];
@@ -328,7 +328,7 @@ public class SOCStringManager extends StringManager
                 throw new IllegalArgumentException("Missing '{' before ',dcards}' in pattern: " + txtfmt);
 
             if (argsLocal == null)
-                argsLocal = (Object[]) (arguments.clone());
+                argsLocal = arguments.clone();
 
             final int pnum = Integer.parseInt(txtfmt.substring(i0 + 1, ir));
             final Object arg = argsLocal[pnum];
@@ -350,11 +350,11 @@ public class SOCStringManager extends StringManager
                 {
                     argsLocal[pnum] = bundle.getString("base.emptylist.nothing");  // "nothing"
                 } else {
-                    ArrayList<String> resList = new ArrayList<String>(L);
+                    ArrayList<String> resList = new ArrayList<>( L );
                     for (Object itm : ((List<?>) arg))
                     {
                         if (itm instanceof Integer)
-                            resList.add(SOCDevCard.getCardTypeName(((Integer) itm).intValue(), game, true, this));
+                            resList.add(SOCDevCard.getCardTypeName( (Integer) itm, game, true, this));
                         else if (itm instanceof SOCInventoryItem)
                             resList.add(((SOCInventoryItem) itm).getItemName(game, true, this));
                         else

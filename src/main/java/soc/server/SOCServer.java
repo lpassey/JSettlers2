@@ -1001,7 +1001,7 @@ public class SOCServer extends Server
      * Includes built-in bots and any third-party bots (which are also in {@link #robots3p}).
      * @see SOCLocalRobotClient#robotClients
      */
-    protected Vector<Connection> robots = new Vector<Connection>();
+    protected Vector<Connection> robots = new Vector<>();
 
     /**
      * A list of third-party bot clients connected to this server, if any.
@@ -1013,7 +1013,7 @@ public class SOCServer extends Server
      * @see #robots3pCliConstrucs
      * @since 2.0.00
      */
-    protected Vector<Connection> robots3p = new Vector<Connection>();
+    protected Vector<Connection> robots3p = new Vector<>();
 
     /**
      * A list of third-party bot clients started up by server like the built-in bots, or {@code null} if none.
@@ -1033,7 +1033,7 @@ public class SOCServer extends Server
      * @see Server#unnamedConns
      * @since 2.0.00
      */
-    protected HashSet<Connection> limitedConns = new HashSet<Connection>();
+    protected HashSet<Connection> limitedConns = new HashSet<>();
 
     /**
      * Robot default parameters; copied for each newly connecting robot.
@@ -1200,14 +1200,14 @@ public class SOCServer extends Server
      * @see #robotDismissRequests
      */
     final Hashtable<String, Hashtable<Connection, Object>> robotJoinRequests
-        = new Hashtable<String, Hashtable<Connection, Object>>();
+        = new Hashtable<>();
 
     /**
      * table of requests for robots to leave games
      * @see #robotJoinRequests
      */
     final Hashtable<String, Vector<SOCReplaceRequest>> robotDismissRequests
-        = new Hashtable<String, Vector<SOCReplaceRequest>>();
+        = new Hashtable<>();
 
     ///**
     // * table of game data files
@@ -1905,7 +1905,7 @@ public class SOCServer extends Server
         numberOfGamesStarted = 0;
         numberOfGamesFinished = 0;
         numberOfUsers = 0;
-        clientPastVersionStats = new HashMap<Integer, AtomicInteger>();
+        clientPastVersionStats = new HashMap<>();
         numRobotOnlyGamesRemaining = getConfigIntProperty(PROP_JSETTLERS_BOTS_BOTGAMES_TOTAL, 0);
         if (numRobotOnlyGamesRemaining > 0)
         {
@@ -2258,7 +2258,7 @@ public class SOCServer extends Server
                 errmsg = "* Cannot use Open Registration with User Account Admins List.";
             } else {
                 final boolean downcase = (db.getSchemaVersion() >= SOCDBHelper.SCHEMA_VERSION_1200);
-                databaseUserAdmins = new HashSet<String>();
+                databaseUserAdmins = new HashSet<>();
 
                 for (String adm : userAdmins.split(SOCMessage.sep2))  // split on "," - sep2 will never be in a username
                 {
@@ -2601,7 +2601,7 @@ public class SOCServer extends Server
      * @return Robot connect cookie contents to use for this server
      * @since 1.1.19
      */
-    private final String generateRobotCookie()
+    private String generateRobotCookie()
     {
         byte[] rnd = new byte[16];
         rand.nextBytes(rnd);
@@ -3120,7 +3120,7 @@ public class SOCServer extends Server
                 // send at most 1 message to each connected client, split by client version.
                 // If no game options, send simple NEWGAME message type to all clients.
 
-                final HashMap<Integer, SOCMessage> msgCacheForVersion = new HashMap<Integer, SOCMessage>();
+                final HashMap<Integer, SOCMessage> msgCacheForVersion = new HashMap<>();
                     // key = client version. Special keys:
                     // 1 if older than VERSION_FOR_NEWGAMEWITHOPTIONS;
                     // -1 if older than that and can't join
@@ -3177,7 +3177,7 @@ public class SOCServer extends Server
                 cvers = -1;
             else if ((gaOpts == null) || (cvers < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS))
                 cvers = 1;
-            final Integer cversKey = Integer.valueOf(cvers);
+            final Integer cversKey = cvers;
 
             SOCMessage cacheMsg = msgCacheForVersion.get(cversKey);
             if (cacheMsg != null)
@@ -3825,7 +3825,7 @@ public class SOCServer extends Server
         }
 
         // Localize and return
-        HashMap<String,SOCGameOption> opts = new HashMap<String, SOCGameOption>();
+        HashMap<String,SOCGameOption> opts = new HashMap<>();
         for (SOCGameOption opt : knownOpts.values())
         {
             final String optKey = opt.key;
@@ -3855,7 +3855,7 @@ public class SOCServer extends Server
         if (c == null)
             return;
 
-        List<String> toDestroy = new ArrayList<String>();  // channels where c was the last member
+        List<String> toDestroy = new ArrayList<>();  // channels where c was the last member
 
         channelList.takeMonitor();
 
@@ -3921,7 +3921,7 @@ public class SOCServer extends Server
         if (c == null)
             return;
 
-        List<String> toDestroy = new ArrayList<String>();  // games where c was the last human player
+        List<String> toDestroy = new ArrayList<>();  // games where c was the last human player
 
         gameList.takeMonitor();
 
@@ -4915,7 +4915,7 @@ public class SOCServer extends Server
         {
             // Copy the members list, then remove the excluded connections.
             // This method isn't called for many situations, so this is efficient enough.
-            sendTo = new ArrayList<Connection>(sendTo);
+            sendTo = new ArrayList<>( sendTo );
             for (Connection excl : ex)
                 sendTo.remove(excl);
         }
@@ -4959,7 +4959,7 @@ public class SOCServer extends Server
      * @throws IllegalArgumentException if the localized pattern string has a parse error (closing '}' brace without opening '{' brace, etc)
      * @since 2.0.00
      */
-    private final void impl_messageToGameKeyedSpecial
+    private void impl_messageToGameKeyedSpecial
         (SOCGame ga, final boolean isEvent, final int[] eventExclPNs,
          final boolean takeMon, final List<Connection> members, final Connection ex,
          final boolean fmtSpecial, final String key, final Object ... params)
@@ -5634,7 +5634,7 @@ public class SOCServer extends Server
              * Are any games waiting for this robot to join?
              * If so, try to find other bots to join those games
              */
-            final Map<String, Object> waitingGames = new HashMap<String, Object>();  // <gaName, join-req-related info>
+            final Map<String, Object> waitingGames = new HashMap<>();  // <gaName, join-req-related info>
             synchronized(robotJoinRequests)
             {
                 for (Map.Entry<String, Hashtable<Connection, Object>> gaReqs : robotJoinRequests.entrySet())
@@ -5794,7 +5794,7 @@ public class SOCServer extends Server
             (Version.versionNumber(), Version.version(), Version.buildnum(), feats.getEncodedList(), null));
 
         // CHANNELS
-        List<String> cl = new ArrayList<String>();
+        List<String> cl = new ArrayList<>();
         channelList.takeMonitor();
 
         try
@@ -5938,7 +5938,7 @@ public class SOCServer extends Server
             }
         }
 
-        return Integer.valueOf(nUnnamed);
+        return nUnnamed;
     }
 
     /**
@@ -6122,7 +6122,7 @@ public class SOCServer extends Server
      * @return message starting with "Please wait x seconds" or "Please wait x minute(s)"
      * @since 1.1.08
      */
-    private static final String checkNickname_getRetryText(final int nameTimeout)
+    private static String checkNickname_getRetryText(final int nameTimeout)
     {
         StringBuffer sb = new StringBuffer("Please wait ");
         if (nameTimeout <= 90)
@@ -6130,7 +6130,7 @@ public class SOCServer extends Server
             sb.append(nameTimeout);
             sb.append(" seconds");
         } else {
-            sb.append((int) ((nameTimeout + 20) / 60));
+            sb.append( (nameTimeout + 20) / 60 );
             sb.append(" minute(s)");
         }
         sb.append(MSG_NICKNAME_ALREADY_IN_USE_WAIT_TRY_AGAIN);
@@ -6150,7 +6150,7 @@ public class SOCServer extends Server
      *         starting with {@link #MSG_NICKNAME_ALREADY_IN_USE_NEWER_VERSION_P1}.
      * @since 1.1.08
      */
-    private static final String checkNickname_getVersionText(final int needsVersion)
+    private static String checkNickname_getVersionText(final int needsVersion)
     {
         StringBuffer sb = new StringBuffer(MSG_NICKNAME_ALREADY_IN_USE_NEWER_VERSION_P1);
         sb.append(needsVersion);
@@ -6908,7 +6908,7 @@ public class SOCServer extends Server
                 rejectMsg = "Sorry, your client version number " + cvers + " is too old, version ";
             else
                 rejectMsg = "Sorry, your client version is too old, version number ";
-            rejectMsg += Integer.toString(CLI_VERSION_MIN)
+            rejectMsg += CLI_VERSION_MIN
                 + " (" + Version.version(CLI_VERSION_MIN) + ") or above is required.";
             rejectLogMsg = "Rejected client: Version " + cvers + " too old";
         }
@@ -7039,7 +7039,7 @@ public class SOCServer extends Server
         // Increment version stats; this method is called from per-client threads.
         // We don't know yet if client is a bot, so bots are included in the stats.
         // (If this is not wanted, the bot could be subtracted at handleIMAROBOT.)
-        final Integer cversObj = Integer.valueOf(cvers);
+        final Integer cversObj = cvers;
         synchronized(clientPastVersionStats)
         {
             AtomicInteger prevCountInt = clientPastVersionStats.get(cversObj);
@@ -7558,7 +7558,7 @@ public class SOCServer extends Server
             c.put(SOCStatusMessage.buildForVersion
               (SOCStatusMessage.SV_NEWGAME_OPTION_VALUE_TOONEW, cliVers,
                 "Cannot create game with these options; requires version "
-                + Integer.toString(e.gameOptsVersion)
+                + e.gameOptsVersion
                 + SOCMessage.sep2_char + gameName
                 + SOCMessage.sep2_char + e.problemOptionsList()));
             return false;
@@ -7588,7 +7588,7 @@ public class SOCServer extends Server
                 c.put(SOCStatusMessage.buildForVersion
                   (SOCStatusMessage.SV_CANT_JOIN_GAME_VERSION, cliVers,
                     "Cannot join game; requires version "
-                    + Integer.toString(game.getClientVersionMinRequired())
+                    + game.getClientVersionMinRequired()
                     + ": " + gameName));
             }
             return false;
@@ -7674,7 +7674,7 @@ public class SOCServer extends Server
 
                 if (! ga.isSeatVacant(pn))
                     ga.removePlayer(ga.getPlayer(pn).getName(), true);
-                foundNoRobots = ! gh.findRobotAskJoinGame(ga, Integer.valueOf(pn), true);
+                foundNoRobots = ! gh.findRobotAskJoinGame(ga, pn, true);
                 if (foundNoRobots)
                     break;
             }
@@ -8092,8 +8092,8 @@ public class SOCServer extends Server
                  * record the request
                  */
                 if (robotsRequested == null)
-                    robotsRequested = new Hashtable<Connection, Object>();
-                robotsRequested.put(robotConn, Integer.valueOf(i));
+                    robotsRequested = new Hashtable<>();
+                robotsRequested.put(robotConn, i );
             }
         }
 
@@ -8172,7 +8172,7 @@ public class SOCServer extends Server
         List<Connection> unused3p;
         synchronized (robots3p)
         {
-            unused3p = new ArrayList<Connection>(robots3p);
+            unused3p = new ArrayList<>( robots3p );
         }
         for (int i = 0; i < robotSeatsConns.length; ++i)
             if (curr3pSeat[i])
@@ -8218,7 +8218,7 @@ public class SOCServer extends Server
                 break;  // no more available bots
 
             // update structures
-            Integer iObj = Integer.valueOf(iNon);
+            Integer iObj = iNon;
             synchronized(robotsRequested)
             {
                 robotsRequested.remove(robotSeatsConns[iNon]);
@@ -8422,14 +8422,14 @@ public class SOCServer extends Server
             scensSent = scd.scenariosInfoSent;
             if (scensSent == null)
             {
-                scensSent = new HashMap<String, String>();
+                scensSent = new HashMap<>();
                 scd.scenariosInfoSent = scensSent;
             }
         } else {
             scensSent = null;
         }
 
-        List<String> rets = new ArrayList<String>();  // for reply to client
+        List<String> rets = new ArrayList<>();  // for reply to client
 
         boolean mustSkipFirst = checkUnknowns_skipFirst;
         for (final String scKey : scKeys)
@@ -8577,7 +8577,7 @@ public class SOCServer extends Server
         // Prep for remembering what we checked for/are about to send to this client
         if (scensSent == null)
         {
-            scensSent = new HashMap<String, String>();
+            scensSent = new HashMap<>();
             scd.scenariosInfoSent = scensSent;
         }
 
@@ -8660,7 +8660,7 @@ public class SOCServer extends Server
         {
             c.put(new SOCScenarioInfo(scSend, nm, desc));
         } else {
-            List<String> scenStrs = new ArrayList<String>();
+            List<String> scenStrs = new ArrayList<>();
             scenStrs.add(scKey);
             if (nm != null)
             {
@@ -9508,7 +9508,7 @@ public class SOCServer extends Server
      */
     public void checkForExpiredGames(final long currentTimeMillis)
     {
-        List<String> expired = new ArrayList<String>();
+        List<String> expired = new ArrayList<>();
 
         gameList.takeMonitor();
 
@@ -9552,7 +9552,7 @@ public class SOCServer extends Server
                         }
                     }
 
-                    messageToGameKeyed(gameData, true, true, "game.time.expire.soon.addtime", Integer.valueOf(minutes));
+                    messageToGameKeyed(gameData, true, true, "game.time.expire.soon.addtime", minutes );
                         // ">>> Less than {0} minutes remaining. Type *ADDTIME* to extend this game another 30 minutes."
 
                     if (! hasWarned)
@@ -9773,8 +9773,8 @@ public class SOCServer extends Server
         // Check against options which are on command line twice: Can't just check argp keys because
         // argp is loaded from jsserver.properties, then command-line properties can override
         // anything set from there
-        HashSet<String> cmdlineOptsSet = new HashSet<String>();
-        HashMap<String, String> gameOptsAlreadySet = new HashMap<String, String>();
+        HashSet<String> cmdlineOptsSet = new HashSet<>();
+        HashMap<String, String> gameOptsAlreadySet = new HashMap<>();
             // used and updated by parseCmdline_GameOption
 
         /**
@@ -10176,7 +10176,7 @@ public class SOCServer extends Server
      *     </UL>
      * @since 1.1.20
      */
-    private static final void init_propsSetGameopts(Properties pr)
+    private static void init_propsSetGameopts(Properties pr)
         throws IllegalArgumentException
     {
         // javadoc note: This method is private; public parseCmdline_DashedArgs calls it, so for visibility
@@ -10188,7 +10188,7 @@ public class SOCServer extends Server
 
         // First, canonicalize any game opt key names to uppercase
         {
-            ArrayList<String> makeUpper = new ArrayList<String>();
+            ArrayList<String> makeUpper = new ArrayList<>();
             for (Object k : pr.keySet())
             {
                 if (! ((k instanceof String) && ((String) k).startsWith(PROP_JSETTLERS_GAMEOPT_PREFIX)))
@@ -10322,7 +10322,7 @@ public class SOCServer extends Server
             }
         }
 
-        scenConflictWarns = new ArrayList<Triple>();
+        scenConflictWarns = new ArrayList<>();
 
         final SOCScenario sc = SOCScenario.getScenario(scName);
         if (sc == null)
@@ -10341,7 +10341,7 @@ public class SOCServer extends Server
             // Normalize to allow case-insensitive searching of key names:
             // jsettlers.gameopt.NT -> jsettlers.gameopt.nt
 
-            Map<String, Object> normOpts = new HashMap<String, Object>();
+            Map<String, Object> normOpts = new HashMap<>();
             for (Object k : opts.keySet())
             {
                 if (! ((k instanceof String) && ((String) k).startsWith(PROP_JSETTLERS_GAMEOPT_PREFIX)))
@@ -10651,7 +10651,7 @@ public class SOCServer extends Server
 
         System.err.println("-- Current default game options: --");
 
-        ArrayList<String> okeys = new ArrayList<String>(allopts.keySet());
+        ArrayList<String> okeys = new ArrayList<>( allopts.keySet() );
         Collections.sort(okeys);
         for (final String okey : okeys)
         {

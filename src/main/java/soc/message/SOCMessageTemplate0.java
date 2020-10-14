@@ -88,7 +88,7 @@ public abstract class SOCMessageTemplate0 extends SOCMessage
      */
     public static String toCmd(final int messageType, final String ga)
     {
-        return Integer.toString(messageType) + sep + ga;
+        return messageType + sep + ga;
     }
 
     /**

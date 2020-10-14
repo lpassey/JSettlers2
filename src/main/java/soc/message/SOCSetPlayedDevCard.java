@@ -131,7 +131,7 @@ public class SOCSetPlayedDevCard extends SOCMessage
         {
             ga = st.nextToken();
             pn = Integer.parseInt(st.nextToken());
-            pd = (Boolean.valueOf(st.nextToken())).booleanValue();
+            pd = Boolean.valueOf( st.nextToken() );
         }
         catch (Exception e)
         {

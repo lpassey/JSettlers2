@@ -145,7 +145,7 @@ public class SOCVillage extends SOCPlayingPiece
     public boolean addTradingPlayer(SOCPlayer pl)
     {
         if (traders == null)
-            traders = new ArrayList<SOCPlayer>();
+            traders = new ArrayList<>();
         else if (traders.contains(pl))
             return false;
 
@@ -184,7 +184,7 @@ public class SOCVillage extends SOCPlayingPiece
             return false;
 
         if (rollRes.clothVillages == null)
-            rollRes.clothVillages = new ArrayList<SOCVillage>();
+            rollRes.clothVillages = new ArrayList<>();
         rollRes.clothVillages.add(this);
 
         final int[] results;

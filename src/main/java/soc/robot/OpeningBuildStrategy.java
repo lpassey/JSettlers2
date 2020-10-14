@@ -149,7 +149,7 @@ public class OpeningBuildStrategy {
             final int firstNode = ourPotentialSettlements[i];
             // assert: ourPlayerData.isPotentialSettlement(firstNode)
 
-            final Integer firstNodeInt = Integer.valueOf(firstNode);
+            final Integer firstNodeInt = firstNode;
 
             //
             // this is just for testing purposes
@@ -347,7 +347,7 @@ public class OpeningBuildStrategy {
         playerNumbers.clear();
         playerNumbers.updateNumbers(firstSettlement, board);
 
-        final Integer firstSettlementInt = Integer.valueOf(firstSettlement);
+        final Integer firstSettlementInt = firstSettlement;
 
         for (int portType = SOCBoard.MISC_PORT; portType <= SOCBoard.WOOD_PORT;
                  portType++)
@@ -368,7 +368,7 @@ public class OpeningBuildStrategy {
         playerNumbers.clear();
         playerNumbers.updateNumbers(secondSettlement, board);
 
-        final Integer secondSettlementInt = Integer.valueOf(secondSettlement);
+        final Integer secondSettlementInt = secondSettlement;
 
         for (int portType = SOCBoard.MISC_PORT; portType <= SOCBoard.WOOD_PORT;
                  portType++)
@@ -569,7 +569,7 @@ public class OpeningBuildStrategy {
         /**
          * Score the nearby nodes to build road towards: Key = coord Integer; value = Integer score towards "best" node.
          */
-        Hashtable<Integer,Integer> twoAway = new Hashtable<Integer,Integer>();
+        Hashtable<Integer,Integer> twoAway = new Hashtable<>();
 
         log.debug("--- placeInitRoad");
 
@@ -584,7 +584,7 @@ public class OpeningBuildStrategy {
             // each of 6 directions: NE, E, SE, SW, W, NW
             int tmp = board.getAdjacentNodeToNode2Away(settlementNode, facing);
             if ((tmp != -9) && ourPlayerData.canPlaceSettlement(tmp))
-                twoAway.put(Integer.valueOf(tmp), Integer.valueOf(0));
+                twoAway.put( tmp, 0 );
         }
 
         scoreNodesForSettlements(twoAway, 3, 5, 10);
@@ -613,12 +613,12 @@ public class OpeningBuildStrategy {
                 /**
                  * rule out where other players are going to build
                  */
-                Hashtable<Integer,Integer> allNodes = new Hashtable<Integer,Integer>();
+                Hashtable<Integer,Integer> allNodes = new Hashtable<>();
 
                 {
                     Iterator<Integer> psi = ourPlayerData.getPotentialSettlements().iterator();
                     while (psi.hasNext())
-                        allNodes.put(psi.next(), Integer.valueOf(0));
+                        allNodes.put(psi.next(), 0 );
                     // log.debug("-- potential settlement at " + Integer.toHexString(next));
                 }
 
@@ -659,7 +659,7 @@ public class OpeningBuildStrategy {
                  * create a list of potential settlements that takes into account
                  * where other players will build
                  */
-                List<Integer> psList = new ArrayList<Integer>();
+                List<Integer> psList = new ArrayList<>();
 
                 psList.addAll(ourPlayerData.getPotentialSettlements());
                 // log.debug("- potential settlement at " + Integer.toHexString(j));
@@ -674,13 +674,13 @@ public class OpeningBuildStrategy {
                     while (nodesEnum.hasMoreElements())
                     {
                         final Integer nodeCoord = nodesEnum.nextElement();
-                        final int score = allNodes.get(nodeCoord).intValue();
-                        log.debug("NODE = " + Integer.toHexString(nodeCoord.intValue()) + " SCORE = " + score);
+                        final int score = allNodes.get( nodeCoord );
+                        log.debug("NODE = " + Integer.toHexString( nodeCoord ) + " SCORE = " + score);
 
                         if (bestNodePair.getScore() < score)
                         {
                             bestNodePair.setScore(score);
-                            bestNodePair.setNode(nodeCoord.intValue());
+                            bestNodePair.setNode( nodeCoord );
                         }
                     }
 
@@ -692,7 +692,7 @@ public class OpeningBuildStrategy {
                     /**
                      * remove this spot from the list of best spots
                      */
-                    allNodes.remove(Integer.valueOf(bestNodePair.getNode()));
+                    allNodes.remove( bestNodePair.getNode() );
                 }
             }
         }
@@ -706,8 +706,8 @@ public class OpeningBuildStrategy {
         while (cenum.hasMoreElements())
         {
             final Integer coordInt = cenum.nextElement();
-            final int coord = coordInt.intValue();
-            final int score = twoAway.get(coordInt).intValue();
+            final int coord = coordInt;
+            final int score = twoAway.get( coordInt );
 
             log.debug("Considering " + Integer.toHexString(coord) + " with a score of " + score);
 
@@ -810,9 +810,9 @@ public class OpeningBuildStrategy {
         while (nodesInEnum.hasMoreElements())
         {
             final Integer nodeCoord = nodesInEnum.nextElement();
-            final int node = nodeCoord.intValue();
+            final int node = nodeCoord;
             int score = 0;
-            final int oldScore = nodesIn.get(nodeCoord).intValue();
+            final int oldScore = nodesIn.get( nodeCoord );
 
             for (final int goodNode : goodNodes)
             {
@@ -828,7 +828,7 @@ public class OpeningBuildStrategy {
              */
             score *= weight;
 
-            nodesIn.put(nodeCoord, Integer.valueOf(oldScore + score));
+            nodesIn.put(nodeCoord, oldScore + score );
 
             //log.debug("BSIANS -- put node "+Integer.toHexString(node)+" with old score "+oldScore+" + new score "+score);
         }
@@ -857,9 +857,9 @@ public class OpeningBuildStrategy {
         while (nodesInEnum.hasMoreElements())
         {
             final Integer nodeCoord = nodesInEnum.nextElement();
-            final int node = nodeCoord.intValue();
+            final int node = nodeCoord;
             int score = 0;
-            final int oldScore = nodesIn.get(nodeCoord).intValue();
+            final int oldScore = nodesIn.get( nodeCoord );
 
             for (final int goodNodeTarget : goodNodes)
             {
@@ -878,7 +878,7 @@ public class OpeningBuildStrategy {
              */
             score *= weight;
 
-            nodesIn.put(nodeCoord, Integer.valueOf(oldScore + score));
+            nodesIn.put(nodeCoord, oldScore + score );
 
             //log.debug("BS2AFANS -- put node "+Integer.toHexString(node)+" with old score "+oldScore+" + new score "+score);
         }
@@ -1048,11 +1048,11 @@ public class OpeningBuildStrategy {
             final Integer nodeInt = nodesEnum.nextElement();
 
             //log.debug("BSN - looking at node "+Integer.toHexString(node.intValue()));
-            oldScore = nodes.get(nodeInt).intValue();
+            oldScore = nodes.get( nodeInt );
 
             int score = 0;
 
-            for (final int hex : board.getAdjacentHexesToNode(nodeInt.intValue()))
+            for (final int hex : board.getAdjacentHexesToNode( nodeInt ))
             {
                 final int number = board.getNumberOnHexFromCoord(hex);
                 score += numRating[number];
@@ -1076,7 +1076,7 @@ public class OpeningBuildStrategy {
              * lowest score is 0
              */
             final int nScore = ((score * 100) / maxScore) * weight;
-            final Integer finalScore = Integer.valueOf(nScore + oldScore);
+            final Integer finalScore = nScore + oldScore;
             nodes.put(nodeInt, finalScore);
 
             //log.debug("BSN -- put node "+Integer.toHexString(node.intValue())+" with old score "+oldScore+" + new score "+nScore);

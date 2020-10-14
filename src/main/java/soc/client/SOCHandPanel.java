@@ -872,8 +872,8 @@ import javax.swing.UIManager;
 
         //cardLab = new Label("Cards:");
         //add(cardLab);
-        inventoryItems = new ArrayList<SOCInventoryItem>();
-        inventory = new JList<String>(new DefaultListModel<String>());
+        inventoryItems = new ArrayList<>();
+        inventory = new JList<>( new DefaultListModel<String>() );
         inventory.setVisibleRowCount(-1);  // show as many as possible, based on height from doLayout
         inventory.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         inventory.setFont(getFont());
@@ -1218,7 +1218,7 @@ import javax.swing.UIManager;
      *                tooltip will be "Right-click to trade clay".
      * @since 2.0.00
      */
-    private final void createAndAddResourceColorSquare(final Color rc, final String rtxtkey)
+    private void createAndAddResourceColorSquare(final Color rc, final String rtxtkey)
     {
         final String rtxt = strings.get(rtxtkey);
         createColorSqRetLbl = new JLabel(rtxt + ":");  // "Clay:"
@@ -1586,7 +1586,7 @@ import javax.swing.UIManager;
      * @param current  Current lock state/button label
      * @since 2.0.00
      */
-    private final void clickRobotSeatLockButton(SOCGame.SeatLockState current)
+    private void clickRobotSeatLockButton(SOCGame.SeatLockState current)
     {
         final SOCGame.SeatLockState slNext;
         switch (current)
@@ -1800,7 +1800,7 @@ import javax.swing.UIManager;
      * @param item  Special item picked by player
      * @since 2.0.00
      */
-    private final void clickPlayInventorySpecialItem(final SOCInventoryItem item)
+    private void clickPlayInventorySpecialItem(final SOCInventoryItem item)
     {
         if (item.isPlayable())
             messageSender.playInventoryItem(game, item.itype);
@@ -4743,7 +4743,7 @@ import javax.swing.UIManager;
             {
                 if (timeRemain > 0)
                 {
-                    setRollPrompt(MessageFormat.format(AUTOROLL_COUNTDOWN, Integer.valueOf(timeRemain)), false);
+                    setRollPrompt(MessageFormat.format(AUTOROLL_COUNTDOWN, timeRemain ), false);
                 } else {
                     clickRollButton();  // Clear prompt, click Roll
                     cancel();  // End of countdown for this timer
@@ -4770,7 +4770,7 @@ import javax.swing.UIManager;
      */
     protected static class ResourceTradeMenuItem extends MenuItem
     {
-        private static final Integer INT_1 = Integer.valueOf(1);  // resource quantity for string formats
+        private static final Integer INT_1 = 1;  // resource quantity for string formats
 
         private final SOCGame game;  // needed only for SOCStringManager.getSpecial
         private int tradeFrom, tradeTo;

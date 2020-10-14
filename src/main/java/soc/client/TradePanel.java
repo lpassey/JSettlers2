@@ -928,13 +928,13 @@ public class TradePanel extends ShadowedBox
     public interface TPListener
     {
         /** Callback for when button 1 is clicked or otherwise activated. */
-        public void button1Clicked();
+        void button1Clicked();
 
         /** Callback for when button 2 is clicked or otherwise activated. */
-        public void button2Clicked();
+        void button2Clicked();
 
         /** Callback for when button 3 is clicked or otherwise activated. */
-        public void button3Clicked();
+        void button3Clicked();
     }
 
     /**
@@ -975,7 +975,7 @@ public class TradePanel extends ShadowedBox
             if (secRemain > 0)
             {
                 lineBelow.setText
-                    (strings.get("hpan.trade.auto_reject_countdown", Integer.valueOf(secRemain)));
+                    (strings.get("hpan.trade.auto_reject_countdown", secRemain ));
                     // "Auto-Reject in: 5"
                 --secRemain;
             } else {

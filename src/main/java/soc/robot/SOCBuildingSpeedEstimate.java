@@ -125,7 +125,7 @@ public class SOCBuildingSpeedEstimate
      *        where the resource type constant in [0] has the highest rolls per resource.
      * @since 2.0.00
      */
-    public static final int[] getRollsForResourcesSorted(final SOCPlayer pl)
+    public static int[] getRollsForResourcesSorted(final SOCPlayer pl)
     {
         SOCBuildingSpeedEstimate estimate = new SOCBuildingSpeedEstimate(pl.getNumbers());
         final int[] rollsPerResource = estimate.getRollsPerResource();
@@ -383,7 +383,7 @@ public class SOCBuildingSpeedEstimate
             while (numbersEnum.hasMoreElements())
             {
                 Integer number = numbersEnum.nextElement();
-                totalProbability += SOCNumberProbabilities.FLOAT_VALUES[number.intValue()];
+                totalProbability += SOCNumberProbabilities.FLOAT_VALUES[number];
             }
 
             //D.ebugPrintln("totalProbability: " + totalProbability);
@@ -441,7 +441,7 @@ public class SOCBuildingSpeedEstimate
                 while (resourcesEnum.hasMoreElements())
                 {
                     Integer resourceInt = resourcesEnum.nextElement();
-                    resourceSet.add(1, resourceInt.intValue());
+                    resourceSet.add(1, resourceInt );
                 }
 
                 //D.ebugPrintln("### resources for "+diceResult+" = "+resourceSet);
@@ -791,13 +791,13 @@ public class SOCBuildingSpeedEstimate
 
         @SuppressWarnings("unchecked")
         Hashtable<SOCResourceSet, Float>[] resourcesOnRoll = new Hashtable[2];
-        resourcesOnRoll[0] = new Hashtable<SOCResourceSet, Float>();
-        resourcesOnRoll[1] = new Hashtable<SOCResourceSet, Float>();
+        resourcesOnRoll[0] = new Hashtable<>();
+        resourcesOnRoll[1] = new Hashtable<>();
 
         int lastRoll = 0;
         int thisRoll = 1;
 
-        resourcesOnRoll[lastRoll].put(ourResources, Float.valueOf(1.0f));
+        resourcesOnRoll[lastRoll].put(ourResources, 1.0f );
 
         boolean targetReached = ourResources.contains(targetResources);
         SOCResourceSet targetReachedResources = null;
@@ -855,7 +855,7 @@ public class SOCBuildingSpeedEstimate
                     SOCResourceSet newResources = lastResources.copy();
                     newResources.add(gainedResources);
 
-                    float newProb = lastProb.floatValue() * diceProb;
+                    float newProb = lastProb * diceProb;
 
                     if (!newResources.contains(targetResources))
                     {
@@ -973,7 +973,7 @@ public class SOCBuildingSpeedEstimate
 
                     if (probFloat != null)
                     {
-                        newProb2 = probFloat.floatValue() + newProb;
+                        newProb2 = probFloat + newProb;
                     }
 
                     //
@@ -998,7 +998,7 @@ public class SOCBuildingSpeedEstimate
                     }
                     else
                     {
-                        resourcesOnRoll[thisRoll].put(newResources, Float.valueOf(newProb2));
+                        resourcesOnRoll[thisRoll].put(newResources, newProb2 );
                     }
                 }
             }
@@ -1029,7 +1029,7 @@ public class SOCBuildingSpeedEstimate
             {
                 SOCResourceSet rs = roltEnum.nextElement();
                 Float prob = resourcesOnRoll[lastRoll].get(rs);
-                probSum += prob.floatValue();
+                probSum += prob;
                 D.ebugPrintlnINFO("---- prob:" + prob);
                 D.ebugPrintlnINFO("---- rsrcs:" + rs);
                 D.ebugPrintlnINFO();

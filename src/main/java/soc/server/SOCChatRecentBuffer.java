@@ -77,7 +77,7 @@ public final class SOCChatRecentBuffer
      */
     public List<Entry> getAll()
     {
-        List<Entry> ret = new ArrayList<Entry>();
+        List<Entry> ret = new ArrayList<>();
         if (! isEmpty())
         {
             for (int i = newest + 1; i < buf.length; ++i)

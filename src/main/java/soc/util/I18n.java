@@ -59,7 +59,7 @@ public abstract class I18n
      *   </UL>
      * @throws IllegalArgumentException if {@code items} is null, or {@code strings} is null
      */
-    public static final String listItems(List<? extends Object> items, SOCStringManager strings)
+    public static String listItems(List<? extends Object> items, SOCStringManager strings)
         throws IllegalArgumentException
     {
         if ((items == null) || (strings == null))

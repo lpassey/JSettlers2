@@ -88,7 +88,7 @@ public class InboundMessageQueue
      */
     public InboundMessageQueue(Server.InboundMessageDispatcher imd)
     {
-        inQueue = new Vector<MessageData>();
+        inQueue = new Vector<>();
         dispatcher = imd;
     }
 

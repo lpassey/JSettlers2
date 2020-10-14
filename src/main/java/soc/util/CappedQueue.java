@@ -31,7 +31,7 @@ import java.util.Vector;
 public class CappedQueue<T>
 {
     /** Internal storage for the queue'd objects */
-    private Vector<T> vec = new Vector<T>();
+    private Vector<T> vec = new Vector<>();
 
     /** The max size for this queue */
     private final int sizeLimit;

@@ -611,7 +611,7 @@ public abstract class SOCMessage implements Serializable, Cloneable
      * @see #isSingleLineAndSafe(String, boolean)
      * @since 1.1.07
      */
-    public static final boolean isSingleLineAndSafe(String s)
+    public static boolean isSingleLineAndSafe(String s)
     {
         return isSingleLineAndSafe(s, false);
     }
@@ -626,7 +626,7 @@ public abstract class SOCMessage implements Serializable, Cloneable
      *            Null string or 0-length string returns false.
      * @since 2.0.00
      */
-    public static final boolean isSingleLineAndSafe(final String s, final boolean allowSepChars)
+    public static boolean isSingleLineAndSafe(final String s, final boolean allowSepChars)
     {
         if (s == null)
             return false;
@@ -709,7 +709,7 @@ public abstract class SOCMessage implements Serializable, Cloneable
                         // SOCMessageMulti
 
                         int n = st.countTokens();  // remaining (== number of parameters after "data")
-                        multiData = new ArrayList<String>(n + 1);
+                        multiData = new ArrayList<>( n + 1 );
                         multiData.add(data);
                         while (st.hasMoreTokens())
                         {

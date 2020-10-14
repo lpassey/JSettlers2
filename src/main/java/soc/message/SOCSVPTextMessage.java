@@ -152,7 +152,7 @@ public class SOCSVPTextMessage extends SOCMessage
     protected static String toCmd
         (final int messageType, final String ga, final int pn, final int svp, final String desc)
     {
-        return Integer.toString(messageType) + sep + ga + sep2 + pn + sep2 + svp + sep2 + desc;
+        return messageType + sep + ga + sep2 + pn + sep2 + svp + sep2 + desc;
     }
 
     /**

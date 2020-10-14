@@ -212,7 +212,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
     /**
      * the games we're playing
      */
-    protected Hashtable<String, SOCGame> games = new Hashtable<String, SOCGame>();
+    protected Hashtable<String, SOCGame> games = new Hashtable<>();
 
     /**
      * True if contents of incoming and outgoing network message traffic should be debug-printed.
@@ -1092,7 +1092,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
         if ((bh != 0) || (bw != 0))
         {
             // Encode board size to pass through game constructor.
-            opts = new HashMap<String, SOCGameOption>();
+            opts = new HashMap<>();
             SOCGameOption opt = SOCGameOption.getOption("_BHW", true);
             opt.setIntValue((bh << 8) | bw);
             opts.put("_BHW", opt);
@@ -1202,7 +1202,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      *     because caller will handle that separately; {@code nickname} can be {@code null}
      * @since 2.0.00
      */
-    public static final void handleDICERESULTRESOURCES
+    public static void handleDICERESULTRESOURCES
         (final SOCDiceResultResources mes, final SOCGame ga, final String nickname, final boolean skipResourceCount)
     {
         final int n = mes.playerNum.size();
@@ -1373,7 +1373,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      * @param ga  Game to check
      * @since 2.0.00
      */
-    public static final void handleSTARTGAME_checkIsBotsOnly(SOCGame ga)
+    public static void handleSTARTGAME_checkIsBotsOnly(SOCGame ga)
     {
         boolean isBotsOnly = true;
 
@@ -1506,7 +1506,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      *     {@link PEType#RESOURCE_COUNT}. Can be {@code null} otherwise.
      * @since 2.0.00
      */
-    public static final void handlePLAYERELEMENT
+    public static void handlePLAYERELEMENT
         (final SOCGame ga, SOCPlayer pl, final int pn, final int action,
          final PEType etype, final int amount, final String nickname)
     {
@@ -1891,7 +1891,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      * @param value  The new value to set
      * @since 2.0.00
      */
-    public static final void handleGAMEELEMENT
+    public static void handleGAMEELEMENT
         (final SOCGame ga, final GEType etype, final int value)
     {
         if ((ga == null) || (etype == null))
@@ -1955,7 +1955,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      * @param ga  Message's game from {@link SOCLastSettlement#getGame()}; if {@code null}, message is ignored
      * @since 2.0.00
      */
-    public static final void handleLASTSETTLEMENT(SOCLastSettlement mes, final SOCGame ga)
+    public static void handleLASTSETTLEMENT(SOCLastSettlement mes, final SOCGame ga)
     {
         if (ga == null)
             return;
@@ -2729,7 +2729,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      * @param mes  the message
      * @since 2.0.00
      */
-    public static final void handleSETSPECIALITEM(final Map<String, SOCGame> games, SOCSetSpecialItem mes)
+    public static void handleSETSPECIALITEM(final Map<String, SOCGame> games, SOCSetSpecialItem mes)
     {
         final SOCGame ga = games.get(mes.getGame());
         if (ga == null)

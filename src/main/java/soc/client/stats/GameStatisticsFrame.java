@@ -257,7 +257,7 @@ public class GameStatisticsFrame extends JFrame implements SOCGameStatistics.Lis
             JButton all = new JButton(strings.get("dialog.stats.dice_rolls.all"));  // "All" [players]
             selectPanel.add(all);
 
-            playerEnabled = new ArrayList<JCheckBox>();
+            playerEnabled = new ArrayList<>();
             final SOCGame ga = pi.getGame();
             for (int pn = 0; pn < pi.getGame().maxPlayers; ++pn)
             {

@@ -646,7 +646,7 @@ public class SOCGameMessageHandler
                                 // second or further player
                                 if (clpls == null)
                                 {
-                                    clpls = new ArrayList<String>();
+                                    clpls = new ArrayList<>();
                                     clpls.add(clplName);
                                 }
                                 clpls.add(clpl.getName());

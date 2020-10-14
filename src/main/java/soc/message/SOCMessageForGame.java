@@ -57,12 +57,12 @@ public interface SOCMessageForGame
      *
      * @return the name of the game, or {@link SOCMessage#GAME_NONE} or (rarely, at client) {@code null} if none.
      */
-    public abstract String getGame();
+    String getGame();
 
     /**
      * Get the message type.  Implemented in {@link SOCMessage}.
      * @return the message type
      * @since 2.0.00
      */
-    public abstract int getType();
+    int getType();
 }

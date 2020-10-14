@@ -97,7 +97,7 @@ public class SOCGameList
      */
     public SOCGameList()
     {
-        gameInfo = new Hashtable<String, GameInfo>();
+        gameInfo = new Hashtable<>();
         inUse = false;
     }
 

@@ -73,7 +73,7 @@ public class SOCBuildPossibility
         priority = pr;
         player = pl;
         parent = null;
-        children = new Vector<SOCBuildPossibility>();
+        children = new Vector<>();
     }
 
     /**
@@ -99,7 +99,7 @@ public class SOCBuildPossibility
         priority = pr;
         player = pl;
         parent = null;
-        children = new Vector<SOCBuildPossibility>();
+        children = new Vector<>();
     }
 
     /**
@@ -123,7 +123,7 @@ public class SOCBuildPossibility
         priority = pr;
         player = pl;
         parent = null;
-        children = new Vector<SOCBuildPossibility>();
+        children = new Vector<>();
     }
 
     /**
@@ -148,7 +148,7 @@ public class SOCBuildPossibility
         priority = pr;
         player = pl;
         parent = null;
-        children = new Vector<SOCBuildPossibility>();
+        children = new Vector<>();
     }
 
     /**

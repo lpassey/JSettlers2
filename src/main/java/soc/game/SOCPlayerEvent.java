@@ -152,7 +152,7 @@ public enum SOCPlayerEvent
      */
     public final int flagValue;
 
-    private SOCPlayerEvent(final int fv)
+    SOCPlayerEvent( final int fv )
     {
         flagValue = fv;
     }

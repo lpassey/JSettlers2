@@ -303,7 +303,7 @@ public class SOCDevCardAction extends SOCMessage
             ct = Integer.parseInt(st.nextToken());
             if (st.hasMoreTokens())
             {
-                ctypes = new ArrayList<Integer>();
+                ctypes = new ArrayList<>();
                 ctypes.add(ct);
                 for (int i = 2; st.hasMoreTokens() && (i <= MAX_MULTIPLE); ++i)
                     ctypes.add(Integer.parseInt(st.nextToken()));

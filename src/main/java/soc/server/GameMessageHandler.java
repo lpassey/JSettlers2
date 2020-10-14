@@ -53,7 +53,7 @@ public interface GameMessageHandler
      *     unless {@code mes} implements {@link SOCMessageFromUnauthClient}.
      * @return  true if processed, false if ignored or unknown message type
      */
-    public abstract boolean dispatch(SOCGame ga, SOCMessageForGame mes, Connection c)
+    boolean dispatch( SOCGame ga, SOCMessageForGame mes, Connection c )
         throws Exception;
 
 }

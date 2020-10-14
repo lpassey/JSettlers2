@@ -287,15 +287,15 @@ import soc.util.Version;
         SOCPlayerClient cli = md.getClient();
         forNewGame = (gaName == null);
         this.opts = opts;
-        localPrefs = new HashMap<String, Object>();
+        localPrefs = new HashMap<>();
         this.forPractice = forPractice;
         this.readOnly = readOnly;
 
-        controlsOpts = new HashMap<Component, SOCGameOption>();
+        controlsOpts = new HashMap<>();
         if (! readOnly)
         {
-            optsControls = new HashMap<String, Component>();
-            boolOptCheckboxes = new HashMap<String, JCheckBox>();
+            optsControls = new HashMap<>();
+            boolOptCheckboxes = new HashMap<>();
         }
         if ((gaName == null) && forPractice)
         {
@@ -583,7 +583,7 @@ import soc.util.Version;
 
         // TreeSet sorts game options by description, using gameopt.compareTo.
         // The array lets us remove from opts without disrupting an iterator.
-        SOCGameOption[] optArr = new TreeSet<SOCGameOption>(opts.values()).toArray(new SOCGameOption[0]);
+        SOCGameOption[] optArr = new TreeSet<>( opts.values() ).toArray(new SOCGameOption[0]);
 
         // Some game options from sameGroupOpts, sorted by key.
         // Declared up here for occasional reuse within the loop.
@@ -688,7 +688,7 @@ import soc.util.Version;
 
             int i = 0, sel = 0;
 
-            JComboBox<Object> jcb = new JComboBox<Object>();  // for scenDropdown: holds SOCScenarios and a String
+            JComboBox<Object> jcb = new JComboBox<>();  // for scenDropdown: holds SOCScenarios and a String
             jcb.addItem(strings.get("base.none.parens"));  // "(none)" is item 0 in dropdown
 
             Collection<SOCScenario> scens = allSc.values();
@@ -697,7 +697,7 @@ import soc.util.Version;
                 // Sort by description.
                 // Don't sort if readOnly and thus dropdown not enabled, probably not browsable.
 
-                ArrayList<SOCScenario> sl = new ArrayList<SOCScenario>(scens);
+                ArrayList<SOCScenario> sl = new ArrayList<>( scens );
                 Collections.sort(sl, new Comparator<SOCScenario>() {
                     // This method isn't part of SOCScenario because that class already has
                     // equals and compareTo methods comparing keys, not descriptions
@@ -912,7 +912,7 @@ import soc.util.Version;
             {
                 if (oc instanceof JTextField)
                 {
-                    ((JTextField) oc).addKeyListener(this);   // for ESC/ENTER
+                    oc.addKeyListener(this);   // for ESC/ENTER
                     Document tfDoc = ((JTextField) oc).getDocument();
                     tfDoc.putProperty("owner", oc);
                     tfDoc.addDocumentListener(this);  // for enable/disable
@@ -983,7 +983,7 @@ import soc.util.Version;
             tfDoc.putProperty("owner", c);
             tfDoc.addDocumentListener(this);  // for op.ChangeListener and userChanged
         } else {
-            JComboBox<String> combo = new JComboBox<String>();
+            JComboBox<String> combo = new JComboBox<>();
             for (int i = op.minIntValue; i <= op.maxIntValue; ++i)
                 combo.addItem(Integer.toString(i));
 
@@ -1004,7 +1004,7 @@ import soc.util.Version;
      */
     private JComboBox<String> initOption_enum(SOCGameOption op)
     {
-        JComboBox<String> ch = new JComboBox<String>();
+        JComboBox<String> ch = new JComboBox<>();
         final String[] chs = op.enumVals;
         for (int i = 0; i < chs.length; ++i)
             ch.addItem(chs[i]);
@@ -1046,7 +1046,7 @@ import soc.util.Version;
         // PREF_HEX_GRAPHICS_SET is an integer for future expansion,
         // but right now there's only 2 options, so use checkbox for simpler UI
         boolean bval = (1 == UserPreferences.getPref(SOCPlayerClient.PREF_HEX_GRAPHICS_SET, 0));
-        localPrefs.put(SOCPlayerClient.PREF_HEX_GRAPHICS_SET, Boolean.valueOf(bval));
+        localPrefs.put(SOCPlayerClient.PREF_HEX_GRAPHICS_SET, bval );
         initInterface_Pref1
             (bp, gbl, gbc, SOCPlayerClient.PREF_HEX_GRAPHICS_SET,
              strings.get("game.options.hex.classic.all"),  // "Hex graphics: Use Classic theme (All games)"
@@ -1071,7 +1071,7 @@ import soc.util.Version;
         if (withPerGamePrefs)
         {
             bval = (pi != null) ? pi.isSoundMuted() : false;
-            localPrefs.put(SOCPlayerInterface.PREF_SOUND_MUTE, Boolean.valueOf(bval));
+            localPrefs.put(SOCPlayerInterface.PREF_SOUND_MUTE, bval );
             initInterface_Pref1
                 (bp, gbl, gbc, null,
                  strings.get("game.options.sound.mute_this"),  // "Sound: Mute this game"
@@ -1083,14 +1083,14 @@ import soc.util.Version;
                          if (pi != null)
                              pi.setSoundMuted(check);
                          else
-                             localPrefs.put(SOCPlayerInterface.PREF_SOUND_MUTE, Boolean.valueOf(check));
+                             localPrefs.put(SOCPlayerInterface.PREF_SOUND_MUTE, check );
                      }
                  });
 
             int ival = (pi != null)
                 ? pi.getBotTradeRejectSec()
                 : UserPreferences.getPref(SOCPlayerClient.PREF_BOT_TRADE_REJECT_SEC, -8);
-            localPrefs.put(SOCPlayerClient.PREF_BOT_TRADE_REJECT_SEC, Integer.valueOf(ival));
+            localPrefs.put(SOCPlayerClient.PREF_BOT_TRADE_REJECT_SEC, ival );
             bval = (ival > 0);
             if (! bval)
                 ival = -ival;
@@ -1101,7 +1101,7 @@ import soc.util.Version;
         }
 
         bval = (0 < UserPreferences.getPref(SOCPlayerClient.PREF_FACE_ICON, SOCPlayer.FIRST_HUMAN_FACE_ID));
-        localPrefs.put(SOCPlayerClient.PREF_FACE_ICON, Boolean.valueOf(bval));
+        localPrefs.put(SOCPlayerClient.PREF_FACE_ICON, bval );
         initInterface_Pref1
             (bp, gbl, gbc, SOCPlayerClient.PREF_FACE_ICON,
              strings.get("game.options.ui.remember_face_icon"),  // "Remember face icon"
@@ -1109,7 +1109,7 @@ import soc.util.Version;
              bval, 0, null);
 
         int ival = UserPreferences.getPref(SOCPlayerClient.PREF_UI_SCALE_FORCE, 0);
-        localPrefs.put(SOCPlayerClient.PREF_UI_SCALE_FORCE, Integer.valueOf(ival));
+        localPrefs.put(SOCPlayerClient.PREF_UI_SCALE_FORCE, ival );
         bval = (ival > 0);
         if (! bval)
             ival = (ival < 0) ? (-ival) : 1;
@@ -1191,7 +1191,7 @@ import soc.util.Version;
                                     iv = -iv;
                             } catch (NumberFormatException nfe) {}
 
-                            localPrefs.put(key, Integer.valueOf(iv));
+                            localPrefs.put(key, iv );
                         } else {
                             localPrefs.put(key, (makeChecked) ? Boolean.TRUE : Boolean.FALSE);
                         }
@@ -1283,7 +1283,7 @@ import soc.util.Version;
                                     iv = -iv;
                             } catch (NumberFormatException nfe) {}
 
-                            localPrefs.put(key, Integer.valueOf(iv));
+                            localPrefs.put(key, iv );
                         }
                     }
                 });
@@ -1584,7 +1584,7 @@ import soc.util.Version;
         Object v = localPrefs.get(k);
         if ((v != null) && (v instanceof Integer))
         {
-            int iv = ((Integer) v).intValue();
+            int iv = (Integer) v;
             if (pi != null)
                 pi.setBotTradeRejectSec(iv);
             if (iv != 0)
@@ -1595,7 +1595,7 @@ import soc.util.Version;
         v = localPrefs.get(k);
         if ((v != null) && (v instanceof Integer))
         {
-            int iv = ((Integer) v).intValue();
+            int iv = (Integer) v;
             if (iv > 3)
                 iv = 3;
             UserPreferences.putPref(k, iv);
@@ -1611,7 +1611,7 @@ import soc.util.Version;
         }
 
         k = SOCPlayerClient.PREF_FACE_ICON;
-        boolean wantsSet = ((Boolean) localPrefs.get(k)).booleanValue();
+        boolean wantsSet = (Boolean) localPrefs.get( k );
         setIdx = UserPreferences.getPref(SOCPlayerClient.PREF_FACE_ICON, 0);
         if (wantsSet != (0 < setIdx))
         {
@@ -1911,7 +1911,7 @@ import soc.util.Version;
             if (validChange)
             {
                 if (otypeIsInt)
-                    fireOptionChangeListener(cl, opt, Integer.valueOf(oldIntValue), Integer.valueOf(opt.getIntValue()));
+                    fireOptionChangeListener(cl, opt, oldIntValue, opt.getIntValue() );
                 else
                     fireOptionChangeListener(cl, opt, oldText, newText);
             }
@@ -1986,7 +1986,7 @@ import soc.util.Version;
      *     the opt's int or string value dropdown was changed but boolean wasn't.
      * @since 2.0.00
      */
-    final private void fireUserChangedOptListeners
+    private void fireUserChangedOptListeners
         (final SOCGameOption opt, final Object ctrl, final boolean newBoolValue, final boolean changeBoolValue)
     {
         if (! opt.userChanged)
@@ -2020,8 +2020,8 @@ import soc.util.Version;
             if (chIdx != -1)
             {
                 final int nv = chIdx + opt.minIntValue;
-                Integer newValue = Integer.valueOf(nv);
-                Integer oldValue = Integer.valueOf(opt.getIntValue());
+                Integer newValue = nv;
+                Integer oldValue = opt.getIntValue();
                 opt.setIntValue(nv);
                 if (fireBooleanListener)
                     fireOptionChangeListener(cl, opt, boolOldValue, boolNewValue);
@@ -2381,14 +2381,14 @@ import soc.util.Version;
      * @see NewGameOptionsFrame#initInterface_Pref1(JPanel, GridBagLayout, GridBagConstraints, String, String, boolean, boolean, boolean, int, PrefCheckboxListener)
      * @since 1.2.00
      */
-    private static interface PrefCheckboxListener
+    private interface PrefCheckboxListener
     {
         /**
          * Callback for when checkbox becomes checked or unchecked.
          * Also called when checkbox's label is clicked.
          * @param check New value of checkbox: True if becoming checked
          */
-        public void stateChanged(final boolean check);
+        void stateChanged( final boolean check );
     }
 
 

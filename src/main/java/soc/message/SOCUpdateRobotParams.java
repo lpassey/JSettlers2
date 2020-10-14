@@ -95,11 +95,11 @@ public class SOCUpdateRobotParams extends SOCMessage
         {
             mgl = Integer.parseInt(stok.nextToken());
             me = Integer.parseInt(stok.nextToken());
-            ebf = (Float.valueOf(stok.nextToken())).floatValue();
-            af = (Float.valueOf(stok.nextToken())).floatValue();
-            laf = (Float.valueOf(stok.nextToken())).floatValue();
-            dcm = (Float.valueOf(stok.nextToken())).floatValue();
-            tm = (Float.valueOf(stok.nextToken())).floatValue();
+            ebf = Float.valueOf( stok.nextToken() );
+            af = Float.valueOf( stok.nextToken() );
+            laf = Float.valueOf( stok.nextToken() );
+            dcm = Float.valueOf( stok.nextToken() );
+            tm = Float.valueOf( stok.nextToken() );
             st = Integer.parseInt(stok.nextToken());
             tf = Integer.parseInt(stok.nextToken());
         }

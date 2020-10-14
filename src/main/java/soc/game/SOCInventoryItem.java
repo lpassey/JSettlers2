@@ -162,7 +162,7 @@ public class SOCInventoryItem
      * @return  An inventory item named from this scenario's item types,
      *       or with generic name keys if {@code ga} doesn't have a scenario option recognized here
      */
-    public final static SOCInventoryItem createForScenario
+    public static SOCInventoryItem createForScenario
         (final SOCGame ga, final int type, final boolean isPlayable, final boolean isKept,
          final boolean isVP, final boolean canCancel)
     {
@@ -186,7 +186,7 @@ public class SOCInventoryItem
      * @param type  Item or card type code, from {@link #itype}
      * @return  True if this item must be placed when played; false if not, or if no known scenario game option is active.
      */
-    public final static boolean isPlayForPlacement(final SOCGame ga, final int type)
+    public static boolean isPlayForPlacement(final SOCGame ga, final int type)
     {
         if (ga.isGameOptionSet(SOCGameOption.K_SC_FTRI))
             return true;

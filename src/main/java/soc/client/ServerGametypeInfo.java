@@ -163,7 +163,7 @@ import soc.message.SOCNewGameWithOptions;
     public ServerGametypeInfo()
     {
         optionSet = SOCGameOption.getAllKnownOptions();
-        scenKeys = new HashSet<String>();
+        scenKeys = new HashSet<>();
     }
 
     /**

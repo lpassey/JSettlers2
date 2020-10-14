@@ -95,8 +95,8 @@ public class StringConnection
      */
     public StringConnection()
     {
-        in = new Vector<String>();
-        out = new Vector<String>();
+        in = new Vector<>();
+        out = new Vector<>();
         init();
     }
 

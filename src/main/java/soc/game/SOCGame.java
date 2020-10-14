@@ -1435,7 +1435,7 @@ public class SOCGame implements Serializable, Cloneable
         seats = new int[maxPlayers];
         seatLocks = new SeatLockState[maxPlayers];
         boardResetVotes = new int[maxPlayers];
-        spItems = new HashMap<String, ArrayList<SOCSpecialItem>>();
+        spItems = new HashMap<>();
 
         for (int i = 0; i < maxPlayers; i++)
         {
@@ -1458,11 +1458,11 @@ public class SOCGame implements Serializable, Cloneable
         forcingEndTurn = false;
         askedSpecialBuildPhase = false;
         placingRobberForKnightCard = false;
-        oldPlayerWithLongestRoad = new Stack<SOCOldLRStats>();
+        oldPlayerWithLongestRoad = new Stack<>();
         lastActionWasBankTrade = false;
         movedShipThisTurn = false;
         if (hasSeaBoard)
-            shipsPlacedThisTurn = new Vector<Integer>();
+            shipsPlacedThisTurn = new Vector<>();
 
         if (op == null)
         {
@@ -2951,7 +2951,7 @@ public class SOCGame implements Serializable, Cloneable
         ArrayList<SOCSpecialItem> li = spItems.get(typeKey);
         if (li == null)
         {
-            li = new ArrayList<SOCSpecialItem>();
+            li = new ArrayList<>();
             spItems.put(typeKey, li);
         }
 
@@ -3924,7 +3924,7 @@ public class SOCGame implements Serializable, Cloneable
          * Remember ships placed this turn
          */
         if ((pp.getType() == SOCPlayingPiece.SHIP) && (gameState != LOADING))
-            shipsPlacedThisTurn.add(Integer.valueOf(coord));
+            shipsPlacedThisTurn.add( coord );
 
         /**
          * check if the game is over
@@ -3960,7 +3960,7 @@ public class SOCGame implements Serializable, Cloneable
      *     If so, keep checking after finding a fog hex.
      * @since 2.0.00
      */
-    private final void putPieceCommon_checkFogHexes(final int[] hexCoords, final boolean initialSettlement)
+    private void putPieceCommon_checkFogHexes(final int[] hexCoords, final boolean initialSettlement)
     {
         int goldHexes = 0;
 
@@ -3987,7 +3987,7 @@ public class SOCGame implements Serializable, Cloneable
 
                 if (gameEventListener != null)
                     gameEventListener.gameEvent
-                        (this, SOCGameEvent.SGE_FOG_HEX_REVEALED, Integer.valueOf(hexCoord));
+                        (this, SOCGameEvent.SGE_FOG_HEX_REVEALED, hexCoord );
 
                 if (! initialSettlement)
                     break;
@@ -4337,7 +4337,7 @@ public class SOCGame implements Serializable, Cloneable
     {
         if (movedShipThisTurn || ! (hasSeaBoard && (currentPlayerNumber == pn) && (gameState == PLAY1)))
             return null;
-        if (shipsPlacedThisTurn.contains(Integer.valueOf(fromEdge)))
+        if (shipsPlacedThisTurn.contains( fromEdge ))
             return null;
 
         // check fromEdge vs. pirate hex
@@ -4574,9 +4574,9 @@ public class SOCGame implements Serializable, Cloneable
     {
         isAtServer = true;
 
-        pendingMessagesOut = new ArrayList<Object>();
+        pendingMessagesOut = new ArrayList<>();
         for (int i = 0; i < maxPlayers; ++i)
-            players[i].pendingMessagesOut = new ArrayList<Object>();
+            players[i].pendingMessagesOut = new ArrayList<>();
 
         // make sure game doesn't look idle, in case first player is a robot
         lastActionTime = System.currentTimeMillis();
@@ -4648,7 +4648,7 @@ public class SOCGame implements Serializable, Cloneable
      * {@link #devCardDeck} contents are based on game options and number of players.
      * @since 2.0.00
      */
-    private final void startGame_setupDevCards()
+    private void startGame_setupDevCards()
     {
         /**
          * set up devCardDeck.  numDevCards is already set in constructor based on maxPlayers.
@@ -5504,7 +5504,7 @@ public class SOCGame implements Serializable, Cloneable
                 for (int i = fromHand.getAmount(rsrcType);
                         i != 0; i--)
                 {
-                    tempHand.add(Integer.valueOf(rsrcType));
+                    tempHand.add( rsrcType );
                     // System.err.println("rsrcType="+rsrcType);
                 }
             }
@@ -5532,14 +5532,14 @@ public class SOCGame implements Serializable, Cloneable
                     final int num = fromHand.getAmount(rsrcType);
                     if (num == lowestNum)
                     {
-                        tempHand.add(Integer.valueOf(rsrcType));
+                        tempHand.add( rsrcType );
                         --toAdd;  // might go below 0, that's okay: we'll shuffle.
                     }
                     else if (num < lowestNum)
                     {
                         // Already added in previous iterations.
                         // Add more of this type only if we need more.
-                        alreadyPicked.add(Integer.valueOf(rsrcType));
+                        alreadyPicked.add( rsrcType );
                     }
                 }
 
@@ -5568,7 +5568,7 @@ public class SOCGame implements Serializable, Cloneable
             int idx = Math.abs(rand.nextInt() % tempHand.size());
 
             // System.err.println("idx="+idx);
-            picks.add(1, tempHand.get(idx).intValue());
+            picks.add(1, tempHand.get( idx ) );
             tempHand.remove(idx);
         }
     }
@@ -5820,7 +5820,7 @@ public class SOCGame implements Serializable, Cloneable
      * the pirate fleet, this "7 update" happens only after they pick and gain their free resource.
      * @since 2.0.00
      */
-    private final void rollDice_update7gameState()
+    private void rollDice_update7gameState()
     {
         hasRolledSeven = true;
 
@@ -5916,7 +5916,7 @@ public class SOCGame implements Serializable, Cloneable
      * @param incr   Add this many resources (1 or 2) per playing piece
      * @since 1.1.17
      */
-    private final void getResourcesGainedFromRollPieces
+    private void getResourcesGainedFromRollPieces
         (final int roll, SOCResourceSet resources,
          final int robberHex, Collection<? extends SOCPlayingPiece> pieces, final int incr)
     {
@@ -6821,7 +6821,7 @@ public class SOCGame implements Serializable, Cloneable
                         continue;
 
                     final int rsCoord = rs.getCoordinates();
-                    if (! adjacEdges.contains(Integer.valueOf(rsCoord)))
+                    if (! adjacEdges.contains( rsCoord ))
                         continue;
 
                     retval[2] = rsCoord;
@@ -6852,7 +6852,7 @@ public class SOCGame implements Serializable, Cloneable
      */
     public List<SOCPlayer> getPlayersOnHex(final int hex, final Set<SOCPlayingPiece> collectAdjacentPieces)
     {
-        final List<SOCPlayer> playerList = new ArrayList<SOCPlayer>(3);
+        final List<SOCPlayer> playerList = new ArrayList<>( 3 );
 
         final int[] nodes = board.getAdjacentNodesToHex_arr(hex);
 
@@ -7055,7 +7055,7 @@ public class SOCGame implements Serializable, Cloneable
                 final int ph = ((SOCBoardLarge) board).getPirateHex();
                 if (ph != 0)
                 {
-                    Set<SOCPlayingPiece> adjacPieces = new HashSet<SOCPlayingPiece>();
+                    Set<SOCPlayingPiece> adjacPieces = new HashSet<>();
                     candidates = getPlayersOnHex(ph, adjacPieces);
                     final int nCandidates = candidates.size();
                     if (nCandidates > 1)
@@ -7105,7 +7105,7 @@ public class SOCGame implements Serializable, Cloneable
                         }
                     }
                 } else {
-                    candidates = new ArrayList<SOCPlayer>();
+                    candidates = new ArrayList<>();
                 }
 
                 return candidates;  // <--- Early return: Special for scenario ---
@@ -7113,7 +7113,7 @@ public class SOCGame implements Serializable, Cloneable
             } else {
                 // Robber (7 rolled): all non-current players with resources.
                 // For-loop below will check candidate resources.
-                candidates = new ArrayList<SOCPlayer>();
+                candidates = new ArrayList<>();
                 for (int pn = 0; pn < maxPlayers; ++pn)
                     if ((pn != currentPlayerNumber) && ! isSeatVacant(pn))
                         candidates.add(players[pn]);
@@ -7126,7 +7126,7 @@ public class SOCGame implements Serializable, Cloneable
             candidates = getPlayersOnHex(board.getRobberHex(), null);
         }
 
-        List<SOCPlayer> victims = new ArrayList<SOCPlayer>();
+        List<SOCPlayer> victims = new ArrayList<>();
         for (SOCPlayer pl : candidates)
         {
             final int pn = pl.getPlayerNumber();
@@ -8714,7 +8714,7 @@ public class SOCGame implements Serializable, Cloneable
      * @return true if game has ended with a winner under this special condition
      * @since 2.0.00
      */
-    private final boolean checkForWinner_SC_CLVI()
+    private boolean checkForWinner_SC_CLVI()
     {
         int nv = 0;
         final HashMap<Integer, SOCVillage> allv = ((SOCBoardLarge) board).getVillages();
@@ -9383,7 +9383,7 @@ public class SOCGame implements Serializable, Cloneable
      * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
      * @since 2.0.00
      */
-    public static enum SeatLockState
+    public enum SeatLockState
     {
         /** Seat not locked.
          *  If game is forming, if this seat is empty when the game starts, a bot can sit here.

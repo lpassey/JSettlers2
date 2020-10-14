@@ -161,7 +161,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #unnamedConns
      * @see SOCServer#limitedConns
      */
-    protected Hashtable<Object, Connection> conns = new Hashtable<Object, Connection>();
+    protected Hashtable<Object, Connection> conns = new Hashtable<>();
 
     /** the newly connected, unnamed client connections;
      *  Adding/removing/naming/versioning of connections synchronizes on this Vector.
@@ -169,7 +169,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      *  @see SOCServer#limitedConns
      *  @since 1.1.00
      */
-    protected Vector<Connection> unnamedConns = new Vector<Connection>();
+    protected Vector<Connection> unnamedConns = new Vector<>();
 
     /**
      * Map for case-insensitive lookup of connection names in {@link #conns}.
@@ -182,7 +182,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * <B>Locks:</B> Adding/removing/naming/versioning of connections synchronizes on {@link #unnamedConns}.
      * @since 1.2.00
      */
-    private HashMap<String, String> connNames = new HashMap<String, String>();
+    private HashMap<String, String> connNames = new HashMap<>();
 
     /**
      * The queue of messages received from all clients to dispatch, and/or Runnable tasks to run, in the
@@ -202,7 +202,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #clientVersionRem(int)
      * @since 1.1.06
      */
-    private TreeMap<Integer, ConnVersionCounter> cliVersionsConnected = new TreeMap<Integer, ConnVersionCounter>();
+    private TreeMap<Integer, ConnVersionCounter> cliVersionsConnected = new TreeMap<>();
 
     /**
      * Minimum and maximum client version currently connected.
@@ -248,7 +248,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #CLI_DISCON_PRINT_TIMER_FIRE_MS
      * @since 1.1.07
      */
-    public HashMap<Object, ConnExcepDelayedPrintTask> cliConnDisconPrintsPending = new HashMap<Object, ConnExcepDelayedPrintTask>();
+    public HashMap<Object, ConnExcepDelayedPrintTask> cliConnDisconPrintsPending = new HashMap<>();
 
     /**
      * Delay before printing a client disconnect error announcement.
@@ -944,7 +944,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      */
     public void clientVersionAdd(final int cvers)
     {
-        Integer cvkey = Integer.valueOf(cvers);
+        Integer cvkey = cvers;
         ConnVersionCounter cv = cliVersionsConnected.get(cvkey);
         if (cv == null)
         {
@@ -984,7 +984,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      */
     public void clientVersionRem(final int cvers)
     {
-        Integer cvkey = Integer.valueOf(cvers);
+        Integer cvkey = cvers;
         ConnVersionCounter cv = cliVersionsConnected.get(cvkey);
         if (cv == null)
         {
@@ -1019,11 +1019,11 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
         if (cvers == cliVersionMin)
         {
-            cliVersionMin = cliVersionsConnected.firstKey().intValue();
+            cliVersionMin = cliVersionsConnected.firstKey();
         }
         else if (cvers == cliVersionMax)
         {
-            cliVersionMax = cliVersionsConnected.lastKey().intValue();
+            cliVersionMax = cliVersionsConnected.lastKey();
         }
     }
 
@@ -1061,7 +1061,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      */
     public boolean isCliVersionConnected(final int cvers)
     {
-        ConnVersionCounter cv = cliVersionsConnected.get(Integer.valueOf(cvers));
+        ConnVersionCounter cv = cliVersionsConnected.get( cvers );
         return (cv != null) && (cv.cliCount > 0);
     }
 
@@ -1082,7 +1082,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         Integer cvkey = null;
         ConnVersionCounter cvc = null;
 
-        TreeMap<Integer, ConnVersionCounter> cvmap = new TreeMap<Integer, ConnVersionCounter>();
+        TreeMap<Integer, ConnVersionCounter> cvmap = new TreeMap<>();
 
         // same enums as broadcast()
 
@@ -1092,7 +1092,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
             if ((cvkey == null) || (cvers != lastVers))
             {
-                cvkey = Integer.valueOf(cvers);
+                cvkey = cvers;
                 cvc = cvmap.get(cvkey);
                 if (cvc == null)
                 {
@@ -1111,7 +1111,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
             if ((cvkey == null) || (cvers != lastVers))
             {
-                cvkey = Integer.valueOf(cvers);
+                cvkey = cvers;
                 cvc = cvmap.get(cvkey);
                 if (cvc == null)
                 {
@@ -1226,13 +1226,13 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         if (treeSize == 0)
             return;  // <---- Early return: Min/max version fields not needed ----
 
-        final int cvers = cliVersionsConnected.firstKey().intValue();
+        final int cvers = cliVersionsConnected.firstKey();
         cliVersionMin = cvers;
         if (1 == treeSize)
         {
             cliVersionMax = cvers;
         } else {
-            cliVersionMax = cliVersionsConnected.lastKey().intValue();
+            cliVersionMax = cliVersionsConnected.lastKey();
         }
     }
 
@@ -1392,7 +1392,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
          *    initialization method needs to be called first;
          *    see dispatcher class javadoc
          */
-        abstract public void dispatch(SOCMessage mes, Connection con)
+        void dispatch( SOCMessage mes, Connection con )
             throws IllegalStateException;
     }
 

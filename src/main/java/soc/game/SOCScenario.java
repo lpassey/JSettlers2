@@ -174,7 +174,7 @@ public class SOCScenario
      */
     private static Map<String, SOCScenario> initAllScenarios()
     {
-        Map<String, SOCScenario> allSc = new HashMap<String, SOCScenario>();
+        Map<String, SOCScenario> allSc = new HashMap<>();
 
         // Game scenarios, and their SOCGameOptions (rules and events)
 
@@ -270,7 +270,7 @@ public class SOCScenario
     }
 
     /** Find max(minVersion) among {@link #allScenarios} for {@link #ALL_KNOWN_SCENARIOS_MIN_VERSION} init. */
-    private static final int findAllScenariosGreatestMinVersion()
+    private static int findAllScenariosGreatestMinVersion()
     {
         int min = 0;
 
@@ -623,7 +623,7 @@ public class SOCScenario
         if (scens == null)
             return null;
 
-        Map<String, SOCScenario> scens2 = new HashMap<String, SOCScenario>();
+        Map<String, SOCScenario> scens2 = new HashMap<>();
         for (Map.Entry<String, SOCScenario> e : scens.entrySet())
         {
             final SOCScenario sc = e.getValue();
@@ -731,7 +731,7 @@ public class SOCScenario
         if ((scstr == null) || scstr.equals("-"))
             return null;
 
-        Map<String,SOCScenario> scMap = new HashMap<String,SOCScenario>();
+        Map<String,SOCScenario> scMap = new HashMap<>();
 
         StringTokenizer st = new StringTokenizer(scstr, SOCMessage.sep2);
         String nvpair;

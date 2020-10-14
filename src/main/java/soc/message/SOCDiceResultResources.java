@@ -100,7 +100,7 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
      * @param ga  Game to check for rolled resources
      * @return  Message for this game's rolled resources, or {@code null} if no players gained known resources
      */
-    public static final SOCDiceResultResources buildForGame(final SOCGame ga)
+    public static SOCDiceResultResources buildForGame(final SOCGame ga)
     {
         ArrayList<Integer> pnum = null;
         ArrayList<SOCResourceSet> rsrc = null;
@@ -117,19 +117,19 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
 
             if (pnum == null)
             {
-                pnum = new ArrayList<Integer>();
-                rsrc = new ArrayList<SOCResourceSet>();
+                pnum = new ArrayList<>();
+                rsrc = new ArrayList<>();
             }
-            pnum.add(Integer.valueOf(pn));
+            pnum.add( pn );
             rsrc.add(rs);
         }
 
         if (pnum == null)
             return null;
 
-        ArrayList<Integer> rTotal = new ArrayList<Integer>();
+        ArrayList<Integer> rTotal = new ArrayList<>();
         for (int pn : pnum)
-            rTotal.add(Integer.valueOf(ga.getPlayer(pn).getResources().getTotal()));
+            rTotal.add( ga.getPlayer( pn ).getResources().getTotal() );
 
         return new SOCDiceResultResources(ga.getName(), pnum, rTotal, rsrc);
     }
@@ -174,9 +174,9 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
 
         final int plCount = pa[0];
 
-        playerNum = new ArrayList<Integer>(plCount);
-        playerRsrc = new ArrayList<SOCResourceSet>(plCount);
-        playerResTotal = new ArrayList<Integer>(plCount);
+        playerNum = new ArrayList<>( plCount );
+        playerRsrc = new ArrayList<>( plCount );
+        playerResTotal = new ArrayList<>( plCount );
 
         try
         {
@@ -185,11 +185,11 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
 
             while (i < L)
             {
-                playerNum.add(Integer.valueOf(pa[i]));
+                playerNum.add( pa[i] );
                 ++p;
                 ++i;
 
-                playerResTotal.add(Integer.valueOf(pa[i]));
+                playerResTotal.add( pa[i] );
                 ++i;
 
                 // Parse pairs of res amount + res type, until we get a 0
@@ -229,7 +229,7 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
      *     or if any of them is empty
      * @throws NullPointerException if any parameter is null
      */
-    private static final int[] buildIntList
+    private static int[] buildIntList
         (final List<Integer> pnum, final List<Integer> rTotal, final List<SOCResourceSet> rsrc)
     {
         final int n = pnum.size();

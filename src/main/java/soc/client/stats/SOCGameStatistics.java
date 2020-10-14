@@ -78,7 +78,7 @@ public class SOCGameStatistics
 
     public SOCGameStatistics(final SOCGame game)
     {
-        listener = new AtomicReference<Listener>();
+        listener = new AtomicReference<>();
         final List<SOCPlayer> ps = Arrays.asList(game.getPlayers());
         rolls = new DiceRolls(ps);
     }

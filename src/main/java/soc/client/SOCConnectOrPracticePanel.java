@@ -543,7 +543,7 @@ import soc.util.Version;
      *         or 0 if cannot be parsed or if outside the valid range 1-65535
      * @since 1.1.19
      */
-    private final int parsePortNumberOrDefault(final JTextField tf)
+    private int parsePortNumberOrDefault(final JTextField tf)
     {
         int srport;
         try {
@@ -773,6 +773,6 @@ import soc.util.Version;
 
         @Override
         public Dimension getMaximumSize() { return getPreferredSize(); }
-    };
+    }
 
 }

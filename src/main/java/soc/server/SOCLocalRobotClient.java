@@ -52,7 +52,7 @@ import soc.robot.SOCRobotClient;
      * To see if a bot is connected, check {@link SOCServer#robots} instead.
      * @since 1.1.13
      */
-    public static Hashtable<String, SOCRobotClient> robotClients = new Hashtable<String, SOCRobotClient>();
+    public static Hashtable<String, SOCRobotClient> robotClients = new Hashtable<>();
 
     /**
      * This bot's client in {@link #robotClients}.

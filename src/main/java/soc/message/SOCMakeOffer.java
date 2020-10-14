@@ -169,7 +169,7 @@ public class SOCMakeOffer extends SOCMessage
 
             for (int i = 0; i < numPlayerTokens; i++)
             {
-                to[i] = (Boolean.valueOf(st.nextToken())).booleanValue();
+                to[i] = Boolean.valueOf( st.nextToken() );
             }
 
             /**

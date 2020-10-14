@@ -96,7 +96,7 @@ public class Sounds
      * @param msec  Duration in milliseconds
      * @return  Buffer length required to store {@code msec} milliseconds; is also the number of samples
      */
-    public static final int bufferLen(final int msec)
+    public static int bufferLen(final int msec)
     {
         return (2 * msec * (int) SAMPLE_RATE_HZ) / 1000;
     }
@@ -296,7 +296,7 @@ public class Sounds
      * @param buf  Buffer to play; PCM little-endian mono 16-bit signed, at {@link #SAMPLE_RATE_HZ}
      * @throws LineUnavailableException if the line resource can't be opened
      */
-    public static final void playPCMBytes(final byte[] buf)
+    public static void playPCMBytes(final byte[] buf)
         throws LineUnavailableException
     {
         SourceDataLine sdl = playPCM_sdl;
@@ -324,7 +324,7 @@ public class Sounds
     }
 
     /** Main, for testing */
-    public static final void main(final String[] args)
+    public static void main(final String[] args)
     {
         try
         {

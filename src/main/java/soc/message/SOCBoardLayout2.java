@@ -176,7 +176,7 @@ public class SOCBoardLayout2 extends SOCMessage
         messageType = BOARDLAYOUT2;
         game = ga;
         boardEncodingFormat = bef;
-        layoutParts = new HashMap<String, Object>();
+        layoutParts = new HashMap<>();
 
         // Map the hex layout
         int[] hexLayout = new int[hl.length];
@@ -199,7 +199,7 @@ public class SOCBoardLayout2 extends SOCMessage
         layoutParts.put("NL", nl);
         if (pl != null)
             layoutParts.put("PL", pl);
-        layoutParts.put("RH", Integer.valueOf(rh));
+        layoutParts.put("RH", rh );
     }
 
     /**
@@ -225,15 +225,15 @@ public class SOCBoardLayout2 extends SOCMessage
         messageType = BOARDLAYOUT2;
         game = ga;
         boardEncodingFormat = bef;
-        layoutParts = new HashMap<String, Object>();
+        layoutParts = new HashMap<>();
         if (lh != null)
             layoutParts.put("LH", lh);
         if (pl != null)
             layoutParts.put("PL", pl);
         if (rh > 0)
-            layoutParts.put("RH", Integer.valueOf(rh));
+            layoutParts.put("RH", rh );
         if (ph > 0)
-            layoutParts.put("PH", Integer.valueOf(ph));
+            layoutParts.put("PH", ph );
         if (px != null)
             layoutParts.put("PX", px);
         if (rx != null)
@@ -381,7 +381,7 @@ public class SOCBoardLayout2 extends SOCMessage
             if (! known)
             {
                 if (added == null)
-                    added = new HashMap<String, int[]>();
+                    added = new HashMap<>();
                 added.put(key, getIntArrayPart(key));
             }
         }
@@ -419,16 +419,16 @@ public class SOCBoardLayout2 extends SOCMessage
             Object ov = layoutParts.get(okey);
             if (ov instanceof Integer)
             {
-                cmd.append(Integer.toString(((Integer) ov).intValue()));
+                cmd.append( ((Integer) ov).intValue() );
             } else if (ov instanceof int[])
             {
                 int[] ovi = (int[]) ov;
                 cmd.append("[");
-                cmd.append(Integer.toString(ovi.length));
+                cmd.append( ovi.length );
                 for (int i = 0; i < ovi.length; ++i)
                 {
                     cmd.append(sep2_char);
-                    cmd.append(Integer.toString(ovi[i]));
+                    cmd.append( ovi[i] );
                 }
             } else {
                 cmd.append(ov.toString());
@@ -448,7 +448,7 @@ public class SOCBoardLayout2 extends SOCMessage
     {
         String ga; // game name
         final int bef;   // board encoding format
-        HashMap<String, Object> parts = new HashMap<String, Object>();
+        HashMap<String, Object> parts = new HashMap<>();
         StringTokenizer st = new StringTokenizer(s, sep2);
 
         try

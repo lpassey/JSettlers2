@@ -30,7 +30,7 @@ import java.util.Vector;
 public class Queue<T>
 {
     /** Internal storage for the queued objects */
-    private final Vector<T> vec = new Vector<T>();
+    private final Vector<T> vec = new Vector<>();
 
     /**
      * Add a new element to the end of the queue.

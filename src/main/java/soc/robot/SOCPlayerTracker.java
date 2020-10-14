@@ -190,9 +190,9 @@ public class SOCPlayerTracker
         player = pl;
         playerNumber = pl.getPlayerNumber();
         game = pl.getGame();
-        possibleRoads = new TreeMap<Integer, SOCPossibleRoad>();
-        possibleSettlements = new TreeMap<Integer, SOCPossibleSettlement>();
-        possibleCities = new TreeMap<Integer, SOCPossibleCity>();
+        possibleRoads = new TreeMap<>();
+        possibleSettlements = new TreeMap<>();
+        possibleCities = new TreeMap<>();
         longestRoadETA = 500;
         roadsToGo = 20;
         largestArmyETA = 500;
@@ -214,9 +214,9 @@ public class SOCPlayerTracker
         player = pt.getPlayer();
         playerNumber = player.getPlayerNumber();
         game = pt.game;
-        possibleRoads = new TreeMap<Integer, SOCPossibleRoad>();
-        possibleSettlements = new TreeMap<Integer, SOCPossibleSettlement>();
-        possibleCities = new TreeMap<Integer, SOCPossibleCity>();
+        possibleRoads = new TreeMap<>();
+        possibleSettlements = new TreeMap<>();
+        possibleCities = new TreeMap<>();
         longestRoadETA = pt.getLongestRoadETA();
         roadsToGo = pt.getRoadsToGo();
         largestArmyETA = pt.getLargestArmyETA();
@@ -237,19 +237,19 @@ public class SOCPlayerTracker
                 posRoadCopy = new SOCPossibleShip((SOCPossibleShip) posRoad);
             else
                 posRoadCopy = new SOCPossibleRoad(posRoad);
-            possibleRoads.put(Integer.valueOf(posRoadCopy.getCoordinates()), posRoadCopy);
+            possibleRoads.put( posRoadCopy.getCoordinates(), posRoadCopy);
         }
 
         for (SOCPossibleSettlement posSettlement : pt.getPossibleSettlements().values())
         {
             SOCPossibleSettlement posSettlementCopy = new SOCPossibleSettlement(posSettlement);
-            possibleSettlements.put(Integer.valueOf(posSettlementCopy.getCoordinates()), posSettlementCopy);
+            possibleSettlements.put( posSettlementCopy.getCoordinates(), posSettlementCopy);
         }
 
         for (SOCPossibleCity posCity : pt.getPossibleCities().values())
         {
             SOCPossibleCity posCityCopy = new SOCPossibleCity(posCity);
-            possibleCities.put(Integer.valueOf(posCityCopy.getCoordinates()), posCityCopy);
+            possibleCities.put( posCityCopy.getCoordinates(), posCityCopy);
         }
     }
 
@@ -308,7 +308,7 @@ public class SOCPlayerTracker
 
             for (SOCPossibleRoad posRoad : possibleRoads.values())
             {
-                SOCPossibleRoad posRoadCopy = possibleRoadsCopy.get(Integer.valueOf(posRoad.getCoordinates()));
+                SOCPossibleRoad posRoadCopy = possibleRoadsCopy.get( posRoad.getCoordinates() );
 
                 //D.ebugPrintln(">>> posRoad     : "+posRoad);
                 //D.ebugPrintln(">>> posRoadCopy : "+posRoadCopy);
@@ -320,7 +320,7 @@ public class SOCPlayerTracker
                     // now find the copy of this necessary road and
                     // add it to the pos road copy's nec road list
                     //
-                    SOCPossibleRoad necRoadCopy = possibleRoadsCopy.get(Integer.valueOf(necRoad.getCoordinates()));
+                    SOCPossibleRoad necRoadCopy = possibleRoadsCopy.get( necRoad.getCoordinates() );
 
                     if (necRoadCopy != null)
                     {
@@ -344,7 +344,7 @@ public class SOCPlayerTracker
                     case SOCPossiblePiece.SHIP:  // fall through to ROAD
                     case SOCPossiblePiece.ROAD:
 
-                        SOCPossibleRoad newPosRoadCopy = possibleRoadsCopy.get(Integer.valueOf(newPos.getCoordinates()));
+                        SOCPossibleRoad newPosRoadCopy = possibleRoadsCopy.get( newPos.getCoordinates() );
 
                         if (newPosRoadCopy != null)
                         {
@@ -360,7 +360,7 @@ public class SOCPlayerTracker
                     case SOCPossiblePiece.SETTLEMENT:
 
                         SOCPossibleSettlement newPosSettlementCopy = possibleSettlementsCopy.get
-                            (Integer.valueOf(newPos.getCoordinates()));
+                            ( newPos.getCoordinates() );
 
                         if (newPosSettlementCopy != null)
                         {
@@ -380,7 +380,7 @@ public class SOCPlayerTracker
             for (SOCPossibleSettlement posSet : possibleSettlements.values())
             {
                 SOCPossibleSettlement posSetCopy
-                    = possibleSettlementsCopy.get(Integer.valueOf(posSet.getCoordinates()));
+                    = possibleSettlementsCopy.get( posSet.getCoordinates() );
 
                 //D.ebugPrintln(">>> posSet     : "+posSet);
                 //D.ebugPrintln(">>> posSetCopy : "+posSetCopy);
@@ -393,7 +393,7 @@ public class SOCPlayerTracker
                     // add it to the pos settlement copy's nec road list
                     //
                     SOCPossibleRoad necRoadCopy
-                        = possibleRoadsCopy.get(Integer.valueOf(necRoad.getCoordinates()));
+                        = possibleRoadsCopy.get( necRoad.getCoordinates() );
 
                     if (necRoadCopy != null)
                     {
@@ -422,7 +422,7 @@ public class SOCPlayerTracker
                     else
                     {
                         SOCPossibleSettlement conflictCopy = trackerCopy2.getPossibleSettlements().get
-                            (Integer.valueOf(conflict.getCoordinates()));
+                            ( conflict.getCoordinates() );
 
                         if (conflictCopy == null)
                         {
@@ -631,7 +631,7 @@ public class SOCPlayerTracker
                 // if so, remove it
                 //
                 //D.ebugPrintln("$$$ removing (wrong) "+Integer.toHexString(road.getCoordinates()));
-                possibleRoads.remove(Integer.valueOf(pr.getCoordinates()));
+                possibleRoads.remove( pr.getCoordinates() );
                 removeFromNecessaryRoads(pr);
 
                 break;
@@ -676,7 +676,7 @@ public class SOCPlayerTracker
                 // if so, remove it
                 //
                 //D.ebugPrintln("$$$ removing "+Integer.toHexString(road.getCoordinates()));
-                possibleRoads.remove(Integer.valueOf(pr.getCoordinates()));
+                possibleRoads.remove( pr.getCoordinates() );
                 removeFromNecessaryRoads(pr);
 
                 break;
@@ -694,7 +694,7 @@ public class SOCPlayerTracker
 
         for (Integer adjNode : adjNodeEnum)
         {
-            if (player.canPlaceSettlement(adjNode.intValue()))
+            if (player.canPlaceSettlement( adjNode ))
             {
                 //
                 // see if possible settlement is already in the list
@@ -718,7 +718,7 @@ public class SOCPlayerTracker
                     // else, add new possible settlement
                     //
                     //D.ebugPrintln("$$$ adding new possible settlement at "+Integer.toHexString(adjNode.intValue()));
-                    SOCPossibleSettlement newPosSet = new SOCPossibleSettlement(player, adjNode.intValue(), null);
+                    SOCPossibleSettlement newPosSet = new SOCPossibleSettlement(player, adjNode, null);
                     newPosSet.setNumberOfNecessaryRoads(0);
                     possibleSettlements.put(adjNode, newPosSet);
                     updateSettlementConflicts(newPosSet, trackers);
@@ -730,15 +730,15 @@ public class SOCPlayerTracker
         //
         // see if this road adds any new possible roads
         //
-        ArrayList<SOCPossibleRoad> newPossibleRoads = new ArrayList<SOCPossibleRoad>();
-        ArrayList<SOCPossibleRoad> roadsToExpand = new ArrayList<SOCPossibleRoad>();
+        ArrayList<SOCPossibleRoad> newPossibleRoads = new ArrayList<>();
+        ArrayList<SOCPossibleRoad> roadsToExpand = new ArrayList<>();
 
         //
         // check adjacent edges to road
         //
         for (Integer adjEdge : board.getAdjacentEdgesToEdge(rs.getCoordinates()))
         {
-            final int edge = adjEdge.intValue();
+            final int edge = adjEdge;
 
             //D.ebugPrintln("$$$ edge "+Integer.toHexString(adjEdge.intValue())+" is legal:"+player.isPotentialRoad(adjEdge.intValue()));
             //
@@ -760,7 +760,7 @@ public class SOCPlayerTracker
             {
                 // Determine if can transition ship <-> road
                 // at a coastal settlement
-                final int nodeBetween = ((SOCBoardLarge) board).getNodeBetweenAdjacentEdges(rs.getCoordinates(), edge);
+                final int nodeBetween = board.getNodeBetweenAdjacentEdges(rs.getCoordinates(), edge);
                 if (player.canPlaceSettlement(nodeBetween))
                 {
                     // check opposite type at transition
@@ -847,7 +847,7 @@ public class SOCPlayerTracker
         //
         for (SOCPossibleRoad newPR : newPossibleRoads)
         {
-            possibleRoads.put(Integer.valueOf(newPR.getCoordinates()), newPR);
+            possibleRoads.put( newPR.getCoordinates(), newPR);
         }
 
         //
@@ -924,7 +924,7 @@ public class SOCPlayerTracker
         //
         for (Integer adjNode : board.getAdjacentNodesToEdge(tgtRoadEdge))
         {
-            if (dummy.canPlaceSettlement(adjNode.intValue()))
+            if (dummy.canPlaceSettlement( adjNode ))
             {
                 //
                 // see if possible settlement is already in the list
@@ -961,10 +961,10 @@ public class SOCPlayerTracker
                     // else, add new possible settlement
                     //
                     //D.ebugPrintln("$$$ adding new possible settlement at "+Integer.toHexString(adjNode.intValue()));
-                    List<SOCPossibleRoad> nr = new ArrayList<SOCPossibleRoad>();
+                    List<SOCPossibleRoad> nr = new ArrayList<>();
                     nr.add(targetRoad);
 
-                    SOCPossibleSettlement newPosSet = new SOCPossibleSettlement(pl, adjNode.intValue(), nr);
+                    SOCPossibleSettlement newPosSet = new SOCPossibleSettlement(pl, adjNode, nr);
                     newPosSet.setNumberOfNecessaryRoads(targetRoad.getNumberOfNecessaryRoads() + 1);
                     possibleSettlements.put(adjNode, newPosSet);
                     targetRoad.addNewPossibility(newPosSet);
@@ -979,8 +979,8 @@ public class SOCPlayerTracker
             // check for new possible roads or ships.
             // The above getNumPieces check ignores any possible ship <-> road transition at a coastal settlement.
             //
-            ArrayList<SOCPossibleRoad> newPossibleRoads = new ArrayList<SOCPossibleRoad>();
-            ArrayList<SOCPossibleRoad> roadsToExpand = new ArrayList<SOCPossibleRoad>();
+            ArrayList<SOCPossibleRoad> newPossibleRoads = new ArrayList<>();
+            ArrayList<SOCPossibleRoad> roadsToExpand = new ArrayList<>();
 
             // ships in _SC_PIRI never expand east
             final boolean isShipInSC_PIRI = (! isRoadNotShip) && game.isGameOptionSet(SOCGameOption.K_SC_PIRI);
@@ -991,7 +991,7 @@ public class SOCPlayerTracker
             //
             for (final Integer adjEdgeInt : board.getAdjacentEdgesToEdge(tgtRoadEdge))
             {
-                final int edge = adjEdgeInt.intValue();
+                final int edge = adjEdgeInt;
 
                 if (isShipInSC_PIRI)
                 {
@@ -1025,7 +1025,7 @@ public class SOCPlayerTracker
                     // Determine if can transition ship <-> road
                     // at a coastal settlement
                     final int nodeBetween =
-                        ((SOCBoardLarge) board).getNodeBetweenAdjacentEdges(tgtRoadEdge, edge);
+                        board.getNodeBetweenAdjacentEdges(tgtRoadEdge, edge);
                     if (dummy.canPlaceSettlement(nodeBetween))
                     {
                         // check opposite type at transition
@@ -1097,7 +1097,7 @@ public class SOCPlayerTracker
                         // else, add new possible road or ship
                         //
                         //D.ebugPrintln("$$$ adding new pr at "+Integer.toHexString(adjEdge.intValue()));
-                        ArrayList<SOCPossibleRoad> neededRoads = new ArrayList<SOCPossibleRoad>();
+                        ArrayList<SOCPossibleRoad> neededRoads = new ArrayList<>();
                         neededRoads.add(targetRoad);
 
                         SOCPossibleRoad newPR;
@@ -1136,7 +1136,7 @@ public class SOCPlayerTracker
             //
             for (SOCPossibleRoad newPR : newPossibleRoads)
             {
-                possibleRoads.put(Integer.valueOf(newPR.getCoordinates()), newPR);
+                possibleRoads.put( newPR.getCoordinates(), newPR);
             }
 
             //
@@ -1177,7 +1177,7 @@ public class SOCPlayerTracker
          */
         D.ebugPrintlnINFO("$$$ addTheirNewRoadOrShip : " + rs);
 
-        Integer edge = Integer.valueOf(rs.getCoordinates());
+        Integer edge = rs.getCoordinates();
         SOCPossibleRoad pr = possibleRoads.get(edge);
 
         if (pr != null)
@@ -1333,7 +1333,7 @@ public class SOCPlayerTracker
         if (closest == null)
             return null;  // <--- Early return: no ships ---
         final List<Integer> closestAdjacs =
-            ((SOCBoardLarge) game.getBoard()).getAdjacentEdgesToEdge(closest.getCoordinates());
+            game.getBoard().getAdjacentEdgesToEdge(closest.getCoordinates());
 
         SOCPossibleShip nextShip = null;
         int nextR = -1, nextC = -1;
@@ -1390,7 +1390,7 @@ public class SOCPlayerTracker
             if (tracker.getPlayer().getPlayerNumber() != ps.getPlayer().getPlayerNumber())
             {
                 SOCPossibleSettlement posSet
-                    = tracker.getPossibleSettlements().get(Integer.valueOf(ps.getCoordinates()));
+                    = tracker.getPossibleSettlements().get( ps.getCoordinates() );
 
                 if (posSet != null)
                 {
@@ -1458,7 +1458,7 @@ public class SOCPlayerTracker
          * see if the new settlement was a possible settlement in
          * the list.  if so, remove it.
          */
-        Integer settlementCoords = Integer.valueOf(settlement.getCoordinates());
+        Integer settlementCoords = settlement.getCoordinates();
         SOCPossibleSettlement ps = possibleSettlements.get(settlementCoords);
         D.ebugPrintlnINFO("$$$ removing (wrong) " + Integer.toHexString(settlement.getCoordinates()));
         possibleSettlements.remove(settlementCoords);
@@ -1494,7 +1494,7 @@ public class SOCPlayerTracker
         D.ebugPrintlnINFO("$$$ addOurNewSettlement : " + settlement);
         SOCBoard board = game.getBoard();
 
-        final Integer settlementCoords = Integer.valueOf(settlement.getCoordinates());
+        final Integer settlementCoords = settlement.getCoordinates();
 
         /**
          * add a new possible city
@@ -1515,7 +1515,7 @@ public class SOCPlayerTracker
             /**
              * copy a list of all the conflicting settlements
              */
-            List<SOCPossibleSettlement> conflicts = new ArrayList<SOCPossibleSettlement>(ps.getConflicts());
+            List<SOCPossibleSettlement> conflicts = new ArrayList<>( ps.getConflicts() );
 
             /**
              * remove the possible settlement that is now a real settlement
@@ -1535,7 +1535,7 @@ public class SOCPlayerTracker
                 if (tracker != null)
                 {
                     D.ebugPrintlnINFO("$$$ removing " + Integer.toHexString(conflict.getCoordinates()));
-                    tracker.getPossibleSettlements().remove(Integer.valueOf(conflict.getCoordinates()));
+                    tracker.getPossibleSettlements().remove( conflict.getCoordinates() );
                     removeFromNecessaryRoads(conflict);
 
                     /**
@@ -1557,7 +1557,7 @@ public class SOCPlayerTracker
              */
             D.ebugPrintlnINFO("$$$ wasn't possible settlement");
 
-            ArrayList<SOCPossibleSettlement> trash = new ArrayList<SOCPossibleSettlement>();
+            ArrayList<SOCPossibleSettlement> trash = new ArrayList<>();
             List<Integer> adjNodes = board.getAdjacentNodesToNode(settlement.getCoordinates());
 
             for (final SOCPlayerTracker tracker : trackers)
@@ -1593,7 +1593,7 @@ public class SOCPlayerTracker
                  */
                 for (Integer adjNode : adjNodes)
                 {
-                    D.ebugPrintlnINFO("$$$ checking node " + Integer.toHexString(adjNode.intValue()));
+                    D.ebugPrintlnINFO("$$$ checking node " + Integer.toHexString( adjNode ));
                     posSet = tracker.getPossibleSettlements().get(adjNode);
 
                     if (posSet != null)
@@ -1621,7 +1621,7 @@ public class SOCPlayerTracker
                 for (SOCPossibleSettlement pset : trash)
                 {
                     D.ebugPrintlnINFO("$$$ removing " + Integer.toHexString(pset.getCoordinates()) + " owned by " + pset.getPlayer().getPlayerNumber());
-                    tracker.getPossibleSettlements().remove(Integer.valueOf(pset.getCoordinates()));
+                    tracker.getPossibleSettlements().remove( pset.getCoordinates() );
                     removeFromNecessaryRoads(pset);
                 }
 
@@ -1697,7 +1697,7 @@ public class SOCPlayerTracker
                         continue;
 
                     if (possibleNewIslandRoads == null)
-                        possibleNewIslandRoads = new ArrayList<SOCPossibleRoad>();
+                        possibleNewIslandRoads = new ArrayList<>();
                     possibleNewIslandRoads.add( (isCoastline)
                         ? new SOCPossibleShip(player, edge, true, null)
                         : new SOCPossibleRoad(player, edge, null));
@@ -1717,7 +1717,7 @@ public class SOCPlayerTracker
                     //     + " from coastal settle 0x" + Integer.toHexString(settlementCoords));
 
                     if (roadsToExpand == null)
-                        roadsToExpand = new ArrayList<SOCPossibleRoad>();
+                        roadsToExpand = new ArrayList<>();
                     roadsToExpand.add(newPS);
                     newPS.setExpandedFlag();
                 }
@@ -1731,14 +1731,14 @@ public class SOCPlayerTracker
                 // (Make sure this isn't initial placement, where nothing has adjacent roads)
                 for (SOCPossibleRoad pr : possibleNewIslandRoads)
                 {
-                    possibleRoads.put(Integer.valueOf(pr.getCoordinates()), pr);
+                    possibleRoads.put( pr.getCoordinates(), pr);
                     /*
                     System.err.println("L1396: new possible road at edge 0x"
                         + Integer.toHexString(pr.getCoordinates()) + " from coastal settle 0x"
                         + Integer.toHexString(settlementCoords));
                      */
                     if (roadsToExpand == null)
-                        roadsToExpand = new ArrayList<SOCPossibleRoad>();
+                        roadsToExpand = new ArrayList<>();
                     roadsToExpand.add(pr);
                     pr.setExpandedFlag();
                 }
@@ -1786,8 +1786,8 @@ public class SOCPlayerTracker
         //D.ebugPrintln();
         D.ebugPrintlnINFO("$$$ addTheirNewSettlement : " + settlement);
 
-        ArrayList<SOCPossibleRoad> prTrash = new ArrayList<SOCPossibleRoad>();
-        ArrayList<SOCPossibleRoad> nrTrash = new ArrayList<SOCPossibleRoad>();
+        ArrayList<SOCPossibleRoad> prTrash = new ArrayList<>();
+        ArrayList<SOCPossibleRoad> nrTrash = new ArrayList<>();
         final List<Integer> adjEdges = game.getBoard().getAdjacentEdgesToNode(settlement.getCoordinates());
 
         for (Integer edge1 : adjEdges)
@@ -1839,7 +1839,7 @@ public class SOCPlayerTracker
 
                         for (Integer edge2 : adjEdges)
                         {
-                            if (nrEdge == edge2.intValue())
+                            if (nrEdge == edge2)
                             {
                                 D.ebugPrintlnINFO("$$$ removing dependency " + Integer.toHexString(nrEdge)
                                     + " from " + Integer.toHexString(pr.getCoordinates()));
@@ -1875,7 +1875,7 @@ public class SOCPlayerTracker
             ///
             for (SOCPossibleRoad prt : prTrash)
             {
-                possibleRoads.remove(Integer.valueOf(prt.getCoordinates()));
+                possibleRoads.remove( prt.getCoordinates() );
                 removeFromNecessaryRoads(prt);
                 removeDependents(prt);
             }
@@ -1919,7 +1919,7 @@ public class SOCPlayerTracker
                     if (nr.isEmpty())
                     {
                         //D.ebugPrintln("$$$ removing this road");
-                        possibleRoads.remove(Integer.valueOf(newPos.getCoordinates()));
+                        possibleRoads.remove( newPos.getCoordinates() );
                         removeFromNecessaryRoads((SOCPossibleRoad) newPos);
                         removeDependents((SOCPossibleRoad) newPos);
                     }
@@ -1953,7 +1953,7 @@ public class SOCPlayerTracker
                     if (nr.isEmpty())
                     {
                         //D.ebugPrintln("$$$ removing this settlement");
-                        possibleSettlements.remove(Integer.valueOf(newPos.getCoordinates()));
+                        possibleSettlements.remove( newPos.getCoordinates() );
                         removeFromNecessaryRoads((SOCPossibleSettlement) newPos);
 
                         /**
@@ -2034,7 +2034,7 @@ public class SOCPlayerTracker
          * Just remove our potential city, since it was wrongly placed.
          * remove the possible city from the list
          */
-        possibleCities.remove(Integer.valueOf(city.getCoordinates()));
+        possibleCities.remove( city.getCoordinates() );
     }
 
     /**
@@ -2048,7 +2048,7 @@ public class SOCPlayerTracker
         /**
          * remove the possible city from the list
          */
-        possibleCities.remove(Integer.valueOf(city.getCoordinates()));
+        possibleCities.remove( city.getCoordinates() );
     }
 
     /**
@@ -2061,7 +2061,7 @@ public class SOCPlayerTracker
         /**
          * add the possible city to the list
          */
-        possibleCities.put(Integer.valueOf(city.getCoordinates()), city);
+        possibleCities.put( city.getCoordinates(), city);
     }
 
     /**
@@ -2118,7 +2118,7 @@ public class SOCPlayerTracker
                                      * we found the common node
                                      * now see if there is a possible enemy settlement
                                      */
-                                    final Integer adjNodeToPosRoadInt = Integer.valueOf(adjNodeToPosRoad);
+                                    final Integer adjNodeToPosRoadInt = adjNodeToPosRoad;
                                     for (int tpn = 0; tpn < trackers.length; ++tpn)
                                     {
                                         if (tpn == playerNumber)
@@ -2158,7 +2158,7 @@ public class SOCPlayerTracker
                     if (tracker.getPlayer().getPlayerNumber() != playerNumber)
                     {
                         SOCPossibleRoad posEnemyRoad
-                            = tracker.getPossibleRoads().get(Integer.valueOf(posRoad.getCoordinates()));
+                            = tracker.getPossibleRoads().get( posRoad.getCoordinates() );
 
                         if (posEnemyRoad != null)
                         {
@@ -2179,7 +2179,7 @@ public class SOCPlayerTracker
                  * threaten this road, also threaten those pieces
                  */
                 final List<SOCPossiblePiece> threats = posRoad.getThreats();
-                final Stack<SOCPossiblePiece> stack = new Stack<SOCPossiblePiece>();
+                final Stack<SOCPossiblePiece> stack = new Stack<>();
                 stack.push(posRoad);
 
                 while (! stack.empty())
@@ -2208,7 +2208,7 @@ public class SOCPlayerTracker
 
                                     //D.ebugPrintln("&&&& adding threats to road at "+Integer.toHexString(newPosPiece.getCoordinates()));
                                     for (SOCPossiblePiece threat : threats)
-                                        ((SOCPossibleRoad) newPosPiece).addThreat(threat);
+                                        newPosPiece.addThreat(threat);
                                 }
 
                                 /**
@@ -2249,7 +2249,7 @@ public class SOCPlayerTracker
 
                     if (tracker.getPlayer().getPlayerNumber() != playerNumber)
                     {
-                        SOCPossibleRoad posEnemyRoad = tracker.getPossibleRoads().get(Integer.valueOf(posRoad.getCoordinates()));
+                        SOCPossibleRoad posEnemyRoad = tracker.getPossibleRoads().get( posRoad.getCoordinates() );
 
                         if (posEnemyRoad != null)
                         {
@@ -2293,7 +2293,7 @@ public class SOCPlayerTracker
                                  * see if there is a possible enemy settlement at
                                  * the node between the two possible roads
                                  */
-                                final Integer adjNodeInt = Integer.valueOf(adjNode1);
+                                final Integer adjNodeInt = adjNode1;
 
                                 for (final SOCPlayerTracker tracker : trackers)
                                 {
@@ -2349,7 +2349,7 @@ public class SOCPlayerTracker
                     if (tracker.getPlayer().getPlayerNumber() != playerNumber)
                     {
                         SOCPossibleSettlement posEnemySet
-                            = tracker.getPossibleSettlements().get(Integer.valueOf(posSet.getCoordinates()));
+                            = tracker.getPossibleSettlements().get( posSet.getCoordinates() );
 
                         if (posEnemySet != null)
                         {
@@ -2499,8 +2499,8 @@ public class SOCPlayerTracker
         (final int startNode, final int pathLength, final int lrLength, final int searchDepth)
     {
         // TODO handle ships here
-        return ((Integer) SOCRobotDM.recalcLongestRoadETAAux
-            (player, false, startNode, pathLength, lrLength, searchDepth)).intValue();
+        return (Integer) SOCRobotDM.recalcLongestRoadETAAux
+            ( player, false, startNode, pathLength, lrLength, searchDepth );
     }
 
     /**
@@ -2862,9 +2862,9 @@ public class SOCPlayerTracker
             }
 
             TreeMap<Integer, SOCPossibleSettlement> posSetsCopy =
-                new TreeMap<Integer, SOCPossibleSettlement>(possibleSettlements);
+                new TreeMap<>( possibleSettlements );
             TreeMap<Integer, SOCPossibleCity> posCitiesCopy =
-                new TreeMap<Integer, SOCPossibleCity>(possibleCities);
+                new TreeMap<>( possibleCities );
 
             int points = player.getTotalVP();
             int fastestETA;
@@ -3079,7 +3079,7 @@ public class SOCPlayerTracker
                     {
                         canBuild2Settlements = true;
 
-                        ArrayList<SOCPossibleSettlement> posSetsToPutBack = new ArrayList<SOCPossibleSettlement>();
+                        ArrayList<SOCPossibleSettlement> posSetsToPutBack = new ArrayList<>();
 
                         for (int i = 0; i < 2; i++)
                         {
@@ -3223,11 +3223,11 @@ public class SOCPlayerTracker
 
                                 if ((i == 0) && (chosenSet[0] != null))
                                 {
-                                    posSetsCopy.remove(Integer.valueOf(chosenSet[0].getCoordinates()));
+                                    posSetsCopy.remove( chosenSet[0].getCoordinates() );
 
                                     for (SOCPossibleSettlement conflict : chosenSet[0].getConflicts())
                                     {
-                                        Integer conflictInt = Integer.valueOf(conflict.getCoordinates());
+                                        Integer conflictInt = conflict.getCoordinates();
                                         SOCPossibleSettlement possibleConflict = posSetsCopy.get(conflictInt);
 
                                         if (possibleConflict != null)
@@ -3253,11 +3253,11 @@ public class SOCPlayerTracker
                             }
                         }
 
-                        posSetsCopy.put(Integer.valueOf(chosenSet[0].getCoordinates()), chosenSet[0]);
+                        posSetsCopy.put( chosenSet[0].getCoordinates(), chosenSet[0]);
 
                         for (SOCPossibleSettlement tmpPosSet : posSetsToPutBack)
                         {
-                            posSetsCopy.put(Integer.valueOf(tmpPosSet.getCoordinates()), tmpPosSet);
+                            posSetsCopy.put( tmpPosSet.getCoordinates(), tmpPosSet);
                         }
 
                         if (canBuild2Settlements && (twoSettlements <= fastestETA))
@@ -3601,8 +3601,8 @@ public class SOCPlayerTracker
                     if ((settlementPiecesLeft > 1) && (posSetsCopy.size() > 1)
                         && canBuild2Settlements && (fastestETA == twoSettlements))
                     {
-                        Integer chosenSet0Int = Integer.valueOf(chosenSet[0].getCoordinates());
-                        Integer chosenSet1Int = Integer.valueOf(chosenSet[1].getCoordinates());
+                        Integer chosenSet0Int = chosenSet[0].getCoordinates();
+                        Integer chosenSet1Int = chosenSet[1].getCoordinates();
                         posSetsCopy.remove(chosenSet0Int);
                         posSetsCopy.remove(chosenSet1Int);
                         posCitiesCopy.put
@@ -3615,13 +3615,13 @@ public class SOCPlayerTracker
                         //
                         for (SOCPossibleSettlement conflict : chosenSet[0].getConflicts())
                         {
-                            Integer conflictInt = Integer.valueOf(conflict.getCoordinates());
+                            Integer conflictInt = conflict.getCoordinates();
                             posSetsCopy.remove(conflictInt);
                         }
 
                         for (SOCPossibleSettlement conflict : chosenSet[1].getConflicts())
                         {
-                            Integer conflictInt = Integer.valueOf(conflict.getCoordinates());
+                            Integer conflictInt = conflict.getCoordinates();
                             posSetsCopy.remove(conflictInt);
                         }
 
@@ -3667,7 +3667,7 @@ public class SOCPlayerTracker
                         if (chosenCity[0] == null)
                             break vpLoop;  // <--- rarely occurs; avoid possible endless loop ---
 
-                        Integer chosenSet0Int = Integer.valueOf(chosenSet[0].getCoordinates());
+                        Integer chosenSet0Int = chosenSet[0].getCoordinates();
                         posSetsCopy.remove(chosenSet0Int);
 
                         if (chosenSet[0].getCoordinates() != chosenCity[0].getCoordinates())
@@ -3676,7 +3676,7 @@ public class SOCPlayerTracker
                                 (chosenSet0Int, new SOCPossibleCity(player, chosenSet[0].getCoordinates(), bsef));
                         }
 
-                        posCitiesCopy.remove(Integer.valueOf(chosenCity[0].getCoordinates()));
+                        posCitiesCopy.remove( chosenCity[0].getCoordinates() );
                         cityPiecesLeft -= 1;
 
                         //
@@ -3684,7 +3684,7 @@ public class SOCPlayerTracker
                         //
                         for (SOCPossibleSettlement conflict : chosenSet[0].getConflicts())
                         {
-                            Integer conflictInt = Integer.valueOf(conflict.getCoordinates());
+                            Integer conflictInt = conflict.getCoordinates();
                             posSetsCopy.remove(conflictInt);
                         }
 
@@ -3726,7 +3726,7 @@ public class SOCPlayerTracker
                     }
                     else if ((cityPiecesLeft > 1) && (citySpotsLeft > 1) && (fastestETA == twoCities))
                     {
-                        posCitiesCopy.remove(Integer.valueOf(chosenCity[0].getCoordinates()));
+                        posCitiesCopy.remove( chosenCity[0].getCoordinates() );
 
                         //
                         // update our building speed estimate
@@ -3798,7 +3798,7 @@ public class SOCPlayerTracker
 
                         if (chosenCity[1] != null)
                         {
-                            posCitiesCopy.remove(Integer.valueOf(chosenCity[1].getCoordinates()));
+                            posCitiesCopy.remove( chosenCity[1].getCoordinates() );
                             tempPlayerNumbers.updateNumbers(chosenCity[1].getCoordinates(), board);
 
                             settlementPiecesLeft += 2;
@@ -3895,11 +3895,11 @@ public class SOCPlayerTracker
         int totalNecRoads = 0;
 
         /** Queue to track each unvisited possible road's "distance" from ps and its own necessary roads */
-        Queue<Pair<Integer, List<SOCPossibleRoad>>> necRoadQueue = new Queue<Pair<Integer, List<SOCPossibleRoad>>>();
+        Queue<Pair<Integer, List<SOCPossibleRoad>>> necRoadQueue = new Queue<>();
 
         necRoadQueue.clear();
-        necRoadQueue.put(new Pair<Integer, List<SOCPossibleRoad>>
-            (Integer.valueOf(0), ps.getNecessaryRoads()));
+        necRoadQueue.put( new Pair<>
+            ( 0, ps.getNecessaryRoads() ));
 
         for (int maxIter = 50; maxIter > 0 && ! necRoadQueue.empty(); --maxIter)
         {
@@ -3923,8 +3923,8 @@ public class SOCPlayerTracker
                 }
 
                 for (SOCPossibleRoad nr : necRoadsToCurrent)
-                    necRoadQueue.put(new Pair<Integer, List<SOCPossibleRoad>>
-                        (Integer.valueOf(totalNecRoads + 1), nr.getNecessaryRoads()));
+                    necRoadQueue.put( new Pair<>
+                        ( totalNecRoads + 1, nr.getNecessaryRoads() ));
             }
         }
 

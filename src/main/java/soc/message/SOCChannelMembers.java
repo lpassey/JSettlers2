@@ -142,7 +142,7 @@ public class SOCChannelMembers extends SOCMessage
     public static SOCChannelMembers parseDataStr(String s)
     {
         String ch;
-        ArrayList<String> ml = new ArrayList<String>();
+        ArrayList<String> ml = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(s, sep2);
 
         try

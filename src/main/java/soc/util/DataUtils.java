@@ -43,7 +43,7 @@ public abstract class DataUtils
      * @throws NullPointerException if <tt>ia</tt> or <tt>sb</tt> is null
      * @since 1.1.09
      */
-    public static final void arrayIntoStringBuf(final int[] ia, StringBuffer sb, final boolean useHex)
+    public static void arrayIntoStringBuf(final int[] ia, StringBuffer sb, final boolean useHex)
         throws NullPointerException
     {
         sb.append("{");
@@ -79,7 +79,7 @@ public abstract class DataUtils
      * @throws NullPointerException if {@code sc} or {@code sb} is null
      * @since 1.1.09
      */
-    public static final void listIntoStringBuilder(final Collection<?> sc, final StringBuilder sb)
+    public static void listIntoStringBuilder(final Collection<?> sc, final StringBuilder sb)
         throws NullPointerException
     {
         if (sc.isEmpty())

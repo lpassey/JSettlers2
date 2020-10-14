@@ -163,7 +163,7 @@ public class SOCSitDown extends SOCMessage
             ga = st.nextToken();
             nk = st.nextToken();
             pn = Integer.parseInt(st.nextToken());
-            rf = (Boolean.valueOf(st.nextToken())).booleanValue();
+            rf = Boolean.valueOf( st.nextToken() );
         }
         catch (Exception e)
         {

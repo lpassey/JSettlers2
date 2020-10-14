@@ -105,9 +105,9 @@ public class SOCInventory implements Cloneable, Serializable
      */
     public SOCInventory()
     {
-        news = new ArrayList<SOCInventoryItem>();
-        playables = new ArrayList<SOCInventoryItem>();
-        kept = new ArrayList<SOCInventoryItem>();
+        news = new ArrayList<>();
+        playables = new ArrayList<>();
+        kept = new ArrayList<>();
     }
 
     /**
@@ -185,7 +185,7 @@ public class SOCInventory implements Cloneable, Serializable
                 continue;
 
             if (ret == null)
-                ret = new ArrayList<SOCInventoryItem>();
+                ret = new ArrayList<>();
             ret.add(itm);
         }
 

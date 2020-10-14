@@ -60,7 +60,7 @@ import javax.swing.WindowConstants;
 
     final MainDisplay md;
     String cname;
-    Vector<String> history = new Vector<String>();
+    Vector<String> history = new Vector<>();
     int historyCounter = 1;
     boolean down = false;
 
@@ -81,7 +81,7 @@ import javax.swing.WindowConstants;
 
         ta = new SnippingTextArea(20, 40, 100);  // minimum width is based on number of character columns
         tf = new JTextField(strings.get("base.please.wait"));  // "Please wait..."
-        lst = new JList<String>(new DefaultListModel<String>());
+        lst = new JList<>( new DefaultListModel<String>() );
         lst.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         lst.setSize(new Dimension(180, 200));
         lst.setMinimumSize(new Dimension(30, 200));
