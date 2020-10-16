@@ -352,10 +352,14 @@ public abstract class AskDialog extends JDialog
                 choice3But = new JButton(choice3);
                 if (shouldClearButtonBGs)
                     choice3But.setBackground(null);
-            } else {
+            }
+            else
+            {
                 choice3But = null;
             }
-        } else {
+        }
+        else
+        {
             choice2But = null;
             choice3But = null;
         }
@@ -381,7 +385,9 @@ public abstract class AskDialog extends JDialog
             msg.setAlignmentX(Component.CENTER_ALIGNMENT);
             add(msg);
             promptMaxWid = getFontMetrics(msg.getFont()).stringWidth(prompt);
-        } else {
+        }
+        else
+        {
             promptMaxWid = 0;
             try
             {
@@ -425,7 +431,9 @@ public abstract class AskDialog extends JDialog
                 if (promptMaxWid > maxWid80pct)
                     promptMaxWid = maxWid80pct;  // text must wrap, it's too wide otherwise
 
-            } catch (Throwable t) {
+            }
+            catch (Throwable t)
+            {
                 // fallback to 1 long line
                 msg = new JLabel(prompt, SwingConstants.CENTER);
                 msg.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -580,11 +588,15 @@ public abstract class AskDialog extends JDialog
             }
 
             callbackDiaDismissListener(false);
-        } catch (Throwable thr) {
+        }
+        catch (Throwable thr)
+        {
             if (pi != null)
             {
                 pi.chatPrintStackTrace(thr);
-            } else {
+            }
+            else
+            {
                 System.err.println("-- Exception in AskDialog.actionPerformed: " + thr.toString() + " --");
                 thr.printStackTrace();
                 while (thr.getCause() != null)

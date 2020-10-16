@@ -82,14 +82,14 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
      * Used at client only, null at server.
      * @see #playerResTotal
      */
-    public List<SOCResourceSet> playerRsrc;
+    public List<SOCResourceSet> playerResourceList;
 
     /**
      * {@code playerResTotal(i)} is the new resource total count held by player {@link #playerNum playerNum(i)}.
      * Used at client only, null at server.
      * @see #playerRsrc
      */
-    public List<Integer> playerResTotal;
+    public List<Integer> playerTotalResources;
 
     /**
      * Builder for server to tell clients about players' gained resources and new total counts.
@@ -140,20 +140,26 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
      * {@link #playerRsrc}, and {@link #playerResTotal} list fields will be left blank,
      * we don't need them to send the ints to clients.
      *
-     * @param gaName  Game name
-     * @param pn  Player numbers, same format as {@link #playerNum}
-     * @param rTotal  New total resource count for each {@code pn}
-     * @param rsrc Resources gained by each {@code pn}, same format as {@link #playerRsrc}
+     * @param gameName  Game name
+     * @param playerNumberList  Player numbers, same format as {@link #playerNumList}
+     * @param totalResources  New total resource count for each {@code playerNumList}
+     * @param resourceSetList Resources gained by each {@code pn}, same format as {@link #playerRsrc}
      * @throws IllegalArgumentException if {@code pn}.size() != {@code rsrc}.size() or {@code rTotal}.size(),
      *     or if any of them is empty
      * @throws NullPointerException if any parameter is null
      */
-    private SOCDiceResultResources
-        (final String gaName, final List<Integer> pn, final List<Integer> rTotal, final List<SOCResourceSet> rsrc)
+    private SOCDiceResultResources(final String gameName, final List<Integer> playerNumberList,
+        final List<Integer> totalResources, final List<SOCResourceSet> resourceSetList )
         throws IllegalArgumentException, NullPointerException
     {
-        super(DICERESULTRESOURCES, gaName, buildIntList(pn, rTotal, rsrc));
-            // buildIntList checks pn, rTotal, rsrc for null and lengths
+        // builds the super class' "pa" list, which is just an array of primitive ints. {@link #buildIntList(List, List, List)}
+        // checks playerNumberList, totalResources, and resourceSetList for null and lengths. pa is only
+        // useful when using {@link #parseDataStr(List) parseDataStr(List&lt;String>)} and
+        // {@link #toCmd()}.
+        super(DICERESULTRESOURCES, gameName, buildIntList(playerNumberList, totalResources, resourceSetList));
+        this.playerNum = playerNumberList;
+        this.playerResourceList = resourceSetList;
+        this.playerTotalResources = totalResources;
     }
 
     /**
@@ -175,8 +181,8 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
         final int plCount = pa[0];
 
         playerNum = new ArrayList<>( plCount );
-        playerRsrc = new ArrayList<>( plCount );
-        playerResTotal = new ArrayList<>( plCount );
+        playerResourceList = new ArrayList<>( plCount );
+        playerTotalResources = new ArrayList<>( plCount );
 
         try
         {
@@ -189,7 +195,7 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
                 ++p;
                 ++i;
 
-                playerResTotal.add( pa[i] );
+                playerTotalResources.add( pa[i] );
                 ++i;
 
                 // Parse pairs of res amount + res type, until we get a 0
@@ -201,12 +207,14 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
                     if (i < L)
                     {
                         amount = pa[i];  ++i;
-                    } else {
+                    }
+                    else
+                    {
                         amount = 0;  // last player, end of array
                     }
                 }
 
-                playerRsrc.add(rsrc);
+                playerResourceList.add(rsrc);
             }
 
             if (p != plCount)
@@ -296,9 +304,10 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
                 ipa[i] = Integer.parseInt(pa.get(i + 1));
 
             return new SOCDiceResultResources(gaName, ipa);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             return null;
         }
     }
-
 }

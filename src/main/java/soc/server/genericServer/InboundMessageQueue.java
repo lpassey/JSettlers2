@@ -22,7 +22,10 @@
 package soc.server.genericServer;
 
 import java.util.Vector;
+import java.util.concurrent.LinkedBlockingQueue;
 
+import soc.communication.Connection;
+import soc.communication.SOCMessageDispatcher;
 import soc.message.SOCMessage;
 
 /**
@@ -63,12 +66,11 @@ import soc.message.SOCMessage;
  */
 public class InboundMessageQueue
 {
-
     /**
      * Internal queue to used to store all clients' {@link MessageData}
      * and/or code to be ran in the {@link Treater} thread.
      */
-    private Vector<MessageData> inQueue;
+    private LinkedBlockingQueue<MessageData> inQueue;
 
     /**
      * Internal thread to process data out of the {@link #inQueue}.
@@ -78,7 +80,7 @@ public class InboundMessageQueue
     /**
      * Message dispatcher at the server which will receive all messages from this queue.
      */
-    private final Server.InboundMessageDispatcher dispatcher;
+    private final SOCMessageDispatcher dispatcher;
 
     /**
      * Create a new InboundMessageQueue. Afterwards when the server is ready
@@ -86,9 +88,9 @@ public class InboundMessageQueue
      *
      * @param imd Message dispatcher at the server which will receive messages from this queue
      */
-    public InboundMessageQueue(Server.InboundMessageDispatcher imd)
+    public InboundMessageQueue(SOCMessageDispatcher imd)
     {
-        inQueue = new Vector<>();
+        inQueue = new LinkedBlockingQueue<>();
         dispatcher = imd;
     }
 
@@ -124,11 +126,13 @@ public class InboundMessageQueue
      */
     public void push(SOCMessage receivedMessage, Connection clientConnection)
     {
-        final MessageData md = new MessageData(receivedMessage, clientConnection);
-        synchronized (inQueue)
+        try
         {
-            inQueue.addElement(md);
-            inQueue.notify();
+            inQueue.put( new MessageData( receivedMessage, clientConnection ) );
+        }
+        catch( InterruptedException e )
+        {
+            e.printStackTrace();
         }
     }
 
@@ -147,30 +151,14 @@ public class InboundMessageQueue
      */
     public void post(Runnable run)
     {
-        final MessageData md = new MessageData(run);
-        synchronized (inQueue)
+        try
         {
-            inQueue.addElement(md);
-            inQueue.notify();
+            inQueue.put( new MessageData( run ));
         }
-    }
-
-    /**
-     * Retrieves and removes the head of this queue, or returns null if this queue is empty.
-     * Returns as soon as possible; if queue empty, this method doesn't wait until another thread
-     * notifies a message has been added.
-     *
-     * @return the head of this queue, or null if this queue is empty.
-     */
-    protected final MessageData poll()
-    {
-        synchronized (inQueue)
+        catch( InterruptedException e )
         {
-            if (inQueue.size() > 0)
-                return inQueue.remove(0);
+            e.printStackTrace();
         }
-
-        return null;
     }
 
     /**
@@ -219,40 +207,19 @@ public class InboundMessageQueue
         {
             while (processMessage)
             {
-                MessageData messageData = poll();
-
                 try
                 {
-                    if (messageData != null)
-                    {
-                        if (messageData.run != null)
-                            messageData.run.run();
-                        else
-                            dispatcher.dispatch(messageData.message, messageData.clientSender);
-                    }
+                    MessageData messageData = inQueue.take();   // Never null. Will block if nothing
+                    // in the queue, or will throw an InterruptedException
+                    if (messageData.run != null)
+                        messageData.run.run();
+                    else
+                        dispatcher.dispatch( messageData.message, messageData.clientSender );
                 }
                 catch (Exception e)  // for anything thrown by bugs in server or game code called from dispatch
                 {
                     System.out.println("Exception in treater (dispatch) - " + e.getMessage());
                     e.printStackTrace();
-                }
-
-                Thread.yield();
-
-                synchronized (inQueue)
-                {
-                    if (inQueue.size() == 0)
-                    {
-                        try
-                        {
-                            //D.ebugPrintln("treater waiting");
-                            inQueue.wait(1000);  // timeout to help avoid deadlock
-                        }
-                        catch (Exception ex)
-                        {
-                            ;   // catch InterruptedException from inQueue.notify() in treat(...)
-                        }
-                    }
                 }
             }
         }

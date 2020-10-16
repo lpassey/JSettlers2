@@ -20,10 +20,12 @@
  *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
-package soc.server.genericServer;
+package soc.communication;
 
 import soc.disableDebug.D;
 import soc.message.SOCMessage;
+
+// TODO: we need to break this dependency!
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -31,7 +33,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.Socket;
 import java.util.Date;
-import java.util.Vector;
 
 
 /** A TCP client's connection at a server.
@@ -53,14 +54,14 @@ import java.util.Vector;
  * @author <A HREF="http://www.nada.kth.se/~cristi">Cristian Bogdan</A>
  */
 @SuppressWarnings("serial")
-/*package*/ final class NetConnection
+public final class NetConnection
     extends Connection implements Runnable, Serializable, Cloneable
 {
     protected final static int TIMEOUT_VALUE = 3600000; // approx. 1 hour
 
     DataInputStream in = null;
     DataOutputStream out = null;
-    Socket s = null;
+    Socket socket = null;
 
     /** Hostname of the remote end of the connection, for {@link #host()} */
     protected String hst;
@@ -73,15 +74,11 @@ import java.util.Vector;
      */
     protected boolean inputConnected = false;
 
-    /** Messages from server to client, sent in {@link Putter} thread */
-    private Vector<String> outQueue = new Vector<>();
-
     /** initialize the connection data */
-    NetConnection(Socket so, Server sve)
+    public NetConnection( Socket so )
     {
         hst = so.getInetAddress().getHostName();
-        ourServer = sve;
-        s = so;
+        socket = so;
     }
 
     /**
@@ -91,8 +88,8 @@ import java.util.Vector;
      */
     public String getName()
     {
-        if ((hst != null) && (s != null))
-            return "connection-" + hst + "-" + s.getPort();
+        if ((hst != null) && (socket != null))
+            return "connection-" + hst + "-" + socket.getPort();
         else
             return "connection-(null)-" + hashCode();
     }
@@ -100,7 +97,7 @@ import java.util.Vector;
     /**
      * @return Hostname of the remote end of the connection
      */
-    public String host()
+    public String getHost()
     {
         return hst;
     }
@@ -124,17 +121,12 @@ import java.util.Vector;
 
         try
         {
-            s.setSoTimeout(TIMEOUT_VALUE);
-            in = new DataInputStream(s.getInputStream());
-            out = new DataOutputStream(s.getOutputStream());
+            socket.setSoTimeout( TIMEOUT_VALUE );
+            in = new DataInputStream( socket.getInputStream() );
+            out = new DataOutputStream( socket.getOutputStream() );
             connected = true;
             inputConnected = true;
             connectTime = new Date();
-
-            Putter putter = new Putter();
-            putter.start();
-
-            //(reader=new Thread(this)).start();
         }
         catch (Exception e)
         {
@@ -154,9 +146,15 @@ import java.util.Vector;
         return true;
     }
 
+    @Override
+    public void setAccepted() throws IllegalStateException
+    {
+        accepted.set( true );
+    }
+
     /**
      * Is input available now, without blocking?
-     * Same idea as {@link java.io.DataInputStream#available()}.
+     * Same idea as {@link DataInputStream#available()}.
      * @since 1.0.5
      */
     public boolean isInputAvailable()
@@ -164,7 +162,9 @@ import java.util.Vector;
         try
         {
             return inputConnected && (0 < in.available());
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             return false;
         }
     }
@@ -178,35 +178,26 @@ import java.util.Vector;
     public void run()
     {
         Thread.currentThread().setName(getName());  // connection-remotehostname-portnumber
-        ourServer.addConnection(this);
-            // won't throw IllegalArgumentException, because conn is unnamed at this point; getData() is null
+        // won't throw IllegalArgumentException, because conn is unnamed at this point; getData() is null
 
         try
         {
-            final InboundMessageQueue inQueue = ourServer.inQueue;
-
             if (inputConnected)
             {
-                String firstMsg = in.readUTF();
-                final SOCMessage msgObj = SOCMessage.toMsg(firstMsg);  // parse
-                if (! ourServer.processFirstCommand(msgObj, this))
-                {
-                    if (msgObj != null)
-                        inQueue.push(msgObj, this);
-                }
+                final String msgStr = in.readUTF();  // blocks until next message is available
+                messageDispatcher.dispatchFirst( SOCMessage.toMsg(msgStr), this );
             }
-
             while (inputConnected)
             {
                 // readUTF max message size is 65535 chars, modified utf-8 format
                 final String msgStr = in.readUTF();  // blocks until next message is available
-                final SOCMessage msgObj = SOCMessage.toMsg(msgStr);
-                if (msgObj != null)
-                    inQueue.push(msgObj, this);
+                messageDispatcher.dispatch( SOCMessage.toMsg(msgStr), this );
             }
         }
         catch (Exception e)
         {
+            inputConnected = false;
+            connected = false;
             D.ebugPrintlnINFO("Exception in NetConnection.run (" + hst + ") - " + e);
 
             if (D.ebugOn)
@@ -220,7 +211,6 @@ import java.util.Vector;
             }
 
             error = e;
-            ourServer.removeConnection(this, false);
         }
     }
 
@@ -236,14 +226,9 @@ import java.util.Vector;
      *
      * @param str Data to send
      */
-    public final void put(String str)
+    public final void send( SOCMessage socMessage )
     {
-        synchronized (outQueue)
-        {
-            // D.ebugPrintln("Adding " + str + " to outQueue for " + data);
-            outQueue.addElement(str);
-            outQueue.notify();
-        }
+        putForReal( socMessage.toCmd() );
     }
 
     /**
@@ -262,16 +247,7 @@ import java.util.Vector;
 
         if (! rv)
         {
-            if (! connected)
-            {
-                return false;
-            }
-            else
-            {
-                ourServer.removeConnection(this, false);
-            }
-
-            return false;
+             return false;
         }
         else
         {
@@ -327,25 +303,27 @@ import java.util.Vector;
     /** close the socket, stop the reader; called after conn is removed from server structures */
     public void disconnect()
     {
+        inputConnected = false;
         if (! connected)
             return;  // <--- Early return: Already disconnected ---
 
         D.ebugPrintlnINFO("DISCONNECTING " + data);
         connected = false;
-        inputConnected = false;
 
-        /*                if(Thread.currentThread()!=reader && reader!=null && reader.isAlive())
-           reader.stop();*/
         try
         {
             if (out != null)
+            {
                 try
                 {
                     out.flush();
                 }
-                catch (IOException e) {}
-            if (s != null)
-                s.close();
+                catch( IOException e )
+                {
+                }
+            }
+            if (socket != null)
+                socket.close();
         }
         catch (IOException e)
         {
@@ -359,7 +337,7 @@ import java.util.Vector;
             error = e;
         }
 
-        s = null;
+        socket = null;
         in = null;
         out = null;
     }
@@ -409,67 +387,5 @@ import java.util.Vector;
         sb.append(getName());  // connection-hostname-portnumber
         sb.append(']');
         return sb.toString();
-    }
-
-    /** Connection inner class thread to send {@link NetConnection#outQueue} messages to the net. */
-    class Putter extends Thread
-    {
-        //public boolean putting = true;
-        public Putter()
-        {
-            D.ebugPrintlnINFO("NEW PUTTER CREATED FOR " + data);
-
-            /* thread name for debug */
-            String cn = host();
-            if (cn != null)
-                setName("putter-" + cn + "-" + s.getPort() );
-            else
-                setName("putter-(null)-" + hashCode() );
-        }
-
-        public void run()
-        {
-            while (connected)
-            {
-                String c = null;
-
-                if (D.ebugIsEnabled())
-                    D.ebugPrintlnINFO("** " + data + " is at the top of the putter loop");
-
-                synchronized (outQueue)
-                {
-                    if (outQueue.size() > 0)
-                    {
-                        c = outQueue.elementAt(0);
-                        outQueue.removeElementAt(0);
-                    }
-                }
-
-                if (c != null)
-                {
-                    /* boolean rv = */ putForReal(c);
-
-                    // rv ignored because handled by putForReal
-                }
-
-                synchronized (outQueue)
-                {
-                    if (outQueue.size() == 0)
-                    {
-                        try
-                        {
-                            //D.ebugPrintln("** "+data+" is WAITING for outQueue");
-                            outQueue.wait(1000);  // timeout to help avoid deadlock
-                        }
-                        catch (Exception ex)
-                        {
-                            D.ebugPrintlnINFO("Exception while waiting for outQueue in " + data + ". - " + ex);
-                        }
-                    }
-                }
-            }
-
-            D.ebugPrintlnINFO("putter not putting connected==false : " + data);
-        }
     }
 }

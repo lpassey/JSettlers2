@@ -24,6 +24,7 @@ package soc.server.genericServer;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Date;
 import java.util.Enumeration;
@@ -37,9 +38,13 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import soc.communication.Connection;
+import soc.communication.MemConnection;
+import soc.communication.NetConnection;
+
+import soc.communication.SOCMessageDispatcher;
 import soc.debug.D; // JM
 import soc.message.SOCMessage;
-import soc.message.SOCMessageFromUnauthClient;
 import soc.server.SOCServer;
 
 
@@ -55,7 +60,7 @@ import soc.server.SOCServer;
  *  and are integrated into server data via {@link #addConnection(Connection)}
  *  called from that thread.  If the client's connection is accepted in
  *  {@link #newConnection1(Connection)}, the per-client thread enters a while-loop and
- *  will place each inbound message into a server-wide {@link #inQueue},
+ *  will place each inbound message into a server-wide {@link #multiplexQueue},
  *  which is processed in a server-wide single thread called the "treater".
  *<P>
  *  Alternately the client's connection could be rejected in <tt>newConnection1</tt> for any reason,
@@ -63,7 +68,7 @@ import soc.server.SOCServer;
  *<P>
  *  To handle inbound messages from the clients, the server-wide "treater" thread
  *  of {@link InboundMessageQueue} will call {@link InboundMessageDispatcher#dispatch(SOCMessage, Connection)}
- *  for each message in the shared {@link #inQueue}.
+ *  for each message in the shared {@link #multiplexQueue}.
  *<P>
  *  The first processed message over the connection will be from the server to the client,
  *  in {@link #newConnection1(Connection)} or {@link #newConnection2(Connection)}.
@@ -85,13 +90,18 @@ import soc.server.SOCServer;
 @SuppressWarnings("serial")  // not expecting to persist an instance between versions
 public abstract class Server extends Thread implements Serializable, Cloneable
 {
+    /**
+     * in-memory socket surrogate which waits for connection requests to be placed into the
+     * "accept" queue, does appropriate setup, the returns a new MemConnection
+     */
+    StringServerSocket localSocket;
 
     /**
      * TCP or Practice-mode server socket.
      * Runs on port number {@link #port}, or {@link #strSocketName} in Practice mode.
      * @since 1.1.00
      */
-    SOCServerSocket ss;
+    SOCServerSocket serverSocket;
 
     /**
      * Any optional properties to configure and run the server. Never null, may be empty.
@@ -108,20 +118,20 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * Dispatcher for all inbound messages from clients.
      * @since 2.0.00
      */
-    protected final InboundMessageDispatcher inboundMsgDispatcher;
+    protected final SOCMessageDispatcher inboundMsgDispatcher;
 
     boolean up = false;
     protected Exception error = null;
 
     /**
-     * TCP port number for {@link #ss} when using {@link NetServerSocket}, or -1 for
+     * TCP port number for {@link #serverSocket} when using {@link NetServerSocket}, or -1 for
      * local/Practice mode ({@link StringServerSocket}).
      * @see #strSocketName
      */
     protected int port;
 
     /**
-     * {@link StringServerSocket} name for {@link #ss}, or {@code null} for network mode.
+     * {@link StringServerSocket} name for {@link #serverSocket}, or {@code null} for network mode.
      * @see #port
      * @since 1.1.00
      */
@@ -169,7 +179,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      *  @see SOCServer#limitedConns
      *  @since 1.1.00
      */
-    protected Vector<Connection> unnamedConns = new Vector<>();
+    protected final Vector<Connection> unnamedConns = new Vector<>();
 
     /**
      * Map for case-insensitive lookup of connection names in {@link #conns}.
@@ -190,7 +200,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      *<P>
      * Before v2.0.00, this was a {@link Vector}.
      */
-    public final InboundMessageQueue inQueue;
+    public final InboundMessageQueue multiplexQueue;
 
     /**
      * Versions of currently connected clients, according to
@@ -273,7 +283,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @param props  Optional properties to configure and run the server.
      *       If null, the properties field will be created empty.
      */
-    public Server(final int port, final InboundMessageDispatcher imd, Properties props)
+    public Server(final int port, final SOCMessageDispatcher imd, Properties props)
         throws IllegalArgumentException
     {
         if (imd == null)
@@ -285,11 +295,12 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         this.port = port;
         this.strSocketName = null;
         this.inboundMsgDispatcher = imd;
-        this.inQueue = new InboundMessageQueue(imd);
+        this.multiplexQueue = new InboundMessageQueue(imd);
 
         try
         {
-            ss = new NetServerSocket(port, this);
+            serverSocket = new NetServerSocket(port, this);
+            localSocket = new StringServerSocket( "TCP_SERVER", this );
         }
         catch (IOException e)
         {
@@ -311,7 +322,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      *       If null, the properties field will be created empty.
      * @since 1.1.00
      */
-    public Server(final String stringSocketName, final InboundMessageDispatcher imd, Properties props)
+    public Server(final String stringSocketName, final SOCMessageDispatcher imd, Properties props)
         throws IllegalArgumentException
     {
         if (stringSocketName == null)
@@ -325,9 +336,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         this.port = -1;
         this.strSocketName = stringSocketName;
         this.inboundMsgDispatcher = imd;
-        this.inQueue = new InboundMessageQueue(imd);
+        this.multiplexQueue = new InboundMessageQueue(imd);
 
-        ss = new StringServerSocket(stringSocketName);
+        localSocket = new StringServerSocket(stringSocketName, this );
         setName("server-localstring-" + stringSocketName);  // Thread name for debugging
 
         initMisc();
@@ -527,83 +538,142 @@ public abstract class Server extends Thread implements Serializable, Cloneable
     }
 
     /**
-     * Run method for Server:
-     * Start a single "treater" thread for processing inbound messages,
+     * Run method for Server. This method watches
+     * Start a single thread for processing inbound messages,
      * call the {@link #serverUp()} callback, then wait for new connections
      * and set them up in their own threads.
      */
     @Override
     public void run()
     {
-
         if (error != null)
         {
             return;
         }
 
-        // Set "up" _before_ starting treater (avoid race condition)
+        // Set "up" _before_ starting message dispatcher (avoid race condition)
         up = true;
 
-        inQueue.startMessageProcessing();
+        multiplexQueue.startMessageProcessing();
 
-        serverUp();  // Any processing for child class to do after serversocket is bound, before the main loop begins
+        serverUp();  // Any processing for child class to do after server socket is bound, before the main loop begins
 
-        while (isUp())
+        // Start a thread to listen for in-memory connection requests, primarily robots but
+        // occasionally practice clients
+        new MemAccepter( this ).start();
+
+        if (null != serverSocket)
         {
-            try
+            while (isUp())
             {
-                while (isUp())
+                while (isUp()) try
                 {
                     // we could limit the number of accepted connections here
                     // Currently it's limited in SOCServer.newConnection1 by checking connectionCount()
                     // which is more modular.
-                    Connection connection = ss.accept();
-                    if (port != -1)
-                    {
-                        new Thread((NetConnection) connection).start();
-                    }
-                    else
-                    {
-                        StringConnection localConnection = (StringConnection) connection;
-                        localConnection.setServer(this);
 
-                        new Thread(localConnection).start();
-                    }
+                    NetConnection connection = (NetConnection) serverSocket.accept(); // blocks until a network connection request is received.
+                    addConnection( connection ); // calls connect which attaches to the i/o streams and set connected to true;
+                    // NetConnection will read from the input stream, convert strings to SOCMessage
+                    // instances, then call this method to place the message in the server's
+                    // multiplexing InboundMessageQueue
+//                    connection.startMessageProcessing( new SOCMessageDispatcher()
+//                    {
+//                        @Override
+//                        public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
+//                        {
+//                            processFirstCommand( message, connection );
+//                        }
+//
+//                        @Override
+//                        public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
+//                        {
+//                            multiplexQueue.push( message, connection );
+//                        }
+//                    } );
+                }
+                catch( InterruptedException ignore ) {}
+                catch( SocketException e )
+                {
+                    System.out.println( "Socket exception" );
+                    e.printStackTrace();
+                }
+                catch( IOException e )
+                {
+                    e.printStackTrace();
+                }
 
-                    //addConnection(new Connection());
+                // accept() or connect() failed. Close the connection factory and try again.
+                try
+                {
+                    serverSocket.close();
+                    if (up)
+                    {
+                        // retry
+                        serverSocket = new NetServerSocket( port, this );
+                    }
+                }
+                catch( IOException e )
+                {
+                    if (up)
+                    {
+                        System.err.println( "Could not listen on port " + port + ": " + e );
+                        up = false;
+                    }
+                    multiplexQueue.stopMessageProcessing();
+                    error = e;
                 }
             }
-            catch (IOException e)
-            {
-                error = e;
-                if (up)
-                    D.ebugPrintlnINFO("Exception " + e + " during accept");
+        }
+    }
 
-                //System.out.println("STOPPING SERVER");
-                //stopServer();
-            }
+    /**
+     * Thread which waits for in-memory connection requests then launches a dispatcher to forward
+     * incoming messages to the server's multiplexing {@code InboundMessageQueue}
+     */
+    public class MemAccepter extends Thread
+    {
+        private final Server server;
 
-            try
+        MemAccepter( Server server )
+        {
+
+            this.server = server;
+        }
+
+        @Override
+        public void run()
+        {
+            while (isUp())  // two while loops to allow for retry on failure.
             {
-                ss.close();
-                if (up)
+                while (isUp()) try
                 {
-                    // retry
-                    if (strSocketName == null)
-                        ss = new NetServerSocket(port, this);
-                    else
-                        ss = new StringServerSocket(strSocketName);
+                    // reads from the server accept queue, creates a server peer
+                    localSocket.accept();
                 }
-            }
-            catch (IOException e)
-            {
-                if (up)
+                catch( InterruptedException ignore ) {}
+                catch( IOException e )
                 {
-                    System.err.println("Could not listen on port " + port + ": " + e);
+                    error = e;
+                    if (up)
+                        D.ebugPrintlnINFO( "Exception " + e + " during accept" );
+                }
+
+                try
+                {
+                    localSocket.close();
+                    if (up)
+                    {
+                        // retry
+                        localSocket = new StringServerSocket( strSocketName, server );
+                    }
+                }
+                catch( IOException e )
+                {
                     up = false;
+                    multiplexQueue.stopMessageProcessing();
+                    error = e;
                 }
-                inQueue.stopMessageProcessing();
-                error = e;
             }
         }
     }
@@ -713,7 +783,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
     {
         up = false;
 
-        inQueue.stopMessageProcessing();
+        multiplexQueue.stopMessageProcessing();
 
         serverDown();
 
@@ -722,8 +792,8 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             e.nextElement().disconnect();
         }
 
-        if (ss != null)
-            try { ss.close(); }
+        if (serverSocket != null)
+            try { serverSocket.close(); }
             catch (IOException e) {}
 
         conns.clear();
@@ -790,11 +860,13 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                     ConnExcepDelayedPrintTask leftMsgTask = new ConnExcepDelayedPrintTask(false, cerr, c);
                     cliConnDisconPrintsPending.put(cKey, leftMsgTask);
                     utilTimer.schedule(leftMsgTask, CLI_DISCON_PRINT_TIMER_FIRE_MS);
-                } else {
+                }
+                else
+                {
                     // no connection-name key data; we can't identify it later if it reconnects;
                     // just print the announcement right now.
                     D.ebugPrintlnINFO
-                        (c.host() + " left (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  "
+                        (c.getHost() + " left (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  "
                          + (new Date()).toString() + ((cerr != null) ? (": " + cerr.toString()) : ""));
                 }
             }
@@ -851,7 +923,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
                         conns.put(cKey, c);
                         connNames.put(cName, cKey);
-                    } else {
+                    }
+                    else
+                    {
                         unnamedConns.add(c);
                     }
 
@@ -863,7 +937,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                 {
                     c.disconnectSoft();
                 }
-            } else {
+            }
+            else
+            {
                 return;  // <--- early return: c.connect failed ---
             }
         }
@@ -878,11 +954,14 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                 cliConnDisconPrintsPending.put(c, cameMsgTask);
                 utilTimer.schedule(cameMsgTask, CLI_CONN_PRINT_TIMER_FIRE_MS);
 
-                // D.ebugPrintln(c.host() + " came (" + connectionCount() + ")  " + (new Date()).toString());
+                // D.ebugPrintln(c.getHost() + " came (" + connectionCount() + ")  " + (new Date()).toString());
             }
             newConnection2(c);  // <-- App-specific #2 --
-        } else {
-            D.ebugPrintlnINFO(c.host() + " came but rejected (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  " + (new Date()).toString());
+        }
+        else
+        {
+            D.ebugPrintlnINFO(c.getHost() + " came but rejected (" + getNamedConnectionCount()
+                + "," + numberCurrentConnections + ")  " + (new Date()).toString());
         }
     }
 
@@ -950,7 +1029,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         {
             cv = new ConnVersionCounter(cvers);
             cliVersionsConnected.put(cvkey, cv);  // with cliCount == 1
-        } else {
+        }
+        else
+        {
             cv.cliCount++;
             return;  // <---- Early return: We already have this version ----
         }
@@ -961,7 +1042,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             // Use its version# as the min/max.
             cliVersionMin = cvers;
             cliVersionMax = cvers;
-        } else {
+        }
+        else
+        {
             if (cvers < cliVersionMin)
                 cliVersionMin = cvers;
             else if (cvers > cliVersionMax)
@@ -1181,7 +1264,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                     {
                         return false;
                     }
-                } else {
+                }
+                else
+                {
                     cliCount += cvc1.cliCount;
                 }
             }
@@ -1190,7 +1275,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             {
                 if (cve2.hasNext())
                     return false;
-            } else {
+            }
+            else
+            {
                 return (cliCount == numberCurrentConnections);
             }
         }
@@ -1231,7 +1318,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         if (1 == treeSize)
         {
             cliVersionMax = cvers;
-        } else {
+        }
+        else
+        {
             cliVersionMax = cliVersionsConnected.lastKey();
         }
     }
@@ -1245,7 +1334,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #broadcastToVers(String, int, int)
      * @throws IllegalArgumentException if {@code m} is {@code null}
      */
-    private synchronized void broadcast(final String m)
+    public synchronized void broadcast( final SOCMessage m )
         throws IllegalArgumentException
     {
         if (m == null)
@@ -1253,11 +1342,11 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
         for (Enumeration<Connection> e = getConnections(); e.hasMoreElements();)
         {
-            e.nextElement().put(m);
+            e.nextElement().send(m);
         }
         for (Enumeration<Connection> e = unnamedConns.elements(); e.hasMoreElements();)
         {
-            e.nextElement().put(m);
+            e.nextElement().send(m);
         }
     }
 
@@ -1269,14 +1358,14 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @throws IllegalArgumentException if {@code m} is {@code null}
      * @since 2.1.00
      */
-    public synchronized void broadcast(final SOCMessage m)
-        throws IllegalArgumentException
-    {
-        if (m == null)
-            throw new IllegalArgumentException("m");
-
-        broadcast(m.toCmd());
-    }
+//    public synchronized void broadcast(final SOCMessage m)
+//        throws IllegalArgumentException
+//    {
+//        if (m == null)
+//            throw new IllegalArgumentException("m");
+//
+//        broadcast(m.toCmd());
+//    }
 
     /**
      * Broadcast a SOCmessage to all connected clients (named and
@@ -1296,7 +1385,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @throws IllegalArgumentException if {@code m} is {@code null}
      * @since 1.1.06
      */
-    private synchronized void broadcastToVers(final String m, final int vmin, final int vmax)
+    protected synchronized void broadcastToVers( final SOCMessage m, final int vmin, final int vmax )
         throws IllegalArgumentException
     {
         if (m == null)
@@ -1310,14 +1399,14 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             Connection c = e.nextElement();
             int cvers = c.getVersion();
             if ((cvers >= vmin) && (cvers <= vmax))
-                c.put(m);
+                c.send(m);
         }
         for (Enumeration<Connection> e = unnamedConns.elements(); e.hasMoreElements();)
         {
             Connection c = e.nextElement();
             int cvers = c.getVersion();
             if ((cvers >= vmin) && (cvers <= vmax))
-                c.put(m);
+                c.send(m);
         }
     }
 
@@ -1338,14 +1427,14 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #broadcast(SOCMessage)
      * @since 2.1.00
      */
-    public synchronized void broadcastToVers(final SOCMessage m, final int vmin, final int vmax)
-        throws IllegalArgumentException
-    {
-        if (m == null)
-            throw new IllegalArgumentException("null");
-
-        broadcastToVers(m.toCmd(), vmin, vmax);
-    }
+//    public synchronized void broadcastToVers(final SOCMessage m, final int vmin, final int vmax)
+//        throws IllegalArgumentException
+//    {
+//        if (m == null)
+//            throw new IllegalArgumentException("null");
+//
+//        broadcastToVers(m.toCmd(), vmin, vmax);
+//    }
 
     /**
      * Nested classes/interfaces begin here
@@ -1360,41 +1449,41 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
      * @since 2.0.00
      */
-    public interface InboundMessageDispatcher
-    {
-        /**
-         * Remove a queued incoming message from a client, and treat it.
-         * Messages of unknown type are ignored.
-         * Called from the single 'treater' thread of {@link InboundMessageQueue}.
-         *<P>
-         * <em>Do not block or sleep</em> because this is single-threaded.
-         * Any slow or lengthy work for a message should be done on other threads.
-         * If the result of that work needs to be handled on the 'treater' thread,
-         * use {@link InboundMessageQueue#post(Runnable)}.
-         *<P>
-         * {@code dispatch(..)} must catch any exception thrown by conditions or
-         * bugs in server or game code it calls.
-         *<P>
-         * The first message from a client is treated by
-         * {@link #processFirstCommand(SOCMessage, Connection)} instead.
-         *<P>
-         *<B>Security Note:</B> When there is a choice, always use local information
-         * over information from the message.  For example, use the nickname from the connection to get the player
-         * information rather than the player information from the message.  This makes it harder to send false
-         * messages making players do things they didn't want to do.
-         *
-         * @param mes Message from the client. Will never be {@code null}.
-         *    Has been parsed by {@link SOCMessage#toMsg(String)}.
-         *    Should not dispatch unless <tt>{@link Connection#getData() con.getData()} != null</tt>
-         *    or {@code mes} implements {@link SOCMessageFromUnauthClient}.
-         * @param con Connection (client) sending this message. Will never be {@code null}.
-         * @throws IllegalStateException if not ready to dispatch because some
-         *    initialization method needs to be called first;
-         *    see dispatcher class javadoc
-         */
-        void dispatch( SOCMessage mes, Connection con )
-            throws IllegalStateException;
-    }
+//    public interface InboundMessageDispatcher
+//    {
+//        /**
+//         * Remove a queued incoming message from a client, and treat it.
+//         * Messages of unknown type are ignored.
+//         * Called from the single 'treater' thread of {@link InboundMessageQueue}.
+//         *<P>
+//         * <em>Do not block or sleep</em> because this is single-threaded.
+//         * Any slow or lengthy work for a message should be done on other threads.
+//         * If the result of that work needs to be handled on the 'treater' thread,
+//         * use {@link InboundMessageQueue#post(Runnable)}.
+//         *<P>
+//         * {@code dispatch(..)} must catch any exception thrown by conditions or
+//         * bugs in server or game code it calls.
+//         *<P>
+//         * The first message from a client is treated by
+//         * {@link #processFirstCommand(SOCMessage, Connection)} instead.
+//         *<P>
+//         *<B>Security Note:</B> When there is a choice, always use local information
+//         * over information from the message.  For example, use the nickname from the connection to get the player
+//         * information rather than the player information from the message.  This makes it harder to send false
+//         * messages making players do things they didn't want to do.
+//         *
+//         * @param mes Message from the client. Will never be {@code null}.
+//         *    Has been parsed by {@link SOCMessage#toMsg(String)}.
+//         *    Should not dispatch unless <tt>{@link Connection#getData() con.getData()} != null</tt>
+//         *    or {@code mes} implements {@link SOCMessageFromUnauthClient}.
+//         * @param con Connection (client) sending this message. Will never be {@code null}.
+//         * @throws IllegalStateException if not ready to dispatch because some
+//         *    initialization method needs to be called first;
+//         *    see dispatcher class javadoc
+//         */
+//        void dispatch( SOCMessage mes, Connection con )
+//            throws IllegalStateException;
+//    }
 
     /**
      * Hold info about 1 version of connected clients; for use in {@link #cliVersionsConnected}.
@@ -1463,7 +1552,8 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                 if (! checkPassed)
                 {
                     srv.clientVersionRebuildMap(tree2);
-                } else
+                }
+                else
                 {
                     if (wantsFull)
                         srv.cliVersionsConnectedQuickCheckCount = 0;
@@ -1544,7 +1634,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             excep = ex;
             thrownAt = System.currentTimeMillis();
             isArriveNotDepart = isArrival;
-            connHost = c.host();
+            connHost = c.getHost();
             connName = c.getData();
             if (isArrival)
                 arrivingConn = c;
@@ -1563,7 +1653,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             {
                 D.ebugPrintlnINFO(connHost + " came (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  " + (new Date(thrownAt)).toString());
                 cliConnDisconPrintsPending.remove(arrivingConn);
-            } else {
+            }
+            else
+            {
                 D.ebugPrintlnINFO(connHost + " left (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  " + (new Date(thrownAt)).toString() + ((excep != null) ? (": " + excep.toString()) : ""));
                 cliConnDisconPrintsPending.remove(connName);
             }

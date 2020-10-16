@@ -23,7 +23,7 @@ package soc.server;
 
 import soc.disableDebug.D;
 
-import soc.server.genericServer.Connection;
+import soc.communication.Connection;
 
 import soc.util.MutexFlag;
 

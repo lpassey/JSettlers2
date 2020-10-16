@@ -152,7 +152,9 @@ public class Sounds
                 buf[ib] = (byte) ((val >> 8) & 0xFF);
                 ++ib;
             }
-        } else {
+        }
+        else
+        {
             amax = 0;
         }
 
@@ -305,7 +307,9 @@ public class Sounds
             try
             {
                 sdl.open(AFMT_PCM_16_AT_SAMPLE_RATE);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 // LineUnavailableException, IllegalStateException, etc
                 sdl = null;
             }
@@ -346,11 +350,12 @@ public class Sounds
             genChime(NOTE_C4_HZ, 90, .9, buf, i, false);
             playPCMBytes(buf);
 
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             // LineUnavailableException, InterruptedException
             System.err.println("Exception: " + e);
             e.printStackTrace();
         }
     }
-
 }

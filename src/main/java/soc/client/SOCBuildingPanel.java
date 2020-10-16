@@ -244,7 +244,7 @@ import javax.swing.SwingConstants;
         final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
         if (! isOSHighContrast)
         {
-            final Color colors[] = SwingMainDisplay.getForegroundBackgroundColors(true, false);
+            final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors( true, false );
             setBackground(colors[2]);  // SwingMainDisplay.DIALOG_BG_GOLDENROD
             setForeground(colors[0]);  // Color.BLACK
         }
@@ -367,7 +367,9 @@ import javax.swing.SwingConstants;
                 add(wondersBut);
                 wondersBut.addActionListener(this);
             }
-        } else {
+        }
+        else
+        {
             // shipBut, cloth, wondersBut already null
             shipSq = null;
         }
@@ -384,7 +386,9 @@ import javax.swing.SwingConstants;
             vpToWinLab = new JLabel(strings.get("build.vp.to.win"), SwingConstants.RIGHT);  // "VP to win:"
             vpToWinLab.setToolTipText(TTIP_VP_TEXT);
             add(vpToWinLab);
-        } else {
+        }
+        else
+        {
             vpToWinLab = null;
             vpToWin = null;
         }
@@ -433,7 +437,9 @@ import javax.swing.SwingConstants;
                         }
                         sbBut.setLocation(x, y);
                         sbBut.setSize(btnW, lineH);
-                    } else {
+                    }
+                    else
+                    {
                         // layout on 2 lines; y == line height == half of panel height, then adjust for padding
                         int y = (dim.height / 2) - 1;
                         sbLab.setLocation(0, 0);
@@ -449,7 +455,9 @@ import javax.swing.SwingConstants;
             {
                 // Large board: 1 line, no room for sbLab
                 sbBut = new JButton(strings.get("build.special.build"));  // "Special Build"
-            } else {
+            }
+            else
+            {
                 // Classic board: 2 lines, label and button
                 sbLab = new JLabel(strings.get("build.special.build.phase"), SwingConstants.CENTER);  // "Special Building Phase"
                 sbLab.setFont(panelFont);
@@ -490,7 +498,9 @@ import javax.swing.SwingConstants;
             if (co instanceof JLabel)
             {
                 ((JLabel) co).setVerticalAlignment(JLabel.TOP);
-            } else {
+            }
+            else
+            {
                 ((JButton) co).setMargin(minMargin);
                 if (shouldClearButtonBGs)
                     co.setBackground(null);  // required on win32 to avoid gray corners on JButton
@@ -590,7 +600,9 @@ import javax.swing.SwingConstants;
                 // Leaves room for right-hand column of buttons
                 sbPanel.setSize(dim.width - curX - (2 * (butW + margin)), rowSpaceH + lineH);
                 sbPanel.setLocation(curX, curY - (rowSpaceH / 2));
-            } else {
+            }
+            else
+            {
                 // Classic board: 2 lines, label and button
                 sbPanel.setSize(dim.width - curX - margin, rowSpaceH + 2 * lineH);
                 // sbBut.setSize(dim.width - curX - margin - 2 * buttonMargin, lineH);
@@ -656,7 +668,9 @@ import javax.swing.SwingConstants;
         {
             rightButW = dim.width - curX - margin;
             // keep current curX
-        } else {
+        }
+        else
+        {
             curX = dim.width - rightButW - margin;
             // keep current rightButW
         }
@@ -694,7 +708,9 @@ import javax.swing.SwingConstants;
                 curX -= (vpLabW + (2*margin));
                 vpToWinLab.setLocation(curX, curY);
                 vpToWinLab.setSize(vpLabW + margin, lineH);
-            } else {
+            }
+            else
+            {
                 if (maxPlayers <= 4)
                 {
                     // 4-player: row 3, align from right, below Options;
@@ -705,7 +721,9 @@ import javax.swing.SwingConstants;
 
                     curX -= (vpLabW + (2*margin));
                     vpToWinLab.setLocation(curX, curY);
-                } else {
+                }
+                else
+                {
                     // 6-player: row 1, upper-right corner of panel; shift left to make room
                     // for Game Stats button (which is moved up to make room for Special Building button).
                     // Align from left if possible, above Special Building button's wide panel
@@ -796,48 +814,53 @@ import javax.swing.SwingConstants;
      */
     public void actionPerformed(ActionEvent e)
     {
-        try {
-        String target = e.getActionCommand();
-        SOCGame game = pi.getGame();
-
-        if (e.getSource() == gameOptsBut)
+        try
         {
-            if ((ngof != null) && ngof.isVisible())
+            String target = e.getActionCommand();
+            SOCGame game = pi.getGame();
+
+            if (e.getSource() == gameOptsBut)
             {
-                ngof.setVisible(true);  // method override also requests topmost/focus
-            } else {
-                ngof = NewGameOptionsFrame.createAndShow
-                    (pi, pi.getMainDisplay(), game.getName(), game.getGameOptions(), false, true);
-                ngof.addWindowListener(this);  // drop ngof reference when window is closed
+                if ((ngof != null) && ngof.isVisible())
+                {
+                    ngof.setVisible( true );  // method override also requests topmost/focus
+                }
+                else
+                {
+                    ngof = NewGameOptionsFrame.createAndShow
+                        ( pi, pi.getMainDisplay(), game.getName(), game.getGameOptions(), false, true );
+                    ngof.addWindowListener( this );  // drop ngof reference when window is closed
+                }
+
+                return;
+            }
+            if (e.getSource() == statsBut)
+            {
+                if (statsFrame != null)
+                    statsFrame.dispose();
+                GameStatisticsFrame f = new GameStatisticsFrame( pi );
+                f.register( pi.getGameStats() );
+                f.setLocation( this.getLocationOnScreen() );
+                f.setVisible( true );
+                statsFrame = f;
+
+                return;
+            }
+            else if (e.getSource() == wondersBut)
+            {
+                clickWondersButton();
+
+                return;
             }
 
-            return;
+            if (player != null)
+            {
+                clickBuildingButton( game, target, false );
+            }
         }
-        if (e.getSource() == statsBut)
+        catch( Throwable th )
         {
-            if (statsFrame != null)
-                statsFrame.dispose();
-            GameStatisticsFrame f = new GameStatisticsFrame(pi);
-            f.register(pi.getGameStats());
-            f.setLocation(this.getLocationOnScreen());
-            f.setVisible(true);
-            statsFrame = f;
-
-            return;
-        }
-        else if (e.getSource() == wondersBut)
-        {
-            clickWondersButton();
-
-            return;
-        }
-
-        if (player != null)
-        {
-            clickBuildingButton(game, target, false);
-        }
-        } catch (Throwable th) {
-            pi.chatPrintStackTrace(th);
+            pi.chatPrintStackTrace( th );
         }
     }
 
@@ -1246,7 +1269,9 @@ import javax.swing.SwingConstants;
             {
                 setBackground(colorsFrom.getBackground());
                 setForeground(colorsFrom.getForeground());
-            } else {
+            }
+            else
+            {
                 final Color[] sysColors = SwingMainDisplay.getForegroundBackgroundColors(false, true);
                 setForeground(sysColors[0]);
                 setBackground(sysColors[2]);

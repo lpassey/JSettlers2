@@ -115,7 +115,9 @@ public class SOCDevCard
         if ((devCardType >= 0) && (devCardType < keyArr.length))
         {
             ctname = keyArr[devCardType];
-        } else {
+        }
+        else
+        {
             ctname = keyArr[SOCDevCardConstants.UNKNOWN];
         }
 
@@ -146,7 +148,9 @@ public class SOCDevCard
         if ((devCardType >= 0) && (devCardType < GETCARDTYPENAME_KEYS[0].length))
         {
             ctname = strings.get(getCardTypeNameKey(devCardType, game, withArticle));
-        } else {
+        }
+        else
+        {
             ctname = "Unknown card type " + devCardType;  // don't bother I18N, should not occur
         }
 

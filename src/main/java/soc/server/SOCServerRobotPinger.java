@@ -26,7 +26,7 @@ import java.util.Vector;
 
 import soc.disableDebug.D;
 import soc.message.SOCServerPing;
-import soc.server.genericServer.Connection;
+import soc.communication.Connection;
 
 
 /**
@@ -99,9 +99,11 @@ import soc.server.genericServer.Connection;
                     {
                         if (D.ebugIsEnabled())
                             D.ebugPrintlnINFO("(*)(*)(*)(*) PINGING " + robotConnection.getData());
-                        robotConnection.put(ping);
+                        robotConnection.send(ping);
                     }
-                } catch (ConcurrentModificationException e) {
+                }
+                catch (ConcurrentModificationException e)
+                {
                     retry = true;
                 }
             }

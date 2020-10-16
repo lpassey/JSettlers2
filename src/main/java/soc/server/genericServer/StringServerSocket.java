@@ -1,5 +1,5 @@
 /**
- * Local ({@link StringConnection}) network message system.
+ * Local ({@link MemConnection}) network message system.
  * This file Copyright (C) 2007-2009,2016-2017,2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
  *
@@ -20,6 +20,12 @@
  **/
 package soc.server.genericServer;
 
+import soc.communication.Connection;
+import soc.communication.MemConnection;
+import soc.communication.SOCMessageDispatcher;
+import soc.message.SOCMessage;
+import soc.server.SOCClientData;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -27,6 +33,7 @@ import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  *
@@ -60,21 +67,22 @@ public class StringServerSocket implements SOCServerSocket
     public static int ACCEPT_QUEUELENGTH = 100;
 
     /** Server-peer sides of connected clients; Added by accept method */
-    protected Vector<StringConnection> allConnected;
+    final protected Vector<MemConnection> allConnected;
 
     /** Waiting client connections (client-peer sides); Added by connectClient, removed by accept method */
-    protected Vector<StringConnection> acceptQueue;
+    final protected LinkedBlockingQueue<MemConnection> acceptQueue = new LinkedBlockingQueue<>(  );
 
     private String socketName;
+    private final Server server;
     boolean out_setEOF;
 
-    private Object sync_out_setEOF;  // For synchronized methods, so we don't sync on "this".
+    private final Object sync_out_setEOF;  // For synchronized methods, so we don't sync on "this".
 
-    public StringServerSocket(String name)
+    public StringServerSocket(String name, Server server )
     {
         socketName = name;
+        this.server = server;
         allConnected = new Vector<>();
-        acceptQueue = new Vector<>();
         out_setEOF = false;
         sync_out_setEOF = new Object();
         allSockets.put(name, this);
@@ -92,10 +100,10 @@ public class StringServerSocket implements SOCServerSocket
      *                          or if its connect/accept queue is full.
      * @throws IllegalArgumentException If name is null
      */
-    public static StringConnection connectTo(String name)
+    public static MemConnection connectTo(String name)
         throws ConnectException, IllegalArgumentException
     {
-        return connectTo (name, new StringConnection());
+        return connectTo (name, new MemConnection());
     }
 
     /**
@@ -113,7 +121,7 @@ public class StringServerSocket implements SOCServerSocket
      *
      * @return client parameter object, connected to a LocalStringServer
      */
-    public static StringConnection connectTo(String name, StringConnection client)
+    public static MemConnection connectTo(String name, MemConnection client)
         throws ConnectException, IllegalArgumentException
     {
         if (name == null)
@@ -130,10 +138,9 @@ public class StringServerSocket implements SOCServerSocket
         if (ss.isOutEOF())
             throw new ConnectException("StringServerSocket name is EOF: " + name);
 
-        StringConnection servSidePeer;
         try
         {
-            servSidePeer = ss.queueAcceptClient(client);
+            ss.queueAcceptClient(client);
         }
         catch (ConnectException ce)
         {
@@ -150,21 +157,21 @@ public class StringServerSocket implements SOCServerSocket
         // and accepted the connection from this client-side thread already.
         // So, check if we're accepted, before waiting to be accepted.
         //
-        synchronized (servSidePeer)
+        synchronized (client)
         {
             // Sync vs. critical section in accept
 
-            if (! servSidePeer.isAccepted())
+            if (! client.isAccepted())
             {
                 try
                 {
-                    servSidePeer.wait();  // Notified by accept method
+                    client.wait();  // Notified by accept method
                 }
                 catch (InterruptedException e) {}
             }
         }
 
-        if (client != servSidePeer.getPeer())
+        if (client != client.getPeer().getPeer())
             throw new IllegalStateException("Internal error: Peer is wrong");
 
         if (client.isOutEOF())
@@ -190,8 +197,8 @@ public class StringServerSocket implements SOCServerSocket
      * @see #accept()
      * @see #ACCEPT_QUEUELENGTH
      */
-    protected StringConnection queueAcceptClient(StringConnection client)
-        throws IllegalStateException, IllegalArgumentException, ConnectException, EOFException
+    protected MemConnection queueAcceptClient( MemConnection client )
+        throws IllegalStateException, IllegalArgumentException, ConnectException, EOFException, InterruptedException
     {
         if (isOutEOF())
             throw new IllegalStateException("Internal error, already at EOF");
@@ -206,16 +213,9 @@ public class StringServerSocket implements SOCServerSocket
         // created peer object to prevent possible contention with other
         // objects; we know this new object won't have any locks on it.
 
-        StringConnection serverPeer = new StringConnection(client);
-        synchronized (acceptQueue)
-        {
-            if (acceptQueue.size() > ACCEPT_QUEUELENGTH)
-                throw new ConnectException("Server accept queue is full");
-            acceptQueue.add(client);
-            acceptQueue.notifyAll();
-        }
-
-        return serverPeer;
+//        MemConnection serverPeer = new MemConnection(client);
+        acceptQueue.put( client );
+        return client;
     }
 
     /**
@@ -227,34 +227,18 @@ public class StringServerSocket implements SOCServerSocket
      *    new clients won't receive any data from us
      * @throws IOException if a network problem occurs (Which won't happen with this local communication)
      */
-    public Connection accept() throws SocketException, IOException
+    public Connection accept() throws IOException, InterruptedException
     {
         if (out_setEOF)
-            throw new SocketException("Server socket already at EOF");
+            throw new SocketException( "Server socket already at EOF" );
 
-        StringConnection cliPeer;
+        MemConnection cliPeer;
 
-        synchronized (acceptQueue)
-        {
-            while (acceptQueue.isEmpty())
-            {
-                if (out_setEOF)
-                    throw new SocketException("Server socket already at EOF");
-                else
-                {
-                    try
-                    {
-                        acceptQueue.wait();  // Notified by queueAcceptClient
-                    }
-                    catch (InterruptedException e) {}
-                }
-            }
-            cliPeer = acceptQueue.elementAt(0);
-            acceptQueue.removeElementAt(0);
-        }
+        cliPeer = acceptQueue.take();   // blocks until something show up in the accept queue.
 
-        StringConnection servPeer = cliPeer.getPeer();
-        cliPeer.setAccepted();
+        MemConnection servPeer = new MemConnection( cliPeer );
+        servPeer.setAppData( new SOCClientData() );
+        servPeer.setAccepted(); // probably unnecessary ...
 
         if (out_setEOF)
         {
@@ -262,28 +246,49 @@ public class StringServerSocket implements SOCServerSocket
             cliPeer.disconnect();
         }
 
-        synchronized (servPeer)
+        // synchronized so that we can notify the waiting thread that initialization is complete.
+        synchronized (cliPeer)
         {
-            // Sync vs. critical section in connectTo;
-            // client has been waiting there for our accept.
+            // Sync vs. critical section in connectTo; client has been waiting there for our acceptance.
+            if (!out_setEOF)
+            {
+                cliPeer.setAccepted();
 
-            if (! out_setEOF)
-                servPeer.setAccepted();
-            servPeer.notifyAll();
+                // Our peer's message processor will take from the message wait queue then call one
+                // of these methods to place the message in the server's multiplexing
+                // InboundMessageQueue For servers the first message in the queue is dispatched
+                // separately from the remaining messages.
+                servPeer.startMessageProcessing( new SOCMessageDispatcher()
+                {
+                    @Override
+                    public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
+                    {
+                        server.processFirstCommand(message, connection);
+                    }
+
+                    @Override
+                    public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
+                    {
+                        // This is where we check for the first messge
+                        server.multiplexQueue.push( message, connection );
+                    }
+                } );
+
+            }
+            cliPeer.notifyAll();
         }
 
         if (out_setEOF)
-            throw new SocketException("Server socket already at EOF");
-
-        allConnected.addElement(servPeer);
-
-        return servPeer;
+            throw new SocketException( "Server socket already at EOF" );
+        server.addConnection( servPeer );   // Calls connect(). TODO: make sure this is really what we want to do!
+        allConnected.addElement( servPeer );
+        return cliPeer;
     }
 
     /**
      * @return Server-peer sides of all currently connected clients (StringConnections)
      */
-    public Enumeration<StringConnection> allClients()
+    public Enumeration<MemConnection> allClients()
     {
         return allConnected.elements();
     }
@@ -295,7 +300,7 @@ public class StringServerSocket implements SOCServerSocket
      */
     public void disconnectEOFClients()
     {
-        StringConnection servPeer;
+        MemConnection servPeer;
 
         synchronized (allConnected)
         {
@@ -341,8 +346,8 @@ public class StringServerSocket implements SOCServerSocket
      * @param forceDisconnect Call disconnect on clients, or just send them an EOF marker?
      *
      * @see #close()
-     * @see StringConnection#disconnect()
-     * @see StringConnection#setEOF()
+     * @see MemConnection#disconnect()
+     * @see MemConnection#setEOF()
      */
     protected void setEOF(boolean forceDisconnect)
     {
@@ -351,7 +356,7 @@ public class StringServerSocket implements SOCServerSocket
             out_setEOF = true;
         }
 
-        Enumeration<StringConnection> connected = allConnected.elements();
+        Enumeration<MemConnection> connected = allConnected.elements();
         while (connected.hasMoreElements())
         {
             if (forceDisconnect)
@@ -392,7 +397,7 @@ public class StringServerSocket implements SOCServerSocket
         // Notify any threads waiting for accept.
         // In those threads, our connectTo method will see
         // the EOF and throw SocketException.
-        for (StringConnection cliPeer : acceptQueue)
+        for (MemConnection cliPeer : acceptQueue)
         {
             cliPeer.disconnect();
             synchronized (cliPeer)

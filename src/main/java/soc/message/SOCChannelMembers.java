@@ -21,7 +21,7 @@
  **/
 package soc.message;
 
-import soc.server.genericServer.Connection;
+import soc.communication.Connection;
 
 import java.util.ArrayList;
 import java.util.List;

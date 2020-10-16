@@ -244,7 +244,9 @@ public class SOCSpecialItem
             itemLevel = 0;
             startingCostPiecetype = SOCPlayingPiece.SHIP;
                 // note: client SOCSpecialItemDialog assumes all items have same startingCostPiecetype; true for SC_WOND
-        } else {
+        }
+        else
+        {
             return new SOCSpecialItem(null, -1, null, null);  // <--- Early return: Unknown typeKey ---
         }
 
@@ -252,7 +254,9 @@ public class SOCSpecialItem
         if ((typeCosts == null) || (idx < 0) || (idx >= typeCosts.length))
         {
             costRS = null;
-        } else {
+        }
+        else
+        {
             final int[] cost = typeCosts[idx];
             costRS = (cost == null) ? null : new SOCResourceSet(cost);
         }
@@ -626,7 +630,9 @@ public class SOCSpecialItem
         if (pl.getNumPieces(startingCostPiecetype) >= 1)
         {
             return true;
-        } else {
+        }
+        else
+        {
             if (throwIfUnmet)
                 throw new IllegalStateException("Must pay starting piece type: " + startingCostPiecetype);
 
@@ -929,7 +935,9 @@ public class SOCSpecialItem
                     itemCount = Integer.parseInt(req.substring(i, j));
                     i = j;
                     // c was req.charAt(j) already
-                } else {
+                }
+                else
+                {
                     itemCount = 1;
                 }
 

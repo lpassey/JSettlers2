@@ -454,7 +454,9 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
                     return i;
 
             return unknownValue;
-        } else {
+        }
+        else
+        {
             throw new IllegalArgumentException("typeName format");
         }
     }

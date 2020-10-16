@@ -20,9 +20,6 @@
 
 package soctest.server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,9 +64,6 @@ public class DisplaylessTesterClient
      */
     protected SOCGameList serverGames = new SOCGameList();
 
-    /** Treat inbound messages through this client's {@link SOCDisplaylessPlayerClient#run()} method. */
-    protected Thread treaterThread;
-
     /**
      * Constructor for a displayless client which will connect to a local server.
      * Does not actually connect here: Call {@link #init()} when ready.
@@ -78,7 +72,7 @@ public class DisplaylessTesterClient
      */
     public DisplaylessTesterClient(final String stringport, final String nickname, final String localeStr)
     {
-        super(new ServerConnectInfo(stringport, null), false);
+        super(new ServerConnectInfo(stringport, null), null );
 
         this.nickname = nickname;
         this.localeStr = localeStr;
@@ -97,29 +91,17 @@ public class DisplaylessTesterClient
     {
         try
         {
-            if (serverConnectInfo.stringSocketName == null)
-            {
-                sock = new Socket(serverConnectInfo.hostname, serverConnectInfo.port);
-                sock.setSoTimeout(300000);
-                in = new DataInputStream(sock.getInputStream());
-                out = new DataOutputStream(sock.getOutputStream());
-            }
-            else
-            {
-                sLocal = StringServerSocket.connectTo(serverConnectInfo.stringSocketName);
-            }
+            connection = StringServerSocket.connectTo(serverConnectInfo.stringSocketName);
             connected = true;
-            treaterThread = new Thread(this);
-            treaterThread.setDaemon(true);
-            treaterThread.start();
+            connection.startMessageProcessing( this );
 
-            put(new SOCVersion
+            connection.send(new SOCVersion
                 (Version.versionNumber(), Version.version(), Version.buildnum(),
                  buildClientFeats().getEncodedList(),
-                 (localeStr != null) ? localeStr : "en_US").toCmd());
-            put(new SOCAuthRequest
+                 (localeStr != null) ? localeStr : "en_US") );
+            connection.send(new SOCAuthRequest
                 (SOCAuthRequest.ROLE_GAME_PLAYER, nickname, "",
-                 SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, "-").toCmd());
+                 SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, "-") );
         }
         catch (Exception e)
         {
@@ -151,7 +133,7 @@ public class DisplaylessTesterClient
     /** Ask to join a game; must have authed already. Sends {@link SOCJoinGame}. */
     public void askJoinGame(String gaName)
     {
-        put(new SOCJoinGame(nickname, "", SOCMessage.EMPTYSTR, gaName).toCmd());
+        connection.send( new SOCJoinGame(nickname, "", SOCMessage.EMPTYSTR, gaName) );
     }
 
     // message handlers
@@ -224,7 +206,7 @@ public class DisplaylessTesterClient
         {
             // Encode board size to pass through game constructor
             if (opts == null)
-                opts = new HashMap<String,SOCGameOption>();
+                opts = new HashMap<>();
             SOCGameOption opt = SOCGameOption.getOption("_BHW", true);
             opt.setIntValue((bh << 8) | bw);
             opts.put("_BHW", opt);

@@ -294,7 +294,9 @@ import java.net.URL;
         if (pn == -1)
         {
             game = null;
-        } else {
+        }
+        else
+        {
             game = pi.getGame();
             if (game == null)
                 throw new IllegalArgumentException("null pi.getGgame");
@@ -537,7 +539,9 @@ import java.net.URL;
         if (displayScale == 1)
         {
             g.drawImage(fimage, offs, offs, getBackground(), this);
-        } else {
+        }
+        else
+        {
             if (g instanceof Graphics2D)
             {
                 ((Graphics2D) g).setRenderingHint
@@ -603,86 +607,89 @@ import java.net.URL;
         @Override
         public void mouseClicked(MouseEvent evt)
         {
-            try {
-            int x = evt.getX();
-
-            if (evt.isPopupTrigger())
+            try
             {
-                popupMenuSystime = evt.getWhen();
-                evt.consume();
-                if (popupMenu != null)
-                    popupMenu.show(x, evt.getY());
-                return;  // <--- Pop up menu, nothing else to do ---
-            }
+                int x = evt.getX();
 
-            if (evt.getWhen() < (popupMenuSystime + POPUP_MENU_IGNORE_MS))
-            {
-                return;  // <--- Ignore click: too soon after popup click ---
-            }
-
-            /**
-             * either faceChooser or game will be non-null.
-             * faceChooser: Bordered mode (within FaceChooserFrame)
-             * game: Standard mode (within SOCHandPanel)
-             */
-            if (faceChooser != null)
-            {
-                faceChooser.selectFace(currentImageNum, hilightBorderShown);
-                evt.consume();
-                return;  // <--- Notify, nothing else to do ---
-            }
-
-            if (game == null)
-            {
-                return;  // <--- Early return: further checks need game ---
-            }
-
-            if (game.isDebugFreePlacement())
-            {
-                pi.setDebugFreePlacementPlayer(pNumber);
-                evt.consume();
-                return;  // <--- Early return ---
-            }
-
-            /**
-             * only change the face if it's the client player's button
-             */
-            if (popupMenu != null)
-            {
-                if (evt.getClickCount() >= 2)  // Show FCF on double-click. added in 1.1.09
+                if (evt.isPopupTrigger())
                 {
+                    popupMenuSystime = evt.getWhen();
                     evt.consume();
-                    popupMenu.showFaceChooserFrame();
+                    if (popupMenu != null)
+                        popupMenu.show( x, evt.getY() );
+                    return;  // <--- Pop up menu, nothing else to do ---
+                }
+
+                if (evt.getWhen() < (popupMenuSystime + POPUP_MENU_IGNORE_MS))
+                {
+                    return;  // <--- Ignore click: too soon after popup click ---
+                }
+
+                /**
+                 * either faceChooser or game will be non-null.
+                 * faceChooser: Bordered mode (within FaceChooserFrame)
+                 * game: Standard mode (within SOCHandPanel)
+                 */
+                if (faceChooser != null)
+                {
+                    faceChooser.selectFace( currentImageNum, hilightBorderShown );
+                    evt.consume();
                     return;  // <--- Notify, nothing else to do ---
                 }
 
-                if (x < (getWidth() / 2))
+                if (game == null)
                 {
-                    // if the click is on the left side, decrease the number
-                    currentImageNum--;
-
-                    if (currentImageNum <= 0)
-                    {
-                        currentImageNum = NUM_FACES - 1;
-                    }
-                }
-                else
-                {
-                    // if the click is on the right side, increase the number
-                    currentImageNum++;
-
-                    if (currentImageNum == NUM_FACES)
-                    {
-                        currentImageNum = 1;
-                    }
+                    return;  // <--- Early return: further checks need game ---
                 }
 
-                evt.consume();
-                pi.getClient().getGameMessageSender().changeFace(game, currentImageNum);
-                repaint();
+                if (game.isDebugFreePlacement())
+                {
+                    pi.setDebugFreePlacementPlayer( pNumber );
+                    evt.consume();
+                    return;  // <--- Early return ---
+                }
+
+                /**
+                 * only change the face if it's the client player's button
+                 */
+                if (popupMenu != null)
+                {
+                    if (evt.getClickCount() >= 2)  // Show FCF on double-click. added in 1.1.09
+                    {
+                        evt.consume();
+                        popupMenu.showFaceChooserFrame();
+                        return;  // <--- Notify, nothing else to do ---
+                    }
+
+                    if (x < (getWidth() / 2))
+                    {
+                        // if the click is on the left side, decrease the number
+                        currentImageNum--;
+
+                        if (currentImageNum <= 0)
+                        {
+                            currentImageNum = NUM_FACES - 1;
+                        }
+                    }
+                    else
+                    {
+                        // if the click is on the right side, increase the number
+                        currentImageNum++;
+
+                        if (currentImageNum == NUM_FACES)
+                        {
+                            currentImageNum = 1;
+                        }
+                    }
+
+                    evt.consume();
+                    pi.getClient().getGameMessageSender().changeFace( game, currentImageNum );
+                    repaint();
+                }
             }
-            } catch (Throwable th) {
-                pi.chatPrintStackTrace(th);
+            catch( Throwable th )
+            {
+                pi.chatPrintStackTrace( th );
             }
         }
 
@@ -693,18 +700,20 @@ import java.net.URL;
         @Override
         public void mouseReleased(MouseEvent evt)
         {
-            try {
-            // Needed in Windows for popup-menu handling
-            if (evt.isPopupTrigger())
+            try
             {
-                popupMenuSystime = evt.getWhen();
-                evt.consume();
-                if (popupMenu != null)
-                    popupMenu.show(evt.getX(), evt.getY());
-                return;
+                // Needed in Windows for popup-menu handling
+                if (evt.isPopupTrigger())
+                {
+                    popupMenuSystime = evt.getWhen();
+                    evt.consume();
+                    if (popupMenu != null)
+                        popupMenu.show( evt.getX(), evt.getY() );
+                }
             }
-            } catch (Throwable th) {
-                pi.chatPrintStackTrace(th);
+            catch( Throwable th )
+            {
+                pi.chatPrintStackTrace( th );
             }
         }
 
@@ -746,11 +755,14 @@ import java.net.URL;
         /** Handling the menu item **/
         public void actionPerformed(ActionEvent e)
         {
-            try {
+            try
+            {
                 if (e.getSource() != changeFaceItem)
                     return;
                 showFaceChooserFrame();
-            } catch (Throwable th) {
+            }
+            catch (Throwable th)
+            {
                 fb.pi.chatPrintStackTrace(th);
             }
         }
@@ -783,7 +795,5 @@ import java.net.URL;
                 fsf = null;
             }
         }
-
     }  /* static nested class FaceButtonPopupMenu */
-
 }

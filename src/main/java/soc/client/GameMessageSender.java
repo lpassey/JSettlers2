@@ -25,6 +25,7 @@ package soc.client;
 
 import java.util.Map;
 
+import soc.communication.Connection;
 import soc.game.SOCDevCardConstants;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
@@ -69,7 +70,7 @@ import soc.message.SOCStartGame;
 /**
  * Client class to form outgoing messages and call {@link ClientNetwork} methods to send them to the server.
  * In-game actions and requests each have their own methods, such as {@link #buyDevCard(SOCGame)}.
- * General messages can be sent using {@link #put(String, boolean)}.
+ * General messages can be sent using {@link #net.send( String, boolean)}.
  *<P>
  * Before v2.0.00, most of these fields and methods were part of the main {@link SOCPlayerClient} class.
  *
@@ -93,6 +94,10 @@ import soc.message.SOCStartGame;
         this.clientListeners = clientListeners;
     }
 
+    public Connection getConnection()
+    {
+        return net.prCli;
+    }
     /**
      * Send a message to the net or practice server by calling {@link ClientNetwork} methods.
      * This is a convenience method. Because the player can be in both network games and practice games,
@@ -105,17 +110,14 @@ import soc.message.SOCStartGame;
      * @return true if the message was sent, false if not
      * @throws IllegalArgumentException if {@code s} is {@code null}
      */
-    synchronized boolean put(String s, final boolean isPractice)
-        throws IllegalArgumentException
-    {
-        if (s == null)
-            throw new IllegalArgumentException("null");
-
-        if (isPractice)
-            return net.putPractice(s);
-        else
-            return net.putNet(s);
-    }
+//    synchronized boolean put(SOCMessage s, final boolean isPractice)
+//        throws IllegalArgumentException
+//    {
+//        if (s == null)
+//            throw new IllegalArgumentException("null");
+//
+//        return net.send(s);
+//    }
 
     /**
      * request to buy a development card
@@ -124,7 +126,7 @@ import soc.message.SOCStartGame;
      */
     public void buyDevCard(SOCGame ga)
     {
-        put(new SOCBuyDevCardRequest(ga.getName()).toCmd(), ga.isPractice);
+        net.send( new SOCBuyDevCardRequest(ga.getName()) );
     }
 
     /**
@@ -138,7 +140,7 @@ import soc.message.SOCStartGame;
     public void buildRequest(SOCGame ga, int piece)
         throws IllegalArgumentException
     {
-        put(new SOCBuildRequest(ga.getName(), piece).toCmd(), ga.isPractice);
+        net.send( new SOCBuildRequest(ga.getName(), piece) );
     }
 
     /**
@@ -149,7 +151,7 @@ import soc.message.SOCStartGame;
      */
     public void cancelBuildRequest(SOCGame ga, int piece)
     {
-        put(new SOCCancelBuildRequest(ga.getName(), piece).toCmd(), ga.isPractice);
+        net.send( new SOCCancelBuildRequest(ga.getName(), piece));
     }
 
     /**
@@ -166,11 +168,11 @@ import soc.message.SOCStartGame;
         throws IllegalArgumentException
     {
         final int co = pp.getCoordinates();
-        final String ppm = (ga.isDebugFreePlacement())
-            ? SOCDebugFreePlace.toCmd(ga.getName(), pp.getPlayerNumber(), pp.getType(), co)
-            : SOCPutPiece.toCmd(ga.getName(), pp.getPlayerNumber(), pp.getType(), co);
+        final SOCMessage ppm = (ga.isDebugFreePlacement())
+            ? new SOCDebugFreePlace( ga.getName(), pp.getPlayerNumber(), pp.getType(), co)
+            : new SOCPutPiece( ga.getName(), pp.getPlayerNumber(), pp.getType(), co);
 
-        put(ppm, ga.isPractice);
+        net.send( ppm);
     }
 
     /**
@@ -187,7 +189,7 @@ import soc.message.SOCStartGame;
         (final SOCGame ga, final int pn, final int ptype, final int fromCoord, final int toCoord)
         throws IllegalArgumentException
     {
-        put(SOCMovePiece.toCmd(ga.getName(), pn, ptype, fromCoord, toCoord), ga.isPractice);
+        net.send( new SOCMovePiece( ga.getName(), pn, ptype, fromCoord, toCoord));
     }
 
     /**
@@ -199,7 +201,7 @@ import soc.message.SOCStartGame;
      */
     public void moveRobber(SOCGame ga, SOCPlayer pl, int coord)
     {
-        put(SOCMoveRobber.toCmd(ga.getName(), pl.getPlayerNumber(), coord), ga.isPractice);
+        net.send( new SOCMoveRobber(ga.getName(), pl.getPlayerNumber(), coord));
     }
 
     /**
@@ -239,8 +241,7 @@ import soc.message.SOCStartGame;
     public void sendSimpleRequest(final SOCPlayer pl, final int reqtype, final int value1, final int value2)
     {
         final SOCGame ga = pl.getGame();
-        put(SOCSimpleRequest.toCmd(ga.getName(), pl.getPlayerNumber(), reqtype, value1, value2),
-            ga.isPractice);
+        net.send( new SOCSimpleRequest(ga.getName(), pl.getPlayerNumber(), reqtype, value1, value2) );
     }
 
     /**
@@ -252,7 +253,7 @@ import soc.message.SOCStartGame;
      */
     public void sendText(SOCGame ga, String txt)
     {
-        put(new SOCGameTextMsg(ga.getName(), "-", txt).toCmd(), ga.isPractice);
+        net.send( new SOCGameTextMsg(ga.getName(), "-", txt));
     }
 
     /**
@@ -264,7 +265,7 @@ import soc.message.SOCStartGame;
     {
         clientListeners.remove(ga.getName());
         client.games.remove(ga.getName());
-        put(SOCLeaveGame.toCmd("-", "-", ga.getName()), ga.isPractice);
+        net.send( new SOCLeaveGame("-", "-", ga.getName()) );
     }
 
     /**
@@ -275,7 +276,7 @@ import soc.message.SOCStartGame;
      */
     public void sitDown(SOCGame ga, int pn)
     {
-        put(SOCSitDown.toCmd(ga.getName(), SOCMessage.EMPTYSTR, pn, false), ga.isPractice);
+        net.send( new SOCSitDown(ga.getName(), SOCMessage.EMPTYSTR, pn, false) );
     }
 
     /**
@@ -285,7 +286,7 @@ import soc.message.SOCStartGame;
      */
     public void startGame(SOCGame ga)
     {
-        put(SOCStartGame.toCmd(ga.getName(), 0), ga.isPractice);
+        net.send( new SOCStartGame(ga.getName(), 0));
     }
 
     /**
@@ -295,7 +296,7 @@ import soc.message.SOCStartGame;
      */
     public void rollDice(SOCGame ga)
     {
-        put(SOCRollDice.toCmd(ga.getName()), ga.isPractice);
+        net.send( new SOCRollDice(ga.getName()));
     }
 
     /**
@@ -305,7 +306,7 @@ import soc.message.SOCStartGame;
      */
     public void endTurn(SOCGame ga)
     {
-        put(SOCEndTurn.toCmd(ga.getName()), ga.isPractice);
+        net.send( new SOCEndTurn(ga.getName()));
     }
 
     /**
@@ -315,7 +316,7 @@ import soc.message.SOCStartGame;
      */
     public void discard(SOCGame ga, SOCResourceSet rs)
     {
-        put(SOCDiscard.toCmd(ga.getName(), rs), ga.isPractice);
+        net.send( new SOCDiscard( ga.getName(), -1, rs));
     }
 
     /**
@@ -329,7 +330,7 @@ import soc.message.SOCStartGame;
      */
     public void pickResources(SOCGame ga, SOCResourceSet rs)
     {
-        put(new SOCPickResources(ga.getName(), rs).toCmd(), ga.isPractice);
+        net.send( new SOCPickResources(ga.getName(), rs));
     }
 
     /**
@@ -348,7 +349,7 @@ import soc.message.SOCStartGame;
      */
     public void choosePlayer(SOCGame ga, final int ch)
     {
-        put(SOCChoosePlayer.toCmd(ga.getName(), ch), ga.isPractice);
+        net.send( new SOCChoosePlayer(ga.getName(), ch));
     }
 
     /**
@@ -378,7 +379,7 @@ import soc.message.SOCStartGame;
      */
     public void rejectOffer(SOCGame ga)
     {
-        put(SOCRejectOffer.toCmd(ga.getName(), 0), ga.isPractice);
+        net.send( new SOCRejectOffer( ga.getName(), 0));
     }
 
     /**
@@ -389,7 +390,7 @@ import soc.message.SOCStartGame;
      */
     public void acceptOffer(SOCGame ga, final int offeringPN)
     {
-        put(SOCAcceptOffer.toCmd(ga.getName(), 0, offeringPN), ga.isPractice);
+        net.send( new SOCAcceptOffer( ga.getName(), 0, offeringPN));
     }
 
     /**
@@ -399,7 +400,7 @@ import soc.message.SOCStartGame;
      */
     public void clearOffer(SOCGame ga)
     {
-        put(SOCClearOffer.toCmd(ga.getName(), 0), ga.isPractice);
+        net.send( new SOCClearOffer( ga.getName(), 0));
     }
 
     /**
@@ -411,7 +412,7 @@ import soc.message.SOCStartGame;
      */
     public void bankTrade(SOCGame ga, SOCResourceSet give, SOCResourceSet get)
     {
-        put(new SOCBankTrade(ga.getName(), give, get, -1).toCmd(), ga.isPractice);
+        net.send( new SOCBankTrade(ga.getName(), give, get, -1));
     }
 
     /**
@@ -422,7 +423,7 @@ import soc.message.SOCStartGame;
      */
     public void offerTrade(SOCGame ga, SOCTradeOffer offer)
     {
-        put(SOCMakeOffer.toCmd(ga.getName(), offer), ga.isPractice);
+        net.send( new SOCMakeOffer( ga.getName(), offer));
     }
 
     /**
@@ -440,7 +441,7 @@ import soc.message.SOCStartGame;
             else if (dc == SOCDevCardConstants.UNKNOWN)
                 dc = SOCDevCardConstants.UNKNOWN_FOR_VERS_1_X;
         }
-        put(SOCPlayDevCardRequest.toCmd(ga.getName(), dc), ga.isPractice);
+        net.send( new SOCPlayDevCardRequest( ga.getName(), dc));
     }
 
     /**
@@ -452,8 +453,8 @@ import soc.message.SOCStartGame;
      */
     public void playInventoryItem(SOCGame ga, final int itype)
     {
-        put(SOCInventoryItemAction.toCmd
-            (ga.getName(), ga.getCurrentPlayerNumber(), SOCInventoryItemAction.PLAY, itype, 0), ga.isPractice);
+        net.send( new SOCInventoryItemAction( ga.getName(), ga.getCurrentPlayerNumber(),
+            SOCInventoryItemAction.PLAY, itype, 0));
     }
 
     /**
@@ -469,8 +470,8 @@ import soc.message.SOCStartGame;
      */
     public void pickSpecialItem(SOCGame ga, final String typeKey, final int gi, final int pi)
     {
-        put(new SOCSetSpecialItem
-            (ga.getName(), SOCSetSpecialItem.OP_PICK, typeKey, gi, pi, -1).toCmd(), ga.isPractice);
+        net.send( new SOCSetSpecialItem
+            (ga.getName(), SOCSetSpecialItem.OP_PICK, typeKey, gi, pi, -1));
     }
 
     /**
@@ -484,7 +485,7 @@ import soc.message.SOCStartGame;
      */
     public void pickResourceType(SOCGame ga, int res)
     {
-        put(new SOCPickResourceType(ga.getName(), res).toCmd(), ga.isPractice);
+        net.send( new SOCPickResourceType(ga.getName(), res));
     }
 
     /**
@@ -496,7 +497,7 @@ import soc.message.SOCStartGame;
     public void changeFace(SOCGame ga, int id)
     {
         client.lastFaceChange = id;
-        put(new SOCChangeFace(ga.getName(), 0, id).toCmd(), ga.isPractice);
+        net.send( new SOCChangeFace(ga.getName(), 0, id));
     }
 
     /**
@@ -510,7 +511,7 @@ import soc.message.SOCStartGame;
      */
     public void setSeatLock(SOCGame ga, int pn, SOCGame.SeatLockState sl)
     {
-        put(SOCSetSeatLock.toCmd(ga.getName(), pn, sl), ga.isPractice);
+        net.send( new SOCSetSeatLock( ga.getName(), pn, sl));
     }
 
     /**
@@ -525,7 +526,7 @@ import soc.message.SOCStartGame;
      */
     public void resetBoardRequest(SOCGame ga)
     {
-        put(SOCResetBoardRequest.toCmd(SOCMessage.RESETBOARDREQUEST, ga.getName()), ga.isPractice);
+        net.send( new SOCResetBoardRequest( ga.getName()));
     }
 
     /**
@@ -541,7 +542,7 @@ import soc.message.SOCStartGame;
      */
     public void resetBoardVote(final SOCGame ga, final boolean voteYes)
     {
-        put(SOCResetBoardVote.toCmd(ga.getName(), 0, voteYes), ga.isPractice);
+        net.send( new SOCResetBoardVote( ga.getName(), 0, voteYes));
     }
 
     /**

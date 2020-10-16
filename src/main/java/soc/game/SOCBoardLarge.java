@@ -735,7 +735,9 @@ public class SOCBoardLarge extends SOCBoard
         if ((bhwOpt == null) || (bhwOpt.getIntValue() == 0))
         {
             return new IntPair(BOARDHEIGHT_LARGE, BOARDWIDTH_LARGE);
-        } else {
+        }
+        else
+        {
             final int bhw = bhwOpt.getIntValue();
             return new IntPair(bhw >> 8, bhw & 0xFF);
         }
@@ -953,7 +955,9 @@ public class SOCBoardLarge extends SOCBoard
                 if (hexLayoutLg[r][c] == WATER_HEX)
                 {
                     legalShipEdges.addAll(getAdjacentEdgesToHex(rshift | c));
-                } else {
+                }
+                else
+                {
                     // Land hex; check if it's at the
                     // edge of the board; this check is also isHexAtBoardMargin(hc)
                     if ((r == 1) || (r == (boardHeight-1))
@@ -1708,7 +1712,9 @@ public class SOCBoardLarge extends SOCBoard
                     hasLand = true;
                 else
                     hasWater = true;
-            } else {
+            }
+            else
+            {
                 hasWater = true;  // treat off-board as water
             }
         }
@@ -1779,16 +1785,15 @@ public class SOCBoardLarge extends SOCBoard
     @Override
     public void putPiece(SOCPlayingPiece pp)
     {
-        switch (pp.getType())
+        if (pp.getType() == SOCPlayingPiece.VILLAGE)
         {
-        case SOCPlayingPiece.VILLAGE:
             if (villages == null)
                 villages = new HashMap<>();
-            villages.put(pp.getCoordinates(), (SOCVillage) pp);
-            break;
-
-        default:
-            super.putPiece(pp);
+            villages.put( pp.getCoordinates(), (SOCVillage) pp );
+        }
+        else
+        {
+            super.putPiece( pp );
         }
     }
 
@@ -1872,7 +1877,9 @@ public class SOCBoardLarge extends SOCBoard
         if (seType != 0)
         {
             specialEdges.put(edgeObj, seType );
-        } else {
+        }
+        else
+        {
             specialEdges.remove(edgeObj);  // ok to call if edgeObj not in map
         }
     }
@@ -1893,7 +1900,9 @@ public class SOCBoardLarge extends SOCBoard
         {
             final Integer setypeObj = seType;
             for (int edge : edges) specialEdges.put( edge, setypeObj );
-        } else {
+        }
+        else
+        {
             for (int edge : edges) specialEdges.remove( edge );
         }
     }
@@ -2026,7 +2035,9 @@ public class SOCBoardLarge extends SOCBoard
         {
             numTake = numCloth;
             numCloth = 0;
-        } else {
+        }
+        else
+        {
             numCloth -= numTake;
         }
         return numTake;
@@ -2130,7 +2141,9 @@ public class SOCBoardLarge extends SOCBoard
 
                 if (! foundInAny)
                     return true;
-            } else {
+            }
+            else
+            {
                 // land area 1-n
 
                 final HashSet<Integer> lan = landAreasLegalNodes[la];
@@ -2455,7 +2468,9 @@ public class SOCBoardLarge extends SOCBoard
             if (psNodes instanceof HashSet)
             {
                 nodesOnLand = new HashSet<>( psNodes );
-            } else {
+            }
+            else
+            {
                 nodesOnLand.clear();
                 nodesOnLand.addAll(psNodes);
             }
@@ -2760,7 +2775,7 @@ public class SOCBoardLarge extends SOCBoard
     public int getAdjacentHexToEdge(final int edgeCoord, final int facing)
         throws IllegalArgumentException
     {
-        if ((facing < 1) && (facing > 6))
+        if ((facing < 1) || (facing > 6))
             throw new IllegalArgumentException();
         int r = (edgeCoord >> 8),
             c = (edgeCoord & 0xFF);
@@ -3002,7 +3017,7 @@ public class SOCBoardLarge extends SOCBoard
     public int getAdjacentNodeToEdge(final int edgeCoord, final int facing)
         throws IllegalArgumentException
     {
-        if ((facing < 1) && (facing > 6))
+        if ((facing < 1) || (facing > 6))
             throw new IllegalArgumentException("facing out of range");
         int r = (edgeCoord >> 8),
             c = (edgeCoord & 0xFF);
@@ -3432,7 +3447,9 @@ public class SOCBoardLarge extends SOCBoard
                 if (hex == 0)
                 {
                     hasWater = true;  // hex off the board
-                } else {
+                }
+                else
+                {
                     final int htype = getHexTypeFromCoord(hex);
                     if ((htype <= MAX_LAND_HEX_LG) && (htype != WATER_HEX))
                         hasLand = true;
@@ -3722,7 +3739,9 @@ public class SOCBoardLarge extends SOCBoard
                 return false;
             else
                 return ((boardWidth % 2) == 1);
-        } else {
+        }
+        else
+        {
             // r == boardHeight
             if (c == 0)
                 return (((r/2) % 2) == 0);
@@ -3960,13 +3979,17 @@ public class SOCBoardLarge extends SOCBoard
         if ((hex == 0) || (getHexTypeFromCoord(hex) == WATER_HEX))
         {
             facing = f1;
-        } else {
+        }
+        else
+        {
             // if f2 faces land, f1 should face water
             hex = getAdjacentHexToEdge(edge, f1);
             if ((hex == 0) || (getHexTypeFromCoord(hex) == WATER_HEX))
             {
                 facing = f2;
-            } else {
+            }
+            else
+            {
                 throw new IllegalArgumentException("Edge 0x" + Integer.toHexString(edge) + " is between land hexes");
             }
         }

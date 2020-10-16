@@ -128,10 +128,12 @@ import javax.swing.border.EmptyBorder;
     {
         super(pi, "Special Items", true);  // default title text here, in case typeKey has no string
 
-        try {
+        try
+        {
             setTitle(strings.get("dialog.specitem." + typeKey + ".title"));
                 // "dialog.specitem._SC_WOND.title" -> "Wonders"
-        } catch(MissingResourceException e) {}
+        }
+        catch(MissingResourceException ignored) {}
 
         if (! SOCGameOption.K_SC_WOND.equals(typeKey))
             throw new IllegalArgumentException(typeKey);
@@ -266,10 +268,13 @@ import javax.swing.border.EmptyBorder;
                 gbl.setConstraints(b, gbc);
                 cpane.add(b);
                 buttons[i] = b;
-            } else {
+            }
+/*
+            else
+            {
                 // already building a different wonder: leave blank
             }
-
+*/
             gbc.insets = insPadLR;
 
             // Wonder Name
@@ -281,7 +286,9 @@ import javax.swing.border.EmptyBorder;
                 {
                     wname = strings.get("game.specitem.sc_wond." + itm.getStringValue());
                         // game.specitem.sc_wond.w1 -> "Theater", etc
-                } catch (MissingResourceException e) {
+                }
+                catch (MissingResourceException e)
+                {
                     wname = "WONDERNAME_" + (i+1);  // fallback, should not occur
                 }
 
@@ -446,15 +453,21 @@ import javax.swing.border.EmptyBorder;
                 if (req.atPort)
                 {
                     sLoc = strings.get("game.aport");
-                } else if (req.atCoordList != null) {
+                }
+                else if (req.atCoordList != null)
+                {
                     try
                     {
                         sLoc = strings.get("board.nodelist._SC_WOND." + req.atCoordList);
                             // board.nodelist._SC_WOND.N1 -> "The Wasteland", etc
-                    } catch (MissingResourceException e) {
+                    }
+                    catch (MissingResourceException e)
+                    {
                         sLoc = req.atCoordList;  // lookup failed
                     }
-                } else {
+                }
+                else
+                {
                     sLoc = null;
                 }
                 if (req.reqType == 'C')
@@ -479,7 +492,9 @@ import javax.swing.border.EmptyBorder;
         if (n == 1)
         {
             ret = new JLabel(descStrings[0]);
-        } else {
+        }
+        else
+        {
             // wrap one per line
             StringBuilder sb = new StringBuilder(descStrings[0]);
             for (int i = 1; i < n; ++i)
@@ -597,7 +612,9 @@ import javax.swing.border.EmptyBorder;
                     });
             }
 
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             pi.chatPrintStackTrace(ex);
         }
     }

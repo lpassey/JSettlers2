@@ -24,7 +24,7 @@ import java.util.TimerTask;
 
 import soc.message.SOCGameOptionGetInfos;  // for javadoc
 import soc.message.SOCMessage;  // for javadoc
-import soc.server.genericServer.Connection;
+import soc.communication.Connection;
 import soc.util.SOCFeatureSet;
 import soc.util.SOCGameList;
 import soc.util.SOCStringManager;  // for javadoc
@@ -142,7 +142,7 @@ public class SOCClientData
     public int faceId;
 
     /** Synchronization for win-loss count and other counter fields */
-    private Object countFieldSync;
+    final private Object countFieldSync;
 
     /**
      * Has the server's game list been sent to the client yet?

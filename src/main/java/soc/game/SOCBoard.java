@@ -903,7 +903,9 @@ public abstract class SOCBoard implements Serializable, Cloneable
                 final int[] nodes = getAdjacentNodesToEdge_arr(SOCBoard6p.PORTS_EDGE_V2[i]);
                 placePort(ptype, -1, SOCBoard6p.PORTS_FACING_V2[i], nodes[0], nodes[1]);
             }
-        } else {
+        }
+        else
+        {
             for (int i = 0; i < SOCBoard4p.PORTS_FACING_V1.length; ++i)
             {
                 final int ptype = portHex[i];
@@ -1234,7 +1236,9 @@ public abstract class SOCBoard implements Serializable, Cloneable
                     {
                         ptype = (0 == portHex[i]);
                         count = 1;
-                    } else {
+                    }
+                    else
+                    {
                         ++count;
                         if (count >= clumpsize)
                             portsOK = false;
@@ -1255,7 +1259,9 @@ public abstract class SOCBoard implements Serializable, Cloneable
                         if (ptype != (0 == portHex[i]))
                         {
                             break;
-                        } else {
+                        }
+                        else
+                        {
                             ++count;
 
                             if (count >= clumpsize)
@@ -2211,7 +2217,9 @@ public abstract class SOCBoard implements Serializable, Cloneable
             default:
                 node = -9;  // not adjacent or invalid edge coord
             }
-        } else {
+        }
+        else
+        {
             /**
              * edgeA is [Even,Odd] or [Odd,Even]
              */
@@ -2478,7 +2486,9 @@ public abstract class SOCBoard implements Serializable, Cloneable
                     edge = tmp;
                 else
                     edge = -9;
-            } else {
+            }
+            else
+            {
                 // lower left '/' edge
                 tmp = nodeCoord - 0x11;
                 if (((nodeCoord & 0x0F) > 0) && (tmp >= minEdge) && (tmp <= maxEdge))
@@ -2497,7 +2507,9 @@ public abstract class SOCBoard implements Serializable, Cloneable
                     edge = tmp;
                 else
                     edge = -9;
-            } else {
+            }
+            else
+            {
                 // lower right '\' edge; maxEdge covers the bounds-check
                 tmp = nodeCoord;
                 if ((tmp >= minEdge) && (tmp <= maxEdge))
@@ -2518,7 +2530,9 @@ public abstract class SOCBoard implements Serializable, Cloneable
                     edge = tmp;
                 else
                     edge = -9;
-            } else {
+            }
+            else
+            {
                 // Northernmost row of A-nodes stats at 0x18 and moves += 0x22 to the east.
                 // upper middle '|' edge
                 boolean hasNorthernEdge = (nodeCoord < 0x18) || (nodeCoord > 0x7E)
@@ -3346,7 +3360,9 @@ public abstract class SOCBoard implements Serializable, Cloneable
                     return new SOCBoard6p(gameOpts);
                 else
                     return new SOCBoard4p(gameOpts);
-            } else {
+            }
+            else
+            {
                 return new SOCBoardLarge(gameOpts, maxPlayers, SOCBoardLarge.getBoardSize(gameOpts));
             }
         }

@@ -387,7 +387,9 @@ public class GameStatisticsFrame extends JFrame implements SOCGameStatistics.Lis
                 {
                     g.setColor(Color.BLACK);  // visible against light background
                     y = sz.height - h - 2;    // positioned above value bar
-                } else {
+                }
+                else
+                {
                     g.setColor(Color.CYAN);   // visible against dark-blue value bar
                     y = sz.height - 2;        // positioned at bottom of value bar
                 }

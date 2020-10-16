@@ -482,7 +482,9 @@ public class SOCPlayerClient
             try
             {
                 lo = StringManager.parseLocale(jsLocale.trim());
-            } catch (IllegalArgumentException e) {
+            }
+            catch (IllegalArgumentException e)
+            {
                 System.err.println("Could not parse locale " + jsLocale);
             }
         }
@@ -621,8 +623,12 @@ public class SOCPlayerClient
                 {
                     SOCBoardPanel.reloadBoardGraphics(mainDisplay.getGUIContainer());
                     for (final PlayerClientListener pcl : clientListeners.values())
+                    {
                         pcl.boardUpdated();
-                } catch (Throwable th) {
+                    }
+                }
+                catch (Throwable th)
+                {
                     System.err.println("-- Error caught in reloadBoardGraphics: " + th + " --");
                     th.printStackTrace();
                     System.err.println("-- Error stack trace end --");
@@ -695,10 +701,12 @@ public class SOCPlayerClient
         if (sVersion != Version.versionNumber())
         {
             // different version than client: scenario details might have changed
-            net.putNet(new SOCScenarioInfo(scKey, false).toCmd());
-        } else {
+            net.send(new SOCScenarioInfo(scKey, false) );
+        }
+        else
+        {
             // same version: need localization strings, at most
-            net.putNet(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey).toCmd());
+            net.send(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey) );
             tcpServGameOpts.scenKeys.add(scKey);  // don't ask again later
         }
     }
@@ -832,7 +840,7 @@ public class SOCPlayerClient
     public void leaveChannel(String ch)
     {
         mainDisplay.channelLeft(ch);
-        net.putNet(SOCLeaveChannel.toCmd("-", "-", ch));
+        net.send(new SOCLeaveChannel("-", "-", ch));
     }
 
     /**
@@ -984,7 +992,9 @@ public class SOCPlayerClient
         if (canPractice)
         {
             err = strings.get("pcli.error.networktrouble");  // "Sorry, network trouble has occurred."
-        } else {
+        }
+        else
+        {
             err = strings.get("pcli.error.clientshutdown");  // "Sorry, the client has been shut down."
         }
         err = err + " " + ((net.ex == null) ? strings.get("pcli.error.loadpageagain") : net.ex.toString());
@@ -1043,16 +1053,20 @@ public class SOCPlayerClient
             try {
                 host = args[0];
                 port = Integer.parseInt(args[1]);
-            } catch (NumberFormatException x) {
+            }
+            catch (NumberFormatException x)
+            {
                 usage();
                 System.err.println("Invalid port: " + args[1]);
                 System.exit(1);
             }
         }
 
-        try {
+        try
+        {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {}
+        }
+        catch (Exception ignored) {}
 
         client = new SOCPlayerClient();
         JFrame frame = new JFrame(client.strings.get("pcli.main.title", Version.version()));  // "JSettlers client {0}"

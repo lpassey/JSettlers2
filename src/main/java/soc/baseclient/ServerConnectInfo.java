@@ -19,7 +19,7 @@
  **/
 package soc.baseclient;
 
-import soc.server.genericServer.StringConnection;  // for javadocs only
+import soc.communication.MemConnection;
 
 /**
  * Data class to hold the info a client must know to connect to a server.
@@ -52,7 +52,7 @@ public class ServerConnectInfo
 
     /**
      * The server's stringport socket name if it's a same-JVM local server
-     * using {@link StringConnection}, or {@code null} when using TCP {@link #port} instead.
+     * using {@link MemConnection}, or {@code null} when using TCP {@link #port} instead.
      * Can be used by robots in local practice games.
      */
     public final String stringSocketName;

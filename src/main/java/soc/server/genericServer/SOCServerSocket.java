@@ -22,6 +22,7 @@ package soc.server.genericServer;
 import java.io.IOException;
 import java.net.SocketException;
 
+import soc.communication.Connection;
 /**
  * {@code SOCServerSocket} allows server applications to communicate with client
  * {@link Connection}s, with a common API for local Practice Mode and actual networked traffic.
@@ -52,7 +53,7 @@ import java.net.SocketException;
      * @throws SocketException if our setEOF() has been called, thus
      *    new clients won't receive any data from us
      */
-    Connection accept() throws SocketException, IOException;
+    Connection accept() throws SocketException, IOException, InterruptedException;
 
     /**
      * Close down server socket immediately:

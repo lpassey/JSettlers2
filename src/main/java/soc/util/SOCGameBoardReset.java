@@ -26,7 +26,7 @@ import java.util.Vector;
 import soc.debug.D;
 import soc.game.SOCGame;
 import soc.game.SOCPlayer;
-import soc.server.genericServer.Connection;
+import soc.communication.Connection;
 
 /**
  * This class holds data the server needs to coordinate and complete

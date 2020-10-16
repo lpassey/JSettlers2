@@ -173,7 +173,9 @@ import soc.game.SOCGame;
         {
             Point mloc = MouseInfo.getPointerInfo().getLocation();
             setLocation(mloc.x + 20 * displayScale, mloc.y + 10 * displayScale);
-        } catch (RuntimeException e) {
+        }
+        catch (RuntimeException e)
+        {
             // in case of SecurityException, etc
             setLocationRelativeTo(gamePI);
         }
@@ -298,7 +300,9 @@ import soc.game.SOCGame;
                 dispose();
                 cancelButtonChosen();  // <--- Callback for button 2 ---
             }
-        } catch (Throwable th) {
+        }
+        catch (Throwable th)
+        {
             pi.chatPrintStackTrace(th);
         }
     }
@@ -645,7 +649,9 @@ import soc.game.SOCGame;
                         visibleFaceGrid[r].setVisible(false);
                         visibleFaceGrid[r] = null;
                     }
-                } else {
+                }
+                else
+                {
                     // newRow < currentRow:
                     // Remove current bottom, scroll up
                     for (r = faceRowsHeight - numNewRows; r < faceRowsHeight; ++r)

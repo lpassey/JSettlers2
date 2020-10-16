@@ -21,7 +21,7 @@
  **/
 package soc.message;
 
-import soc.server.genericServer.Connection;
+import soc.communication.Connection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -219,7 +219,9 @@ public class SOCGameMembers extends SOCMessage
         {
             // no brackets in this message; separator is "," not ", " which is also what toCmd is expecting
             ret.append(sep2_char).append(messageStrParams.substring(pipeIdx + 9));
-        } else {
+        }
+        else
+        {
             // member name list; ignore [ ] brackets, change separator ", " -> ",":
 
             if (']' != messageStrParams.charAt(L - 1))

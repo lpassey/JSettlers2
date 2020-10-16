@@ -36,10 +36,12 @@ import soc.robot.SOCRobotDM;
 import soc.server.database.DBSettingMismatchException;
 import soc.server.database.SOCDBHelper;
 
-import soc.server.genericServer.Connection;
+import soc.communication.Connection;
+import soc.communication.SOCMessageDispatcher;
+
 import soc.server.genericServer.InboundMessageQueue;
 import soc.server.genericServer.Server;
-import soc.server.genericServer.StringConnection;
+// import soc.server.genericServer.StringConnection;
 import soc.server.savegame.SavedGameModel;
 
 import soc.util.SOCFeatureSet;
@@ -1263,7 +1265,7 @@ public class SOCServer extends Server
      * along with related fields like {@link #numberOfBotsInFinishedGames}.
      * @since 2.0.00
      */
-    private Object countFieldSync = new Object();
+    final private Object countFieldSync = new Object();
 
     /**
      * total number of users
@@ -1384,7 +1386,7 @@ public class SOCServer extends Server
      * any option defaults require a minimum client version, or if
      * {@link #hasSetGameOptions} is set.
      *
-     * @param p    the TCP port that the server listens on
+     * @param port    the TCP port that the server listens on
      * @param mc   the maximum number of connections allowed;
      *            remember that robots count against this limit.
      * @param databaseUserName  the user name for accessing the database
@@ -1395,10 +1397,10 @@ public class SOCServer extends Server
      *       or if required tests failed in {@link SOCDBHelper#testDBHelper()}
      * @throws IllegalStateException  If {@link Version#versionNumber()} returns 0 (packaging error)
      */
-    public SOCServer(int p, int mc, String databaseUserName, String databasePassword)
+    public SOCServer(int port, int mc, String databaseUserName, String databasePassword)
         throws SocketException, EOFException, SQLException, IllegalStateException
     {
-        super(p, new SOCMessageDispatcher(), null);
+        super(port, new SOCServerMessageDispatcher(), null);
 
         maxConnections = mc;
         initSocServer(databaseUserName, databasePassword);
@@ -1482,7 +1484,7 @@ public class SOCServer extends Server
     public SOCServer(final int p, Properties props)
         throws SocketException, EOFException, SQLException, IllegalArgumentException, IllegalStateException
     {
-        super(p, new SOCMessageDispatcher(), props);
+        super(p, new SOCServerMessageDispatcher(), props);
         props = this.props;  // if was null, use empty props created by super constructor
 
         String dbuser = props.getProperty(SOCDBHelper.PROP_JSETTLERS_DB_USER, "socuser");
@@ -1521,7 +1523,7 @@ public class SOCServer extends Server
     public SOCServer(String s, int mc, String databaseUserName, String databasePassword)
         throws SocketException, EOFException, SQLException, IllegalStateException
     {
-        super(s, new SOCMessageDispatcher(), null);
+        super(s, new SOCServerMessageDispatcher(), null);
 
         maxConnections = mc;
         initSocServer(databaseUserName, databasePassword);
@@ -1548,12 +1550,14 @@ public class SOCServer extends Server
     public SOCServer(String s, Properties props)
         throws IllegalStateException
     {
-        super(s, new SOCMessageDispatcher(), props);
+        super(s, new SOCServerMessageDispatcher(), props);
 
         try
         {
             initSocServer(null, "");
-        } catch (SocketException | SQLException | EOFException e) {
+        }
+        catch (SocketException | SQLException | EOFException e)
+        {
             throw new IllegalStateException("Internal error, not expected to encounter " + e.toString(), e);
         }
     }
@@ -1712,7 +1716,7 @@ public class SOCServer extends Server
             }
         }
 
-        ((SOCMessageDispatcher) inboundMsgDispatcher).setServer(this, srvMsgHandler, gameList);
+        ((SOCServerMessageDispatcher) inboundMsgDispatcher).setServer(this, srvMsgHandler, gameList);
 
         if (allowDebugUser)
             System.err.println("Warning: Remote debug commands are allowed.");
@@ -1738,7 +1742,9 @@ public class SOCServer extends Server
             if (txt.isEmpty())
             {
                 props.remove(PROP_JSETTLERS_ADMIN_WELCOME);
-            } else {
+            }
+            else
+            {
                 String err = null;
 
                 final char ch0 = txt.charAt(0);
@@ -1781,7 +1787,9 @@ public class SOCServer extends Server
                     try
                     {
                         SOCGameOption.activate(optKey);
-                    } catch (IllegalArgumentException e) {
+                    }
+                    catch (IllegalArgumentException e)
+                    {
                         if (err.length() > 0)
                             err.append(", ");
                         err.append(optKey).append(": Not inactive");
@@ -1829,7 +1837,9 @@ public class SOCServer extends Server
                 if (SOCMessage.isSingleLineAndSafe(cook))
                 {
                     robotCookie = cook;
-                } else {
+                }
+                else
+                {
                     final String errmsg = "Error: The robot cookie value (param " + PROP_JSETTLERS_BOTS_COOKIE
                         + ") can't contain comma or pipe characters.";
                     System.err.println(errmsg);
@@ -1837,7 +1847,9 @@ public class SOCServer extends Server
                 }
             }
             // else robotCookie remains null
-        } else {
+        }
+        else
+        {
             robotCookie = generateRobotCookie();
         }
 
@@ -1889,12 +1901,14 @@ public class SOCServer extends Server
                         try
                         {
                             db.checkSettings(true, false);
-                        } catch (Exception x) {}
+                        }
+                        catch (Exception ignored) {}
 
                         db.cleanup(true);
                     }
                 });
-            } catch (Throwable th)
+            }
+            catch (Throwable th)
             {
                 // just a warning
                 System.err.println("Warning: Could not register shutdown hook for database disconnect. Check java security settings.");
@@ -1958,7 +1972,7 @@ public class SOCServer extends Server
             || (SOCVersionedItem.itemsMinimumVersion(SOCGameOption.getAllKnownOptions()) > -1))
         {
             Thread.yield();  // wait for other output to appear first
-            try { Thread.sleep(200); } catch (InterruptedException ie) {}
+            try { Thread.sleep(200); } catch (InterruptedException ignored) {}
 
             printGameOptions();
         }
@@ -2086,11 +2100,15 @@ public class SOCServer extends Server
                         if (e instanceof SQLException)
                         {
                             throw (SQLException) e;
-                        } else {
+                        }
+                        else
+                        {
                             throw new SQLException("Error during DB schema upgrade", e );
                         }
                     }
-                } else {
+                }
+                else
+                {
                     System.err.println("\n* Database schema upgrade is recommended: To upgrade, use -D"
                         + SOCDBHelper.PROP_JSETTLERS_DB_UPGRADE__SCHEMA + "=Y command line flag.\n");
                 }
@@ -2233,7 +2251,9 @@ public class SOCServer extends Server
             features.add(SOCFeatureSet.SERVER_OPEN_REG);
             if (! hasUtilityModeProp)
                 System.err.println("User database Open Registration is active, anyone can create accounts.");
-        } else {
+        }
+        else
+        {
             if (db.countUsers() == 0)
                 acctsNotOpenRegButNoUsers = true;
         }
@@ -2246,9 +2266,13 @@ public class SOCServer extends Server
             if (userAdmins.length() == 0)
             {
                 errmsg = "* Property " + PROP_JSETTLERS_ACCOUNTS_ADMINS + " cannot be an empty string.";
-            } else if (features.isActive(SOCFeatureSet.SERVER_OPEN_REG)) {
+            }
+            else if (features.isActive(SOCFeatureSet.SERVER_OPEN_REG))
+            {
                 errmsg = "* Cannot use Open Registration with User Account Admins List.";
-            } else {
+            }
+            else
+            {
                 final boolean downcase = (db.getSchemaVersion() >= SOCDBHelper.SCHEMA_VERSION_1200);
                 databaseUserAdmins = new HashSet<>();
 
@@ -2310,7 +2334,9 @@ public class SOCServer extends Server
                 try
                 {
                     count = Integer.parseInt(part);
-                } catch (NumberFormatException e) {
+                }
+                catch (NumberFormatException e)
+                {
                     errMsg = "Expected number but can't parse: " + part;
                     break;
                 }
@@ -2319,7 +2345,9 @@ public class SOCServer extends Server
                     errMsg = "Count must be at least 1: " + count;
                     break;
                 }
-            } else if (part.indexOf('.') > 0) {
+            }
+            else if (part.indexOf('.') > 0)
+            {
                 try
                 {
                     Class<?> rcli3p = Class.forName(part);
@@ -2340,16 +2368,22 @@ public class SOCServer extends Server
                         for (; count > 0; --count)
                             robots3pCliConstrucs.add(cliConstruc3p);
                         count = 1;
-                    } catch(NoSuchMethodException e) {
+                    }
+                    catch(NoSuchMethodException e)
+                    {
                         errMsg = "3p client " + part
                             + " missing constructor(ServerConnectInfo, String, String)";
                         break;
                     }
-                } catch(Exception|LinkageError err) {
+                }
+                catch(Exception|LinkageError err)
+                {
                     errMsg = "3p client class " + part + " can't be loaded: " + err;
                     break;
                 }
-            } else {
+            }
+            else
+            {
                 errMsg = "Expected digits or fully qualified class name";
                 break;
             }
@@ -2379,10 +2413,14 @@ public class SOCServer extends Server
             if (! savegameDir.exists())
             {
                 System.err.println("Warning: savegame.dir not found: " + savegameDirPath);
-            } else if (! savegameDir.isDirectory()) {
+            }
+            else if (! savegameDir.isDirectory())
+            {
                 System.err.println("Warning: savegame.dir file exists but isn't a directory: " + savegameDirPath);
             }
-        } catch (SecurityException e) {
+        }
+        catch (SecurityException e)
+        {
             System.err.println("Warning: Can't access savegame.dir " + savegameDirPath + ": " + e);
         }
 
@@ -2391,7 +2429,9 @@ public class SOCServer extends Server
         try
         {
             foundGson = (null != Class.forName("com.google.gson.Gson"));
-        } catch(Throwable th) {
+        }
+        catch(Throwable th)
+        {
             loadErr = th;
         }
 
@@ -2448,16 +2488,18 @@ public class SOCServer extends Server
                 }
                 else if (hcount < reserve)
                 {
-                    final int incr = reserve - hcount, newMaxC = maxConnections + incr;
-                    maxConnections = newMaxC;
+                    final int incr = reserve - hcount;
+                    maxConnections += incr;
 
                     new Thread() {
                         @Override
                         public void run()
                         {
-                            try {
+                            try
+                            {
                                 Thread.sleep(1600);  // wait for bot-connect messages to print
-                            } catch (InterruptedException e) {}
+                            }
+                            catch (InterruptedException ignored) {}
                             System.err.println("** Warning: Only " + hcount
                                 + " player connections would be available because of the started robots.");
                             System.err.println("   Using " + maxConnections + " for max connection count (+" + incr + ").");
@@ -2473,7 +2515,9 @@ public class SOCServer extends Server
                         // This message is a backup: initSocServer should have already errored on this during startup.
                         System.err.println
                             ("** To start robot-only games, server needs at least " + n +  " robots started.");
-                    } else {
+                    }
+                    else
+                    {
                         final int waitSec = getConfigIntProperty(PROP_JSETTLERS_BOTS_BOTGAMES_WAIT__SEC, 0);
                         final int waitmSec = (waitSec > 0) ? (1000 * waitSec) : 1600;
                         if (waitSec > 2)
@@ -2483,13 +2527,15 @@ public class SOCServer extends Server
                             @Override
                             public void run()
                             {
-                                try {
+                                try
+                                {
                                     Thread.sleep(waitmSec);  // wait for bots to connect
-                                } catch (InterruptedException e) {}
+                                }
+                                catch (InterruptedException ignored) {}
 
                                 if (waitSec > 2)
-                                    System.err.println
-                                        ("\nStarting robot-only games now, after waiting " + waitSec + " seconds.\n");
+                                    System.err.println("\nStarting robot-only games now, after waiting "
+                                        + waitSec + " seconds.\n");
 
                                 startRobotOnlyGames(false, false);
                             }
@@ -2564,7 +2610,9 @@ public class SOCServer extends Server
             params = db.retrieveRobotParams(botName);
             if ((params != null) && D.ebugIsEnabled())
                 D.ebugPrintlnINFO("*** Robot Parameters for " + botName + " = " + params);
-        } catch (SQLException sqle) {
+        }
+        catch (SQLException sqle)
+        {
             System.err.println("Error retrieving robot parameters from db: Using defaults.");
         }
 
@@ -2628,7 +2676,7 @@ public class SOCServer extends Server
         {
             if (! channelList.isMember(c, ch))
             {
-                c.put(new SOCChannelMembers(ch, channelList.getMembers(ch)));
+                c.send(new SOCChannelMembers(ch, channelList.getMembers(ch)));
                 if (D.ebugOn)
                     D.ebugPrintlnINFO("*** " + c.getData() + " joined the channel " + ch + " at "
                         + DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date()));
@@ -2783,16 +2831,21 @@ public class SOCServer extends Server
         boolean gameExists = false;
 
         if (loadedGame == null)
+        {
             try
             {
                 gameList.takeMonitor();
-                gameExists = gameList.isGame(gaName);
-            } catch (Exception e) {
-                D.ebugPrintStackTrace(e, "Exception in connectToGame");
-            } finally {
+                gameExists = gameList.isGame( gaName );
+            }
+            catch( Exception e )
+            {
+                D.ebugPrintStackTrace( e, "Exception in connectToGame" );
+            }
+            finally
+            {
                 gameList.releaseMonitor();
             }
-
+        }
         if (gameExists)
         {
             boolean cliVersOld = false;
@@ -2812,7 +2865,9 @@ public class SOCServer extends Server
                     if (ga.getClientVersionMinRequired() > cliVers)
                     {
                         cliVersOld = true;
-                    } else {
+                    }
+                    else
+                    {
                         SOCClientData scd = (SOCClientData) c.getAppData();
                         if (has3rdPartyGameopts || scd.hasLimitedFeats)
                         {
@@ -2855,7 +2910,9 @@ public class SOCServer extends Server
             if (gaOpts == null)
             {
                 gVers = -1;
-            } else {
+            }
+            else
+            {
                 gVers = SOCVersionedItem.itemsMinimumVersion(gaOpts);
                 if ((gVers > cliVers) && (gVers < Integer.MAX_VALUE))
                 {
@@ -3012,7 +3069,9 @@ public class SOCServer extends Server
             final SOCNewGame msg = new SOCNewGame(gaName);
             broadcast(msg);
             recordGameEvent(gaName, msg);
-        } else {
+        }
+        else
+        {
             // Send messages, based on clients' versions/features
             // and whether there are game options.
 
@@ -3093,7 +3152,7 @@ public class SOCServer extends Server
                     if (cliLimited != null)
                     {
                         cannotJoinMsg = new SOCNewGame(SOCGames.MARKER_THIS_GAME_UNJOINABLE + gaName);  // was null
-                        cliLimited.put(cannotJoinMsg);
+                        cliLimited.send(cannotJoinMsg);
                     }
                 }
             }
@@ -3107,7 +3166,9 @@ public class SOCServer extends Server
                 final SOCNewGameWithOptions msg = new SOCNewGameWithOptions(gaName, gaOpts, gVers, -2);
                 broadcast(msg);
                 recordGameEvent(gaName, msg);
-            } else {
+            }
+            else
+            {
                 // Only some can understand msg with version/options included;
                 // send at most 1 message to each connected client, split by client version.
                 // If no game options, send simple NEWGAME message type to all clients.
@@ -3158,7 +3219,7 @@ public class SOCServer extends Server
                 {
                     if (cannotJoinMsg == null)
                         cannotJoinMsg = new SOCNewGame(SOCGames.MARKER_THIS_GAME_UNJOINABLE + gaName);
-                    c.put(cannotJoinMsg);
+                    c.send(cannotJoinMsg);
 
                     continue;  // can't join
                 }
@@ -3174,7 +3235,7 @@ public class SOCServer extends Server
             SOCMessage cacheMsg = msgCacheForVersion.get(cversKey);
             if (cacheMsg != null)
             {
-                c.put(cacheMsg);
+                c.send( cacheMsg);
                 continue;
             }
 
@@ -3204,7 +3265,7 @@ public class SOCServer extends Server
             }
 
             msgCacheForVersion.put(cversKey, cacheMsg);
-            c.put(cacheMsg);
+            c.send( cacheMsg);
         }
     }
 
@@ -3282,7 +3343,9 @@ public class SOCServer extends Server
         if (hand != null)
         {
             gameDestroyed = hand.leaveGame(ga, c, hasReplacement, hasHumanReplacement) || gameList.isGameEmpty(gm);
-        } else {
+        }
+        else
+        {
             gameDestroyed = true;
                 // should not happen. If no handler, game data is inconsistent
         }
@@ -3303,10 +3366,14 @@ public class SOCServer extends Server
 
                 try
                 {
-                    destroyGame(gm);
-                } catch (Exception e) {
-                    D.ebugPrintStackTrace(e, "Exception in leaveGame (destroyGame)");
-                } finally {
+                    destroyGame( gm );
+                }
+                catch( Exception e )
+                {
+                    D.ebugPrintStackTrace( e, "Exception in leaveGame (destroyGame)" );
+                }
+                finally
+                {
                     gameList.releaseMonitor();
                 }
             }
@@ -3396,14 +3463,14 @@ public class SOCServer extends Server
         {
             broadcast(new SOCDeleteGame(gaName));
         }
+/*
         else
         {
-            /*
                SOCLeaveGame leaveMessage = new SOCLeaveGame(c.getData(), c.host(), gaName);
                messageToGame(gaName, leaveMessage);
                recordGameEvent(gaName, leaveMessage);
-             */
         }
+*/
 
         /**
          * if it's a robot, and another client's waiting to take over its spot,
@@ -3821,14 +3888,17 @@ public class SOCServer extends Server
         for (SOCGameOption opt : knownOpts.values())
         {
             final String optKey = opt.key;
-            try {
-                final SOCGameOption oLocal = new SOCGameOption(opt, sm.get("gameopt." + optKey));
-                opts.put(optKey, oLocal);
+            try
+            {
+                final SOCGameOption oLocal = new SOCGameOption( opt, sm.get( "gameopt." + optKey ) );
+                opts.put( optKey, oLocal );
                 if (updateStaticKnownOpts)
-                    SOCGameOption.addKnownOption(oLocal);
-                    // for-loop iteration isn't affected: updates static originals, not the copy in knownOpts
-            } catch (MissingResourceException e) {
-                opts.put(optKey, opt);
+                    SOCGameOption.addKnownOption( oLocal );
+                // for-loop iteration isn't affected: updates static originals, not the copy in knownOpts
+            }
+            catch( MissingResourceException e )
+            {
+                opts.put( optKey, opt );
             }
         }
 
@@ -3976,7 +4046,7 @@ public class SOCServer extends Server
      * @param ch  the name of the channel
      * @param mes the message to send
      */
-    public void messageToChannel(String ch, SOCMessage mes)
+    public void messageToChannel( String ch, SOCMessage mes )
     {
         final String mesCmd = mes.toCmd();
 
@@ -3996,7 +4066,7 @@ public class SOCServer extends Server
 
                     if (c != null)
                     {
-                        c.put(mesCmd);
+                        c.send( mes );
                     }
                 }
             }
@@ -4034,7 +4104,7 @@ public class SOCServer extends Server
 
                 if (c != null)
                 {
-                    c.put(mesCmd);
+                    c.send( mes );
                 }
             }
         }
@@ -4076,7 +4146,7 @@ public class SOCServer extends Server
             recordGameEventTo(eventGameName, eventPN, mes);
 
         //currentGameEventRecord.addMessageOut(new SOCMessageRecord(mes, "SERVER", c.getData()));
-        c.put(mes);
+        c.send( mes);
     }
 
     /**
@@ -4122,11 +4192,13 @@ public class SOCServer extends Server
         if (c.getVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT)
         {
             SOCGameServerText msg = new SOCGameServerText(gameName, txt);
-            c.put(msg);
+            c.send( msg);
             if (eventPN != PN_NON_EVENT)
                 recordGameEventTo(gameName, eventPN, msg);
-        } else {
-            c.put(new SOCGameTextMsg(gameName, SERVERNAME, txt));
+        }
+        else
+        {
+            c.send( new SOCGameTextMsg(gameName, SERVERNAME, txt));
             if (eventPN != PN_NON_EVENT)
                 recordGameEventTo(gameName, eventPN, new SOCGameServerText(gameName, txt));
         }
@@ -4395,7 +4467,7 @@ public class SOCServer extends Server
                     if (c != null)
                     {
                         //currentGameEventRecord.addMessageOut(new SOCMessageRecord(mes, "SERVER", c.getData()));
-                        c.put(mesCmd);
+                        c.send( mes );
                     }
                 }
             }
@@ -4489,9 +4561,9 @@ public class SOCServer extends Server
                     if (c != null)
                     {
                         if (c.getVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT)
-                            c.put(gameServTxtMsg);
+                            c.send( msg );
                         else
-                            c.put(new SOCGameTextMsg(ga, SERVERNAME, txt));
+                            c.send( new SOCGameTextMsg(ga, SERVERNAME, txt));
                     }
                 }
             }
@@ -4544,7 +4616,7 @@ public class SOCServer extends Server
 
         try
         {
-            Vector<Connection> v = gameList.getMembers(gaName);
+            Vector<Connection> v = gameList.getMembers( gaName );
 
             if (v != null)
             {
@@ -4565,33 +4637,35 @@ public class SOCServer extends Server
                     final String cliLocale = c.getI18NLocale();
                     if ((gameLocalMsg == null)
                         || (hasMultiLocales
-                             && (  (cliLocale == null)
-                                   ? (gameTxtLocale != null)
-                                   : ! cliLocale.equals(gameTxtLocale)  )))
+                        && ((cliLocale == null)
+                        ? (gameTxtLocale != null)
+                        : !cliLocale.equals( gameTxtLocale ))))
                     {
                         if (msgKey != null)
                             try
                             {
-                                localText = c.getLocalized(msgKey);
-                            } catch (MissingResourceException e) {
+                                localText = c.getLocalized( msgKey );
+                            }
+                            catch( MissingResourceException e )
+                            {
                                 localText = msgKey;  // fallback so data fields will still be sent
                                 rsrcMissing = true;
                             }
 
-                        gameLocalMsg = msg.localize(localText);
+                        gameLocalMsg = msg.localize( localText );
                         gameTxtLocale = cliLocale;
 
                         if (isEvent && (msgForRecord == null) && recordGameEventsIsActive()
-                            && ("en_US".equals(cliLocale)))
+                            && ("en_US".equals( cliLocale )))
                             msgForRecord = gameLocalMsg;
                     }
 
                     if (gameLocalMsg != null)
-                        c.put(gameLocalMsg);
+                        c.send( gameLocalMsg );
                 }
 
                 if (rsrcMissing)
-                    D.ebugPrintlnINFO("Missing string key in messageToGameKeyedType: " + msgKey);
+                    D.ebugPrintlnINFO( "Missing string key in messageToGameKeyedType: " + msgKey );
 
                 if (isEvent && recordGameEventsIsActive())
                 {
@@ -4600,15 +4674,17 @@ public class SOCServer extends Server
                         if (msgKey != null)
                             try
                             {
-                                localText = SOCStringManager.getFallbackServerManagerForClient().get(msgKey);
-                            } catch (MissingResourceException e) {
+                                localText = SOCStringManager.getFallbackServerManagerForClient().get( msgKey );
+                            }
+                            catch( MissingResourceException e )
+                            {
                                 localText = msgKey;  // fallback so data fields will still be sent
                             }
 
-                        msgForRecord = msg.localize(localText);
+                        msgForRecord = msg.localize( localText );
                     }
 
-                    recordGameEvent(gaName, msgForRecord);
+                    recordGameEvent( gaName, msgForRecord );
                 }
             }
         }
@@ -5004,10 +5080,10 @@ public class SOCServer extends Server
                     }
 
                     if ((c.getVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT) && (gameTextMsg != null))
-                        c.put(gameTextMsg);
+                        c.send( gameTextMsg);
                     else
                         // old client (this is uncommon) needs a different message type
-                        c.put(new SOCGameTextMsg
+                        c.send( new SOCGameTextMsg
                             (gaName, SERVERNAME, gameText));
                 }
 
@@ -5104,7 +5180,7 @@ public class SOCServer extends Server
             if (c != null)
             {
                 //currentGameEventRecord.addMessageOut(new SOCMessageRecord(mes, "SERVER", c.getData()));
-                c.put(mesCmd);
+                c.send( mes );
             }
         }
     }
@@ -5182,7 +5258,7 @@ public class SOCServer extends Server
                     if ((con != null) && ! ex.contains(con))
                     {
                         //currentGameEventRecord.addMessageOut(new SOCMessageRecord(mes, "SERVER", con.getData()));
-                        con.put(mesCmd);
+                        con.send( mes );
                     }
                 }
             }
@@ -5239,7 +5315,7 @@ public class SOCServer extends Server
                         continue;
 
                     //currentGameEventRecord.addMessageOut(new SOCMessageRecord(mes, "SERVER", con.getData()));
-                    con.put(mesCmd);
+                    con.send( mes );
                 }
             }
         }
@@ -5312,7 +5388,9 @@ public class SOCServer extends Server
         {
             exs = new ArrayList<>();
             exs.add(ex);
-        } else {
+        }
+        else
+        {
             exs = null;
         }
 
@@ -5376,9 +5454,7 @@ public class SOCServer extends Server
                         continue;
 
                     //currentGameEventRecord.addMessageOut(new SOCMessageRecord(mes, "SERVER", con.getData()));
-                    if (mesCmd == null)
-                        mesCmd = mes.toCmd();
-                    con.put(mesCmd);
+                    con.send(mes);
                 }
             }
         }
@@ -5541,10 +5617,10 @@ public class SOCServer extends Server
                 }
 
                 if ((cv >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT) && (gameTextMsg != null))
-                    c.put(gameTextMsg);
+                    c.send( gameTextMsg);
                 else
                     // old client (this is uncommon) needs a different message type
-                    c.put(new SOCGameTextMsg
+                    c.send( new SOCGameTextMsg
                         (gaName, SERVERNAME, gameText));
 
             }
@@ -5703,7 +5779,7 @@ public class SOCServer extends Server
         {
             if (getNamedConnectionCount() >= maxConnections)
             {
-                c.put(new SOCRejectConnection("Too many connections, please try another server."));
+                c.send( new SOCRejectConnection("Too many connections, please try another server."));
             }
         }
         catch (Exception e)
@@ -5732,7 +5808,7 @@ public class SOCServer extends Server
              */
             if (hostMatch)
             {
-                c.put(new SOCRejectConnection("Can't connect to the server more than once from one machine."));
+                c.send( new SOCRejectConnection("Can't connect to the server more than once from one machine."));
             }
             else
             {
@@ -5782,7 +5858,7 @@ public class SOCServer extends Server
             feats = new SOCFeatureSet(features);
             feats.add(SOCFeatureSet.SERVER_OPEN_REG);  // no accounts: don't require a password from SOCAccountClient
         }
-        c.put(new SOCVersion
+        c.send( new SOCVersion
             (Version.versionNumber(), Version.version(), Version.buildnum(), feats.getEncodedList(), null));
 
         // CHANNELS
@@ -5803,7 +5879,7 @@ public class SOCServer extends Server
 
         channelList.releaseMonitor();
 
-        c.put(new SOCChannels(cl));
+        c.send( new SOCChannels(cl));
 
         // GAMES
 
@@ -5875,7 +5951,7 @@ public class SOCServer extends Server
             // Let the old one know it's disconnected now,
             // in case it ever does get its connection back.
             if (oldConn.getVersion() >= 1108)
-                oldConn.put(new SOCServerPing(-1));
+                oldConn.send(new SOCServerPing(-1));
 
             // If oldConn was in some games which c can't join because of limited client features,
             // remove oldConn from those now. This is unlikely: see GLAS.replaceMemberAllGames javadoc.
@@ -6053,7 +6129,7 @@ public class SOCServer extends Server
         final int timeoutNeeded;
         if (withPassword)
             timeoutNeeded = NICKNAME_TAKEOVER_SECONDS_SAME_PASSWORD;
-        else if (newc.host().equals(oldc.host()))
+        else if (newc.getHost().equals(oldc.getHost()))
             // same IP address or hostname
             timeoutNeeded = NICKNAME_TAKEOVER_SECONDS_SAME_IP;
         else
@@ -6077,7 +6153,9 @@ public class SOCServer extends Server
                 // it's OK to take over this nickname.  A call made soon
                 // to nameConnection(c,true) will transfer data from old conn, to new conn.
                 return -1;
-            } else {
+            }
+            else
+            {
                 // Already sent ping, timeout not yet expired.
                 return timeoutNeeded - secondsSincePing;
             }
@@ -6096,7 +6174,7 @@ public class SOCServer extends Server
         {
             // Already-connected client should respond to ping.
             // If not, consider them disconnected.
-            oldc.put(new SOCServerPing(timeoutNeeded));
+            oldc.send( new SOCServerPing(timeoutNeeded));
         }
 
         return timeoutNeeded;
@@ -6121,7 +6199,9 @@ public class SOCServer extends Server
         {
             sb.append(nameTimeout);
             sb.append(" seconds");
-        } else {
+        }
+        else
+        {
             sb.append( (nameTimeout + 20) / 60 );
             sb.append(" minute(s)");
         }
@@ -6315,7 +6395,9 @@ public class SOCServer extends Server
                 final int i = dcmd.lastIndexOf(' ');
                 if ((i < dcmd.length()) && (dcmd.substring(i+1, end).equals(srvShutPassword)))
                     shutNow = true;
-            } else {
+            }
+            else
+            {
                 srvShutPasswordExpire = now + (45 * 1000L);
                 StringBuilder sb = new StringBuilder();
                 for (int i = 12 + rand.nextInt(5); i > 0; --i)
@@ -6354,9 +6436,11 @@ public class SOCServer extends Server
             int maxBots = 0;
             if (dcmdU.length() > 15)
             {
-                try {
-                    maxBots = Integer.parseInt(dcmdU.substring(15).trim());
-                } catch (NumberFormatException e) {}
+                try
+                {
+                    maxBots = Integer.parseInt( dcmdU.substring( 15 ).trim() );
+                }
+                catch( NumberFormatException ignored ) {}
             }
 
             srvMsgHandler.handleSTARTGAME(debugCli, new SOCStartGame(gaName, 0), maxBots);
@@ -6553,7 +6637,7 @@ public class SOCServer extends Server
          */
         if (msgUser.length() > PLAYER_NAME_MAX_LENGTH)
         {
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_NAME_TOO_LONG, cliVers,
                      c.getLocalized("netmsg.status.common.name_too_long", PLAYER_NAME_MAX_LENGTH)));
                          // "Please choose a shorter name; maximum length: 20"
@@ -6571,24 +6655,32 @@ public class SOCServer extends Server
             if (allowTakeover)
             {
                 isTakingOver = true;
-            } else {
-                c.put(SOCStatusMessage.buildForVersion
+            }
+            else
+            {
+                c.send( SOCStatusMessage.buildForVersion
                         (SOCStatusMessage.SV_NAME_IN_USE, cliVers,
                          MSG_NICKNAME_ALREADY_IN_USE));
                 return;
             }
-        } else if (nameTimeout == -2) {
-            c.put(SOCStatusMessage.buildForVersion
+        }
+        else if (nameTimeout == -2)
+        {
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_NAME_NOT_ALLOWED, cliVers,
                      c.getLocalized("netmsg.status.nickname_not_allowed")));  // "This nickname is not allowed."
             return;
-        } else if (nameTimeout <= -1000) {
-            c.put(SOCStatusMessage.buildForVersion
+        }
+        else if (nameTimeout <= -1000)
+        {
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_NAME_IN_USE, cliVers,
                      checkNickname_getVersionText(-nameTimeout)));
             return;
-        } else if (nameTimeout > 0) {
-            c.put(SOCStatusMessage.buildForVersion
+        }
+        else if (nameTimeout > 0)
+        {
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_NAME_IN_USE, cliVers,
                      (allowTakeover) ? checkNickname_getRetryText(nameTimeout) : MSG_NICKNAME_ALREADY_IN_USE));
             return;
@@ -6601,7 +6693,7 @@ public class SOCServer extends Server
         {
             if (msgPass.length() == 0)
             {
-                c.put(SOCStatusMessage.buildForVersion
+                c.send( SOCStatusMessage.buildForVersion
                         (SOCStatusMessage.SV_PW_REQUIRED, cliVers,
                          "This server requires user accounts and passwords."));
                 return;
@@ -6613,7 +6705,7 @@ public class SOCServer extends Server
 
         if (msgPass.length() > SOCAuthRequest.PASSWORD_LEN_MAX)
         {
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
                      (SOCStatusMessage.SV_PW_WRONG, c.getVersion(),
                       c.getLocalized("netmsg.status.incorrect_password", msgUser)));  // "Incorrect password for "msgUser"."
             return;
@@ -6633,12 +6725,12 @@ public class SOCServer extends Server
                     {
                         // If no DB: If msgPass is "" then dbUserName is msgUser, else is null
 
-                        if (inQueue.isCurrentThreadTreater())
+                        if (multiplexQueue.isCurrentThreadTreater())
                             authOrRejectClientUser_postDBAuth
                                 (c, msgUserName, dbUserName, cliVers,
                                  doNameConnection, takingOver, authCallback, hadDelay);
                         else
-                            inQueue.post(new Runnable()
+                            multiplexQueue.post( new Runnable()
                             {
                                 public void run()
                                 {
@@ -6648,11 +6740,11 @@ public class SOCServer extends Server
                                 }
                             });
                     }
-                });;
+                });
         }
         catch (SQLException sqle)
         {
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_PROBLEM_WITH_DB, c.getVersion(),
                      "Problem connecting to database, please try again later."));
         }
@@ -6664,7 +6756,7 @@ public class SOCServer extends Server
      * See that method's javadoc for most parameters.
      *<P>
      * That method also ensures this method and {@code authCallback} run in the Treater thread; see
-     * {@link Server#inQueue inQueue}.{@link InboundMessageQueue#isCurrentThreadTreater() isCurrentThreadTreater()}.
+     * {@link Server#multiplexQueue waitQueue}.{@link InboundMessageQueue#isCurrentThreadTreater() isCurrentThreadTreater()}.
      *
      * @param hadDelay  If true, this callback has been delayed by {@code BCrypt} calculations;
      *     otherwise it's an immediate callback (user not found, password didn't use BCrypt hashing)
@@ -6683,13 +6775,13 @@ public class SOCServer extends Server
                 (SOCStatusMessage.SV_PW_WRONG, c.getVersion(),
                  c.getLocalized("netmsg.status.incorrect_password", msgUser));  // "Incorrect password for "msgUser"."
             if (hadDelay)
-                c.put(msg);
+                c.send( msg);
             else
                 // TODO consider timing actual delay of BCrypt calcs & use that
                 replyAuthTimer.schedule
                     (new TimerTask()
                      {
-                        public void run() { c.put(msg); }
+                        public void run() { c.send( msg); }
                      }, 350 + rand.nextInt(250));  // roughly same range as DBH.testBCryptSpeed
 
             return;  // <---- Early return: Password auth failed ----
@@ -6703,12 +6795,12 @@ public class SOCServer extends Server
                 (SOCStatusMessage.SV_NAME_NOT_FOUND, cliVers,
                  "Nickname is case-sensitive: Use " + authUsername);
             if (hadDelay)
-                c.put(msg);
+                c.send( msg);
             else
                 replyAuthTimer.schedule
                     (new TimerTask()
                      {
-                        public void run() { c.put(msg); }
+                        public void run() { c.send( msg); }
                      }, 350 + rand.nextInt(250));
 
             return;  // <---- Early return: Client can't change nickname case ----
@@ -6845,6 +6937,11 @@ public class SOCServer extends Server
 
         // Store this client's features
         SOCClientData scd = (SOCClientData) c.getAppData();
+        if (null == scd)
+        {
+            scd = new SOCClientData();
+            c.setAppData( scd );
+        }
         scd.feats = cfeatSet;
         scd.hasLimitedFeats = hasLimitedFeats;
         scd.scenVersion = scenVers;
@@ -6873,7 +6970,9 @@ public class SOCServer extends Server
         try
         {
             scd.locale = StringManager.parseLocale(clocale);
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e)
+        {
             warnText = "Sorry, cannot parse your locale.";  // i18n OK: We don't know client locale
             scd.localeStr = "en_US";  // fallback
             scd.locale = Locale.US;
@@ -6889,7 +6988,8 @@ public class SOCServer extends Server
             {
                 c.setVersion(cvers, isKnown);
             }
-        } else if (wasKnown)
+        }
+        else if (wasKnown)
         {
             return true;  // <--- Early return: Already knew it ----
         }
@@ -6914,7 +7014,7 @@ public class SOCServer extends Server
 
         if (rejectMsg != null)
         {
-            c.put(new SOCRejectConnection(rejectMsg));
+            c.send( new SOCRejectConnection(rejectMsg));
             c.disconnectSoft();
             System.out.println(rejectLogMsg);
 
@@ -6943,7 +7043,7 @@ public class SOCServer extends Server
                 if (unsupportedOpts != null)
                 {
                     for (String okey : unsupportedOpts.keySet())
-                        c.put(new SOCGameOptionInfo(new SOCGameOption(okey), cvers, "-"));
+                        c.send( new SOCGameOptionInfo(new SOCGameOption(okey), cvers, "-"));
                     hadAny = true;
                 }
 
@@ -6951,7 +7051,7 @@ public class SOCServer extends Server
                 if (trimmedOpts != null)
                 {
                     for (SOCGameOption opt : trimmedOpts.values())
-                        c.put(new SOCGameOptionInfo(opt, cvers, null));
+                        c.send( new SOCGameOptionInfo(opt, cvers, null));
                     hadAny = true;
                 }
             }
@@ -6973,20 +7073,23 @@ public class SOCServer extends Server
 
                     String localDesc = null;
                     if (wantsLocalDescs)
-                        try {
-                            localDesc = c.getLocalized("gameopt." + okey);
-                            if (opt.getDesc().equals(localDesc))
+                    {
+                        try
+                        {
+                            localDesc = c.getLocalized( "gameopt." + okey );
+                            if (opt.getDesc().equals( localDesc ))
                                 localDesc = null;
-                        } catch (MissingResourceException e) {}
-
-                    c.put(new SOCGameOptionInfo(opt, cvers, localDesc));
+                        }
+                        catch( MissingResourceException ignored ) { }
+                    }
+                    c.send( new SOCGameOptionInfo(opt, cvers, localDesc));
                     hadAny = true;
                 }
             }
 
             if (hadAny && (cvers == Version.versionNumber()))
                 // if same version, tell client there's no need to ask later about other gameopt changes
-                c.put(SOCGameOptionInfo.OPTINFO_NO_MORE_OPTS);
+                c.send( SOCGameOptionInfo.OPTINFO_NO_MORE_OPTS);
         }
 
         // Send game list?
@@ -7019,12 +7122,12 @@ public class SOCServer extends Server
                 txt.append(' ');
                 txt.append(c.getLocalized("netmsg.status.welcome"));  // "Welcome to Java Settlers of Catan!"
             }
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_OK_DEBUG_MODE_ON, cvers, txt.toString()));
         }
         else if (warnText != null)
         {
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_OK, cvers, warnText));
         }
 
@@ -7127,14 +7230,17 @@ public class SOCServer extends Server
             {
                 System.out.println("Rejected robot " + botName + ": Version "
                     + cliVers + " does not match server version");
-                String rejectMsg = "Sorry, robot client version does not match, version number "
+                // <--- Early return: Robot client too old ---
+                return "Sorry, robot client version does not match, version number "
                     + Version.version(srvVers) + " is required.";
-
-                return rejectMsg;  // <--- Early return: Robot client too old ---
-            } else {
+            }
+            else
+            {
                 System.out.println("Robot arrived: " + botName + ": built-in type");
             }
-        } else {
+        }
+        else
+        {
             System.out.println("Robot arrived: " + botName + ": type " + rbc);
         }
 
@@ -7144,7 +7250,7 @@ public class SOCServer extends Server
         if (0 != checkNickname(botName, c, false, true))
         {
             printAuditMessage
-                (null, "Robot login attempt, name already in use or bad", botName, null, c.host());
+                (null, "Robot login attempt, name already in use or bad", botName, null, c.getHost());
 
             return MSG_NICKNAME_ALREADY_IN_USE;  // <--- Early return: Name in use ---
         }
@@ -7284,7 +7390,9 @@ public class SOCServer extends Server
         if (c.getData() != null)
         {
             createOrJoinGame(c, cliVers, gameName, gameOpts, null, AUTH_OR_REJECT__OK);
-        } else {
+        }
+        else
+        {
             /**
              * Check that the nickname is ok, check password if supplied; if not ok, sends a SOCStatusMessage.
              */
@@ -7355,7 +7463,9 @@ public class SOCServer extends Server
             gameName = loadedGame.getName();
                 // if this game name is already taken,
                 // GLAS.addGame will rename it during connectToGame
-        } else {
+        }
+        else
+        {
             gameName = connGaName;
         }
 
@@ -7368,7 +7478,7 @@ public class SOCServer extends Server
                 // "Please choose a shorter name; maximum length: 30"
 
             if (sendErrorViaStatus)
-                c.put(SOCStatusMessage.buildForVersion
+                c.send( SOCStatusMessage.buildForVersion
                        (SOCStatusMessage.SV_NAME_TOO_LONG, cliVers, txt));
             else
                 messageToPlayer(c, connGaName, PN_NON_EVENT, txt);
@@ -7389,7 +7499,7 @@ public class SOCServer extends Server
                 && (CLIENT_MAX_CREATE_GAMES >= 0)
                 && (CLIENT_MAX_CREATE_GAMES <= ((SOCClientData) c.getAppData()).getCurrentCreatedGames()))
             {
-                c.put(SOCStatusMessage.buildForVersion
+                c.send( SOCStatusMessage.buildForVersion
                        (SOCStatusMessage.SV_NEWGAME_TOO_MANY_CREATED, cliVers,
                          c.getLocalized("netmsg.status.newgame_too_many_created", CLIENT_MAX_CREATE_GAMES)));
                 // "Too many of your games still active; maximum: 5"
@@ -7415,7 +7525,7 @@ public class SOCServer extends Server
             if (rejectText != null)
             {
                 if (sendErrorViaStatus)
-                    c.put(SOCStatusMessage.buildForVersion
+                    c.send( SOCStatusMessage.buildForVersion
                            (SOCStatusMessage.SV_NEWGAME_NAME_REJECTED, cliVers, rejectText));
                 else
                     messageToPlayer(c, connGaName, PN_NON_EVENT, rejectText);
@@ -7438,7 +7548,7 @@ public class SOCServer extends Server
                     // "A game with this name already exists, please choose a different name."
 
                 if (sendErrorViaStatus)
-                    c.put(SOCStatusMessage.buildForVersion
+                    c.send( SOCStatusMessage.buildForVersion
                            (SOCStatusMessage.SV_NEWGAME_ALREADY_EXISTS, cliVers, txt));
                 else
                     messageToPlayer(c, connGaName, PN_NON_EVENT, txt);
@@ -7456,7 +7566,7 @@ public class SOCServer extends Server
                 final String txt = "Unknown game option(s) were requested, cannot create this game. " + optProblems;
 
                 if (sendErrorViaStatus)
-                    c.put(SOCStatusMessage.buildForVersion
+                    c.send( SOCStatusMessage.buildForVersion
                            (SOCStatusMessage.SV_NEWGAME_OPTION_UNKNOWN, cliVers, txt));
                 else
                     messageToPlayer(c, connGaName, PN_NON_EVENT, txt);
@@ -7478,7 +7588,7 @@ public class SOCServer extends Server
         try
         {
             if (0 != (authResult & SOCServer.AUTH_OR_REJECT__SET_USERNAME))
-                c.put(new SOCStatusMessage
+                c.send( new SOCStatusMessage
                     (SOCStatusMessage.SV_OK_SET_NICKNAME,
                      c.getData() + SOCMessage.sep2_char +
                      getClientWelcomeMessage(c)));  // "Welcome to Java Settlers of Catan!"
@@ -7496,9 +7606,11 @@ public class SOCServer extends Server
                 List<SOCGame> allConnGames = gameList.memberGames(c, gameName);
                 if (allConnGames.size() == 0)
                 {
-                    c.put(new SOCStatusMessage(SOCStatusMessage.SV_OK,
+                    c.send( new SOCStatusMessage(SOCStatusMessage.SV_OK,
                             /*I*/"You've taken over the connection, but aren't in any games."/*18N*/ ));
-                } else {
+                }
+                else
+                {
                     // Send list backwards: requested game will be sent last.
                     for (int i = allConnGames.size() - 1; i >= 0; --i)
                         joinGame(allConnGames.get(i), c, false, false, true);
@@ -7542,19 +7654,21 @@ public class SOCServer extends Server
                     joinGame(ga, c, false, (loadedGame != null), sendLikeTakingOver);
                 }
             }
-        } catch (SOCGameOptionVersionException e)
+        }
+        catch (SOCGameOptionVersionException e)
         {
             // Let them know they can't join; include the game's version.
             // This cli asked to created it, otherwise gameOpts would be null.
             // I18N note: If localizing "Cannot create" text, can't use sep2_char in that localized text
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
               (SOCStatusMessage.SV_NEWGAME_OPTION_VALUE_TOONEW, cliVers,
                 "Cannot create game with these options; requires version "
                 + e.gameOptsVersion
                 + SOCMessage.sep2_char + gameName
                 + SOCMessage.sep2_char + e.problemOptionsList()));
             return false;
-        } catch (MissingResourceException e)
+        }
+        catch (MissingResourceException e)
         {
             // Let them know they can't join or create it because
             // client is missing an optional feature the game needs.
@@ -7562,29 +7676,33 @@ public class SOCServer extends Server
             // show a localized message instead of the raw status text.
             final String verb = (gameList.isGame(gameName)) ? "join" : "create";  // I18N OK
             final String feats = e.getKey();  // semicolon-separated (';')
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
               (SOCStatusMessage.SV_GAME_CLIENT_FEATURES_NEEDED, cliVers,
                 "Cannot " + verb + "; this client is incompatible with features of the game"
                 + SOCMessage.sep2_char + gameName
                 + SOCMessage.sep2_char + feats));
             return false;
-        } catch (IllegalArgumentException e)
+        }
+        catch (IllegalArgumentException e)
         {
             SOCGame game = gameList.getGameData(gameName);
             if (game == null)
             {
                 D.ebugPrintStackTrace(e, "Exception in createOrJoinGame");
                     // Troubleshooting note: Before v2.3.00, was "Exception in createOrJoinGameIfUserOK"
-            } else {
+            }
+            else
+            {
                 // Let them know they can't join; include the game's version.
-                c.put(SOCStatusMessage.buildForVersion
+                c.send( SOCStatusMessage.buildForVersion
                   (SOCStatusMessage.SV_CANT_JOIN_GAME_VERSION, cliVers,
                     "Cannot join game; requires version "
                     + game.getClientVersionMinRequired()
                     + ": " + gameName));
             }
             return false;
-        } catch (NoSuchElementException e)
+        }
+        catch (NoSuchElementException e)
         {
             if (loadedGame != null)
                 messageToPlayer
@@ -7700,11 +7818,15 @@ public class SOCServer extends Server
                         (c, gaName, PN_REPLY_TO_UNDETERMINED,
                          "admin.resumegame.err.not_enough_robots");
                         // ">>> Cannot resume: Not enough robots to fill non-vacant seats."
-                } else if (sgm.gameState < SOCGame.OVER) {
+                }
+                else if (sgm.gameState < SOCGame.OVER)
+                {
                     messageToGameKeyed
                         (ga, false, true, "admin.loadgame.ok.to_continue_resumegame");
                         // ">>> To continue playing, type *RESUMEGAME*"
-                } else {
+                }
+                else
+                {
                     sgm.resumePlay(true);
                     final GameHandler hand = gameList.getGameTypeHandler(gaName);
                     if (hand != null)
@@ -7779,14 +7901,17 @@ public class SOCServer extends Server
             {
                 invitedBots = readyGameAskRobotsJoin(ga, botsNeeded, null, 0);
                     // will also send game a text message like "Fetching a robot..."
-            } catch (IllegalStateException ex) {
+            }
+            catch (IllegalStateException ex) {
                 e = ex;
             }
 
             if (invitedBots)
             {
                 return RESUME_RELOADED_FETCHING_ROBOTS;  // "member.bot.join.fetching": "Fetching a robot player..."
-            } else {
+            }
+            else
+            {
                 // recover, so human players can try and fill those seats
                 ga.setGameState(SOCGame.LOADING);
                 if (hand != null)
@@ -7800,7 +7925,9 @@ public class SOCServer extends Server
                         // "Sorry, robots cannot join this game: {0}"
                     retParams = new String[]{e.getMessage()};
                     messageToPlayerKeyed(c, gaName, PN_REPLY_TO_UNDETERMINED, retTxtKey, (Object[]) retParams);
-                } else {
+                }
+                else
+                {
                     retTxtKey = "admin.resumegame.err.not_enough_robots";
                         // ">>> Cannot resume: Not enough robots to fill non-vacant seats."
                     messageToPlayerKeyed(c, gaName, PN_REPLY_TO_UNDETERMINED, retTxtKey);
@@ -7836,7 +7963,9 @@ public class SOCServer extends Server
                 // ">>> Resuming game play."
 
             return null;
-        } catch (MissingResourceException e) {
+        }
+        catch (MissingResourceException e)
+        {
             String retTxtKey = "admin.resumegame.err.not_enough_robots";
                 // ">>> Cannot resume: Not enough robots to fill non-vacant seats."
             messageToGameKeyed(ga, true, true, retTxtKey);
@@ -7872,7 +8001,9 @@ public class SOCServer extends Server
         if (wasGameDestroyed)
         {
             nParallel = 1;
-        } else {
+        }
+        else
+        {
             nParallel = getConfigIntProperty(PROP_JSETTLERS_BOTS_BOTGAMES_PARALLEL, 4);
             if (nParallel == 0)
                 nParallel = numRobotOnlyGamesRemaining;
@@ -7902,7 +8033,9 @@ public class SOCServer extends Server
                     opts.get("PL").setIntValue(6);
                     opts.get("PLB").setBoolValue(true);
                     desc.append(": PL=6");
-                } else {
+                }
+                else
+                {
                     desc.append(": PL=4");
                 }
 
@@ -7932,9 +8065,13 @@ public class SOCServer extends Server
                     System.out.println("Bot-only game " + gaName + ": Not enough bots can join, not starting");
                     newGame.setGameState(SOCGame.OVER);
                 }
-            } else {
+            }
+/*
+            else
+            {
                 // TODO couldn't create game; maybe try another to keep the loop going?
             }
+*/
         }
     }
 
@@ -8018,7 +8155,9 @@ public class SOCServer extends Server
         if (forSeats == null)
         {
             seatsOpen = ga.getAvailableSeatCount();
-        } else {
+        }
+        else
+        {
             seatsOpen = 0;
             for (int pn = 0; pn < ga.maxPlayers; ++pn)
                 if (forSeats[pn])
@@ -8036,7 +8175,9 @@ public class SOCServer extends Server
             {
                 if (! forSeats[i])
                     continue;
-            } else {
+            }
+            else
+            {
                 if (! (ga.isSeatVacant(i) && (ga.getSeatLock(i) == SOCGame.SeatLockState.UNLOCKED)))
                     continue;
             }
@@ -8112,7 +8253,9 @@ public class SOCServer extends Server
             }
 
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -8186,7 +8329,9 @@ public class SOCServer extends Server
                     {
                         iNon = i;
                         break;
-                    } else {
+                    }
+                    else
+                    {
                         --nSkip;
                     }
                 }
@@ -8417,7 +8562,9 @@ public class SOCServer extends Server
                 scensSent = new HashMap<>();
                 scd.scenariosInfoSent = scensSent;
             }
-        } else {
+        }
+        else
+        {
             scensSent = null;
         }
 
@@ -8466,7 +8613,9 @@ public class SOCServer extends Server
                 rets.add(scKey);
                 rets.add(nm);
                 rets.add(desc);  // null is OK
-            } else if (checkUnknowns_skipFirst) {
+            }
+            else if (checkUnknowns_skipFirst)
+            {
                 rets.add(scKey);
                 rets.add(SOCLocalizedStrings.MARKER_KEY_UNKNOWN);
             }
@@ -8549,7 +8698,9 @@ public class SOCServer extends Server
             {
                 return;  // <--- Already checked for/sent ---
             }
-        } else {
+        }
+        else
+        {
             statusAlreadySent = null;
         }
 
@@ -8592,7 +8743,9 @@ public class SOCServer extends Server
         if (scd.checkedLocaleScenStrings)
         {
             localeHasScenStrs = scd.localeHasScenStrings;
-        } else {
+        }
+        else
+        {
             localeHasScenStrs = scd.localeHasGameScenarios(c);
 
             scd.localeHasScenStrings = localeHasScenStrs;
@@ -8650,19 +8803,23 @@ public class SOCServer extends Server
 
         if (scSend != null)
         {
-            c.put(new SOCScenarioInfo(scSend, nm, desc));
-        } else {
+            c.send( new SOCScenarioInfo(scSend, nm, desc));
+        }
+        else
+        {
             List<String> scenStrs = new ArrayList<>();
             scenStrs.add(scKey);
             if (nm != null)
             {
                 scenStrs.add(nm);
                 scenStrs.add(desc);  // null is OK
-            } else {
+            }
+            else
+            {
                 scenStrs.add(SOCLocalizedStrings.MARKER_KEY_UNKNOWN);
             }
 
-            c.put(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scenStrs));
+            c.send( new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scenStrs));
         }
     }
 
@@ -8693,7 +8850,7 @@ public class SOCServer extends Server
             // Send same SV_ status code as previous versions (before 1.1.19) which didn't check db.isInitialized
             // but instead fell through and sent "Account not created due to error."
 
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_ACCT_NOT_CREATED_ERR, cliVers,
                      c.getLocalized("account.common.no_accts")));  // "This server does not use accounts and passwords."
             return;
@@ -8705,14 +8862,14 @@ public class SOCServer extends Server
 
         if ((databaseUserAdmins == null) && ! isOpenReg)
         {
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_ACCT_NOT_CREATED_DENIED, cliVers,
                      c.getLocalized("account.create.not_auth")));  // "Your account is not authorized to create accounts."
 
             printAuditMessage
                 (requester,
                  "Requested jsettlers account creation, but no account admins list",
-                 null, currentTime, c.host());
+                 null, currentTime, c.getHost());
 
             return;
         }
@@ -8735,7 +8892,7 @@ public class SOCServer extends Server
 
             if (cliVers < SOCAuthRequest.VERSION_FOR_AUTHREQUEST)
             {
-                c.put(SOCStatusMessage.buildForVersion
+                c.send( SOCStatusMessage.buildForVersion
                         (SOCStatusMessage.SV_CANT_JOIN_GAME_VERSION,  // cli knows this status value: defined in 1.1.06
                          cliVers, c.getLocalized
                              ("account.create.client_version_minimum",
@@ -8754,7 +8911,7 @@ public class SOCServer extends Server
             }
             catch (SQLException e)
             {
-                c.put(SOCStatusMessage.buildForVersion
+                c.send( SOCStatusMessage.buildForVersion
                         (SOCStatusMessage.SV_PROBLEM_WITH_DB, cliVers,
                          c.getLocalized("account.create.error_db_conn")));
                              // "Problem connecting to database, please try again later."
@@ -8763,7 +8920,7 @@ public class SOCServer extends Server
 
             if (count > 0)
             {
-                c.put(SOCStatusMessage.buildForVersion
+                c.send( SOCStatusMessage.buildForVersion
                         (SOCStatusMessage.SV_PW_WRONG, cliVers, c.getLocalized("account.common.must_auth")));
                              // "You must log in with a username and password before you can create accounts."
                 return;
@@ -8779,7 +8936,7 @@ public class SOCServer extends Server
 
         if (! SOCMessage.isSingleLineAndSafe(userName))
         {
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_NEWGAME_NAME_REJECTED, cliVers,
                      c.getLocalized("netmsg.status.common.newgame_name_rejected")));
                          // "This name is not permitted, please choose a different name."
@@ -8788,7 +8945,7 @@ public class SOCServer extends Server
 
         if (userName.length() > PLAYER_NAME_MAX_LENGTH)
         {
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_NAME_TOO_LONG, cliVers,
                      c.getLocalized("netmsg.status.common.name_too_long", PLAYER_NAME_MAX_LENGTH)));
                          // "Please choose a shorter name; maximum length: 20"
@@ -8814,7 +8971,7 @@ public class SOCServer extends Server
             {
                 // Requester not on user-admins list.
 
-                c.put(SOCStatusMessage.buildForVersion
+                c.send( SOCStatusMessage.buildForVersion
                         (SOCStatusMessage.SV_ACCT_NOT_CREATED_DENIED, cliVers,
                          c.getLocalized("account.create.not_auth")));  // "Your account is not authorized to create accounts."
 
@@ -8823,7 +8980,7 @@ public class SOCServer extends Server
                      (isDBCountedEmpty)
                          ? "Requested jsettlers account creation, database is empty - first, create a user named in account admins list"
                          : "Requested jsettlers account creation, this requester not on account admins list",
-                     null, currentTime, c.host());
+                     null, currentTime, c.getHost());
 
                 if (isDBCountedEmpty)
                     System.err.println
@@ -8842,14 +8999,14 @@ public class SOCServer extends Server
             final String dbUserName = db.getUser(userName);
             if (dbUserName != null)
             {
-                c.put(SOCStatusMessage.buildForVersion
+                c.send( SOCStatusMessage.buildForVersion
                         (SOCStatusMessage.SV_NAME_IN_USE, cliVers,
                          c.getLocalized("account.create.already_exists", dbUserName)));
                              // "The nickname "{0}" is already in use."
 
                 printAuditMessage
                     (requester, "Requested jsettlers account creation, already exists",
-                     userName, currentTime, c.host());
+                     userName, currentTime, c.getHost());
 
                 return;
             }
@@ -8857,7 +9014,7 @@ public class SOCServer extends Server
         catch (SQLException sqle)
         {
             // Indicates a db problem: don't continue
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_PROBLEM_WITH_DB, cliVers,
                      c.getLocalized("account.create.error_db_conn")));
                          // "Problem connecting to database, please try again later."
@@ -8871,7 +9028,7 @@ public class SOCServer extends Server
 
         try
         {
-            success = db.createAccount(userName, c.host(), pw, em, currentTime.getTime());
+            success = db.createAccount(userName, c.getHost(), pw, em, currentTime.getTime());
         }
         catch (IllegalArgumentException e)
         {
@@ -8887,11 +9044,11 @@ public class SOCServer extends Server
             final int stat = (isDBCountedEmpty)
                 ? SOCStatusMessage.SV_ACCT_CREATED_OK_FIRST_ONE
                 : SOCStatusMessage.SV_ACCT_CREATED_OK;
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
                     (stat, cliVers,
                      c.getLocalized("account.create.created", userName)));  // "Account created for "{0}"."
 
-            printAuditMessage(requester, "Created jsettlers account", userName, currentTime, c.host());
+            printAuditMessage(requester, "Created jsettlers account", userName, currentTime, c.getHost());
 
             if (acctsNotOpenRegButNoUsers)
                 acctsNotOpenRegButNoUsers = false;
@@ -8902,7 +9059,7 @@ public class SOCServer extends Server
                 ((pwTooLong)
                  ? "account.common.password_too_long"  // "That password is too long."
                  : "account.create.error");  // "Account not created due to error."
-            c.put(SOCStatusMessage.buildForVersion
+            c.send( SOCStatusMessage.buildForVersion
                     (SOCStatusMessage.SV_ACCT_NOT_CREATED_ERR, cliVers, errText));
         }
     }
@@ -9012,7 +9169,9 @@ public class SOCServer extends Server
             if (! isReset)
             {
                 requestedBots = robotJoinRequests.get(gaName);
-            } else {
+            }
+            else
+            {
                 requestedBots = null;  // Game already has all players from old game
             }
 
@@ -9028,7 +9187,9 @@ public class SOCServer extends Server
                 final int gstate = ga.getGameState();
                 willStartGame = (gstate < SOCGame.START1A);
                 willFinishResuming = (gstate == SOCGame.LOADING_RESUMING);
-            } else {
+            }
+            else
+            {
                 willStartGame = false;
                 willFinishResuming = false;
             }
@@ -9048,7 +9209,9 @@ public class SOCServer extends Server
             if (willStartGame && (hand != null))
             {
                 hand.startGame(ga);    // <--- Start the game ---
-            } else if (willFinishResuming) {
+            }
+            else if (willFinishResuming)
+            {
                 final String owner = ga.getOwner();
                 final Connection ownC = ((owner != null) ? getConnection(owner) : null);
                 srvMsgHandler.processDebugCommand_resumeGame(ownC, ga, "");  // <--- Resume the game ---
@@ -9227,7 +9390,9 @@ public class SOCServer extends Server
             final GameHandler hand = gameList.getGameTypeHandler(reGame.getName());
             if (hand != null)
                 hand.startGame(reGame);
-        } else {
+        }
+        else
+        {
             /**
              * 5b. If there are robots, set up wait-request queue
              *     (robotJoinRequests) and ask robots to re-join.
@@ -9537,7 +9702,9 @@ public class SOCServer extends Server
                         if (hasWarned)
                         {
                             minutes = 1;  // in case of rounding down
-                        } else {
+                        }
+                        else
+                        {
                             // minutes might be negative; can happen if server was on a sleeping laptop
                             minutes = GAME_TIME_EXPIRE_CHECK_MINUTES + 1;
                             gameData.setExpiration(currentTimeMillis + (minutes * 60 * 1000));
@@ -9701,7 +9868,9 @@ public class SOCServer extends Server
             SOCGameOption.setKnownOptionCurrentValue(op);
             if (optsAlreadySet != null)
                 optsAlreadySet.put(op.key, optRaw);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw new IllegalArgumentException("Bad value, cannot set game option: " + op.key);
         }
 
@@ -9803,7 +9972,9 @@ public class SOCServer extends Server
                             ("*** Error in properties file " + SOC_SERVER_PROPS_FILENAME + ": Exiting.");
                         System.exit(1);
                     }
-                } else {
+                }
+                else
+                {
                     System.err.println
                         ("*** Properties file " + SOC_SERVER_PROPS_FILENAME
                          + " exists but isn't a readable plain file: Exiting.");
@@ -9853,7 +10024,9 @@ public class SOCServer extends Server
                 if (arg.startsWith("-o") && (arg.length() > 2))
                 {
                     argValue = arg.substring(2);
-                } else {
+                }
+                else
+                {
                     ++aidx;
                     if (aidx < args.length)
                         argValue = args[aidx];
@@ -9887,7 +10060,9 @@ public class SOCServer extends Server
                         final String propKey = PROP_JSETTLERS_GAMEOPT_PREFIX + opt.key;
                         if (argp.containsKey(propKey))
                             argp.put(propKey, opt.getPackedValue().toString());
-                    } catch (IllegalArgumentException e) {
+                    }
+                    catch (IllegalArgumentException e)
+                    {
                         argValue = null;
                         System.err.println(e.getMessage());
                         printedMsg = true;
@@ -9903,7 +10078,8 @@ public class SOCServer extends Server
                     hasArgProblems = true;
                     doPrintOptions = true;
                 }
-            } else if (arg.startsWith("-D"))  // java-style props defines
+            }
+            else if (arg.startsWith("-D"))  // java-style props defines
             {
                 // We get to here when a user uses -Dname=value. However, in
                 // some cases, the OS goes ahead and parses this out to args
@@ -9918,11 +10094,15 @@ public class SOCServer extends Server
                     if (aidx < args.length)
                     {
                         name = args[aidx];
-                    } else {
+                    }
+                    else
+                    {
                         System.err.println("Missing property name after -D");
                         return null;
                     }
-                } else {
+                }
+                else
+                {
                     name = arg.substring(2, arg.length());
                 }
                 String value = null;
@@ -9959,7 +10139,9 @@ public class SOCServer extends Server
                     {
                         System.err.println("Empty game option name in property key: " + name);
                         ok = false;
-                    } else {
+                    }
+                    else
+                    {
                         hasSetGameOptions = true;
                         try
                         {
@@ -9968,7 +10150,9 @@ public class SOCServer extends Server
                                  optKey + "=" + value, gameOptsAlreadySet);
                             // Reminder: This call adds optKey to gameOptsAlreadySet
                             // or throws exception if already there (opt twice on command line, etc)
-                        } catch (IllegalArgumentException e) {
+                        }
+                        catch (IllegalArgumentException e)
+                        {
                             ok = false;
                             System.err.println(e.getMessage());
                             doPrintOptions = true;
@@ -9993,7 +10177,9 @@ public class SOCServer extends Server
                     ++aidx;
                     if (aidx < args.length)
                         name = args[aidx];
-                } else {
+                }
+                else
+                {
                     // this arg should continue: =username
                     if (arg.charAt(10) != '=')
                     {
@@ -10010,7 +10196,9 @@ public class SOCServer extends Server
                 }
                 argp.setProperty(SOCDBHelper.PROP_IMPL_JSETTLERS_PW_RESET, name);
 
-            } else {
+            }
+            else
+            {
                 System.err.println("Unknown argument: " + arg);
                 hasArgProblems = true;
             }
@@ -10049,7 +10237,9 @@ public class SOCServer extends Server
             if (! argp.containsKey(PROP_JSETTLERS_CONNECTIONS))
                 argp.setProperty(PROP_JSETTLERS_CONNECTIONS, Integer.toString(SOC_MAXCONN_DEFAULT));
             // PROP_JSETTLERS_DB_USER, _PASS are set below
-        } else {
+        }
+        else
+        {
             // Require at least 2 parameters
             if ((args.length - aidx) < 2)
             {
@@ -10083,7 +10273,9 @@ public class SOCServer extends Server
                 if ((args.length - aidx) > 0)
                 {
                     argp.setProperty(SOCDBHelper.PROP_JSETTLERS_DB_PASS, args[aidx]);  ++aidx;
-                } else {
+                }
+                else
+                {
                     argp.setProperty(SOCDBHelper.PROP_JSETTLERS_DB_PASS, "");
                 }
             }
@@ -10114,7 +10306,8 @@ public class SOCServer extends Server
                 if ((arg != null) && ! arg.isEmpty())
                     System.setProperty(SOCDBHelper.PROP_SQLITE_TMPDIR, arg);
             }
-        } catch (SecurityException e) {}
+        }
+        catch (SecurityException ignored) {}
 
         // Make sure no more flagged parameters
         if (aidx < args.length)
@@ -10124,7 +10317,9 @@ public class SOCServer extends Server
                 if (args[aidx].startsWith("-"))
                 {
                     System.err.println("SOCServer: Options must appear before, not after, the port number.");
-                } else {
+                }
+                else
+                {
                     System.err.println("SOCServer: Options must appear before the port number, not after dbuser/dbpass.");
                 }
                 printUsage(false);
@@ -10230,7 +10425,9 @@ public class SOCServer extends Server
                     (SOCGameOption.parseOptionNameValue(optKey, optVal, false),
                      optKey + '=' + optVal, null);
                 hasSetGameOptions = true;
-            } catch (IllegalArgumentException e) {
+            }
+            catch (IllegalArgumentException e)
+            {
                 if (problems == null)
                     problems = new StringBuilder();
                 else
@@ -10309,7 +10506,9 @@ public class SOCServer extends Server
                     scName = scName.substring(scName.indexOf('=') + 1).trim();
                        // indexOf should be okay, because this is called after parsing cmdline options;
                        // if somehow it's -1 then we get entire string from substring(0).
-            } else {
+            }
+            else
+            {
                 return null;  // <--- Early return: no default scenario ---
             }
         }
@@ -10371,7 +10570,9 @@ public class SOCServer extends Server
                 final String scOptVal = sb.toString().toLowerCase(Locale.US);
                 if (! mapOptVal.equals(scOptVal))
                     scenConflictWarns.add(new Triple(scOpt.key, mapOptVal, scOptVal));
-            } else {
+            }
+            else
+            {
                 // VP: special case: warn only if scen has false or a lower int value
 
                 if (mapOptVal.charAt(0) == 'f')
@@ -10382,7 +10583,9 @@ public class SOCServer extends Server
                     int mapVP;
                     try {
                         mapVP = Integer.parseInt(mapOptVal.substring(1));
-                    } catch (NumberFormatException e ) {
+                    }
+                    catch (NumberFormatException e )
+                    {
                         mapVP = 0;  // unlikely, would already have been caught by cmdline parsing
                     }
 
@@ -10441,7 +10644,9 @@ public class SOCServer extends Server
                     System.err.println("Error: " + srcDesc + " default scenario " + scName + " is unknown");
                     scenKnown = false;
                 }
-            } else {
+            }
+            else
+            {
                 System.err.println("Warning: " + srcDesc + " game option " + optName + " value " + warn.getB()
                     + ((scNameSrcDesc != null)
                            ? (" is changed in " + scNameSrcDesc + " default scenario ")
@@ -10483,7 +10688,9 @@ public class SOCServer extends Server
                 System.err.println("pw-reset user " + uname + " not found in database.");
                 return;
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e)
+        {
             System.err.println("Error while querying user " + uname + ": " + e.getMessage());
             return;
         }
@@ -10506,7 +10713,9 @@ public class SOCServer extends Server
             if (pw2 == null)
             {
                 break;
-            } else {
+            }
+            else
+            {
                 // compare; unfortunately there is no StringBuffer.equals(sb) method
 
                 final int L1 = pw1.length(), L2 = pw2.length();
@@ -10543,9 +10752,13 @@ public class SOCServer extends Server
             db.updateUserPassword(dbUname, pw1.toString());
             clearBuffer(pw1);
             utilityModeMessage = "The password was changed";
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e)
+        {
             System.err.println("Password was too long, max length is " + db.getMaxPasswordLength());
-        } catch (SQLException e) {
+        }
+        catch (SQLException e)
+        {
             System.err.println("Error while resetting password: " + e.getMessage());
         }
 
@@ -10628,7 +10841,9 @@ public class SOCServer extends Server
                 System.err.println(PROPS_LIST[i]);  // description
             }
             printGameOptions();
-        } else {
+        }
+        else
+        {
             System.err.println("       use java soc.server.SOCServer --help to see recognized options");
         }
     }
@@ -10852,7 +11067,9 @@ public class SOCServer extends Server
                 {
                     server.setPriority(5);
                     server.start();  // <---- Start the Main SOCServer Thread: serverUp() method ----
-                } else {
+                }
+                else
+                {
                     final boolean validate_config_mode
                         = server.getConfigBoolProperty(PROP_JSETTLERS_TEST_VALIDATE__CONFIG, false);
 
@@ -10891,7 +11108,9 @@ public class SOCServer extends Server
                 if (argp.containsKey(SOCDBHelper.PROP_JSETTLERS_DB_SCRIPT_SETUP))
                 {
                     System.err.println("\nDB setup script was successful. Exiting now.\n");
-                } else {
+                }
+                else
+                {
                     // assume is from SOCDBHelper.PROP_JSETTLERS_DB_UPGRADE__SCHEMA
                     // and getMessage() is from initSocServer's call to SOCDBHelper.upgradeSchema();
                     // text will be "DB schema upgrade was successful", possibly with detail like

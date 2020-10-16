@@ -182,7 +182,7 @@ public class SOCMoveRobber extends SOCMessage
         int i = s.lastIndexOf(SOCMessage.sep2_char);
 
         StringBuilder ret = new StringBuilder();
-        ret.append( s );
+        ret.append(s.substring(0, i + 1));
         String robberHex = s.substring(i + 1);
         ret.append(Integer.parseInt(robberHex, 16));
 

@@ -34,6 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import soc.communication.Connection;
 import soc.game.SOCBoard;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCDevCardConstants;
@@ -54,7 +55,6 @@ import soc.server.SOCClientData;
 import soc.server.SOCGameHandler;
 import soc.server.SOCGameListAtServer;
 import soc.server.SOCServer;
-import soc.server.genericServer.Connection;
 import soc.server.savegame.SavedGameModel;
 import soc.util.SOCStringManager;
 import soc.util.Version;
@@ -154,7 +154,7 @@ public class TestRecorder
 
         // output all at once, in case of parallel tests
         StringBuilder sb = new StringBuilder();
-        sb.append("\n--- Resuming loaded game: " + gaName + "\n");
+        sb.append( "\n--- Resuming loaded game: " ).append( gaName ).append( "\n" );
         for (int pn = 0; pn < ga.maxPlayers; ++pn)
         {
             if (ga.isSeatVacant(pn))
@@ -164,17 +164,19 @@ public class TestRecorder
             String plName = pl.getName();
             if ((plName == null) || plName.isEmpty())
             {
-                sb.append("** pn[" + pn + "] empty\n");
+                sb.append( "** pn[" ).append( pn ).append( "] empty\n" );
                 continue;
             }
             Connection plConn = server.getConnection(plName);
-            sb.append("pn[" + pn + "] name=" + plName + ", isRobot=" + pl.isRobot()
-                + ", hasConn=" + (null != plConn) + ", isMember=" + glas.isMember(plConn, gaName) + "\n");
+            sb
+                .append( "pn[" ).append( pn ).append( "] name=" ).append( plName ).append( ", isRobot=" )
+                .append( pl.isRobot() ).append( ", hasConn=" ).append( null != plConn ).append( ", isMember=" )
+                .append( glas.isMember( plConn, gaName ) ).append( "\n" );
 
             if (plConn != null)
                 assertEquals("pn[" + pn + "] connection name: game " + gaName, plName, plConn.getData());
             else
-                sb.append("** pn[" + pn + "] no connection, should have already joined: " + plName + "\n");
+                sb.append( "** pn[" ).append( pn ).append( "] no connection, should have already joined: " ).append( plName ).append( "\n" );
         }
         System.out.flush();
         System.out.println(sb);
@@ -1039,15 +1041,17 @@ public class TestRecorder
         }
 
         int nExpected = 0;
-        for (int i = 0; i < expected.length; ++i)
-            if (expected[i] != null)
+        for (String[] strings : expected)
+        {
+            if (strings != null)
                 ++nExpected;
+        }
         int n = records.size();
         if (n > nExpected)
             n = nExpected;
 
         if (records.size() != nExpected)
-            compares.append("Length mismatch: Expected " + nExpected + ", got " + records.size());
+            compares.append( "Length mismatch: Expected " ).append( nExpected ).append( ", got " ).append( records.size() );
 
         StringBuilder comp = new StringBuilder();
         for (int iExpected = 0, iRecords = 0; iRecords < n; ++iExpected)
@@ -1060,22 +1064,22 @@ public class TestRecorder
             comp.setLength(0);
             final String recStr = records.get(iRecords).toString();
             if (! recStr.startsWith(exps[0]))
-                comp.append("expected start " + exps[0] + ", saw " + recStr.substring(0, exps[0].length()));
+                comp.append( "expected start " ).append( exps[0] ).append( ", saw " ).append( recStr );
 
             boolean failContains = false;
             for (int j = 1; j < exps.length; ++j)
             {
                 if (! recStr.contains(exps[j]))
                 {
-                    comp.append(" expected " + exps[j]);
+                    comp.append( " expected " ).append( exps[j] );
                     failContains = true;
                 }
             }
             if (failContains)
-                comp.append(", saw message " + recStr);
+                comp.append( ", saw message " ).append( recStr );
 
             if (comp.length() > 0)
-                compares.append(" [" + iExpected + "]: " + comp);
+                compares.append( " [" ).append( iExpected ).append( "]: " ).append( comp );
 
             ++iRecords;
         }

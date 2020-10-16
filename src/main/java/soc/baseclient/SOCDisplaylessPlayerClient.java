@@ -21,6 +21,9 @@
  **/
 package soc.baseclient;
 
+import soc.communication.Connection;
+import soc.communication.MemConnection;
+import soc.communication.SOCMessageDispatcher;
 import soc.disableDebug.D;
 
 import soc.game.SOCBoard;
@@ -47,16 +50,10 @@ import soc.message.*;
 import soc.message.SOCGameElements.GEType;
 import soc.message.SOCPlayerElement.PEType;
 
-import soc.server.genericServer.StringConnection;
 import soc.util.SOCFeatureSet;
 import soc.util.Version;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InterruptedIOException;
-
-import java.net.Socket;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,6 +61,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import static soc.game.SOCPlayingPiece.*;
 
 /**
  * "Headless" standalone client for connecting to the SOCServer.
@@ -88,7 +86,7 @@ import java.util.Map;
  *
  * @author Robert S Thomas
  */
-public class SOCDisplaylessPlayerClient implements Runnable
+public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 {
     /**
      * Flag property <tt>jsettlers.debug.traffic</tt>: When present, the
@@ -112,7 +110,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
 
     protected static String STATSPREFEX = "  [";
     protected String doc;
-    protected String lastMessage;
+    protected SOCMessage lastMessage;
 
     /**
      * Time when next {@link SOCServerPing} is expected at, based on
@@ -153,24 +151,24 @@ public class SOCDisplaylessPlayerClient implements Runnable
      * Network socket. Initialized in subclasses.
      * Before v2.4.10 this field was {@code s}.
      */
-    protected Socket sock;
-
-    protected DataInputStream in;
-    protected DataOutputStream out;
+//    protected Socket sock;
+//
+//    protected DataInputStream in;
+//    protected DataOutputStream out;
 
     /**
      * Local server connection, if {@link ServerConnectInfo#stringSocketName} != null.
      * @see #sLocalVersion
      * @since 1.1.00
      */
-    protected StringConnection sLocal;
+    protected Connection connection;
 
     /**
      * Server version number, sent soon after connect, or -1 if unknown.
      * {@link #sLocalVersion} should always equal our own version.
      * @since 1.1.00
      */
-    protected int sVersion, sLocalVersion;
+    protected int sVersion = -1, sLocalVersion = -1;
 
     /**
      * Server's active optional features, sent soon after connect, or null if unknown.
@@ -230,14 +228,12 @@ public class SOCDisplaylessPlayerClient implements Runnable
      * @throws IllegalArgumentException if {@code sci == null}
      * @since 2.2.00
      */
-    public SOCDisplaylessPlayerClient(ServerConnectInfo sci, boolean visual)
+    public SOCDisplaylessPlayerClient(ServerConnectInfo sci, Connection unused )
         throws IllegalArgumentException
     {
         if (sci == null)
             throw new IllegalArgumentException("sci");
         this.serverConnectInfo = sci;
-
-        sVersion = -1;  sLocalVersion = -1;
 
         if (null != System.getProperty(PROP_JSETTLERS_DEBUG_TRAFFIC))
             debugTraffic = true;  // set flag if debug prop has any value at all
@@ -252,110 +248,12 @@ public class SOCDisplaylessPlayerClient implements Runnable
     }
 
     /**
-     * Continuously read from the net in a separate thread.
-     * if {@link java.io.EOFException} or another error occurs, breaks the loop:
-     * Exception will be stored in {@link #ex}. {@link #destroy()} will be called
-     * unless {@code ex} is an {@link InterruptedIOException} (socket timeout).
-     */
-    public void run()
-    {
-        // Thread name for debug
-        try
-        {
-            Thread.currentThread().setName("robot-netread-" + nickname);
-        }
-        catch (Throwable th) {}
-
-        try
-        {
-            while (connected)
-            {
-                String s;
-                if (sLocal == null)
-                    s = in.readUTF();
-                else
-                    s = sLocal.readNext();
-
-                SOCMessage msg = SOCMessage.toMsg(s);
-                if (msg != null)
-                    treat(msg);
-                else if (debugTraffic)
-                    soc.debug.D.ebugERROR(nickname + ": Could not parse net message: " + s);
-            }
-        }
-        catch (InterruptedIOException e)
-        {
-            ex = e;
-            System.err.println("Socket timeout in run: " + e);
-        }
-        catch (IOException e)
-        {
-            if (! connected)
-            {
-                return;
-            }
-
-            ex = e;
-            destroy();
-        }
-    }
-
-    /**
      * resend the last message
      */
     public void resend()
     {
         if (lastMessage != null)
-            put(lastMessage);
-    }
-
-    /**
-     * write a message to the net
-     *
-     * @param s  the message
-     * @return true if the message was sent, false if not
-     * @throws IllegalArgumentException if {@code s} is {@code null}
-     */
-    public synchronized boolean put(String s)
-        throws IllegalArgumentException
-    {
-        if (s == null)
-            throw new IllegalArgumentException("null");
-
-        lastMessage = s;
-
-        if (debugTraffic || D.ebugIsEnabled())
-            soc.debug.D.ebugPrintlnINFO("OUT - " + nickname + " - " + s);
-
-        if ((ex != null) || ! connected)
-        {
-            return false;
-        }
-
-        try
-        {
-            if (sLocal == null)
-            {
-                out.writeUTF(s);
-                out.flush();
-            } else {
-                sLocal.put(s);
-            }
-        }
-        catch (InterruptedIOException x)
-        {
-            System.err.println("Socket timeout in put: " + x);
-        }
-        catch (IOException e)
-        {
-            ex = e;
-            System.err.println("could not write to the net: " + ex);
-            destroy();
-
-            return false;
-        }
-
-        return true;
+            connection.send( lastMessage );
     }
 
     /**
@@ -376,13 +274,20 @@ public class SOCDisplaylessPlayerClient implements Runnable
      * If the message type is relevant to bots and other automated clients, add it here. If handling
      * differs between displayless and the robot client, add it to <tt>SOCRobotClient.treat</tt> too.
      *
-     * @param mes    the message
+     * @param message    the message
      */
-    public void treat(SOCMessage mes)
+
+    @Override
+    public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
     {
-        treat(mes, false);
+        treat(message, false);
     }
 
+    @Override       // the client side there doesn't need to discriminate between first and subsequent messages.
+    public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
+    {
+        treat( message, connection instanceof MemConnection );
+    }
     /**
      * Treat the incoming messages, callable from subclasses. For details see {@link #treat(SOCMessage)}.
      * This method adds a flag parameter to prevent debug printing message contents twice.
@@ -418,7 +323,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
              * server's version message
              */
             case SOCMessage.VERSION:
-                handleVERSION((sLocal != null), (SOCVersion) mes);
+                handleVERSION((connection != null), (SOCVersion) mes);
                 break;
 
             /**
@@ -509,7 +414,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
              * join game authorization
              */
             case SOCMessage.JOINGAMEAUTH:
-                handleJOINGAMEAUTH((SOCJoinGameAuth) mes, (sLocal != null));
+                handleJOINGAMEAUTH((SOCJoinGameAuth) mes, (connection != null));
                 break;
 
             /**
@@ -754,7 +659,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
              * a dev card action, either draw, play, or add to hand
              */
             case SOCMessage.DEVCARDACTION:
-                handleDEVCARDACTION((sLocal != null), (SOCDevCardAction) mes);
+                handleDEVCARDACTION((connection != null), (SOCDevCardAction) mes);
                 break;
 
             /**
@@ -922,7 +827,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
     protected void handleSTATUSMESSAGE(SOCStatusMessage mes)
     {
         if (mes.getStatusValue() == SOCStatusMessage.SV_SERVER_SHUTDOWN)
-            disconnect();
+            connection.disconnect();
     }
 
     /**
@@ -945,7 +850,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
         if (hidePingDebug)
             debugTraffic = false;
 
-        put(mes.toCmd());
+        connection.send( mes );
 
         if (hidePingDebug)
             debugTraffic = true;
@@ -996,7 +901,9 @@ public class SOCDisplaylessPlayerClient implements Runnable
         {
             sLocalVersion = vers;
             sLocalFeatures = feats;
-        } else {
+        }
+        else
+        {
             sVersion = vers;
             sFeatures = feats;
         }
@@ -1095,15 +1002,17 @@ public class SOCDisplaylessPlayerClient implements Runnable
             opts = new HashMap<>();
             SOCGameOption opt = SOCGameOption.getOption("_BHW", true);
             opt.setIntValue((bh << 8) | bw);
-            opts.put("_BHW", opt);
-        } else {
+            opts.put( "_BHW", opt);
+        }
+        else
+        {
             opts = null;
         }
 
         final SOCGame ga = new SOCGame(mes.getGame(), opts);
         ga.isPractice = isPractice;
         ga.serverVersion = (isPractice) ? sLocalVersion : sVersion;
-        games.put(mes.getGame(), ga);
+        games.put( mes.getGame(), ga);
     }
 
     /**
@@ -1208,7 +1117,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
         final int n = mes.playerNum.size();
         for (int p = 0; p < n; ++p)  // current index reading from playerNum and playerRsrc
         {
-            final SOCResourceSet rs = mes.playerRsrc.get(p);
+            final SOCResourceSet rs = mes.playerResourceList.get(p);
             final int pn = mes.playerNum.get(p);
             final SOCPlayer pl = ga.getPlayer(pn);
 
@@ -1217,7 +1126,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
             if (! skipResourceCount)
                 handlePLAYERELEMENT_simple
                     (ga, pl, pn, SOCPlayerElement.SET,
-                     PEType.RESOURCE_COUNT, mes.playerResTotal.get(p), nickname);
+                     PEType.RESOURCE_COUNT, mes.playerTotalResources.get(p), nickname);
         }
     }
 
@@ -1341,7 +1250,9 @@ public class SOCDisplaylessPlayerClient implements Runnable
             int[] portLayout = mes.getIntArrayPart("PL");
             if (portLayout != null)
                 bd.setPortsLayout(portLayout);
-        } else {
+        }
+        else
+        {
             // Should not occur: Server has sent an unrecognized format
             System.err.println
                 ("Cannot recognize game encoding v" + bef + " for game " + ga.getName());
@@ -1617,7 +1528,9 @@ public class SOCDisplaylessPlayerClient implements Runnable
                     ga.askSpecialBuild(pn, false);  // set per-player, per-game flags
                 }
                 catch (RuntimeException e) {}
-            } else {
+            }
+            else
+            {
                 pl.setAskedSpecialBuild(false);
             }
             break;
@@ -1631,10 +1544,10 @@ public class SOCDisplaylessPlayerClient implements Runnable
             {
                 SOCResourceSet rsrcs = pl.getResources();
 
-                if (D.ebugOn)
-                {
-                    //pi.print(">>> RESOURCE COUNT ERROR: "+mes.getCount()+ " != "+rsrcs.getTotal());
-                }
+//                if (D.ebugOn)
+//                {
+//                    //pi.print(">>> RESOURCE COUNT ERROR: "+mes.getCount()+ " != "+rsrcs.getTotal());
+//                }
 
                 //
                 //  fix it if possible
@@ -1719,7 +1632,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
             break;
 
         default:
-            ;  // no action needed, default is only to avoid compiler warning
+            break;  // no action needed, default is only to avoid compiler warning
         }
     }
 
@@ -1928,7 +1841,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
             break;
 
         case UNKNOWN_TYPE:
-            ;  // no action needed, UNKNOWN_TYPE is mentioned only to avoid compiler warning
+            break;  // no action needed, UNKNOWN_TYPE is mentioned only to avoid compiler warning
         }
     }
 
@@ -2144,13 +2057,17 @@ public class SOCDisplaylessPlayerClient implements Runnable
                     handlePLAYERELEMENT(ga, perp, perpPN, SOCPlayerElement.GAIN, peType, mes.amount, null);
                 if (victim != null)
                     handlePLAYERELEMENT(ga, victim, victimPN, SOCPlayerElement.LOSE, peType, mes.amount, null);
-            } else {
+            }
+            else
+            {
                 if (perp != null)
                     handlePLAYERELEMENT(ga, perp, perpPN, SOCPlayerElement.SET, peType, mes.amount, null);
                 if (victim != null)
                     handlePLAYERELEMENT(ga, victim, victimPN, SOCPlayerElement.SET, peType, mes.victimAmount, null);
             }
-        } else {
+        }
+        else
+        {
             final int resType = mes.resType;
 
             if (mes.isGainLose)
@@ -2159,7 +2076,9 @@ public class SOCDisplaylessPlayerClient implements Runnable
                     handlePLAYERELEMENT_numRsrc(perp, SOCPlayerElement.GAIN, resType, mes.amount);
                 if (victim != null)
                     handlePLAYERELEMENT_numRsrc(victim, SOCPlayerElement.LOSE, resType, mes.amount);
-            } else {
+            }
+            else
+            {
                 if (perp != null)
                     handlePLAYERELEMENT_numRsrc(perp, SOCPlayerElement.SET, resType, mes.amount);
                 if (victim != null)
@@ -2199,7 +2118,9 @@ public class SOCDisplaylessPlayerClient implements Runnable
         if (pn != -1)
         {
             ga.getPlayer(pn).setCurrentOffer(null);
-        } else {
+        }
+        else
+        {
             for (int i = 0; i < ga.maxPlayers; ++i)
                 ga.getPlayer(i).setCurrentOffer(null);
         }
@@ -2379,7 +2300,9 @@ public class SOCDisplaylessPlayerClient implements Runnable
                   (ps, mes.startingLandArea, lan);  // throws IllegalStateException if board layout
                                                     // has malformed Added Layout Part "AL"
             loneSettles = bl.getAddedLayoutPart("LS");  // usually null, except in _SC_PIRI
-        } else {
+        }
+        else
+        {
             loneSettles = null;
         }
 
@@ -2397,7 +2320,9 @@ public class SOCDisplaylessPlayerClient implements Runnable
                 pl.addLegalSettlement(loneSettles[pn], false);
             if (legalSeaEdges != null)
                 pl.setRestrictedLegalShips(legalSeaEdges[0]);
-        } else {
+        }
+        else
+        {
             for (pn = ga.maxPlayers - 1; pn >= 0; --pn)
             {
                 SOCPlayer pl = ga.getPlayer(pn);
@@ -2432,7 +2357,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
     {
         rejected = true;
         System.err.println("Rejected by server: " + mes.getText());
-        disconnect();
+        connection.disconnect();
     }
 
     /**
@@ -2493,7 +2418,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
 
         SOCGame greset = ga.resetAsCopy();
         greset.isPractice = ga.isPractice;
-        games.put(gname, greset);
+        games.put( gname, greset);
         ga.destroyGame();
     }
 
@@ -2510,7 +2435,9 @@ public class SOCDisplaylessPlayerClient implements Runnable
         if ((oinfo.key.equals("-")) && (oinfo.optType == SOCGameOption.OTYPE_UNKNOWN))
         {
             allOptsReceived = true;
-        } else {
+        }
+        else
+        {
             if (allOptsReceived)
                 allOptsReceived = false;
 
@@ -2657,14 +2584,13 @@ public class SOCDisplaylessPlayerClient implements Runnable
         final int pieceType = mes.getParam2();
         final int pieceCoordinate = mes.getParam3();
 
-        switch (pieceType)
+        if (pieceType == SHIP)
         {
-        case SOCPlayingPiece.SHIP:
-            ga.removeShip(new SOCShip(player, pieceCoordinate, null));
-            break;
-
-        default:
-            System.err.println("Displayless.updateAtPieceRemoved called for un-handled type " + pieceType);
+            ga.removeShip( new SOCShip( player, pieceCoordinate, null ) );
+        }
+        else
+        {
+            System.err.println( "Displayless.updateAtPieceRemoved called for un-handled type " + pieceType );
         }
     }
 
@@ -2774,7 +2700,9 @@ public class SOCDisplaylessPlayerClient implements Runnable
                     item.setCoordinates(mes.coord);
                     item.setLevel(mes.level);
                     item.setStringValue(mes.sv);
-                } else {
+                }
+                else
+                {
                     item = new SOCSpecialItem(pl, mes.coord, mes.level, mes.sv, null, null);
                 }
 
@@ -2799,7 +2727,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void chSend(String ch, String mes)
     {
-        put(new SOCChannelTextMsg(ch, nickname, mes).toCmd());
+        connection.send( new SOCChannelTextMsg(ch, nickname, mes) );
     }
 
     /**
@@ -2810,30 +2738,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
     public void leaveChannel(String ch)
     {
         channels.remove(ch);
-        put(SOCLeaveChannel.toCmd(nickname, "-", ch));
-    }
-
-    /**
-     * disconnect from the net, and from any local practice server
-     * Called by {@link #destroy()}.
-     */
-    protected void disconnect()
-    {
-        connected = false;
-
-        // reader will die once 'connected' is false, and socket is closed
-
-        if (sLocal != null)
-            sLocal.disconnect();
-
-        try
-        {
-            sock.close();
-        }
-        catch (Exception e)
-        {
-            ex = e;
-        }
+        connection.send( new SOCLeaveChannel(nickname, "-", ch));
     }
 
     /**
@@ -2843,7 +2748,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void buyDevCard(SOCGame ga)
     {
-        put(new SOCBuyDevCardRequest(ga.getName()).toCmd());
+        connection.send( new SOCBuyDevCardRequest(ga.getName()) );
     }
 
     /**
@@ -2857,7 +2762,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
     public void buildRequest(SOCGame ga, int piece)
         throws IllegalArgumentException
     {
-        put(new SOCBuildRequest(ga.getName(), piece).toCmd());
+        connection.send( new SOCBuildRequest(ga.getName(), piece) );
     }
 
     /**
@@ -2868,7 +2773,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void cancelBuildRequest(SOCGame ga, int piece)
     {
-        put(new SOCCancelBuildRequest(ga.getName(), piece).toCmd());
+        connection.send( new SOCCancelBuildRequest(ga.getName(), piece) );
     }
 
     /**
@@ -2890,7 +2795,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
         /**
          * send the command
          */
-        put(SOCPutPiece.toCmd(ga.getName(), pp.getPlayerNumber(), pt, pp.getCoordinates()));
+        connection.send( new SOCPutPiece(ga.getName(), pp.getPlayerNumber(), pt, pp.getCoordinates()));
     }
 
     /**
@@ -2907,7 +2812,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
         (final SOCGame ga, final int pn, final int ptype, final int fromCoord, final int toCoord)
         throws IllegalArgumentException
     {
-        put(new SOCMovePiece(ga.getName(), pn, ptype, fromCoord, toCoord).toCmd());
+        connection.send( new SOCMovePiece(ga.getName(), pn, ptype, fromCoord, toCoord) );
     }
 
     /**
@@ -2919,7 +2824,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void moveRobber(SOCGame ga, SOCPlayer pl, int coord)
     {
-        put(SOCMoveRobber.toCmd(ga.getName(), pl.getPlayerNumber(), coord));
+        connection.send( new SOCMoveRobber(ga.getName(), pl.getPlayerNumber(), coord));
     }
 
     /**
@@ -2938,7 +2843,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
     public void simpleRequest
         (final SOCGame ga, final int ourPN, final int reqType, final int value1, final int value2)
     {
-        put(SOCSimpleRequest.toCmd(ga.getName(), ourPN, reqType, value1, value2));
+        connection.send( new SOCSimpleRequest(ga.getName(), ourPN, reqType, value1, value2));
     }
 
     /**
@@ -2955,7 +2860,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void pickSpecialItem(SOCGame ga, final String typeKey, final int gi, final int pi)
     {
-        put(new SOCSetSpecialItem(ga.getName(), SOCSetSpecialItem.OP_PICK, typeKey, gi, pi, -1).toCmd());
+        connection.send( new SOCSetSpecialItem(ga.getName(), SOCSetSpecialItem.OP_PICK, typeKey, gi, pi, -1) );
     }
 
     /**
@@ -2970,8 +2875,8 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void playInventoryItem(SOCGame ga, final int ourPN, final int itype)
     {
-        put(SOCInventoryItemAction.toCmd
-            (ga.getName(), ourPN, SOCInventoryItemAction.PLAY, itype, 0));
+        connection.send( new SOCInventoryItemAction( ga.getName(), ourPN,
+            SOCInventoryItemAction.PLAY, itype, 0));
     }
 
     /**
@@ -2985,7 +2890,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
         if (ga == null)
             return;
 
-        put(new SOCGameTextMsg(ga.getName(), nickname, me).toCmd());
+        connection.send( new SOCGameTextMsg(ga.getName(), nickname, me) );
     }
 
     /**
@@ -3009,7 +2914,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
     public void leaveGame(final String gaName)
     {
         games.remove(gaName);
-        put(new SOCLeaveGame(nickname, "-", gaName).toCmd());
+        connection.send( new SOCLeaveGame(nickname, "-", gaName) );
     }
 
     /**
@@ -3020,7 +2925,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void sitDown(SOCGame ga, int pn)
     {
-        put(SOCSitDown.toCmd(ga.getName(), SOCMessage.EMPTYSTR, pn, false));
+        connection.send( new SOCSitDown( ga.getName(), SOCMessage.EMPTYSTR, pn, false));
     }
 
     /**
@@ -3030,7 +2935,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void startGame(SOCGame ga)
     {
-        put(SOCStartGame.toCmd(ga.getName(), 0));
+        connection.send( new SOCStartGame( ga.getName(), 0));
     }
 
     /**
@@ -3040,7 +2945,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void rollDice(SOCGame ga)
     {
-        put(SOCRollDice.toCmd(ga.getName()));
+        connection.send( new SOCRollDice( ga.getName()));
     }
 
     /**
@@ -3050,7 +2955,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void endTurn(SOCGame ga)
     {
-        put(SOCEndTurn.toCmd(ga.getName()));
+        connection.send( new SOCEndTurn( ga.getName()));
     }
 
     /**
@@ -3061,7 +2966,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void discard(SOCGame ga, SOCResourceSet rs)
     {
-        put(SOCDiscard.toCmd(ga.getName(), rs));
+        connection.send( new SOCDiscard( ga.getName(), -1, rs));
     }
 
     /**
@@ -3080,7 +2985,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void choosePlayer(SOCGame ga, final int ch)
     {
-        put(SOCChoosePlayer.toCmd(ga.getName(), ch));
+        connection.send( new SOCChoosePlayer( ga.getName(), ch));
     }
 
     /**
@@ -3090,7 +2995,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void rejectOffer(SOCGame ga)
     {
-        put(SOCRejectOffer.toCmd(ga.getName(), ga.getPlayer(nickname).getPlayerNumber()));
+        connection.send( new SOCRejectOffer( ga.getName(), ga.getPlayer(nickname).getPlayerNumber()));
     }
 
     /**
@@ -3101,7 +3006,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void acceptOffer(SOCGame ga, int from)
     {
-        put(SOCAcceptOffer.toCmd(ga.getName(), ga.getPlayer(nickname).getPlayerNumber(), from));
+        connection.send( new SOCAcceptOffer( ga.getName(), ga.getPlayer(nickname).getPlayerNumber(), from));
     }
 
     /**
@@ -3111,7 +3016,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void clearOffer(SOCGame ga)
     {
-        put(SOCClearOffer.toCmd(ga.getName(), ga.getPlayer(nickname).getPlayerNumber()));
+        connection.send( new SOCClearOffer( ga.getName(), ga.getPlayer(nickname).getPlayerNumber()));
     }
 
     /**
@@ -3123,7 +3028,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void bankTrade(SOCGame ga, SOCResourceSet give, SOCResourceSet get)
     {
-        put(new SOCBankTrade(ga.getName(), give, get, -1).toCmd());
+        connection.send( new SOCBankTrade(ga.getName(), give, get, -1) );
     }
 
     /**
@@ -3134,7 +3039,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void offerTrade(SOCGame ga, SOCTradeOffer offer)
     {
-        put(SOCMakeOffer.toCmd(ga.getName(), offer));
+        connection.send( new SOCMakeOffer( ga.getName(), offer));
     }
 
     /**
@@ -3156,7 +3061,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
             else if (dc == SOCDevCardConstants.UNKNOWN)
                 dc = SOCDevCardConstants.UNKNOWN_FOR_VERS_1_X;
         }
-        put(SOCPlayDevCardRequest.toCmd(ga.getName(), dc));
+        connection.send( new SOCPlayDevCardRequest( ga.getName(), dc));
     }
 
     /**
@@ -3170,7 +3075,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void pickResources(SOCGame ga, SOCResourceSet rscs)
     {
-        put(new SOCPickResources(ga.getName(), rscs).toCmd());
+        connection.send( new SOCPickResources(ga.getName(), rscs) );
     }
 
     /**
@@ -3184,7 +3089,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void pickResourceType(SOCGame ga, int res)
     {
-        put(new SOCPickResourceType(ga.getName(), res).toCmd());
+        connection.send( new SOCPickResourceType(ga.getName(), res) );
     }
 
     /**
@@ -3195,7 +3100,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void changeFace(SOCGame ga, int id)
     {
-        put(new SOCChangeFace(ga.getName(), ga.getPlayer(nickname).getPlayerNumber(), id).toCmd());
+        connection.send( new SOCChangeFace(ga.getName(), ga.getPlayer(nickname).getPlayerNumber(), id) );
     }
 
     /**
@@ -3208,7 +3113,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void setSeatLock(SOCGame ga, int pn, SOCGame.SeatLockState sl)
     {
-        put(SOCSetSeatLock.toCmd(ga.getName(), pn, sl));
+        connection.send( new SOCSetSeatLock( ga.getName(), pn, sl));
     }
 
     /**
@@ -3220,19 +3125,18 @@ public class SOCDisplaylessPlayerClient implements Runnable
     public void destroy()
     {
         SOCLeaveAll leaveAllMes = new SOCLeaveAll();
-        put(leaveAllMes.toCmd());
-        disconnect();
+        connection.send( leaveAllMes );
+        connection.disconnect();
     }
 
     /**
      * for stand-alones
      */
-    public static void main(String[] args)
-    {
-        SOCDisplaylessPlayerClient ex1 = new SOCDisplaylessPlayerClient
-            (new ServerConnectInfo(args[0], Integer.parseInt(args[1]), null), true);
-        new Thread(ex1).start();
-        Thread.yield();
-    }
-
+//    public static void main(String[] args)
+//    {
+//        SOCDisplaylessPlayerClient ex1 = new SOCDisplaylessPlayerClient
+//            (new ServerConnectInfo(args[0], Integer.parseInt(args[1]), null), true);
+//        new Thread(ex1).start();
+//        Thread.yield();
+//    }
 }

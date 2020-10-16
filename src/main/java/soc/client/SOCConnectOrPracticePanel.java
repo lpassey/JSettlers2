@@ -289,7 +289,9 @@ import soc.util.Version;
             panel_run = initInterface_run();  // panel_run setup
             panel_run.setVisible(false);
             bp.add (panel_run);
-        } else {
+        }
+        else
+        {
             panel_run = null;
         }
 

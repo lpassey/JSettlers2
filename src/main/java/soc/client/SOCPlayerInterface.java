@@ -761,7 +761,9 @@ public class SOCPlayerInterface extends Frame
                 btn.setMnemonic(vkChar);
             else
                 im.put(KeyStroke.getKeyStroke(vkChar, InputEvent.ALT_DOWN_MASK), eventStr);
-        } else if (SOCPlayerClient.IS_PLATFORM_MAC_OSX) {
+        }
+        else if (SOCPlayerClient.IS_PLATFORM_MAC_OSX)
+        {
             // also respond to Cmd on MacOSX
             im.put(KeyStroke.getKeyStroke(vkChar, InputEvent.META_DOWN_MASK), eventStr);
         }
@@ -892,7 +894,9 @@ public class SOCPlayerInterface extends Frame
             highContrastBorderColor = null;
             setBackground(Color.BLACK);
             setForeground(Color.WHITE);
-        } else {
+        }
+        else
+        {
             final Color[] sysColors = SwingMainDisplay.getForegroundBackgroundColors(false, true);
             highContrastBorderColor = sysColors[0];
         }
@@ -945,7 +949,9 @@ public class SOCPlayerInterface extends Frame
 
                     piWidth = prefWidth + (boardExtraSize.width * displayScale);
                     piHeight = prefHeight + (boardExtraSize.height * displayScale);
-                } else {
+                }
+                else
+                {
                     piWidth = prefWidth;
                     piHeight = prefHeight;
                 }
@@ -966,12 +972,16 @@ public class SOCPlayerInterface extends Frame
                                 // frame is wide, not tall: maximize width
                                 piWidth = scWidth - 20;
                                 piHeight = (int) (piWidth / piRatio);
-                            } else {
+                            }
+                            else
+                            {
                                 // maximize height
                                 piHeight = scHeight - 20;
                                 piWidth = (int) (piHeight * piRatio);
                             }
-                        } else {
+                        }
+                        else
+                        {
                             // height is ok
                             piWidth = scWidth - 20;
                         }
@@ -981,8 +991,8 @@ public class SOCPlayerInterface extends Frame
                         // width is ok
                         piHeight = scHeight - 20;
                     }
-                } catch (NullPointerException e) {}
-
+                }
+                catch (NullPointerException ignored ) {}
             }
         }
 
@@ -1006,7 +1016,9 @@ public class SOCPlayerInterface extends Frame
                 if (t != null)
                 {
                     t.restart();
-                } else {
+                }
+                else
+                {
                     t = new javax.swing.Timer(300, new ActionListener()
                     {
                         public void actionPerformed(ActionEvent ae)
@@ -1151,7 +1163,9 @@ public class SOCPlayerInterface extends Frame
         {
             textInput.setBackground(Color.WHITE);  // before v1.1.00 was new Color(255, 230, 162) aka DIALOG_BG_GOLDENROD
             textInput.setForeground(Color.BLACK);
-        } else {
+        }
+        else
+        {
             final Color[] sysColors = SwingMainDisplay.getForegroundBackgroundColors(false, true);
             textInput.setBackground(sysColors[2]);
             textInput.setForeground(sysColors[0]);
@@ -1307,7 +1321,8 @@ public class SOCPlayerInterface extends Frame
                     final Clipboard cb = getToolkit().getSystemClipboard();
                     if (cb != null)
                         cb.setContents(data, data);
-                } catch (Exception e) {}  // security, or clipboard unavailable
+                }
+                catch (Exception ignored) {}  // security, or clipboard unavailable
             }
         });
         menu.add(mi);
@@ -1352,7 +1367,9 @@ public class SOCPlayerInterface extends Frame
         if (! layoutNotReadyYet)
         {
             paint(g);
-        } else {
+        }
+        else
+        {
             g.clearRect(0, 0, getWidth(), getHeight());
         }
     }
@@ -1386,7 +1403,9 @@ public class SOCPlayerInterface extends Frame
         {
             paintBordersHandColumn(g, hands[5]);
             paintBordersHandColumn(g, hands[2]);
-        } else {
+        }
+        else
+        {
             paintBordersHandColumn(g, hands[0]);
             paintBordersHandColumn(g, hands[1]);
         }
@@ -1416,7 +1435,9 @@ public class SOCPlayerInterface extends Frame
         {
             g.setColor(highContrastBorderColor);
             isHighContrast = true;
-        } else {
+        }
+        else
+        {
             isHighContrast = false;
         }
 
@@ -1681,7 +1702,9 @@ public class SOCPlayerInterface extends Frame
                     changedObj = "game.route.longest";  // "Longest trade route"
                 else
                     changedObj = "game.road.longest";  // "Longest road"
-            } else {
+            }
+            else
+            {
                 changedObj = "game.army.largest";  // "Largest army"
             }
 
@@ -1692,11 +1715,15 @@ public class SOCPlayerInterface extends Frame
                 {
                     msg = strings.get(changedObj + ".taken", oldp.getName(), newp.getName());
                         // "___ was taken from {0} by {1}."
-                } else {
+                }
+                else
+                {
                     msg = strings.get(changedObj + ".first", newp.getName());
                         // "___ was taken by {0}."
                 }
-            } else {
+            }
+            else
+            {
                 msg = strings.get(changedObj + ".lost", oldp.getName());
                     // "___ was lost by {0}."
             }
@@ -1809,7 +1836,9 @@ public class SOCPlayerInterface extends Frame
                 boardPanel.setPlayer(null);
             boardPanel.updateMode();  // will set or clear top text, which triggers a repaint
             buildingPanel.updateButtonStatus();
-        } catch (IllegalStateException e) {
+        }
+        catch (IllegalStateException e)
+        {
             textDisplay.append
               ("*** Can't setDebugFreePlacement(" + setOn+ ") for " + game.getName() + " in state " + game.getGameState() + "\n");
         }
@@ -2028,7 +2057,9 @@ public class SOCPlayerInterface extends Frame
                 if (i > 0)
                 {
                     doSet = true;
-                } else {
+                }
+                else
+                {
                     i = sLower.indexOf("hide:");
                     doSet = false;
                 }
@@ -2039,11 +2070,15 @@ public class SOCPlayerInterface extends Frame
                     if (s.equalsIgnoreCase("all"))
                     {
                         flagnum = -1;
-                    } else{
+                    }
+                    else
+                    {
                         try
                         {
                             flagnum = Integer.parseInt(s);
-                        } catch (NumberFormatException e2) {
+                        }
+                        catch (NumberFormatException e2)
+                        {
                             chatPrintDebug
                                 ("Usage: =*= show: n  or =*= hide: n   where n is all or a number 0-9"); //i18n?
                             return;
@@ -2215,12 +2250,16 @@ public class SOCPlayerInterface extends Frame
             {
                 modeName = strings.get("interface.debug.bot." + modeNameKey);
                     // interface.debug.bot.clt-set -> ":consider-target(settlement)"
-            } catch(MissingResourceException e) {
+            }
+            catch(MissingResourceException e)
+            {
                 modeName = modeNameKey;
             }
             printKeyed("interface.debug.bot.mode_prompt", modeName, botPlName);
                 // "{0} mode for {1}: Click to indicate piece location."
-        } else {
+        }
+        else
+        {
             printKeyed("interface.debug.bot.not_found", botPlName);
                 // "Can't find a player named {0}"
         }
@@ -2430,7 +2469,9 @@ public class SOCPlayerInterface extends Frame
             {
                 msgKey = "trade.traded.rsrcs.for.from.bankport";  // "{0} traded {1,rsrcs} for {2,rsrcs} from {3,choice, 1#the bank|2#a port}."
                 tradeFrom = ((giveTotal / getTotal) == 4) ? 1 : 2;
-            } else {
+            }
+            else
+            {
                 msgKey = "trade.traded.rsrcs.for.from.bankport.undoprevious";  // same + " (Undo previous trade)"
                 tradeFrom = ((getTotal / giveTotal) == 4) ? 1 : 2;
             }
@@ -2566,7 +2607,9 @@ public class SOCPlayerInterface extends Frame
         {
             textDisplay.append("*** " + strings.get("interface.error.game.has_been_deleted") + " ***\n");
                 // "Game has been deleted."
-        } else {
+        }
+        else
+        {
             textDisplay.append("* " + strings.get("interface.error.lost.conn") + "\n");
                 // "Lost connection to the server."
             textDisplay.append("*** " + strings.get("interface.error.game.stopped") + " ***\n");
@@ -2704,7 +2747,9 @@ public class SOCPlayerInterface extends Frame
         {
             hp.updateValue(PlayerClientListener.UpdateType.ResourceTotalAndDetails);
             hp.updateDevCards(false);
-        } else {
+        }
+        else
+        {
             hp.updateValue(PlayerClientListener.UpdateType.Resources);
             hp.updateValue(PlayerClientListener.UpdateType.DevCards);
         }
@@ -2965,7 +3010,9 @@ public class SOCPlayerInterface extends Frame
             textInputGreyCountdown = textInputGreyCountFrom;  // Reset fade countdown
             if (! isOSHighContrast)
                 textInput.setForeground(Color.DARK_GRAY);
-        } else {
+        }
+        else
+        {
             if (textInput.getText().equals(TEXTINPUT_INITIAL_PROMPT_MSG))
                 textInput.setText("");  // Clear to make room for text being typed
             textInputIsInitial = false;
@@ -3070,7 +3117,9 @@ public class SOCPlayerInterface extends Frame
                 || ((clientHandPlayerNum != perpPN) && (clientHandPlayerNum != victimPN)))
             {
                 printKeyed("robber.common.stole.resource.from", peName, viName);  // "{0} stole a resource from {1}."
-            } else {
+            }
+            else
+            {
                 if (perpPN == clientHandPlayerNum)
                     printKeyedSpecial
                         ("robber.common.you.stole.resource.from", -1, resType, viName);  // "You stole {0,rsrcs} from {2}."
@@ -3087,19 +3136,17 @@ public class SOCPlayerInterface extends Frame
                 if (victimPN == clientHandPlayerNum)
                     playSound(SOUND_RSRC_LOST);
             }
-        } else {
+        }
+        else
+        {
             PlayerClientListener.UpdateType utype = null;
 
-            switch (peType)
+            // Nothing else recognized yet
+            // Other PETypes may be used in future scenarios/expansions
+            if (peType == PEType.SCENARIO_CLOTH_COUNT)
             {
-            case SCENARIO_CLOTH_COUNT:
-                printKeyed("robber.common.stole.cloth.from", peName, viName);  // "{0} stole a cloth from {1}."
+                printKeyed( "robber.common.stole.cloth.from", peName, viName );  // "{0} stole a cloth from {1}."
                 utype = PlayerClientListener.UpdateType.Cloth;
-                break;
-
-            default:
-                // Nothing else recognized yet
-                // Other PETypes may be used in future scenarios/expansions
             }
 
             if (utype != null)
@@ -3207,14 +3254,16 @@ public class SOCPlayerInterface extends Frame
             // Set timer.  If still waiting for discards after 2 seconds,
             // show balloons on-screen. (hands[i].setDiscardOrPickMsg)
             discardOrPickTimerSet(true);
-        } else if ((gs == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE)
+        }
+        else if ((gs == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE)
                    || (gs == SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE))
         {
             // Set timer.  If still waiting for resource picks after 2 seconds,
             // show balloons on-screen. (hands[i].setDiscardOrPickMsg)
             discardOrPickTimerSet(false);
-        } else if (showingPlayerDiscardOrPick &&
-                   ((gs == SOCGame.PLAY1) || (gs == SOCGame.START2B) || (gs == SOCGame.START3B)))
+        }
+        else if (showingPlayerDiscardOrPick
+                 && ((gs == SOCGame.PLAY1) || (gs == SOCGame.START2B) || (gs == SOCGame.START3B)))
         {
             // If not all players' discard status balloons were cleared by
             // PLAYERELEMENT messages, clean up now.
@@ -3336,7 +3385,9 @@ public class SOCPlayerInterface extends Frame
             {
                 game.putPiece(pp);
                 mesHp.updateValue(PlayerClientListener.UpdateType.Ship);
-            } else {
+            }
+            else
+            {
                 game.moveShip((SOCShip) pp, moveToCoord);
                 if (mesHp == clientHand)
                     mesHp.disableBankUndoButton();  // just in case; it probably wasn't enabled
@@ -3397,15 +3448,14 @@ public class SOCPlayerInterface extends Frame
      */
     public void updateAtPieceRemoved(SOCPlayer player, int pieceCoordinate, int pieceType)
     {
-        switch (pieceType)
+        if (pieceType == SOCPlayingPiece.SHIP)
         {
-        case SOCPlayingPiece.SHIP:
-            game.removeShip(new SOCShip(player, pieceCoordinate, null));
+            game.removeShip( new SOCShip( player, pieceCoordinate, null ) );
             updateAtPiecesChanged();
-            break;
-
-        default:
-            System.err.println("PI.updateAtPieceRemoved called for un-handled type " + pieceType);
+        }
+        else
+        {
+            System.err.println( "PI.updateAtPieceRemoved called for un-handled type " + pieceType );
         }
     }
 
@@ -3438,18 +3488,16 @@ public class SOCPlayerInterface extends Frame
      */
     public void gameEvent(final SOCGame ga, final SOCGameEvent evt, final Object detail)
     {
-        switch (evt)
+        // Most game events are ignored at the client.
+        if (evt == SOCGameEvent.SGE_STARTPLAY_BOARD_SPECIAL_NODES_EMPTIED)
         {
-        case SGE_STARTPLAY_BOARD_SPECIAL_NODES_EMPTIED:
-            EventQueue.invokeLater(new Runnable()
+            EventQueue.invokeLater( new Runnable()
             {
-                public void run() { boardPanel.flushBoardLayoutAndRepaint(); }
-            });
-            break;
-
-        default:
-            // Most game events are ignored at the client.
-            // Default case does nothing, prevents a compiler warning.
+                public void run()
+                {
+                    boardPanel.flushBoardLayoutAndRepaint();
+                }
+            } );
         }
     }
 
@@ -3707,7 +3755,9 @@ public class SOCPlayerInterface extends Frame
             outR = (outR + 140) / 2;
             outG = (outG + 140) / 2;
             outB = (outB + 140) / 2;
-        } else {
+        }
+        else
+        {
             // src is dark or midtone, we should be light. (average with white)
             outR = (outR + 255) / 2;
             outG = (outG + 255) / 2;
@@ -3924,7 +3974,9 @@ public class SOCPlayerInterface extends Frame
                         final int[] idx_right = {1, 2, 3};
                         hp_idx = idx_right;
                         hp_x = i.left + hw + bw + pix12;
-                    } else {
+                    }
+                    else
+                    {
                         final int[] idx_left = {0, 5, 4};
                         hp_idx = idx_left;
                         hp_x = i.left + pix4;
@@ -3995,7 +4047,9 @@ public class SOCPlayerInterface extends Frame
 
             // focus here for easier chat typing
             textInput.requestFocusInWindow();
-        } else {
+        }
+        else
+        {
             // standard size
             textDisplay.setBounds(i.left + hw + pix8, i.top + pix4, bw, tdh);
             chatDisplay.setBounds(i.left + hw + pix8, i.top + pix4 + tdh, bw, cdh);
@@ -4386,7 +4440,9 @@ public class SOCPlayerInterface extends Frame
                 {
                     hpan.updateValue(utype);
                     hpan.updateValue(PlayerClientListener.UpdateType.VictoryPoints);  // 2 cloth = 1 VP
-                } else {
+                }
+                else
+                {
                     pi.buildingPanel.updateClothCount();
                 }
                 break;
@@ -4426,7 +4482,9 @@ public class SOCPlayerInterface extends Frame
                         pi.playSound(SOUND_RSRC_GAINED_FREE);
                     else if (isBadNews)
                         pi.playSound(SOUND_RSRC_LOST);
-                } else {
+                }
+                else
+                {
                     hpan.updateValue(PlayerClientListener.UpdateType.Resources);
                 }
             }
@@ -4645,7 +4703,9 @@ public class SOCPlayerInterface extends Frame
                         pi.printKeyed("game.invitem.sc_ftri.need.coastal");  // * "Requires a coastal settlement not adjacent to an existing port."
                     else
                         pi.printKeyed("hpan.item.play.cannot");  // * "Cannot play this item right now."
-                } else {
+                }
+                else
+                {
                     // placement
                     boardUpdated();
                     if (pi.clientHand != null)
@@ -4770,7 +4830,9 @@ public class SOCPlayerInterface extends Frame
                         // "{0} has built level # of their Wonder ({2})."
 
                 // TODO any visual effect?
-            } else {
+            }
+            else
+            {
                 pi.printKeyed("game.specitem.sc_wond.decl");  // "You cannot build that Wonder right now."
             }
         }
@@ -4825,13 +4887,17 @@ public class SOCPlayerInterface extends Frame
                     // defeated and recaptured
                     resDesc2 = strings.get("game.sc_piri.attfort.wins.recaptured", cplName);
                         // "{0} has recaptured a Fortress as a settlement."
-                } else {
+                }
+                else
+                {
                     // still needs to attack
                     resDesc2 = strings.get("game.sc_piri.attfort.n.more.attacks", fort.getStrength());
                         // "That Fortress will be defeated after {0} more attack(s)."
                 }
                 pi.print("* " + resDesc2);
-            } else {
+            }
+            else
+            {
                 resDesc2 = null;
             }
 
@@ -4917,7 +4983,9 @@ public class SOCPlayerInterface extends Frame
                 final SOCTradeOffer offer = offerer.getCurrentOffer();
                 if (offer != null)
                     pi.printTradeResources(offerer, offer.getGiveSet(), offer.getGetSet(), true, null);
-            } else if (fromPN <= SOCBankTrade.PN_REPLY_CANNOT_MAKE_TRADE) {
+            }
+            else if (fromPN <= SOCBankTrade.PN_REPLY_CANNOT_MAKE_TRADE)
+            {
                 pi.printKeyed("trade.msg.cant.make.offer");  // "You can't make that offer."
             }
         }
@@ -5328,7 +5396,9 @@ public class SOCPlayerInterface extends Frame
                         {
                             pi.textInputHistory.set(0, pi.textInput.getText());  // save unsent text
                             i = S - 1;
-                        } else {
+                        }
+                        else
+                        {
                             --i;
                         }
 
@@ -5535,7 +5605,9 @@ public class SOCPlayerInterface extends Frame
                         if (7 < hp.getPlayer().getResources().getTotal())
                             if (hp.setDiscardOrPickMsg(true))
                                 anyShowing = true;
-                    } else {
+                    }
+                    else
+                    {
                         if (hp.getPlayer().getNeedToPickGoldHexResources() > 0)
                             if (hp.setDiscardOrPickMsg(false))
                                 anyShowing = true;
@@ -5588,7 +5660,6 @@ public class SOCPlayerInterface extends Frame
                 validate();
             }
         }
-
     }  // SOCPITextDisplaysLargerTask
 
     /**
@@ -5627,8 +5698,8 @@ public class SOCPlayerInterface extends Frame
             try
             {
                 Sounds.playPCMBytes(buf);
-            } catch (LineUnavailableException e) {}
+            }
+            catch (LineUnavailableException ignored) {}
         }
     }
-
 }  // SOCPlayerInterface

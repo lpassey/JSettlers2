@@ -355,7 +355,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
             {
                 final String ostr = optSC.getStringValue();
                 scen = (ostr != null) ? ostr : "";
-            } else {
+            }
+            else
+            {
                 scen = "";
             }
         }
@@ -373,7 +375,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
         if (maxPlayers == 6)
         {
             maxPl = 6;
-        } else {
+        }
+        else
+        {
             opt = (opts != null ? opts.get("PL") : null);
             if (opt == null)
                 maxPl = 4;
@@ -427,7 +431,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 PORT_LOC_FACING_MAINLAND = FOUR_ISL_PORT_EDGE_FACING_4PL;
                 setRobberHex(FOUR_ISL_ROBBER_HEX[1], false);
                 pirateHex = FOUR_ISL_PIRATE_HEX[1];
-            } else {
+            }
+            else
+            {
                 // Six Islands
                 landAreasLegalNodes = new HashSet[7];
                 makeNewBoard_placeHexes
@@ -536,7 +542,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 PORTS_TYPES_ISLANDS = null;
                 PORT_LOC_FACING_MAINLAND = FOR_TRI_PORT_EDGE_FACING[idx];
                 PORT_LOC_FACING_ISLANDS = null;
-            } else {
+            }
+            else
+            {
                 PORTS_TYPES_MAINLAND = null;
                 PORTS_TYPES_ISLANDS = FOR_TRI_PORT_TYPE[idx];  // PORTS_TYPES_ISLAND doesn't break clumps
                 PORT_LOC_FACING_MAINLAND = null;
@@ -579,7 +587,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 PORTS_TYPES_ISLANDS = null;
                 PORT_LOC_FACING_MAINLAND = CLVI_PORT_EDGE_FACING[idx];
                 PORT_LOC_FACING_ISLANDS = null;
-            } else {
+            }
+            else
+            {
                 PORTS_TYPES_MAINLAND = null;
                 PORTS_TYPES_ISLANDS = CLVI_PORT_TYPE[idx];  // PORTS_TYPES_ISLAND doesn't break clumps
                 PORT_LOC_FACING_MAINLAND = null;
@@ -696,8 +706,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
             // Fog hex hiding is done below after some other steps; search for hasScenarioFog
 
-        } else if (scen.equals(SOCScenario.K_SC_NSHO)) {
-
+        }
+        else if (scen.equals(SOCScenario.K_SC_NSHO))
+        {
             // New Shores: Uses original 4- or 6-player board like fallback layout does, + outlying islands.
 
             // 3pl has 4 LAs, 4pl has 4, 6pl has 7
@@ -727,7 +738,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
             PORT_LOC_FACING_MAINLAND = NSHO_PORT_EDGE_FACING[idx];
             PORT_LOC_FACING_ISLANDS = null;
 
-        } else {
+        }
+        else
+        {
 
             // This is the fallback layout, the large sea board used when no scenario is chosen.
             // Size is BOARDHEIGHT_LARGE by BOARDWIDTH_LARGE for 4 players.
@@ -782,7 +795,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 ? FOG_ISL_LANDHEX_COORD_FOG_6PL
                 : ((maxPl < 4) ? FOG_ISL_LANDHEX_COORD_FOG_3PL : FOG_ISL_LANDHEX_COORD_FOG_4PL);
             makeNewBoard_hideHexesInFog(FOGHEXES, (maxPl == 6));
-        } else if (null != System.getProperty(PROP_JSETTLERS_DEBUG_BOARD_FOG)) {
+        }
+        else if (null != System.getProperty(PROP_JSETTLERS_DEBUG_BOARD_FOG))
+        {
             // Select n random hexes (20% of landHexLayout):
             // Knuth, "The Art of Computer Programming" Vol 2 Seminumerical Algorithms, Algorithm 3.4.2 S
 
@@ -832,7 +847,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
             System.arraycopy(PORTS_TYPES_MAINLAND, 0, portTypes_main, 0, ptL);
             if ((maxPl == 6) || ! hasScenarioFog)
                 makeNewBoard_shufflePorts(portTypes_main, opt_breakClumps);
-        } else {
+        }
+        else
+        {
             portTypes_main = null;
         }
         if (PORTS_TYPES_ISLANDS != null)
@@ -846,7 +863,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
             portTypes_islands = new int[ptL];
             System.arraycopy(PORTS_TYPES_ISLANDS, 0, portTypes_islands, 0, ptL);
             makeNewBoard_shufflePorts(portTypes_islands, null);
-        } else {
+        }
+        else
+        {
             portTypes_islands = null;
         }
 
@@ -1109,7 +1128,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 throw new IllegalArgumentException
                     ("landAreaPathRanges: landarea " + landAreaPathRanges[0]
                      + ": range length " + L + " should be " + landPath.length);
-        } else {
+        }
+        else
+        {
             int L = 0, i;
             for (i = 1; i < landAreaPathRanges.length; i += 2)
             {
@@ -1210,8 +1231,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                         if (shuffleDiceNumbers && ((diceNum == 6) || (diceNum == 8)))
                             redHexes.add(landPath[i]);
                     }
-
-                } catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
                     throw new IllegalArgumentException
                         ("Problem placing landPath[" + i + "] at 0x"
                          + Integer.toHexString(landPath[i])
@@ -1233,7 +1255,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     unvisited.add( value );
 
                 clumpsNotOK = makeNewBoard_checkLandHexResourceClumps(unvisited, clumpSize);
-            } else {
+            }
+            else
+            {
                 clumpsNotOK = false;
             }
 
@@ -1718,7 +1742,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                             hAdjac1 = h;
                         else
                             hAdjacNext = h;
-                    } else {
+                    }
+                    else
+                    {
                         ahi.remove();  // remove from ahex
                     }
                 }
@@ -1782,7 +1808,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 {
                     retry = true;
                     break;
-                } else {
+                }
+                else
+                {
                     if (swappedNums == null)
                         swappedNums = new ArrayList<>();
                     swappedNums.add(midSwap);
@@ -1860,7 +1888,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     {
                         hexnumSwap = makeNewBoard_placeHexes_moveFrequentNumbers_swapOne
                             (h0, 0, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes);
-                    } else {
+                    }
+                    else
+                    {
                         // swap the adjacent instead; the algorithm will also remove this one from redHexes
                         // because it will have 0 adjacents after the swap
                         final int iAdjac1 = redHexes.indexOf( hAdjac1 );
@@ -1872,7 +1902,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     {
                         retry = true;
                         break;
-                    } else {
+                    }
+                    else
+                    {
                         if (swappedNums == null)
                             swappedNums = new ArrayList<>();
                         swappedNums.add(hexnumSwap);
@@ -2055,10 +2087,14 @@ public class SOCBoardAtServer extends SOCBoardLarge
             {
                 moveFrom = FOR_TRI_LANDHEX_COORD_MAIN_FAR_COASTAL[(maxPl == 6) ? 1 : 0];
                 moveAnyRedFromAlso59 = true;
-            } else if (scen.equals(SOCScenario.K_SC_WOND)) {
+            }
+            else if (scen.equals(SOCScenario.K_SC_WOND))
+            {
                 moveFrom = WOND_LANDHEX_COORD_MAIN_AT_DESERT[(maxPl == 6) ? 1 : 0];
                 moveAnyRedFromAlso59 = false;
-            } else {
+            }
+            else
+            {
                 moveFrom = null;
                 moveAnyRedFromAlso59 = false;
             }
@@ -2067,7 +2103,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
             {
                 moveAnyRedFromHexes = new HashSet<>( moveFrom.length );
                 for (int value : moveFrom) moveAnyRedFromHexes.add( value );
-            } else {
+            }
+            else
+            {
                 moveAnyRedFromHexes = null;
             }
         }
@@ -2119,7 +2157,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                         : -1;
                     swapped = makeNewBoard_placeHexes_moveFrequentNumbers_swapOne
                         (hc, rhIdx, redHexes, moveAnyRedFromHexes, otherHexesForScen, null);
-                } else {
+                }
+                else
+                {
                     // Swap a 6 or 8 with the usual process.
                     swapped = makeNewBoard_placeHexes_moveFrequentNumbers_swapOne
                         (hc, redHexes.indexOf( hc ), redHexes, moveAnyRedFromHexes,
@@ -2292,7 +2332,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                                 triple.c = idelta;
                             }
                         }
-                    } else {
+                    }
+                    else
+                    {
                         // no longer has any adjacent reds; can add to otherCoastalHexes or otherHexes
                         final int htype = getHexTypeFromCoord(h);
                         if ((otherHexes != null) && ((ignoreHexes == null) || ! ignoreHexes.contains(hInt))
@@ -2302,7 +2344,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
                             {
                                 if (! otherCoastalHexes.contains(hInt))
                                     otherCoastalHexes.add(hInt);
-                            } else {
+                            }
+                            else
+                            {
                                 if (! otherHexes.contains(hInt))
                                     otherHexes.add(hInt);
                             }
@@ -2447,7 +2491,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
             {
                 if (! addToExistingLA)
                     throw new IllegalStateException("landarea " + landAreaNumber + " already has landAreasLegalNodes");
-            } else {
+            }
+            else
+            {
                 landAreasLegalNodes[landAreaNumber] = new HashSet<>();
             }
         }
@@ -2526,7 +2572,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
             {
                 L = 0;
                 partAL = new int[2];
-            } else {
+            }
+            else
+            {
                 L = partAL.length;
                 int[] newAL = new int[L + 2];
                 System.arraycopy(partAL, 0, newAL, 0, L);
@@ -2668,37 +2716,34 @@ public class SOCBoardAtServer extends SOCBoardLarge
             // Check scenario name; not all scenarios have a custom board size.
 
             final String sc = scOpt.getStringValue();
-            if (sc.equals(SOCScenario.K_SC_4ISL))
+            switch (sc)
             {
+            case SOCScenario.K_SC_4ISL:
                 heightWidth = FOUR_ISL_BOARDSIZE[(maxPl == 6) ? 1 : 0];  // 3, 4-player boards have same board size
-            }
-            else if (sc.equals(SOCScenario.K_SC_FOG))
-            {
+
+                break;
+            case SOCScenario.K_SC_FOG:
                 heightWidth = FOG_ISL_BOARDSIZE[(maxPl == 6) ? 1 : 0];  // 3, 4-player boards have same board size
-            }
-            else if (sc.equals(SOCScenario.K_SC_TTD))
-            {
+
+                break;
+            case SOCScenario.K_SC_TTD:
                 heightWidth = TTDESERT_BOARDSIZE[(maxPl == 6) ? 2 : (maxPl == 4) ? 1 : 0];
-            }
-            else if (sc.equals(SOCScenario.K_SC_PIRI))
-            {
+                break;
+            case SOCScenario.K_SC_PIRI:
                 heightWidth = PIR_ISL_BOARDSIZE[(maxPl == 6) ? 1 : 0];
-            }
-            else if (sc.equals(SOCScenario.K_SC_FTRI))
-            {
+                break;
+            case SOCScenario.K_SC_FTRI:
                 heightWidth = FOR_TRI_BOARDSIZE[(maxPl == 6) ? 1 : 0];
-            }
-            else if (sc.equals(SOCScenario.K_SC_CLVI))
-            {
+                break;
+            case SOCScenario.K_SC_CLVI:
                 heightWidth = CLVI_BOARDSIZE[(maxPl == 6) ? 1 : 0];
-            }
-            else if (sc.equals(SOCScenario.K_SC_WOND))
-            {
+                break;
+            case SOCScenario.K_SC_WOND:
                 heightWidth = WOND_BOARDSIZE[(maxPl == 6) ? 1 : 0];
-            }
-            else if (sc.equals(SOCScenario.K_SC_NSHO))
-            {
+                break;
+            case SOCScenario.K_SC_NSHO:
                 heightWidth = NSHO_BOARDSIZE[(maxPl == 6) ? 2 : (maxPl == 4) ? 1 : 0];
+                break;
             }
         }
 
@@ -2737,7 +2782,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
         if ((opt != null) && opt.getBoolValue())
         {
             maxPl = 6;
-        } else {
+        }
+        else
+        {
             opt = (gameOpts != null ? gameOpts.get("PL") : null);
             if (opt == null)
                 maxPl = 4;
@@ -2753,7 +2800,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
         {
             final String ostr = opt.getStringValue();
             scen = (ostr != null) ? ostr : "";
-        } else {
+        }
+        else
+        {
             scen = "";
         }
 
@@ -2830,7 +2879,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
             if (ga.isSeatVacant(pn))
             {
                 lseArranged[pn] = new int[0];
-            } else {
+            }
+            else
+            {
                 lseArranged[pn] = LEGAL_SEA_EDGES[i];
                 ++i;
             }
@@ -5184,7 +5235,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
             if (! largeBoard)
             {
                 return DefaultBoardFactory.staticCreateBoard(gameOpts, false, maxPlayers);
-            } else {
+            }
+            else
+            {
                 return new SOCBoardAtServer
                     (gameOpts, maxPlayers, getBoardSize(gameOpts, maxPlayers));
             }

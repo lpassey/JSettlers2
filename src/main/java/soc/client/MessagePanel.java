@@ -144,7 +144,9 @@ import javax.swing.SwingConstants;
             newText = message;
             newlineIndex = message.indexOf('\n');
             newMsgLines = (newlineIndex >= 0) ? 2 : 1;
-        } else {
+        }
+        else
+        {
             newText = " ";
             newlineIndex = -1;
             newMsgLines = 1;
@@ -154,7 +156,9 @@ import javax.swing.SwingConstants;
         {
             msg.setText(newText);
             msg2.setText(" ");
-        } else {
+        }
+        else
+        {
             msg.setText(newText.substring(0, newlineIndex));
             msg2.setText(newText.substring(newlineIndex + 1));
         }

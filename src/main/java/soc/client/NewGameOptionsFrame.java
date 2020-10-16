@@ -417,7 +417,9 @@ import soc.util.Version;
         if (readOnly)
         {
             gameName.setEnabled(false);
-        } else {
+        }
+        else
+        {
             gameName.addKeyListener(this);     // for ESC/ENTER
             Document tfDoc = gameName.getDocument();
             tfDoc.putProperty("owner", gameName);
@@ -452,7 +454,9 @@ import soc.util.Version;
         {
             cancel = new JButton(strings.get("base.ok"));
             cancel.setEnabled(true);
-        } else {
+        }
+        else
+        {
             cancel = new JButton(strings.get("base.cancel"));
             cancel.addKeyListener(this);  // for win32 keyboard-focus
         }
@@ -568,7 +572,9 @@ import soc.util.Version;
             if (kL == 3)
             {
                 kf2 = okey.substring(0, 2);
-            } else {
+            }
+            else
+            {
                 int i = okey.indexOf('_');
                 if (i < 1)
                     continue;
@@ -861,7 +867,9 @@ import soc.util.Version;
                 boolOptCheckboxes.put(op.key, cb);
                 cb.addItemListener(this);  // for op's ChangeListener and userChanged
             }
-        } else {
+        }
+        else
+        {
             L = new JLabel();  // to fill checkbox's column
             gbl.setConstraints(L, gbc);
             bp.add(L);
@@ -980,7 +988,9 @@ import soc.util.Version;
             Document tfDoc = ((IntTextField) c).getDocument();
             tfDoc.putProperty("owner", c);
             tfDoc.addDocumentListener(this);  // for op.ChangeListener and userChanged
-        } else {
+        }
+        else
+        {
             JComboBox<String> combo = new JComboBox<>();
             for (int i = op.minIntValue; i <= op.maxIntValue; ++i)
                 combo.addItem(Integer.toString(i));
@@ -1186,17 +1196,22 @@ import soc.util.Version;
                                 iv = Integer.parseInt(itf.getText().trim());
                                 if (! makeChecked)
                                     iv = -iv;
-                            } catch (NumberFormatException nfe) {}
+                            }
+                            catch (NumberFormatException ignored) {}
 
                             localPrefs.put(key, iv );
-                        } else {
+                        }
+                        else
+                        {
                             localPrefs.put(key, (makeChecked) ? Boolean.TRUE : Boolean.FALSE);
                         }
                     }
                     e.consume();
                 }
             };
-        } else {
+        }
+        else
+        {
             cb = null;
             ml = null;
         }
@@ -1224,7 +1239,9 @@ import soc.util.Version;
             }
             catch (Exception fle) {}
 
-        } else {
+        }
+        else
+        {
             placeholderIdx = -1;
             prefp = null;
         }
@@ -1278,7 +1295,8 @@ import soc.util.Version;
                                 iv = Integer.parseInt(newText);
                                 if ((cb != null) && ! cb.isSelected())
                                     iv = -iv;
-                            } catch (NumberFormatException nfe) {}
+                            }
+                            catch (NumberFormatException ignored) {}
 
                             localPrefs.put(key, iv );
                         }
@@ -1297,7 +1315,9 @@ import soc.util.Version;
             if (prefp != null)
             {
                 prefp.add(L);
-            } else {
+            }
+            else
+            {
                 gbc.gridwidth = GridBagConstraints.REMAINDER;
                 gbc.weightx = 1;
                 gbl.setConstraints(L, gbc);
@@ -1476,10 +1496,14 @@ import soc.util.Version;
                 persistLocalPrefs();
                 mainDisplay.askStartGameWithOptions
                     (gmName, forPractice, opts, localPrefs);  // sets WAIT_CURSOR in main client frame
-            } else {
+            }
+            else
+            {
                 return;  // readOptsValues will put the err msg in dia's status line
             }
-        } else {
+        }
+        else
+        {
             // Nickname field is also checked before this dialog is displayed,
             // so the user must have gone back and changed it.
             // Can't correct the problem from within this dialog, since the
@@ -1633,7 +1657,9 @@ import soc.util.Version;
 
                 cli.lastFaceChange = SOCPlayer.FIRST_HUMAN_FACE_ID;
                 UserPreferences.putPref(SOCPlayerClient.PREF_FACE_ICON, -setIdx);
-            } else {
+            }
+            else
+            {
                 UserPreferences.putPref(SOCPlayerClient.PREF_FACE_ICON,
                     (wantsSet) ? cli.lastFaceChange : -(cli.lastFaceChange));
             }
@@ -1688,15 +1714,20 @@ import soc.util.Version;
                     try
                     {
                         op.setStringValue(txt);
-                    } catch (IllegalArgumentException ex)
+                    }
+                    catch (IllegalArgumentException ex)
                     {
                         allOK = false;
                         msgText.setText(strings.get("game.options.singleline"));  // only a single line of text allowed
                         ctrl.requestFocusInWindow();
                     }
-                } else {
+                }
+/*
+                else
+                {
                     // OTYPE_INT, OTYPE_INTBOOL; defer setting until after all checkboxes have been read
                 }
+*/
             }
             else if (ctrl instanceof JComboBox)
             {
@@ -1746,7 +1777,8 @@ import soc.util.Version;
                         (strings.get("game.options.outofrange", op.minIntValue, op.maxIntValue));  // "out of range"
                     ctrl.requestFocusInWindow();
                 }
-            } catch (NumberFormatException ex)
+            }
+            catch (NumberFormatException ex)
             {
                 allOK = false;
                 msgText.setText(strings.get("game.options.onlydigits"));  // "please use only digits here"
@@ -1864,7 +1896,9 @@ import soc.util.Version;
                     validChange = true;
                 }
                 catch (IllegalArgumentException ex) {}
-            } else {
+            }
+            else
+            {
                 otypeIsInt = true;
                 try   // OTYPE_INT, OTYPE_INTBOOL
                 {
@@ -2004,7 +2038,9 @@ import soc.util.Version;
             boolNewValue = (newBoolValue) ? Boolean.TRUE : Boolean.FALSE;
             boolOldValue = (newBoolValue) ? Boolean.FALSE : Boolean.TRUE;
             opt.setBoolValue(newBoolValue);
-        } else {
+        }
+        else
+        {
             fireBooleanListener = false;
             boolNewValue = null;
             boolOldValue = null;
@@ -2054,7 +2090,9 @@ import soc.util.Version;
         try
         {
             cl.valueChanged(opt, oldValue, newValue, opts);
-        } catch (Throwable thr) {
+        }
+        catch (Throwable thr)
+        {
             System.err.println("-- Error caught in ChangeListener: " + thr.toString() + " --");
             thr.printStackTrace();
             while (thr.getCause() != null)
@@ -2104,7 +2142,9 @@ import soc.util.Version;
                         doc.removeDocumentListener(this);
                         tf.setText(Integer.toString(op.getIntValue()));
                         doc.addDocumentListener(this);
-                    } else {
+                    }
+                    else
+                    {
                         final JComboBox<?> combo = (JComboBox<?>) opComp;
                         combo.removeItemListener(this);
                         combo.setSelectedIndex(op.getIntValue() - op.minIntValue);

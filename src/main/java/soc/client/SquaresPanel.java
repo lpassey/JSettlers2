@@ -172,11 +172,11 @@ import soc.game.SOCResourceSet;
     }
 
     @Override
-    public Dimension getMinimumSize()   { return size; };
+    public Dimension getMinimumSize()   { return size; }
     @Override
-    public Dimension getMaximumSize()   { return size; };
+    public Dimension getMaximumSize()   { return size; }
     @Override
-    public Dimension getPreferredSize() { return size; };
+    public Dimension getPreferredSize() { return size; }
 
     /**
      * Custom layout for panel.
@@ -279,7 +279,9 @@ import soc.game.SOCResourceSet;
                 notAllZ |= (amt != 0);
                 this.give[res - 1].setIntValue(amt);
             }
-        } else {
+        }
+        else
+        {
             for (int i = 0; i < 5; ++i)
                 this.give[i].setIntValue(0);
         }
@@ -292,7 +294,9 @@ import soc.game.SOCResourceSet;
                 notAllZ |= (amt != 0);
                 this.get[res - 1].setIntValue(amt);
             }
-        } else {
+        }
+        else
+        {
             for (int i = 0; i < 5; ++i)
                 this.get[i].setIntValue(0);
         }

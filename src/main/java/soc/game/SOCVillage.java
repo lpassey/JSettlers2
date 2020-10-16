@@ -129,7 +129,9 @@ public class SOCVillage extends SOCPlayingPiece
         {
             numTake = numCloth;
             numCloth = 0;
-        } else {
+        }
+        else
+        {
             numCloth -= numTake;
         }
         return numTake;
@@ -155,7 +157,9 @@ public class SOCVillage extends SOCPlayingPiece
             --numCloth;
             pl.setCloth(1 + pl.getCloth());
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -191,7 +195,9 @@ public class SOCVillage extends SOCPlayingPiece
         if (rollRes.cloth != null)
         {
             results = rollRes.cloth;
-        } else {
+        }
+        else
+        {
             results = new int[1 + game.maxPlayers];
             rollRes.cloth = results;
         }
@@ -203,7 +209,9 @@ public class SOCVillage extends SOCPlayingPiece
         {
             nFromGeneral = ((SOCBoardLarge) board).takeCloth(n - nFromHere);
             results[0] += nFromGeneral;
-        } else {
+        }
+        else
+        {
             nFromGeneral = 0;
         }
 

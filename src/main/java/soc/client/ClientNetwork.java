@@ -22,9 +22,6 @@
  **/
 package soc.client;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -36,6 +33,8 @@ import java.util.Map;
 
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
+import soc.communication.Connection;
+import soc.communication.NetConnection;
 import soc.disableDebug.D;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
@@ -48,8 +47,6 @@ import soc.message.SOCNewGameWithOptionsRequest;
 import soc.message.SOCRejectConnection;
 import soc.message.SOCVersion;
 import soc.server.SOCServer;
-import soc.server.genericServer.Connection;
-import soc.server.genericServer.StringConnection;
 import soc.server.genericServer.StringServerSocket;
 import soc.util.SOCFeatureSet;
 import soc.util.Version;
@@ -123,15 +120,6 @@ import soc.util.Version;
     SOCServer localTCPServer = null;
 
     /**
-     * Network socket.
-     * Before v2.4.10 this field was {@code s}.
-     */
-    Socket sock;
-    DataInputStream in;
-    DataOutputStream out;
-    Thread reader = null;
-
-    /**
      * Features supported by this built-in JSettlers client.
      * @since 2.0.00
      */
@@ -166,14 +154,6 @@ import soc.util.Version;
     Exception ex_P = null;
 
     /**
-     * Are we connected to a TCP server (remote or {@link #localTCPServer})?
-     * {@link #practiceServer} is not a TCP server.
-     * If true, {@link #serverConnectInfo} != null.
-     * @see #ex
-     */
-    boolean connected = false;
-
-    /**
      * For debug, our last message sent over the net.
      *<P>
      * Before v1.1.00 this field was {@code lastMessage}.
@@ -188,7 +168,7 @@ import soc.util.Version;
      * @see #lastMessage_N
      * @since 1.1.00
      */
-    protected String lastMessage_P;
+    protected SOCMessage lastMessage_P;
 
     /**
      * Server for practice games via {@link #prCli}; not connected to the network,
@@ -209,7 +189,7 @@ import soc.util.Version;
      * Last message is in {@link #lastMessage_P}; any error is in {@link #ex_P}.
      * @since 1.1.00
      */
-    protected StringConnection prCli = null;
+    protected Connection prCli = null;
 
     /**
      * Create our client's ClientNetwork.
@@ -283,10 +263,10 @@ import soc.util.Version;
             try
             {
                 prCli = StringServerSocket.connectTo(SOCServer.PRACTICE_STRINGPORT);
-                new LocalStringReaderTask(prCli);  // Reader will start its own thread
+                prCli.startMessageProcessing( client.getMessageHandler() );  // Reader will start its own thread
 
                 // Send VERSION right away
-                sendVersion(true);
+                sendVersion();
 
                 // Practice server supports per-game options
                 mainDisplay.enableOptions();
@@ -301,10 +281,9 @@ import soc.util.Version;
 
         // Ask internal practice server to create the game
         if (gameOpts == null)
-            putPractice(SOCJoinGame.toCmd(client.practiceNickname, "", SOCMessage.EMPTYSTR, practiceGameName));
+            send(new SOCJoinGame(client.practiceNickname, "", SOCMessage.EMPTYSTR, practiceGameName));
         else
-            putPractice(SOCNewGameWithOptionsRequest.toCmd
-                (client.practiceNickname, "", SOCMessage.EMPTYSTR, practiceGameName, gameOpts));
+            send(new SOCNewGameWithOptionsRequest( client.practiceNickname, "", SOCMessage.EMPTYSTR, practiceGameName, gameOpts));
 
         return true;
     }
@@ -313,13 +292,13 @@ import soc.util.Version;
      * Get the tcp port number of the local server.
      * @see #isRunningLocalServer()
      */
-    public int getLocalServerPort()
-    {
-        if (localTCPServer == null)
-            return 0;
-
-        return localTCPServer.getPort();
-    }
+//    public int getLocalServerPort()
+//    {
+//        if (localTCPServer == null)
+//            return 0;
+//
+//        return localTCPServer.getPort();
+//    }
 
     /** Shut down the local TCP server. */
     public void shutdownLocalServer()
@@ -363,7 +342,7 @@ import soc.util.Version;
      */
     public int getPort()
     {
-        return (connected) ? serverConnectInfo.port : SOC_PORT_DEFAULT;
+        return (null != prCli && prCli.isConnected()) ? serverConnectInfo.port : SOC_PORT_DEFAULT;
     }
 
     /**
@@ -374,7 +353,7 @@ import soc.util.Version;
      */
     public String getHost()
     {
-        return (connected) ? serverConnectInfo.hostname : null;
+        return (null != prCli && prCli.isConnected()) ? serverConnectInfo.hostname : null;
     }
 
     /**
@@ -383,7 +362,7 @@ import soc.util.Version;
      */
     public synchronized boolean isConnected()
     {
-        return connected;
+        return ((prCli instanceof NetConnection) && prCli.isConnected());
     }
 
     /**
@@ -405,7 +384,7 @@ import soc.util.Version;
     public synchronized void connect(final String host, final int port)
         throws IllegalStateException
     {
-        if (connected)
+        if (null != prCli && prCli.isConnected())
         {
             throw new IllegalStateException
                 ("Already connected to " + (serverConnectInfo.hostname != null ? serverConnectInfo.hostname : "localhost")
@@ -437,15 +416,13 @@ import soc.util.Version;
             final SocketAddress srvAddr = (host != null)
                 ? new InetSocketAddress(host, port)
                 : new InetSocketAddress(InetAddress.getByName(null), port);  // loopback
-            sock = new Socket();
-            sock.connect(srvAddr, CONNECT_TIMEOUT_MS);
-            in = new DataInputStream(sock.getInputStream());
-            out = new DataOutputStream(sock.getOutputStream());
-            connected = true;
-
-            (reader = new Thread(new NetReadTask(client, this))).start();
+            Socket sock = new Socket();
+            sock.connect( srvAddr, CONNECT_TIMEOUT_MS );
+            prCli = new NetConnection( sock );
+            prCli.connect(); // wires up data streams to already connected socket.
+            prCli.startMessageProcessing( client.getMessageHandler() );
             // send VERSION right away (1.1.06 and later)
-            sendVersion(false);
+            sendVersion();
         }
         catch (Exception e)
         {
@@ -454,25 +431,11 @@ import soc.util.Version;
             System.err.println(msg);
             mainDisplay.showErrorPanel(msg, (ex_P == null));
 
-            if (connected)
+            if (prCli.isConnected())
             {
-                disconnect();
-                connected = false;
+                prCli.disconnect();
             }
             serverConnectInfo = null;
-
-            if (in != null)
-            {
-                try { in.close(); } catch (Throwable th) {}
-                in = null;
-            }
-            if (out != null)
-            {
-                try { out.close(); } catch (Throwable th) {}
-                out = null;
-            }
-
-            sock = null;
         }
     }
 
@@ -483,18 +446,9 @@ import soc.util.Version;
      */
     protected synchronized void disconnect()
     {
-        connected = false;
-
-        // reader will die once 'connected' is false, and socket is closed
-
-        try
-        {
-            sock.close();
-        }
-        catch (Exception e)
-        {
-            ex = e;
-        }
+        if (null != prCli && prCli.isConnected())
+            // reader will die once 'connected' is false, and socket is closed
+            prCli.disconnect();
     }
 
     /**
@@ -511,7 +465,7 @@ import soc.util.Version;
      *     false if to a TCP server with {@link #putNet(String)}.
      * @since 2.0.00
      */
-    private void sendVersion(final boolean isPractice)
+    private void sendVersion()
     {
         String feats = System.getProperty(SOCPlayerClient.PROP_JSETTLERS_DEBUG_CLIENT_FEATURES);
         if (feats == null)
@@ -529,14 +483,10 @@ import soc.util.Version;
                 feats = ';' + gameopt3p;
         }
 
-        final String msg = SOCVersion.toCmd
-            (Version.versionNumber(), Version.version(), Version.buildnum(),
-             feats, client.cliLocale.toString());
+        final SOCMessage msg = new SOCVersion( Version.versionNumber(), Version.version(),
+            Version.buildnum(), feats, client.cliLocale.toString());
 
-        if (isPractice)
-            putPractice(msg);
-        else
-            putNet(msg);
+        send(msg);
     }
 
     /**
@@ -592,40 +542,40 @@ import soc.util.Version;
      * @see GameMessageSender#put(String, boolean)
      * @see #putPractice(String)
      */
-    public synchronized boolean putNet(String s)
-    {
-        lastMessage_N = s;
-
-        if ((ex != null) || !isConnected())
-        {
-            return false;
-        }
-
-        if (client.debugTraffic || D.ebugIsEnabled())
-            soc.debug.D.ebugPrintlnINFO("OUT - " + SOCMessage.toMsg(s));
-
-        try
-        {
-            out.writeUTF(s);
-            out.flush();
-        }
-        catch (IOException e)
-        {
-            ex = e;
-            System.err.println("could not write to the net: " + ex);  // I18N: Not localizing console output yet
-            client.shutdownFromNetwork();
-
-            return false;
-        }
-
-        return true;
-    }
+//    public synchronized boolean putNet(String s)
+//    {
+//        lastMessage_N = s;
+//
+//        if ((ex != null) || !isConnected())
+//        {
+//            return false;
+//        }
+//
+//        if (client.debugTraffic || D.ebugIsEnabled())
+//            soc.debug.D.ebugPrintlnINFO("OUT - " + SOCMessage.toMsg(s));
+//
+//        try
+//        {
+//            out.writeUTF(s);
+//            out.flush();
+//        }
+//        catch (IOException e)
+//        {
+//            ex = e;
+//            System.err.println("could not write to the net: " + ex);  // I18N: Not localizing console output yet
+//            client.shutdownFromNetwork();
+//
+//            return false;
+//        }
+//
+//        return true;
+//    }
 
     /**
      * write a message to the practice server. {@link #localTCPServer} is not
      * the same as the practice server; use {@link #putNet(String)} to send
      * a message to the local TCP server.
-     * Use <tt>putPractice</tt> only with {@link #practiceServer}.
+     * Use <tt>send</tt> only with {@link #practiceServer}.
      *<P>
      * Before version 1.1.14, this was <tt>putLocal</tt>.
      *
@@ -636,7 +586,7 @@ import soc.util.Version;
      * @see #putNet(String)
      * @since 1.1.00
      */
-    public synchronized boolean putPractice(String s)
+    public synchronized boolean send( SOCMessage s )
         throws IllegalArgumentException
     {
         if (s == null)
@@ -650,21 +600,11 @@ import soc.util.Version;
         }
 
         if (client.debugTraffic || D.ebugIsEnabled())
-            soc.debug.D.ebugPrintlnINFO("OUT L- " + SOCMessage.toMsg(s));
+            soc.debug.D.ebugPrintlnINFO("OUT L- " + s );
 
-        prCli.put(s);
+        prCli.send(s);
 
         return true;
-    }
-
-    /**
-     * resend the last message (to the network)
-     * @see #resendPractice()
-     */
-    public void resendNet()
-    {
-        if (lastMessage_N != null)
-            putNet(lastMessage_N);
     }
 
     /**
@@ -675,7 +615,7 @@ import soc.util.Version;
     public void resendPractice()
     {
         if (lastMessage_P != null)
-            putPractice(lastMessage_P);
+            send(lastMessage_P);
     }
 
     /**
@@ -694,135 +634,13 @@ import soc.util.Version;
         final boolean canPractice = (ex_P == null);  // Can we still start a practice game?
 
         SOCLeaveAll leaveAllMes = new SOCLeaveAll();
-        putNet(leaveAllMes.toCmd());
+
         if ((prCli != null) && ! canPractice)
-            putPractice(leaveAllMes.toCmd());
+            send( leaveAllMes );
 
         shutdownLocalServer();
 
         return canPractice;
     }
-
-
-    /**
-     * A task to continuously read from the server socket.
-     * Not used for talking to the practice server.
-     * @see LocalStringReaderTask
-     */
-    static class NetReadTask implements Runnable
-    {
-        final ClientNetwork net;
-        final SOCPlayerClient client;
-
-        public NetReadTask(SOCPlayerClient client, ClientNetwork net)
-        {
-            this.client = client;
-            this.net = net;
-        }
-
-        /**
-         * continuously read from the net in a separate thread;
-         * not used for talking to the practice server.
-         * If disconnected or an {@link IOException} occurs,
-         * calls {@link SOCPlayerClient#shutdownFromNetwork()}.
-         */
-        public void run()
-        {
-            Thread.currentThread().setName("cli-netread");  // Thread name for debug
-            try
-            {
-                final MessageHandler handler = client.getMessageHandler();
-
-                while (net.isConnected())
-                {
-                    String s = net.in.readUTF();
-                    SOCMessage msg = SOCMessage.toMsg(s);
-
-                    if (msg != null)
-                        handler.handle(msg, false);
-                    else if (client.debugTraffic)
-                        soc.debug.D.ebugERROR("Could not parse net message: " + s);
-                }
-            }
-            catch (IOException e)
-            {
-                // purposefully closing the socket brings us here too
-                if (net.isConnected())
-                {
-                    net.ex = e;
-                    System.out.println("could not read from the net: " + net.ex);  // I18N: Not localizing console output yet
-                    client.shutdownFromNetwork();
-                }
-            }
-        }
-
-    }  // nested class NetReadTask
-
-
-    /**
-     * For practice games, reader thread to get messages from the
-     * practice server to be treated and reacted to.
-     *<P>
-     * Before v2.0.00 this class was {@code SOCPlayerClient.SOCPlayerLocalStringReader}.
-     *
-     * @see NetReadTask
-     * @author jdmonin
-     * @since 1.1.00
-     */
-    class LocalStringReaderTask implements Runnable
-    {
-        StringConnection locl;
-
-        /**
-         * Start a new thread and listen to practice server.
-         *
-         * @param prConn Active connection to practice server
-         */
-        protected LocalStringReaderTask(StringConnection prConn)
-        {
-            locl = prConn;
-
-            Thread thr = new Thread(this);
-            thr.setDaemon(true);
-            thr.start();
-        }
-
-        /**
-         * Continuously read from the practice string server in a separate thread.
-         * If disconnected or an {@link IOException} occurs, calls
-         * {@link SOCPlayerClient#shutdownFromNetwork()}.
-         */
-        public void run()
-        {
-            Thread.currentThread().setName("cli-stringread");  // Thread name for debug
-            try
-            {
-                final MessageHandler handler = client.getMessageHandler();
-
-                while (locl.isConnected())
-                {
-                    String s = locl.readNext();
-                    SOCMessage msg = SOCMessage.toMsg(s);
-
-                    if (msg != null)
-                        handler.handle(msg, true);
-                    else if (client.debugTraffic)
-                        soc.debug.D.ebugERROR("Could not parse practice server message: " + s);
-                }
-            }
-            catch (IOException e)
-            {
-                // purposefully closing the socket brings us here too
-                if (locl.isConnected())
-                {
-                    ex_P = e;
-                    System.out.println("could not read from practice server: " + ex_P);  // I18N: Not localizing console output yet
-                    client.shutdownFromNetwork();
-                }
-            }
-        }
-
-    }  // nested class LocalStringReaderTask
-
 }
 

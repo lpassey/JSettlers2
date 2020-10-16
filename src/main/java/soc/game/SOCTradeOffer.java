@@ -166,7 +166,7 @@ public class SOCTradeOffer implements Serializable, Cloneable
     public void clearWaitingReplyFrom(final int pn)
         throws IllegalArgumentException
     {
-        if ((pn < 0) && (pn >= SOCGame.MAXPLAYERS))
+        if ((pn < 0) || (pn >= SOCGame.MAXPLAYERS))
             throw new IllegalArgumentException("pn: " + pn);
 
         if (pn < waitingReply.length)
@@ -205,7 +205,7 @@ public class SOCTradeOffer implements Serializable, Cloneable
             str.append(',');
             str.append(to[pn]);
         }
-        str.append("|give=" + give + "|get=" + get);
+        str.append( "|give=" ).append( give ).append( "|get=" ).append( get );
 
         return str.toString();
     }
@@ -230,7 +230,9 @@ public class SOCTradeOffer implements Serializable, Cloneable
             return (from == offer.from
                 && give.equals(offer.give)
                 && get.equals(offer.get));
-        } else {
+        }
+        else
+        {
             return false;
         }
     }

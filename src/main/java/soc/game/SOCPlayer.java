@@ -720,7 +720,8 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                         SOCSpecialItem itm = old.get(i);
                         anew.add((itm != null) ? itm.clone() : null);
                     }
-                } catch (CloneNotSupportedException e) {}  // Should not occur: SOCSpecialItem implements Cloneable
+                }
+                catch (CloneNotSupportedException ignored) {}  // Should not occur: SOCSpecialItem implements Cloneable
 
                 spItems.put(optKey, anew);
             }
@@ -896,7 +897,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
             legalSettlements = board.initPlayerLegalSettlements();
             legalShips = new HashSet<>();  // will remain empty
             potentialSettlements = new HashSet<>( legalSettlements );
-        } else {
+        }
+        else
+        {
             legalRoads = new HashSet<>();
             legalSettlements = new HashSet<>();
             legalShips = new HashSet<>();
@@ -1553,7 +1556,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         try
         {
             return li.get(idx);
-        } catch (IndexOutOfBoundsException e) {
+        }
+        catch (IndexOutOfBoundsException e)
+        {
             return null;
         }
     }
@@ -1586,7 +1591,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         if (idx < L)
         {
             return li.set(idx, itm);
-        } else {
+        }
+        else
+        {
             for (int n = idx - L; n > 0; --n)  // if idx == L, n is 0, no nulls are needed
                 li.add(null);
 
@@ -1712,7 +1719,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
             {
                 if (sc.getPlayerNumber() == playerNumber)
                     return true;
-            } else {
+            }
+            else
+            {
                 if (doesTradeRouteContinuePastNode
                         (board, wantShip, edge, -9, edgeNodes[i]))
                     return true;
@@ -2080,7 +2089,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                 node = board.getAdjacentNodeFarEndOfEdge(edge, node);
                 segment.add(nextShip1);
 
-            } else {
+            }
+            else
+            {
 
                 // Found ships in 2 directions (a branch)
 
@@ -2827,7 +2838,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                         fortress = null;
                         if (isTempPiece)
                             throw new IllegalArgumentException("temporary fortress settlement");
-                    } else {
+                    }
+                    else
+                    {
                         numPieces[SOCPlayingPiece.SETTLEMENT]--;
                     }
                     putPiece_settlement_checkTradeRoutes((SOCSettlement) piece, board);
@@ -2996,7 +3009,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                 roadNodeGraph.put(node0Int, rnArr);
                 rnArr[0] = node1;
                 // rnArr[1] = 0, rnArr[2] = 0 by default
-            } else {
+            }
+            else
+            {
                 for (int j = 0; j < 3; ++j)
                 {
                     if (node1 == rnArr[j])
@@ -3017,7 +3032,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                 roadNodeGraph.put(node1Int, rnArr);
                 rnArr[0] = node0;
                 // rnArr[1] = 0, rnArr[2] = 0 by default
-            } else {
+            }
+            else
+            {
                 for (int j = 0; j < 3; ++j)
                 {
                     if (node0 == rnArr[j])
@@ -3133,7 +3150,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                         Integer ctypeObj = board.drawItemFromStack();
                         cardtype = (ctypeObj != null) ? ctypeObj : SOCDevCardConstants.KNIGHT;
                         newShip.player.getInventory().addDevCard(1, SOCInventory.NEW, cardtype);
-                    } else {
+                    }
+                    else
+                    {
                         cardtype = SOCDevCardConstants.UNKNOWN;
                     }
 
@@ -3325,7 +3344,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                     if (isCoastline &&
                         ((legalShipsRestricted == null) || legalShipsRestricted.contains(pieceCoordInt)))
                         legalShips.add(pieceCoordInt);
-                } else {
+                }
+                else
+                {
                     if ((legalShipsRestricted == null) || legalShipsRestricted.contains(pieceCoordInt))
                         legalShips.add(pieceCoordInt);
                     if (isCoastline)
@@ -3601,7 +3622,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                     {
                         if (! isMoveOrReplacement)
                             removePieceUpdateSpecialVP(p);
-                    } else {
+                    }
+                    else
+                    {
                         replacementPiece.specialVP = p.specialVP;
                         replacementPiece.specialVPEvent = p.specialVPEvent;
                     }
@@ -3726,7 +3749,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                             potentialShips.add(pieceCoordInt);
                             legalShips.add(pieceCoordInt);
                         }
-                    } else {
+                    }
+                    else
+                    {
                         potentialShips.add(pieceCoordInt);
                         legalShips.add(pieceCoordInt);
                         if (isCoastlineTransition)
@@ -3814,7 +3839,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                                 potentialRoads.add(adjEdge);
                             else
                                 potentialRoads.remove(adjEdge);
-                        } else {
+                        }
+                        else
+                        {
                             if (isPotentialRoad && legalShips.contains(adjEdge))
                                 potentialShips.add(adjEdge);
                             else
@@ -3856,14 +3883,10 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     {
         specialVP -= p.specialVP;
 
-        switch (p.specialVPEvent)
+        // Suppress warning; not all enum values need a handler here
+        if (p.specialVPEvent == SOCPlayerEvent.SVP_SETTLED_ANY_NEW_LANDAREA)
         {
-        case SVP_SETTLED_ANY_NEW_LANDAREA:
-            clearPlayerEvent(p.specialVPEvent);
-            break;
-
-        default:
-            break;  // Suppress warning; not all enum values need a handler here
+            clearPlayerEvent( p.specialVPEvent );
         }
     }
 
@@ -4070,7 +4093,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                                 {
                                     if (legalRoads.contains(edgeInt))
                                         potentialRoads.add(edgeInt);
-                                } else {
+                                }
+                                else
+                                {
                                     if (legalShips.contains(edgeInt))
                                         potentialShips.add(edgeInt);
                                 }
@@ -4643,7 +4668,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                 // Continue checks below. New edge must be adjacent to a current ship or settlement/city
                 // (potentialShips would normally check that); and can't be a branch of a trade route
                 // (new edge's node must have just 1 road or ship, not 2 already).
-            } else {
+            }
+            else
+            {
                 return false;
             }
         }
@@ -4779,7 +4806,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
             if (edge > 0)
             {
                 lse.add( edge );
-            } else {
+            }
+            else
+            {
                 // Represents a range from previous element to current.
                 // Previous was added in the previous iteration.
                 edge = -edge;
@@ -4964,7 +4993,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
 
                         //D.ebugPrintln("^^^ path end at "+Integer.toHexString(coord));
                     }
-                } else {
+                }
+                else
+                {
                     settlementAtNodeCoord = null;
                 }
 
@@ -5006,7 +5037,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                                         continue;  // Requires settlement/city to connect road to ship
                                     }
                                 }
-                            } else {
+                            }
+                            else
+                            {
                                 rsFromNode = null;
                             }
 

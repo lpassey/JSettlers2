@@ -1803,7 +1803,9 @@ import javax.swing.JComponent;
             is6player = false;
             isLargeBoard = true;
             isRotated = isScaledOrRotated = false;
-        } else {
+        }
+        else
+        {
             is6player = (bef == SOCBoard.BOARD_ENCODING_6PLAYER)
                 || (game.maxPlayers > 4);
             isLargeBoard = false;
@@ -1822,7 +1824,9 @@ import javax.swing.JComponent;
             scaledPanelH = PANELX + halfdeltaY;
             panelMinBW = scaledPanelH;
             panelMinBH = scaledPanelW;
-        } else {
+        }
+        else
+        {
             if (isLargeBoard)
             {
                 // TODO isLargeBoard: what if we need a scrollbar?
@@ -1864,7 +1868,9 @@ import javax.swing.JComponent;
                             scaledPanelH -= trimBY;
                     }
                 }
-            } else {
+            }
+            else
+            {
                 scaledPanelW = PANELX;
                 scaledPanelH = PANELY;
                 panelShiftBX = -halfdeltaX / 2;  // center the classic 4-player board
@@ -1906,11 +1912,10 @@ import javax.swing.JComponent;
             hexX = null;
             hexY = null;
             inactiveHexNums = null;
-
-        } else {
-
+        }
+        else
+        {
             initCoordMappings();
-
         }  // if (isLargeBoard)
 
         // set mode of interaction
@@ -1946,7 +1951,9 @@ import javax.swing.JComponent;
         {
             h = rotatHexes;
             isHexesAlwaysScaled = rotatHexesMustAlwaysScale;
-        } else {
+        }
+        else
+        {
             h = hexes;
             isHexesAlwaysScaled = hexesMustAlwaysScale;
         }
@@ -1991,7 +1998,9 @@ import javax.swing.JComponent;
             initEdgeMapAux(1, 12, 11, 15, 0x31);
             initEdgeMapAux(2, 15, 10, 18, 0x51);
             initEdgeMapAux(3, 18, 9, 21, 0x71);  // Bottom row: 0x71 is first land hex of this row
-        } else {
+        }
+        else
+        {
             initEdgeMapAux(4, 3, 10, 6, 0x37);    // Top row: 0x37 is first land hex of this row
             initEdgeMapAux(3, 6, 11, 9, 0x35);
             initEdgeMapAux(2, 9, 12, 12, 0x33);  // Middle row: 0x33 is leftmost land hex
@@ -2012,7 +2021,9 @@ import javax.swing.JComponent;
             initNodeMapAux(1, 12, 11, 16, 0x31);
             initNodeMapAux(2, 15, 10, 19, 0x51);
             initNodeMapAux(3, 18,  9, 22, 0x71);  // Very bottom row: 3 across
-        } else {
+        }
+        else
+        {
             initNodeMapAux(4,  3, 10,  7, 0x37);  // Top row: 0x37 is first land hex of this row
             initNodeMapAux(3,  6, 11, 10, 0x35);
             initNodeMapAux(2,  9, 12, 13, 0x33);  // Middle row: 0x33 is leftmost land hex
@@ -2033,7 +2044,9 @@ import javax.swing.JComponent;
             initHexMapAux(1, 13, 10, 14, 0x31);
             initHexMapAux(2, 16, 9, 17, 0x51);
             initHexMapAux(3, 19, 8, 20, 0x71);  // Bottom row: 0x71 is first land hex
-        } else {
+        }
+        else
+        {
             initHexMapAux(4, 4, 9, 5, 0x37);    // Top row: 0x37 is first land hex
             initHexMapAux(3, 7, 10, 8, 0x35);
             initHexMapAux(2, 10, 11, 11, 0x33);
@@ -2072,7 +2085,9 @@ import javax.swing.JComponent;
             int[] inacIdx = {3, 8, 14, 21, 27, 32, 36};
             for (i = 0; i < inacIdx.length; ++i)
                 inactiveHexNums[inacIdx[i]] = true;
-        } else {
+        }
+        else
+        {
             hexX = hexX_st;
             hexY = hexY_st;
             inactiveHexNums = null;
@@ -2269,6 +2284,7 @@ import javax.swing.JComponent;
      *           and thus should be y1 + 4.
      * @param startHex  Starting hex ID (0x-coordinate of first hex in this row), to use with nodeMap[x1, y1].
      */
+    @SuppressWarnings("OctalInteger")
     private void initNodeMapAux(int x1, int y1, int x2, int y2, int startHex)
     {
         int rowState = 0;  // current state; related to row# and logic for node coords from hex coords
@@ -2495,7 +2511,9 @@ import javax.swing.JComponent;
                     retH = scaleToActual(retH);
                 }
                 return new Dimension(retW, retH);
-            } else {
+            }
+            else
+            {
                 // standard 4pl
                 return new Dimension(0, 0);
             }
@@ -2712,7 +2730,8 @@ import javax.swing.JComponent;
             try
             {
                 rescaleBoard(scaledPanelW, scaledPanelH);
-            } catch (IllegalArgumentException e) {}
+            }
+            catch (IllegalArgumentException ignored) {}
         }
 
         repaint();
@@ -2807,7 +2826,9 @@ import javax.swing.JComponent;
             final int hexesHeight = halfdeltaX * (board.getBoardWidth() - 1),  // width - 1 from portsRing's extra margin
                       scaledBoardH = scaleToActual(hexesHeight);
             panelMarginY = (scaledPanelH - scaledBoardH) / 2;
-        } else {
+        }
+        else
+        {
             final int hexesWidth = halfdeltaX * board.getBoardWidth();
             panelMarginX = scaleToActual(panelMinBW - hexesWidth) / 2;  // take half, to center
             panelMarginY = (scaledPanelH - scaleToActual(panelMinBH)) / 2;
@@ -2858,7 +2879,9 @@ import javax.swing.JComponent;
         {
             staticHex = rotatHexes;
             BC = ROTAT_HEX_BORDER_COLORS;
-        } else {
+        }
+        else
+        {
             staticHex = hexes;
             BC = HEX_BORDER_COLORS;
         }
@@ -2887,7 +2910,9 @@ import javax.swing.JComponent;
 
                     scaledHexes[i] = hi;
                     scaledHexFail[i] = false;
-                } else {
+                }
+                else
+                {
                     scaledHexes[i] = null;
                     scaledHexFail[i] = true;
                 }
@@ -2963,7 +2988,9 @@ import javax.swing.JComponent;
         {
             xc = HEXHEIGHT;  yc = HEXWIDTH;
             arrow_offx = scaleToActual(HEXHEIGHT - HEXWIDTH);  // re-center on wider hex
-        } else {
+        }
+        else
+        {
             xc = HEXWIDTH;  yc = HEXHEIGHT;
             arrow_offx = 0;
         }
@@ -3048,7 +3075,9 @@ import javax.swing.JComponent;
                 scaledDownRoadX = downRoadX;     scaledDownRoadY = downRoadY;
                 scaledHexCornersX = hexCornersX; scaledHexCornersY = hexCornersY;
                 scaledPortArrowsX = portArrowsX; scaledPortArrowsY = portArrowsY;
-            } else {
+            }
+            else
+            {
                 // (cw):  P'=(width-y, x)
                 scaledVertRoadX = rotateScaleCopyYToActualX(vertRoadY, HEXWIDTH, false);
                 scaledVertRoadY = vertRoadX;
@@ -3104,7 +3133,9 @@ import javax.swing.JComponent;
                     scaledPortArrowsX[i] = scaleCopyToActual(portArrowsX[i]);
                     scaledPortArrowsY[i] = scaleCopyToActual(portArrowsY[i]);
                 }
-            } else {
+            }
+            else
+            {
                 // (cw):  P'=(width-y, x)
                 scaledVertRoadX = rotateScaleCopyYToActualX(vertRoadY, HEXWIDTH, true);
                 scaledVertRoadY = scaleCopyToActual(vertRoadX);
@@ -3264,7 +3295,9 @@ import javax.swing.JComponent;
         if (pieceType == -1)
         {
             Arrays.fill(debugShowPotentials, setOn);  // all flags
-        } else {
+        }
+        else
+        {
             if (setPotential && (pieceType < 4))
                 pieceType += 4;
             if (setOn == debugShowPotentials[pieceType])
@@ -3332,7 +3365,9 @@ import javax.swing.JComponent;
             try
             {
                 drawBoard(ibuf.getGraphics());  // Do the actual drawing
-            } catch (ConcurrentModificationException cme) {
+            }
+            catch (ConcurrentModificationException cme)
+            {
                 repaint();  // try again soon
                 return;
             }
@@ -3342,7 +3377,9 @@ import javax.swing.JComponent;
             ibuf.flush();
             g.drawImage(ibuf, 0, 0, this);
 
-        } catch (Throwable th) {
+        }
+        catch (Throwable th)
+        {
             playerInterface.chatPrintStackTrace(th);
         }
     }
@@ -3615,7 +3652,9 @@ import javax.swing.JComponent;
                 if (isRotated)
                 {
                     dx = 22;  dy = 17;
-                } else {
+                }
+                else
+                {
                     dx = 17;  dy = 22;
                 }
 
@@ -3660,7 +3699,9 @@ import javax.swing.JComponent;
                 g.setColor(Color.BLACK);
                 g.drawString(numstr, x, y);
 
-            } else {
+            }
+            else
+            {
                 missedDraw = true;
             }
         }  // if (hnl > 0)
@@ -3693,7 +3734,9 @@ import javax.swing.JComponent;
         {
             hx = halfdeltaX * (hexID & 0xFF);
             hy = halfdeltaY * (hexID >> 8) + HALF_HEXHEIGHT;  // HALF_HEXHEIGHT == halfdeltaY + 9
-        } else {
+        }
+        else
+        {
             int hexNum = hexIDtoNum[hexID];
             hx = hexX[hexNum] + halfdeltaX;
             hy = hexY[hexNum] + HALF_HEXHEIGHT;
@@ -3717,7 +3760,9 @@ import javax.swing.JComponent;
         {
             rFill = Color.lightGray;
             rOutline = Color.black;
-        } else {
+        }
+        else
+        {
             // Determine "ghost" color, we're moving the robber
             int hexType = board.getHexTypeFromCoord(hexID);
             if ((hexType >= robberGhostFill.length) || (hexType < 0))
@@ -3725,7 +3770,8 @@ import javax.swing.JComponent;
                 // should not happen
                 rFill = Color.lightGray;
                 rOutline = Color.black;
-            } else if (robberGhostFill[hexType] != null)
+            }
+            else if (robberGhostFill[hexType] != null)
             {
                 // was cached from previous calculation
                 rFill = robberGhostFill[hexType];
@@ -3741,7 +3787,9 @@ import javax.swing.JComponent;
                         rFill = Color.BLACK;
                     }
                 }
-            } else {
+            }
+            else
+            {
                 // find basic color, "ghost" it
                 rOutline = hexColor(hexType);
                 if (rOutline == ColorSquare.WATER)
@@ -3767,7 +3815,9 @@ import javax.swing.JComponent;
         {
             g.setColor(rFill);
             g.fillPolygon(scaledRobberX, scaledRobberY, 13);
-        } else {
+        }
+        else
+        {
             rOutline = rFill;  // stands out better against hex color
         }
         g.setColor(rOutline);
@@ -3822,7 +3872,9 @@ import javax.swing.JComponent;
                     // move 2 hexes north and offset y.
                     hexNum = hexIDtoNum[edgeNum - 0x10 + 0x02];
                     dy = 2 * deltaY;
-                } else {
+                }
+                else
+                {
                     hexNum = hexIDtoNum[edgeNum + 0x10];
                 }
                 roadX = scaledUpRoadX;
@@ -3836,7 +3888,9 @@ import javax.swing.JComponent;
                     // move 2 hexes south and offset y.
                     hexNum = hexIDtoNum[edgeNum + 0x20 - 0x01];
                     dy = -2 * deltaY;
-                } else {
+                }
+                else
+                {
                     hexNum = hexIDtoNum[edgeNum + 0x01];
                 }
                 roadX = scaledDownRoadX;
@@ -3846,8 +3900,9 @@ import javax.swing.JComponent;
             hx = hexX[hexNum];
             hy = hexY[hexNum] + dy;
 
-        } else {
-
+        }
+        else
+        {
             // isLargeBoard:
             // Determining (r,c) edge direction: | / \
             //   "|" if r is odd
@@ -3862,10 +3917,14 @@ import javax.swing.JComponent;
             if (isWarship) {
                 roadX = scaledWarshipX;
                 roadY = scaledWarshipY;
-            } else if (! isRoadNotShip) {
+            }
+            else if (! isRoadNotShip)
+            {
                 roadX = scaledShipX;
                 roadY = scaledShipY;
-            } else {
+            }
+            else
+            {
                 // roadX,roadY contents vary by edge direction
                 roadX = null;  // always set below; null here
                 roadY = null;  // to satisfy compiler
@@ -3881,7 +3940,9 @@ import javax.swing.JComponent;
                     roadX = scaledVertRoadX;
                     roadY = scaledVertRoadY;
                 }
-            } else {
+            }
+            else
+            {
                 if ((c % 2) != ((r/2) % 2))
                 {
                     // "/"
@@ -3891,11 +3952,15 @@ import javax.swing.JComponent;
                     {
                         roadX = scaledUpRoadX;
                         roadY = scaledUpRoadY;
-                    } else {
+                    }
+                    else
+                    {
                         hx += (halfdeltaX / 2);
                         hy -= halfdeltaY;
                     }
-                } else {
+                }
+                else
+                {
                     // "\"
                     hx = halfdeltaX * c;
                     hy = halfdeltaY * (r-1);  // offset: scaledDownRoadY is bottom of hex, not upper corner
@@ -3903,7 +3968,9 @@ import javax.swing.JComponent;
                     {
                         roadX = scaledDownRoadX;
                         roadY = scaledDownRoadY;
-                    } else {
+                    }
+                    else
+                    {
                         hx += (halfdeltaX / 2);
                         hy += halfdeltaY;
                     }
@@ -4022,7 +4089,9 @@ import javax.swing.JComponent;
             g.fillPolygon(scaledCityX, scaledCityY, 8);
             g.setColor(Color.black);
             g.drawPolygon(scaledCityX, scaledCityY, 8);
-        } else {
+        }
+        else
+        {
             // settlement
 
             if (! outlineOnly)
@@ -4079,7 +4148,9 @@ import javax.swing.JComponent;
                      1.5f, dash, hexPartWidth * 0.1f));
             if (co == null)
                 co = playerInterface.getPlayerColor(playerNumber);
-        } else {
+        }
+        else
+        {
             prevStroke = null;
             if (co == null)
                 co = playerInterface.getPlayerColor(playerNumber, true);
@@ -4346,7 +4417,9 @@ import javax.swing.JComponent;
                     final TextLayout tl
                         = new TextLayout("1234567890", arrowDiceFont, ((Graphics2D) g).getFontRenderContext());
                     arrowDiceHeight = (int) tl.getBounds().getHeight();
-                } else {
+                }
+                else
+                {
                     arrowDiceHeight = g.getFontMetrics().getAscent();  // usually taller than actual height of digits
                 }
             }
@@ -4582,7 +4655,9 @@ import javax.swing.JComponent;
             {
                 drawRoadOrShip(g, rs.getCoordinates(), rs.getPlayerNumber(), false, ! (rs instanceof SOCShip), false);
             }
-        } else {
+        }
+        else
+        {
             for (int pn = 0; pn < game.maxPlayers; ++pn)
             {
                 final SOCPlayer pl = game.getPlayer(pn);
@@ -4806,7 +4881,9 @@ import javax.swing.JComponent;
             {
                 prevComposite = ((Graphics2D) g).getComposite();
                 ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f));
-            } else {
+            }
+            else
+            {
                 prevComposite = null;
             }
             drawHex(g, px, py, -portItem.itype, landFacing, -1);
@@ -4819,7 +4896,9 @@ import javax.swing.JComponent;
         {
             prevStroke = ((Graphics2D) g).getStroke();
             ((Graphics2D) g).setStroke(new BasicStroke(2.5f));
-        } else {
+        }
+        else
+        {
             prevStroke = null;
         }
 
@@ -4858,7 +4937,9 @@ import javax.swing.JComponent;
         {
             landHexShow = ((SOCBoardLarge) board).getLandHexCoordsSet();
             SC_6 = scaleToActual(6);
-        } else {
+        }
+        else
+        {
             landHexShow = null;  // almost always null, unless debugging large board
             SC_6 = 0;            // unused unless debugging large board
         }
@@ -4906,7 +4987,9 @@ import javax.swing.JComponent;
                 hyMax = panelMinBH +
                     ((panelMarginX <= 0) ? 0 : scaleFromActual(panelMarginX));
                 isRowOffset = (1 == (nTopRows % 2));
-            } else {
+            }
+            else
+            {
                 hxMin =
                     (panelMarginX <= 0) ? 0 : deltaX * (int) Math.floor(-scaleFromActual(panelMarginX) / (float) deltaX);
                 hxMax =
@@ -4940,7 +5023,9 @@ import javax.swing.JComponent;
                 if ((inactiveHexNums == null) || ! inactiveHexNums[i])
                     drawHex(g, i);
 
-        } else {
+        }
+        else
+        {
             // Large Board has a rectangular array of hexes.
             // (r,c) are board coordinates.
             // (x,y) are unscaled board-pixel coordinates.
@@ -4979,7 +5064,9 @@ import javax.swing.JComponent;
                 {
                     c = 1;  // odd hex rows start at 1
                     x = 0;
-                } else {
+                }
+                else
+                {
                     c = 2;  // top row, even rows start at 2
                     x = halfdeltaX;
                 }
@@ -5105,7 +5192,9 @@ import javax.swing.JComponent;
             final float[] dash = { hexPartWidth * 0.2f, hexPartWidth * 0.3f };  // length of dash/break
             ((Graphics2D) g).setStroke
                 (new BasicStroke(2.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 2.5f, dash, 0.8f));
-        } else {
+        }
+        else
+        {
             prevStroke = null;
         }
 
@@ -5365,7 +5454,9 @@ import javax.swing.JComponent;
                        scaleToActual(x + 10 - off2), scaleToActual(y - 6 - offset));
             g.drawLine(scaleToActual(x - 10 + off2), scaleToActual(y + 6 + offset),
                        scaleToActual(x + 10 + off2), scaleToActual(y - 6 + offset));
-        } else {
+        }
+        else
+        {
             // road is "\"
             g.drawLine(scaleToActual(x + 10 + off2), scaleToActual(y + 6 - offset),
                        scaleToActual(x - 10 + off2), scaleToActual(y - 6 - offset));
@@ -5540,7 +5631,9 @@ import javax.swing.JComponent;
                     hexNum = hexIDtoNum[nodeNum - 0x20 + 0x02 + 0x10];
                     hx = hexX[hexNum];
                     hy = hexY[hexNum] + 17 + (2 * deltaY);
-                } else {
+                }
+                else
+                {
                     hexNum = hexIDtoNum[nodeNum + 0x10];
                     hx = hexX[hexNum];
                     hy = hexY[hexNum] + 17;
@@ -5562,7 +5655,9 @@ import javax.swing.JComponent;
                     hexNum = hexIDtoNum[nodeNum - 0x01];
                     hx = hexX[hexNum] + halfdeltaX;
                     hy = hexY[hexNum] + 2;
-                } else {
+                }
+                else
+                {
                     // this node's hex would be off the southwest edge of the board.
                     // shift 1 hex to the east, then subtract from x.
                     hexNum = hexIDtoNum[nodeNum + 0x22 - 0x01];
@@ -5570,8 +5665,9 @@ import javax.swing.JComponent;
                     hy = hexY[hexNum] + 2;
                 }
             }
-
-        } else {
+        }
+        else
+        {
             // isLargeBoard
 
             final int r = (nodeNum >> 8),
@@ -5741,10 +5837,14 @@ import javax.swing.JComponent;
                     {
                         mode = SC_FTRI_PLACE_PORT;
                         repaint();
-                    } else {
+                    }
+                    else
+                    {
                         mode = NONE;
                     }
-                } else {
+                }
+                else
+                {
                     switch(player.getPieces().size())
                     {
                     case 1:
@@ -5815,7 +5915,9 @@ import javax.swing.JComponent;
                     {
                         mode = SC_FTRI_PLACE_PORT;
                         repaint();
-                    } else {
+                    }
+                    else
+                    {
                         mode = NONE;
                     }
                     break;
@@ -5840,7 +5942,8 @@ import javax.swing.JComponent;
                         if (no7roundsleft == 0)
                         {
                             topText = strings.get("board.msg.n7.last.round");  // "Last round for "No 7s""
-                        } else if (no7roundsleft > 0)
+                        }
+                        else if (no7roundsleft > 0)
                         {
                             if (playerInterface.clientIsCurrentPlayer()
                               && playerInterface.getClientHand().isClientAndCurrentlyCanRoll())
@@ -5914,7 +6017,9 @@ import javax.swing.JComponent;
             hoverTip.setHoverText_modeChangedOrMouseMoved = true;
             hoverTip.setHoverText(null, 0);
             hoverTip.setOffsetX(HOVER_OFFSET_X_FOR_INIT_PLACE);
-        } else {
+        }
+        else
+        {
             hoverTip.setHoverText_modeChangedOrMouseMoved = true;
             hoverTip.setHoverText(null, 0);
         }
@@ -6030,7 +6135,9 @@ import javax.swing.JComponent;
         if (lse != null)
         {
             flushBoardLayoutAndRepaint();
-        } else {
+        }
+        else
+        {
             // check if any debugShowPotentials flags are set, which are per-player
             boolean any = false;
             for (boolean debugShowPotential : debugShowPotentials)
@@ -6081,7 +6188,6 @@ import javax.swing.JComponent;
      *********************************/
     public void mouseEntered(MouseEvent e)
     {
-        ;
     }
 
     /**
@@ -6091,7 +6197,7 @@ import javax.swing.JComponent;
      */
     public void mousePressed(MouseEvent e)
     {
-        ;  // JM: was mouseClicked (moved to avoid conflict with e.isPopupTrigger)
+        // JM: was mouseClicked (moved to avoid conflict with e.isPopupTrigger)
         mouseReleased(e);  // JM 2008-01-01 testing for MacOSX popup-trigger
     }
 
@@ -6111,7 +6217,9 @@ import javax.swing.JComponent;
                 e.consume();
                 doBoardMenuPopup(e.getX(), e.getY());
             }
-        } catch (Throwable th) {
+        }
+        catch (Throwable th)
+        {
             playerInterface.chatPrintStackTrace(th);
         }
     }
@@ -6123,7 +6231,6 @@ import javax.swing.JComponent;
      */
     public void mouseDragged(MouseEvent e)
     {
-        ;
     }
 
     /**
@@ -6202,7 +6309,9 @@ import javax.swing.JComponent;
                         edgeNum = -edgeNum;
                         if ((player != null) && game.canPlaceShip(player, edgeNum))
                             isShip = true;
-                    } else {
+                    }
+                    else
+                    {
                         // check potential roads, not ships, to keep it false if coastal edge
                         isShip = ((player != null) && ! player.isPotentialRoad(edgeNum));
                     }
@@ -6228,7 +6337,9 @@ import javax.swing.JComponent;
                         {
                             String blank = (edgeNum != 0) ? "" : null;    // "" shows tip, null hides it.
                             hoverTip.setHoverText(blank, edgeNum, x, y);  // also repaints
-                        } else {
+                        }
+                        else
+                        {
                             repaint();
                         }
                     }
@@ -6266,7 +6377,9 @@ import javax.swing.JComponent;
                         edgeNum = -edgeNum;
                         isShip = canPlaceShip
                             || ((mode == PLACE_FREE_ROAD_OR_SHIP) && hasShips && player.isPotentialShip(edgeNum));
-                    } else {
+                    }
+                    else
+                    {
                         isShip = false;
                     }
 
@@ -6284,7 +6397,9 @@ import javax.swing.JComponent;
                             if (! player.isPotentialShipMoveTo(edgeNum, moveShip_fromEdge))
                             {
                                 edgeNum = 0;
-                            } else {
+                            }
+                            else
+                            {
                                 // Check edgeNum vs pirate hex:
                                 final SOCBoardLarge bL = (SOCBoardLarge) board;
                                 final int ph = bL.getPirateHex();
@@ -6304,7 +6419,9 @@ import javax.swing.JComponent;
                                     isShip = (player != null) && canPlaceShip
                                         && ! player.isPotentialRoad(edgeNum);
                                 }
-                            } else {
+                            }
+                            else
+                            {
                                 edgeNum = 0;
                             }
                         }
@@ -6318,7 +6435,9 @@ import javax.swing.JComponent;
                         {
                             String blank = (edgeNum != 0) ? "" : null;    // "" shows tip, null hides it.
                             hoverTip.setHoverText(blank, edgeNum, x, y);  // also repaints
-                        } else {
+                        }
+                        else
+                        {
                             repaint();
                         }
                     }
@@ -6390,7 +6509,9 @@ import javax.swing.JComponent;
                         {
                             String blank = (nodeNum != 0) ? "" : null;    // "" shows tip, null hides it.
                             hoverTip.setHoverText(blank, nodeNum, x, y);  // also repaints
-                        } else {
+                        }
+                        else
+                        {
                             repaint();
                         }
                     }
@@ -6424,7 +6545,9 @@ import javax.swing.JComponent;
                         {
                             String blank = (edgeNum != 0) ? "" : null;    // "" shows tip, null hides it.
                             hoverTip.setHoverText(blank, edgeNum, x, y);  // also repaints
-                        } else {
+                        }
+                        else
+                        {
                             repaint();
                         }
                     }
@@ -6459,7 +6582,9 @@ import javax.swing.JComponent;
                             {
                                 hoverTip.setHoverText(strings.get("board.robber.not.here"), hexNum);
                                     // "Cannot move the robber here."
-                            } else {
+                            }
+                            else
+                            {
                                 hoverTip.setHoverText(null, 0);  // clear any previous
                             }
 
@@ -6500,13 +6625,17 @@ import javax.swing.JComponent;
                     {
                         edgeNum = 0;
                         edgeNeg1 = true;
-                    } else {
+                    }
+                    else
+                    {
                         edgeNeg1 = false;
                     }
                     if (! game.canPlacePort(player, edgeNum))
                     {
                         edgeNum = 0;  // not valid for placement
-                    } else {
+                    }
+                    else
+                    {
                         if (edgeNeg1)
                             edgeNum = -1;
                     }
@@ -6519,7 +6648,9 @@ import javax.swing.JComponent;
                     {
                         String blank = (edgeNum != 0) ? "" : null;    // "" shows tip, null hides it.
                         hoverTip.setHoverText(blank, edgeNum, x, y);  // also repaints
-                    } else {
+                    }
+                    else
+                    {
                         repaint();
                     }
                 }
@@ -6647,7 +6778,9 @@ import javax.swing.JComponent;
                 break;
 
             }
-        } catch (Throwable th) {
+        }
+        catch (Throwable th)
+        {
             playerInterface.chatPrintStackTrace(th);
         }
     }
@@ -6776,7 +6909,9 @@ import javax.swing.JComponent;
                             && ((SOCBoardLarge) board).canRemovePort(hilight))
                         {
                             java.awt.EventQueue.invokeLater(new ConfirmPlaceShipDialog(hilight, false, -1));
-                        } else {
+                        }
+                        else
+                        {
                             messageSender.putPiece(game, new SOCShip(player, hilight, board));
 
                             // Now that we've placed, clear the mode and the hilight.
@@ -6834,7 +6969,9 @@ import javax.swing.JComponent;
                             && ((SOCBoardLarge) board).canRemovePort(hilight))
                         {
                             java.awt.EventQueue.invokeLater(new ConfirmPlaceShipDialog(hilight, false, -1));
-                        } else {
+                        }
+                        else
+                        {
                             messageSender.putPiece(game, new SOCShip(player, hilight, board));
                             clearModeAndHilight(SOCPlayingPiece.SHIP);
                         }
@@ -7013,7 +7150,9 @@ import javax.swing.JComponent;
             if (tempChangedMode)
                 mode = NONE;
 
-        } catch (Throwable th) {
+        }
+        catch (Throwable th)
+        {
             playerInterface.chatPrintStackTrace(th);
         }
     }
@@ -7087,7 +7226,9 @@ import javax.swing.JComponent;
                 else
                     hilightShip =
                       (player.isLegalShip(edge)) ? edge : 0;
-            } else {
+            }
+            else
+            {
                 hilightRoad = hoverTip.hoverRoadID;
                 hilightShip = 0;
             }
@@ -7212,7 +7353,9 @@ import javax.swing.JComponent;
                     java.awt.EventQueue.invokeLater
                         (new ConfirmPlaceShipDialog(moveShip_toEdge, false, moveShip_fromEdge));
                     clearMode = false;
-                } else {
+                }
+                else
+                {
                     playerInterface.getClient().getGameMessageSender().movePieceRequest
                         (game, playerNumber, SOCPlayingPiece.SHIP, moveShip_fromEdge, moveShip_toEdge);
                 }
@@ -7359,7 +7502,9 @@ import javax.swing.JComponent;
                     edgeX = (yrel * halfdeltaX) / halfdeltaY;
                     hexLeft = board.getAdjacentHexToEdge(edge, SOCBoard.FACING_SW);
                     hexRight = board.getAdjacentHexToEdge(edge, SOCBoard.FACING_NE);
-                } else {
+                }
+                else
+                {
                     // edge is "/".
                     // check x=((h-y)/h)*w
                     //  which is ((h-y)*w) / h
@@ -7393,7 +7538,9 @@ import javax.swing.JComponent;
             if ((secY % 3) != 0)
                 x += 8;  // middle part of hex: adjust sector boundary
             secX = (x - HEXX_OFF_6PL) / 27;
-        } else {
+        }
+        else
+        {
             secY = y / 15;
             if ((secY % 3) != 0)
                 x += 8;  // middle part of hex: adjust sector boundary
@@ -7440,7 +7587,9 @@ import javax.swing.JComponent;
         {
             secX = ((x + 13 - HEXX_OFF_6PL) / 27);
             secY = ((y + 7 - HEXY_OFF_6PL_FIND) / 15);
-        } else {
+        }
+        else
+        {
             secX = ((x + 13) / 27);
             secY = ((y + 7) / 15);
         }
@@ -7484,7 +7633,9 @@ import javax.swing.JComponent;
         {
             secX = (x - HEXX_OFF_6PL) / 27;
             secY = (y - HEXY_OFF_6PL_FIND) / 15;
-        } else {
+        }
+        else
+        {
             secX = x / 27;
             secY = y / 15;
         }
@@ -7674,7 +7825,9 @@ import javax.swing.JComponent;
         if (wantsRotated)
         {
             numHexImage = 8;
-        } else {
+        }
+        else
+        {
             numHexImage = 10;
             newHexes[7] = tk.getImage(clazz.getResource(imageDir + "/goldHex.gif"));
             newHexes[8] = tk.getImage(clazz.getResource(imageDir + "/fogHex.gif"));
@@ -8290,7 +8443,9 @@ import javax.swing.JComponent;
                                 pieceExtraDesc = (SOCPlayerClient.IS_PLATFORM_MAC_OSX)
                                     ? "board.sc_piri.pf_extra.attack.osx"  // ". Control-click to attack this fortress."
                                     : "board.sc_piri.pf_extra.attack";     // ". Right-click to attack this fortress."
-                            } else {
+                            }
+                            else
+                            {
                                 pieceExtraDesc = "board.sc_piri.pf_extra.build";
                                     // ". To attack this fortress, build ships to it."
                             }
@@ -8313,7 +8468,9 @@ import javax.swing.JComponent;
                          && (debugPP || player.getResources().contains(SOCCity.COST)))
                     {
                         hoverCityID = id;
-                    } else {
+                    }
+                    else
+                    {
                         hoverCityID = 0;
                     }
                     hoverSettlementID = 0;
@@ -8517,7 +8674,9 @@ import javax.swing.JComponent;
                         if (isRoad)
                         {
                             setHoverText(strings.get("board.road", plName), id);  // "Road: " + plName
-                        } else {
+                        }
+                        else
+                        {
                             // Scenario _SC_PIRI has warships; check class just in case.
                             hoverIsWarship = (rs instanceof SOCShip) && game.isShipWarship((SOCShip) rs);
                             if (hoverIsWarship)
@@ -8559,7 +8718,9 @@ import javax.swing.JComponent;
                                     id = -id;
                                     isShip = canPlaceShip;
                                 }
-                            } else {
+                            }
+                            else
+                            {
                                 isShip = canPlaceShip;
                             }
                         }
@@ -8623,7 +8784,9 @@ import javax.swing.JComponent;
                 {
                     // Already looking at a port at this coordinate.
                     positionToMouse(x, y);
-                } else {
+                }
+                else
+                {
                     String portText = strings.get(portDescAtNode(nodePortCoord), nodePortType);
 
                     if (isLargeBoard && game.isGameOptionSet(SOCGameOption.K_SC_FTRI))
@@ -8698,7 +8861,9 @@ import javax.swing.JComponent;
                         if (isLargeBoard)
                         {
                             hname = "board.hex.gold";
-                        } else {
+                        }
+                        else
+                        {
                             // GOLD_HEX is also MISC_PORT_HEX
                             hid = SOCBoard.MISC_PORT;
                             hname = SOCBoard.getPortDescForType(hid, false);
@@ -8713,7 +8878,9 @@ import javax.swing.JComponent;
                                 hname = "board.hex.fog.s";  // "Fog (place ships or settlements to reveal)"
                             else
                                 hname = "board.hex.fog.r";  // "Fog (place ships or roads to reveal)"
-                        } else {
+                        }
+                        else
+                        {
                             // FOG_HEX is also CLAY_PORT_HEX
                             hid = SOCBoard.CLAY_PORT;
                             hname = SOCBoard.getPortDescForType(hid, false);
@@ -8734,7 +8901,9 @@ import javax.swing.JComponent;
                             if (portDesc != null)
                             {
                                 hname = portDesc;
-                            } else {
+                            }
+                            else
+                            {
                                 hid = htype;
                                 hname = "board.hex.generic";
                             }
@@ -8784,7 +8953,9 @@ import javax.swing.JComponent;
                 return;  // <--- Early return: Found hex ---
             }
 
-            } catch (ConcurrentModificationException e) {
+            }
+            catch (ConcurrentModificationException e)
+            {
                 handleHover(x, y, xb, yb);  // try again now
                 return;
             }
@@ -8981,7 +9152,9 @@ import javax.swing.JComponent;
                   buildShipItem.setLabel(strings.get("board.build.move.ship"));  // "Move Ship"
                   if (enable)
                       moveShip_toEdge = hilightAt;
-              } else {
+              }
+              else
+              {
                   buildShipItem.setEnabled(false);
                   buildShipItem.setLabel(strings.get("board.build.ship"));  // "Build Ship"
               }
@@ -9016,7 +9189,9 @@ import javax.swing.JComponent;
               {
                   cancelBuildItem.setLabel(strings.get("board.cancel.ship.move"));  // "Cancel ship move"
                   cancelBuildItem.setEnabled(true);
-              } else {
+              }
+              else
+              {
                   cancelBuildItem.setLabel(strings.get("board.cancel.ship"));  // "Cancel ship"
               }
               hoverShipID = hilightAt;
@@ -9190,7 +9365,9 @@ import javax.swing.JComponent;
                             hSh = -hSh;
                             buildShipItem.setLabel(strings.get("board.build.move.ship"));
                             buildShipItem.setEnabled(true);  // trust the caller's game checks
-                        } else {
+                        }
+                        else
+                        {
                             buildShipItem.setLabel(strings.get("board.build.ship"));
                             buildShipItem.setEnabled
                                 ( game.canPlaceShip(player, hSh) &&
@@ -9911,7 +10088,9 @@ import javax.swing.JComponent;
                 hoverTip.hoverShipID = edge;  // set field that tryBuild reads to send PutPiece message after BuildRequest
                 popupMenu.tryBuild(SOCPlayingPiece.SHIP);
                 hoverTip.hoverShipID = currentHover;
-            } else {
+            }
+            else
+            {
                 final GameMessageSender gms = md.getGameMessageSender();
                 if (isMove_fromEdge == -1)
                     gms.putPiece(game, new SOCShip(player, edge, board));

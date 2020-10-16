@@ -18,15 +18,18 @@
  *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
-package soc.server.genericServer;
+package soc.communication;
 
 import java.io.DataOutputStream;  // strictly for javadocs
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.MissingResourceException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import soc.game.SOCGame;  // strictly for passthrough in getLocalizedSpecial, and javadocs; not used otherwise
 import soc.message.SOCMessage;
+import soc.server.genericServer.*;
 import soc.util.SOCStringManager;
 
 /**
@@ -61,7 +64,7 @@ import soc.util.SOCStringManager;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public abstract class Connection
+public abstract class Connection implements Runnable
 {
     /**
      * Because subclass {@link NetConnection}'s connection protocol uses {@link DataOutputStream#writeUTF(String)},
@@ -83,6 +86,12 @@ public abstract class Connection
      * Before v1.2.0, this field was an Object and could contain any arbitrary key data.
      */
     protected String data;
+
+    /** Active connection, server has called accept, and not disconnected yet */
+    protected AtomicBoolean accepted = new AtomicBoolean( false );
+
+    protected AtomicBoolean in_reachedEOF = new AtomicBoolean( false );
+    protected AtomicBoolean out_setEOF = new AtomicBoolean( false );
 
     /**
      * The arbitrary app-specific data associated with this connection, or {@code null}.
@@ -136,11 +145,9 @@ public abstract class Connection
      */
     protected boolean hideTimeoutMessage;
 
-    /**
-     * Is set if server-side. Notifies at EOF (calls removeConnection).
-     * Messages from client will go into ourServer's {@link InboundMessageQueue}.
-     */
-    protected Server ourServer;
+    protected LinkedBlockingQueue<SOCMessage> waitQueue = new LinkedBlockingQueue<>(  );
+
+    protected SOCMessageDispatcher messageDispatcher;
 
     /** Any error encountered, or {@code null} */
     protected Exception error;
@@ -151,48 +158,48 @@ public abstract class Connection
      */
     protected Date connectTime = new Date();
 
+    private Thread myRunner;
+
+
+    //--- abstract method declarations
+
+    /**
+     * Intended for server or server proxy to call: Set our accepted flag.
+     * Peer must be non-null to set accepted.
+     * If our EOF is set, will not set accepted, but will not throw exception.
+     * (This happens if the server socket closes while we're in its accept queue.)
+     *
+     * @throws IllegalStateException If we can't be, or already are, accepted
+     */
+    public abstract void setAccepted() throws IllegalStateException;
+
+    /**
+     * Is input available now, without blocking?
+     * Same idea as {@link java.io.DataInputStream#available()}.
+     * @since 1.0.5
+     */
+    public abstract boolean isInputAvailable();
+
     /**
      * @return Hostname of the remote end of the connection
      */
-    public abstract String host();
+    public abstract String getHost();
 
     /**
-     * Send data over the connection.
-     *<P>
-     * <B>Threads:</B> Each implementation must be safe to call from any thread,
-     * and synchronize itself on an appropriate object or field.
-     *
-     * @param str Data to send, from {@link SOCMessage#toCmd()}
-     *
-     * @throws IllegalStateException if not yet accepted by server
-     */
-    public abstract void put(String str)
-        throws IllegalStateException;
-
-    /**
-     * Send a message over the connection.
+     * Send a message to the other side of the connection.
      *<P>
      * <B>Threads:</B> Safe to call from any thread.
      *
-     * @param msg  Message to send. Calls <tt>{@link #put(String) put}(msg.{@link SOCMessage#toCmd() toCmd()})</tt>.
+     * @param socMessage  Message to send.
      * @throws IllegalArgumentException if {@code msg} is {@code null}
      * @throws IllegalStateException if not yet accepted by server
      * @since 2.1.00
      */
-    public void put(SOCMessage msg)
-        throws IllegalArgumentException, IllegalStateException
-    {
-        if (msg == null)
-            throw new IllegalArgumentException("null");
+    public abstract void send(SOCMessage socMessage)
+        throws IllegalArgumentException, IllegalStateException;
 
-        put(msg.toCmd());
-    }
-
-    /** For server-side thread which reads and treats incoming messages */
+    /** For thread which reads and handles incoming messages */
     public abstract void run();
-
-    /** Are we currently connected and active? */
-    public abstract boolean isConnected();
 
     /**
      * Start ability to read from the net; called only by the server framework's
@@ -205,6 +212,9 @@ public abstract class Connection
      */
     public abstract boolean connect();
 
+    /** Are we currently connected and active? */
+    public abstract boolean isConnected();
+
     /** Close the socket, set EOF; called after conn is removed from server structures */
     public abstract void disconnect();
 
@@ -215,6 +225,59 @@ public abstract class Connection
      * @since 1.0.3
      */
     public abstract void disconnectSoft();
+
+
+     //--- concrete public methods
+
+    /**
+     * Start the internal thread that calls the server when new messages arrive.
+     *
+     * @param dispatcher class which handles incoming messages from the {@code waitQueue}
+     */
+    public void startMessageProcessing( SOCMessageDispatcher dispatcher )
+    {
+        messageDispatcher = dispatcher;
+        myRunner = new Thread( this );
+        myRunner.start();
+    }
+
+    public void stopMessageProcessing()
+    {
+        disconnectSoft();
+        myRunner.interrupt();
+    }
+
+    //--- getter/setter pairs
+
+    /**
+     * Is currently accepted by a server
+     *
+     * setter is abstract
+     *
+     * @return Are we currently connected, accepted, and ready to send/receive data?
+     */
+    public boolean isAccepted()
+    {
+        return accepted.get();
+    }
+
+    /**
+     * Have we received an EOF marker inbound?
+     */
+    public boolean isInEOF()
+    {
+        return in_reachedEOF.get();
+    }
+
+    /**
+     * Have we closed our outbound side?
+     *
+     * @see #setEOF()
+     */
+    public boolean isOutEOF()
+    {
+        return out_setEOF.get();
+    }
 
     /**
      * The optional name key used to name this connection.
@@ -228,19 +291,6 @@ public abstract class Connection
     public String getData()
     {
         return data;
-    }
-
-    /**
-     * The optional app-specific changeable data for this connection.
-     * Not used anywhere in the generic server, only in your app.
-     *
-     * @return The app-specific data for this connection.
-     * @see #getData()
-     * @since 1.0.4
-     */
-    public Object getAppData()
-    {
-        return appData;
     }
 
     /**
@@ -261,6 +311,19 @@ public abstract class Connection
     public void setData(String data)
     {
         this.data = data;
+    }
+
+    /**
+     * The optional app-specific changeable data for this connection.
+     * Not used anywhere in the generic server, only in your app.
+     *
+     * @return The app-specific data for this connection.
+     * @see #getData()
+     * @since 1.0.4
+     */
+    public Object getAppData()
+    {
+        return appData;
     }
 
     /**
@@ -444,14 +507,8 @@ public abstract class Connection
      */
     public void setVersion(final int version, final boolean isKnown)
     {
-        final int prevVers = remoteVersion;
         remoteVersion = version;
         remoteVersionKnown = isKnown;
-        if (remoteVersionTrack && (ourServer != null) && (prevVers != version))
-        {
-            ourServer.clientVersionRem(prevVers);
-            ourServer.clientVersionAdd(version);
-        }
     }
 
     /**
@@ -482,13 +539,6 @@ public abstract class Connection
     }
 
     /**
-     * Is input available now, without blocking?
-     * Same idea as {@link java.io.DataInputStream#available()}.
-     * @since 1.0.5
-     */
-    public abstract boolean isInputAvailable();
-
-    /**
      * If client connection times out at server, should the server not print a message to console?
      * This would be desired, for instance, in automated clients, which would reconnect
      * if they become disconnected.
@@ -512,5 +562,4 @@ public abstract class Connection
     {
         hideTimeoutMessage = wantsHide;
     }
-
 }

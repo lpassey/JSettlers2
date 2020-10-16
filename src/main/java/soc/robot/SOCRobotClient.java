@@ -24,6 +24,7 @@ package soc.robot;
 import soc.baseclient.ServerConnectInfo;
 import soc.baseclient.SOCDisplaylessPlayerClient;
 
+import soc.communication.Connection;
 import soc.disableDebug.D;
 
 import soc.game.SOCGame;
@@ -40,11 +41,6 @@ import soc.util.DebugRecorder;
 import soc.util.SOCFeatureSet;
 import soc.util.SOCRobotParameters;
 import soc.util.Version;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-
-import java.net.Socket;
 
 import java.util.Hashtable;
 import java.util.List;
@@ -210,7 +206,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     /**
      * the thread that reads incoming messages
      */
-    private Thread readerRobot;
+//    private Thread readerRobot;
 
     /**
      * the current robot parameters for robot brains
@@ -301,7 +297,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     public SOCRobotClient(final ServerConnectInfo sci, final String nn, final String pw)
         throws IllegalArgumentException
     {
-        super(sci, false);
+        super(sci, null );
 
         gamesPlayed = 0;
         gamesFinished = 0;
@@ -317,7 +313,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             {
                 testQuitAtJoinreqPercent = Integer.parseInt(val);
             }
-            catch (NumberFormatException e) {}
+            catch (NumberFormatException ignored ) {}
     }
 
     /**
@@ -351,18 +347,15 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         {
             if (serverConnectInfo.stringSocketName == null)
             {
-                sock = new Socket(serverConnectInfo.hostname, serverConnectInfo.port);
-                sock.setSoTimeout(300000);
-                in = new DataInputStream(sock.getInputStream());
-                out = new DataOutputStream(sock.getOutputStream());
+                connection = StringServerSocket.connectTo( "TCP_SERVER" );
             }
             else
             {
-                sLocal = StringServerSocket.connectTo(serverConnectInfo.stringSocketName);
+                connection = StringServerSocket.connectTo(serverConnectInfo.stringSocketName);
             }
+            connection.setData( nickname );
+            connection.startMessageProcessing( this );
             connected = true;
-            readerRobot = new Thread(this);
-            readerRobot.start();
 
             if (cliFeats == null)
             {
@@ -374,9 +367,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
             //resetThread = new SOCRobotResetThread(this);
             //resetThread.start();
-            put(SOCVersion.toCmd
-                (Version.versionNumber(), Version.version(), Version.buildnum(), cliFeats.getEncodedList(), null));
-            put(SOCImARobot.toCmd(nickname, serverConnectInfo.robotCookie, rbclass));
+            connection.send( new SOCVersion( Version.versionNumber(), Version.version(), Version.buildnum(),
+                                cliFeats.getEncodedList(), null ));
+            connection.send( new SOCImARobot( nickname, serverConnectInfo.robotCookie, rbclass ));
         }
         catch (Exception e)
         {
@@ -401,27 +394,28 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             try
             {
                 connected = false;
-                if (serverConnectInfo.stringSocketName == null)
+//                if (serverConnectInfo.stringSocketName == null)
+//                {
+//                    sock.close();
+//                    sock = new Socket(serverConnectInfo.hostname, serverConnectInfo.port);
+//                    in = new DataInputStream(sock.getInputStream());
+//                    out = new DataOutputStream(sock.getOutputStream());
+//                }
+//                else
                 {
-                    sock.close();
-                    sock = new Socket(serverConnectInfo.hostname, serverConnectInfo.port);
-                    in = new DataInputStream(sock.getInputStream());
-                    out = new DataOutputStream(sock.getOutputStream());
-                }
-                else
-                {
-                    sLocal.disconnect();
-                    sLocal = StringServerSocket.connectTo(serverConnectInfo.stringSocketName);
+                    connection.disconnect();
+                    connection = StringServerSocket.connectTo(serverConnectInfo.stringSocketName);
+                    connection.setData( nickname  );
+                    connection.startMessageProcessing( this );
                 }
                 connected = true;
-                readerRobot = new Thread(this);
-                readerRobot.start();
 
                 //resetThread = new SOCRobotResetThread(this);
                 //resetThread.start();
-                put(SOCVersion.toCmd
-                    (Version.versionNumber(), Version.version(), Version.buildnum(), cliFeats.getEncodedList(), null));
-                put(SOCImARobot.toCmd(nickname, serverConnectInfo.robotCookie, SOCImARobot.RBCLASS_BUILTIN));
+                connection.send( new SOCVersion(Version.versionNumber(), Version.version(),
+                    Version.buildnum(), cliFeats.getEncodedList(), null));
+                connection.send( new SOCImARobot(nickname, serverConnectInfo.robotCookie,
+                    SOCImARobot.RBCLASS_BUILTIN));
 
                 break;  // <--- Exit attempt-loop ---
             }
@@ -518,10 +512,11 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * and doesn't appear as a specific case in this method's switch,
      * this method calls {@link SOCDisplaylessPlayerClient#treat(SOCMessage)} for it.
      *
-     * @param mes    the message
+     * @param mes A generic SOCMessage to be handled. This method must figure out
+     *                   what kind of message it is to dispatch it correctly
      */
     @Override
-    public void treat(SOCMessage mes)
+    public void dispatch(SOCMessage mes, Connection connection)
     {
         if (mes == null)
             return;  // Message syntax error or unknown type
@@ -586,10 +581,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                 // calling ourself is safe, because
                 //  ! queue.isEmpty; thus won't decide
                 //  to set debugRandomPauseActive=true again.
-                treat(debugRandomPauseQueue.firstElement());
+                dispatch(debugRandomPauseQueue.firstElement(), null );
                 debugRandomPauseQueue.removeElementAt(0);
             }
-
             // Don't return from this method yet,
             // we still need to process mes.
         }
@@ -638,7 +632,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
              * join game authorization
              */
             case SOCMessage.JOINGAMEAUTH:
-                handleJOINGAMEAUTH((SOCJoinGameAuth) mes, (sLocal != null));
+                handleJOINGAMEAUTH((SOCJoinGameAuth) mes, (connection != null));
                 break;
 
             /**
@@ -720,7 +714,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
              * Added 2013-09-04 for v1.1.19.
              */
             case SOCMessage.SIMPLEACTION:
-                super.handleSIMPLEACTION(games, (SOCSimpleAction) mes);
+                handleSIMPLEACTION(games, (SOCSimpleAction) mes);
                 handlePutBrainQ((SOCSimpleAction) mes);
                 break;
 
@@ -731,7 +725,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
              */
             case SOCMessage.INVENTORYITEMACTION:
                 {
-                    final boolean isReject = super.handleINVENTORYITEMACTION
+                    final boolean isReject = handleINVENTORYITEMACTION
                         (games, (SOCInventoryItemAction) mes);
                     if (isReject)
                         handlePutBrainQ((SOCInventoryItemAction) mes);
@@ -743,7 +737,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
              * Added 2014-04-16 for v2.0.00.
              */
             case SOCMessage.SETSPECIALITEM:
-                super.handleSETSPECIALITEM(games, (SOCSetSpecialItem) mes);
+                handleSETSPECIALITEM(games, (SOCSetSpecialItem) mes);
                 handlePutBrainQ((SOCSetSpecialItem) mes);
                 break;
 
@@ -841,7 +835,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         }
         else
         {
-            put(SOCJoinGame.toCmd(nickname, password, SOCMessage.EMPTYSTR, mes.getGame()));
+            connection.send( new SOCJoinGame(nickname, password, SOCMessage.EMPTYSTR, mes.getGame()));
         }
     }
 
@@ -896,10 +890,10 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             System.err.println
                 (" -- " + nickname + " leaving at JoinGameRequest('" + gaName + "', " + mes.getPlayerNumber()
                  + "): " + PROP_JSETTLERS_BOTS_TEST_QUIT_AT_JOINREQ);
-            put(new SOCLeaveAll().toCmd());
+            connection.send( new SOCLeaveAll() );
 
-            try { Thread.sleep(200); } catch (InterruptedException e) {}  // wait for send/receive
-            disconnect();
+            try { Thread.sleep(200); } catch (InterruptedException ignored) {}  // wait for send/receive
+            connection.disconnect();
             return;  // <--- Disconnected from server ---
         }
 
@@ -908,7 +902,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             gameOptions.put(gaName, gaOpts);
 
         seatRequests.put(gaName, mes.getPlayerNumber() );
-        if (put(SOCJoinGame.toCmd(nickname, password, SOCMessage.EMPTYSTR, gaName)))
+        connection.send( new SOCJoinGame(nickname, password, SOCMessage.EMPTYSTR, gaName));
         {
             D.ebugPrintlnINFO("**** sent SOCJoinGame ****");
         }
@@ -931,7 +925,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             sv = 0;
         else if (sv == SOCStatusMessage.SV_SERVER_SHUTDOWN)
         {
-            disconnect();
+            connection.disconnect();
             return;
         }
 
@@ -982,7 +976,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
             SOCRobotBrain rb = createBrain(currentRobotParameters, ga, brainQ);
             robotBrains.put(gaName, rb);
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e)
+        {
             System.err.println
                 ("Sync error: Bot " + nickname + " can't join game " + gaName + ": " + e.getMessage());
             brainQs.remove(gaName);
@@ -1002,7 +998,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
          * sit down to play
          */
         Integer pn = seatRequests.get(mes.getGame());
-
+/*    why??
         try
         {
             //wait(Math.round(Math.random()*1000));
@@ -1011,11 +1007,13 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         {
             ;
         }
-
+*/
         if (pn != null)
         {
-            put(SOCSitDown.toCmd(mes.getGame(), SOCMessage.EMPTYSTR, pn, true));
-        } else {
+            connection.send( new SOCSitDown( mes.getGame(), SOCMessage.EMPTYSTR, pn, true));
+        }
+        else
+        {
             System.err.println("** Cannot sit down: Assert failed: null pn for game " + mes.getGame());
         }
     }
@@ -1071,7 +1069,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         {
             if (mes.getText().charAt(nL) != ':')
                 return;
-        } catch (IndexOutOfBoundsException e) {
+        }
+        catch (IndexOutOfBoundsException e)
+        {
             return;
         }
         final String gaName = mes.getGame();
@@ -1158,7 +1158,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
                     sendRecordsText(gaName, key, true);
                 }
-            } else {
+            }
+            else
+            {
                 sendText(games.get(gaName), HINT_SEND_DEBUG_ON_FIRST);
             }
         }
@@ -1229,7 +1231,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
                     sendRecordsText(gaName, key, false);
                 }
-            } else {
+            }
+            else
+            {
                 sendText(games.get(gaName), HINT_SEND_DEBUG_ON_FIRST);
             }
         }
@@ -1331,13 +1335,12 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
              * retrieve the proper face for our strategy
              */
             int faceId;
-            switch (brain.getRobotParameters().getStrategyType())
+            if (brain.getRobotParameters().getStrategyType() == SOCRobotDM.SMART_STRATEGY)
             {
-            case SOCRobotDM.SMART_STRATEGY:
                 faceId = -1;  // smarter robot face
-                break;
-
-            default:
+            }
+            else
+            {
                 faceId = 0;   // default robot face
             }
 
@@ -1347,7 +1350,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             /**
              * change our face to the robot face
              */
-            put(new SOCChangeFace(ga.getName(), pn, faceId).toCmd());
+            connection.send( new SOCChangeFace(ga.getName(), pn, faceId) );
         }
         else
         {
@@ -1434,11 +1437,13 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
             SOCGame ga = games.get(mes.getGame());
 
+/*
             if (ga != null)
             {
                 // SOCPlayer pl = ga.getPlayer(mes.getPlayerNumber());
                 // JDM TODO - Was this in stock client?
             }
+*/
         }
     }
 
@@ -1562,7 +1567,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         List<String> rbSta = brain.debugPrintBrainStatus();
         if (sendTextToGame)
             for (final String st : rbSta)
-                put(new SOCGameTextMsg(gameName, nickname, st).toCmd());
+                connection.send( new SOCGameTextMsg(gameName, nickname, st) );
         else
             for (final String st : rbSta)
                 System.err.println(st);
@@ -1601,7 +1606,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                 System.err.flush();
             }
 
-            put(SOCLeaveGame.toCmd(nickname, "-", gaName));
+            connection.send( new SOCLeaveGame(nickname, "-", gaName));
         }
     }
 
@@ -1620,7 +1625,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     public void destroy()
     {
         SOCLeaveAll leaveAllMes = new SOCLeaveAll();
-        put(leaveAllMes.toCmd());
+        connection.send( leaveAllMes );
         disconnectReconnect();
         if (ex != null)
             System.err.println("Reconnect to server failed: " + ex);

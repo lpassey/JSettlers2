@@ -19,12 +19,13 @@
  **/
 package soc.server;
 
+import soc.communication.Connection;
 import soc.game.SOCGame;
 import soc.game.SOCPlayer;
 import soc.message.SOCGameState;
 import soc.message.SOCMessageForGame;
 import soc.message.SOCRollDicePrompt;
-import soc.server.genericServer.Connection;
+
 import soc.util.SOCGameList;
 
 /**

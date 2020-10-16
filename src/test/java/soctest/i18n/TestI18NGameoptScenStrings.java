@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
@@ -34,11 +35,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import soc.communication.Connection;
 import soc.game.SOCGameOption;
 import soc.game.SOCScenario;
 import soc.message.SOCLocalizedStrings;
 import soc.message.SOCMessage;
-import soc.server.genericServer.Connection;
 import soc.util.SOCStringManager;
 
 /**
@@ -209,13 +210,11 @@ public class TestI18NGameoptScenStrings
             try
             {
                 final String smDesc = props.getString("gameopt." + opt.key);
-                if (smDesc != null)
-                {
-                    optsStr.add(smDesc);
-                    if (! SOCMessage.isSingleLineAndSafe(smDesc))
-                        optBadChar.add(opt.key);
-                }
-            } catch (MissingResourceException e) {}
+                optsStr.add(smDesc);
+                if (! SOCMessage.isSingleLineAndSafe(smDesc))
+                    optBadChar.add(opt.key);
+            }
+            catch (MissingResourceException e) {}
         }
 
         for (final SOCScenario sc : allScens.values())
@@ -224,13 +223,11 @@ public class TestI18NGameoptScenStrings
             try
             {
                 final String smDesc = props.getString("gamescen." + strKey);
-                if (smDesc != null)
-                {
-                    scenStr.add(smDesc);
-                    if (! SOCMessage.isSingleLineAndSafe(smDesc))
-                        scenBadChar.add(strKey);
-                }
-            } catch (MissingResourceException e) {}
+                scenStr.add(smDesc);
+                if (! SOCMessage.isSingleLineAndSafe(smDesc))
+                    scenBadChar.add(strKey);
+            }
+            catch (MissingResourceException e) {}
 
             final String longDesc = sc.getLongDesc();
             if (longDesc != null)
@@ -239,13 +236,10 @@ public class TestI18NGameoptScenStrings
                 try
                 {
                     final String smDesc = props.getString("gamescen." + strKey);
-                    if (smDesc != null)
-                    {
-                        scenStr.add(smDesc);
-                        if (smDesc.contains(SOCMessage.sep) || ! SOCMessage.isSingleLineAndSafe(smDesc, true))
-                            scenBadChar.add(strKey);
-                    }
-                } catch (MissingResourceException e) {}
+                    if (smDesc.contains(SOCMessage.sep) || ! SOCMessage.isSingleLineAndSafe(smDesc, true))
+                        scenBadChar.add(strKey);
+                }
+                catch (MissingResourceException e) {}
             }
         }
 
@@ -268,7 +262,7 @@ public class TestI18NGameoptScenStrings
         final int MAX = Connection.MAX_MESSAGE_SIZE_UTF8;  // alias for brevity
 
         String msg = new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_GAMEOPT, Integer.MAX_VALUE, optsStr).toCmd();
-        int L = msg.getBytes("utf-8").length;
+        int L = msg.getBytes( StandardCharsets.UTF_8 ).length;
         if (L > MAX)
         {
             allOK = false;
@@ -278,7 +272,7 @@ public class TestI18NGameoptScenStrings
         }
 
         msg = new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, Integer.MAX_VALUE, scenStr).toCmd();
-        L = msg.getBytes("utf-8").length;
+        L = msg.getBytes( StandardCharsets.UTF_8 ).length;
         if (L > MAX)
         {
             allOK = false;

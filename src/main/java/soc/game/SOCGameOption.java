@@ -794,7 +794,9 @@ public class SOCGameOption
                         pl.setIntValue(6);
                         refreshPl = true;
                     }
-                } else {
+                }
+                else
+                {
                     // PLB became unchecked
 
                     if (numPl > 4)
@@ -1517,7 +1519,9 @@ public class SOCGameOption
             if (vl == 0)
             {
                 v = null;
-            } else {
+            }
+            else
+            {
                 if (vl > maxIntValue)
                     v = v.substring(0, maxIntValue);
                 if (! SOCMessage.isSingleLineAndSafe(v))
@@ -1827,11 +1831,9 @@ public class SOCGameOption
     public static void setKnownOptionCurrentValue(SOCGameOption ocurr)
         throws IllegalArgumentException
     {
-        final String oKey = ocurr.key;
-
         synchronized (allOptions)
         {
-            final SOCGameOption oKnown = allOptions.get(oKey);
+            final SOCGameOption oKnown = allOptions.get(ocurr.key);
 
             if (oKnown == null)
                 return;
@@ -1882,7 +1884,9 @@ public class SOCGameOption
                 try
                 {
                     opts2.put(op.key, (SOCGameOption) op.clone());
-                } catch (CloneNotSupportedException ce) {
+                }
+                catch (CloneNotSupportedException ce)
+                {
                     // required, but not expected to happen
                     throw new IllegalStateException("Clone failed!", ce);
                 }
@@ -1919,7 +1923,9 @@ public class SOCGameOption
             try
             {
                 op = (SOCGameOption) op.clone();
-            } catch (CloneNotSupportedException ce) {
+            }
+            catch (CloneNotSupportedException ce)
+            {
                 // required, but not expected to happen
                 throw new IllegalStateException("Clone failed!", ce);
             }
@@ -2241,7 +2247,8 @@ public class SOCGameOption
             try
             {
                 copyOpt = (SOCGameOption) knownOpt.clone();
-            } catch (CloneNotSupportedException ce)
+            }
+            catch (CloneNotSupportedException ce)
             {
                 return null;
             }
@@ -2272,7 +2279,9 @@ public class SOCGameOption
                         return null;  // malformed
                     }
                     copyOpt.setBoolValue(bv);
-                } else {
+                }
+                else
+                {
                     return null;  // malformed
                 }
                 break;
@@ -2282,7 +2291,8 @@ public class SOCGameOption
                 try
                 {
                     copyOpt.setIntValue(Integer.parseInt(optval));
-                } catch (NumberFormatException e)
+                }
+                catch (NumberFormatException e)
                 {
                     return null;  // malformed
                 }
@@ -2314,7 +2324,8 @@ public class SOCGameOption
                     }
                     copyOpt.setBoolValue(bv);
                     copyOpt.setIntValue(Integer.parseInt(optval.substring(1)));
-                } catch (NumberFormatException e)
+                }
+                catch (NumberFormatException e)
                 {
                     return null;  // malformed
                 }
@@ -2516,7 +2527,9 @@ public class SOCGameOption
                     {
                         if (uopt.contains(opt))
                             continue;
-                    } else {
+                    }
+                    else
+                    {
                         uopt = new ArrayList<>();
                     }
 
@@ -2549,7 +2562,8 @@ public class SOCGameOption
                             opt = trimEnumForVersion(opt, vers);
                             changed = true;
                         }
-                    } else if (opt.maxIntValue != opt.minIntValue)
+                    }
+                    else if (opt.maxIntValue != opt.minIntValue)
                     {
                         // Possibly trim max int value. (OTYPE_INT, OTYPE_INTBOOL)
                         // OTYPE_* - Add here in comment if int-valued option type
@@ -2791,7 +2805,9 @@ public class SOCGameOption
                     if (sc == null)
                     {
                         unknownScenario = scKey;
-                    } else {
+                    }
+                    else
+                    {
                         // include this scenario's opts,
                         // overwriting any values for those
                         // opts if already in newOpts, except
@@ -2836,7 +2852,9 @@ public class SOCGameOption
             optProblems.append("SC: unknown scenario ");
             optProblems.append(unknownScenario);
             optProblems.append(". ");
-        } else {
+        }
+        else
+        {
             allKnown = true;  // might be set false in loop below
         }
 
@@ -2877,7 +2895,9 @@ public class SOCGameOption
                 optProblems.append(" != ");
                 optProblems.append(op.optType);
                 optProblems.append("). ");
-            } else {
+            }
+            else
+            {
                 // Clip int values, check default values, check dropIfUnused
 
                 if (knownOp.lastModVersion != op.lastModVersion)
@@ -3189,7 +3209,9 @@ public class SOCGameOption
             if (key.equals(oopt.key))
                 return 0;
             return desc.toLowerCase().compareTo(oopt.desc.toLowerCase());
-        } else {
+        }
+        else
+        {
             return hashCode() - other.hashCode();
         }
     }

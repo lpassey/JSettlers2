@@ -359,7 +359,9 @@ public class SOCInventory implements Cloneable, Serializable
         {
             isNew = false;
             clist = kept;
-        } else {
+        }
+        else
+        {
             isNew = (age == NEW);
             clist = (isNew) ? news : playables;
         }

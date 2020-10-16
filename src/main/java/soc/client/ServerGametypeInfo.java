@@ -208,7 +208,9 @@ import soc.message.SOCNewGameWithOptions;
         if ((optionSet == null) || optionSet.isEmpty())
         {
             optionSet = servOpts;
-        } else {
+        }
+        else
+        {
             prevKnown = new HashSet<>();
             for (String oKey : servOpts.keySet())
             {
@@ -251,7 +253,9 @@ import soc.message.SOCNewGameWithOptions;
             noMoreOptions(false);
 
             return true;
-        } else {
+        }
+        else
+        {
             // remove old, replace with new from server (if any)
 
             if (oldcopy != null)

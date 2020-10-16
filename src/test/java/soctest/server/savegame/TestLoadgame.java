@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import soc.communication.MemConnection;
+
 import soc.game.SOCBoard;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCDevCard;
@@ -47,7 +49,6 @@ import soc.game.SOCTradeOffer;
 import soc.message.SOCPlayerElement.PEType;
 import soc.server.SOCGameListAtServer;
 import soc.server.SOCServer;
-import soc.server.genericServer.StringConnection;
 import soc.server.savegame.GameLoaderJSON;
 import soc.server.savegame.SavedGameModel;
 import soc.server.savegame.SavedGameModel.PlayerInfo;
@@ -275,7 +276,7 @@ public class TestLoadgame
 
             // GameList membership required by findSeatsNeedingBots
             assertFalse(glas.isMember(pName, gaName));
-            StringConnection sc = new StringConnection();
+            MemConnection sc = new MemConnection();
             sc.setData(pName);
             glas.addMember(sc, gaName);
             assertTrue(glas.isMember(pName, gaName));

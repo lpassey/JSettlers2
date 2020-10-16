@@ -219,7 +219,9 @@ import javax.swing.SwingConstants;
                 gbl.setConstraints(player_res_lbl[i], gbc);
                 btnsPane.add(player_res_lbl[i]);
             }
-        } else {
+        }
+        else
+        {
             // each player on their own row (button is left of label)
 
             for (int i = 0; i < n; ++i)
@@ -247,23 +249,26 @@ import javax.swing.SwingConstants;
      */
     public void actionPerformed(ActionEvent e)
     {
-        try {
-        Object target = e.getSource();
-
-        for (int i = 0; i < number; i++)
+        try
         {
-            if (target == buttons[i])
-            {
-                playerInterface.getClient().getGameMessageSender()
-                    .choosePlayer(playerInterface.getGame(), players[i]);
-                dispose();
+            Object target = e.getSource();
 
-                break;
+            for (int i = 0; i < number; i++)
+            {
+                if (target == buttons[i])
+                {
+                    playerInterface.getClient()
+                        .getGameMessageSender()
+                        .choosePlayer( playerInterface.getGame(), players[i] );
+                    dispose();
+
+                    break;
+                }
             }
         }
-        } catch (Throwable th) {
-            playerInterface.chatPrintStackTrace(th);
+        catch( Throwable th )
+        {
+            playerInterface.chatPrintStackTrace( th );
         }
     }
-
 }

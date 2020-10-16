@@ -814,7 +814,9 @@ import javax.swing.UIManager;
         if (game.vp_winner <= 12)
         {
             vpSq.setToolTipHighWarningLevel(vp_close_to_win, game.vp_winner - 2);  // (win checked in SOCGame.checkForWinner)
-        } else {
+        }
+        else
+        {
             vpSq.setToolTipHighWarningLevel(vp_close_to_win, game.vp_winner - 3);
         }
         add(vpSq);
@@ -833,7 +835,9 @@ import javax.swing.UIManager;
             svpSq.setToolTipText(svp_tt);
             add(svpSq);
             svpSq.addMouseListener(this);
-        } else {
+        }
+        else
+        {
             svpLab = null;
             svpSq = null;
         }
@@ -931,9 +935,13 @@ import javax.swing.UIManager;
             shipLab = new JLabel(strings.get("hpan.ships"));  // "Ships:"
             shipLab.setFont(DIALOG_PLAIN_10);
             add(shipLab);
-        } else {
+        }
+/*
+        else
+        {
             // shipSq, shipLab already null
         }
+*/
 
         if (game.isGameOptionSet(SOCGameOption.K_SC_CLVI))
         {
@@ -956,9 +964,13 @@ import javax.swing.UIManager;
                     pi.buildingPanel.clickWondersButton();
                 }
             });
-        } else {
+        }
+/*
+        else
+        {
             // clothSq, clothLab, wonderLab already null
         }
+*/
 
         knightsLab = new JLabel(strings.get("hpan.soldiers"));  // No trailing space (room for wider colorsquares at left)
         knightsLab.setFont(DIALOG_PLAIN_10);
@@ -1027,7 +1039,9 @@ import javax.swing.UIManager;
         if (playerTradingDisabled)
         {
             offerBut = null;
-        } else {
+        }
+        else
+        {
             offerBut = new JButton(SEND);
             offerBut.addActionListener(this);
             offerBut.setEnabled(interactive);
@@ -1057,10 +1071,15 @@ import javax.swing.UIManager;
         if (interactive)
             bankUndoBut.setToolTipText(strings.get("hpan.trade.undo.tip"));  // "Undo the most recent Bank Trade"
 
+/*
         if (playerTradingDisabled)
         {
             // playerSend, playerSendMap, playerSendForPrevTrade already null
-        } else {
+        }
+        else
+*/
+        if ( ! playerTradingDisabled)
+        {
             playerSend = new ColorSquare[game.maxPlayers-1];
             playerSendMap = new int[game.maxPlayers-1];
             playerSendForPrevTrade = new boolean[game.maxPlayers-1];
@@ -1081,7 +1100,7 @@ import javax.swing.UIManager;
                     cnt++;
                 }
             }
-        }  // if(playerTradingDisabled)
+        }  // if( ! playerTradingDisabled)
 
         rollPromptCountdownLab = new JLabel(" ");
         add(rollPromptCountdownLab);
@@ -1117,7 +1136,9 @@ import javax.swing.UIManager;
         {
             offerPanel = null;
             counterOfferPanel = null;
-        } else {
+        }
+        else
+        {
             final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors(true, false);
             final Color tradeInteriorColor =
                 (colors != null) ? colors[2] : null; /* SwingMainDisplay.DIALOG_BG_GOLDENROD */
@@ -1190,7 +1211,9 @@ import javax.swing.UIManager;
             {
                 co.setForeground(null);  // inherit panel's color
                 co.setBackground(null);
-            } else {
+            }
+            else
+            {
                 ((JButton) co).setMargin(minMargin);
                 if (shouldClearButtonBGs)
                     co.setBackground(null);  // inherit panel's bg color; required on win32 to avoid gray corners
@@ -1269,195 +1292,202 @@ import javax.swing.UIManager;
      */
     public void actionPerformed(ActionEvent e)
     {
-        try {
-        String target = e.getActionCommand();
+        try
+        {
+            String target = e.getActionCommand();
 
-        if (target == LOCKSEAT)
-        {
-            // Seat Lock while game forming (gamestate NEW); see below for ROBOTLOCKBUT_L etc
-            messageSender.setSeatLock(game, playerNumber, SOCGame.SeatLockState.LOCKED);
-        }
-        else if (target == UNLOCKSEAT)
-        {
-            // Unlock while game forming
-            messageSender.setSeatLock(game, playerNumber, SOCGame.SeatLockState.UNLOCKED);
-        }
-        else if (target == TAKEOVER)
-        {
-            messageSender.sitDown(game, playerNumber);
-        }
-        else if (target == SIT)
-        {
-            messageSender.sitDown(game, playerNumber);
-        }
-        else if ((target == START) && startBut.isVisible())
-        {
-            messageSender.startGame(game);
+            if (target == LOCKSEAT)
+            {
+                // Seat Lock while game forming (gamestate NEW); see below for ROBOTLOCKBUT_L etc
+                messageSender.setSeatLock( game, playerNumber, SOCGame.SeatLockState.LOCKED );
+            }
+            else if (target == UNLOCKSEAT)
+            {
+                // Unlock while game forming
+                messageSender.setSeatLock( game, playerNumber, SOCGame.SeatLockState.UNLOCKED );
+            }
+            else if (target == TAKEOVER)
+            {
+                messageSender.sitDown( game, playerNumber );
+            }
+            else if (target == SIT)
+            {
+                messageSender.sitDown( game, playerNumber );
+            }
+            else if ((target == START) && startBut.isVisible())
+            {
+                messageSender.startGame( game );
 
-            // checks isVisible to guard against button action from hitting spacebar
-            // when hidden but has focus because startBut is the first button added to panel;
-            // this bug seen on OSX 10.9.1 (1.5.0 JVM)
-        }
-        else if (target == ROBOT)
-        {
-            // cf.cc.addRobot(cf.cname, playerNum);
-        }
-        else if (target == ROLL)
-        {
-            if (autoRollTimerTask != null)
-            {
-                autoRollTimerTask.cancel();
-                autoRollTimerTask = null;
+                // checks isVisible to guard against button action from hitting spacebar
+                // when hidden but has focus because startBut is the first button added to panel;
+                // this bug seen on OSX 10.9.1 (1.5.0 JVM)
             }
-            clickRollButton();
-        }
-        else if (target == QUIT)
-        {
-            SOCQuitConfirmDialog.createAndShow(playerInterface.getMainDisplay(), playerInterface);
-        }
-        else if (target == DONE)
-        {
-            clickDoneButton();
-        }
-        else if (target == DONE_RESTART)
-        {
-            playerInterface.resetBoardRequest(game.isPractice && ! game.isInitialPlacement());
-        }
-        else if (target == CLEAR)
-        {
-            clearOffer(true);    // Zero the square panel numbers, unless board-reset vote in progress
-            if (game.getGameState() == SOCGame.PLAY1)
+//            else if (target == ROBOT)
+//            {
+//                // cf.cc.addRobot(cf.cname, playerNum);
+//            }
+            else if (target == ROLL)
             {
-                messageSender.clearOffer(game);
+                if (autoRollTimerTask != null)
+                {
+                    autoRollTimerTask.cancel();
+                    autoRollTimerTask = null;
+                }
+                clickRollButton();
             }
-        }
-        else if (target == BANK)
-        {
-            int gstate = game.getGameState();
-            if (gstate == SOCGame.PLAY1)
+            else if (target == QUIT)
             {
-                int[] give = new int[5];
-                int[] get = new int[5];
-                sqPanel.getValues(give, get);
-                createSendBankTradeRequest(give, get, true);
+                SOCQuitConfirmDialog.createAndShow( playerInterface.getMainDisplay(), playerInterface );
             }
-            else if (gstate == SOCGame.OVER)
+            else if (target == DONE)
             {
-                String msg = game.gameOverMessageToPlayer(player);
+                clickDoneButton();
+            }
+            else if (target == DONE_RESTART)
+            {
+                playerInterface.resetBoardRequest( game.isPractice && !game.isInitialPlacement() );
+            }
+            else if (target == CLEAR)
+            {
+                clearOffer( true );    // Zero the square panel numbers, unless board-reset vote in progress
+                if (game.getGameState() == SOCGame.PLAY1)
+                {
+                    messageSender.clearOffer( game );
+                }
+            }
+            else if (target == BANK)
+            {
+                int gstate = game.getGameState();
+                if (gstate == SOCGame.PLAY1)
+                {
+                    int[] give = new int[5];
+                    int[] get = new int[5];
+                    sqPanel.getValues( give, get );
+                    createSendBankTradeRequest( give, get, true );
+                }
+                else if (gstate == SOCGame.OVER)
+                {
+                    String msg = game.gameOverMessageToPlayer( player );
                     // msg = "The game is over; you are the winner!";
                     // msg = "The game is over; <someone> won.";
                     // msg = "The game is over; no one won.";
-                playerInterface.print("* " + msg);
-            }
-        }
-        else if (target == BANK_UNDO)
-        {
-            if ((bankGive != null) && (bankGet != null))
-            {
-                messageSender.bankTrade(game, bankGet, bankGive);  // undo by reversing previous request
-                bankGive = null;
-                bankGet = null;
-                bankUndoBut.setEnabled(false);
-            }
-        }
-        else if (target == ROBOTLOCKBUT_L)
-        {
-            // Seat Lock while game in progress; see above for UNLOCKSEAT etc
-            clickRobotSeatLockButton(SOCGame.SeatLockState.LOCKED);
-        }
-        else if (target == ROBOTLOCKBUT_U)
-        {
-            clickRobotSeatLockButton(SOCGame.SeatLockState.UNLOCKED);
-        }
-        else if (target == ROBOTLOCKBUT_M)
-        {
-            clickRobotSeatLockButton(SOCGame.SeatLockState.CLEAR_ON_RESET);
-        }
-        else if (target == SEND)
-        {
-            if (playerTradingDisabled)
-                return;
-
-            if (game.getGameState() == SOCGame.PLAY1)
-            {
-                int[] give = new int[5];
-                int[] get = new int[5];
-                int giveSum = 0;
-                int getSum = 0;
-                sqPanel.getValues(give, get);
-
-                for (int i = 0; i < 5; i++)
-                {
-                    giveSum += give[i];
-                    getSum += get[i];
+                    playerInterface.print( "* " + msg );
                 }
-
-                SOCResourceSet giveSet = new SOCResourceSet(give);
-                SOCResourceSet getSet = new SOCResourceSet(get);
-
-                if (! player.getResources().contains(giveSet))
+            }
+            else if (target == BANK_UNDO)
+            {
+                if ((bankGive != null) && (bankGet != null))
                 {
-                    playerInterface.print("*** " + strings.get("hpan.trade.msg.donthave"));
+                    messageSender.bankTrade( game, bankGet, bankGive );  // undo by reversing previous request
+                    bankGive = null;
+                    bankGet = null;
+                    bankUndoBut.setEnabled( false );
+                }
+            }
+            else if (target == ROBOTLOCKBUT_L)
+            {
+                // Seat Lock while game in progress; see above for UNLOCKSEAT etc
+                clickRobotSeatLockButton( SOCGame.SeatLockState.LOCKED );
+            }
+            else if (target == ROBOTLOCKBUT_U)
+            {
+                clickRobotSeatLockButton( SOCGame.SeatLockState.UNLOCKED );
+            }
+            else if (target == ROBOTLOCKBUT_M)
+            {
+                clickRobotSeatLockButton( SOCGame.SeatLockState.CLEAR_ON_RESET );
+            }
+            else if (target == SEND)
+            {
+                if (playerTradingDisabled)
+                    return;
+
+                if (game.getGameState() == SOCGame.PLAY1)
+                {
+                    int[] give = new int[5];
+                    int[] get = new int[5];
+                    int giveSum = 0;
+                    int getSum = 0;
+                    sqPanel.getValues( give, get );
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        giveSum += give[i];
+                        getSum += get[i];
+                    }
+
+                    SOCResourceSet giveSet = new SOCResourceSet( give );
+                    SOCResourceSet getSet = new SOCResourceSet( get );
+
+                    if (!player.getResources().contains( giveSet ))
+                    {
+                        playerInterface.print( "*** " + strings.get( "hpan.trade.msg.donthave" ) );
                         // "You can't offer what you don't have."
-                }
-                else if ((giveSum == 0) || (getSum == 0))
-                {
-                    playerInterface.print("*** " + strings.get("hpan.trade.msg.eachplayer"));
+                    }
+                    else if ((giveSum == 0) || (getSum == 0))
+                    {
+                        playerInterface.print( "*** " + strings.get( "hpan.trade.msg.eachplayer" ) );
                         // "A trade must contain at least one resource from each player."
+                    }
+                    else
+                    {
+                        // bool array elements begin as false
+                        boolean[] to = new boolean[game.maxPlayers];
+                        boolean toAny = false;
+
+                        if (game.getCurrentPlayerNumber() == playerNumber)
+                        {
+                            for (int i = 0; i < (game.maxPlayers - 1); i++)
+                            {
+                                if (playerSend[i].getBoolValue() && !game.isSeatVacant( playerSendMap[i] ))
+                                {
+                                    to[playerSendMap[i]] = true;
+                                    toAny = true;
+                                    playerSendForPrevTrade[i] = true;
+                                }
+                                else
+                                {
+                                    playerSendForPrevTrade[i] = false;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // can only offer to current player
+                            to[game.getCurrentPlayerNumber()] = true;
+                            toAny = true;
+                        }
+
+                        if (!toAny)
+                        {
+                            playerInterface.print( "*** " + strings.get( "hpan.trade.msg.chooseoppo" ) );
+                            // "Choose at least one opponent's checkbox."
+                        }
+                        else
+                        {
+                            SOCTradeOffer tradeOffer =
+                                new SOCTradeOffer( game.getName(),
+                                    playerNumber,
+                                    to, giveSet, getSet );
+                            messageSender.offerTrade( game, tradeOffer );
+                            disableBankUndoButton();
+                        }
+                    }
                 }
                 else
                 {
-                    // bool array elements begin as false
-                    boolean[] to = new boolean[game.maxPlayers];
-                    boolean toAny = false;
-
-                    if (game.getCurrentPlayerNumber() == playerNumber)
-                    {
-                        for (int i = 0; i < (game.maxPlayers - 1); i++)
-                        {
-                            if (playerSend[i].getBoolValue() && ! game.isSeatVacant(playerSendMap[i]))
-                            {
-                                to[playerSendMap[i]] = true;
-                                toAny = true;
-                                playerSendForPrevTrade[i] = true;
-                            } else {
-                                playerSendForPrevTrade[i] = false;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // can only offer to current player
-                        to[game.getCurrentPlayerNumber()] = true;
-                        toAny = true;
-                    }
-
-                    if (! toAny)
-                    {
-                        playerInterface.print("*** " + strings.get("hpan.trade.msg.chooseoppo"));
-                            // "Choose at least one opponent's checkbox."
-                    }
-                    else
-                    {
-                        SOCTradeOffer tradeOffer =
-                            new SOCTradeOffer(game.getName(),
-                                              playerNumber,
-                                              to, giveSet, getSet);
-                        messageSender.offerTrade(game, tradeOffer);
-                        disableBankUndoButton();
-                    }
-                }
-            } else {
-                getPlayerInterface().print("* " + strings.get("hpan.trade.msg.notnow") + "\n");
+                    getPlayerInterface().print( "* " + strings.get( "hpan.trade.msg.notnow" ) + "\n" );
                     // "You cannot trade at this time."
+                }
+            }
+            else if ((e.getSource() == inventory) || (e.getSource() == playCardBut))
+            {
+                clickPlayCardButton();
             }
         }
-        else if ((e.getSource() == inventory) || (e.getSource() == playCardBut))
+        catch( Throwable th )
         {
-            clickPlayCardButton();
-        }
-        } catch (Throwable th) {
-            playerInterface.chatPrintStackTrace(th);
+            playerInterface.chatPrintStackTrace( th );
         }
     }
 
@@ -1649,7 +1679,9 @@ import javax.swing.UIManager;
                 if (itemText.length() == 0)
                     return;
                 itemObj = inventoryItems.get(0);
-            } else {
+            }
+            else
+            {
                 /**
                  * No card selected, multiple are in the list.
                  * See if only one card isn't a "(VP)" card, isn't new.
@@ -1690,7 +1722,9 @@ import javax.swing.UIManager;
 
                 itemText = itemNumText;
             }
-        } else {
+        }
+        else
+        {
             // get selected item's Card object
             if (itemNum < inventoryItems.size())
                 itemObj = inventoryItems.get(itemNum);
@@ -2598,7 +2632,9 @@ import javax.swing.UIManager;
             resourceSqDivLine.setVisible(true);
             resourceSq.setBorderColor(ColorSquare.ORE);  // dark gray
             resourceLab.setText(RESOURCES_TOTAL);
-        } else {
+        }
+        else
+        {
             resourceSq.setBorderColor(Color.BLACK);
             resourceLab.setText(RESOURCES);
         }
@@ -2665,7 +2701,9 @@ import javax.swing.UIManager;
             if (! game.isDebugFreePlacement())
             {
                 showAsCurrent = playerIsCurrent;
-            } else {
+            }
+            else
+            {
                 showAsCurrent =
                     (playerNumber == playerInterface.getBoardPanel().getPlayerNumber());
                 if (pnameActiveBG == null)
@@ -2697,7 +2735,9 @@ import javax.swing.UIManager;
                 {
                     doneBut.setText(DONE);
                     doneButIsRestart = false;
-                } else {
+                }
+                else
+                {
                     doneBut.setEnabled(true);  // "Restart" during game-start (label DONE_RESTART)
                 }
             }
@@ -2919,7 +2959,9 @@ import javax.swing.UIManager;
                     if (isNew)
                     {
                         itemText = DEVCARD_NEW + item.getItemName(game, false, strings);
-                    } else {
+                    }
+                    else
+                    {
                         itemText = item.getItemName(game, false, strings);
                         hasOldCards = true;
                     }
@@ -3362,7 +3404,9 @@ import javax.swing.UIManager;
                         // send to any occupied seat
                         canSend = ! game.isSeatVacant(playerSendMap[i]);
                         wantSend = canSend && playerSendForPrevTrade[i];
-                    } else {
+                    }
+                    else
+                    {
                         // send only to current player
                         canSend = (pcurr == playerSendMap[i]);
                         wantSend = canSend;
@@ -3423,7 +3467,9 @@ import javax.swing.UIManager;
             }
             messagePanel.setVisible(true);
             repaint();
-        } else {
+        }
+        else
+        {
             // restore previous state of offer panel
             messagePanel.setVisible(false);
             messageIsDiscardOrPick = false;
@@ -3529,7 +3575,9 @@ import javax.swing.UIManager;
         {
             miscInfoArea.setText("");
             miscInfoArea.setVisible(false);
-        } else {
+        }
+        else
+        {
             miscInfoArea.setText(info);
             invalidate();  // doLayout will setVisible(true)
         }
@@ -3547,7 +3595,9 @@ import javax.swing.UIManager;
              || (game.getGameState() == SOCGame.LOADING)))
         {
             takeOverBut.setText(TAKEOVER);
-        } else {
+        }
+        else
+        {
             takeOverBut.setText(SEAT_LOCKED);
         }
     }
@@ -3586,7 +3636,9 @@ import javax.swing.UIManager;
                 inventory.setEnabled(false);
                 playCardBut.setText(CANCEL);
                 playCardBut.setEnabled(canCancelInvItemPlay);
-            } else {
+            }
+            else
+            {
                 if (! inventory.isEnabled())
                     inventory.setEnabled(true);  // note, may still visually appear disabled; repaint doesn't fix it
 
@@ -3871,13 +3923,18 @@ import javax.swing.UIManager;
                 {
                     wonderLab.setText("");
                     wonderLab.setToolTipText(null);
-                } else {
+                }
+                else
+                {
                     String ofWonder = null;
-                    try {
+                    try
+                    {
                         String sv = pWond.getStringValue();  // "w3"
                         if (sv != null)
                             ofWonder = strings.get("game.specitem.sc_wond.of_" + sv);  // "of the Monument"
-                    } catch (MissingResourceException e) {
+                    }
+                    catch (MissingResourceException e)
+                    {
                         try {
                             ofWonder = strings.get("game.specitem.sc_wond.of_fallback");  // "of a Wonder"
                         }
@@ -3910,10 +3967,14 @@ import javax.swing.UIManager;
                 if (gs != SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE)
                 {
                     clearDiscardOrPickMsg();
-                } else {
+                }
+/*
+                else
+                {
                     // Clear pick-resources message is handled above
                     // by updateValue(NUM_PICK_GOLD_HEX_RESOURCES)
                 }
+ */
             }
         }
     }
@@ -4143,7 +4204,9 @@ import javax.swing.UIManager;
                 final int wLock = fm.stringWidth(LOCKSEAT),
                           wUnlock = fm.stringWidth(UNLOCKSEAT);
                 sitW = 24 * displayScale + ((wLock > wUnlock) ? wLock : wUnlock);
-            } else {
+            }
+            else
+            {
                 sitW = 24 * displayScale + fm.stringWidth(sitBut.getText());
             }
 
@@ -4279,7 +4342,9 @@ import javax.swing.UIManager;
                         playerSend[0].setLocation(tbX + tbW + space, tbY);
                         playerSend[1].setLocation(tbX + tbW + space + ((tbW - sqSize) / 2), tbY);
                         playerSend[2].setLocation((tbX + tbW + space + tbW) - sqSize, tbY);
-                    } else {
+                    }
+                    else
+                    {
                         // 6-player: 5 checkboxes
                         int px = tbX + (2 * (space + tbW)) - sqSize - 1;
                         for (int pi = 4; pi >=0; --pi, px -= (sqSize + 1))
@@ -4455,7 +4520,9 @@ import javax.swing.UIManager;
                         offerPanel.setBounds(inset, py, offerW, ph);
                         counterOfferPanel.setBounds
                             (inset, py + ph + space, offerW, counterOfferHeight);
-                    } else {
+                    }
+                    else
+                    {
                         py = topFaceAreaHeight;
                         ph = Math.min(dim.height - (py + space), offerPrefSize.height);
                         messagePanel.setBounds(inset, py, offerW, ph);
@@ -4470,13 +4537,17 @@ import javax.swing.UIManager;
                         if ((messagePanel != null) && messagePanel.isVisible())
                         {
                             miscInfoArea.setVisible(false);
-                        } else {
+                        }
+                        else
+                        {
                             miy = py;
                             mih = ph + counterOfferHeight;
                         }
                     }
 
-                } else {
+                }
+                else
+                {
                     // usual size & position
 
                     int py = topFaceAreaHeight;
@@ -4496,7 +4567,9 @@ import javax.swing.UIManager;
                             counterOfferPanel.setBounds
                                 (inset, py, offerPrefSize.width, counterOfferHeight);
                         }
-                    } else {
+                    }
+                    else
+                    {
                         Dimension msgPrefSize = messagePanel.getPreferredSize();
                         if (msgPrefSize.width > (dim.width - inset))
                             msgPrefSize.width = (dim.width - inset);
@@ -4511,7 +4584,9 @@ import javax.swing.UIManager;
                         if ((messagePanel != null) && messagePanel.isVisible())
                         {
                             miscInfoArea.setVisible(false);
-                        } else {
+                        }
+                        else
+                        {
                             miy = py + space;
                             mih = availHeightNoHide - inset - space;
                         }
@@ -4743,7 +4818,9 @@ import javax.swing.UIManager;
                 if (timeRemain > 0)
                 {
                     setRollPrompt(MessageFormat.format(AUTOROLL_COUNTDOWN, timeRemain ), false);
-                } else {
+                }
+                else
+                {
                     clickRollButton();  // Clear prompt, click Roll
                     cancel();  // End of countdown for this timer
                 }
@@ -5058,7 +5135,9 @@ import javax.swing.UIManager;
 
                 mi.createBankTradeRequest(hpan);
 
-            } catch (Throwable th) {
+            }
+            catch (Throwable th)
+            {
                 hpan.getPlayerInterface().chatPrintStackTrace(th);
             }
         }
@@ -5077,13 +5156,16 @@ import javax.swing.UIManager;
          */
         public void mouseClicked(MouseEvent evt)
         {
-            try {
+            try
+            {
                 if ((resSq == evt.getSource()) && evt.isPopupTrigger())
                 {
                     evt.consume();
                     show(evt.getX(), evt.getY());
                 }
-            } catch (Throwable th) {
+            }
+            catch (Throwable th)
+            {
                 hpan.getPlayerInterface().chatPrintStackTrace(th);
             }
         }

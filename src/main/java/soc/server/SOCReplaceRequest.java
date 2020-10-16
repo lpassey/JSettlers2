@@ -22,7 +22,7 @@ package soc.server;
 
 import soc.message.SOCSitDown;
 
-import soc.server.genericServer.Connection;
+import soc.communication.Connection;
 
 
 /**

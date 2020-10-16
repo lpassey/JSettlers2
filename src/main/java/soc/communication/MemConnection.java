@@ -19,15 +19,17 @@
  *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
-package soc.server.genericServer;
+package soc.communication;
+
+import soc.client.MessageHandler;
+import soc.disableDebug.D;
+import soc.message.SOCDisconnect;
+import soc.message.SOCMessage;
+import soc.server.genericServer.Server;
 
 import java.io.EOFException;
 import java.net.ConnectException;
 import java.util.Date;
-import java.util.Vector;
-
-import soc.disableDebug.D;
-import soc.message.SOCMessage;
 
 /**
  * Symmetric buffered connection sending strings between two local peers.
@@ -68,19 +70,13 @@ import soc.message.SOCMessage;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public class StringConnection
+public class MemConnection
     extends Connection implements Runnable
 {
     /** Unique end-of-file marker object.  Always compare against this with == not string.equals. */
     protected static String EOF_MARKER = "__EOF_MARKER__" + '\004';
 
-    /** Message contents between the peers on this connection; never contains {@code null} elements. */
-    protected Vector<String> in, out;
-    protected boolean in_reachedEOF;
-    protected boolean out_setEOF;
-    /** Active connection, server has called accept, and not disconnected yet */
-    protected boolean accepted;
-    private StringConnection ourPeer;
+    private MemConnection ourPeer;
 
     /**
      * Create a new, unused StringConnection.
@@ -93,15 +89,11 @@ public class StringConnection
      * This class has a run method, but you must start the thread yourself.
      * Constructors will not create or start a thread.
      */
-    public StringConnection()
-    {
-        in = new Vector<>();
-        out = new Vector<>();
-        init();
-    }
+    public MemConnection()
+    { }
 
     /**
-     * Constructor for an existing peer; we'll share two Vectors for in/out queues.
+     * Constructor for an existing peer
      *<P>
      * When using this class from the server (not client)
      * call {@link #setServer(Server)} before starting any thread.
@@ -115,7 +107,7 @@ public class StringConnection
      * @throws IllegalArgumentException if peer is null, or already
      *   has a peer.
      */
-    public StringConnection(StringConnection peer) throws EOFException
+    public MemConnection( MemConnection peer) throws EOFException
     {
         if (peer == null)
             throw new IllegalArgumentException("peer null");
@@ -124,84 +116,11 @@ public class StringConnection
         if (peer.isOutEOF() || peer.isInEOF())
             throw new EOFException("peer EOF at constructor");
 
-        in = peer.out;
-        out = peer.in;
-        peer.ourPeer = this;
         this.ourPeer = peer;
-        init();
-    }
+        peer.ourPeer = this;
+     }
 
-    /**
-     * Constructor common-fields initialization
-     * @since 1.0.5
-     */
-    private void init()
-    {
-        in_reachedEOF = false;
-        out_setEOF = false;
-        accepted = false;
-    }
-
-    /**
-     * Read the next string sent from the remote end,
-     * blocking if necessary to wait.
-     *<P>
-     * Synchronized on in-buffer.
-     *
-     * @return Next string in the in-buffer; never {@code null}.
-     * @throws EOFException Our input buffer has reached EOF
-     * @throws IllegalStateException Server has not yet accepted our connection
-     */
-    public String readNext() throws EOFException, IllegalStateException
-    {
-        if (! accepted)
-        {
-            error = new IllegalStateException("Not accepted by server yet");
-            throw (IllegalStateException) error;
-        }
-        if (in_reachedEOF)
-        {
-            error = new EOFException();
-            throw (EOFException) error;
-        }
-
-        Object obj;
-
-        synchronized (in)
-        {
-            while (in.isEmpty())
-            {
-                if (in_reachedEOF)
-                {
-                    error = new EOFException();
-                    throw (EOFException) error;
-                }
-
-                try
-                {
-                    in.wait();
-                }
-                catch (InterruptedException e)
-                {
-                    // interruption is normal, not exceptional
-                }
-            }
-            obj = in.elementAt(0);
-            in.removeElementAt(0);
-
-            if (obj == EOF_MARKER)
-            {
-                in_reachedEOF = true;
-                if (ourServer != null)
-                    ourServer.removeConnection(this, false);
-                error = new EOFException();
-                throw (EOFException) error;
-            }
-        }
-        return (String) obj;
-    }
-
-    /**
+     /**
      * Send data over the connection.  Does not block.
      * Ignored if setEOF() has been called.
      *<P>
@@ -212,13 +131,14 @@ public class StringConnection
      * @throws IllegalArgumentException if {@code dat} is {@code null}
      * @throws IllegalStateException if not yet accepted by server
      */
-    public void put(String dat)
+    @Override
+    public void send( SOCMessage socMessage )
         throws IllegalArgumentException, IllegalStateException
     {
-        if (dat == null)
+        if (socMessage == null)
             throw new IllegalArgumentException("null");
 
-        if (! (accepted || (data != null)))
+        if (! (accepted.get() || (data != null)))
         {
             // accepted is false before server accepts connection,
             // and after disconnect() (data != null at that point if auth'd)
@@ -226,35 +146,52 @@ public class StringConnection
             error = new IllegalStateException("Not accepted by server yet");
             throw (IllegalStateException) error;
         }
-        if (out_setEOF)
+        if (isInEOF())
             return;
 
-        synchronized (out)
+//        if (null != ourPeer.getData() && (ourPeer.getData().startsWith( "robot" ) || ourPeer.getData().startsWith( "droid" )))
+//            System.out.println( ourPeer.getData());
+        ourPeer.receive( socMessage );
+    }
+
+
+    /**
+     * Accept a message to be "treated". In the case of in-memory connections this will place the
+     * message in the inbound queue for the MessageHandler to deal with in a separate thread.
+     * In the case of a network connection, this will bundle up the message and send it over the wire.
+     *
+     * @param receivedMessage from the connection; will never be {@code null}
+     */
+    public boolean receive( SOCMessage receivedMessage )
+    {
+        try
         {
-            out.addElement(dat);
-            out.notifyAll();  // Another thread may have been waiting for input
+            waitQueue.put( receivedMessage );
+            return true;
+        }
+        catch( InterruptedException e )
+        {
+            return false;
         }
     }
 
     /**
-     * close the socket, discard pending buffered data, set EOF.
+     * close the connection, discard pending buffered data, set EOF.
      * Called after conn is removed from server structures.
      */
     public void disconnect()
     {
-        if (! accepted)
+        if (! accepted.get())
             return;  // <--- Early return: Already disconnected, or never connected ---
 
         D.ebugPrintlnINFO("DISCONNECTING " + data);
-        accepted = false;
-        synchronized (out)
-        {
-            // let the remote-end know we're closing
-            out.clear();
-            out.addElement(EOF_MARKER);
-            out_setEOF = true;
-            out.notifyAll();
-        }
+        accepted.set( false );
+        waitQueue.clear();
+
+        // let the remote-end know we're closing
+        ourPeer.receive( new SOCDisconnect() );
+        out_setEOF.set( true );
+
         disconnectSoft();  // clear "in", set its EOF
     }
 
@@ -265,20 +202,14 @@ public class StringConnection
      */
     public void disconnectSoft()
     {
-        if (in_reachedEOF)
+        if (isInEOF())
             return;  // <--- Early return: Already stopped input and draining output ---
 
         // Don't check accepted; it'll be false if we're called from
         // disconnect(), and it's OK to do this part twice.
 
         D.ebugPrintlnINFO("DISCONNECTING(SOFT) " + data);
-        synchronized (in)
-        {
-            in.clear();
-            in.addElement(EOF_MARKER);
-            in_reachedEOF = true;
-            in.notifyAll();
-        }
+        in_reachedEOF.set( true );
     }
 
     /**
@@ -293,15 +224,14 @@ public class StringConnection
      */
     public void connect(String serverSocketName) throws ConnectException, IllegalStateException
     {
-        if (accepted)
+        if (isAccepted())
             throw new IllegalStateException("Already accepted by a server");
 
-        StringServerSocket.connectTo(serverSocketName, this);
+//        StringServerSocket.connectTo(serverSocketName, this);
         connectTime = new Date();
 
         // ** connectTo will Thread.wait until accepted by server.
-
-        accepted = true;
+        setAccepted();
     }
 
     /**
@@ -309,7 +239,7 @@ public class StringConnection
      *
      * @return Returns our peer, or null if not yet connected.
      */
-    public StringConnection getPeer()
+    public MemConnection getPeer()
     {
         return ourPeer;
     }
@@ -319,9 +249,10 @@ public class StringConnection
      *
      * @return Are we currently connected, accepted, and ready to send/receive data?
      */
+    @Override
     public boolean isAccepted()
     {
-        return accepted;
+        return accepted.get();
     }
 
     /**
@@ -336,38 +267,28 @@ public class StringConnection
     {
         if (ourPeer == null)
             throw new IllegalStateException("No peer, can't be accepted");
-        if (accepted)
+        if (isAccepted())
             throw new IllegalStateException("Already accepted");
-        if (! (out_setEOF || in_reachedEOF))
-            accepted = true;
+        if (! (isOutEOF() || isInEOF()))
+            accepted.set( true );
     }
 
     /**
      * Signal the end of outbound data.
      * Not the same as closing, because we don't terminate the inbound side.
-     *
-     * Synchronizes on out-buffer.
      */
     public void setEOF()
     {
-        synchronized (out)
-        {
-            // let the remote-end know we're closing
-            out.addElement(EOF_MARKER);
-            out_setEOF = true;
-            out.notifyAll();
-        }
+        out_setEOF.set( true );
     }
 
     /**
      * Have we received an EOF marker inbound?
      */
+    @Override
     public boolean isInEOF()
     {
-        synchronized (in)
-        {
-            return in_reachedEOF;
-        }
+        return in_reachedEOF.get();
     }
 
     /**
@@ -375,23 +296,21 @@ public class StringConnection
      *
      * @see #setEOF()
      */
+    @Override
     public boolean isOutEOF()
     {
-        synchronized (out)
-        {
-            return out_setEOF;
-        }
+        return out_setEOF.get();
     }
 
-    /**
-     * Server-side: Reference to the server handling this connection.
-     *
-     * @return The generic server (optional) for this connection
-     */
-    public Server getServer()
-    {
-        return ourServer;
-    }
+//    /**
+//     * Server-side: Reference to the server handling this connection.
+//     *
+//     * @return The generic server (optional) for this connection
+//     */
+//    public Server getServer()
+//    {
+//        return ourServer;
+//    }
 
     /**
      * Server-side: Set the generic server for this connection.
@@ -404,17 +323,17 @@ public class StringConnection
      * @param srv The new server, or null
      * @see #setVersionTracking(boolean)
      */
-    public void setServer(Server srv)
-    {
-        ourServer = srv;
-    }
+//    public void setServer(Server srv)
+//    {
+//        ourServer = srv;
+//    }
 
     /**
      * Hostname of the remote side of the connection -
      * Always returns localhost; this method required for
      * the Connection interface.
      */
-    public String host()
+    public String getHost()
     {
         return "localhost";
     }
@@ -427,15 +346,16 @@ public class StringConnection
      *
      * @return Whether we've connected and been accepted by a SOCServerSocket.
      */
+    @Override
     public boolean connect()
     {
-        return accepted;
+        return isAccepted();
     }
 
     /** Are we currently connected and active? */
     public boolean isConnected()
     {
-        return accepted && ! (out_setEOF || in_reachedEOF);
+        return isAccepted() && ! (isOutEOF() || isInEOF());
     }
 
     /**
@@ -445,47 +365,33 @@ public class StringConnection
      */
     public boolean isInputAvailable()
     {
-        return (! in_reachedEOF) && (0 < in.size());
+        return (! isInEOF()) && (! waitQueue.isEmpty());
     }
 
     /**
-     * For server-side; continuously read and treat input.
-     * You must create and start the thread.
-     * We are on server side if ourServer != null.
-     *<P>
+     * <p>Fetches the next message from this connection's message queue and dispatches it to the
+     * registered message handler. The first message in the queue is dispatched separately from
+     * the remaining messages for the benefit of server-side code. Client-side code typically
+     * treats all messages equally.
+     *</p>
      * When starting the thread, {@link #getData()} must be null.
      */
     public void run()
     {
         Thread.currentThread().setName("connection-srv-localstring");
 
-        if (ourServer == null)
-            return;
-
-        ourServer.addConnection(this);
-            // won't throw IllegalArgumentException, because conn is unnamed at this point; getData() is null
-
         try
         {
-            final InboundMessageQueue inQueue = ourServer.inQueue;
-
-            if (! in_reachedEOF)
+            if (! isInEOF())
             {
-                String firstMsg = readNext();
-                final SOCMessage msgObj = SOCMessage.toMsg(firstMsg);  // parse
-                if (! ourServer.processFirstCommand(msgObj, this))
-                {
-                    if (msgObj != null)
-                        inQueue.push(msgObj, this);
-                }
+                final SOCMessage msgObj = waitQueue.take();  // blocks until next message is available
+                messageDispatcher.dispatchFirst( msgObj, this );
             }
 
-            while (! in_reachedEOF)
+            while (! isInEOF())
             {
-                final String msgStr = readNext();  // blocks until next message is available
-                final SOCMessage msgObj = SOCMessage.toMsg(msgStr);
-                if (msgObj != null)
-                    inQueue.push(msgObj, this);
+                final SOCMessage msgObj = waitQueue.take();  // blocks until next message is available
+                messageDispatcher.dispatch( msgObj, this );
             }
         }
         catch (Exception e)
@@ -497,13 +403,12 @@ public class StringConnection
                 e.printStackTrace(System.out);
             }
 
-            if (in_reachedEOF)
+            if (isInEOF())
             {
                 return;
             }
 
             error = e;
-            ourServer.removeConnection(this, false);
         }
     }
 
@@ -522,5 +427,4 @@ public class StringConnection
         sb.append(']');
         return sb.toString();
     }
-
 }

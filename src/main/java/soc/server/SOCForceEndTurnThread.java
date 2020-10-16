@@ -26,7 +26,7 @@ package soc.server;
 import soc.game.SOCGame;
 import soc.game.SOCPlayer;
 import soc.robot.SOCRobotClient;
-import soc.server.genericServer.Connection;
+import soc.communication.Connection;
 
 /**
  * Force this robot's turn to end, by calling
@@ -111,7 +111,9 @@ import soc.server.genericServer.Connection;
                 rcli.debugPrintBrainStatus(ga.getName(), false);
             else
                 System.err.println("L9397: internal error: can't find robotClient for " + rname);
-        } else {
+        }
+        else
+        {
             System.err.println("  Can't print brain status; robot type is " + scd.robot3rdPartyBrainClass);
         }
 

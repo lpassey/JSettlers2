@@ -46,6 +46,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import soc.baseclient.SOCDisplaylessPlayerClient;
+import soc.communication.Connection;  // for javadocs only
 import soc.game.*;
 import soc.message.SOCBoardLayout;
 import soc.message.SOCBoardLayout2;
@@ -59,7 +60,6 @@ import soc.server.SOCClientData;
 import soc.server.SOCGameHandler;
 import soc.server.SOCGameListAtServer;
 import soc.server.SOCServer;
-import soc.server.genericServer.Connection;  // for javadocs only
 import soc.server.genericServer.Server;
 import soc.util.SOCRobotParameters;
 import soc.util.Version;
@@ -588,7 +588,9 @@ public class SavedGameModel
         try
         {
             opts = SOCGameOption.parseOptionsToMap(gameOptions);
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e)
+        {
             throw new UnsupportedSGMOperationException
                 ("Problem opt in gameOptions: " + e.getMessage(), e);
         }
@@ -723,7 +725,9 @@ public class SavedGameModel
             for (int pn = 0; pn < ga.maxPlayers; ++pn)
                 ga.getPlayer(pn).calcLongestRoad2();
 
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw new IllegalArgumentException("Problem initializing game: " + e, e);
         }
     }
@@ -1135,7 +1139,6 @@ public class SavedGameModel
 
             @Override
             protected void beforeWrite(final SOCPlayingPiece source, final JsonElement serializedTree)
-                throws IOException
             {
                 final JsonObject obj = serializedTree.getAsJsonObject();
 
@@ -1164,13 +1167,17 @@ public class SavedGameModel
                         // handles int (3 or "3") or string from getPieceTypeName ("CITY")
                     if (ptype == -1)
                         throw new IOException("unknown pieceType: " + ptStr);
-                } catch (RuntimeException e) {
+                }
+                catch (RuntimeException e)
+                {
                     throw new IOException("can't parse pieceType", e);
                 }
                 try
                 {
                     coord = obj.get("coord").getAsInt();
-                } catch (RuntimeException e) {
+                }
+                catch (RuntimeException e)
+                {
                     throw new IOException("can't parse coord", e);
                 }
 
@@ -1210,14 +1217,14 @@ public class SavedGameModel
                         int n = obj.get("specialVP").getAsInt();
                         if (n != 0)
                             pp.specialVP = n;
-                    } catch (RuntimeException e) {
+                    }
+                    catch (RuntimeException e)
+                    {
                         throw new IOException("can't parse specialVP", e);
                     }
                 }
-
                 return pp;
             }
-
         }
     }
 
@@ -1279,7 +1286,9 @@ public class SavedGameModel
                     try
                     {
                         ret.add(SOCDevCard.getCardType(v));
-                    } catch (IllegalArgumentException e) {
+                    }
+                    catch (IllegalArgumentException e)
+                    {
                         throw new IOException("bad cardtype format: " + v, e);
                     }
                     break;

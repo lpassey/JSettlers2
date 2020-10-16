@@ -19,10 +19,11 @@
  **/
 package soc.server;
 
+import soc.communication.Connection;
+
 import soc.game.SOCGame;
 import soc.message.SOCMessageForGame;
 import soc.message.SOCMessageFromUnauthClient;
-import soc.server.genericServer.Connection;
 
 /**
  * Server interface to handle inbound game-specific messages for a type of game;

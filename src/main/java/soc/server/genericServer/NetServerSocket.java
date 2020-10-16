@@ -21,6 +21,9 @@
  **/
 package soc.server.genericServer;
 
+import soc.communication.Connection;
+import soc.communication.NetConnection;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -52,7 +55,7 @@ import java.net.SocketException;
         throws SocketException, IOException
     {
         Socket s = implServSocket.accept();
-        return new NetConnection(s, server);
+        return new NetConnection( s );
     }
 
     public void close()
@@ -60,5 +63,4 @@ import java.net.SocketException;
     {
         implServSocket.close();
     }
-
 }

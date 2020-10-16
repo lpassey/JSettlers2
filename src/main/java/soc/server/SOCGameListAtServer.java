@@ -40,7 +40,7 @@ import soc.message.SOCGames;
 import soc.message.SOCGamesWithOptions;
 import soc.message.SOCNewGame;
 import soc.message.SOCNewGameWithOptions;
-import soc.server.genericServer.Connection;
+import soc.communication.Connection;
 import soc.util.SOCFeatureSet;
 import soc.util.SOCGameBoardReset;
 import soc.util.SOCGameList;
@@ -439,7 +439,9 @@ public class SOCGameListAtServer extends SOCGameList
                 {
                     members.remove(oldConn);
                     members.addElement(newConn);
-                } else {
+                }
+                else
+                {
                     removeMember(oldConn, gaName);
                     addMember(newConn, gaName);
                 }
@@ -918,7 +920,8 @@ public class SOCGameListAtServer extends SOCGameList
                     && (cliNotLimitedFeats || g.canClientJoin(cliLimitedFeats)))
                 {
                     gl.add(g);  // Can join
-                } else if (cliCanKnow)
+                }
+                else if (cliCanKnow)
                 {
                     //  Cannot join, but can see it
                     StringBuilder sb = new StringBuilder();
@@ -936,12 +939,14 @@ public class SOCGameListAtServer extends SOCGameList
             if (! alreadySent)
             {
                 // send the full list as 1 message
-                c.put
-                    ((cliVers >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
+                c.send(
+                    (cliVers >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
                      ? new SOCGamesWithOptions(gl, cliVers)
                      : new SOCGames(gl));
 
-            } else {
+            }
+            else
+            {
                 // send deltas only
                 for (Object ob : gl)
                 {
@@ -954,13 +959,13 @@ public class SOCGameListAtServer extends SOCGameList
                     if (cliCouldKnow)
                     {
                         // first send delete, if it's on their list already
-                        c.put( new SOCDeleteGame( gaName ) );
+                        c.send( new SOCDeleteGame( gaName ));
                     }
                     // announce as 'new game' to client
                     if ((ob instanceof SOCGame) && (cliVers >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS))
-                        c.put( new SOCNewGameWithOptions( (SOCGame) ob, cliVers ) );
+                        c.send( new SOCNewGameWithOptions( (SOCGame) ob, cliVers ));
                     else
-                        c.put( new SOCNewGame( gaName ) );
+                        c.send( new SOCNewGame( gaName ));
                 }
             }
         }

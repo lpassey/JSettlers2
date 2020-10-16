@@ -425,12 +425,16 @@ public abstract class SOCVersionedItem implements Cloneable
             {
                 if (itm.minVersion > vers)
                     itm = null;  // too new for vers to use
-            } else {
+            }
+            else
+            {
                 if (checkValues)
                 {
                     if (itm.getMinVersion(null) <= vers)
                         itm = null;  // not too new
-                } else {
+                }
+                else
+                {
                     if (itm.lastModVersion <= vers)
                         itm = null;  // not modified since vers
                 }

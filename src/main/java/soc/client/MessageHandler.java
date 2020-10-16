@@ -33,6 +33,9 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import soc.baseclient.SOCDisplaylessPlayerClient;
+import soc.communication.Connection;
+import soc.communication.MemConnection;
+
 import soc.disableDebug.D;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCDevCardConstants;
@@ -69,10 +72,11 @@ import soc.util.Version;
  * @author paulbilnoski
  * @since 2.0.00
  */
-/*package*/ final class MessageHandler
+public final class MessageHandler implements soc.communication.SOCMessageDispatcher
 {
     private final SOCPlayerClient client;
     private final GameMessageSender gms;
+    private final ClientNetwork net;
 
     MessageHandler(SOCPlayerClient client)
     {
@@ -83,10 +87,24 @@ import soc.util.Version;
 
         if (gms == null)
             throw new IllegalArgumentException("client GameMessageSender is null");
+        net = client.getNet();
+    }
+
+
+    @Override
+    public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
+    {
+        handle( message, connection instanceof MemConnection );
+    }
+
+    @Override       // the client side there doesn't need to discriminate between first and subsequent messages.
+    public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
+    {
+        handle( message, connection instanceof MemConnection );
     }
 
     /**
-     * Treat the incoming messages.
+     * handle the incoming messages.
      * Messages of unknown type are ignored
      * ({@code mes} will be null from {@link SOCMessage#toMsg(String)}).
      *<P>
@@ -114,7 +132,9 @@ import soc.util.Version;
                 // Allows null gaName, for the few message types (like SOCScenarioInfo) which
                 // for convenience use something like SOCTemplateMs which extends SOCMessageForGame
                 // but aren't actually game-specific messages.
-            } else {
+            }
+            else
+            {
                 gaName = null;
                 ga = null;
             }
@@ -777,14 +797,16 @@ import soc.util.Version;
                     olist.add(SOCGameOptionGetInfos.OPTKEY_GET_ANY_CHANGES);
                 ogiMsg = new SOCGameOptionGetInfos(olist, withTokenI18n, false);
                     // sends opts and maybe "?I18N"
-            } else {
+            }
+            else
+            {
                 ogiMsg = new SOCGameOptionGetInfos(null, withTokenI18n, withTokenI18n && sameVersion);
                     // sends "-" and/or "?I18N"
             }
 
             if (! isPractice)
                 client.getMainDisplay().optionsRequested();
-            gms.put(ogiMsg.toCmd(), isPractice);
+            net.send( ogiMsg );
         }
         else if ((client.sVersion < cliVersion) && ! isPractice)
         {
@@ -822,22 +844,26 @@ import soc.util.Version;
                 if (tooNewOpts != null)
                 {
                     client.getMainDisplay().optionsRequested();
-                    gms.put(new SOCGameOptionGetInfos(tooNewOpts, withTokenI18n).toCmd(), isPractice);
+                    net.send( new SOCGameOptionGetInfos(tooNewOpts, withTokenI18n) );
                 }
                 else if (withTokenI18n)
                 {
                     // server is older than client but understands i18n: request gameopt localized strings
 
-                    gms.put(new SOCGameOptionGetInfos(null, true, false).toCmd(), false);  // sends opt list "-,?I18N"
+                    net.send( new SOCGameOptionGetInfos(null, true, false) );  // sends opt list "-,?I18N"
                 }
-            } else {
+            }
+            else
+            {
                 // server is too old to understand options. Can't happen with local practice srv,
                 // because that's our version (it runs from our own JAR file).
 
                 client.tcpServGameOpts.noMoreOptions(true);
                 client.tcpServGameOpts.optionSet = null;
             }
-        } else {
+        }
+        else
+        {
             // client.sVersion == cliVersion, so we have same info/code as server for getAllKnownOptions, scenarios, etc
             // and found nothing else to ask about (i18n, 3rd-party gameopts).
 
@@ -897,7 +923,9 @@ import soc.util.Version;
             srvDebugMode = svIsOKDebug;
             if (svIsOKDebug)
                 sv = SOCStatusMessage.SV_OK;
-        } else {
+        }
+        else
+        {
             srvDebugMode = statusText.toLowerCase().contains("debug");
         }
 
@@ -1184,7 +1212,9 @@ import soc.util.Version;
             gameOpts = client.getNet().practiceServer.getGameOptions(gaName);
             if (gameOpts != null)
                 gameOpts = new HashMap<>( gameOpts );  // changes here shouldn't change practiceServ's copy
-        } else {
+        }
+        else
+        {
             if (client.serverGames != null)
                 gameOpts = client.serverGames.parseGameOptions(gaName);
             else
@@ -1441,8 +1471,10 @@ import soc.util.Version;
         int timeval = mes.getSleepTime();
         if (timeval != -1)
         {
-            gms.put(mes.toCmd(), isPractice);
-        } else {
+            net.send( mes );
+        }
+        else
+        {
             client.getNet().ex = new RuntimeException(client.strings.get("pcli.error.kicked.samename"));
                 // "Kicked by player with same name."
             client.shutdownFromNetwork();
@@ -1719,12 +1751,12 @@ import soc.util.Version;
             if (amount != pl.getResources().getTotal())
             {
                 SOCResourceSet rsrcs = pl.getResources();
-
+/*
                 if (D.ebugOn)
                 {
                     //pi.print(">>> RESOURCE COUNT ERROR: "+mes.getCount()+ " != "+rsrcs.getTotal());
                 }
-
+*/
                 boolean isClientPlayer = pl.getName().equals(client.getNickname(ga.isPractice));
 
                 //
@@ -1755,7 +1787,9 @@ import soc.util.Version;
             if (pn != -1)
             {
                 pl.setCloth(amount);
-            } else {
+            }
+            else
+            {
                 ((SOCBoardLarge) (ga.getBoard())).setCloth(amount);
             }
             utype = PlayerClientListener.UpdateType.Cloth;
@@ -1992,10 +2026,13 @@ import soc.util.Version;
                 SOCSettlement pp = new SOCSettlement(pl, pl.getLastSettlementCoord(), null);
                 ga.undoPutInitSettlement(pp);
             }
-        } else {
+        }
+/*
+        else
+        {
             // ptype is -3 (SOCCancelBuildRequest.INV_ITEM_PLACE_CANCEL)
         }
-
+*/
         PlayerClientListener pcl = client.getClientListener(mes.getGame());
         pcl.buildRequestCanceled(pl);
     }
@@ -2020,7 +2057,9 @@ import soc.util.Version;
         if (! isPirate)
         {
             ga.getBoard().setRobberHex(newHex, true);
-        } else {
+        }
+        else
+        {
             newHex = -newHex;
             ((SOCBoardLarge) ga.getBoard()).setPirateHex(newHex, true);
         }
@@ -2133,7 +2172,9 @@ import soc.util.Version;
         {
             from = ga.getPlayer(fromPN);
             from.setCurrentOffer(offer);
-        } else {
+        }
+        else
+        {
             from = null;
         }
 
@@ -2244,7 +2285,9 @@ import soc.util.Version;
         {
             for (final int ctype : ctypes)
                 handleDEVCARDACTION(ga, player, act, ctype);
-        } else {
+        }
+        else
+        {
             int ctype = mes.getCardType();
             if ((! isPractice) && (client.sVersion < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
             {
@@ -2507,8 +2550,10 @@ import soc.util.Version;
             if (! isPractice)
                 client.getMainDisplay().optionsRequested();
 
-            gms.put(new SOCGameOptionGetInfos(unknowns, client.wantsI18nStrings(isPractice), false).toCmd(), isPractice);
-        } else {
+            net.send( new SOCGameOptionGetInfos(unknowns, client.wantsI18nStrings(isPractice), false) );
+        }
+        else
+        {
             opts.newGameWaitingForOpts = false;
             client.getMainDisplay().optionsReceived(opts, isPractice);
         }
@@ -2673,7 +2718,9 @@ import soc.util.Version;
                 opts.allScenStringsReceived = true;
                 opts.allScenInfoReceived = true;
             }
-        } else {
+        }
+        else
+        {
             final String scKey = mes.getScenarioKey();
 
             if (mes.isKeyUnknown)
@@ -2817,14 +2864,14 @@ import soc.util.Version;
             return;
 
         SOCDisplaylessPlayerClient.handleDICERESULTRESOURCES(mes, ga, null, true);
-        pcl.diceRolledResources(mes.playerNum, mes.playerRsrc);
+        pcl.diceRolledResources( mes.playerNum, mes.playerResourceList );
 
         // handle total counts here, visually updating any discrepancies
         final int n = mes.playerNum.size();
         for (int i = 0; i < n; ++i)
             handlePLAYERELEMENT
                 (client.getClientListener(mes.getGame()), ga, null, mes.playerNum.get(i),
-                 SOCPlayerElement.SET, PEType.RESOURCE_COUNT, mes.playerResTotal.get(i), false);
+                 SOCPlayerElement.SET, PEType.RESOURCE_COUNT, mes.playerTotalResources.get(i), false);
     }
 
     /**
@@ -2969,7 +3016,9 @@ import soc.util.Version;
         if (isReject)
         {
             pcl.invItemPlayRejected(mes.itemType, mes.reasonCode);
-        } else {
+        }
+        else
+        {
             SOCGame ga = client.games.get(mes.getGame());
             if (ga != null)
             {
@@ -3035,5 +3084,4 @@ import soc.util.Version;
             break;
         }
     }
-
 }  // class MessageHandler

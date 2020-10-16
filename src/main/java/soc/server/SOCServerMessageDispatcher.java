@@ -19,6 +19,8 @@
  **/
 package soc.server;
 
+import soc.communication.Connection;
+import soc.communication.SOCMessageDispatcher;
 import soc.debug.D;
 import soc.game.SOCGame;
 import soc.message.SOCMessage;
@@ -26,8 +28,7 @@ import soc.message.SOCMessageForGame;
 import soc.message.SOCMessageFromUnauthClient;
 import soc.message.SOCSitDown;
 import soc.message.SOCStatusMessage;
-import soc.server.genericServer.Connection;
-import soc.server.genericServer.Server;
+
 
 /**
  * Server class to dispatch all inbound messages within a {@link SOCServer}.
@@ -42,8 +43,7 @@ import soc.server.genericServer.Server;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 2.0.00
  */
-/*package*/ class SOCMessageDispatcher
-    implements Server.InboundMessageDispatcher
+/*package*/ class SOCServerMessageDispatcher implements SOCMessageDispatcher
 {
     /**
      * Our SOCServer. {@code srv}, {@link #srvHandler}, and {@link #gameList} are all
@@ -66,12 +66,12 @@ import soc.server.genericServer.Server;
     private SOCGameListAtServer gameList;
 
     /**
-     * Create a new SOCMessageDispatcher. Takes no parameters because the
+     * Create a new SOCServerMessageDispatcher. Takes no parameters because the
      * server and dispatcher constructors can't both call each other.
      * Be sure to call {@link #setServer(SOCServer, SOCGameListAtServer)}
      * before dispatching.
      */
-    public SOCMessageDispatcher()
+    public SOCServerMessageDispatcher()
     {
     }
 
@@ -99,6 +99,10 @@ import soc.server.genericServer.Server;
         this.gameList = gameList;
     }
 
+    public void dispatchFirst(final SOCMessage mes, final Connection con)
+    {
+        dispatch( mes, con );
+    }
     /**
      * Process an inbound message from a client.
      *<P>
@@ -132,7 +136,7 @@ import soc.server.genericServer.Server;
 
             if (! ((mes instanceof SOCMessageFromUnauthClient) || (con.getData() != null)))
             {
-                con.put(new SOCStatusMessage
+                con.send(new SOCStatusMessage
                     (SOCStatusMessage.statusFallbackForVersion
                         (SOCStatusMessage.SV_MUST_AUTH_FIRST, con.getVersion()),
                     "Must authenticate first"));  // I18N OK: won't encounter this in normal message flow
@@ -158,7 +162,9 @@ import soc.server.genericServer.Server;
                             return;  // <--- Early return: ignore unknown games or unlikely missing con ---
 
                         // For SOCSitDown, SOCServerMessageHandler will reply to con
-                    } else {
+                    }
+                    else
+                    {
                         final GameMessageHandler hand = gameList.getGameTypeMessageHandler(gaName);
                         if (hand != null)  // all consistent games will have a handler
                         {
@@ -170,7 +176,6 @@ import soc.server.genericServer.Server;
                     }
                 }
             }
-
             srvHandler.dispatch(mes, con);
         }
         catch (Throwable e)
