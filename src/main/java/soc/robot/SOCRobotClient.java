@@ -33,7 +33,7 @@ import soc.game.SOCPlayer;
 
 import soc.message.*;
 
-import soc.server.genericServer.StringServerSocket;
+import soc.server.genericServer.MemServerSocket;
 
 import soc.util.CappedQueue;
 import soc.util.CutoffExceededException;
@@ -347,11 +347,11 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         {
             if (serverConnectInfo.stringSocketName == null)
             {
-                connection = StringServerSocket.connectTo( "TCP_SERVER" );
+                connection = MemServerSocket.connectTo( "TCP_SERVER" );
             }
             else
             {
-                connection = StringServerSocket.connectTo(serverConnectInfo.stringSocketName);
+                connection = MemServerSocket.connectTo(serverConnectInfo.stringSocketName);
             }
             connection.setData( nickname );
             connection.startMessageProcessing( this );
@@ -394,17 +394,20 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             try
             {
                 connected = false;
-//                if (serverConnectInfo.stringSocketName == null)
-//                {
-//                    sock.close();
-//                    sock = new Socket(serverConnectInfo.hostname, serverConnectInfo.port);
-//                    in = new DataInputStream(sock.getInputStream());
-//                    out = new DataOutputStream(sock.getOutputStream());
-//                }
-//                else
+                // Use this if you want the robot to connect to the server via a socket
+/*
+                if (serverConnectInfo.stringSocketName == null)
+                {
+                    sock.close();
+                    sock = new Socket(serverConnectInfo.hostname, serverConnectInfo.port);
+                    in = new DataInputStream(sock.getInputStream());
+                    out = new DataOutputStream(sock.getOutputStream());
+                }
+                else
+*/
                 {
                     connection.disconnect();
-                    connection = StringServerSocket.connectTo(serverConnectInfo.stringSocketName);
+                    connection = MemServerSocket.connectTo(serverConnectInfo.stringSocketName);
                     connection.setData( nickname  );
                     connection.startMessageProcessing( this );
                 }

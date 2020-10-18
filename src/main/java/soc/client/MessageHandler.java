@@ -35,7 +35,7 @@ import java.util.StringTokenizer;
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.communication.Connection;
 import soc.communication.MemConnection;
-
+import soc.communication.SOCMessageDispatcher;
 import soc.disableDebug.D;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCDevCardConstants;
@@ -72,35 +72,28 @@ import soc.util.Version;
  * @author paulbilnoski
  * @since 2.0.00
  */
-public final class MessageHandler implements soc.communication.SOCMessageDispatcher
+public final class MessageHandler implements SOCMessageDispatcher
 {
     private final SOCPlayerClient client;
-    private final GameMessageSender gms;
-    private final ClientNetwork net;
 
     MessageHandler(SOCPlayerClient client)
     {
         if (client == null)
             throw new IllegalArgumentException("client is null");
         this.client = client;
-        gms = client.getGameMessageSender();
-
-        if (gms == null)
-            throw new IllegalArgumentException("client GameMessageSender is null");
-        net = client.getNet();
     }
 
 
     @Override
     public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
     {
-        handle( message, connection instanceof MemConnection );
+        handle( message, connection );
     }
 
     @Override       // the client side there doesn't need to discriminate between first and subsequent messages.
     public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
     {
-        handle( message, connection instanceof MemConnection );
+        handle( message, connection );
     }
 
     /**
@@ -113,11 +106,12 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
      * @param mes    the message
      * @param isPractice  Message is coming from {@link ClientNetwork#practiceServer}, not a TCP server
      */
-    public void handle(SOCMessage mes, final boolean isPractice)
+    public void handle( SOCMessage mes, Connection connection )
     {
         if (mes == null)
             return;  // Parsing error
 
+        final boolean isPractice = connection instanceof MemConnection;
         if (client.debugTraffic || D.ebugIsEnabled())
             soc.debug.D.ebugPrintlnINFO(mes.toString());
 
@@ -147,14 +141,14 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
              * (ignored before version 1.1.08)
              */
             case SOCMessage.SERVERPING:
-                handleSERVERPING((SOCServerPing) mes, isPractice);
+                handleSERVERPING( (SOCServerPing) mes, connection );
                 break;
 
             /**
              * server's version message
              */
             case SOCMessage.VERSION:
-                handleVERSION(isPractice, (SOCVersion) mes);
+                handleVERSION( (SOCVersion) mes, connection );
                 break;
 
             /**
@@ -296,7 +290,7 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
              * someone is sitting down
              */
             case SOCMessage.SITDOWN:
-                handleSITDOWN((SOCSitDown) mes);
+                handleSITDOWN( (SOCSitDown) mes, connection );
                 break;
 
             /**
@@ -584,7 +578,7 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
              * for game options (1.1.07)
              */
             case SOCMessage.GAMEOPTIONGETDEFAULTS:
-                handleGAMEOPTIONGETDEFAULTS((SOCGameOptionGetDefaults) mes, isPractice);
+                handleGAMEOPTIONGETDEFAULTS((SOCGameOptionGetDefaults) mes, connection );
                 break;
 
             case SOCMessage.GAMEOPTIONINFO:
@@ -750,9 +744,11 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
      * @param mes  the message
      * @since 1.1.00
      */
-    private void handleVERSION(final boolean isPractice, SOCVersion mes)
+    private void handleVERSION( SOCVersion mes, Connection connection )
     {
         D.ebugPrintlnINFO("handleVERSION: " + mes);
+        final boolean isPractice = connection instanceof MemConnection;
+
         int vers = mes.getVersionNumber();
 
         if (! isPractice)
@@ -782,7 +778,7 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
             ? SOCGameOption.optionsWithFlag(SOCGameOption.FLAG_3RD_PARTY, 0)
             : null;   // sVersion < cliVersion, so SOCGameOption.optionsNewerThanVersion will find any 3rd-party opts
 
-        if ( ((! isPractice) && (client.sVersion > cliVersion))
+        if (    ((! isPractice) && (client.sVersion > cliVersion))
              || ((isPractice || sameVersion) && (withTokenI18n || (opts3p != null))) )
         {
             // Newer server: Ask it to list any options we don't know about yet.
@@ -806,7 +802,7 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
 
             if (! isPractice)
                 client.getMainDisplay().optionsRequested();
-            net.send( ogiMsg );
+            connection.send( ogiMsg );  // send the request back on the same connection it came in on.
         }
         else if ((client.sVersion < cliVersion) && ! isPractice)
         {
@@ -844,13 +840,12 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
                 if (tooNewOpts != null)
                 {
                     client.getMainDisplay().optionsRequested();
-                    net.send( new SOCGameOptionGetInfos(tooNewOpts, withTokenI18n) );
+                    connection.send( new SOCGameOptionGetInfos(tooNewOpts, withTokenI18n) );
                 }
                 else if (withTokenI18n)
                 {
                     // server is older than client but understands i18n: request gameopt localized strings
-
-                    net.send( new SOCGameOptionGetInfos(null, true, false) );  // sends opt list "-,?I18N"
+                    connection.send( new SOCGameOptionGetInfos(null, true, false) );  // sends opt list "-,?I18N"
                 }
             }
             else
@@ -964,7 +959,7 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
             StringTokenizer st = new StringTokenizer(statusText, SOCMessage.sep2);
             try
             {
-                String gameName = null;
+                String gameName;
                 ArrayList<String> optNames = new ArrayList<>();
                 errMsg = st.nextToken();
                 gameName = st.nextToken();
@@ -1003,7 +998,7 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
             StringTokenizer st = new StringTokenizer(statusText, SOCMessage.sep2);
             try
             {
-                errMsg = st.nextToken();
+                st.nextToken();
                 final String gameName = st.nextToken();
                 final String featsList = (st.hasMoreTokens()) ? st.nextToken() : "?";
                 final String msgKey = (client.doesGameExist(gameName, true))
@@ -1235,17 +1230,14 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
             gameOpts.put("_BHW", opt);
         }
 
-        SOCGame ga = new SOCGame(gaName, gameOpts);
-        if (ga != null)
-        {
-            ga.isPractice = isPractice;
-            ga.serverVersion = (isPractice) ? Version.versionNumber() : client.sVersion;
+        SOCGame ga = new SOCGame(gaName, gameOpts); // Constructors will never return null
+        ga.isPractice = isPractice;
+        ga.serverVersion = (isPractice) ? Version.versionNumber() : client.sVersion;
 
-            PlayerClientListener clientListener =
-                client.getMainDisplay().gameJoined(ga, mes.getLayoutVS(), client.getGameReqLocalPrefs().get(gaName));
-            client.getClientListeners().put(gaName, clientListener);
-            client.games.put(gaName, ga);
-        }
+        PlayerClientListener clientListener =
+            client.getMainDisplay().gameJoined(ga, mes.getLayoutVS(), client.getGameReqLocalPrefs().get(gaName));
+        client.getClientListeners().put(gaName, clientListener);
+        client.games.put(gaName, ga);
     }
 
     /**
@@ -1380,7 +1372,7 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
      * handle the "player sitting down" message
      * @param mes  the message
      */
-    protected void handleSITDOWN(final SOCSitDown mes)
+    protected void handleSITDOWN( final SOCSitDown mes, Connection connection )
     {
         /**
          * tell the game that a player is sitting
@@ -1391,7 +1383,7 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
 
         final int pn = mes.getPlayerNumber();
         final String plName = mes.getNickname();
-        SOCPlayer player = null;
+        SOCPlayer player;
 
         ga.takeMonitor();
         try
@@ -1433,8 +1425,9 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
          */
         if (playerIsClient && ! ga.isBoardReset())
         {
-            player.setFaceId(client.lastFaceChange);
-            gms.changeFace(ga, client.lastFaceChange);
+            int faceId = client.lastFaceChange;
+            player.setFaceId( faceId );
+            connection.send( new SOCChangeFace( ga.getName(), 0, faceId ));
         }
     }
 
@@ -1466,12 +1459,12 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
      * (message ignored before v1.1.08)
      * @since 1.1.08
      */
-    private void handleSERVERPING(SOCServerPing mes, final boolean isPractice)
+    private void handleSERVERPING(SOCServerPing mes, Connection connection)
     {
         int timeval = mes.getSleepTime();
         if (timeval != -1)
         {
-            net.send( mes );
+            connection.send( mes );
         }
         else
         {
@@ -2265,17 +2258,17 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
      */
     protected void handleDEVCARDACTION(final boolean isPractice, final SOCDevCardAction mes)
     {
-        SOCGame ga = client.games.get(mes.getGame());
-        if (ga == null)
+        SOCGame theGame = client.games.get(mes.getGame());
+        if (theGame == null)
             return;
 
         final int pn = mes.getPlayerNumber();
-        final SOCPlayer player = ga.getPlayer(pn);
+        final SOCPlayer player = theGame.getPlayer(pn);
         final PlayerClientListener pcl = client.getClientListener(mes.getGame());
         final int clientPN = (pcl != null) ? pcl.getClientPlayerNumber() : -2;  // not -1: message may have that
         final int act = mes.getAction();
 
-        if ((pn == clientPN) && (act == SOCDevCardAction.ADD_OLD) && (ga.getGameState() == SOCGame.OVER))
+        if ((pn == clientPN) && (act == SOCDevCardAction.ADD_OLD) && (theGame.getGameState() == SOCGame.OVER))
         {
             return;  // ignore messages at OVER about our own VP dev cards
         }
@@ -2284,7 +2277,9 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
         if (ctypes != null)
         {
             for (final int ctype : ctypes)
-                handleDEVCARDACTION(ga, player, act, ctype);
+            {
+                handleDEVCARDACTION( player, act, ctype );
+            }
         }
         else
         {
@@ -2296,7 +2291,7 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
                 else if (ctype == SOCDevCardConstants.UNKNOWN_FOR_VERS_1_X)
                     ctype = SOCDevCardConstants.UNKNOWN;
             }
-            handleDEVCARDACTION(ga, player, act, ctype);
+            handleDEVCARDACTION( player, act, ctype );
         }
 
         if (pcl != null)
@@ -2308,8 +2303,7 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
      * In case this is part of a list of cards, does not call
      * {@link PlayerClientListener#playerDevCardsUpdated(SOCPlayer, boolean)}: Caller must do so afterwards.
      */
-    private void handleDEVCARDACTION
-        (final SOCGame ga, final SOCPlayer player, final int act, final int ctype)
+    private void handleDEVCARDACTION( final SOCPlayer player, final int act, final int ctype )
     {
         switch (act)
         {
@@ -2529,9 +2523,10 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
      * @see ServerGametypeInfo
      * @since 1.1.07
      */
-    private void handleGAMEOPTIONGETDEFAULTS(SOCGameOptionGetDefaults mes, final boolean isPractice)
+    private void handleGAMEOPTIONGETDEFAULTS(SOCGameOptionGetDefaults mes, Connection connection )
     {
         ServerGametypeInfo opts;
+        boolean isPractice = connection instanceof MemConnection;
         if (isPractice)
             opts = client.practiceServGameOpts;
         else
@@ -2547,10 +2542,11 @@ public final class MessageHandler implements soc.communication.SOCMessageDispatc
 
         if (unknowns != null)
         {
-            if (! isPractice)
+            if ( ! isPractice)
+            {
                 client.getMainDisplay().optionsRequested();
-
-            net.send( new SOCGameOptionGetInfos(unknowns, client.wantsI18nStrings(isPractice), false) );
+            }
+            connection.send( new SOCGameOptionGetInfos(unknowns, client.wantsI18nStrings(isPractice), false) );
         }
         else
         {

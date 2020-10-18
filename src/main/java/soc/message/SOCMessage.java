@@ -20,6 +20,8 @@
  **/
 package soc.message;
 
+import soc.communication.Connection;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -62,9 +64,9 @@ import java.util.StringTokenizer;
  * parseDataStr is called from {@link #toMsg(String)} in this class.
  * Remote TCP clients receive data using {@link java.io.DataInputStream#readUTF()}.
  *<P>
- * The client receives messages in {@link soc.client.MessageHandler#handle(SOCMessage, boolean)}.
+ * The client receives messages in {@link soc.client.MessageHandler#handle(SOCMessage, Connection)}.
  * The server receives messages in
- * {@link soc.server.SOCMessageDispatcher#dispatch(SOCMessage, soc.server.genericServer.Connection)}.
+ * {@link soc.server.SOCMessageDispatcher#dispatch(SOCMessage, Connection)}.
  *
  *<H3>Human-readable format:</H3>
  * For debugging purposes, {@link #toString()} should include all fields sent over the network
@@ -109,8 +111,8 @@ import java.util.StringTokenizer;
  *      or its game type's GameMessageHandler.dispatch.  Note the JSettlers version with a comment.
  *      <P>
  *      <em>Note:</em> Most things added to SOCPlayerClient.treat should also be added to
- *      {@link soc.baseclient.SOCDisplaylessPlayerClient#treat(SOCMessage)}. If robots
- *      should react, also add to {@link soc.robot.SOCRobotClient#treat(SOCMessage)}
+ *      {@link soc.baseclient.SOCDisplaylessPlayerClient#dispatch(SOCMessage, Connection)} . If robots
+ *      should react, also add to {@link soc.robot.SOCRobotClient#dispatch(SOCMessage, Connection)}
  *      and maybe also {@link soc.robot.SOCRobotBrain#run()}.
  *      <P>
  *      If the message is player-state related, you might also want to add

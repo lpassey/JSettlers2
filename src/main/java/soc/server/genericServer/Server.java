@@ -53,7 +53,7 @@ import soc.server.SOCServer;
  *  This is the real stuff. Server subclasses won't have to care about
  *  reading/writing on the net, data consistency among threads, etc.
  *  The Server listens on either a TCP {@link #port}, or for Practice mode,
- *  to a {@link StringServerSocket}.
+ *  to a {@link MemServerSocket}.
  *<P>
  *  Newly connecting clients arrive in {@link #run()},
  *  start a thread for the server side of their {@link NetConnection} or {@link StringConnection},
@@ -94,7 +94,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * in-memory socket surrogate which waits for connection requests to be placed into the
      * "accept" queue, does appropriate setup, the returns a new MemConnection
      */
-    StringServerSocket localSocket;
+    MemServerSocket localSocket;
 
     /**
      * TCP or Practice-mode server socket.
@@ -125,13 +125,13 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
     /**
      * TCP port number for {@link #serverSocket} when using {@link NetServerSocket}, or -1 for
-     * local/Practice mode ({@link StringServerSocket}).
+     * local/Practice mode ({@link MemServerSocket}).
      * @see #strSocketName
      */
     protected int port;
 
     /**
-     * {@link StringServerSocket} name for {@link #serverSocket}, or {@code null} for network mode.
+     * {@link MemServerSocket} name for {@link #serverSocket}, or {@code null} for network mode.
      * @see #port
      * @since 1.1.00
      */
@@ -299,8 +299,8 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
         try
         {
-            serverSocket = new NetServerSocket(port, this);
-            localSocket = new StringServerSocket( "TCP_SERVER", this );
+            serverSocket = new NetServerSocket( port );
+            localSocket = new MemServerSocket( "TCP_SERVER", this );
         }
         catch (IOException e)
         {
@@ -338,7 +338,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         this.inboundMsgDispatcher = imd;
         this.multiplexQueue = new InboundMessageQueue(imd);
 
-        localSocket = new StringServerSocket(stringSocketName, this );
+        localSocket = new MemServerSocket(stringSocketName, this );
         setName("server-localstring-" + stringSocketName);  // Thread name for debugging
 
         initMisc();
@@ -577,20 +577,20 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                     // NetConnection will read from the input stream, convert strings to SOCMessage
                     // instances, then call this method to place the message in the server's
                     // multiplexing InboundMessageQueue
-//                    connection.startMessageProcessing( new SOCMessageDispatcher()
-//                    {
-//                        @Override
-//                        public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
-//                        {
-//                            processFirstCommand( message, connection );
-//                        }
-//
-//                        @Override
-//                        public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
-//                        {
-//                            multiplexQueue.push( message, connection );
-//                        }
-//                    } );
+                    connection.startMessageProcessing( new SOCMessageDispatcher()
+                    {
+                        @Override
+                        public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
+                        {
+                            processFirstCommand( message, connection );
+                        }
+
+                        @Override
+                        public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
+                        {
+                            multiplexQueue.push( message, connection );
+                        }
+                    } );
                 }
                 catch( InterruptedException ignore ) {}
                 catch( SocketException e )
@@ -610,7 +610,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                     if (up)
                     {
                         // retry
-                        serverSocket = new NetServerSocket( port, this );
+                        serverSocket = new NetServerSocket( port );
                     }
                 }
                 catch( IOException e )
@@ -648,10 +648,14 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             {
                 while (isUp()) try
                 {
-                    // reads from the server accept queue, creates a server peer
+                    // reads from the server accept queue, creates a server peer, and starts
+                    // a processing thread on the peer. The in-memory client is responsible for
+                    // starting the processing thread on its own side.
                     localSocket.accept();
                 }
-                catch( InterruptedException ignore ) {}
+                catch( InterruptedException ignore )
+                {
+                }
                 catch( IOException e )
                 {
                     error = e;
@@ -659,20 +663,11 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                         D.ebugPrintlnINFO( "Exception " + e + " during accept" );
                 }
 
-                try
+                localSocket.close();
+                if (up)
                 {
-                    localSocket.close();
-                    if (up)
-                    {
-                        // retry
-                        localSocket = new StringServerSocket( strSocketName, server );
-                    }
-                }
-                catch( IOException e )
-                {
-                    up = false;
-                    multiplexQueue.stopMessageProcessing();
-                    error = e;
+                    // retry
+                    localSocket = new MemServerSocket( strSocketName, server );
                 }
             }
         }

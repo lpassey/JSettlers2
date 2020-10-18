@@ -36,9 +36,8 @@ import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- *
- * Clients who want to connect, call connectTo and are queued. (Thread.wait is used internally)
- * Server-side calls accept to retrieve them.
+ * Clients who want to connect, call connectTo and are queued.
+ * Server-side calls {@Link #accept()} to retrieve them.
  *
  *<PRE>
  *  1.0.0 - 2007-11-18 - initial release, becoming part of jsettlers v1.1.00
@@ -55,16 +54,9 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public class StringServerSocket implements SOCServerSocket
+public class MemServerSocket implements SOCServerSocket
 {
-    protected static Hashtable<String, StringServerSocket> allSockets = new Hashtable<>();
-
-    /**
-     * Length of queue for accepting new connections; default 100.
-     * Changing it here affects future calls to connectTo() in all
-     * instances.
-     */
-    public static int ACCEPT_QUEUELENGTH = 100;
+    protected static Hashtable<String, MemServerSocket> allSockets = new Hashtable<>();
 
     /** Server-peer sides of connected clients; Added by accept method */
     final protected Vector<MemConnection> allConnected;
@@ -72,24 +64,22 @@ public class StringServerSocket implements SOCServerSocket
     /** Waiting client connections (client-peer sides); Added by connectClient, removed by accept method */
     final protected LinkedBlockingQueue<MemConnection> acceptQueue = new LinkedBlockingQueue<>(  );
 
-    private String socketName;
     private final Server server;
     boolean out_setEOF;
 
     private final Object sync_out_setEOF;  // For synchronized methods, so we don't sync on "this".
 
-    public StringServerSocket(String name, Server server )
+    public MemServerSocket( String memSocketName, Server server )
     {
-        socketName = name;
         this.server = server;
         allConnected = new Vector<>();
         out_setEOF = false;
         sync_out_setEOF = new Object();
-        allSockets.put(name, this);
+        allSockets.put(memSocketName, this);
     }
 
     /**
-     * Find and connect to stringport with this name.
+     * Find and connect to the stringport with this name.
      * Intended to be called by client thread.
      * Will block-wait until the server calls accept().
      * Returns a new client connection after accept.
@@ -118,8 +108,7 @@ public class StringServerSocket implements SOCServerSocket
      *                          or if its connect/accept queue is full.
      * @throws IllegalArgumentException If name is null, client is null,
      *                          or client is already peered/connected.
-     *
-     * @return client parameter object, connected to a LocalStringServer
+     * @return a new {@link MemConnection} object connected to the in-memory SOCServer instance.
      */
     public static MemConnection connectTo(String name, MemConnection client)
         throws ConnectException, IllegalArgumentException
@@ -131,20 +120,16 @@ public class StringServerSocket implements SOCServerSocket
         if (client.getPeer() != null)
             throw new IllegalArgumentException("client already peered");
 
-        if (! allSockets.containsKey(name))
+        if (! allSockets.containsKey(name)) // TODO: Will a server really ever instantiate multiple in-memory sockets?
             throw new ConnectException("StringServerSocket name not found: " + name);
 
-        StringServerSocket ss = allSockets.get(name);
+        MemServerSocket ss = allSockets.get(name);
         if (ss.isOutEOF())
             throw new ConnectException("StringServerSocket name is EOF: " + name);
 
         try
         {
             ss.queueAcceptClient(client);
-        }
-        catch (ConnectException ce)
-        {
-            throw ce;
         }
         catch (Throwable t)
         {
@@ -156,7 +141,6 @@ public class StringServerSocket implements SOCServerSocket
         // Since we called queueAcceptClient, that server-side thread may have woken
         // and accepted the connection from this client-side thread already.
         // So, check if we're accepted, before waiting to be accepted.
-        //
         synchronized (client)
         {
             // Sync vs. critical section in accept
@@ -197,8 +181,8 @@ public class StringServerSocket implements SOCServerSocket
      * @see #accept()
      * @see #ACCEPT_QUEUELENGTH
      */
-    protected MemConnection queueAcceptClient( MemConnection client )
-        throws IllegalStateException, IllegalArgumentException, ConnectException, EOFException, InterruptedException
+    private void queueAcceptClient( MemConnection client )
+        throws IllegalStateException, IllegalArgumentException, EOFException, InterruptedException
     {
         if (isOutEOF())
             throw new IllegalStateException("Internal error, already at EOF");
@@ -207,15 +191,8 @@ public class StringServerSocket implements SOCServerSocket
         if (client.isOutEOF() || client.isInEOF())
             throw new EOFException("client is already at EOF");
 
-        // Create server-side peer of client connect object, add client
-        // to the accept queue, then notify any server thread waiting to
-        // accept clients.  Accept() callers thread-wait on the newly
-        // created peer object to prevent possible contention with other
-        // objects; we know this new object won't have any locks on it.
-
-//        MemConnection serverPeer = new MemConnection(client);
+        // Add a connection to the accept queue.
         acceptQueue.put( client );
-        return client;
     }
 
     /**
@@ -287,7 +264,7 @@ public class StringServerSocket implements SOCServerSocket
 
     /**
      * @return Server-peer sides of all currently connected clients (StringConnections)
-     */
+     * /
     public Enumeration<MemConnection> allClients()
     {
         return allConnected.elements();
@@ -297,7 +274,7 @@ public class StringServerSocket implements SOCServerSocket
      * If our server won't receive any more data from the client, disconnect them.
      * Considered EOF if the client's server-side peer connection inbound EOF is set.
      * Removes from allConnected and set outbound EOF flag on that connection.
-     */
+     * /
     public void disconnectEOFClients()
     {
         MemConnection servPeer;
@@ -318,7 +295,7 @@ public class StringServerSocket implements SOCServerSocket
 
     /**
      * @return Returns the socketName.
-     */
+     * /
     public String getSocketName()
     {
         return socketName;
@@ -331,7 +308,7 @@ public class StringServerSocket implements SOCServerSocket
      * Continue to allow data from open inbound connections.
      *
      * @see #close()
-     */
+     * /
     public void setEOF()
     {
         setEOF(false);
@@ -390,7 +367,7 @@ public class StringServerSocket implements SOCServerSocket
      *
      * @see #setEOF()
      */
-    public void close() throws IOException
+    public void close()
     {
         setEOF(true);
 

@@ -28,7 +28,7 @@ import soc.baseclient.ServerConnectInfo;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.message.*;
-import soc.server.genericServer.StringServerSocket;
+import soc.server.genericServer.MemServerSocket;
 import soc.util.SOCFeatureSet;
 import soc.util.SOCGameList;
 import soc.util.Version;
@@ -91,7 +91,7 @@ public class DisplaylessTesterClient
     {
         try
         {
-            connection = StringServerSocket.connectTo(serverConnectInfo.stringSocketName);
+            connection = MemServerSocket.connectTo(serverConnectInfo.stringSocketName);
             connected = true;
             connection.startMessageProcessing( this );
 

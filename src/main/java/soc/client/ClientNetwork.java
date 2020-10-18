@@ -46,8 +46,12 @@ import soc.message.SOCMessage;
 import soc.message.SOCNewGameWithOptionsRequest;
 import soc.message.SOCRejectConnection;
 import soc.message.SOCVersion;
+
+// TODO: We need to break this dependency!
 import soc.server.SOCServer;
-import soc.server.genericServer.StringServerSocket;
+import soc.server.genericServer.MemServerSocket;
+
+
 import soc.util.SOCFeatureSet;
 import soc.util.Version;
 
@@ -158,8 +162,9 @@ import soc.util.Version;
      *<P>
      * Before v1.1.00 this field was {@code lastMessage}.
      * @see #lastMessage_P
-     */
-    protected String lastMessage_N;
+     * /
+     protected String lastMessage_N;
+    */
 
     /**
      * For debug, our last message sent to practice server (stringport pipes).
@@ -197,11 +202,11 @@ import soc.util.Version;
      * and call {@link #setMainDisplay(MainDisplay)}.
      * Then, call {@link #connect(String, int)}.
      */
-    public ClientNetwork(SOCPlayerClient c)
+    public ClientNetwork( SOCPlayerClient playerClient )
     {
-        client = c;
-        if (client == null)
+        if (playerClient == null)
             throw new IllegalArgumentException("client is null");
+        client = playerClient;
     }
 
     /**
@@ -262,7 +267,7 @@ import soc.util.Version;
         {
             try
             {
-                prCli = StringServerSocket.connectTo(SOCServer.PRACTICE_STRINGPORT);
+                prCli = MemServerSocket.connectTo(SOCServer.PRACTICE_STRINGPORT);
                 prCli.startMessageProcessing( client.getMessageHandler() );  // Reader will start its own thread
 
                 // Send VERSION right away

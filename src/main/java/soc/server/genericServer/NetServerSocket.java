@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 
 /**
  * Uses {@link ServerSocket} to implement {@link SOCServerSocket} over a network.
@@ -40,19 +39,17 @@ import java.net.SocketException;
 /*package*/ class NetServerSocket implements SOCServerSocket
 {
     private final ServerSocket implServSocket;
-    private final Server server;
 
-    public NetServerSocket(int port, Server server)
+    public NetServerSocket( int port )
         throws IOException
     {
-        this.server = server;
         this.implServSocket = new ServerSocket();
         implServSocket.setReuseAddress(true);
-        implServSocket.bind(new InetSocketAddress(port));
+        implServSocket.bind( new InetSocketAddress( port ));
     }
 
     public Connection accept()
-        throws SocketException, IOException
+        throws IOException
     {
         Socket s = implServSocket.accept();
         return new NetConnection( s );
