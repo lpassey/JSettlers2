@@ -29,6 +29,7 @@ import soc.disableDebug.D;
 
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
+import soc.game.SOCGameOptionSet;
 import soc.game.SOCPlayer;
 
 import soc.message.*;
@@ -204,11 +205,6 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     // Note: v2.2.00 moved the security cookie field to serverConnectInfo.robotCookie
 
     /**
-     * the thread that reads incoming messages
-     */
-//    private Thread readerRobot;
-
-    /**
      * the current robot parameters for robot brains
      * @see #handleUPDATEROBOTPARAMS(SOCUpdateRobotParams)
      */
@@ -240,8 +236,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * Since the robot and server are the same version, the
      * set of "known options" will always be in sync.
      */
-    protected Hashtable<String, Map<String, SOCGameOption>> gameOptions
-        = new Hashtable<>();
+    protected Hashtable<String, SOCGameOptionSet> gameOptions = new Hashtable<>();
 
     /**
      * number of games this bot has played
@@ -455,7 +450,8 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      *</UL>
      * For robot debugging and testing, will also add a feature from
      * {@link SOCDisplaylessPlayerClient#PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P} if set,
-     * and create that Known Option with {@link SOCGameOption#FLAG_3RD_PARTY} if not already created.
+     * and create that Known Option with {@link SOCGameOption#FLAG_3RD_PARTY} if not already created:
+     * Calls {@link SOCGameOptionSet#addKnownOption(SOCGameOption)}.
      *<P>
      * Called from {@link #init()}.
      *
@@ -475,9 +471,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             gameopt3p = gameopt3p.toUpperCase(Locale.US);
             feats.add("com.example.js." + gameopt3p);
 
-            if (null == SOCGameOption.getOption(gameopt3p, false))
+            if (null == knownOpts.getKnownOption(gameopt3p, false))
             {
-                SOCGameOption.addKnownOption(new SOCGameOption
+                knownOpts.addKnownOption(new SOCGameOption
                     (gameopt3p, 2000, Version.versionNumber(), false,
                      SOCGameOption.FLAG_3RD_PARTY | SOCGameOption.FLAG_DROP_IF_UNUSED,
                      "Client test 3p option " + gameopt3p));
@@ -507,7 +503,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     }
 
     /**
-     * Treat the incoming messages.
+     * dispatch the incoming messages to the appropriate message handler
      * Messages of unknown type are ignored. All {@link SOCGameServerText} are ignored.
      * ({@code mes} will be null from {@link SOCMessage#toMsg(String)}).
      *<P>
@@ -900,9 +896,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             return;  // <--- Disconnected from server ---
         }
 
-        final Map<String,SOCGameOption> gaOpts = mes.getOptions();
+        final Map<String,SOCGameOption> gaOpts = mes.getOptions(knownOpts);
         if (gaOpts != null)
-            gameOptions.put(gaName, gaOpts);
+            gameOptions.put(gaName, new SOCGameOptionSet(gaOpts));
 
         seatRequests.put(gaName, mes.getPlayerNumber() );
         connection.send( new SOCJoinGame(nickname, password, SOCMessage.EMPTYSTR, gaName));
@@ -954,22 +950,22 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
         final String gaName = mes.getGame();
 
-        final Map<String, SOCGameOption> gameOpts = gameOptions.get(gaName);
+        final SOCGameOptionSet gameOpts = gameOptions.get(gaName);
         final int bh = mes.getBoardHeight(), bw = mes.getBoardWidth();
         if ((bh != 0) || (bw != 0))
         {
             // Encode board size to pass through game constructor.
-            // gameOpts won't be null, because bh, bw are from SOCBoardLarge which requires a gameopt to use.
-            SOCGameOption opt = SOCGameOption.getOption("_BHW", true);
+            // gameOpts won't be null, because bh, bw are used only with SOCBoardLarge which requires a gameopt
+            SOCGameOption opt = knownOpts.getKnownOption("_BHW", true);
             if (opt == null)
                 throw new IllegalStateException("Internal error: Game opt _BHW not known");
             opt.setIntValue((bh << 8) | bw);
-            gameOpts.put("_BHW", opt);
+            gameOpts.put(opt);
         }
 
         try
         {
-            final SOCGame ga = new SOCGame(gaName, gameOpts);
+            final SOCGame ga = new SOCGame(gaName, gameOpts, knownOpts);
             ga.isPractice = isPractice;
             ga.serverVersion = (isPractice) ? sLocalVersion : sVersion;
             games.put(gaName, ga);
@@ -1587,30 +1583,30 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     public void leaveGame
         (final SOCGame ga, final String leaveReason, final boolean showReason, final boolean showDebugTrace)
     {
-        if (ga != null)
+        if (ga == null)
+            return;
+
+        final String gaName = ga.getName();
+
+        robotBrains.remove(gaName);
+        brainQs.remove(gaName);
+        games.remove(gaName);
+
+        final String r = (showReason || D.ebugIsEnabled())
+            ? ("L1833 robot " + nickname + " leaving game " + gaName + " due to " + leaveReason)
+            : null;
+        if (showReason)
+            soc.debug.D.ebugPrintlnINFO(r);
+        else if (r != null)
+            D.ebugPrintlnINFO(r);
+
+        if (showDebugTrace)
         {
-            final String gaName = ga.getName();
-
-            robotBrains.remove(gaName);
-            brainQs.remove(gaName);
-            games.remove(gaName);
-
-            final String r = (showReason || D.ebugIsEnabled())
-                ? ("L1833 robot " + nickname + " leaving game " + gaName + " due to " + leaveReason)
-                : null;
-            if (showReason)
-                soc.debug.D.ebugPrintlnINFO(r);
-            else if (r != null)
-                D.ebugPrintlnINFO(r);
-
-            if (showDebugTrace)
-            {
-                soc.debug.D.ebugPrintStackTrace(null, "Leaving game here");
-                System.err.flush();
-            }
-
-            connection.send( new SOCLeaveGame(nickname, "-", gaName));
+            soc.debug.D.ebugPrintStackTrace(null, "Leaving game here");
+            System.err.flush();
         }
+
+        connection.send( new SOCLeaveGame(nickname, "-", gaName));
     }
 
     /**

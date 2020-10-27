@@ -41,7 +41,6 @@ import soc.communication.SOCMessageDispatcher;
 
 import soc.server.genericServer.InboundMessageQueue;
 import soc.server.genericServer.Server;
-// import soc.server.genericServer.StringConnection;
 import soc.server.savegame.SavedGameModel;
 
 import soc.util.SOCFeatureSet;
@@ -276,7 +275,7 @@ public class SOCServer extends Server
      * <LI> Has a constructor which takes the same args as soc.robot.SOCRobotClient's
      *      and soc.robot.sample3p.Sample3PClient's: ({@link ServerConnectInfo}, String, String)
      *</UL>
-     * Third-party bots don't need to extend SOCRobotClient, but the current server code
+     * Third-party bots in general don't have to extend SOCRobotClient, but the current server code
      * only knows how to start such subclasses. So, non-subclassed bots will need to be
      * started and connected manually.
      *<P>
@@ -535,10 +534,27 @@ public class SOCServer extends Server
 
     /**
      * Property {@code jsettlers.gameopts.activate} to activate and use inactive game options;
-     * see {@link SOCGameOption#activate(String)}.
+     * see {@link SOCGameOptionSet#activate(String)}.
      * @since 2.4.10
      */
     public static final String PROP_JSETTLERS_GAMEOPTS_ACTIVATE = "jsettlers.gameopts.activate";
+
+    /**
+     * Boolean property {@code jsettlers.game.disallow.6player} to disallow 6-player games:
+     * Only 4 or fewer players allowed. Also disallows use of the 6-player board.
+     * May be useful for third-party bot development.
+     * @see #checkLimitClientFeaturesForServerDisallows(SOCFeatureSet)
+     * @since 2.4.10
+     */
+    public static final String PROP_JSETTLERS_GAME_DISALLOW_6PLAYER = "jsettlers.game.disallow.6player";
+
+    /**
+     * Boolean property {@code jsettlers.game.disallow.sea_board} to disallow use of the sea board and scenarios.
+     * May be useful for third-party bot development.
+     * @see #checkLimitClientFeaturesForServerDisallows(SOCFeatureSet)
+     * @since 2.4.10
+     */
+    public static final String PROP_JSETTLERS_GAME_DISALLOW_SEA__BOARD = "jsettlers.game.disallow.sea_board";
 
     /**
      * Property {@code jsettlers.savegame.dir} to enable SAVEGAME/LOADGAME debug commands
@@ -608,6 +624,8 @@ public class SOCServer extends Server
         PROP_JSETTLERS_CLI_MAXCREATEGAMES,      "Maximum simultaneous games that a client can create",
         PROP_JSETTLERS_GAMEOPT_PREFIX + "*",    "Game option defaults, case-insensitive: jsettlers.gameopt.RD=y",
         PROP_JSETTLERS_GAMEOPTS_ACTIVATE,       "If set, activate these inactive game options (comma-separated list)",
+        PROP_JSETTLERS_GAME_DISALLOW_6PLAYER,   "Flag to disallow 6-player games",
+        PROP_JSETTLERS_GAME_DISALLOW_SEA__BOARD, "Flag to disallow sea board and scenarios",
         // I18n.PROP_JSETTLERS_LOCALE,             "Locale override from the default, such as es or en_US, for console output",
             // -- not used yet at server
         PROP_JSETTLERS_BOTS_BOTGAMES_TOTAL,     "Run this many robot-only games, a few at a time (default 0); allow bot-only games",
@@ -767,7 +785,7 @@ public class SOCServer extends Server
      * Maximum permitted player name length, default 20 characters.
      * Clients older than v2.0.00 truncate nickname to 20 characters in SOCPlayerClient.getValidNickname before sending.
      *
-     * @see #createOrJoinGameIfUserOK(Connection, String, String, String, Map)
+     * @see #createOrJoinGameIfUserOK(Connection, String, String, String, SOCGameOptionSet)
      * @see SOCGameList#GAME_NAME_MAX_LENGTH
      * @since 1.1.07
      */
@@ -870,6 +888,15 @@ public class SOCServer extends Server
     static final int AUTH_OR_REJECT__SET_USERNAME = 0x4;
 
     /**
+     * All the Known Game Options, from {@link SOCGameOptionSet#getAllKnownOptions()},
+     * to be copied at server startup to {@link #knownOpts}.
+     *<P>
+     * Before v2.4.10, {@link SOCGameOption} relied on an internal static map and this field wasn't needed.
+     * @since 2.4.10
+     */
+    public final static SOCGameOptionSet startupKnownOpts = SOCGameOptionSet.getAllKnownOptions();
+
+    /**
      * So we can get random numbers.
      */
     private Random rand = new Random();
@@ -926,6 +953,16 @@ public class SOCServer extends Server
      * @since 2.4.10
      */
     protected SOCDBHelper db;
+
+    /**
+     * All the Known Game Options at this server, copied early from {@link #startupKnownOpts} using field initializer.
+     *<P>
+     * Before v2.4.10, {@link SOCGameOption} relied on an internal static map and this field wasn't needed.
+     *
+     * @see #activateKnownOption(String)
+     * @since 2.4.10
+     */
+    public final SOCGameOptionSet knownOpts = new SOCGameOptionSet(startupKnownOpts, true);
 
     /**
      * Active optional server features, if any; see {@link SOCFeatureSet} constants for currently defined features.
@@ -1176,7 +1213,7 @@ public class SOCServer extends Server
     /**
      * list of soc games
      */
-    protected SOCGameListAtServer gameList = new SOCGameListAtServer(rand);
+    protected SOCGameListAtServer gameList = new SOCGameListAtServer(rand, knownOpts);
 
     /**
      * Server message handler to process inbound messages from clients.
@@ -1293,13 +1330,13 @@ public class SOCServer extends Server
 
     /**
      * Description string for SOCGameOption {@code "PL"} hardcoded into the SOCGameOption class,
-     * from {@link SOCGameOption#getOption(String, boolean) SOCGameOption.getOption("PL", false)}.
+     * from {@link SOCGameOptionSet#getKnownOption(String, boolean) SOCGameOptionSet.getKnownOption("PL", false)}.
      * Used for determining whether a client's i18n locale has localized option descriptions,
      * by comparing {@code PL}'s {@link SOCVersionedItem#getDesc() SOCGameOption.desc} to
      * StringManager.get({@code "gameopt.PL"}).
      *<P>
      * String value is captured here as soon as SOCServer is referenced, in case SOCPlayerClient's
-     * practice server will localize the descriptions used by {@link SOCGameOption#getOption(String, boolean)}.
+     * practice server will localize the Known Option descriptions in its {@link SOCGameOptionSet}.
      * @since 2.0.00
      * @see #i18n_scenario_SC_WOND_desc
      * @see soctest.TestI18NGameoptScenStrings
@@ -1307,7 +1344,7 @@ public class SOCServer extends Server
     static final String i18n_gameopt_PL_desc;
     static
     {
-        final SOCGameOption optPL = SOCGameOption.getOption("PL", false);
+        final SOCGameOption optPL = startupKnownOpts.getKnownOption("PL", false);
         i18n_gameopt_PL_desc = (optPL != null) ? optPL.getDesc() : "";
     }
 
@@ -1437,7 +1474,7 @@ public class SOCServer extends Server
      * For the password reset property {@link SOCDBHelper#PROP_IMPL_JSETTLERS_PW_RESET}, the
      * caller will need to prompt for and change the password; this constructor will not do that.
      *
-     * @param p    the TCP port that the server listens on
+     * @param port   the TCP port that the server listens on
      * @param props  null, or properties containing {@link #PROP_JSETTLERS_CONNECTIONS}
      *       and any other desired properties.
      *       <P>
@@ -1481,10 +1518,10 @@ public class SOCServer extends Server
      * @throws IllegalStateException  If {@link Version#versionNumber()} returns 0 (packaging error)
      * @see #PROPS_LIST
      */
-    public SOCServer(final int p, Properties props)
+    public SOCServer(final int port, Properties props)
         throws SocketException, EOFException, SQLException, IllegalArgumentException, IllegalStateException
     {
-        super(p, new SOCServerMessageDispatcher(), props);
+        super( port, new SOCServerMessageDispatcher(), props );
         props = this.props;  // if was null, use empty props created by super constructor
 
         String dbuser = props.getProperty(SOCDBHelper.PROP_JSETTLERS_DB_USER, "socuser");
@@ -1775,7 +1812,7 @@ public class SOCServer extends Server
                 StringBuilder err = new StringBuilder();
                 for (final String optKey : txt.split(","))
                 {
-                    if (null == SOCGameOption.getOption(optKey, false))
+                    if (null == knownOpts.getKnownOption(optKey, false))
                     {
                         if (err.length() > 0)
                             err.append(", ");
@@ -1786,7 +1823,7 @@ public class SOCServer extends Server
 
                     try
                     {
-                        SOCGameOption.activate(optKey);
+                        knownOpts.activate(optKey);
                     }
                     catch (IllegalArgumentException e)
                     {
@@ -1815,7 +1852,7 @@ public class SOCServer extends Server
                      SOCGameOption.FLAG_3RD_PARTY | SOCGameOption.FLAG_DROP_IF_UNUSED,
                      "Server test 3p option " + gameopt3p);
                 opt.setClientFeature("com.example.js." + gameopt3p);
-                SOCGameOption.addKnownOption(opt);
+                knownOpts.put(opt);
 
                 if (null == System.getProperty(SOCDisplaylessPlayerClient.PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P))
                     System.setProperty(SOCDisplaylessPlayerClient.PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P, gameopt3p);
@@ -1824,7 +1861,7 @@ public class SOCServer extends Server
 
         // Don't add/activate any more Known Options past this point
 
-        has3rdPartyGameopts = (null != SOCGameOption.optionsWithFlag(SOCGameOption.FLAG_3RD_PARTY, 0));
+        has3rdPartyGameopts = (null != knownOpts.optionsWithFlag(SOCGameOption.FLAG_3RD_PARTY, 0));
 
         /**
          * See if the user specified a non-random robot cookie value.
@@ -1969,7 +2006,7 @@ public class SOCServer extends Server
          * any option defaults require a minimum client version.
          */
         if (hasSetGameOptions || validate_config_mode
-            || (SOCVersionedItem.itemsMinimumVersion(SOCGameOption.getAllKnownOptions()) > -1))
+            || (SOCVersionedItem.itemsMinimumVersion(knownOpts.getAll()) > -1))
         {
             Thread.yield();  // wait for other output to appear first
             try { Thread.sleep(200); } catch (InterruptedException ignored) {}
@@ -2780,7 +2817,7 @@ public class SOCServer extends Server
     /**
      * Adds a connection to a game, unless they're already a member.
      * If the game doesn't yet exist, creates it and announces the new game to all clients
-     * by calling {@link #createGameAndBroadcast(Connection, String, Map, SOCGame, int, boolean, boolean)}.
+     * by calling {@link #createGameAndBroadcast(Connection, String, SOCGameOptionSet, SOCGame, int, boolean, boolean)}.
      * After this method returns, caller must call {@link #joinGame(SOCGame, Connection, boolean, boolean, boolean)}
      * to send game state to the player/observer.
      *<P>
@@ -2789,10 +2826,10 @@ public class SOCServer extends Server
      *
      * @param c    the Connection to be added to the game; its name, version, and locale should already be set.
      * @param gaName  the name of the game; ignored if {@code loadedGame != null}. Not validated or trimmed, see
-     *             {@link #createOrJoinGameIfUserOK(Connection, String, String, String, Map)} for that.
+     *             {@link #createOrJoinGameIfUserOK(Connection, String, String, String, SOCGameOptionSet)} for that.
      * @param gaOpts  if creating a game with options, its {@link SOCGameOption}s; otherwise null.
      *                Must already be validated, by calling
-     *                {@link SOCGameOption#adjustOptionsToKnown(Map, Map, boolean)}
+     *                {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
      *                with <tt>doServerPreadjust</tt> true.
      * @param loadedGame  Game being reloaded, or {@code null} when joining an existing game or creating a new one.
      *          Should not be in server's gameList yet.
@@ -2801,7 +2838,7 @@ public class SOCServer extends Server
      * @throws SOCGameOptionVersionException if asking to create a game (gaOpts != null),
      *           but client's version is too low to join because of a
      *           requested game option's minimum version in gaOpts.
-     *           Calculated via {@link SOCGameOption#optionsNewerThanVersion(int, boolean, boolean, Map)}.
+     *           Calculated via {@link SOCGameOptionSet#optionsNewerThanVersion(int, boolean, boolean)}.
      *           (this exception was added in 1.1.07)
      * @throws MissingResourceException if client has {@link SOCClientData#hasLimitedFeats} and
      *           <tt>! {@link SOCGame#canClientJoin(SOCFeatureSet)}</tt>.
@@ -2816,7 +2853,7 @@ public class SOCServer extends Server
      * @see SOCServerMessageHandler#handleJOINGAME(Connection, SOCJoinGame)
      */
     public boolean connectToGame
-        (Connection c, final String gaName, Map<String, SOCGameOption> gaOpts, final SOCGame loadedGame)
+        (Connection c, final String gaName, SOCGameOptionSet gaOpts, final SOCGame loadedGame)
         throws SOCGameOptionVersionException, MissingResourceException, NoSuchElementException,
             IllegalArgumentException, RuntimeException
     {
@@ -2913,14 +2950,14 @@ public class SOCServer extends Server
             }
             else
             {
-                gVers = SOCVersionedItem.itemsMinimumVersion(gaOpts);
+                gVers = SOCVersionedItem.itemsMinimumVersion(gaOpts.getAll());
                 if ((gVers > cliVers) && (gVers < Integer.MAX_VALUE))
                 {
                     // Which requested option(s) are too new for client?
                     // (Ignored if gVers was MAX_VALUE, which is used
                     //  only by test-gameopt DEBUGNOJOIN.)
-                    List<SOCGameOption> optsValuesTooNew = SOCGameOption.optionsNewerThanVersion
-                        (cliVers, true, false, gaOpts);
+                    List<SOCGameOption> optsValuesTooNew =
+                        gaOpts.optionsNewerThanVersion(cliVers, true, false);
                     throw new SOCGameOptionVersionException(gVers, cliVers, optsValuesTooNew);
 
                     // <---- Exception: Early return ----
@@ -2939,12 +2976,13 @@ public class SOCServer extends Server
 
     /**
      * Create a new game or connect to a reloaded one, and announce it with a broadcast.
-     * Called from {@link #connectToGame(Connection, String, Map, SOCGame)}.
+     * Called from {@link #connectToGame(Connection, String, SOCGameOptionSet, SOCGame)}.
      *<P>
      * Can also be used with a {@code loadedGame} being reloaded; will
      * add it to game list and generally act as if a new game is being created.
      *<P>
-     * The new game is created with {@link SOCGameListAtServer#createGame(String, String, String, Map, GameHandler)}
+     * The new game is created with
+     * {@link SOCGameListAtServer#createGame(String, String, String, SOCGameOptionSet, GameHandler)}
      * and will expire in {@link SOCGameListAtServer#GAME_TIME_EXPIRE_MINUTES} unless extended during play.
      *<P>
      * The broadcast will send {@link SOCNewGameWithOptions} if {@code gaOpts != null}, {@link SOCNewGame} otherwise.
@@ -2959,13 +2997,13 @@ public class SOCServer extends Server
      *             will be called.  Can be null, especially if {@code isBotsOnly}.
      * @param gaName  requested name of the game; no game should be in game list yet with this name.
      *             If another game with this name does exist, tries to rename {@code gaName}
-     *             (see {@link SOCGameListAtServer#createGame(String, String, String, Map, GameHandler)}).
+     *             (see {@link SOCGameListAtServer#createGame(String, String, String, SOCGameOptionSet, GameHandler)}).
      *             Ignored if {@code loadedGame != null}. Not validated or trimmed, see
-     *             {@link #createOrJoinGameIfUserOK(Connection, String, String, String, Map)} for that.
+     *             {@link #createOrJoinGameIfUserOK(Connection, String, String, String, SOCGameOptionSet)} for that.
      * @param gaOpts  if creating a game with options, its {@link SOCGameOption}s; otherwise null.
      *                Ignored if {@code loadedGame != null}.
      *                Must already be validated, by calling
-     *                {@link SOCGameOption#adjustOptionsToKnown(Map, Map, boolean)}
+     *                {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
      *                with <tt>doServerPreadjust</tt> true.
      * @param loadedGame  Game being reloaded, or {@code null} when joining an existing game or creating a new one.
      *             Should not be in server's gameList yet.
@@ -2983,7 +3021,7 @@ public class SOCServer extends Server
      * @since 2.0.00
      */
     private SOCGame createGameAndBroadcast
-        (final Connection c, String gaName, Map<String, SOCGameOption> gaOpts, final SOCGame loadedGame,
+        (final Connection c, String gaName, SOCGameOptionSet gaOpts, final SOCGame loadedGame,
          final int gVers, final boolean isBotsOnly, final boolean hasGameListMonitor)
         throws NoSuchElementException
     {
@@ -3046,7 +3084,7 @@ public class SOCServer extends Server
 
     /**
      * Announce a newly created or reloaded game to all clients; called from
-     * {@link #createGameAndBroadcast(Connection, String, Map, SOCGame, int, boolean, boolean)}.
+     * {@link #createGameAndBroadcast(Connection, String, SOCGameOptionSet, SOCGame, int, boolean, boolean)}.
      * If some clients can't join, based on their version or limited {@link SOCClientData#feats},
      * announce to those clients with the "can't join" prefix flag.
      *
@@ -3057,7 +3095,7 @@ public class SOCServer extends Server
      * @since 2.0.00
      */
     private void broadcastNewGame
-        (final SOCGame newGame, final String gaName, Map<String, SOCGameOption> gaOpts, final int gVers)
+        (final SOCGame newGame, final String gaName, final SOCGameOptionSet gaOpts, final int gVers)
     {
         // check required client version before we broadcast
         final int cversMin = getMinConnectedCliVersion();
@@ -3086,7 +3124,8 @@ public class SOCServer extends Server
 
             final int gVersMinGameOptsNoChange;
             if (cversMin < Version.versionNumber())
-                gVersMinGameOptsNoChange = SOCVersionedItem.itemsMinimumVersion(gaOpts, true);
+                gVersMinGameOptsNoChange = SOCVersionedItem.itemsMinimumVersion
+                    (gaOpts != null ? gaOpts.getAll() : null, true);
             else
                 gVersMinGameOptsNoChange = -1;  // all clients are our current version or higher
 
@@ -3195,13 +3234,13 @@ public class SOCServer extends Server
 
     /**
      * Utility method to loop through {@link #conns} or {@link #unnamedConns} during
-     * {@link #broadcastNewGame(SOCGame, String, Map, int)}.
+     * {@link #broadcastNewGame(SOCGame, String, SOCGameOptionSet, int)}.
      *<P>
      * For parameter meanings, see source of {@code broadcastNewGame(..)}.
      * @since 2.0.00
      */
     private void broadcastNewGame_toConns
-        (final SOCGame newGame, final Map<String, SOCGameOption> gaOpts, final int gVers,
+        (final SOCGame newGame, final SOCGameOptionSet gaOpts, final int gVers,
          final int gVersMinGameOptsNoChange, Collection<Connection> connSet, Connection cliLimited,
          final HashMap<Integer, SOCMessage> msgCacheForVersion, SOCMessage cannotJoinMsg)
     {
@@ -3576,7 +3615,7 @@ public class SOCServer extends Server
             for (int i = 0; i < numFast; ++i)
             {
                 String rname = "droid " + (i+1);
-                SOCLocalRobotClient.createAndStartRobotClientThread(rname, sci, null);
+                SOCLocalRobotClient.createAndStartRobotClientThread(rname, sci, knownOpts, null);
                     // to ratelimit, create includes Thread.yield() and sleep(75 ms) on caller's thread
             }
 
@@ -3587,7 +3626,7 @@ public class SOCServer extends Server
             for (int i = 0; i < numSmart; ++i)
             {
                 String rname = "robot " + (i+1+numFast);
-                SOCLocalRobotClient.createAndStartRobotClientThread(rname, sci, null);
+                SOCLocalRobotClient.createAndStartRobotClientThread(rname, sci, knownOpts, null);
             }
 
             // Now, any third-party bots starting up with server.
@@ -3598,7 +3637,7 @@ public class SOCServer extends Server
                 {
                     ++i;
                     curr3pBotClass = con.getDeclaringClass().getName();
-                    SOCLocalRobotClient.createAndStartRobotClientThread("extrabot " + i, sci, con);
+                    SOCLocalRobotClient.createAndStartRobotClientThread("extrabot " + i, sci, knownOpts, con);
                 }
             }
         }
@@ -3800,11 +3839,60 @@ public class SOCServer extends Server
      *
      * @param gm Game name
      * @return the game options, or null if the game doesn't exist or has no options
+     * @see #activateKnownOption(String)
      * @since 1.1.07
      */
-    public Map<String,SOCGameOption> getGameOptions(String gm)
+    public SOCGameOptionSet getGameOptions(String gm)
     {
         return gameList.getGameOptions(gm);
+    }
+
+    /**
+     * Activate an inactive {@link SOCGameOption} in server's Known Options
+     * and announce its updated {@link SOCGameOptionInfo} to all connected clients.
+     * May be useful during testing with bots; not expected to be used in typical production.
+     *
+     * @param optKey The inactive Known Option's {@link SOCVersionedItem#key key}
+     * @return true if option was found and activated, or was already active; false if not found
+     * @throws IllegalArgumentException if Known Option {@code optKey}
+     *     has neither {@link SOCGameOption#FLAG_INACTIVE_HIDDEN} nor {@link SOCGameOption#FLAG_ACTIVATED}
+     * @see #getGameOptions(String)
+     * @since 2.4.10
+     */
+    public boolean activateKnownOption(final String optKey)
+        throws IllegalArgumentException
+    {
+        SOCGameOption opt = knownOpts.get(optKey);
+        if (opt == null)
+            return false;
+        if (opt.hasFlag(SOCGameOption.FLAG_ACTIVATED))
+            return true;
+
+        knownOpts.activate(optKey);
+        opt = knownOpts.get(optKey);
+
+        final int minVers = opt.minVersion;
+        final String optFeat = opt.getClientFeature();
+        for (final Connection c : conns.values())
+        {
+            final int cliVers = c.getVersion();
+            final SOCClientData scd = (SOCClientData) c.getAppData();
+            final boolean isSupported = ((cliVers >= minVers)
+                && ((optFeat == null) || ((scd != null) && scd.feats.isActive(optFeat))));
+            c.put(new SOCGameOptionInfo
+                ((isSupported) ? opt : new SOCGameOption(opt.key), cliVers, null));
+        }
+        for (final Connection c : unnamedConns)
+        {
+            final int cliVers = c.getVersion();
+            final SOCClientData scd = (SOCClientData) c.getAppData();
+            final boolean isSupported = ((cliVers >= minVers)
+                && ((optFeat == null) || ((scd != null) && scd.feats.isActive(optFeat))));
+            c.put(new SOCGameOptionInfo
+                ((isSupported) ? opt : new SOCGameOption(opt.key), cliVers, null));
+        }
+
+        return true;
     }
 
     /**
@@ -3857,21 +3945,20 @@ public class SOCServer extends Server
     }
 
     /**
-     * Given a StringManager (for a client's locale), return all known
-     * game options, localizing the descriptive names if available.
+     * Given a client's locale, return all known game options, localizing the descriptive names if available.
      * @param loc  Client's locale for StringManager i18n lookups:
      *          <tt>smgr.get("gameopt." + {@link SOCVersionedItem#key SOCGameOption.key})</tt>
-     * @param updateStaticKnownOpts  If true, localize each {@link SOCVersionedItem#getDesc() SOCGameOption.desc} in the
-     *          static set of known options used by {@link SOCGameOption#getOption(String, boolean)} and
-     *          {@link SOCGameOption#getAllKnownOptions()}; for use only by client's practice-game server
-     * @return  {@link SOCGameOption#getAllKnownOptions()}, with descriptions localized if available
+     * @param updateStaticKnownOpts  If true, localize each {@link SOCVersionedItem#getDesc() SOCGameOption.desc} in
+     *          this server class's static set of known options; for use only by client's practice-game server
+     * @return Known Options from {@link SOCGameOptionSet#getAllKnownOptions()},
+     *          with descriptions localized if available
      * @since 2.0.00
      */
-    public static Map<String,SOCGameOption> localizeKnownOptions
+    public static SOCGameOptionSet localizeKnownOptions
         (final Locale loc, final boolean updateStaticKnownOpts)
     {
         // Get copy of all known options
-        Map<String,SOCGameOption> knownOpts = SOCGameOption.getAllKnownOptions();
+        SOCGameOptionSet knownOpts = new SOCGameOptionSet(startupKnownOpts, false);
 
         // See if we have localized opt descs for sm's locale
         final SOCStringManager sm = SOCStringManager.getServerManagerForClient(loc);
@@ -3884,21 +3971,21 @@ public class SOCServer extends Server
         }
 
         // Localize and return
-        HashMap<String,SOCGameOption> opts = new HashMap<>();
-        for (SOCGameOption opt : knownOpts.values())
+        SOCGameOptionSet opts = new SOCGameOptionSet();
+        for (SOCGameOption opt : knownOpts)
         {
             final String optKey = opt.key;
             try
             {
                 final SOCGameOption oLocal = new SOCGameOption( opt, sm.get( "gameopt." + optKey ) );
-                opts.put( optKey, oLocal );
+                opts.put(oLocal);
                 if (updateStaticKnownOpts)
-                    SOCGameOption.addKnownOption( oLocal );
-                // for-loop iteration isn't affected: updates static originals, not the copy in knownOpts
+                    startupKnownOpts.put(oLocal);
+                        // for-loop iteration not interrupted: updates static original set, not the knownOpts copy
             }
-            catch( MissingResourceException e )
+            catch (MissingResourceException e)
             {
-                opts.put( optKey, opt );
+                opts.put(opt);
             }
         }
 
@@ -6845,6 +6932,45 @@ public class SOCServer extends Server
     }
 
     /**
+     * For client's game option info negotiation, check whether server props disallow
+     * the 6-player board or sea board, and if so, copy {@code cliFeats} and remove related features from the copy.
+     *<UL>
+     * <LI> {@link #PROP_JSETTLERS_GAME_DISALLOW_6PLAYER}: {@link SOCFeatureSet#CLIENT_6_PLAYERS}
+     * <LI> {@link #PROP_JSETTLERS_GAME_DISALLOW_SEA__BOARD}: {@link SOCFeatureSet#CLIENT_SEA_BOARD},
+     *      {@link SOCFeatureSet#CLIENT_SCENARIO_VERSION}
+     *</UL>
+     * Checked when client syncs game option info during initial connect,
+     * and again when they request creation of a game with options.
+     *
+     * @param cliFeats Client features, from {@link SOCClientData#feats}
+     * @return More-limited copy of client features if either board type is disallowed, {@code null} otherwise.
+     *     If needs to copy {@code cliFeats} but it's null, will return a new empty feature set.
+     * @see SOCClientData#hasLimitedFeats
+     * @since 2.4.10
+     */
+    protected SOCFeatureSet checkLimitClientFeaturesForServerDisallows(SOCFeatureSet cliFeats)
+    {
+        final boolean disallow6pl = getConfigBoolProperty(PROP_JSETTLERS_GAME_DISALLOW_6PLAYER, false),
+            disallowSeaBoard = getConfigBoolProperty(PROP_JSETTLERS_GAME_DISALLOW_SEA__BOARD, false);
+        if (! (disallow6pl || disallowSeaBoard))
+            return null;
+
+        if (cliFeats == null)
+            return new SOCFeatureSet((String) null);  // cliFeats has nothing to remove
+
+        cliFeats = new SOCFeatureSet(cliFeats);
+        if (disallow6pl)
+            cliFeats.remove(SOCFeatureSet.CLIENT_6_PLAYERS);
+        if (disallowSeaBoard)
+        {
+            cliFeats.remove(SOCFeatureSet.CLIENT_SEA_BOARD);
+            cliFeats.remove(SOCFeatureSet.CLIENT_SCENARIO_VERSION);
+        }
+
+        return cliFeats;
+    }
+
+    /**
      * Localize the standard "Welcome to Java Settlers of Catan!" text,
      * or return the custom welcome text from {@link #PROP_JSETTLERS_ADMIN_WELCOME}
      * if set.
@@ -7032,14 +7158,18 @@ public class SOCServer extends Server
         }
 
         // Unless client is older, check now for unsupported/limited/activated SGOs
+        // and send their info, because client may not send a SOCGameOptionGetInfos request
         if (cvers >= Version.versionNumber())
         {
             boolean hadAny = false;
+            SOCFeatureSet cliLimitedFeats = checkLimitClientFeaturesForServerDisallows(scd.feats);
+            if ((cliLimitedFeats == null) && hasLimitedFeats)
+                cliLimitedFeats = scd.feats;
             Map<String, SOCGameOption> unsupportedOpts = null, trimmedOpts = null;
 
-            if (hasLimitedFeats)
+            if (cliLimitedFeats != null)
             {
-                unsupportedOpts = SOCGameOption.optionsNotSupported(scd.feats);
+                unsupportedOpts = knownOpts.optionsNotSupported(cliLimitedFeats);
                 if (unsupportedOpts != null)
                 {
                     for (String okey : unsupportedOpts.keySet())
@@ -7047,7 +7177,7 @@ public class SOCServer extends Server
                     hadAny = true;
                 }
 
-                trimmedOpts = SOCGameOption.optionsTrimmedForSupport(scd.feats);
+                trimmedOpts = knownOpts.optionsTrimmedForSupport(cliLimitedFeats);
                 if (trimmedOpts != null)
                 {
                     for (SOCGameOption opt : trimmedOpts.values())
@@ -7056,14 +7186,14 @@ public class SOCServer extends Server
                 }
             }
 
-            Map<String, SOCGameOption> activatedOpts =
-                SOCGameOption.optionsWithFlag(SOCGameOption.FLAG_ACTIVATED, cvers);
+            SOCGameOptionSet activatedOpts =
+                knownOpts.optionsWithFlag(SOCGameOption.FLAG_ACTIVATED, cvers);
             if (activatedOpts != null)
             {
                 final boolean wantsLocalDescs =
                     ! ("en_US".equals(clocale) || i18n_gameopt_PL_desc.equals(c.getLocalized("gameopt.PL")));
 
-                for (SOCGameOption opt : activatedOpts.values())
+                for (SOCGameOption opt : activatedOpts)
                 {
                     final String okey = opt.key;
                     if ((unsupportedOpts != null) && unsupportedOpts.containsKey(okey))
@@ -7349,7 +7479,7 @@ public class SOCServer extends Server
      *        STATUSMESSAGE({@link SOCStatusMessage#SV_NEWGAME_OPTION_UNKNOWN SV_NEWGAME_OPTION_UNKNOWN}) <br>
      *      - if any are too new for client's version, resp with
      *        STATUSMESSAGE({@link SOCStatusMessage#SV_NEWGAME_OPTION_VALUE_TOONEW SV_NEWGAME_OPTION_VALUE_TOONEW}) <br>
-     *      Comparison is done by {@link SOCGameOption#adjustOptionsToKnown(Map, Map, boolean)}.
+     *      Comparison is done by {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}.
      *  <LI> if ok: create new game with params;
      *      socgame will calc game's minCliVersion,
      *      and this method will check that against cli's version.
@@ -7374,14 +7504,14 @@ public class SOCServer extends Server
      * @param gameOpts  if game has options, contains {@link SOCGameOption} to create new game;
      *                  if not null, will not join an existing game.
      *                  Will validate and adjust by calling
-     *                  {@link SOCGameOption#adjustOptionsToKnown(Map, Map, boolean)}
+     *                  {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
      *                  with <tt>doServerPreadjust</tt> true.
      *
      * @since 1.1.07
      */
     void createOrJoinGameIfUserOK
         (Connection c, String msgUser, String msgPass,
-         String gameName, final Map<String, SOCGameOption> gameOpts)
+         String gameName, final SOCGameOptionSet gameOpts)
     {
         if (gameName != null)
             gameName = gameName.trim();
@@ -7416,7 +7546,7 @@ public class SOCServer extends Server
 
     /**
      * After successful client user auth, take care of the rest of
-     * {@link #createOrJoinGameIfUserOK(Connection, String, String, String, Map)}.
+     * {@link #createOrJoinGameIfUserOK(Connection, String, String, String, SOCGameOptionSet)}.
      *<P>
      * Can also be used with a {@code loadedGame} being reloaded
      * (having current state {@link SOCGame#LOADING}); will check its name and game options,
@@ -7446,12 +7576,13 @@ public class SOCServer extends Server
      * @since 1.2.00
      */
     /*package*/ boolean createOrJoinGame
-        (final Connection c, final int cliVers, final String connGaName, final Map<String, SOCGameOption> gameOpts,
+        (final Connection c, final int cliVers, final String connGaName, final SOCGameOptionSet gameOpts,
          final SOCGame loadedGame, final int authResult)
         throws IllegalStateException
     {
         final boolean isTakingOver = (0 != (authResult & AUTH_OR_REJECT__TAKING_OVER));
         final boolean sendErrorViaStatus = ((loadedGame == null) || (connGaName == null));
+        final SOCClientData scd = (SOCClientData) c.getAppData();
 
         String gameName;  // game name to check
         if (loadedGame != null)
@@ -7497,7 +7628,7 @@ public class SOCServer extends Server
             if (((strSocketName == null) || ! strSocketName.equals(PRACTICE_STRINGPORT))
                 && (loadedGame == null)
                 && (CLIENT_MAX_CREATE_GAMES >= 0)
-                && (CLIENT_MAX_CREATE_GAMES <= ((SOCClientData) c.getAppData()).getCurrentCreatedGames()))
+                && (CLIENT_MAX_CREATE_GAMES <= scd.getCurrentCreatedGames()))
             {
                 c.send( SOCStatusMessage.buildForVersion
                        (SOCStatusMessage.SV_NEWGAME_TOO_MANY_CREATED, cliVers,
@@ -7558,9 +7689,15 @@ public class SOCServer extends Server
 
             // Make sure all requested options are known and active.
             // If has game opt "SC" for scenarios, also adds that scenario's options into gameOpts.
-            // If has game opt "VP" but boolean part is false, use server default instead.
+            // If has game opt "VP" but boolean part is false, uses server default (knownOpts) instead.
+            // If any of new game's opts require client features limited/not supported by this client,
+            // clips or rejects them.
 
-            final StringBuilder optProblems = SOCGameOption.adjustOptionsToKnown(gameOpts, null, true);
+            SOCFeatureSet limitedCliFeats = checkLimitClientFeaturesForServerDisallows(scd.feats);
+            if ((limitedCliFeats == null) && scd.hasLimitedFeats)
+                limitedCliFeats = scd.feats;
+
+            final StringBuilder optProblems = gameOpts.adjustOptionsToKnown(knownOpts, true, limitedCliFeats);
             if (optProblems != null)
             {
                 final String txt = "Unknown game option(s) were requested, cannot create this game. " + optProblems;
@@ -7718,7 +7855,7 @@ public class SOCServer extends Server
 
     /**
      * Create a reloaded savegame and have a client join it.
-     * Calls {@link #createOrJoinGame(Connection, int, String, Map, SOCGame, int)}
+     * Calls {@link #createOrJoinGame(Connection, int, String, SOCGameOptionSet, SOCGame, int)}
      * with player info from {@code sgm} and current contents of {@link SavedGameModel#getGame() sgm.getGame()}.
      *<P>
      * Will ask bots to join and sit down for any players marked as robots in {@code sgm}.
@@ -7728,7 +7865,7 @@ public class SOCServer extends Server
      * @param sgm  Loaded game data
      * @param c  Client to have join game, as observer or player depending on nickname; not null
      * @param connGaName  Client's current game in which the command was sent, for sending response messages.
-     *     Can be null; see {@link #createOrJoinGame(Connection, int, String, Map, SOCGame, int)}.
+     *     Can be null; see {@link #createOrJoinGame(Connection, int, String, SOCGameOptionSet, SOCGame, int)}.
      * @return Name of loaded game, which might have been renamed if conflicts with another game on the server,
      *     or {@code null} if game could not be created
      * @see #resumeReloadedGame()
@@ -8009,13 +8146,13 @@ public class SOCServer extends Server
                 nParallel = numRobotOnlyGamesRemaining;
         }
 
-        final Map<String, SOCGameOption> allOpts = new HashMap<>();
-        for (SOCGameOption opt : SOCGameOption.getAllKnownOptions().values())
+        final SOCGameOptionSet allOpts = new SOCGameOptionSet();
+        for (SOCGameOption opt : knownOpts)
         {
             if (! ((opt.key.charAt(0) == '_')
                    || opt.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN)
                    || opt.hasFlag(SOCGameOption.FLAG_INTERNAL_GAME_PROPERTY)))
-                allOpts.put(opt.key, opt);
+                allOpts.put(opt);
         }
 
         StringBuilder desc = new StringBuilder();
@@ -8023,7 +8160,7 @@ public class SOCServer extends Server
         {
             final int gameNum = numRobotOnlyGamesRemaining;
             String gaName = "~botsOnly~" + gameNum;
-            final Map<String, SOCGameOption> opts = new HashMap<>(allOpts);
+            final SOCGameOptionSet opts = new SOCGameOptionSet(allOpts, true);
             if (gameTypes > 1)
             {
                 desc.setLength(0);
@@ -8149,7 +8286,7 @@ public class SOCServer extends Server
 
         final int nRobotsAvailable = robots.size();
         final String gaName = ga.getName();
-        final Map<String, SOCGameOption> gopts = ga.getGameOptions();
+        final SOCGameOptionSet gaOpts = ga.getGameOptions();
         final boolean gameHasLimitedFeats = (ga.getClientFeaturesRequired() != null);
         int seatsOpen;
         if (forSeats == null)
@@ -8248,7 +8385,7 @@ public class SOCServer extends Server
                 {
                     // D.ebugPrintln("@@@ JOIN GAME REQUEST for " + robotSeatsConns[i].getData());
                     messageToPlayer
-                        (robotSeatsConns[i], gaName, PN_OBSERVER, new SOCBotJoinGameRequest(gaName, i, gopts));
+                        (robotSeatsConns[i], gaName, PN_OBSERVER, new SOCBotJoinGameRequest(gaName, i, gaOpts));
                 }
             }
 
@@ -9080,8 +9217,8 @@ public class SOCServer extends Server
      *          game being reloaded and has the same nickname as a player there.
      *          If {@code isRejoinOrLoadgame}, sends {@code c} their hand's private info for game in progress.
      *
-     * @see #connectToGame(Connection, String, Map, SOCGame)
-     * @see #createOrJoinGameIfUserOK(Connection, String, String, String, Map)
+     * @see #connectToGame(Connection, String, SOCGameOptionSet, SOCGame)
+     * @see #createOrJoinGameIfUserOK(Connection, String, String, String, SOCGameOptionSet)
      * @since 1.1.00
      */
     private void joinGame
@@ -9818,7 +9955,7 @@ public class SOCServer extends Server
 
     /**
      * Quick-and-dirty command line parsing of a game option.
-     * Calls {@link SOCGameOption#setKnownOptionCurrentValue(SOCGameOption)}.
+     * Calls {@link SOCGameOptionSet#setKnownOptionCurrentValue(SOCGameOption)}.
      * If problems, throws an error message with text to print to console.
      *<P>
      * Note that an unknown {@link SOCScenario} name (value of game option {@code "SC"})
@@ -9826,8 +9963,8 @@ public class SOCServer extends Server
      * Code elsewhere will print an error and halt startup.
      *
      * @param op  Game option, as parsed by
-     *   {@link SOCGameOption#parseOptionNameValue(String, boolean) SGO.parseOptionNameValue(optNameValue, true)} or
-     *   {@link SOCGameOption#parseOptionNameValue(String, String, boolean) SGO.parseOptionNameValue(optkey, optval, true)}.
+     *   {@link SOCGameOption#parseOptionNameValue(String, boolean, SOCGameOptionSet) SGO.parseOptionNameValue(optNameValue, true, knownOpts)} or
+     *   {@link SOCGameOption#parseOptionNameValue(String, String, boolean, SOCGameOptionSet) SGO.parseOptionNameValue(optkey, optval, true, knownOpts)}.
      *   <BR>
      *   Keyname should be case-insensitive; note both of those calls include {@code forceNameUpcase == true}.
      *   <BR>
@@ -9844,8 +9981,8 @@ public class SOCServer extends Server
      *         {@link Throwable#getMessage()} will have problem details:
      *         <UL>
      *         <LI> Unknown or malformed game option name, from
-     *           {@link SOCGameOption#parseOptionNameValue(String, boolean)}
-     *         <LI> Bad option value, from {@link SOCGameOption#setKnownOptionCurrentValue(SOCGameOption)}
+     *           {@link SOCGameOption#parseOptionNameValue(String, boolean, SOCGameOptionSet)}
+     *         <LI> Bad option value, from {@link SOCGameOptionSet#setKnownOptionCurrentValue(SOCGameOption)}
      *         <LI> Appears twice on command line, name is already in {@code optsAlreadySet}
      *         </UL>
      * @since 1.1.07
@@ -9865,7 +10002,7 @@ public class SOCServer extends Server
 
         try
         {
-            SOCGameOption.setKnownOptionCurrentValue(op);
+            startupKnownOpts.setKnownOptionCurrentValue(op);
             if (optsAlreadySet != null)
                 optsAlreadySet.put(op.key, optRaw);
         }
@@ -9892,7 +10029,7 @@ public class SOCServer extends Server
      *<P>
      * If any game options are set ("-o", "--option"), then
      * {@link #hasSetGameOptions} is set to true, and
-     * {@link SOCGameOption#setKnownOptionCurrentValue(SOCGameOption)}
+     * {@link SOCGameOptionSet#setKnownOptionCurrentValue(SOCGameOption)}
      * is called to set them globally.
      *<P>
      * If {@code jsserver.properties} file contains game option properties ({@code jsettlers.gameopt.*}),
@@ -10050,7 +10187,7 @@ public class SOCServer extends Server
                         }
                         // parse this opt, update known option's current value
                         SOCGameOption opt = parseCmdline_GameOption
-                            (SOCGameOption.parseOptionNameValue(argValue, false),  // null if parse fails
+                            (SOCGameOption.parseOptionNameValue(argValue, false, startupKnownOpts),  // null if parse fails
                              argValue, gameOptsAlreadySet);
 
                         // Add or update in argp, in case this gameopt property also appears in the properties file;
@@ -10146,7 +10283,7 @@ public class SOCServer extends Server
                         try
                         {
                             parseCmdline_GameOption
-                                (SOCGameOption.parseOptionNameValue(optKey, value, false),
+                                (SOCGameOption.parseOptionNameValue(optKey, value, false, startupKnownOpts),
                                  optKey + "=" + value, gameOptsAlreadySet);
                             // Reminder: This call adds optKey to gameOptsAlreadySet
                             // or throws exception if already there (opt twice on command line, etc)
@@ -10220,7 +10357,7 @@ public class SOCServer extends Server
             if (gameOptsAlreadySet.containsKey("SC") && ! argp.isEmpty())
             {
                 // also check cmdline's "SC" vs gameopts in properties file
-                final String scName = SOCGameOption.getOption("SC", false).getStringValue();
+                final String scName = startupKnownOpts.getKnownOption("SC", false).getStringValue();
                 if (scName.length() > 0)
                     init_checkScenarioOpts(argp, true, SOC_SERVER_PROPS_FILENAME, scName, "command line");
             }
@@ -10342,7 +10479,7 @@ public class SOCServer extends Server
      * Option keynames are case-insensitive past that prefix.
      * See {@link #PROP_JSETTLERS_GAMEOPT_PREFIX} for expected syntax.
      * Calls {@link #parseCmdline_GameOption(SOCGameOption, String, HashMap)} for each one found,
-     * to set its current value in {@link SOCGameOptions}'s static set of known opts.
+     * to set its current value in server's static set of Known Options.
      *<P>
      * If {@code pr} contains a {@link SOCScenario} keyname (value of game option {@code "SC"}),
      * this method sets that as the default scenario but won't apply that scenario's game options
@@ -10419,10 +10556,10 @@ public class SOCServer extends Server
 
             try
             {
-                // parse this gameopt and set its current value in SOCGameOptions static set of known opts
+                // parse this gameopt and set its current value in static set of known opts
                 final String optVal = pr.getProperty((String) k);
                 parseCmdline_GameOption
-                    (SOCGameOption.parseOptionNameValue(optKey, optVal, false),
+                    (SOCGameOption.parseOptionNameValue(optKey, optVal, false, startupKnownOpts),
                      optKey + '=' + optVal, null);
                 hasSetGameOptions = true;
             }
@@ -10544,7 +10681,7 @@ public class SOCServer extends Server
             opts = normOpts;
         }
 
-        final Map<String, SOCGameOption> scOpts = SOCGameOption.parseOptionsToMap(scOptsStr);
+        final Map<String, SOCGameOption> scOpts = SOCGameOption.parseOptionsToMap(scOptsStr, startupKnownOpts);
 
         StringBuilder sb = new StringBuilder();
         for (SOCGameOption scOpt : scOpts.values())
@@ -10854,15 +10991,13 @@ public class SOCServer extends Server
      */
     public static void printGameOptions()
     {
-        final Map<String, SOCGameOption> allopts = SOCGameOption.getAllKnownOptions();
-
         System.err.println("-- Current default game options: --");
 
-        ArrayList<String> okeys = new ArrayList<>( allopts.keySet() );
+        ArrayList<String> okeys = new ArrayList<>(startupKnownOpts.keySet());
         Collections.sort(okeys);
         for (final String okey : okeys)
         {
-            SOCGameOption opt = allopts.get(okey);
+            SOCGameOption opt = startupKnownOpts.get(okey);
 
             if (opt.hasFlag(SOCGameOption.FLAG_INTERNAL_GAME_PROPERTY))
                 continue;
@@ -10900,7 +11035,7 @@ public class SOCServer extends Server
             }
         }
 
-        int optsVers = SOCVersionedItem.itemsMinimumVersion(allopts);
+        int optsVers = SOCVersionedItem.itemsMinimumVersion(startupKnownOpts.getAll());
         if (optsVers > -1)
         {
             System.err.println

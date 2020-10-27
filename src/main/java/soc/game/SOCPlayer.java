@@ -38,7 +38,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;  // for javadoc
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -66,7 +65,7 @@ import java.util.Vector;
  *<P>
  * If the board layout changes from game to game, as with {@link SOCBoardLarge} /
  * {@link SOCBoard#BOARD_ENCODING_LARGE}, use these methods to update the player's board data
- * after {@link SOCBoard#makeNewBoard(Map)}, in this order:
+ * after {@link SOCBoard#makeNewBoard(SOCGameOptionSet)}, in this order:
  *<UL>
  * <LI> {@link #getPlayerNumber()}.{@link SOCPlayerNumbers#setLandHexCoordinates(int[]) setLandHexCoordinates(int[])}
  * <LI> {@link #setPotentialAndLegalSettlements(Collection, boolean, HashSet[])}
@@ -159,7 +158,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     private int[] numPieces;
 
     /**
-     * For scenario option {@link SOCGameOption#K_SC_PIRI _SC_PIRI},
+     * For scenario option {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI},
      * the number of {@link SOCShip}s that are converted to warships.
      * See {@link #getNumWarships()} for details.
      * @since 2.0.00
@@ -195,7 +194,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     private Vector<SOCCity> cities;
 
     /**
-     * For scenario option {@link SOCGameOption#K_SC_PIRI _SC_PIRI},
+     * For scenario option {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI},
      * the "pirate fortress" that this player must defeat to win.
      * The player's warships are used to defeat the fortress; see {@link #getNumWarships()}.
      * Null if fortress has been defeated and converted to a settlement.
@@ -234,7 +233,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
 
     /**
      * List of longest road / longest trade-route paths.
-     * Is empty (not null) if {@link SOCGameOption#K_SC_0RVP} is set.
+     * Is empty (not null) if {@link SOCGameOptionSet#K_SC_0RVP} is set.
      */
     private final Vector<SOCLRPathData> lrPaths;
 
@@ -418,7 +417,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * If not {@link SOCGame#hasSeaBoard}, initialized in constructor
      * from {@link SOCBoard#initPlayerLegalRoads()}.
      *<P>
-     * If {@link SOCGame#hasSeaBoard}, empty until {@link SOCBoard#makeNewBoard(Map)}
+     * If {@link SOCGame#hasSeaBoard}, empty until {@link SOCBoard#makeNewBoard(SOCGameOptionSet)}
      * and {@link SOCGame#startGame()}, because the board layout and legal settlements
      * vary from game to game.
      */
@@ -455,7 +454,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
 
     /**
      * A list of edges if the legal sea edges for ships are restricted
-     * by the game's scenario ({@link SOCGameOption#K_SC_PIRI _SC_PIRI}),
+     * by the game's scenario ({@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI}),
      * or {@code null} if all sea edges are legal for ships.
      * If the player has no legal ship edges, this list is empty (not null).
      *<P>
@@ -841,14 +840,14 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         else
             numPieces[SOCPlayingPiece.SHIP] = 0;
 
-        if (ga.isGameOptionSet(SOCGameOption.K_SC_PIRI))
+        if (ga.isGameOptionSet(SOCGameOptionSet.K_SC_PIRI))
             --numPieces[SOCPlayingPiece.SETTLEMENT];  // Pirate Fortress is a captured settlement
 
-        pieces = new Vector<>( ROAD_COUNT + SETTLEMENT_COUNT + CITY_COUNT );
-        roadsAndShips = new Vector<>( ROAD_COUNT );
-        settlements = new Vector<>( SETTLEMENT_COUNT );
-        cities = new Vector<>( CITY_COUNT );
-        spItems = new HashMap<>();
+        pieces = new Vector<SOCPlayingPiece>(ROAD_COUNT + SETTLEMENT_COUNT + CITY_COUNT);
+        roadsAndShips = new Vector<SOCRoutePiece>(ROAD_COUNT);
+        settlements = new Vector<SOCSettlement>(SETTLEMENT_COUNT);
+        cities = new Vector<SOCCity>(CITY_COUNT);
+        spItems = new HashMap<String, ArrayList<SOCSpecialItem>>();
         longestRoadLength = 0;
         lrPaths = new Vector<>();
         resources = new SOCResourceSet();
@@ -1367,7 +1366,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     }
 
     /**
-     * For scenario option {@link SOCGameOption#K_SC_PIRI _SC_PIRI},
+     * For scenario option {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI},
      * the number of {@link SOCShip}s that have been converted to warships
      * to defend against the pirate fleet and attack the {@link SOCFortress}.
      *<P>
@@ -1383,7 +1382,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     }
 
     /**
-     * For scenario option {@link SOCGameOption#K_SC_PIRI _SC_PIRI},
+     * For scenario option {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI},
      * set the player's number of warships.  See {@link #getNumWarships()} for details.
      * @param count  New number of warships
      * @since 2.0.00
@@ -1603,7 +1602,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     }
 
     /**
-     * For scenario option {@link SOCGameOption#K_SC_PIRI _SC_PIRI},
+     * For scenario option {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI},
      * the "pirate fortress" that this player must defeat to win.
      * Null if fortress has already been defeated and converted to a settlement.
      * Null unless game has that scenario option.
@@ -1769,7 +1768,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         //   has just 1 legal sea edge next to it, not 2, so the route can't branch there,
         //   so any other coastal settlement is "on the way" along the non-branching route.
         int openEdgesCount =
-            ((ignoreEdge != -9) && game.isGameOptionSet(SOCGameOption.K_SC_PIRI)) ? 3 : 0;
+            ((ignoreEdge != -9) && game.isGameOptionSet(SOCGameOptionSet.K_SC_PIRI)) ? 3 : 0;
 
         int[] adjEdges = board.getAdjacentEdgesToNode_arr(node);
         for (int i = 0; i < 3; ++i)
@@ -1818,7 +1817,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * meet at a node (and 2 of the 3 ships are closed), or may end "open" with no further pieces.
      *<P>
      * Settlements and cities owned by other players won't close the trade route.
-     * {@link SOCVillage Villages} are present only with scenario game option {@link SOCGameOption#K_SC_CLVI}.
+     * {@link SOCVillage Villages} are present only with scenario game option {@link SOCGameOptionSet#K_SC_CLVI}.
      * If this route becomes closed and is the player's first Cloth Trade route with a village,
      * this method sets that player event flag and fires
      * {@link SOCPlayerEvent#CLOTH_TRADE_ESTABLISHED_VILLAGE}.
@@ -1950,7 +1949,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     /**
      * Set by {@link #isTradeRouteFarEndClosed(SOCShip, int, HashSet, List)}
      * if it finds a {@link SOCVillage} at any far end.
-     * Not set unless both {@link SOCGame#hasSeaBoard} and {@link SOCGameOption#K_SC_CLVI} are set.
+     * Not set unless both {@link SOCGame#hasSeaBoard} and {@link SOCGameOptionSet#K_SC_CLVI} are set.
      * @since 2.0.00
      */
     private SOCVillage isTradeRouteFarEndClosed_foundVillage;
@@ -2002,7 +2001,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                 ("closed(0x" + Integer.toHexString(edgeFirstShip.getCoordinates()) + ')');
 
         final SOCBoardLarge board = (SOCBoardLarge) game.getBoard();
-        final boolean boardHasVillages = game.isGameOptionSet(SOCGameOption.K_SC_CLVI);
+        final boolean boardHasVillages = game.isGameOptionSet(SOCGameOptionSet.K_SC_CLVI);
         List<SOCShip> segment = new ArrayList<>();
 
         SOCShip edgeShip = edgeFirstShip;
@@ -2192,7 +2191,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
 
     /**
      * Get our longest road paths.
-     * Is empty (not null) if {@link SOCGameOption#K_SC_0RVP} is set.
+     * Is empty (not null) if {@link SOCGameOptionSet#K_SC_0RVP} is set.
      * @return longest road paths
      */
     public Vector<SOCLRPathData> getLRPaths()
@@ -2625,7 +2624,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     /**
      * For scenarios on the {@link soc.game.SOCBoardLarge large sea board}, get
      * this player's bitmask of land areas for tracking Special Victory Points (SVP).
-     * Used with scenario game option {@link SOCGameOption#K_SC_SEAC _SC_SEAC}.
+     * Used with scenario game option {@link SOCGameOptionSet#K_SC_SEAC _SC_SEAC}.
      * @return land areas bitmask, or 0
      * @since 2.0.00
      */
@@ -2746,7 +2745,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * Doesn't re-check the standard conditions in {@link SOCGame#canPlaceShip(SOCPlayer, int)}.
      * Currently allows any placement, except:
      *<UL>
-     * <LI> {@link SOCGameOption#K_SC_FTRI SC_FTRI}: If not current player,
+     * <LI> {@link SOCGameOptionSet#K_SC_FTRI SC_FTRI}: If not current player,
      *      can't Free Place at an edge which would pick up a free port for placement:
      *      {@link SOCBoardLarge#canRemovePort(int)}
      *</UL>
@@ -2763,7 +2762,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         if ((! game.hasSeaBoard) || (playerNumber == game.getCurrentPlayerNumber()))
             return true;
 
-        if (game.isGameOptionSet(SOCGameOption.K_SC_FTRI)
+        if (game.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI)
             && ((SOCBoardLarge) game.getBoard()).canRemovePort(shipEdge))
             return false;
 
@@ -2790,7 +2789,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * and fire a {@link SOCPlayerEvent#SVP_SETTLED_ANY_NEW_LANDAREA} or
      * {@link SOCPlayerEvent#SVP_SETTLED_EACH_NEW_LANDAREA}.
      *<P>
-     * For scenario option {@link SOCGameOption#K_SC_PIRI _SC_PIRI},
+     * For scenario option {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI},
      * call with <tt>piece</tt> = {@link SOCFortress} to set the single "pirate fortress"
      * that this player must defeat to win.  When the fortress is defeated, it is
      * converted to a settlement; call with <tt>piece</tt> = {@link SOCSettlement} at the
@@ -3063,7 +3062,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * reward the player and fire an event like {@link SOCPlayerEvent#SVP_REACHED_SPECIAL_EDGE}
      * or {@link SOCPlayerEvent#DEV_CARD_REACHED_SPECIAL_EDGE}.
      *<P>
-     * In scenario {@link SOCGameOption#K_SC_FTRI _SC_FTRI}, checks for a "gift" trade port at new ship edge.  If found,
+     * In scenario {@link SOCGameOptionSet#K_SC_FTRI _SC_FTRI}, checks for a "gift" trade port at new ship edge. If found,
      * calls {@link SOCGame#removePort(SOCPlayer, int)} and fires {@link SOCPlayerEvent#REMOVED_TRADE_PORT}.
      *
      *<H5>Temporary Pieces:</H5>
@@ -3090,7 +3089,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         if (game.isAtServer && (game.getGameState() == SOCGame.LOADING))
             return;  // <--- Early return ---
 
-        final boolean boardHasVillages = game.isGameOptionSet(SOCGameOption.K_SC_CLVI);
+        final boolean boardHasVillages = game.isGameOptionSet(SOCGameOptionSet.K_SC_CLVI);
         final int edge = newShip.getCoordinates();
         final int[] edgeNodes = board.getAdjacentNodesToEdge_arr(edge);
 
@@ -3188,7 +3187,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
          * _SC_FTRI: Is ship placed at a "gift" port that can be
          * removed from the board for placement elsewhere?
          */
-        if (game.isGameOptionSet(SOCGameOption.K_SC_FTRI) && board.canRemovePort(edge))
+        if (game.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI) && board.canRemovePort(edge))
         {
             game.removePort(this, edge);  // updates game state, fires SOCPlayerEvent.REMOVED_TRADE_PORT
         }
@@ -3234,7 +3233,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * Call when a settlement has been placed in a land area different from
      * {@link #startingLandArea1} and {@link #startingLandArea2}.
      * If player gets Special Victory Points because of game option
-     * {@link SOCGameOption#K_SC_SANY _SC_SANY} or {@link SOCGameOption#K_SC_SEAC _SC_SEAC},
+     * {@link SOCGameOptionSet#K_SC_SANY _SC_SANY} or {@link SOCGameOptionSet#K_SC_SEAC _SC_SEAC},
      * will update fields and fire a {@link SOCPlayerEvent} as described in
      * {@link #putPiece(SOCPlayingPiece, boolean)}.
      *
@@ -3248,7 +3247,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         (final SOCSettlement newSettle, final int newSettleArea, final boolean isTempPiece)
     {
         if ((! hasPlayerEvent(SOCPlayerEvent.SVP_SETTLED_ANY_NEW_LANDAREA))
-             && game.isGameOptionSet(SOCGameOption.K_SC_SANY))
+             && game.isGameOptionSet(SOCGameOptionSet.K_SC_SANY))
         {
             setPlayerEvent(SOCPlayerEvent.SVP_SETTLED_ANY_NEW_LANDAREA);
             ++specialVP;
@@ -3261,7 +3260,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         }
 
         final int laBit = (1 << (newSettleArea - 1));
-        if ((0 == (laBit & scenario_svpFromEachLandArea_bitmask)) && game.isGameOptionSet(SOCGameOption.K_SC_SEAC))
+        if ((0 == (laBit & scenario_svpFromEachLandArea_bitmask)) && game.isGameOptionSet(SOCGameOptionSet.K_SC_SEAC))
         {
             scenario_svpFromEachLandArea_bitmask |= laBit;
             specialVP += 2;
@@ -4017,7 +4016,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * piece has just been played, or after another
      * player's adjacent piece has been removed.
      *<P>
-     * <b>Special case:</b> In game scenario {@link SOCGameOption#K_SC_PIRI _SC_PIRI},
+     * <b>Special case:</b> In game scenario {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI},
      * ship routes can't branch in different directions, only extend from their ends.
      * So when a ship is placed to extend a sea route, this method will remove
      * nearby potential ships which would now be side branches.
@@ -4112,7 +4111,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
 
                 // For game scenario _SC_PIRI, ship routes can't branch
                 // in different directions, only extend from their ends.
-                if ((ptype == SOCPlayingPiece.SHIP) && game.isGameOptionSet(SOCGameOption.K_SC_PIRI))
+                if ((ptype == SOCPlayingPiece.SHIP) && game.isGameOptionSet(SOCGameOptionSet.K_SC_PIRI))
                 {
                     // Find the end of this ship edge with a previous ship,
                     // make sure that end node has no other potential ships.
@@ -4396,7 +4395,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
             legalRoads = game.getBoard().initPlayerLegalRoads();
             if (! (board.getLandHexCoordsSet().isEmpty()))
             {
-                if (! game.isGameOptionSet(SOCGameOption.K_SC_PIRI))
+                if (! game.isGameOptionSet(SOCGameOptionSet.K_SC_PIRI))
                     legalShips = board.initPlayerLegalShips();
                 else
                     legalShips.clear();  // SC_PIRI: caller must soon call setRestrictedLegalShips
@@ -4427,7 +4426,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * If not {@link SOCGame#hasSeaBoard}: Initialized in constructor
      * from {@link SOCBoard#initPlayerLegalSettlements()}.
      *<P>
-     * If {@link SOCGame#hasSeaBoard}: Empty at server until {@link SOCBoardLarge#makeNewBoard(Map)}
+     * If {@link SOCGame#hasSeaBoard}: Empty at server until {@link SOCBoardLarge#makeNewBoard(SOCGameOptionSet)}
      * and {@link SOCGame#startGame()}, because the board layout and legal settlements vary
      * from game to game.  Empty at client until
      * {@link #setPotentialAndLegalSettlements(Collection, boolean, HashSet[])} is called.
@@ -4658,7 +4657,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     {
         if (! potentialShips.contains( toEdge ))
         {
-            if (game.isGameOptionSet(SOCGameOption.K_SC_PIRI)
+            if (game.isGameOptionSet(SOCGameOptionSet.K_SC_PIRI)
                 && (null != legalShipsRestricted))
             {
                 if ((getRoadOrShip(toEdge) != null)
@@ -4747,7 +4746,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     /**
      * A list of edges where the player can build ships,
      * if the legal sea edges for ships are restricted
-     * by the game's scenario ({@link SOCGameOption#K_SC_PIRI _SC_PIRI}),
+     * by the game's scenario ({@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI}),
      * or {@code null} if all sea edges are legal for ships.
      * If the player has no legal ship edges, this list is empty (not null).
      *<P>
@@ -4765,7 +4764,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     /**
      * Set the list of edges where the player can build ships,
      * when the legal sea edges for ships are restricted
-     * by the game's scenario ({@link SOCGameOption#K_SC_PIRI _SC_PIRI}).
+     * by the game's scenario ({@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI}).
      * @param edgeList  List of edges, same format as one player's array from
      *   {@link soc.server.SOCBoardAtServer#getLegalSeaEdges(SOCGame) SOCBoardAtServer.getLegalSeaEdges(SOCGame)};
      *   or an empty array (length 0) for vacant players with no legal ship edges;
@@ -4910,7 +4909,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         if (game.getGameState() > SOCGame.START3B)
             throw new IllegalStateException();
 
-        final int pieceCountMax = game.isGameOptionSet(SOCGameOption.K_SC_3IP) ? 6 : 4;
+        final int pieceCountMax = game.isGameOptionSet(SOCGameOptionSet.K_SC_3IP) ? 6 : 4;
         final int pieceCount = pieces.size();
         if (pieceCount >= pieceCountMax)
             return true;
@@ -5156,7 +5155,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     }
 
     /**
-     * For scenario option {@link SOCGameOption#K_SC_FTRI _SC_FTRI},
+     * For scenario option {@link SOCGameOptionSet#K_SC_FTRI _SC_FTRI},
      * calculate if the player has any coastal settlement or city where
      * they can place a moved "gift" port without it being adjacent to another port,
      * and the edges where it could be placed next to such settlements or cities.

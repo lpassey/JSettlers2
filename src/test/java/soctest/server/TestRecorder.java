@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -40,6 +39,7 @@ import soc.game.SOCBoardLarge;
 import soc.game.SOCDevCardConstants;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
+import soc.game.SOCGameOptionSet;
 import soc.game.SOCMoveRobberResult;
 import soc.game.SOCPlayer;
 import soc.game.SOCPlayingPiece;
@@ -216,7 +216,7 @@ public class TestRecorder
             ("some bots are connected; actual nConn=" + nConn, nConn >= RecordingTesterServer.NUM_STARTROBOTS);
 
         DisplaylessTesterClient tcli = new DisplaylessTesterClient
-            (RecordingTesterServer.STRINGPORT_NAME, CLIENT_NAME, null);
+            (RecordingTesterServer.STRINGPORT_NAME, CLIENT_NAME, null, null);
         tcli.init();
         try { Thread.sleep(120); }
         catch(InterruptedException e) {}
@@ -263,7 +263,7 @@ public class TestRecorder
         assertNotNull(server);
 
         DisplaylessTesterClient tcli = new DisplaylessTesterClient
-            (RecordingTesterServer.STRINGPORT_NAME, CLIENT_NAME, null);
+            (RecordingTesterServer.STRINGPORT_NAME, CLIENT_NAME, null, null);
         tcli.init();
         try { Thread.sleep(120); }
         catch(InterruptedException e) {}
@@ -318,7 +318,7 @@ public class TestRecorder
         assertNotNull(srv);
 
         DisplaylessTesterClient tcli = new DisplaylessTesterClient
-            (RecordingTesterServer.STRINGPORT_NAME, CLIENT_NAME, "es");
+            (RecordingTesterServer.STRINGPORT_NAME, CLIENT_NAME, "es", null);
         tcli.init();
         try { Thread.sleep(120); }
         catch(InterruptedException e) {}
@@ -438,8 +438,8 @@ public class TestRecorder
      * @param observabilityMode Whether to test using normally-inactive game options for "observability":
      *     <UL>
      *      <LI> 0: Normal mode: Resources and Victory Point/development cards are hidden as usual
-     *      <LI> 1: Activate and test with VP Observable mode: {@link SOCGameOption#K_PLAY_VPO PLAY_VPO}
-     *      <LI> 2: Activate and test with Fully Observable mode: {@link SOCGameOption#K_PLAY_FO PLAY_FO}
+     *      <LI> 1: Activate and test with VP Observable mode: {@link SOCGameOptionSet#K_PLAY_VPO PLAY_VPO}
+     *      <LI> 2: Activate and test with Fully Observable mode: {@link SOCGameOptionSet#K_PLAY_FO PLAY_FO}
      *     </UL>
      * @param clientAsRobot  Whether to mark client player as robot before resuming game:
      *     Calls {@link SOCPlayer#setRobotFlag(boolean, boolean)}
@@ -500,27 +500,36 @@ public class TestRecorder
 
         assertNotNull(server);
 
+        SOCGameOptionSet clientKnownOpts = null;
         final SOCGameOption observabilityOpt;
         if (observabilityMode > 0)
         {
-            final String key = (observabilityMode == 1) ? SOCGameOption.K_PLAY_VPO : SOCGameOption.K_PLAY_FO;
-            SOCGameOption opt = SOCGameOption.getOption(key, true);
-            assertNotNull("found option " + key, opt);
+            final String key = (observabilityMode == 1) ? SOCGameOptionSet.K_PLAY_VPO : SOCGameOptionSet.K_PLAY_FO;
+            SOCGameOption opt = server.knownOpts.getKnownOption(key, true);
+            assertNotNull("server found option " + key, opt);
             if (opt.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN))
             {
-                SOCGameOption.activate(key);
-                opt = SOCGameOption.getOption(key, true);
-                assertNotNull("found option " + key, opt);
+                assertTrue
+                    ("server.activateKnownOption(" + key + ") success",
+                     server.activateKnownOption(key));
+                opt = server.knownOpts.getKnownOption(key, true);
+                assertNotNull("server found option " + key, opt);
+                assertTrue(opt.hasFlag(SOCGameOption.FLAG_ACTIVATED));
             }
 
-            assertTrue("option activated: " + key, opt.hasFlag(SOCGameOption.FLAG_ACTIVATED));
+            clientKnownOpts = SOCGameOptionSet.getAllKnownOptions();
+            clientKnownOpts.activate(key);
+
+            assertTrue("option activated at server: " + key, opt.hasFlag(SOCGameOption.FLAG_ACTIVATED));
+            assertTrue
+                ("option activated at client: " + key, clientKnownOpts.get(key).hasFlag(SOCGameOption.FLAG_ACTIVATED));
             observabilityOpt = opt;
         } else {
             observabilityOpt = null;
         }
 
         final DisplaylessTesterClient tcli = new DisplaylessTesterClient
-            (RecordingTesterServer.STRINGPORT_NAME, clientName, null);
+            (RecordingTesterServer.STRINGPORT_NAME, clientName, null, clientKnownOpts);
         tcli.init();
         assertEquals(clientName, tcli.getNickname());
 
@@ -532,7 +541,7 @@ public class TestRecorder
         if (client2Name != null)
         {
             tcli2 = new DisplaylessTesterClient
-                (RecordingTesterServer.STRINGPORT_NAME, client2Name, null);
+                (RecordingTesterServer.STRINGPORT_NAME, client2Name, null, clientKnownOpts);
             tcli2.init();
             assertEquals(client2Name, tcli2.getNickname());
 
@@ -578,7 +587,7 @@ public class TestRecorder
         {
             assertNotNull("SGM has gameopts: " + sgm.gameName, sgm.gameOptions);
             SOCGame sgmGame = sgm.getGame();
-            Map<String, SOCGameOption> opts = sgmGame.getGameOptions();
+            SOCGameOptionSet opts = sgmGame.getGameOptions();
             assertNotNull("SGM.getGame has gameopts: " + sgmGame.getName(), opts);
             final String optKey = observabilityOpt.key;
             assertFalse
@@ -586,7 +595,7 @@ public class TestRecorder
                  opts.containsKey(optKey));
 
             observabilityOpt.setBoolValue(true);
-            opts.put(optKey, observabilityOpt);
+            opts.put(observabilityOpt);
             sgm.gameOptions += ';' + observabilityOpt.toString();
         }
 

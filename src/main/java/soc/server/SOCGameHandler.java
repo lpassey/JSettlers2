@@ -455,7 +455,7 @@ public class SOCGameHandler extends GameHandler
      *
      *<H5>Currently recognized commands, per scenario:</H5>
      *<UL>
-     *  <LI> <B>{@link SOCGameOption#K_SC_FTRI SC_FTRI}:</B>
+     *  <LI> <B>{@link SOCGameOptionSet#K_SC_FTRI SC_FTRI}:</B>
      *    <UL>
      *      <LI> giveport #typenum #placeflag player
      *    </UL>
@@ -482,7 +482,7 @@ public class SOCGameHandler extends GameHandler
             srv.messageToPlayer(c, gaName, SOCServer.PN_NON_EVENT, "This game has no scenario");
             return;
         }
-        if (! ga.isGameOptionSet(SOCGameOption.K_SC_FTRI))
+        if (! ga.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI))
         {
             srv.messageToPlayer(c, gaName, SOCServer.PN_NON_EVENT, "This scenario has no debug commands");
             return;
@@ -607,10 +607,10 @@ public class SOCGameHandler extends GameHandler
             fs.add(SOCFeatureSet.CLIENT_SCENARIO_VERSION, scVers);
         }
 
-        final Map<String, SOCGameOption> opts = ga.getGameOptions();
+        final SOCGameOptionSet opts = ga.getGameOptions();
         if (opts != null)
         {
-            for (SOCGameOption opt : opts.values())
+            for (final SOCGameOption opt : opts)
             {
                 String feat = opt.getClientFeature();
                 if ((feat == null) || ! opt.hasValue())
@@ -839,7 +839,7 @@ public class SOCGameHandler extends GameHandler
             else
             {
                 int totalRes = resGainLoss.getTotal();
-                if (ga.isGameOptionSet(SOCGameOption.K_PLAY_FO))
+                if (ga.isGameOptionSet(SOCGameOptionSet.K_PLAY_FO))
                 {
                     reportRsrcGainLoss(gaName, resGainLoss, true, true, cpn, -1, null);
                 }
@@ -900,7 +900,7 @@ public class SOCGameHandler extends GameHandler
                 // If it's private and doesn't need a special message, set handled = true and let it announce as unknown
                 boolean handled = false;
 
-                if (ga.isGameOptionSet(SOCGameOption.K_SC_FTRI))
+                if (ga.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI))
                 {
                     // endFromGameState is PLACING_INV_ITEM.
                     // "Gift port" item details are public, send return message to whole game:
@@ -925,7 +925,8 @@ public class SOCGameHandler extends GameHandler
                 if (ga.clientVersionLowest >= SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES)
                 {
                     final boolean isObservableVP =
-                        (ga.isGameOptionSet(SOCGameOption.K_PLAY_FO) || ga.isGameOptionSet(SOCGameOption.K_PLAY_VPO));
+                        (ga.isGameOptionSet(SOCGameOptionSet.K_PLAY_FO)
+                         || ga.isGameOptionSet(SOCGameOptionSet.K_PLAY_VPO));
                         // note: minVersion for these gameopts is VERSION_FOR_RENUMBERED_TYPES
 
                     srv.messageToGameExcept
@@ -999,7 +1000,7 @@ public class SOCGameHandler extends GameHandler
      * Does not add the client to the game's or server's list of players,
      * that should be done before calling this method.
      *<P>
-     * Assumes {@link SOCServer#connectToGame(Connection, String, Map, SOCGame)} was already called.
+     * Assumes {@link SOCServer#connectToGame(Connection, String, SOCGameOptionSet, SOCGame)} was already called.
      *<P>
      * Assumes NEWGAME (or NEWGAMEWITHOPTIONS) has already been sent out.
      * The game's first message<B>*</B> sent to the connecting client is JOINGAMEAUTH, unless isReset.
@@ -1028,7 +1029,7 @@ public class SOCGameHandler extends GameHandler
      *          is defunct/frozen because of a network problem. Also true when a human player joins a
      *          game being reloaded and has the same nickname as a player there.
      *          If {@code isRejoinOrLoadgame}, sends {@code c} their hand's private info for game in progress.
-     * @see SOCServer#createOrJoinGameIfUserOK(Connection, String, String, String, Map)
+     * @see SOCServer#createOrJoinGameIfUserOK(Connection, String, String, String, SOCGameOptionSet)
      * @since 1.1.00
      */
     @SuppressWarnings("unchecked")  // for new ArrayList<SOCSpecialItem>[]
@@ -1042,7 +1043,7 @@ public class SOCGameHandler extends GameHandler
         boolean hasRobot = false;  // If game's already started, true if any bot is seated (can be taken over)
         final String gameName = gameData.getName(), cliName = c.getData();
         final int gameState = gameData.getGameState(), cliVers = c.getVersion();
-        final boolean isFullyObservable = gameData.isGameOptionSet(SOCGameOption.K_PLAY_FO);
+        final boolean isFullyObservable = gameData.isGameOptionSet(SOCGameOptionSet.K_PLAY_FO);
 
         if (! isReset)
         {
@@ -1172,7 +1173,7 @@ public class SOCGameHandler extends GameHandler
          */
         if (gameState < SOCGame.START1A)
         {
-            if (gameData.isGameOptionSet(SOCGameOption.K_SC_CLVI))
+            if (gameData.isGameOptionSet(SOCGameOptionSet.K_SC_CLVI))
                 // Board's general supply of cloth:
                 srv.messageToPlayer(c, gameName, SOCServer.PN_OBSERVER,
                     new SOCPlayerElement
@@ -1471,7 +1472,7 @@ public class SOCGameHandler extends GameHandler
 
                 final boolean cliVersionRecent = (cliVers >= SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES);
                 if (! (cliVersionRecent &&
-                       (isFullyObservable || gameData.isGameOptionSet(SOCGameOption.K_PLAY_VPO))))
+                       (isFullyObservable || gameData.isGameOptionSet(SOCGameOptionSet.K_PLAY_VPO))))
                 {
                     final int numDevCards = pl.getInventory().getTotal();
                     final int unknownType = (cliVersionRecent)
@@ -1585,7 +1586,7 @@ public class SOCGameHandler extends GameHandler
          */
         if (gameState >= SOCGame.START1A)
         {
-            if (gameData.isGameOptionSet(SOCGameOption.K_SC_CLVI))
+            if (gameData.isGameOptionSet(SOCGameOptionSet.K_SC_CLVI))
                 srv.messageToPlayer(c, gameName, SOCServer.PN_OBSERVER,
                     new SOCPlayerElement
                         (gameName, -1, SOCPlayerElement.SET,
@@ -1925,7 +1926,7 @@ public class SOCGameHandler extends GameHandler
         final boolean cliVersionRecent = (cliVers >= SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES),
             cliVersionClearsInventory = (cliVers >= SOCDevCardAction.VERSION_FOR_SITDOWN_CLEARS_INVENTORY),
             hasObservableInventory = cliVersionRecent
-                && (ga.isGameOptionSet(SOCGameOption.K_PLAY_FO) || ga.isGameOptionSet(SOCGameOption.K_PLAY_VPO));
+                && (ga.isGameOptionSet(SOCGameOptionSet.K_PLAY_FO) || ga.isGameOptionSet(SOCGameOptionSet.K_PLAY_VPO));
 
         /**
          * remove the unknown cards, if client's too old for receiving SITDOWN to imply doing so;
@@ -2500,7 +2501,7 @@ public class SOCGameHandler extends GameHandler
             srv.messageToGameKeyed(ga, true, true, "prompt.turn.to.build.stlmt",  player.getName());
                 // "It's Joe's turn to build a settlement."
             if ((gaState >= SOCGame.START2A)
-                && ga.isGameOptionSet(SOCGameOption.K_SC_3IP))
+                && ga.isGameOptionSet(SOCGameOptionSet.K_SC_3IP))
             {
                 // reminder to player before their 2nd, 3rd settlements
                 Connection con = srv.getConnection(player.getName());
@@ -2584,7 +2585,7 @@ public class SOCGameHandler extends GameHandler
             Connection con = srv.getConnection(ga.getPlayer(cpn).getName());
             if (con != null)
             {
-                final boolean canChooseNone = ga.isGameOptionSet(SOCGameOption.K_SC_PIRI);
+                final boolean canChooseNone = ga.isGameOptionSet(SOCGameOptionSet.K_SC_PIRI);
                 boolean[] choices = new boolean[ga.maxPlayers];
                 for (SOCPlayer pl : ga.getPossibleVictims())
                     choices[pl.getPlayerNumber()] = true;
@@ -2671,7 +2672,7 @@ public class SOCGameHandler extends GameHandler
          * winning an SC_PIRI fleet battle, not from a gold hex
          */
         final int ignoreAmountFromPirateFleet;
-        if ((roll != null) && ga.isGameOptionSet(SOCGameOption.K_SC_PIRI) && (roll.sc_piri_fleetAttackRsrcs != null))
+        if ((roll != null) && ga.isGameOptionSet(SOCGameOptionSet.K_SC_PIRI) && (roll.sc_piri_fleetAttackRsrcs != null))
             ignoreAmountFromPirateFleet = roll.sc_piri_fleetAttackRsrcs.getAmount(SOCResourceConstants.GOLD_LOCAL);
         else
             ignoreAmountFromPirateFleet = 0;
@@ -2967,7 +2968,7 @@ public class SOCGameHandler extends GameHandler
      * @param vi  the victim
      * @param rsrc  type of resource stolen, as in {@link SOCResourceConstants#SHEEP},
      *          or {@link SOCResourceConstants#CLOTH_STOLEN_LOCAL} for cloth
-     *          (scenario option {@link SOCGameOption#K_SC_CLVI _SC_CLVI}).
+     *          (scenario option {@link SOCGameOptionSet#K_SC_CLVI _SC_CLVI}).
      */
     void reportRobbery(SOCGame ga, SOCPlayer pe, SOCPlayer vi, final int rsrc)
     {
@@ -3017,7 +3018,7 @@ public class SOCGameHandler extends GameHandler
             return;  // <--- early return: cloth is announced to entire game ---
         }
 
-        final boolean isFullyObservable = ga.isGameOptionSet(SOCGameOption.K_PLAY_FO);
+        final boolean isFullyObservable = ga.isGameOptionSet(SOCGameOptionSet.K_PLAY_FO);
 
         final SOCReportRobbery gainLoseRsrc = new SOCReportRobbery(gaName, pePN, viPN, rsrc, true, 1, 0),
             gainLoseUnknown = (isFullyObservable)
@@ -4315,7 +4316,7 @@ public class SOCGameHandler extends GameHandler
         final int totalRes = rset.getTotal();
         if (isDiscard)
         {
-            if (cg.isGameOptionSet(SOCGameOption.K_PLAY_FO))
+            if (cg.isGameOptionSet(SOCGameOptionSet.K_PLAY_FO))
             {
                 reportRsrcGainLoss(gaName, rset, true, true, pn, -1, null);
             }
@@ -4510,7 +4511,7 @@ public class SOCGameHandler extends GameHandler
                     ("action.built.sc_ftri.dev", plName));  // "{0} gets a Development Card as a gift from the Forgotten Tribe."
                 final int ctype = edge_cardType.getB();
                 final boolean isObservableVP =
-                    ga.isGameOptionSet(SOCGameOption.K_PLAY_FO) || ga.isGameOptionSet(SOCGameOption.K_PLAY_VPO);
+                    ga.isGameOptionSet(SOCGameOptionSet.K_PLAY_FO) || ga.isGameOptionSet(SOCGameOptionSet.K_PLAY_VPO);
                 srv.messageToPlayer
                     (c, gaName, pn, new SOCDevCardAction(gaName, pn, SOCDevCardAction.DRAW, ctype));
                 srv.messageToGameExcept
