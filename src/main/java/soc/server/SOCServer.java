@@ -3879,7 +3879,7 @@ public class SOCServer extends Server
             final SOCClientData scd = (SOCClientData) c.getAppData();
             final boolean isSupported = ((cliVers >= minVers)
                 && ((optFeat == null) || ((scd != null) && scd.feats.isActive(optFeat))));
-            c.put(new SOCGameOptionInfo
+            c.send( new SOCGameOptionInfo
                 ((isSupported) ? opt : new SOCGameOption(opt.key), cliVers, null));
         }
         for (final Connection c : unnamedConns)
@@ -3888,7 +3888,7 @@ public class SOCServer extends Server
             final SOCClientData scd = (SOCClientData) c.getAppData();
             final boolean isSupported = ((cliVers >= minVers)
                 && ((optFeat == null) || ((scd != null) && scd.feats.isActive(optFeat))));
-            c.put(new SOCGameOptionInfo
+            c.send( new SOCGameOptionInfo
                 ((isSupported) ? opt : new SOCGameOption(opt.key), cliVers, null));
         }
 
