@@ -105,7 +105,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * along with default features or {@link soc.client.SOCPlayerClient#PROP_JSETTLERS_DEBUG_CLIENT_FEATURES}.
      *
      * @see soc.server.SOCServer#PROP_JVM_JSETTLERS_DEBUG_SERVER_GAMEOPT3P
-     * @since 2.4.10
+     * @since 2.4.50
      */
     public static final String PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P = "jsettlers.debug.client.gameopt3p";
 
@@ -140,7 +140,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * {@link SOCGameOptionInfo} messages.
      * @see #allOptsReceived
      * @see #handleGAMEOPTIONINFO(SOCGameOptionInfo)
-     * @since 2.4.10
+     * @since 2.4.50
      */
     public SOCGameOptionSet knownOpts = SOCGameOptionSet.getAllKnownOptions();
 
@@ -155,7 +155,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      *
      * @see #knownOpts
      * @see #handleGAMEOPTIONINFO(SOCGameOptionInfo)
-     * @since 2.4.10
+     * @since 2.4.50
      */
     protected boolean allOptsReceived = true;
 
@@ -171,7 +171,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * {@link #sLocalVersion} should always equal our own version.
      * @since 1.1.00
      */
-    protected int sVersion = -1, sLocalVersion = -1;
+//    protected int sVersion = -1, sLocalVersion = -1;
 
     /**
      * Server's active optional features, sent soon after connect, or null if unknown.
@@ -806,7 +806,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
             /**
              * Report Robbery.
-             * Added 2020-09-15 for v2.4.10.
+             * Added 2020-09-15 for v2.4.50.
              */
             case SOCMessage.REPORTROBBERY:
                 handleREPORTROBBERY
@@ -985,7 +985,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
     /**
      * handle the "list of games with options" message
-     * @since 2.4.10
+     * @since 2.4.50
      */
     protected void handleGAMESWITHOPTIONS(final SOCGamesWithOptions mes) {}
 
@@ -1053,7 +1053,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
     /**
      * handle the "new game with options" message
-     * @since 2.4.10
+     * @since 2.4.50
      */
     protected void handleNEWGAMEWITHOPTIONS(final SOCNewGameWithOptions mes) {}
 
@@ -2041,7 +2041,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      *
      * @param mes  the message
      * @param ga  game object for {@link SOCMessageForGame#getGame() mes.getGame()}; if {@code null}, message is ignored
-     * @since 2.4.10
+     * @since 2.4.50
      */
     public static void handleREPORTROBBERY(final SOCReportRobbery mes, SOCGame ga)
     {
@@ -2431,7 +2431,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * by calling {@link SOCGameOptionSet#addKnownOption(SOCGameOption)}.
      * If all are now received, sets {@link #allOptsReceived} flag.
      * @param optInfo Info message for this {@link SOCGameOption}
-     * @since 2.4.10
+     * @since 2.4.50
      */
     protected void handleGAMEOPTIONINFO(final SOCGameOptionInfo optInfo)
     {
@@ -2800,7 +2800,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         /**
          * send the command
          */
-        connection.send( new SOCPutPiece(ga.getName(), pp.getPlayerNumber(), pt, pp.getCoordinates()));
+        put(SOCPutPiece.toCmd(ga.getName(), pp.getPlayerNumber(), pt, pp.getCoordinates()));
     }
 
     /**
@@ -2811,7 +2811,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @param fromCoord  Move the piece from here; must be >= 0
      * @param toCoord    Move the piece to here; must be >= 0
      * @throws IllegalArgumentException if {@code ptype} &lt; 0, {@code fromCoord} &lt; 0, or {@code toCoord} &lt; 0
-     * @since 2.4.10
+     * @since 2.4.50
      */
     public void movePieceRequest
         (final SOCGame ga, final int pn, final int ptype, final int fromCoord, final int toCoord)
@@ -2914,7 +2914,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      *
      * @param gaName  the game name
      * @see #leaveGame(SOCGame)
-     * @since 2.4.10
+     * @since 2.4.50
      */
     public void leaveGame(final String gaName)
     {

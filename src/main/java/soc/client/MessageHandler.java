@@ -714,7 +714,7 @@ public final class MessageHandler implements SOCMessageDispatcher
 
             /**
              * Report Robbery.
-             * Added 2020-09-15 for v2.4.10.
+             * Added 2020-09-15 for v2.4.50.
              */
             case SOCMessage.REPORTROBBERY:
                 handleREPORTROBBERY
@@ -763,7 +763,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         // Check known game options vs server's version. (added in 1.1.07)
         // Server's responses will add, remove or change our "known options".
         // In v2.0.00 and later, also checks for game option localized descriptions.
-        // In v2.4.10 and later, also checks for 3rd-party game opts.
+        // In v2.4.50 and later, also checks for 3rd-party game opts.
 
         final int cliVersion = Version.versionNumber();
         final boolean sameVersion = (vers == cliVersion);
@@ -2119,7 +2119,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      * Handle the "report robbery" message.
      * @param mes  the message
      * @param ga  game object for {@link SOCMessageForGame#getGame() mes.getGame()}
-     * @since 2.4.10
+     * @since 2.4.50
      */
     protected void handleREPORTROBBERY(final SOCReportRobbery mes, SOCGame ga)
     {
