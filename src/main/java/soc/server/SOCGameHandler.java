@@ -390,7 +390,7 @@ public class SOCGameHandler extends GameHandler
             }
             else
             {
-                if (c.getVersion() < SOCDebugFreePlace.VERSION_FOR_DEBUGFREEPLACE)
+                if (c.getRemoteVersion() < SOCDebugFreePlace.VERSION_FOR_DEBUGFREEPLACE)
                 {
                     srv.messageToPlayer
                         (c, gaName, eventPN,
@@ -874,7 +874,7 @@ public class SOCGameHandler extends GameHandler
                 {
                     int card = itemCard.itype;
                     if ((card == SOCDevCardConstants.KNIGHT)
-                        && (c.getVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
+                        && (c.getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
                         card = SOCDevCardConstants.KNIGHT_FOR_VERS_1_X;
                     srv.messageToPlayer
                         (c, gaName, cpn, new SOCDevCardAction(gaName, cpn, SOCDevCardAction.ADD_OLD, card));
@@ -1042,13 +1042,13 @@ public class SOCGameHandler extends GameHandler
 
         boolean hasRobot = false;  // If game's already started, true if any bot is seated (can be taken over)
         final String gameName = gameData.getName(), cliName = c.getData();
-        final int gameState = gameData.getGameState(), cliVers = c.getVersion();
+        final int gameState = gameData.getGameState(), cliVers = c.getRemoteVersion();
         final boolean isFullyObservable = gameData.isGameOptionSet(SOCGameOptionSet.K_PLAY_FO);
 
         if (! isReset)
         {
             // First, send updated scenario info or localized strings if needed
-            // (SOCScenarioInfo or SOCLocalizedStrings); checks c.getVersion(), scd.scenariosInfoSent etc.
+            // (SOCScenarioInfo or SOCLocalizedStrings); checks c.getRemoteVersion(), scd.scenariosInfoSent etc.
             final String gameScen = gameData.getGameOptionStringValue("SC");
             if (gameScen != null)
                 srv.sendGameScenarioInfo(gameScen, null, c, false, false);
@@ -1072,7 +1072,7 @@ public class SOCGameHandler extends GameHandler
                 new SOCJoinGameAuth(gameName, bh, bw, boardVS));
 
             final SOCClientData scd = (SOCClientData) c.getAppData();
-            if ((! scd.sentPostAuthWelcome) || (c.getVersion() < SOCStringManager.VERSION_FOR_I18N))
+            if ((! scd.sentPostAuthWelcome) || (c.getRemoteVersion() < SOCStringManager.VERSION_FOR_I18N))
             {
                 c.send( new SOCStatusMessage( SOCStatusMessage.SV_OK,
                     srv.getClientWelcomeMessage(c)));  // "Welcome to Java Settlers of Catan!"
@@ -1899,7 +1899,7 @@ public class SOCGameHandler extends GameHandler
     {
         final String gaName = ga.getName();
         final SOCPlayer pl = ga.getPlayer(pn);
-        final int cliVers = c.getVersion();
+        final int cliVers = c.getRemoteVersion();
 
         /**
          * send all the private information
@@ -2824,7 +2824,7 @@ public class SOCGameHandler extends GameHandler
 
                     if (joiningConn != null)
                     {
-                        if (joiningConn.getVersion() >= SOCDevCardAction.VERSION_FOR_MULTIPLE)
+                        if (joiningConn.getRemoteVersion() >= SOCDevCardAction.VERSION_FOR_MULTIPLE)
                             srv.messageToPlayer(joiningConn, gname, SOCServer.PN_OBSERVER, dcaMsg);
                         // else:
                         //    Server v1.x never sent these to a client joining a game after it ends;
@@ -2940,7 +2940,7 @@ public class SOCGameHandler extends GameHandler
 
                 if (plConn != null)
                 {
-                    if (plConn.getVersion() >= SOCPlayerStats.VERSION_FOR_RES_ROLL)
+                    if (plConn.getRemoteVersion() >= SOCPlayerStats.VERSION_FOR_RES_ROLL)
                     {
                         // Send total resources rolled
                         srv.messageToPlayer(plConn, gname, pn, new SOCPlayerStats(pl, SOCPlayerStats.STYPE_RES_ROLL));
@@ -3091,7 +3091,7 @@ public class SOCGameHandler extends GameHandler
         }
         else
         {
-            if (peCon.getVersion() < SOCReportRobbery.MIN_VERSION)
+            if (peCon.getRemoteVersion() < SOCReportRobbery.MIN_VERSION)
             {
                 srv.messageToPlayer(peCon, null, SOCServer.PN_NON_EVENT, gainRsrc);
                 srv.messageToPlayer(peCon, null, SOCServer.PN_NON_EVENT, loseRsrc);
@@ -3104,7 +3104,7 @@ public class SOCGameHandler extends GameHandler
                 srv.messageToPlayer(peCon, null, SOCServer.PN_NON_EVENT, gainLoseRsrc);
             }
 
-            if (viCon.getVersion() < SOCReportRobbery.MIN_VERSION)
+            if (viCon.getRemoteVersion() < SOCReportRobbery.MIN_VERSION)
             {
                 srv.messageToPlayer(viCon, null, SOCServer.PN_NON_EVENT, gainRsrc);
                 srv.messageToPlayer(viCon, null, SOCServer.PN_NON_EVENT, loseRsrc);
@@ -3151,7 +3151,7 @@ public class SOCGameHandler extends GameHandler
         final SOCGame ga = player.getGame();
         final String gaName = ga.getName();
         final int lowestVersion = (toJoiningClient != null)
-            ? toJoiningClient.getVersion()
+            ? toJoiningClient.getRemoteVersion()
             : ga.clientVersionLowest;
 
         // v2.0.00 and newer clients will announce this with localized text from SOCMakeOffer's data;

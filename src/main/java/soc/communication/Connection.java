@@ -472,7 +472,7 @@ public abstract class Connection implements Runnable
      * @return Version number, or 0 if unknown.
      * @since 1.0.3
      */
-    public int getVersion()
+    public int getRemoteVersion()
     {
         return remoteVersion;
     }

@@ -587,7 +587,7 @@ public class SOCGameMessageHandler
                             // send CLAY, ORE, SHEEP, WHEAT, WOOD even if player's amount is 0
                             final SOCResourceSet resources = pp.getResources();
                             final int[] counts = resources.getAmounts(false);
-                            if (playerCon.getVersion() >= SOCPlayerElements.MIN_VERSION)
+                            if (playerCon.getRemoteVersion() >= SOCPlayerElements.MIN_VERSION)
                             {
                                 srv.messageToPlayer(playerCon, gn, pn, new SOCPlayerElements
                                     (gn, pn, SOCPlayerElement.SET, SOCGameHandler.ELEM_RESOURCES, counts));
@@ -1307,7 +1307,7 @@ public class SOCGameMessageHandler
 
             if (! canOffer)
             {
-                SOCMessage msg = (c.getVersion() >= SOCBankTrade.VERSION_FOR_REPLY_REASONS)
+                SOCMessage msg = (c.getRemoteVersion() >= SOCBankTrade.VERSION_FOR_REPLY_REASONS)
                     ? new SOCMakeOffer(gaName, new SOCTradeOffer
                         (gaName, SOCBankTrade.PN_REPLY_CANNOT_MAKE_TRADE,
                          new boolean[ga.maxPlayers], SOCResourceSet.EMPTY_SET, SOCResourceSet.EMPTY_SET))
@@ -1443,11 +1443,11 @@ public class SOCGameMessageHandler
      * @param ga the game object to execute the trade in
      * @param offeringNumber  Player number offering the trade
      * @param acceptingNumber  Player number accepting the trade
-     * @param c  accepting player client's connection, if need to reply that trade is not possible
+     * @param connection  accepting player client's connection, if need to reply that trade is not possible
      * @since 2.4.10
      */
     private void executeTrade
-        (final SOCGame ga, final int offeringNumber, final int acceptingNumber, final Connection c)
+        (final SOCGame ga, final int offeringNumber, final int acceptingNumber, final Connection connection)
     {
         ga.takeMonitor();
 
@@ -1493,13 +1493,13 @@ public class SOCGameMessageHandler
             }
             else
             {
-                if (c.getVersion() >= SOCBankTrade.VERSION_FOR_REPLY_REASONS)
+                if (connection.getRemoteVersion() >= SOCBankTrade.VERSION_FOR_REPLY_REASONS)
                     srv.messageToPlayer
-                        (c, gaName, acceptingNumber, new SOCAcceptOffer
+                        (connection, gaName, acceptingNumber, new SOCAcceptOffer
                             (gaName, SOCBankTrade.PN_REPLY_CANNOT_MAKE_TRADE, offeringNumber));
                 else
                     srv.messageToPlayerKeyed
-                        (c, gaName, acceptingNumber, "reply.common.trade.cannot_make");  // "You can't make that trade."
+                        (connection, gaName, acceptingNumber, "reply.common.trade.cannot_make");  // "You can't make that trade."
             }
         }
         catch (Exception e)
@@ -1515,55 +1515,55 @@ public class SOCGameMessageHandler
     /**
      * handle "bank trade" message.
      *
-     * @param c  the connection that sent the message
+     * @param connection  the connection that sent the message
      * @param mes  the message
      * @since 1.0.0
      */
-    private void handleBANKTRADE(SOCGame ga, Connection c, final SOCBankTrade mes)
+    private void handleBANKTRADE(SOCGame theGame, Connection connection, final SOCBankTrade mes)
     {
-        final String gaName = ga.getName();
+        final String gaName = theGame.getName();
         final SOCResourceSet give = mes.getGiveSet(),
             get = mes.getGetSet();
 
-        ga.takeMonitor();
+        theGame.takeMonitor();
 
         try
         {
-            if (handler.checkTurn(c, ga))
+            if (handler.checkTurn(connection, theGame))
             {
-                if (ga.canMakeBankTrade(give, get))
+                if (theGame.canMakeBankTrade(give, get))
                 {
-                    ga.makeBankTrade(give, get);
-                    handler.reportBankTrade(ga, give, get);
+                    theGame.makeBankTrade(give, get);
+                    handler.reportBankTrade(theGame, give, get);
                 }
                 else
                 {
-                    final int pn = ga.getCurrentPlayerNumber();
-                    if (c.getVersion() >= SOCBankTrade.VERSION_FOR_REPLY_REASONS)
-                        srv.messageToPlayer(c, gaName, pn,
+                    final int pn = theGame.getCurrentPlayerNumber();
+                    if (connection.getRemoteVersion() >= SOCBankTrade.VERSION_FOR_REPLY_REASONS)
+                        srv.messageToPlayer(connection, gaName, pn,
                             new SOCBankTrade
                                 (gaName, SOCResourceSet.EMPTY_SET, SOCResourceSet.EMPTY_SET,
                                  SOCBankTrade.PN_REPLY_CANNOT_MAKE_TRADE));
                     else
                         srv.messageToPlayerKeyed
-                            (c, gaName, pn, "reply.common.trade.cannot_make");  // "You can't make that trade."
+                            (connection, gaName, pn, "reply.common.trade.cannot_make");  // "You can't make that trade."
 
-                    SOCClientData scd = (SOCClientData) c.getAppData();
+                    SOCClientData scd = (SOCClientData) connection.getAppData();
                     if ((scd != null) && scd.isRobot)
-                        D.ebugPrintlnINFO("ILLEGAL BANK TRADE: " + c.getData()
+                        D.ebugPrintlnINFO("ILLEGAL BANK TRADE: " + connection.getData()
                           + ": give " + give + ", get " + get);
                 }
             }
             else
             {
-                if (c.getVersion() >= SOCBankTrade.VERSION_FOR_REPLY_REASONS)
-                    srv.messageToPlayer(c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
+                if (connection.getRemoteVersion() >= SOCBankTrade.VERSION_FOR_REPLY_REASONS)
+                    srv.messageToPlayer(connection, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
                         new SOCBankTrade
                             (gaName, SOCResourceSet.EMPTY_SET, SOCResourceSet.EMPTY_SET,
                              SOCBankTrade.PN_REPLY_NOT_YOUR_TURN));
                 else
                     srv.messageToPlayerKeyed
-                        (c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED, "base.reply.not.your.turn");  // "It's not your turn."
+                        (connection, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED, "base.reply.not.your.turn");  // "It's not your turn."
             }
         }
         catch (Exception e)
@@ -1572,7 +1572,7 @@ public class SOCGameMessageHandler
         }
         finally
         {
-            ga.releaseMonitor();
+            theGame.releaseMonitor();
         }
     }
 
@@ -2735,7 +2735,7 @@ public class SOCGameMessageHandler
                     // Let the player know, and record that event
                     {
                         if ((card == SOCDevCardConstants.KNIGHT)
-                            && (c.getVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
+                            && (c.getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
                             card = SOCDevCardConstants.KNIGHT_FOR_VERS_1_X;
 
                         SOCDevCardAction drawMsg = new SOCDevCardAction
@@ -2911,7 +2911,7 @@ public class SOCGameMessageHandler
 
                 int ctype = mes.getDevCard();
                 if ((ctype == SOCDevCardConstants.KNIGHT_FOR_VERS_1_X)
-                    && (c.getVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
+                    && (c.getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
                     ctype = SOCDevCardConstants.KNIGHT;
 
                 switch (ctype)

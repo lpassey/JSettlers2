@@ -34,13 +34,10 @@ import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
 import soc.communication.Connection;
 import soc.communication.NetConnection;
-import soc.disableDebug.D;
+// import soc.disableDebug.D;
 import soc.game.SOCGame;
 import soc.game.SOCGameOptionSet;
-import soc.message.SOCChannels;
-import soc.message.SOCGames;
 import soc.message.SOCJoinGame;
-import soc.message.SOCLeaveAll;
 import soc.message.SOCMessage;
 import soc.message.SOCNewGameWithOptionsRequest;
 import soc.message.SOCRejectConnection;
@@ -172,7 +169,7 @@ import soc.util.Version;
      * @see #lastMessage_N
      * @since 1.1.00
      */
-    protected SOCMessage lastMessage_P;
+//    protected SOCMessage lastMessage_P;
 
     /**
      * Server for practice games via {@link #prCli}; not connected to the network,
@@ -185,15 +182,6 @@ import soc.util.Version;
      * @since 1.1.00
      */
     protected SOCServer practiceServer = null;
-
-    /**
-     * Client connection to {@link #practiceServer practice server}.
-     * Null before it's started in {@link #startPracticeGame()}.
-     *<P>
-     * Last message is in {@link #lastMessage_P}; any error is in {@link #ex_P}.
-     * @since 1.1.00
-     */
-    protected Connection prCli = null;
 
     /**
      * Create our client's ClientNetwork.
@@ -237,7 +225,7 @@ import soc.util.Version;
      *         starting the practice server or client
      * @since 1.1.00
      */
-    public boolean startPracticeGame(final String practiceGameName, final SOCGameOptionSet gameOpts)
+    public boolean startPracticeGame( final String practiceGameName, final SOCGameOptionSet gameOpts )
     {
         if (practiceServer == null)
         {
@@ -262,11 +250,14 @@ import soc.util.Version;
             }
         }
 
+        Connection prCli = client.getConnection();
+
         if (prCli == null)
         {
             try
             {
                 prCli = MemServerSocket.connectTo(SOCServer.PRACTICE_STRINGPORT);
+                client.setConnection( prCli );
                 prCli.startMessageProcessing( client.getMessageHandler() );  // Reader will start its own thread
 
                 // Send VERSION right away
@@ -285,25 +276,13 @@ import soc.util.Version;
 
         // Ask internal practice server to create the game
         if (gameOpts == null)
-            send(new SOCJoinGame(client.practiceNickname, "", SOCMessage.EMPTYSTR, practiceGameName));
+            prCli.send(new SOCJoinGame(client.practiceNickname, "", SOCMessage.EMPTYSTR, practiceGameName));
         else
-            send(new SOCNewGameWithOptionsRequest( client.practiceNickname, "", SOCMessage.EMPTYSTR,
+            prCli.send(new SOCNewGameWithOptionsRequest( client.practiceNickname, "", SOCMessage.EMPTYSTR,
                 practiceGameName, gameOpts.getAll()));
 
         return true;
     }
-
-    /**
-     * Get the tcp port number of the local server.
-     * @see #isRunningLocalServer()
-     */
-//    public int getLocalServerPort()
-//    {
-//        if (localTCPServer == null)
-//            return 0;
-//
-//        return localTCPServer.getPort();
-//    }
 
     /** Shut down the local TCP server. */
     public void shutdownLocalServer()
@@ -347,7 +326,7 @@ import soc.util.Version;
      */
     public int getPort()
     {
-        return (null != prCli && prCli.isConnected()) ? serverConnectInfo.port : SOC_PORT_DEFAULT;
+        return ( client.isConnected()) ? serverConnectInfo.port : SOC_PORT_DEFAULT;
     }
 
     /**
@@ -358,16 +337,7 @@ import soc.util.Version;
      */
     public String getHost()
     {
-        return (null != prCli && prCli.isConnected()) ? serverConnectInfo.hostname : null;
-    }
-
-    /**
-     * Are we connected to a tcp server?
-     * @see #getHost()
-     */
-    public synchronized boolean isConnected()
-    {
-        return ((prCli instanceof NetConnection) && prCli.isConnected());
+        return (client.isConnected()) ? serverConnectInfo.hostname : null;
     }
 
     /**
@@ -389,7 +359,7 @@ import soc.util.Version;
     public synchronized void connect(final String host, final int port)
         throws IllegalStateException
     {
-        if (null != prCli && prCli.isConnected())
+        if (client.isConnected())
         {
             throw new IllegalStateException
                 ("Already connected to " + (serverConnectInfo.hostname != null ? serverConnectInfo.hostname : "localhost")
@@ -423,9 +393,10 @@ import soc.util.Version;
                 : new InetSocketAddress(InetAddress.getByName(null), port);  // loopback
             Socket sock = new Socket();
             sock.connect( srvAddr, CONNECT_TIMEOUT_MS );
-            prCli = new NetConnection( sock );
-            prCli.connect(); // wires up data streams to already connected socket.
-            prCli.startMessageProcessing( client.getMessageHandler() );
+            NetConnection connection = new NetConnection( sock );
+            connection.connect(); // wires up data streams to already connected socket.
+            client.setConnection( connection );
+            connection.startMessageProcessing( client.getMessageHandler() );
             // send VERSION right away (1.1.06 and later)
             sendVersion();
         }
@@ -436,9 +407,9 @@ import soc.util.Version;
             System.err.println(msg);
             mainDisplay.showErrorPanel(msg, (ex_P == null));
 
-            if (prCli.isConnected())
+            if (client.isConnected())
             {
-                prCli.disconnect();
+                client.disconnect();
             }
             serverConnectInfo = null;
         }
@@ -451,9 +422,9 @@ import soc.util.Version;
      */
     protected synchronized void disconnect()
     {
-        if (null != prCli && prCli.isConnected())
+        if (client.isConnected())
             // reader will die once 'connected' is false, and socket is closed
-            prCli.disconnect();
+            client.disconnect();
     }
 
     /**
@@ -491,7 +462,7 @@ import soc.util.Version;
         final SOCMessage msg = new SOCVersion( Version.versionNumber(), Version.version(),
             Version.buildnum(), feats, client.cliLocale.toString());
 
-        send(msg);
+        client.getConnection().send(msg);
     }
 
     /**
@@ -530,122 +501,6 @@ import soc.util.Version;
         }
 
         return false;  // No active games found
-    }
-
-    /**
-     * write a message to the net: either to a remote server,
-     * or to {@link #localTCPServer} for games we're hosting.
-     *<P>
-     * If {@link #ex} != null, or ! {@link #connected}, {@code putNet}
-     * returns false without attempting to send the message.
-     *<P>
-     * This message is copied to {@link #lastMessage_N}; any error sets {@link #ex}
-     * and calls {@link SOCPlayerClient#shutdownFromNetwork()} to show the error message.
-     *
-     * @param s  the message
-     * @return true if the message was sent, false if not
-     * @see GameMessageSender#put(String, boolean)
-     * @see #putPractice(String)
-     */
-//    public synchronized boolean putNet(String s)
-//    {
-//        lastMessage_N = s;
-//
-//        if ((ex != null) || !isConnected())
-//        {
-//            return false;
-//        }
-//
-//        if (client.debugTraffic || D.ebugIsEnabled())
-//            soc.debug.D.ebugPrintlnINFO("OUT - " + SOCMessage.toMsg(s));
-//
-//        try
-//        {
-//            out.writeUTF(s);
-//            out.flush();
-//        }
-//        catch (IOException e)
-//        {
-//            ex = e;
-//            System.err.println("could not write to the net: " + ex);  // I18N: Not localizing console output yet
-//            client.shutdownFromNetwork();
-//
-//            return false;
-//        }
-//
-//        return true;
-//    }
-
-    /**
-     * write a message to the practice server. {@link #localTCPServer} is not
-     * the same as the practice server; use {@link #putNet(String)} to send
-     * a message to the local TCP server.
-     * Use <tt>send</tt> only with {@link #practiceServer}.
-     *<P>
-     * Before version 1.1.14, this was <tt>putLocal</tt>.
-     *
-     * @param s  the message
-     * @return true if the message was sent, false if not
-     * @see GameMessageSender#put(String, boolean)
-     * @throws IllegalArgumentException if {@code s} is {@code null}
-     * @see #putNet(String)
-     * @since 1.1.00
-     */
-    public synchronized boolean send( SOCMessage s )
-        throws IllegalArgumentException
-    {
-        if (s == null)
-            throw new IllegalArgumentException("null");
-
-        lastMessage_P = s;
-
-        if ((ex_P != null) || ! prCli.isConnected())
-        {
-            return false;
-        }
-
-        if (client.debugTraffic || D.ebugIsEnabled())
-            soc.debug.D.ebugPrintlnINFO("OUT L- " + s );
-
-        prCli.send(s);
-
-        return true;
-    }
-
-    /**
-     * resend the last message (to the practice server)
-     * @see #resendNet()
-     * @since 1.1.00
-     */
-    public void resendPractice()
-    {
-        if (lastMessage_P != null)
-            send(lastMessage_P);
-    }
-
-    /**
-     * For shutdown - Tell the server we're leaving all games.
-     * If we've started a practice server, also tell that server.
-     * If we've started a TCP server, tell all players on that server, and shut it down.
-     *<P><em>
-     * Since no other state variables are set, call this only right before
-     * discarding this object or calling System.exit.
-     *</em>
-     * @return Can we still start practice games? (No local exception yet in {@link #ex_P})
-     * @since 1.1.00
-     */
-    public boolean putLeaveAll()
-    {
-        final boolean canPractice = (ex_P == null);  // Can we still start a practice game?
-
-        SOCLeaveAll leaveAllMes = new SOCLeaveAll();
-
-        if ((prCli != null) && ! canPractice)
-            send( leaveAllMes );
-
-        shutdownLocalServer();
-
-        return canPractice;
     }
 }
 

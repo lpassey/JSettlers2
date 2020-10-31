@@ -2864,7 +2864,7 @@ public class SOCServer extends Server
 
         boolean result = false;
 
-        final int cliVers = c.getVersion();
+        final int cliVers = c.getRemoteVersion();
         boolean gameExists = false;
 
         if (loadedGame == null)
@@ -3148,7 +3148,7 @@ public class SOCServer extends Server
                             if (scd.isRobot)
                                 continue;  // bots don't care about new-game announcements
 
-                            if ((gVers <= lc.getVersion()) && ! newGame.canClientJoin(scd.feats))
+                            if ((gVers <= lc.getRemoteVersion()) && ! newGame.canClientJoin(scd.feats))
                             {
                                 cliLimited = lc;
                                 break;
@@ -3164,7 +3164,7 @@ public class SOCServer extends Server
                                 if (scd.isRobot)
                                     continue;
 
-                                if ((gVers <= c.getVersion()) && ! newGame.canClientJoin(scd.feats))
+                                if ((gVers <= c.getRemoteVersion()) && ! newGame.canClientJoin(scd.feats))
                                 {
                                     cliLimited = c;
                                     break;
@@ -3179,7 +3179,7 @@ public class SOCServer extends Server
                                     if (scd.isRobot)
                                         continue;
 
-                                    if ((gVers <= c.getVersion()) && ! newGame.canClientJoin(scd.feats))
+                                    if ((gVers <= c.getRemoteVersion()) && ! newGame.canClientJoin(scd.feats))
                                     {
                                         cliLimited = c;
                                         break;
@@ -3264,7 +3264,7 @@ public class SOCServer extends Server
                 }
             }
 
-            int cvers = c.getVersion();
+            int cvers = c.getRemoteVersion();
             if (cvers < gVers)
                 cvers = -1;
             else if ((gaOpts == null) || (cvers < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS))
@@ -3875,7 +3875,7 @@ public class SOCServer extends Server
         final String optFeat = opt.getClientFeature();
         for (final Connection c : conns.values())
         {
-            final int cliVers = c.getVersion();
+            final int cliVers = c.getRemoteVersion();
             final SOCClientData scd = (SOCClientData) c.getAppData();
             final boolean isSupported = ((cliVers >= minVers)
                 && ((optFeat == null) || ((scd != null) && scd.feats.isActive(optFeat))));
@@ -3884,7 +3884,7 @@ public class SOCServer extends Server
         }
         for (final Connection c : unnamedConns)
         {
-            final int cliVers = c.getVersion();
+            final int cliVers = c.getRemoteVersion();
             final SOCClientData scd = (SOCClientData) c.getAppData();
             final boolean isSupported = ((cliVers >= minVers)
                 && ((optFeat == null) || ((scd != null) && scd.feats.isActive(optFeat))));
@@ -4276,7 +4276,7 @@ public class SOCServer extends Server
         if (c == null)
             return;
 
-        if (c.getVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT)
+        if (c.getRemoteVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT)
         {
             SOCGameServerText msg = new SOCGameServerText(gameName, txt);
             c.send( msg);
@@ -4484,7 +4484,7 @@ public class SOCServer extends Server
         if (c == null)
             return;
 
-        if (c.getVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT)
+        if (c.getRemoteVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT)
             pl.pendingMessagesOut.add(new SOCGameServerText(gaName, c.getLocalized(key)));
         else
             pl.pendingMessagesOut.add(new SOCGameTextMsg(gaName, SERVERNAME, c.getLocalized(key)));
@@ -4647,7 +4647,7 @@ public class SOCServer extends Server
                     Connection c = menum.nextElement();
                     if (c != null)
                     {
-                        if (c.getVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT)
+                        if (c.getRemoteVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT)
                             c.send( msg );
                         else
                             c.send( new SOCGameTextMsg(ga, SERVERNAME, txt));
@@ -5166,7 +5166,7 @@ public class SOCServer extends Server
                             msgForRecord = gameTextMsg;
                     }
 
-                    if ((c.getVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT) && (gameTextMsg != null))
+                    if ((c.getRemoteVersion() >= SOCGameServerText.VERSION_FOR_GAMESERVERTEXT) && (gameTextMsg != null))
                         c.send( gameTextMsg);
                     else
                         // old client (this is uncommon) needs a different message type
@@ -5536,7 +5536,7 @@ public class SOCServer extends Server
                     if ((con == null) || ((ex != null) && ex.contains(con)))
                         continue;
 
-                    final int cv = con.getVersion();
+                    final int cv = con.getRemoteVersion();
                     if ((cv < vmin) || (cv > vmax))
                         continue;
 
@@ -5685,7 +5685,7 @@ public class SOCServer extends Server
                 if ((c == null) || ((ex != null) && ex.contains(c)))
                     continue;
 
-                final int cv = c.getVersion();
+                final int cv = c.getRemoteVersion();
                 if ((cv < vmin) || (cv > vmax))
                     continue;
 
@@ -6037,7 +6037,7 @@ public class SOCServer extends Server
 
             // Let the old one know it's disconnected now,
             // in case it ever does get its connection back.
-            if (oldConn.getVersion() >= 1108)
+            if (oldConn.getRemoteVersion() >= 1108)
                 oldConn.send(new SOCServerPing(-1));
 
             // If oldConn was in some games which c can't join because of limited client features,
@@ -6231,7 +6231,7 @@ public class SOCServer extends Server
                 // Already sent ping, timeout has expired.
                 // Re-check version just in case.
                 int minVersForGames = gameList.playerGamesMinVersion(oldc);
-                if (minVersForGames > newc.getVersion())
+                if (minVersForGames > newc.getRemoteVersion())
                 {
                     if (minVersForGames < 1000)
                         minVersForGames = 1000;
@@ -6250,14 +6250,14 @@ public class SOCServer extends Server
 
         // Have not yet sent a ping.
         int minVersForGames = gameList.playerGamesMinVersion(oldc);
-        if (minVersForGames > newc.getVersion())
+        if (minVersForGames > newc.getRemoteVersion())
         {
             if (minVersForGames < 1000)
                 minVersForGames = 1000;
             return -minVersForGames;  // too old to play
         }
         scd.disconnectLastPingMillis = now;
-        if (oldc.getVersion() >= 1108)
+        if (oldc.getRemoteVersion() >= 1108)
         {
             // Already-connected client should respond to ping.
             // If not, consider them disconnected.
@@ -6793,7 +6793,7 @@ public class SOCServer extends Server
         if (msgPass.length() > SOCAuthRequest.PASSWORD_LEN_MAX)
         {
             c.send( SOCStatusMessage.buildForVersion
-                     (SOCStatusMessage.SV_PW_WRONG, c.getVersion(),
+                     (SOCStatusMessage.SV_PW_WRONG, c.getRemoteVersion(),
                       c.getLocalized("netmsg.status.incorrect_password", msgUser)));  // "Incorrect password for "msgUser"."
             return;
         }
@@ -6832,7 +6832,7 @@ public class SOCServer extends Server
         catch (SQLException sqle)
         {
             c.send( SOCStatusMessage.buildForVersion
-                    (SOCStatusMessage.SV_PROBLEM_WITH_DB, c.getVersion(),
+                    (SOCStatusMessage.SV_PROBLEM_WITH_DB, c.getRemoteVersion(),
                      "Problem connecting to database, please try again later."));
         }
     }
@@ -6859,7 +6859,7 @@ public class SOCServer extends Server
             // Password too long, or user found in database but password incorrect
 
             final SOCMessage msg = SOCStatusMessage.buildForVersion
-                (SOCStatusMessage.SV_PW_WRONG, c.getVersion(),
+                (SOCStatusMessage.SV_PW_WRONG, c.getRemoteVersion(),
                  c.getLocalized("netmsg.status.incorrect_password", msgUser));  // "Incorrect password for "msgUser"."
             if (hadDelay)
                 c.send( msg);
@@ -7012,7 +7012,7 @@ public class SOCServer extends Server
      * {@link #authOrRejectClientRobot(Connection, String, String, String)} when the bot sends {@link SOCImARobot}.
      *<P>
      *<b>Locks:</b> To set the version, will synchronize briefly on {@link Server#unnamedConns unnamedConns}.
-     * If {@link Connection#getVersion() c.getVersion()} is already == cvers,
+     * If {@link Connection#getVersion() c.getRemoteVersion()} is already == cvers,
      * don't bother to lock and set it.
      *<P>
      * Package access (not private) is strictly for use of {@link SOCServerMessageHandler}
@@ -7033,7 +7033,7 @@ public class SOCServer extends Server
     boolean setClientVersSendGamesOrReject
         (Connection c, final int cvers, String cfeats, String clocale, final boolean isKnown)
     {
-        final int prevVers = c.getVersion();
+        final int prevVers = c.getRemoteVersion();
         final boolean wasKnown = c.isVersionKnown();
 
         final SOCFeatureSet cfeatSet;
@@ -7281,7 +7281,7 @@ public class SOCServer extends Server
     /**
      * Handle robot authentication (the "I'm a robot" message).
      * Robots send their {@link SOCVersion} before sending that message.
-     * Their version is checked here (from {@link Connection#getVersion() c.getVersion()}),
+     * Their version is checked here (from {@link Connection#getVersion() c.getRemoteVersion()}),
      * must equal server's version. For stability and control, the cookie contents sent by the bot must
      * match this server's {@link #robotCookie}.
      *<P>
@@ -7351,7 +7351,7 @@ public class SOCServer extends Server
          * Check the reported version; if none, assume 1000 (1.0.00)
          */
         final int srvVers = Version.versionNumber();
-        int cliVers = c.getVersion();
+        int cliVers = c.getRemoteVersion();
         final boolean isBuiltIn = (rbc == null)
             || (rbc.equals(SOCImARobot.RBCLASS_BUILTIN));
         if (isBuiltIn)
@@ -7515,7 +7515,7 @@ public class SOCServer extends Server
     {
         if (gameName != null)
             gameName = gameName.trim();
-        final int cliVers = c.getVersion();
+        final int cliVers = c.getRemoteVersion();
 
         if (c.getData() != null)
         {
@@ -7882,7 +7882,7 @@ public class SOCServer extends Server
         // If debug/admin user isn't a player, will send each sitDown with isRobot=true
         // to let them sit down at any player's seat.
         if (! createOrJoinGame
-               (c, c.getVersion(), connGaName, ga.getGameOptions(), ga, SOCServer.AUTH_OR_REJECT__OK))
+               (c, c.getRemoteVersion(), connGaName, ga.getGameOptions(), ga, SOCServer.AUTH_OR_REJECT__OK))
         {
             return null;
         }
@@ -8980,7 +8980,7 @@ public class SOCServer extends Server
     final void createAccount
         (final String nn, final String pw, final String em, final Connection c)
     {
-        final int cliVers = c.getVersion();
+        final int cliVers = c.getRemoteVersion();
 
         if (! db.isInitialized())
         {
@@ -9455,7 +9455,7 @@ public class SOCServer extends Server
             if (huConns[pn] != null)
             {
                 final SOCResetBoardAuth rMsg;
-                if (hasOldClients && (huConns[pn].getVersion() < SOCResetBoardAuth.VERSION_FOR_BLANK_PLAYERNUM))
+                if (hasOldClients && (huConns[pn].getRemoteVersion() < SOCResetBoardAuth.VERSION_FOR_BLANK_PLAYERNUM))
                     rMsg = new SOCResetBoardAuth(gaName, pn, requestingPlayer);
                 else
                     rMsg = resetMsg;

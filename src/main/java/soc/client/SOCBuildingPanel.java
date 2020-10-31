@@ -246,8 +246,11 @@ import javax.swing.SwingConstants;
         if (! isOSHighContrast)
         {
             final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors( true, false );
-            setBackground(colors[2]);  // SwingMainDisplay.DIALOG_BG_GOLDENROD
-            setForeground(colors[0]);  // Color.BLACK
+            if (null != colors)
+            {
+                setBackground( colors[2] );  // SwingMainDisplay.DIALOG_BG_GOLDENROD
+                setForeground( colors[0] );  // Color.BLACK
+            }
         }
         setFont(panelFont);
 
@@ -1040,8 +1043,8 @@ import javax.swing.SwingConstants;
 
             if (isCurrent && ((gstate == SOCGame.PLACING_ROAD)
                     || ((gstate == SOCGame.PLACING_FREE_ROAD2)
-                        && (game.isPractice
-                            || pi.getClient().sVersion >= SOCGame.VERSION_FOR_CANCEL_FREE_ROAD2))))
+                        && (   game.isPractice
+                            || pi.getClient().getConnection().getRemoteVersion() >= SOCGame.VERSION_FOR_CANCEL_FREE_ROAD2))))
             {
                 roadBut.setEnabled(true);
                 roadBut.setText(strings.get("base.cancel"));  // "Cancel"
@@ -1274,8 +1277,11 @@ import javax.swing.SwingConstants;
             else
             {
                 final Color[] sysColors = SwingMainDisplay.getForegroundBackgroundColors(false, true);
-                setForeground(sysColors[0]);
-                setBackground(sysColors[2]);
+                if (null != sysColors)
+                {
+                    setForeground( sysColors[0] );
+                    setBackground( sysColors[2] );
+                }
             }
 
             if (tooltipText != null)

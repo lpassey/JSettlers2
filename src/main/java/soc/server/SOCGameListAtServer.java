@@ -311,7 +311,7 @@ public class SOCGameListAtServer extends SOCGameList
             if (ga == null)
                 return;  // happens only in some unit tests
 
-            final int cliVers = conn.getVersion();
+            final int cliVers = conn.getRemoteVersion();
             if (firstMember)
             {
                 ga.clientVersionLowest = cliVers;
@@ -367,13 +367,13 @@ public class SOCGameListAtServer extends SOCGameList
             if (! members.isEmpty())
             {
                 Connection c = members.firstElement();
-                int lowVers = c.getVersion();
+                int lowVers = c.getRemoteVersion();
                 int highVers = lowVers;
 
                 for (int i = members.size() - 1; i >= 1; --i)
                 {
                     c = members.elementAt(i);
-                    int v = c.getVersion();
+                    int v = c.getRemoteVersion();
                     if (v < lowVers)
                         lowVers = v;
                     if (v > highVers)
@@ -421,7 +421,7 @@ public class SOCGameListAtServer extends SOCGameList
 
         List<SOCGame> unjoinables = new ArrayList<>();
 
-        final boolean sameVersion = (oldConn.getVersion() == newConn.getVersion());
+        final boolean sameVersion = (oldConn.getRemoteVersion() == newConn.getRemoteVersion());
         final SOCClientData scd = (SOCClientData) newConn.getAppData();
         final boolean cliHasLimitedFeats = alwaysCheckFeats || scd.hasLimitedFeats;
 
@@ -847,7 +847,7 @@ public class SOCGameListAtServer extends SOCGameList
     public void sendGameList
         (final Connection c, final int prevVers, final boolean alwaysCheckFeats)
     {
-        final int cliVers = c.getVersion();   // Need to know this before sending
+        final int cliVers = c.getRemoteVersion();   // Need to know this before sending
         final SOCClientData scd = (SOCClientData) c.getAppData();
 
         // Before send list of games, try for a client version.

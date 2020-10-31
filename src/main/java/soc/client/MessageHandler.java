@@ -751,15 +751,12 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         int vers = mes.getVersionNumber();
 
-        if (! isPractice)
-        {
-            client.sVersion = vers;
+            client.getConnection().setVersion( vers, true );
             client.sFeatures = (vers >= SOCFeatureSet.VERSION_FOR_SERVERFEATURES)
                     ? new SOCFeatureSet(mes.feats)
                     : new SOCFeatureSet(true, true);
 
             client.getMainDisplay().showVersion(vers, mes.getVersionString(), mes.getBuild(), client.sFeatures);
-        }
 
         // If we ever require a minimum server version, would check that here.
 
@@ -769,17 +766,19 @@ public final class MessageHandler implements SOCMessageDispatcher
         // In v2.4.10 and later, also checks for 3rd-party game opts.
 
         final int cliVersion = Version.versionNumber();
-        final boolean sameVersion = (client.sVersion == cliVersion);
-        final boolean withTokenI18n =
-            (client.cliLocale != null) && (isPractice || (client.sVersion >= SOCStringManager.VERSION_FOR_I18N))
-            && ! ("en".equals(client.cliLocale.getLanguage()) && "US".equals(client.cliLocale.getCountry()));
+        final boolean sameVersion = (vers == cliVersion);
+        final boolean withTokenI18n = (client.cliLocale != null)
+            && (vers >= SOCStringManager.VERSION_FOR_I18N)
+            && ! ("en".equals(client.cliLocale.getLanguage())
+            && "US".equals(client.cliLocale.getCountry()));
+
         SOCGameOptionSet opts3p =
-            ((client.sVersion >= cliVersion) && ! isPractice)
+            (vers >= cliVersion && ! isPractice)
             ? client.tcpServGameOpts.knownOpts.optionsWithFlag(SOCGameOption.FLAG_3RD_PARTY, 0)
             : null;   // sVersion < cliVersion, so SOCGameOptionSet.optionsNewerThanVersion will find any 3rd-party opts
 
-        if (    ((! isPractice) && (client.sVersion > cliVersion))
-             || ((isPractice || sameVersion) && (withTokenI18n || (opts3p != null))) )
+        if (    (vers > cliVersion)
+             || ( sameVersion && (withTokenI18n || (opts3p != null))) )
         {
             // Newer server: Ask it to list any options we don't know about yet.
             // Same version: Ask for all localized option descs if available.
@@ -804,9 +803,9 @@ public final class MessageHandler implements SOCMessageDispatcher
                 client.getMainDisplay().optionsRequested();
             connection.send( ogiMsg );  // send the request back on the same connection it came in on.
         }
-        else if ((client.sVersion < cliVersion) && ! isPractice)
+        else if (vers < cliVersion)
         {
-            if (client.sVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
+            if (vers >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
             {
                 // Older server: Look for options created or changed since server's version
                 // (and any 3rd-party options).
@@ -820,9 +819,9 @@ public final class MessageHandler implements SOCMessageDispatcher
                 }
 
                 List<SOCGameOption> tooNewOpts =
-                    knownOpts.optionsNewerThanVersion(client.sVersion, false, false);
+                    knownOpts.optionsNewerThanVersion(vers, false, false);
 
-                if ((tooNewOpts != null) && (client.sVersion < SOCGameOption.VERSION_FOR_LONGER_OPTNAMES))
+                if ((tooNewOpts != null) && (vers < SOCGameOption.VERSION_FOR_LONGER_OPTNAMES))
                 {
                     // Server is older than 2.0.00; we can't send it any long option names.
                     // Remove them from our set of options usable for games on that server.
@@ -917,7 +916,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         }
 
         final boolean srvDebugMode;
-        if (isPractice || (client.sVersion >= 2000))
+        if (isPractice || (client.getConnection().getRemoteVersion() >= 2000))
         {
             final boolean svIsOKDebug = (sv == SOCStatusMessage.SV_OK_DEBUG_MODE_ON);
             srvDebugMode = svIsOKDebug;
@@ -1238,9 +1237,8 @@ public final class MessageHandler implements SOCMessageDispatcher
         }
 
         SOCGame ga = new SOCGame(gaName, gameOpts, knownOpts); // Constructors will never return null
-            ga.isPractice = isPractice;
         ga.isPractice = isPractice;
-        ga.serverVersion = (isPractice) ? Version.versionNumber() : client.sVersion;
+        ga.serverVersion = (isPractice) ? Version.versionNumber() : client.getConnection().getRemoteVersion();
 
         PlayerClientListener clientListener =
             client.getMainDisplay().gameJoined(ga, mes.getLayoutVS(), client.getGameReqLocalPrefs().get(gaName));
@@ -1415,7 +1413,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         final boolean playerIsClient = client.getNickname(ga.isPractice).equals(plName);
 
         if (playerIsClient
-            && (ga.isPractice || (client.sVersion >= SOCDevCardAction.VERSION_FOR_SITDOWN_CLEARS_INVENTORY)))
+            && (ga.isPractice || (client.getConnection().getRemoteVersion() >= SOCDevCardAction.VERSION_FOR_SITDOWN_CLEARS_INVENTORY)))
         {
             // server is about to send our dev-card inventory contents
             player.getInventory().clear();
@@ -2292,7 +2290,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         else
         {
             int ctype = mes.getCardType();
-            if ((! isPractice) && (client.sVersion < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
+            if ((! isPractice) && (client.getConnection().getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
             {
                 if (ctype == SOCDevCardConstants.KNIGHT_FOR_VERS_1_X)
                     ctype = SOCDevCardConstants.KNIGHT;
@@ -2535,17 +2533,19 @@ public final class MessageHandler implements SOCMessageDispatcher
     {
         ServerGametypeInfo servOpts;
         boolean isPractice = connection instanceof MemConnection;
-        if (isPractice)
-            servOpts = client.practiceServGameOpts;
-        else
-            servOpts = client.tcpServGameOpts;
-
         final List<String> unknowns;
-        synchronized(servOpts)
+        if (isPractice) synchronized (client.practiceServGameOpts)
+        {
+            unknowns = client.practiceServGameOpts.receiveDefaults(
+                SOCGameOption.parseOptionsToMap( mes.getOpts(), client.practiceServGameOpts.knownOpts ) );
+            servOpts = client.practiceServGameOpts;
+        }
+        else synchronized (client.tcpServGameOpts)
         {
             // receiveDefaults sets opts.defaultsReceived, may set opts.allOptionsReceived
-            unknowns = servOpts.receiveDefaults
-                (SOCGameOption.parseOptionsToMap(mes.getOpts(), servOpts.knownOpts));
+            unknowns = client.tcpServGameOpts.receiveDefaults(
+                SOCGameOption.parseOptionsToMap(mes.getOpts(), client.tcpServGameOpts.knownOpts ));
+            servOpts = client.tcpServGameOpts;
         }
 
         if (unknowns != null)

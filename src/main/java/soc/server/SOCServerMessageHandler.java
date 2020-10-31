@@ -367,7 +367,7 @@ public class SOCServerMessageHandler
         final String mesUser = mes.nickname.trim();  // trim before db query calls
         final String mesRole = mes.role;
         final boolean isPlayerRole = mesRole.equals(SOCAuthRequest.ROLE_GAME_PLAYER);
-        final int cliVersion = c.getVersion();
+        final int cliVersion = c.getRemoteVersion();
 
         if (c.getData() != null)
         {
@@ -446,7 +446,7 @@ public class SOCServerMessageHandler
                 {
                     // unlikely, we've just queried db in authOrRejectClientUser
                     c.send(SOCStatusMessage.buildForVersion
-                            (SOCStatusMessage.SV_PROBLEM_WITH_DB, c.getVersion(),
+                            (SOCStatusMessage.SV_PROBLEM_WITH_DB, c.getRemoteVersion(),
                             "Problem connecting to database, please try again later."));
                     return;
                 }
@@ -503,7 +503,7 @@ public class SOCServerMessageHandler
         {
             if (rejectReason.equals(SOCServer.MSG_NICKNAME_ALREADY_IN_USE))
                 c.send(SOCStatusMessage.buildForVersion
-                        (SOCStatusMessage.SV_NAME_IN_USE, c.getVersion(), rejectReason));
+                        (SOCStatusMessage.SV_NAME_IN_USE, c.getRemoteVersion(), rejectReason));
             c.send(new SOCRejectConnection(rejectReason));
             c.disconnectSoft();
 
@@ -619,7 +619,7 @@ public class SOCServerMessageHandler
         if (c == null)
             return;
 
-        final boolean hideLongNameOpts = (c.getVersion() < SOCGameOption.VERSION_FOR_LONGER_OPTNAMES);
+        final boolean hideLongNameOpts = (c.getRemoteVersion() < SOCGameOption.VERSION_FOR_LONGER_OPTNAMES);
         c.send(new SOCGameOptionGetDefaults(
             SOCGameOption.packKnownOptionsToString( srv.knownOpts, true, hideLongNameOpts )));
     }
@@ -655,7 +655,7 @@ public class SOCServerMessageHandler
         if (c == null)
             return;
 
-        final int cliVers = c.getVersion();
+        final int clientVersion = c.getRemoteVersion();
         final SOCClientData scd = (SOCClientData) c.getAppData();
         final boolean hasLimitedFeats = scd.hasLimitedFeats;
 
@@ -676,7 +676,7 @@ public class SOCServerMessageHandler
             // Gather all game opts we have that we could possibly localize;
             // this list will be narrowed down soon
             optsToLocal = new HashMap<>();
-            for (final SOCGameOption opt : srv.knownOpts.optionsForVersion(cliVers))
+            for (final SOCGameOption opt : srv.knownOpts.optionsForVersion(clientVersion))
                 optsToLocal.put(opt.key, opt);
         }
         else
@@ -692,7 +692,7 @@ public class SOCServerMessageHandler
             {
                 SOCGameOption opt = srv.knownOpts.getKnownOption(okey, false);
 
-                if ((opt == null) || (opt.minVersion > cliVers))  // don't use dynamic opt.getMinVersion(Map) here
+                if ((opt == null) || (opt.minVersion > clientVersion))  // don't use dynamic opt.getMinVersion(Map) here
                     opt = new SOCGameOption(okey);  // OTYPE_UNKNOWN
 
                 opts.put(okey, opt);
@@ -704,7 +704,7 @@ public class SOCServerMessageHandler
         {
             // received "-" or "?CHANGES", so look for newer options (cli is older than us).
 
-            List<SOCGameOption> newerOpts = srv.knownOpts.optionsNewerThanVersion(cliVers, false, true);
+            List<SOCGameOption> newerOpts = srv.knownOpts.optionsNewerThanVersion(clientVersion, false, true);
             if (newerOpts != null)
                 for (SOCGameOption opt : newerOpts)
                     opts.put(opt.key, opt);
@@ -712,7 +712,7 @@ public class SOCServerMessageHandler
             if (mes.optionKeys == null)
                 alreadyTrimmedEnums = true;
 
-            if (cliVers < SOCGameOption.VERSION_FOR_LONGER_OPTNAMES)
+            if (clientVersion < SOCGameOption.VERSION_FOR_LONGER_OPTNAMES)
             {
                 // Client is older than 2.0.00; we can't send it any long option names.
                 Iterator<String> opi = opts.keySet().iterator();
@@ -791,7 +791,7 @@ public class SOCServerMessageHandler
 
             if (opt.optType != SOCGameOption.OTYPE_UNKNOWN)
             {
-                if ((opt.minVersion > cliVers)
+                if ((opt.minVersion > clientVersion)
                     || (hasLimitedFeats && unsupportedOpts.containsKey(okey)))
                     opt = new SOCGameOption(okey);  // OTYPE_UNKNOWN
                 else if (wantsLocalDescs)
@@ -818,12 +818,12 @@ public class SOCServerMessageHandler
             if ( (! alreadyTrimmedEnums)
                 && (opt.enumVals != null)
                 && (opt.optType != SOCGameOption.OTYPE_UNKNOWN)
-                && (opt.lastModVersion > cliVers))
+                && (opt.lastModVersion > clientVersion))
             {
-                opt = SOCGameOption.trimEnumForVersion(opt, cliVers);
+                opt = SOCGameOption.trimEnumForVersion(opt, clientVersion);
             }
 
-            c.send(new SOCGameOptionInfo(opt, cliVers, localDesc));
+            c.send(new SOCGameOptionInfo(opt, clientVersion, localDesc));
         }
 
         // send any opts which are localized but otherwise unchanged between server's/client's version
@@ -1515,7 +1515,7 @@ public class SOCServerMessageHandler
             "stats.game.rounds", gameData.getRoundCount());  // Rounds played: 20
 
         // player's stats
-        if (c.getVersion() >= SOCPlayerStats.VERSION_FOR_RES_ROLL)
+        if (c.getRemoteVersion() >= SOCPlayerStats.VERSION_FOR_RES_ROLL)
         {
             SOCPlayer cp = gameData.getPlayer(c.getData());
             if (cp != null)
@@ -2140,7 +2140,7 @@ public class SOCServerMessageHandler
         if (D.ebugIsEnabled())
             D.ebugPrintlnINFO("handleJOINCHANNEL: " + mes);
 
-        int cliVers = c.getVersion();
+        int cliVers = c.getRemoteVersion();
 
         /**
          * Check the reported version; if none, assume 1000 (1.0.00)
@@ -2150,7 +2150,7 @@ public class SOCServerMessageHandler
             if (! srv.setClientVersSendGamesOrReject(c, SOCServer.CLI_VERSION_ASSUMED_GUESS, null, null, false))
                 return;  // <--- Discon and Early return: Client too old ---
 
-            cliVers = c.getVersion();
+            cliVers = c.getRemoteVersion();
         }
 
         final String chName = mes.getChannel().trim();
@@ -2233,7 +2233,7 @@ public class SOCServerMessageHandler
         final String txt = srv.getClientWelcomeMessage(c);  // "Welcome to Java Settlers of Catan!"
         if (! mustSetUsername)
         {
-            if ((! scd.sentPostAuthWelcome) || (c.getVersion() < SOCStringManager.VERSION_FOR_I18N))
+            if ((! scd.sentPostAuthWelcome) || (c.getRemoteVersion() < SOCStringManager.VERSION_FOR_I18N))
             {
                 c.send(new SOCStatusMessage
                     (SOCStatusMessage.SV_OK, txt));
@@ -2417,7 +2417,7 @@ public class SOCServerMessageHandler
         /**
          * Check the client's reported version; if none, assume 1000 (1.0.00)
          */
-        if (c.getVersion() == -1)
+        if (c.getRemoteVersion() == -1)
         {
             if (! srv.setClientVersSendGamesOrReject(c, SOCServer.CLI_VERSION_ASSUMED_GUESS, null, null, false))
                 return;  // <--- Early return: Client too old ---
@@ -3031,7 +3031,7 @@ public class SOCServerMessageHandler
                     if ((i != reqPN) && ! ga.isSeatVacant(i))
                     {
                         Connection pc = srv.getConnection(ga.getPlayer(i).getName());
-                        if ((pc != null) && pc.isConnected() && (pc.getVersion() >= 1100))
+                        if ((pc != null) && pc.isConnected() && (pc.getRemoteVersion() >= 1100))
                              ++votingPlayers;
                     }
                 }
@@ -3061,7 +3061,7 @@ public class SOCServerMessageHandler
 
                 for (int i = 0; i < ga.maxPlayers; ++i)
                     if (humanConns[i] != null)
-                        if (humanConns[i].getVersion() >= 1100)
+                        if (humanConns[i].getRemoteVersion() >= 1100)
                             srv.messageToPlayer(humanConns[i], gaName, i, vr);
                         else
                             ga.resetVoteRegister

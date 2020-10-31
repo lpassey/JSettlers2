@@ -138,7 +138,7 @@ import soc.message.SOCStatusMessage;
             {
                 con.send(new SOCStatusMessage
                     (SOCStatusMessage.statusFallbackForVersion
-                        (SOCStatusMessage.SV_MUST_AUTH_FIRST, con.getVersion()),
+                        (SOCStatusMessage.SV_MUST_AUTH_FIRST, con.getRemoteVersion()),
                     "Must authenticate first"));  // I18N OK: won't encounter this in normal message flow
 
                 return;  // <--- Early return: Client must auth before sending that message type ---

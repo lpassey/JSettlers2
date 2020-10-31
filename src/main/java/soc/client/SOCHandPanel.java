@@ -1626,7 +1626,7 @@ import javax.swing.UIManager;
         case CLEAR_ON_RESET:  slNext = SOCGame.SeatLockState.UNLOCKED;  break;
 
         default:  // == case LOCKED:
-            if (game.isPractice || (client.sVersion >= 2000))
+            if (game.isPractice || (client.getConnection().getRemoteVersion() >= 2000))
                 slNext = SOCGame.SeatLockState.CLEAR_ON_RESET;
             else
                 slNext = SOCGame.SeatLockState.UNLOCKED;  // old servers don't support CLEAR_ON_RESET
@@ -2024,12 +2024,14 @@ import javax.swing.UIManager;
      */
     public void addSittingRobotLockBut()
     {
+        int sVersion = client.getConnection().getRemoteVersion();
+
         final String lbl, tipText;
         switch (game.getSeatLock(playerNumber))
         {
         case LOCKED:
             lbl = ROBOTLOCKBUT_L;
-            if (game.isPractice || (client.sVersion >= 2000))
+            if (game.isPractice || ( sVersion >= 2000))
                 tipText = ROBOTLOCKBUTTIP_L;
             else
                 tipText = ROBOTLOCKBUTTIP_L_OLD;
@@ -2042,7 +2044,7 @@ import javax.swing.UIManager;
 
         default:  // == case UNLOCKED:
             lbl = ROBOTLOCKBUT_U;
-            if (game.isPractice || (client.sVersion >= 2000))
+            if (game.isPractice || ( sVersion >= 2000))
                 tipText = ROBOTLOCKBUTTIP_U;
             else
                 tipText = ROBOTLOCKBUTTIP_U_OLD;
@@ -2520,7 +2522,7 @@ import javax.swing.UIManager;
 
             clearOfferBut.setVisible(true);
             bankBut.setVisible(true);
-            if (game.isPractice || (client.sVersion >= 1113))  // server version 1.1.13 and up
+            if (game.isPractice || (client.getConnection().getRemoteVersion() >= 1113))  // server version 1.1.13 and up
                 bankUndoBut.setVisible(true);
 
             if (! playerTradingDisabled)
@@ -3664,13 +3666,14 @@ import javax.swing.UIManager;
     public void updateSeatLockButton()
     {
         final SOCGame.SeatLockState sl = game.getSeatLock(playerNumber);
+        int sVersion = client.getConnection().getRemoteVersion();
 
         final String lbl, tipText;
         switch (sl)
         {
         case LOCKED:
             lbl = ROBOTLOCKBUT_L;
-            if (game.isPractice || (client.sVersion >= 2000))
+            if (game.isPractice || (sVersion >= 2000))
                 tipText = ROBOTLOCKBUTTIP_L;
             else
                 tipText = ROBOTLOCKBUTTIP_L_OLD;
@@ -3683,7 +3686,7 @@ import javax.swing.UIManager;
 
         default:  // == case UNLOCKED:
             lbl = ROBOTLOCKBUT_U;
-            if (game.isPractice || (client.sVersion >= 2000))
+            if (game.isPractice || (sVersion >= 2000))
                 tipText = ROBOTLOCKBUTTIP_U;
             else
                 tipText = ROBOTLOCKBUTTIP_U_OLD;
@@ -4238,7 +4241,7 @@ import javax.swing.UIManager;
             int topFaceAreaHeight = y + lineH;
 
             // always position these: though they may not be visible
-            larmyLab.setBounds(topStuffW, y, (dim.width - (topStuffW + inset + space)) / 2, lineH);
+            larmyLab.setBounds( topStuffW, y, (dim.width - (topStuffW + inset + space)) / 2, lineH );
             lroadLab.setBounds(topStuffW + ((dim.width - (topStuffW + inset + space)) / 2) + space, y,
                 (dim.width - (topStuffW + inset + space)) / 2, lineH);
 

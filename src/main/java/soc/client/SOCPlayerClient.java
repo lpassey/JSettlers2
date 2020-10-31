@@ -41,6 +41,7 @@ import javax.swing.WindowConstants;
 import net.nand.util.i18n.mgr.StringManager;
 
 import soc.baseclient.SOCDisplaylessPlayerClient;
+import soc.communication.Connection;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
@@ -285,13 +286,29 @@ public class SOCPlayerClient
     /**
      * Helper object to receive incoming network traffic from the server.
      */
-    private final MessageHandler messageHandler;
+    private MessageHandler messageHandler;
 
     /**
      * Helper object to form and send outgoing network traffic to the server.
      * @since 2.0.00
      */
-    private final GameMessageSender gameMessageSender;
+    private GameMessageSender gameMessageSender;
+
+    private Connection serverConnection = null;
+
+    public Connection getConnection()
+    {
+        return serverConnection;
+    }
+
+    public SOCPlayerClient setConnection( Connection connection )
+    {
+        serverConnection = connection;
+        gameMessageSender = new GameMessageSender(this, clientListeners);
+        messageHandler = new MessageHandler(this);
+
+        return this;
+    }
 
     /**
      * Display for the main user interface, including and beyond the list of games and chat channels.
@@ -305,7 +322,7 @@ public class SOCPlayerClient
      *  so always check {@link SOCGame#isPractice} before checking this field.
      * @since 1.1.00
      */
-    protected int sVersion;
+//    protected int sVersion;
 
     /**
      * Server's active optional features, sent soon after connect, or null if unknown.
@@ -330,7 +347,7 @@ public class SOCPlayerClient
      * @see #sFeatures
      * @since 1.1.07
      */
-    protected ServerGametypeInfo tcpServGameOpts = new ServerGametypeInfo(),
+    protected final ServerGametypeInfo tcpServGameOpts = new ServerGametypeInfo(),
         practiceServGameOpts = new ServerGametypeInfo();
 
     /**
@@ -520,8 +537,8 @@ public class SOCPlayerClient
         }
 
         net = new ClientNetwork(this);
-        gameMessageSender = new GameMessageSender(this, clientListeners);
-        messageHandler = new MessageHandler(this);
+//        gameMessageSender = new GameMessageSender(this, clientListeners);
+//        messageHandler = new MessageHandler(this);
     }
 
     /**
@@ -680,7 +697,7 @@ public class SOCPlayerClient
      */
     final boolean wantsI18nStrings(final boolean isPractice)
     {
-        return (isPractice || (sVersion >= SOCStringManager.VERSION_FOR_I18N))
+        return (serverConnection.getRemoteVersion() >= SOCStringManager.VERSION_FOR_I18N)
             && (cliLocale != null)
             && ! ("en".equals(cliLocale.getLanguage()) && "US".equals(cliLocale.getCountry()));
     }
@@ -705,15 +722,15 @@ public class SOCPlayerClient
         if ((scKey.length() == 0) || tcpServGameOpts.scenKeys.contains(scKey))
             return;
 
-        if (sVersion != Version.versionNumber())
+        if (serverConnection.getRemoteVersion() != Version.versionNumber())
         {
             // different version than client: scenario details might have changed
-            net.send(new SOCScenarioInfo(scKey, false) );
+            serverConnection.send(new SOCScenarioInfo(scKey, false) );
         }
         else
         {
             // same version: need localization strings, at most
-            net.send(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey) );
+            serverConnection.send(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey) );
             tcpServGameOpts.scenKeys.add(scKey);  // don't ask again later
         }
     }
@@ -778,10 +795,11 @@ public class SOCPlayerClient
      */
     public boolean doesGameExist(final String gameName, final boolean checkPractice)
     {
-        boolean gameExists = (checkPractice)
-            ? ((net.practiceServer != null) && (net.practiceServer.getGame(gameName) != null))
-            : false;
-        if ((! gameExists) && (serverGames != null))
+        boolean gameExists = false;
+//            = (checkPractice)
+//            ? ((net.practiceServer != null) && (net.practiceServer.getGame(gameName) != null))
+//            : false;
+        if ( (serverGames != null))
             gameExists = gameExists || serverGames.isGame(gameName);
 
         return gameExists;
@@ -847,7 +865,7 @@ public class SOCPlayerClient
     public void leaveChannel(String ch)
     {
         mainDisplay.channelLeft(ch);
-        net.send(new SOCLeaveChannel("-", "-", ch));
+        serverConnection.send(new SOCLeaveChannel("-", "-", ch));
     }
 
     /**
@@ -975,10 +993,35 @@ public class SOCPlayerClient
      */
     public int getServerVersion(SOCGame game)
     {
-        if (game.isPractice)
+        if (serverConnection == null || 1 > serverConnection.getRemoteVersion())
             return Version.versionNumber();
         else
-            return sVersion;
+            return serverConnection.getRemoteVersion();
+    }
+
+    /**
+     * For shutdown - Tell the server we're leaving all games.
+     * If we've started a practice server, also tell that server.
+     * If we've started a TCP server, tell all players on that server, and shut it down.
+     *<P><em>
+     * Since no other state variables are set, call this only right before
+     * discarding this object or calling System.exit.
+     *</em>
+     * @return Can we still start practice games? (No local exception yet in {@link #ex_P})
+     * @since 1.1.00
+     */
+    boolean putLeaveAll()
+    {
+        final boolean canPractice = true; // (ex_P == null);  // Can we still start a practice game?
+
+        SOCLeaveAll leaveAllMes = new SOCLeaveAll();
+
+        if ((serverConnection != null) && ! canPractice)
+            serverConnection.send( leaveAllMes );
+
+        net.shutdownLocalServer();
+
+        return canPractice;
     }
 
     /**
@@ -993,7 +1036,7 @@ public class SOCPlayerClient
      */
     public void shutdownFromNetwork()
     {
-        final boolean canPractice = net.putLeaveAll(); // Can we still start a practice game?
+        final boolean canPractice = putLeaveAll(); // Can we still start a practice game?
 
         String err;
         if (canPractice)
@@ -1004,7 +1047,7 @@ public class SOCPlayerClient
         {
             err = strings.get("pcli.error.clientshutdown");  // "Sorry, the client has been shut down."
         }
-        err = err + " " + ((net.ex == null) ? strings.get("pcli.error.loadpageagain") : net.ex.toString());
+//        err = err + " " + ((net.ex == null) ? strings.get("pcli.error.loadpageagain") : net.ex.toString());
             // "Load the page again."
 
         mainDisplay.channelsClosed(err);
@@ -1114,5 +1157,95 @@ public class SOCPlayerClient
             client.net.connect(host, port);
     }
 
+    public boolean isConnected()
+    {
+        return (serverConnection != null && serverConnection.isConnected());
+    }
 
+    public void disconnect()
+    {
+        if (serverConnection != null)
+            serverConnection.disconnect();      // TODO: make sure this does what we think it does.
+        serverConnection = null;
+    }
+
+    // TODO: all of these should probably be moved to GameMessageSender
+
+    public void joinGame( String gameName )
+    {
+        if (serverConnection != null)
+        {
+            serverConnection.send( new SOCJoinGame( nickname,
+                (gotPassword ? "" : password), SOCMessage.EMPTYSTR, gameName ) );
+        }
+    }
+
+    public void requestAuth()
+    {
+        if (serverConnection != null)
+        {
+            serverConnection.send( new SOCAuthRequest(
+                SOCAuthRequest.ROLE_GAME_PLAYER, nickname, password,
+                SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, net.getHost() ) );
+        }
+    }
+
+    public int getRemoteVersion()
+    {
+        if (serverConnection == null)
+            return -1;
+        else
+            return serverConnection.getRemoteVersion();
+    }
+
+    public void sendScenarioInfo( List<String> changes )
+    {
+        if (null != serverConnection )
+        {
+            serverConnection.send( new SOCScenarioInfo( changes, true ) );
+            // if cli newer: specific scenario list and MARKER_ANY_CHANGED
+            // if srv newer: empty 'changes' list and MARKER_ANY_CHANGED
+        }
+    }
+
+    public void requestLocalizedStrings()
+    {
+        if (null != serverConnection )
+        {
+            serverConnection.send( new SOCLocalizedStrings
+                ( SOCLocalizedStrings.TYPE_SCENARIO, SOCLocalizedStrings.FLAG_REQ_ALL,
+                    (List<String>) null ) );
+        }
+    }
+
+    public void requestGameOptionDefaults()
+    {
+        if (null != serverConnection )
+        {
+            serverConnection.send( new SOCGameOptionGetDefaults( null ) );
+        }
+    }
+
+    public void requestNewGameWithOptions( String gameName, SOCGameOptionSet opts )
+    {
+        if (getRemoteVersion() < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
+        {
+            joinGame( gameName );
+        }
+        else if (null != serverConnection)
+        {
+            final String pw = ( gotPassword ? "" : password);  // after successful auth, don't need to send
+            SOCMessage askMsg =
+            new SOCNewGameWithOptionsRequest( nickname, pw, SOCMessage.EMPTYSTR, gameName, opts.getAll() );
+            serverConnection.send( askMsg );
+        }
+    }
+
+    public void sendToChannel( String ch, String mes )
+    {
+        if (null != serverConnection)
+        {
+            serverConnection.send( new SOCChannelTextMsg(ch, nickname, mes ) );
+        }
+    }
 }  // public class SOCPlayerClient

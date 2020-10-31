@@ -89,7 +89,7 @@ import java.awt.Frame;
     @Override
     public void button1Chosen()
     {
-        md.getClient().getNet().putLeaveAll();
+        md.getClient().putLeaveAll();
         System.exit(0);
     }
 

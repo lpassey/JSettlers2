@@ -9293,7 +9293,8 @@ import javax.swing.JComponent;
                   break;
 
               case SOCGame.PLACING_FREE_ROAD2:
-                  if (game.isPractice || (playerInterface.getClient().sVersion >= SOCGame.VERSION_FOR_CANCEL_FREE_ROAD2))
+                  if (game.isPractice
+                      || (playerInterface.getClient().getConnection().getRemoteVersion() >= SOCGame.VERSION_FOR_CANCEL_FREE_ROAD2))
                   {
                       cancelBuildItem.setEnabled(true);
                       cancelBuildItem.setLabel(strings.get("board.build.skip.road.ship"));  // "Skip road or ship"
@@ -9522,7 +9523,7 @@ import javax.swing.JComponent;
           final boolean sendNow = isInitialPlacement || wantsCancel || debugPP
               || (gstate == SOCGame.PLACING_FREE_ROAD1) || (gstate == SOCGame.PLACING_FREE_ROAD2)
               || (((gstate == SOCGame.PLAY1) || (gstate == SOCGame.SPECIAL_BUILDING))
-                  && (game.isPractice || playerInterface.client.sVersion >= 2000));
+                  && (game.isPractice || playerInterface.client.getConnection().getRemoteVersion() >= 2000));
           final GameMessageSender messageSender = (sendNow)
               ? playerInterface.getClient().getGameMessageSender()
               : null;

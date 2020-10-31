@@ -952,7 +952,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                     jg.setEnabled(wasSel);
                     gi.setEnabled(wasSel &&
                         ((client.getNet().practiceServer != null)
-                         || (client.sVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)));
+                         || (client.getConnection().getRemoteVersion() >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)));
                 }
             }
         });
@@ -1418,7 +1418,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             }
 
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
-            net.send( new SOCJoinChannel( client.nickname,
+            client.getConnection().send( new SOCJoinChannel( client.nickname,
                 (client.gotPassword ? "" : client.password), SOCMessage.EMPTYSTR, ch));
         }
         else
@@ -1465,12 +1465,12 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      */
     private boolean guardedActionPerform_games(Object target)
     {
-        String gm;  // May also be 0-length string, if pulled from Lists
+        String gameName;  // May also be 0-length string, if pulled from Lists
         boolean isUnjoinable = false;  // if selecting game from gmList, may become true
 
         if ((target == pg) || (target == pgm)) // "Practice Game" Buttons
         {
-            gm = client.DEFAULT_PRACTICE_GAMENAME;  // "Practice"
+            gameName = client.DEFAULT_PRACTICE_GAMENAME;  // "Practice"
 
             // If blank, fill in player name
             // (v1.x used DEFAULT_PLAYER_NAME const field here)
@@ -1492,12 +1492,12 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             JoinableListItem item = gmlist.getSelectedValue();
             if (item == null)
                 return true;
-            gm = item.name.trim();  // may be length 0
+            gameName = item.name.trim();  // may be length 0
             isUnjoinable = item.isUnjoinable;
         }
 
         // System.out.println("GM = |"+gm+"|");
-        if (gm.length() == 0)
+        if (gameName.length() == 0)
         {
             return true;
         }
@@ -1509,14 +1509,14 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
             SOCGameOptionSet opts = null;
 
-            if ((net.practiceServer != null) && (net.practiceServer.getGame(gm) != null))
+            if ((net.practiceServer != null) && (net.practiceServer.getGame(gameName) != null))
             {
-                opts = net.practiceServer.getGameOptions(gm);  // won't ever need to parse from string on practice server
+                opts = net.practiceServer.getGameOptions(gameName);  // won't ever need to parse from string on practice server
             }
             else if (client.serverGames != null)
             {
-                opts = client.serverGames.getGameOptions(gm);
-                if ((opts == null) && (client.serverGames.getGameOptionsString(gm) != null))
+                opts = client.serverGames.getGameOptions(gameName);
+                if ((opts == null) && (client.serverGames.getGameOptionsString(gameName) != null))
                 {
                     // If necessary, parse game options from string before displaying.
                     // (Parsed options are cached, they won't be re-parsed)
@@ -1526,7 +1526,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
                     if (client.tcpServGameOpts.allOptionsReceived)
                     {
-                        opts = client.serverGames.parseGameOptions(gm);
+                        opts = client.serverGames.parseGameOptions(gameName);
                         client.checkGameoptsForUnknownScenario(opts);
                     }
                     else
@@ -1536,7 +1536,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                         // and will also clear WAIT_CURSOR.
                         // (see handleGAMEOPTIONINFO)
 
-                        client.tcpServGameOpts.gameInfoWaitingForOpts = gm;
+                        client.tcpServGameOpts.gameInfoWaitingForOpts = gameName;
                         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                         return true;  // <---- early return: not yet ready to show ----
                     }
@@ -1545,27 +1545,27 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
             // don't overwrite newGameOptsFrame field; this popup is to show an existing game.
             NewGameOptionsFrame.createAndShow
-                (playerInterfaces.get(gm), this, gm, opts, false, true);
+                (playerInterfaces.get(gameName), this, gameName, opts, false, true);
             return true;
         }
 
         // Can we not join that game?
-        if (isUnjoinable || ((client.serverGames != null) && client.serverGames.isUnjoinableGame(gm)))
+        if (isUnjoinable || ((client.serverGames != null) && client.serverGames.isUnjoinableGame(gameName)))
         {
-            if (! client.gamesUnjoinableOverride.containsKey(gm))
+            if (! client.gamesUnjoinableOverride.containsKey(gameName))
             {
-                client.gamesUnjoinableOverride.put(gm, gm);  // Next click will try override
+                client.gamesUnjoinableOverride.put(gameName, gameName);  // Next click will try override
                 return false;
             }
         }
 
         // Are we already in a game with that name?
-        SOCPlayerInterface pi = playerInterfaces.get(gm);
+        SOCPlayerInterface pi = playerInterfaces.get(gameName);
 
         if ((pi == null)
                 && ((target == pg) || (target == pgm))
                 && (net.practiceServer != null)
-                && (gm.equalsIgnoreCase(client.DEFAULT_PRACTICE_GAMENAME)))
+                && (gameName.equalsIgnoreCase(client.DEFAULT_PRACTICE_GAMENAME)))
         {
             // Practice game requested, no game named "Practice" already exists.
             // Check for other active practice games. (Could be "Practice 2")
@@ -1641,8 +1641,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
                 status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                net.send( new SOCJoinGame( client.nickname,
-                    (client.gotPassword ? "" : client.password), SOCMessage.EMPTYSTR, gm));
+                client.joinGame( gameName );
             }
         }
         else
@@ -1799,7 +1798,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         // Even if the server doesn't support accounts or passwords, this will name our connection
         // and reserve our nickname.
         if ((! (forPracticeServer || client.gotPassword))
-            && (client.sVersion >= SOCAuthRequest.VERSION_FOR_AUTHREQUEST))
+            && (client.getConnection().getRemoteVersion() >= SOCAuthRequest.VERSION_FOR_AUTHREQUEST))
         {
             if (! readValidNicknameAndPassword())
                 return;
@@ -1811,9 +1810,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             client.isNGOFWaitingForAuthStatus = true;
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));  // NGOF create calls setCursor(DEFAULT_CURSOR)
-            net.send( new SOCAuthRequest(
-                SOCAuthRequest.ROLE_GAME_PLAYER, client.getNickname(forPracticeServer), client.password,
-                SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, net.getHost()) );
+            client.requestAuth();
 
             return;
         }
@@ -1859,7 +1856,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             else
             {
                 opts = client.tcpServGameOpts;
-                if ((! opts.allOptionsReceived) && (client.sVersion < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS))
+                if (   (! opts.allOptionsReceived)
+                    && (client.getConnection().getRemoteVersion() < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS))
                 {
                     // Server doesn't support them.  Don't ask it.
                     fullSetIsKnown = true;
@@ -1928,7 +1926,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
         final int cliVers = Version.versionNumber();
         if ((! forPracticeServer) && (! opts.allScenInfoReceived)
-            && (client.sVersion >= SOCScenario.VERSION_FOR_SCENARIOS))
+            && (client.getRemoteVersion() >= SOCScenario.VERSION_FOR_SCENARIOS))
         {
             // Before game option defaults, ask for any updated or localized scenario info;
             // that will all be received before game option defaults, so client will have it
@@ -1936,13 +1934,13 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
             List<String> changes = null;
 
-            if (cliVers > client.sVersion)
+            if (cliVers > client.getRemoteVersion())
             {
                 // Client newer than server: Ask about specific new/changed scenarios which server might not know.
 
                 final List<SOCScenario> changeScens =
                     SOCVersionedItem.itemsNewerThanVersion
-                        (client.sVersion, false, SOCScenario.getAllKnownScenarios());
+                        (client.getRemoteVersion(), false, SOCScenario.getAllKnownScenarios());
 
                 if (changeScens != null)
                 {
@@ -1955,21 +1953,20 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             //   If server is newer: Ask for any scenario changes since our version.
             //   If same version: Ask for i18n localized scenarios strings if available.
 
-            if (cliVers != client.sVersion)
-                client.getNet().send( new SOCScenarioInfo(changes, true) );
-                        // if cli newer: specific scenario list and MARKER_ANY_CHANGED
-                        // if srv newer: empty 'changes' list and MARKER_ANY_CHANGED
+            if (cliVers != client.getRemoteVersion())
+            {
+                client.sendScenarioInfo( changes );
+            }
             else if (client.wantsI18nStrings(false))
-                client.getNet().send( new SOCLocalizedStrings
-                        (SOCLocalizedStrings.TYPE_SCENARIO, SOCLocalizedStrings.FLAG_REQ_ALL,
-                         (List<String>) null) );
+            {
+                client.requestLocalizedStrings();
+            }
         }
 
         opts.newGameWaitingForOpts = true;
         opts.askedDefaultsAlready = true;
         opts.askedDefaultsTime = System.currentTimeMillis();
-        client.getNet().send( new SOCGameOptionGetDefaults(null) );
-
+        client.requestGameOptionDefaults();
         if (gameOptsDefsTask != null)
             gameOptsDefsTask.cancel();
         gameOptsDefsTask = new GameOptionDefaultsTimeoutTask(this, client.tcpServGameOpts, forPracticeServer);
@@ -1987,24 +1984,18 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *
      * @since 1.1.07
      */
-    public void askStartGameWithOptions
-        (final String gmName, final boolean forPracticeServer,
+    public void askStartGameWithOptions( final String gameName, final boolean forPracticeServer,
          final SOCGameOptionSet opts, final Map<String, Object> localPrefs)
     {
-        client.putGameReqLocalPrefs(gmName, localPrefs);
+        client.putGameReqLocalPrefs(gameName, localPrefs);
 
         if (forPracticeServer)
         {
-            client.startPracticeGame(gmName, opts, true);  // Also sets WAIT_CURSOR
+            client.startPracticeGame(gameName, opts, true);  // Also sets WAIT_CURSOR
         }
         else
         {
-            final String pw = (client.gotPassword ? "" : client.password);  // after successful auth, don't need to send
-            SOCMessage askMsg =
-                (client.sVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
-                ? new SOCNewGameWithOptionsRequest(client.nickname, pw, SOCMessage.EMPTYSTR, gmName, opts.getAll())
-                : new SOCJoinGame(client.nickname, pw, SOCMessage.EMPTYSTR, gmName);
-            net.send( askMsg );
+            client.requestNewGameWithOptions( gameName, opts );
             System.out.flush();  // for debug print output (temporary)
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -2551,7 +2542,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             gmlist.setSelectedIndex(0);
             jg.setEnabled(true);
             gi.setEnabled((net.practiceServer != null)
-                || (client.sVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS));
+                || (client.getRemoteVersion() >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS));
         }
         else
         {
@@ -2606,7 +2597,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     {
         if (! doLocalCommand(ch, mes))
         {
-            net.send( new SOCChannelTextMsg(ch, client.nickname, mes) );
+            client.sendToChannel( ch, mes );
         }
     }
 
@@ -2696,7 +2687,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         {
             return;  // Already set up
         }
-        if (net.isConnected())
+        if (client.isConnected())
         {
             throw new IllegalStateException("Already connected to " + net.getHost());
         }
@@ -2933,7 +2924,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             if (! canAskHostingGames)
             {
                 // Just quit.
-                md.getClient().getNet().putLeaveAll();
+                md.getClient().putLeaveAll();
                 System.exit(0);
             }
         }

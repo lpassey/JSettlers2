@@ -839,7 +839,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             }
 
             --numberCurrentConnections;
-            clientVersionRem(c.getVersion());  // One less of the cli's version
+            clientVersionRem(c.getRemoteVersion());  // One less of the cli's version
             c.setVersionTracking(false);
         }
 
@@ -924,7 +924,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                         unnamedConns.add(c);
                     }
 
-                    clientVersionAdd(c.getVersion());  // Count one more client with that version
+                    clientVersionAdd(c.getRemoteVersion() );  // Count one more client with that version
                     numberCurrentConnections++;
                     c.setVersionTracking(true);
                 }
@@ -1166,7 +1166,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
         for (Enumeration<Connection> e = getConnections(); e.hasMoreElements();)
         {
-            cvers = e.nextElement().getVersion();
+            cvers = e.nextElement().getRemoteVersion();
 
             if ((cvkey == null) || (cvers != lastVers))
             {
@@ -1185,7 +1185,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
         for (Enumeration<Connection> e = unnamedConns.elements(); e.hasMoreElements();)
         {
-            cvers = e.nextElement().getVersion();
+            cvers = e.nextElement().getRemoteVersion();
 
             if ((cvkey == null) || (cvers != lastVers))
             {
@@ -1392,14 +1392,14 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         for (Enumeration<Connection> e = getConnections(); e.hasMoreElements();)
         {
             Connection c = e.nextElement();
-            int cvers = c.getVersion();
+            int cvers = c.getRemoteVersion();
             if ((cvers >= vmin) && (cvers <= vmax))
                 c.send(m);
         }
         for (Enumeration<Connection> e = unnamedConns.elements(); e.hasMoreElements();)
         {
             Connection c = e.nextElement();
-            int cvers = c.getVersion();
+            int cvers = c.getRemoteVersion();
             if ((cvers >= vmin) && (cvers <= vmax))
                 c.send(m);
         }
