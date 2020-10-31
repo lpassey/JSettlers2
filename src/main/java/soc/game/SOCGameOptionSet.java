@@ -28,7 +28,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
-import soc.game.SOCGameOption;
+import soc.communication.SOCClientData;
 import soc.server.savegame.SavedGameModel;  // for javadocs only
 import soc.util.SOCFeatureSet;
 import soc.util.Version;
@@ -1541,7 +1541,7 @@ public class SOCGameOptionSet
      *     (Added in 1.1.13)
      * @param limitedCliFeats For {@link doServerPreadjust}, client's set of features if limited compared to
      *     the standard client; null if client doesn't have limited feats.
-     *     See {@link soc.server.SOCClientData#hasLimitedFeats} for details.
+     *     See {@link SOCClientData#hasLimitedFeats} for details.
      * @return <tt>null</tt> if all are known; or, a human-readable problem description if:
      *     <UL>
      *       <LI> any option in this set not a Known Option
@@ -1786,7 +1786,7 @@ public class SOCGameOptionSet
      * Use {@link SOCGame#checkClientFeatures(SOCFeatureSet, boolean)} for that.
      *
      * @param cliFeats  Client's limited subset of optional features,
-     *     from {@link soc.server.SOCClientData#feats}, or {@code null} or empty set if no features
+     *     from {@link SOCClientData#feats}, or {@code null} or empty set if no features
      * @return Map of known options not supported by {@code cliFeats},
      *     or {@code null} if all known options are supported.
      *     Each map key is its option value's {@link SOCVersionedItem#key key}.
@@ -1821,7 +1821,7 @@ public class SOCGameOptionSet
      * by {@link #optionsNewerThanVersion(int, boolean, boolean)} or {@link #optionsForVersion(int)}.
      *
      * @param cliFeats  Client's limited subset of optional features,
-     *     from {@link soc.server.SOCClientData#feats}, or {@code null} or empty set if no features
+     *     from {@link SOCClientData#feats}, or {@code null} or empty set if no features
      * @return Map of trimmed known options, or {@code null} if no trimming was needed.
      *     Each map key is its option value's {@link SOCVersionedItem#key key}.
      * @see #optionsNotSupported(SOCFeatureSet)

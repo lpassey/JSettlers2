@@ -44,6 +44,7 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import soc.communication.MemConnection;
+import soc.communication.SOCClientData;
 import soc.debug.D;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;

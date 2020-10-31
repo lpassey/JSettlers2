@@ -105,7 +105,7 @@ public abstract class Connection implements Runnable
      * Not used or referenced by the generic server layer.
      *<P>
      * App-specific connection data ({@link #getAppData()}) can hold a full {@code Locale} object;
-     * see {@link soc.server.SOCClientData} for an example.
+     * see {@link SOCClientData} for an example.
      *
      * @since 2.0.0
      */
@@ -129,7 +129,7 @@ public abstract class Connection implements Runnable
      * True if {@link #remoteVersion} should be considered confirmed/known.
      * @since 1.0.5
      */
-    protected boolean remoteVersionKnown;
+    protected boolean remoteVersionKnown = false;
 
     /**
      * Flag value from {@link #setVersionTracking(boolean)};

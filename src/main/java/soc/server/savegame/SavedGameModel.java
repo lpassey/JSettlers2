@@ -47,6 +47,7 @@ import com.google.gson.stream.JsonWriter;
 
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.communication.Connection;  // for javadocs only
+import soc.communication.SOCClientData;
 import soc.game.*;
 import soc.message.SOCBoardLayout;
 import soc.message.SOCBoardLayout2;
@@ -56,7 +57,6 @@ import soc.message.SOCPlayerElement;
 import soc.message.SOCPlayerElement.PEType;
 import soc.message.SOCPotentialSettlements;
 import soc.robot.SOCRobotDM;
-import soc.server.SOCClientData;
 import soc.server.SOCGameHandler;
 import soc.server.SOCGameListAtServer;
 import soc.server.SOCServer;
@@ -807,7 +807,7 @@ public class SavedGameModel
     /**
      * Info on one player position sitting in the game.
      * @see SOCPlayer
-     * @see soc.server.SOCClientData
+     * @see SOCClientData
      */
     public static class PlayerInfo
     {

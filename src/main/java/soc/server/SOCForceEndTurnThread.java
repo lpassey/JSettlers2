@@ -23,6 +23,7 @@
  **/
 package soc.server;
 
+import soc.communication.SOCClientData;
 import soc.game.SOCGame;
 import soc.game.SOCPlayer;
 import soc.robot.SOCRobotClient;

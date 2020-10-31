@@ -20,16 +20,14 @@
 
 package soctest.server;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
 import soc.message.*;
-import soc.server.genericServer.MemServerSocket;
+import soc.communication.MemServerSocket;
+import soc.server.genericServer.Server;
 import soc.util.SOCFeatureSet;
 import soc.util.SOCGameList;
 import soc.util.Version;
@@ -97,7 +95,7 @@ public class DisplaylessTesterClient
     {
         try
         {
-            connection = MemServerSocket.connectTo(serverConnectInfo.stringSocketName);
+            connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT );
             connected = true;
             connection.startMessageProcessing( this );
 
@@ -133,7 +131,7 @@ public class DisplaylessTesterClient
      */
     public int getServerVersion()
     {
-        return sLocalVersion;
+        return connection.getRemoteVersion();
     }
 
     /** Ask to join a game; must have authed already. Sends {@link SOCJoinGame}. */
@@ -150,10 +148,10 @@ public class DisplaylessTesterClient
     {
         super.handleVERSION(isLocal, mes);
 
-        if (isLocal)
-            sVersion = sLocalVersion;
-        else
-            sLocalVersion = sVersion;
+//        if (isLocal)
+//            sVersion = sLocalVersion;
+//        else
+//            sLocalVersion = sVersion;
     }
 
     // TODO refactor common with SOCPlayerClient vs this and its displayless parent,
@@ -219,7 +217,7 @@ public class DisplaylessTesterClient
 
         final SOCGame ga = new SOCGame(gameName, opts, knownOpts);
         ga.isPractice = isPractice;
-        ga.serverVersion = (isPractice) ? sLocalVersion : sVersion;
+        ga.serverVersion = connection.getRemoteVersion();   // (isPractice) ? sLocalVersion : sVersion;
         games.put(gameName, ga);
     }
 

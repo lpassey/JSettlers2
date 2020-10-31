@@ -36,6 +36,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import soc.communication.Connection;
+import soc.communication.SOCClientData;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
 import soc.game.SOCScenario;
@@ -121,7 +122,7 @@ public class TestI18NGameoptScenStrings
      * Test {@link SOCScenario} text strings: gamescen.*.n, some have gamescen.*.d.
      * Also test that {@link SOCScenario#getScenario(String) SOCScenario.getScenario("SC_WOND")} has a description.
      *
-     * @see soc.server.SOCClientData#localeHasGameScenarios(Connection)
+     * @see SOCClientData#localeHasGameScenarios(Connection)
      */
     @Test
     public void testScenariosText()

@@ -17,7 +17,7 @@
  *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
-package soc.server.genericServer;
+package soc.communication;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -42,7 +42,7 @@ import soc.communication.Connection;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-/*package*/ interface SOCServerSocket
+/*package*/ public interface SOCServerSocket
 {
 
     /**

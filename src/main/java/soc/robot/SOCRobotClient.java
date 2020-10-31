@@ -34,8 +34,9 @@ import soc.game.SOCPlayer;
 
 import soc.message.*;
 
-import soc.server.genericServer.MemServerSocket;
+import soc.communication.MemServerSocket;
 
+import soc.server.genericServer.Server;
 import soc.util.CappedQueue;
 import soc.util.CutoffExceededException;
 import soc.util.DebugRecorder;
@@ -340,14 +341,14 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     {
         try
         {
-            if (serverConnectInfo.stringSocketName == null)
+//            if (serverConnectInfo.memSocketName == null)
             {
-                connection = MemServerSocket.connectTo( "TCP_SERVER" );
+                connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT );
             }
-            else
-            {
-                connection = MemServerSocket.connectTo(serverConnectInfo.stringSocketName);
-            }
+//            else
+//            {
+//                connection = MemServerSocket.connectTo( serverConnectInfo.memSocketName );
+//            }
             connection.setData( nickname );
             connection.startMessageProcessing( this );
             connected = true;
@@ -391,7 +392,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                 connected = false;
                 // Use this if you want the robot to connect to the server via a socket
 /*
-                if (serverConnectInfo.stringSocketName == null)
+                if (serverConnectInfo.memSocketName == null)
                 {
                     sock.close();
                     sock = new Socket(serverConnectInfo.hostname, serverConnectInfo.port);
@@ -402,7 +403,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 */
                 {
                     connection.disconnect();
-                    connection = MemServerSocket.connectTo(serverConnectInfo.stringSocketName);
+                    connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT );
                     connection.setData( nickname  );
                     connection.startMessageProcessing( this );
                 }
@@ -967,7 +968,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         {
             final SOCGame ga = new SOCGame(gaName, gameOpts, knownOpts);
             ga.isPractice = isPractice;
-            ga.serverVersion = (isPractice) ? sLocalVersion : sVersion;
+            ga.serverVersion = connection.getRemoteVersion(); //    (isPractice) ? sLocalVersion : sVersion;
             games.put(gaName, ga);
 
             CappedQueue<SOCMessage> brainQ = new CappedQueue<>();
@@ -1433,10 +1434,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             {
                 D.ebugPrintlnINFO("CutoffExceededException" + exc);
             }
-
+/*
             SOCGame ga = games.get(mes.getGame());
 
-/*
             if (ga != null)
             {
                 // SOCPlayer pl = ga.getPlayer(mes.getPlayerNumber());

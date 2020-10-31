@@ -23,6 +23,7 @@ package soc.server.genericServer;
 
 import soc.communication.Connection;
 import soc.communication.NetConnection;
+import soc.communication.SOCServerSocket;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

@@ -39,6 +39,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import soc.communication.Connection;
+import soc.communication.SOCClientData;
 import soc.debug.D;
 import soc.game.*;
 import soc.message.SOCAcceptOffer;  // for javadocs only

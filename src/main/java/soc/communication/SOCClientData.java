@@ -16,15 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
-package soc.server;
+package soc.communication;
 
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimerTask;
 
+import soc.game.SOCScenario;
 import soc.message.SOCGameOptionGetInfos;  // for javadoc
 import soc.message.SOCMessage;  // for javadoc
-import soc.communication.Connection;
+import soc.server.SOCServer;
 import soc.util.SOCFeatureSet;
 import soc.util.SOCGameList;
 import soc.util.SOCStringManager;  // for javadoc
@@ -457,9 +458,12 @@ public class SOCClientData
      */
     public final boolean localeHasGameScenarios(final Connection con)
     {
+        final SOCScenario scWond = SOCScenario.getScenario(SOCScenario.K_SC_WOND);
+        String i18n_scenario_SC_WOND_desc = (scWond != null) ? scWond.getDesc() : "";
+
         return
             wantsI18N
-            && ! SOCServer.i18n_scenario_SC_WOND_desc.equals(con.getLocalized("gamescen.SC_WOND.n"));
+            && ! i18n_scenario_SC_WOND_desc.equals( con.getLocalized("gamescen.SC_WOND.n" ));
     }
 
     /**
@@ -526,7 +530,5 @@ public class SOCClientData
                 // if cli vers already known, it's already sent the list.
             }
         }
-
     }  // SOCCDCliVersionTask
-
 }  // SOCClientData

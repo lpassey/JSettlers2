@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import soc.communication.Connection;
+import soc.communication.SOCClientData;
 import soc.debug.D;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCCity;

@@ -39,10 +39,11 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import soc.communication.Connection;
-import soc.communication.MemConnection;
+import soc.communication.MemServerSocket;
 import soc.communication.NetConnection;
 
 import soc.communication.SOCMessageDispatcher;
+import soc.communication.SOCServerSocket;
 import soc.debug.D; // JM
 import soc.message.SOCMessage;
 import soc.server.SOCServer;
@@ -90,6 +91,11 @@ import soc.server.SOCServer;
 @SuppressWarnings("serial")  // not expecting to persist an instance between versions
 public abstract class Server extends Thread implements Serializable, Cloneable
 {
+    public static final String ROBOT_ENDPOINT = "ROBOT_ENDPOINT";
+    /*
+      We need both of these endpoints, because robots exist on the server side so they only
+      talk to the server via an in-memory connection, not via a network (TCP) connection
+     */
     /**
      * in-memory socket surrogate which waits for connection requests to be placed into the
      * "accept" queue, does appropriate setup, the returns a new MemConnection
@@ -300,7 +306,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         try
         {
             serverSocket = new NetServerSocket( port );
-            localSocket = new MemServerSocket( "TCP_SERVER", this );
+            localSocket = new MemServerSocket( ROBOT_ENDPOINT, this );
         }
         catch (IOException e)
         {
@@ -326,7 +332,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         throws IllegalArgumentException
     {
         if (stringSocketName == null)
-            throw new IllegalArgumentException("stringSocketName null");
+            throw new IllegalArgumentException("memSocketName null");
         if (imd == null)
             throw new IllegalArgumentException("imd null");
 

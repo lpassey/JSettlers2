@@ -45,7 +45,7 @@ import soc.message.SOCVersion;
 
 // TODO: We need to break this dependency!
 import soc.server.SOCServer;
-import soc.server.genericServer.MemServerSocket;
+import soc.communication.MemServerSocket;
 
 
 import soc.util.SOCFeatureSet;

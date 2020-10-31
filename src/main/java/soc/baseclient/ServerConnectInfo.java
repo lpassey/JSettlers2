@@ -39,14 +39,14 @@ public class ServerConnectInfo
 {
     /**
      * TCP server hostname or IP address,
-     * or {@code null} when using {@link #stringSocketName} instead.
+     * or {@code null} when using {@link #memSocketName} instead.
      * Localhost is stored as the string {@code "localhost"}, not {@code "127.0.0.1"} or {@code "::1"}.
      */
     public final String hostname;
 
     /**
      * TCP port number for connecting to server on {@link #hostname},
-     * or 0 when using {@link #stringSocketName} instead.
+     * or 0 when using {@link #memSocketName} instead.
      */
     public final int port;
 
@@ -55,7 +55,7 @@ public class ServerConnectInfo
      * using {@link MemConnection}, or {@code null} when using TCP {@link #port} instead.
      * Can be used by robots in local practice games.
      */
-    public final String stringSocketName;
+//    public final String memSocketName;
 
     /**
      * Security cookie (weak shared secret) for robot connections to server.
@@ -74,20 +74,20 @@ public class ServerConnectInfo
     {
         hostname = host;
         this.port = port;
-        stringSocketName = null;
+//        memSocketName = null;
         robotCookie = cookie;
     }
 
     /**
-     * ServerConnectInfo to connect to a same-JVM server using {@link StringConnection}.
-     * @param stringSocketName  Server stringPort name; see {@link #stringSocketName} for details
+     * ServerConnectInfo to connect to a same-JVM server using {@link MemConnection}.
+     * @param stringSocketName  Server stringPort name; see {@link #memSocketName} for details
      * @param cookie  Bot cookie, or {@code null} for human client; see {@link #robotCookie} for details
      */
     public ServerConnectInfo(final String stringSocketName, final String cookie)
     {
         hostname = null;
         port = 0;
-        this.stringSocketName = stringSocketName;
+//        this.memSocketName = stringSocketName;
         robotCookie = cookie;
     }
 

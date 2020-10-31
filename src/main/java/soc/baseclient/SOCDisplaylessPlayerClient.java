@@ -160,7 +160,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     protected boolean allOptsReceived = true;
 
     /**
-     * Local server connection, if {@link ServerConnectInfo#stringSocketName} != null.
+     * Local server connection, if {@link ServerConnectInfo#memSocketName} != null.
      * @see #sLocalVersion
      * @since 1.1.00
      */
@@ -901,17 +901,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             ? new SOCFeatureSet(mes.feats)
             : new SOCFeatureSet(true, true);
 
-        if (isLocal)
-        {
-            sLocalVersion = vers;
-            sLocalFeatures = feats;
-        }
-        else
-        {
-            sVersion = vers;
-            sFeatures = feats;
-        }
-
+        connection.setVersion( vers, true );
         final int ourVers = Version.versionNumber();
         if (vers != ourVers)
         {
@@ -1015,7 +1005,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
         final SOCGame ga = new SOCGame(mes.getGame(), opts, knownOpts);
         ga.isPractice = isPractice;
-        ga.serverVersion = (isPractice) ? sLocalVersion : sVersion;
+        ga.serverVersion = connection.getRemoteVersion(); // (isPractice) ? sLocalVersion : sVersion;
         games.put( mes.getGame(), ga);
     }
 
@@ -1171,7 +1161,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         }
 
         if (nickname.equals(plName)
-            && (ga.isPractice || (sVersion >= SOCDevCardAction.VERSION_FOR_SITDOWN_CLEARS_INVENTORY)))
+            && (ga.isPractice || (connection.getRemoteVersion() >= SOCDevCardAction.VERSION_FOR_SITDOWN_CLEARS_INVENTORY)))
         {
             // server is about to send our dev-card inventory contents
             player.getInventory().clear();
@@ -2170,7 +2160,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         SOCPlayer player = ga.getPlayer(mes.getPlayerNumber());
 
         int ctype = mes.getCardType();
-        if ((! isPractice) && (sVersion < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
+        if ((! isPractice) && (connection.getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
         {
             if (ctype == SOCDevCardConstants.KNIGHT_FOR_VERS_1_X)
                 ctype = SOCDevCardConstants.KNIGHT;
@@ -2800,7 +2790,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         /**
          * send the command
          */
-        put(SOCPutPiece.toCmd(ga.getName(), pp.getPlayerNumber(), pt, pp.getCoordinates()));
+        connection.send( new SOCPutPiece(ga.getName(), pp.getPlayerNumber(), pt, pp.getCoordinates()));
     }
 
     /**
@@ -3055,7 +3045,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     public void playDevCard(SOCGame ga, int dc)
     {
-        if ((! ga.isPractice) && (sVersion < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
+        if ((! ga.isPractice) && (connection.getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
         {
             // Unlikely; the displayless client is currently used for SOCRobotClient,
             // and the built-in robots must be the same version as the server.

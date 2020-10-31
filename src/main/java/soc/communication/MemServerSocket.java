@@ -18,13 +18,11 @@
  *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
-package soc.server.genericServer;
+package soc.communication;
 
-import soc.communication.Connection;
-import soc.communication.MemConnection;
-import soc.communication.SOCMessageDispatcher;
 import soc.message.SOCMessage;
-import soc.server.SOCClientData;
+// import soc.server.genericServer.SOCServerSocket;
+import soc.server.genericServer.Server;
 
 import java.io.EOFException;
 import java.io.IOException;

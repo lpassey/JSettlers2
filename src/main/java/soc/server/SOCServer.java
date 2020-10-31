@@ -25,6 +25,7 @@ package soc.server;
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
 
+import soc.communication.SOCClientData;
 import soc.debug.D;  // JM
 
 import soc.game.*;
@@ -7030,8 +7031,8 @@ public class SOCServer extends Server
      *     a different cvers will be rejected.
      * @return True if OK, false if rejected
      */
-    boolean setClientVersSendGamesOrReject
-        (Connection c, final int cvers, String cfeats, String clocale, final boolean isKnown)
+    public boolean setClientVersSendGamesOrReject
+    ( Connection c, final int cvers, String cfeats, String clocale, final boolean isKnown )
     {
         final int prevVers = c.getRemoteVersion();
         final boolean wasKnown = c.isVersionKnown();

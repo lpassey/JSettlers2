@@ -24,6 +24,7 @@
  **/
 package soc.game;
 
+import soc.communication.SOCClientData;
 import soc.disableDebug.D;
 
 import soc.message.SOCMessage;  // For static calls only; SOCGame does not interact with network messages
@@ -2310,10 +2311,10 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * Given its features, can a client join this game? Assumes client's
-     * {@link soc.server.SOCClientData#hasLimitedFeats} flag is true, otherwise they could join any game.
+     * {@link SOCClientData#hasLimitedFeats} flag is true, otherwise they could join any game.
      * Calls {@link #checkClientFeatures(SOCFeatureSet, boolean) checkClientFeatures(cliFeats, true)}.
      * @param cliFeats  Client's limited subset of optional features,
-     *     from {@link soc.server.SOCClientData#feats}, or {@code null} or empty set if no features
+     *     from {@link SOCClientData#feats}, or {@code null} or empty set if no features
      * @return  True if client can join, false otherwise.
      *     Always true if {@link #getClientFeaturesRequired()} is {@code null}.
      * @since 2.0.00
@@ -2325,11 +2326,11 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * Check whether a client can join this game, given its feature set.
-     * Assumes client's {@link soc.server.SOCClientData#hasLimitedFeats} flag is true,
+     * Assumes client's {@link SOCClientData#hasLimitedFeats} flag is true,
      * otherwise they could join any game. If this game requires any client features, calls
      * {@link SOCFeatureSet#findMissingAgainst(SOCFeatureSet, boolean) cliFeats.findMissingAgainst(gameFeats, stopAtFirstFound)}.
      * @param cliFeats  Client's limited subset of optional features,
-     *     from {@link soc.server.SOCClientData#feats}, or {@code null} or empty set if no features
+     *     from {@link SOCClientData#feats}, or {@code null} or empty set if no features
      * @param stopAtFirstFound  True if caller needs to know only if any features are missing,
      *     but doesn't need the full list. If game's features and {@code cliFeats} are both not null,
      *     will stop checking after finding any missing feature.

@@ -28,6 +28,7 @@ import java.util.Vector;
 import soc.message.SOCMessage;
 import soc.message.SOCServerPing;
 import soc.server.SOCServer;
+import soc.server.genericServer.Server;
 
 /**
  * Non-testing class: Server which records game events into {@link #records}
@@ -42,7 +43,7 @@ import soc.server.SOCServer;
 public class RecordingTesterServer
     extends SOCServer
 {
-    public static final String STRINGPORT_NAME = "testport";
+//    public static final String STRINGPORT_NAME = "testport";
 
     /** per-game queues of recorded game "event" messages */
     public final HashMap<String, Vector<QueueEntry>> records = new HashMap<>();
@@ -77,7 +78,7 @@ public class RecordingTesterServer
     public RecordingTesterServer()
         throws IllegalStateException
     {
-        super(STRINGPORT_NAME, PROPS);
+        super( Server.ROBOT_ENDPOINT, PROPS);
     }
 
     @Override
