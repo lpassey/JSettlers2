@@ -82,6 +82,64 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
      */
     public static final int VILLAGE = 5;
 
+
+    public enum PieceType
+    {
+        /**
+         * Type to use when converting from int but value is unknown.
+         * Note: {@link #valueOf(int)} returns {@code null} and not this value.
+         *
+         * @since 2.3.00
+         */
+        UNKNOWN_TYPE( -1 ),
+
+        /**
+         * player element types.  CLAY has same {@link #getValue()}
+         * as {@link SOCResourceConstants#CLAY};
+         * ORE, SHEEP, WHEAT and WOOD values also match {@link SOCResourceConstants}.
+         */
+        ROAD(0 ),
+        SETTLEMENT( 1 ),
+        CITY(2),
+        SHIP(3),
+        FORTRESS(4),
+        VILLAGE(5),
+        MAXPLUSONE( 6 );
+
+        private int value;
+
+        PieceType( final int v )
+        {
+            value = v;
+        }
+
+        /**
+         * Get a type's integer value ({@link #DEV_CARD_COUNT} == 2, etc).
+         *
+         * @see #valueOf(int)
+         */
+        public int getValue()
+        {
+            return value;
+        }
+
+        /**
+         * Get a GEType from its int {@link #getValue()}, if type is known.
+         *
+         * @param ti Type int value ({@link #DEV_CARD_COUNT} == 2, etc).
+         * @return GEType for that value, or {@code UNKNOWN_TYPE} if unknown
+         */
+        public static PieceType valueOf( final int ti )
+        {
+            for (PieceType et : values())
+            {
+                if (et.value == ti)
+                    return et;
+            }
+            return UNKNOWN_TYPE;
+        }
+    }
+
     /**
      * Minimum type number of playing piece (currently Road).
      */
@@ -98,13 +156,13 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
      * Piece type unique technical names, for {@link #getTypeName(int)} and {@link #getType(String)}.
      * @since 2.4.00
      */
-    private static final String[] PIECETYPE_NAMES
-        = { "ROAD", "SETTLEMENT", "CITY", "SHIP", "FORTRESS", "VILLAGE" };
+//    private static final String[] PIECETYPE_NAMES
+//        = { "ROAD", "SETTLEMENT", "CITY", "SHIP", "FORTRESS", "VILLAGE" };
 
     /**
      * The type of this playing piece, within range {@link #MIN} to ({@link #MAXPLUSONE} - 1)
      */
-    protected int pieceType;
+    protected PieceType pieceType;
 
     /**
      * The player who owns this piece, if any. Will be null for certain piece types
@@ -168,7 +226,7 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
         if (pl == null)
             throw new IllegalArgumentException("player null");
 
-        pieceType = ptype;
+        pieceType = PieceType.valueOf( ptype );
         player = pl;
         coord = co;
         if (pboard == null)
@@ -192,7 +250,7 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
         if (pboard == null)
             throw new IllegalArgumentException("board null");
 
-        pieceType = ptype;
+        pieceType = PieceType.valueOf( ptype );
         player = null;
         coord = co;
         board = pboard;
@@ -213,7 +271,7 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
      */
     public int getType()
     {
-        return pieceType;
+        return pieceType.getValue();
     }
 
     /**
@@ -287,8 +345,8 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
                 clName = clName.substring(dot + 1);
         }
 
-        return "SOCPlayingPiece:" + clName + "|type=" + pieceType + "|player=" + player
-            + "|coord=" + Integer.toHexString(coord);
+        return "SOCPlayingPiece:" + clName + "|type=" + pieceType.name() + "|player=" + player
+            + "|coord=0x" + Integer.toHexString(coord);
     }
 
     /**
@@ -341,7 +399,7 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
             return SOCShip.COST;
         case -2:  // == SOCPossiblePiece.CARD (robots)
             // fall through
-        case SOCPlayingPiece.MAXPLUSONE:
+        case MAXPLUSONE:
             return SOCDevCard.COST;
         default:
             throw new IllegalArgumentException("pieceType: " + pieceType);
@@ -361,7 +419,8 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
     public static String getTypeName(final int pieceType)
         throws IllegalArgumentException
     {
-        return getTypeName(pieceType, PIECETYPE_NAMES);
+        return PieceType.valueOf( pieceType ).name();
+//        return getTypeName(pieceType, PIECETYPE_NAMES);
     }
 
     /**
@@ -411,7 +470,7 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
     public static int getType(final String typeName)
         throws IllegalArgumentException, NumberFormatException
     {
-        return getType(typeName, PIECETYPE_NAMES, -1);
+        return PieceType.valueOf( typeName ).getValue();
     }
 
     /**

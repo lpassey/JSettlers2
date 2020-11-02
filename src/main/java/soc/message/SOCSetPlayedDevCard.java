@@ -31,15 +31,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCSetPlayedDevCard extends SOCMessage
-    implements SOCMessageForGame
+public class SOCSetPlayedDevCard extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The player number
@@ -60,18 +54,9 @@ public class SOCSetPlayedDevCard extends SOCMessage
      */
     public SOCSetPlayedDevCard(String ga, int pn, boolean pd)
     {
-        messageType = SETPLAYEDDEVCARD;
-        game = ga;
+        super( SETPLAYEDDEVCARD, ga );
         playerNumber = pn;
         playedDevCard = pd;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -97,7 +82,7 @@ public class SOCSetPlayedDevCard extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber, playedDevCard);
+        return super.toCmd() + sep2 + playerNumber + sep2 + playedDevCard;
     }
 
     /**
@@ -131,7 +116,7 @@ public class SOCSetPlayedDevCard extends SOCMessage
         {
             ga = st.nextToken();
             pn = Integer.parseInt(st.nextToken());
-            pd = (Boolean.valueOf(st.nextToken())).booleanValue();
+            pd = Boolean.valueOf( st.nextToken() );
         }
         catch (Exception e)
         {
@@ -146,6 +131,7 @@ public class SOCSetPlayedDevCard extends SOCMessage
      */
     public String toString()
     {
-        return "SOCSetPlayedDevCard:game=" + game + "|playerNumber=" + playerNumber + "|playedDevCard=" + playedDevCard;
+        return "SOCSetPlayedDevCard:game=" + getGame() + "|playerNumber=" + playerNumber
+            + "|playedDevCard=" + playedDevCard;
     }
 }

@@ -55,8 +55,7 @@ import soc.game.SOCDevCardConstants;  // for javadocs only
  * @author Robert S Thomas
  * @see SOCInventoryItemAction
  */
-public class SOCDevCardAction extends SOCMessage
-    implements SOCMessageForGame
+public class SOCDevCardAction extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -123,11 +122,6 @@ public class SOCDevCardAction extends SOCMessage
     public static final int CANNOT_PLAY = 4;
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * Player number
      */
     private int playerNumber;
@@ -162,8 +156,7 @@ public class SOCDevCardAction extends SOCMessage
      */
     public SOCDevCardAction(String ga, int pn, int ac, int ct)
     {
-        messageType = DEVCARDACTION;
-        game = ga;
+        super( DEVCARDACTION, ga );
         playerNumber = pn;
         actionType = ac;
         cardType = ct;
@@ -191,6 +184,7 @@ public class SOCDevCardAction extends SOCMessage
     public SOCDevCardAction(String ga, int pn, int ac, List<Integer> ct)
         throws IllegalArgumentException
     {
+        super( DEVCARDACTION, ga );
         if (pn < 0)
             throw new IllegalArgumentException("pn: " + pn);
         if ((ac == PLAY) || (ac == CANNOT_PLAY))
@@ -201,20 +195,10 @@ public class SOCDevCardAction extends SOCMessage
         if ((S == 0) || (S > MAX_MULTIPLE))
             throw new IllegalArgumentException("ct size: " + S);
 
-        messageType = DEVCARDACTION;
-        game = ga;
         playerNumber = pn;
         actionType = ac;
         cardType = 0;
         cardTypes = ct;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -263,7 +247,7 @@ public class SOCDevCardAction extends SOCMessage
     public String toCmd()
     {
         StringBuilder sb = new StringBuilder
-            (DEVCARDACTION + sep + game + sep2 + playerNumber + sep2 + actionType);
+            (DEVCARDACTION + sep + getGame() + sep2 + playerNumber + sep2 + actionType);
         if (cardTypes == null)
         {
             sb.append(sep2);
@@ -303,7 +287,7 @@ public class SOCDevCardAction extends SOCMessage
             ct = Integer.parseInt(st.nextToken());
             if (st.hasMoreTokens())
             {
-                ctypes = new ArrayList<Integer>();
+                ctypes = new ArrayList<>();
                 ctypes.add(ct);
                 for (int i = 2; st.hasMoreTokens() && (i <= MAX_MULTIPLE); ++i)
                     ctypes.add(Integer.parseInt(st.nextToken()));
@@ -426,7 +410,7 @@ public class SOCDevCardAction extends SOCMessage
         else
             act = Integer.toString(actionType);
 
-        return "SOCDevCardAction:game=" + game + "|playerNum=" + playerNumber
+        return "SOCDevCardAction:game=" + getGame() + "|playerNum=" + playerNumber
             + "|actionType=" + act +
             ((cardTypes != null)
              ? "|cardTypes=" + cardTypes.toString()  // "[1, 5, 7]"

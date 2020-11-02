@@ -33,15 +33,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCDiscardRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCDiscardRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The number of discards
@@ -56,17 +50,8 @@ public class SOCDiscardRequest extends SOCMessage
      */
     public SOCDiscardRequest(String ga, int nd)
     {
-        messageType = DISCARDREQUEST;
-        game = ga;
+        super( DISCARDREQUEST, ga );
         numDiscards = nd;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -84,7 +69,7 @@ public class SOCDiscardRequest extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, numDiscards);
+        return toCmd( getGame(), numDiscards );
     }
 
     /**
@@ -130,6 +115,6 @@ public class SOCDiscardRequest extends SOCMessage
      */
     public String toString()
     {
-        return "SOCDiscardRequest:game=" + game + "|numDiscards=" + numDiscards;
+        return "SOCDiscardRequest:game=" + getGame() + "|numDiscards=" + numDiscards;
     }
 }

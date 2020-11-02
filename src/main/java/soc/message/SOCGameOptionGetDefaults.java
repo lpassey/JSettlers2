@@ -64,7 +64,7 @@ public class SOCGameOptionGetDefaults extends SOCMessage
      */
     public SOCGameOptionGetDefaults(String opts)
     {
-        messageType = GAMEOPTIONGETDEFAULTS;
+        super( GAMEOPTIONGETDEFAULTS );
         this.opts = opts;
     }
 

@@ -38,15 +38,9 @@ package soc.message;
  *
  * @author Robert S Thomas
  */
-public class SOCNewGame extends SOCMessage
-    implements SOCMessageForGame
+public class SOCNewGame extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of the new game.
-     */
-    private String game;
 
     /**
      * Create a NewGame message.
@@ -56,17 +50,7 @@ public class SOCNewGame extends SOCMessage
      */
     public SOCNewGame(String ga)
     {
-        messageType = NEWGAME;
-        game = ga;
-    }
-
-    /**
-     * @return the name of the game; may have
-     *         the {@link SOCGames#MARKER_THIS_GAME_UNJOINABLE} prefix.
-     */
-    public String getGame()
-    {
-        return game;
+        super( NEWGAME, ga );
     }
 
     /**
@@ -76,7 +60,7 @@ public class SOCNewGame extends SOCMessage
      */
     public String toCmd()
     {
-        return NEWGAME + sep + game;
+        return getType() + sep + getGame();
     }
 
     /**
@@ -95,7 +79,6 @@ public class SOCNewGame extends SOCMessage
      */
     public String toString()
     {
-        return "SOCNewGame:game=" + game;
+        return "SOCNewGame:game=" + getGame();
     }
-
 }

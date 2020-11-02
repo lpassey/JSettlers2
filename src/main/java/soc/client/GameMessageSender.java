@@ -48,6 +48,7 @@ import soc.message.SOCDiscard;
 import soc.message.SOCEndTurn;
 import soc.message.SOCGameTextMsg;
 import soc.message.SOCInventoryItemAction;
+import soc.message.SOCInventoryItemAction.IIAction;
 import soc.message.SOCLeaveGame;
 import soc.message.SOCMakeOffer;
 import soc.message.SOCMessage;
@@ -454,7 +455,7 @@ import soc.message.SOCStartGame;
     public void playInventoryItem(SOCGame ga, final int itype)
     {
         put(SOCInventoryItemAction.toCmd
-            (ga.getName(), ga.getCurrentPlayerNumber(), SOCInventoryItemAction.PLAY, itype, 0), ga.isPractice);
+            (ga.getName(), ga.getCurrentPlayerNumber(), IIAction.PLAY.getValue(), itype, 0), ga.isPractice);
     }
 
     /**

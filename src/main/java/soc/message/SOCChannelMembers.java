@@ -92,7 +92,7 @@ public class SOCChannelMembers extends SOCMessage
      */
     private SOCChannelMembers(String ch, List<String> ml, final boolean clientMarker)
     {
-        messageType = CHANNELMEMBERS;
+        super( CHANNELMEMBERS );
         members = ml;
         channel = ch;
     }
@@ -142,7 +142,7 @@ public class SOCChannelMembers extends SOCMessage
     public static SOCChannelMembers parseDataStr(String s)
     {
         String ch;
-        ArrayList<String> ml = new ArrayList<String>();
+        ArrayList<String> ml = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(s, sep2);
 
         try
@@ -185,7 +185,7 @@ public class SOCChannelMembers extends SOCMessage
     @Override
     public String toString()
     {
-        StringBuffer sb = new StringBuffer("SOCChannelMembers:channel=");
+        StringBuilder sb = new StringBuilder("SOCChannelMembers:channel=");
         sb.append(channel);
         sb.append("|members=");
         if (members != null)
@@ -193,5 +193,4 @@ public class SOCChannelMembers extends SOCMessage
 
         return sb.toString();
     }
-
 }

@@ -46,8 +46,7 @@ import soc.game.SOCGame.SeatLockState;
  *
  * @author Robert S. Thomas
  */
-public class SOCSetSeatLock extends SOCMessage
-    implements SOCMessageForGame
+public class SOCSetSeatLock extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -57,11 +56,6 @@ public class SOCSetSeatLock extends SOCMessage
      * @since 2.0.00
      */
     public static final int VERSION_FOR_ALL_SEATS = 2000;
-
-    /**
-     * Name of game
-     */
-    private final String game;
 
     /**
      * Change lock state of this seat number.
@@ -95,8 +89,7 @@ public class SOCSetSeatLock extends SOCMessage
      */
     public SOCSetSeatLock(String ga, int pn, SeatLockState st)
     {
-        messageType = SETSEATLOCK;
-        game = ga;
+        super( SETSEATLOCK, ga );
         playerNumber = pn;
         state = st;
         states = null;
@@ -115,21 +108,12 @@ public class SOCSetSeatLock extends SOCMessage
     public SOCSetSeatLock(final String ga, final SeatLockState[] st)
         throws IllegalArgumentException
     {
+        super( SETSEATLOCK, ga );
         if ((st.length != 4) && (st.length != 6))
             throw new IllegalArgumentException("length");
 
-        messageType = SETSEATLOCK;
-        game = ga;
         playerNumber = -1;
         states = st;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -174,10 +158,11 @@ public class SOCSetSeatLock extends SOCMessage
     {
         if (states == null)
         {
-            return toCmd(game, playerNumber, state);
-        } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append(SETSEATLOCK + sep + game);
+            return super.toCmd() + sep2 + playerNumber + sep2 + state;
+        }
+        else
+        {
+            StringBuilder sb = new StringBuilder( SETSEATLOCK + sep + getGame());
             for (int pn = 0; pn < states.length; ++pn)
             {
                 sb.append(sep2_char);
@@ -327,7 +312,7 @@ public class SOCSetSeatLock extends SOCMessage
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder("SOCSetSeatLock:game=" + game);
+        StringBuilder sb = new StringBuilder("SOCSetSeatLock:game=" + getGame());
         if (states == null)
         {
             sb.append("|playerNumber=");

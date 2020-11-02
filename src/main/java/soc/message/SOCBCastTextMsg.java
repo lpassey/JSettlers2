@@ -45,7 +45,7 @@ public class SOCBCastTextMsg extends SOCMessage
      */
     public SOCBCastTextMsg(String tm)
     {
-        messageType = BCASTTEXTMSG;
+        super( BCASTTEXTMSG );
         text = tm;
     }
 

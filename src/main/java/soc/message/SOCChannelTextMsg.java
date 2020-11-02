@@ -75,7 +75,7 @@ public class SOCChannelTextMsg extends SOCMessage
      */
     public SOCChannelTextMsg(String ch, String nn, String tm)
     {
-        messageType = CHANNELTEXTMSG;
+        super( CHANNELTEXTMSG );
         channel = ch;
         nickname = nn;
         text = tm;
@@ -165,9 +165,6 @@ public class SOCChannelTextMsg extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCChannelTextMsg:channel=" + channel + "|nickname=" + nickname + "|text=" + text;
-
-        return s;
+        return "SOCChannelTextMsg:channel=" + channel + "|nickname=" + nickname + "|text=" + text;
     }
-
 }

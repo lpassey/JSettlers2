@@ -116,7 +116,7 @@ public class SOCRevealFogHex extends SOCMessageTemplate3i
     @Override
     public String toString()
     {
-        return "SOCRevealFogHex:game=" + game
+        return "SOCRevealFogHex:game=" + getGame()
             + "|hexCoord=" + p1 + "|hexType=" + p2 + "|diceNum=" + p3;
     }
 

@@ -37,8 +37,16 @@ package soc.message;
  * @since 1.1.11
  * @author Jeremy D Monin
  */
-public interface SOCMessageForGame
+public abstract class SOCMessageForGame extends SOCMessage
 {
+    SOCMessageForGame( int messageType, String gameName )
+    {
+        super( messageType );
+        this.gameName = gameName;
+    }
+
+    private String gameName;
+
     /**
      * Name of game this message is for, if any.
      * Must not be {@code null} in a message sent to the server:
@@ -57,12 +65,13 @@ public interface SOCMessageForGame
      *
      * @return the name of the game, or {@link SOCMessage#GAME_NONE} or (rarely, at client) {@code null} if none.
      */
-    public abstract String getGame();
+    public String getGame()
+    {
+        return gameName;
+    }
 
-    /**
-     * Get the message type.  Implemented in {@link SOCMessage}.
-     * @return the message type
-     * @since 2.0.00
-     */
-    public abstract int getType();
+    public String toCmd()
+    {
+        return getType() + sep + getGame();
+    }
 }

@@ -48,15 +48,9 @@ import java.util.StringTokenizer;
  * @see SOCCancelBuildRequest
  * @see SOCBuyDevCardRequest
  */
-public class SOCBuildRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCBuildRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The type of piece to build, from {@link soc.game.SOCPlayingPiece} constants,
@@ -75,20 +69,11 @@ public class SOCBuildRequest extends SOCMessage
     public SOCBuildRequest(String ga, int pt)
         throws IllegalArgumentException
     {
+        super( BUILDREQUEST, ga );
         if (pt < -1)
             throw new IllegalArgumentException("pt: " + pt);
 
-        messageType = BUILDREQUEST;
-        game = ga;
         pieceType = pt;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -107,7 +92,7 @@ public class SOCBuildRequest extends SOCMessage
      */
     public String toCmd()
     {
-        return BUILDREQUEST + sep + game + sep2 + pieceType;
+        return BUILDREQUEST + sep + getGame() + sep2 + pieceType;
     }
 
     /**
@@ -141,7 +126,7 @@ public class SOCBuildRequest extends SOCMessage
      */
     public String toString()
     {
-        return "SOCBuildRequest:game=" + game + "|pieceType=" + pieceType;
+        return "SOCBuildRequest:game=" + getGame() + "|pieceType=" + pieceType;
     }
 
 }

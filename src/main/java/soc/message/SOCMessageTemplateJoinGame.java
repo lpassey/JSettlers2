@@ -73,7 +73,7 @@ public abstract class SOCMessageTemplateJoinGame extends SOCMessage
      */
     public SOCMessageTemplateJoinGame(String nn, String pw, String hn, String ga)
     {
-        messageType = JOINGAME;
+        super( JOINGAME );
         nickname = nn;
         password = (pw != null) ? pw : "";
         game = ga;

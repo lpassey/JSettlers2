@@ -305,7 +305,7 @@ public class SOCSimpleAction extends SOCMessageTemplate4i
     @Override
     public String toString()
     {
-        return "SOCSimpleAction:game=" + game
+        return "SOCSimpleAction:game=" + getGame()
             + "|pn=" + p1 + "|actType=" + p2
             + "|v1=" + p3 + "|v2=" + p4;
     }

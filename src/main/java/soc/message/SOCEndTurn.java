@@ -26,15 +26,9 @@ package soc.message;
  *
  * @author Robert S. Thomas
  */
-public class SOCEndTurn extends SOCMessage
-    implements SOCMessageForGame
+public class SOCEndTurn extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Create a EndTurn message.
@@ -43,16 +37,7 @@ public class SOCEndTurn extends SOCMessage
      */
     public SOCEndTurn(String ga)
     {
-        messageType = ENDTURN;
-        game = ga;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
+        super( ENDTURN, ga );
     }
 
     /**
@@ -62,7 +47,7 @@ public class SOCEndTurn extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game);
+        return toCmd( getGame() );
     }
 
     /**
@@ -92,6 +77,6 @@ public class SOCEndTurn extends SOCMessage
      */
     public String toString()
     {
-        return "SOCEndTurn:game=" + game;
+        return "SOCEndTurn:game=" + getGame();
     }
 }

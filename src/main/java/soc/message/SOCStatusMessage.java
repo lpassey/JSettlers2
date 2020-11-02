@@ -418,7 +418,7 @@ public class SOCStatusMessage extends SOCMessage
      */
     public SOCStatusMessage(int sv, String st)
     {
-        messageType = STATUSMESSAGE;
+        super( STATUSMESSAGE );
         status = st;
         svalue = sv;
     }
@@ -473,7 +473,7 @@ public class SOCStatusMessage extends SOCMessage
      */
     public static String toCmd(int sv, String st)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(STATUSMESSAGE);
         sb.append(sep);
         if (sv > 0)

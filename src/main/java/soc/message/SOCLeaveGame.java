@@ -34,8 +34,7 @@ import java.util.StringTokenizer;
  * @author Robert S Thomas
  * @see SOCLeaveChannel
  */
-public class SOCLeaveGame extends SOCMessage
-    implements SOCMessageForGame
+public class SOCLeaveGame extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
@@ -43,11 +42,6 @@ public class SOCLeaveGame extends SOCMessage
      * Nickname of the leaving member; server has always ignored this field from client, can send "-" but not blank
      */
     private String nickname;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Unused optional host name of server hosting the game, or "-"; see {@link #getHost()}.
@@ -64,9 +58,8 @@ public class SOCLeaveGame extends SOCMessage
      */
     public SOCLeaveGame(String nn, String hn, String ga)
     {
-        messageType = LEAVEGAME;
+        super( LEAVEGAME, ga );
         nickname = nn;
-        game = ga;
         host = hn;
     }
 
@@ -90,21 +83,13 @@ public class SOCLeaveGame extends SOCMessage
     }
 
     /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
-    /**
      * LEAVEGAME sep nickname sep2 host sep2 game
      *
      * @return the command String
      */
     public String toCmd()
     {
-        return toCmd(nickname, host, game);
+        return getType() + sep + nickname + sep2 + host + sep2 + getGame();
     }
 
     /**
@@ -117,7 +102,7 @@ public class SOCLeaveGame extends SOCMessage
      */
     public static String toCmd(String nn, String hn, String ga)
     {
-        return LEAVEGAME + sep + nn + sep2 + hn + sep2 + ga;
+        return new SOCLeaveGame( nn, hn, ga ).toCmd();
     }
 
     /**
@@ -153,9 +138,6 @@ public class SOCLeaveGame extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCLeaveGame:nickname=" + nickname + "|host=" + host + "|game=" + game;
-
-        return s;
+        return  "SOCLeaveGame:nickname=" + nickname + "|host=" + host + "|game=" + getGame();
     }
-
 }

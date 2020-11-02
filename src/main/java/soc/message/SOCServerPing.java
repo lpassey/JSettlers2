@@ -58,7 +58,7 @@ public class SOCServerPing extends SOCMessage
      */
     public SOCServerPing(int st)
     {
-        messageType = SERVERPING;
+        super( SERVERPING );
         sleepTime = st;
     }
 
@@ -85,7 +85,7 @@ public class SOCServerPing extends SOCMessage
      */
     public String toCmd()
     {
-        return SERVERPING + sep + sleepTime;
+        return getType() + sep + sleepTime;
     }
 
     /**
@@ -106,5 +106,4 @@ public class SOCServerPing extends SOCMessage
     {
         return "SOCServerPing:sleepTime=" + sleepTime;
     }
-
 }

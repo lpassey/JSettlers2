@@ -69,15 +69,9 @@ import soc.game.SOCGameOptionSet;  // for javadocs only
  *
  * @author Robert S Thomas
  */
-public class SOCBuyDevCardRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCBuyDevCardRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Create a BuyDevCardRequest message.
@@ -86,16 +80,7 @@ public class SOCBuyDevCardRequest extends SOCMessage
      */
     public SOCBuyDevCardRequest(String ga)
     {
-        messageType = BUYDEVCARDREQUEST;
-        game = ga;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
+        super( BUYDEVCARDREQUEST, ga );
     }
 
     /**
@@ -105,7 +90,7 @@ public class SOCBuyDevCardRequest extends SOCMessage
      */
     public String toCmd()
     {
-        return BUYDEVCARDREQUEST + sep + game;
+        return BUYDEVCARDREQUEST + sep + getGame();
     }
 
     /**
@@ -124,9 +109,7 @@ public class SOCBuyDevCardRequest extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCBuyDevCardRequest:game=" + game;
-
-        return s;
+        return "SOCBuyDevCardRequest:game=" + getGame();
     }
 
 }

@@ -44,15 +44,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCPlayDevCardRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCPlayDevCardRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The type of dev card
@@ -67,17 +61,8 @@ public class SOCPlayDevCardRequest extends SOCMessage
      */
     public SOCPlayDevCardRequest(String ga, int dc)
     {
-        messageType = PLAYDEVCARDREQUEST;
-        game = ga;
+        super( PLAYDEVCARDREQUEST, ga );
         devCard = dc;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -98,7 +83,7 @@ public class SOCPlayDevCardRequest extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, devCard);
+        return super.toCmd() + sep2 + devCard;
     }
 
     /**
@@ -108,9 +93,9 @@ public class SOCPlayDevCardRequest extends SOCMessage
      * @param dc  the type of dev card
      * @return the command string
      */
-    public static String toCmd(String ga, int dc)
+    public static String toCmd(String ga, int devType)
     {
-        return PLAYDEVCARDREQUEST + sep + ga + sep2 + dc;
+        return new SOCPlayDevCardRequest( ga, devType ).toCmd();
     }
 
     /**
@@ -144,6 +129,6 @@ public class SOCPlayDevCardRequest extends SOCMessage
      */
     public String toString()
     {
-        return "SOCPlayDevCardRequest:game=" + game + "|devCard=" + devCard;
+        return "SOCPlayDevCardRequest:game=" + getGame() + "|devCard=" + devCard;
     }
 }

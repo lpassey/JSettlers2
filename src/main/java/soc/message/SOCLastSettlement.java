@@ -32,15 +32,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S Thomas
  */
-public class SOCLastSettlement extends SOCMessage
-    implements SOCMessageForGame
+public class SOCLastSettlement extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * the name of the game
-     */
-    private String game;
 
     /**
      * the number of the player
@@ -61,18 +55,9 @@ public class SOCLastSettlement extends SOCMessage
      */
     public SOCLastSettlement(String na, int pn, int co)
     {
-        messageType = LASTSETTLEMENT;
-        game = na;
+        super( LASTSETTLEMENT, na );
         playerNumber = pn;
         coordinates = co;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -100,7 +85,7 @@ public class SOCLastSettlement extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber, coordinates);
+        return toCmd( getGame(), playerNumber, coordinates );
     }
 
     /**
@@ -178,8 +163,6 @@ public class SOCLastSettlement extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCLastSettlement:game=" + game + "|playerNumber=" + playerNumber + "|coord=" + Integer.toHexString(coordinates);
-
-        return s;
+        return  "SOCLastSettlement:game=" + getGame() + "|playerNumber=" + playerNumber + "|coord=" + Integer.toHexString(coordinates);
     }
 }

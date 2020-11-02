@@ -61,15 +61,9 @@ package soc.message;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 2.0.00
  */
-public abstract class SOCMessageTemplate3i extends SOCMessage
-    implements SOCMessageForGame
+public abstract class SOCMessageTemplate3i extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;
-
-    /**
-     * Name of the game.
-     */
-    protected String game;
 
     /**
      * First integer parameter.
@@ -97,19 +91,10 @@ public abstract class SOCMessageTemplate3i extends SOCMessage
      */
     protected SOCMessageTemplate3i(final int id, final String ga, final int param1, final int param2, final int param3)
     {
-        messageType = id;
-        game = ga;
+        super( id, ga );
         p1 = param1;
         p2 = param2;
         p3 = param3;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -143,7 +128,7 @@ public abstract class SOCMessageTemplate3i extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(messageType, game, p1, p2, p3);
+        return toCmd( getType(), getGame(), p1, p2, p3 );
     }
 
     /**
@@ -197,7 +182,7 @@ public abstract class SOCMessageTemplate3i extends SOCMessage
      */
     public String toString()
     {
-        return getClass().getSimpleName() + ":game=" + game
+        return getClass().getSimpleName() + ":game=" + getGame()
             + "|param1=" + p1 + "|param2=" + p2 + "|param3=" + p3;
     }
 }

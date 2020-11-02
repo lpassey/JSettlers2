@@ -73,7 +73,7 @@ public class SOCJoinChannel extends SOCMessage
      */
     public SOCJoinChannel(String nn, String pw, String hn, String ch)
     {
-        messageType = JOINCHANNEL;
+        super( JOINCHANNEL );
         nickname = nn;
         password = pw;
         channel = ch;
@@ -211,8 +211,6 @@ public class SOCJoinChannel extends SOCMessage
         else
             pwmask = "|password=***";
 
-        String s = "SOCJoinChannel:nickname=" + nickname + pwmask + "|host=" + host + "|channel=" + channel;
-        return s;
+        return "SOCJoinChannel:nickname=" + nickname + pwmask + "|host=" + host + "|channel=" + channel;
     }
-
 }

@@ -43,7 +43,7 @@ public class SOCDeleteChannel extends SOCMessage
      */
     public SOCDeleteChannel(String ch)
     {
-        messageType = DELETECHANNEL;
+        super( DELETECHANNEL );
         channel = ch;
     }
 

@@ -19,6 +19,8 @@
  **/
 package soc.message;
 
+import soc.game.SOCPlayingPiece;
+
 import java.util.StringTokenizer;
 
 /**
@@ -178,9 +180,8 @@ public class SOCMovePiece extends SOCMessageTemplate4i
     @Override
     public String toString()
     {
-        return "SOCMovePiece:game=" + game
-            + "|pn=" + p1 + "|pieceType=" + p2
-            + "|fromCoord=" + p3 + "|toCoord=" + p4;
+        return "SOCMovePiece:game=" + getGame()
+            + "|pn=" + p1 + "|pieceType=" + SOCPlayingPiece.PieceType.valueOf( p2 ).name()
+            + "|fromCoord=0x" + Integer.toHexString( p3 ) + "|toCoord=0x" + Integer.toHexString( p4 );
     }
-
 }

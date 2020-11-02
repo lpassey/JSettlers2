@@ -55,8 +55,7 @@ import java.util.StringTokenizer;
  * @see SOCChannelMembers
  * @see SOCGamesWithOptions
  */
-public class SOCGameMembers extends SOCMessage
-    implements SOCMessageForGame
+public class SOCGameMembers extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -66,11 +65,6 @@ public class SOCGameMembers extends SOCMessage
     private List<String> members;
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * Create a GameMembers message.
      *
      * @param ga  name of game
@@ -78,9 +72,8 @@ public class SOCGameMembers extends SOCMessage
      */
     public SOCGameMembers(String ga, List<String> ml)
     {
-        messageType = GAMEMEMBERS;
+        super( GAMEMEMBERS, ga );
         members = ml;
-        game = ga;
     }
 
     /**
@@ -92,14 +85,6 @@ public class SOCGameMembers extends SOCMessage
     }
 
     /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
-    /**
      * GAMEMEMBERS sep game sep2 members
      *
      * @return the command String
@@ -107,7 +92,7 @@ public class SOCGameMembers extends SOCMessage
     @Override
     public String toCmd()
     {
-        return toCmd(game, members);
+        return toCmd( getGame(), members);
     }
 
     /**
@@ -245,8 +230,8 @@ public class SOCGameMembers extends SOCMessage
     @Override
     public String toString()
     {
-        StringBuffer sb = new StringBuffer("SOCGameMembers:game=");
-        sb.append(game);
+        StringBuilder sb = new StringBuilder("SOCGameMembers:game=");
+        sb.append( getGame() );
         sb.append("|members=");
         if (members != null)
             sb.append(members);  // "[joe, bob, lily,...]"

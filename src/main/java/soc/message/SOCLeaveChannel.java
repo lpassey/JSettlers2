@@ -62,7 +62,7 @@ public class SOCLeaveChannel extends SOCMessage
      */
     public SOCLeaveChannel(String nn, String hn, String ch)
     {
-        messageType = LEAVECHANNEL;
+        super( LEAVECHANNEL );
         nickname = nn;
         channel = ch;
         host = hn;
@@ -103,7 +103,7 @@ public class SOCLeaveChannel extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(nickname, host, channel);
+        return getType() + sep + nickname + sep2 + host + sep2 + channel;
     }
 
     /**
@@ -117,7 +117,7 @@ public class SOCLeaveChannel extends SOCMessage
      */
     public static String toCmd(String nn, String hn, String ch)
     {
-        return LEAVECHANNEL + sep + nn + sep2 + hn + sep2 + ch;
+        return new SOCLeaveChannel( nn, hn, ch ).toCmd();
     }
 
     /**
@@ -153,9 +153,6 @@ public class SOCLeaveChannel extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCLeaveChannel:nickname=" + nickname + "|host=" + host + "|channel=" + channel;
-
-        return s;
+        return  "SOCLeaveChannel:nickname=" + nickname + "|host=" + host + "|channel=" + channel;
     }
-
 }

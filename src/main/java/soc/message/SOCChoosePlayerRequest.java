@@ -38,15 +38,9 @@ import soc.game.SOCGameOptionSet;  // for javadocs only
  *
  * @author Robert S. Thomas
  */
-public class SOCChoosePlayerRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCChoosePlayerRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
-
-    /**
-     * Name of game
-     */
-    private final String game;
 
     /**
      * True if can choose to not steal from anyone.
@@ -75,18 +69,9 @@ public class SOCChoosePlayerRequest extends SOCMessage
      */
     public SOCChoosePlayerRequest(final String ga, final boolean[] ch, final boolean canChooseNone)
     {
-        messageType = CHOOSEPLAYERREQUEST;
-        game = ga;
+        super( CHOOSEPLAYERREQUEST, ga );
         choices = ch;
         allowChooseNone = canChooseNone;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -119,7 +104,7 @@ public class SOCChoosePlayerRequest extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, choices, allowChooseNone);
+        return toCmd( getGame(), choices, allowChooseNone );
     }
 
     /**
@@ -244,11 +229,10 @@ public class SOCChoosePlayerRequest extends SOCMessage
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder("SOCChoosePlayerRequest:game=" + game);
+        StringBuilder sb = new StringBuilder("SOCChoosePlayerRequest:game=" + getGame());
         if (canChooseNone())
             sb.append("|canChooseNone=true");
-        sb.append("|choices=" + Arrays.toString(choices));  // "[true, false, ...]"
+        sb.append( "|choices=" ).append( Arrays.toString( choices ) );  // "[true, false, ...]"
         return sb.toString();
     }
-
 }

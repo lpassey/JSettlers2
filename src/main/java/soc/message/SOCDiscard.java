@@ -47,15 +47,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCDiscard extends SOCMessage
-    implements SOCMessageForGame
+public class SOCDiscard extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The set of resources being discarded
@@ -75,30 +69,21 @@ public class SOCDiscard extends SOCMessage
      */
     public SOCDiscard(String ga, int cl, int or, int sh, int wh, int wo, int uk)
     {
-        messageType = DISCARD;
-        game = ga;
+        super( DISCARD, ga );
         resources = new SOCResourceSet(cl, or, sh, wh, wo, uk);
     }
 
     /**
-     * Create a Discard message.
+     * Create a Discard message. We don't need to tell the server the seat number of the discarding
+     * player; it is whichever player is attached to this {@link soc.communication.Connection}
      *
      * @param ga  the name of the game
      * @param rs  the resources being discarded
      */
     public SOCDiscard(String ga, int pn, SOCResourceSet rs)
     {
-        messageType = DISCARD;
-        game = ga;
+        super( DISCARD, ga );
         resources = rs;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -117,7 +102,7 @@ public class SOCDiscard extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, resources);
+        return toCmd( getGame(), resources );
     }
 
     /**
@@ -194,7 +179,7 @@ public class SOCDiscard extends SOCMessage
      */
     public String toString()
     {
-        return "SOCDiscard:game=" + game + "|resources=" + resources;
+        return "SOCDiscard:game=" + getGame() + "|resources=" + resources;
     }
 
 }

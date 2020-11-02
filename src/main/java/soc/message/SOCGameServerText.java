@@ -45,8 +45,7 @@ import java.util.StringTokenizer;
  * @author Jeremy D Monin
  * @since 2.0.00
  */
-public class SOCGameServerText extends SOCMessage
-    implements SOCMessageForGame
+public class SOCGameServerText extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;
 
@@ -68,11 +67,6 @@ public class SOCGameServerText extends SOCMessage
     public static final String UNLIKELY_CHAR1 = Character.toString( (char) 1 );
 
     /**
-     * Name of game
-     */
-    private final String game;
-
-    /**
      * Text message
      */
     private final String text;
@@ -85,17 +79,8 @@ public class SOCGameServerText extends SOCMessage
      */
     public SOCGameServerText(final String ga, final String tm)
     {
-        messageType = GAMESERVERTEXT;
-        game = ga;
+        super( GAMESERVERTEXT, ga );
         text = tm;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -113,7 +98,7 @@ public class SOCGameServerText extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, text);
+        return toCmd( getGame(), text );
     }
 
     /**
@@ -179,7 +164,7 @@ public class SOCGameServerText extends SOCMessage
      */
     public String toString()
     {
-        return "SOCGameServerText:game=" + game + "|text=" + text;
+        return "SOCGameServerText:game=" + getGame() + "|text=" + text;
     }
 
     /**
@@ -188,5 +173,4 @@ public class SOCGameServerText extends SOCMessage
      * @return Version number, 2000 for JSettlers 2.0.00.
      */
     public final int getMinimumVersion() { return VERSION_FOR_GAMESERVERTEXT; /* == 2000 */ }
-
 }

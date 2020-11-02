@@ -18,6 +18,8 @@
  **/
 package soc.message;
 
+import soc.game.SOCPlayingPiece.PieceType;
+
 import java.util.StringTokenizer;
 
 /**
@@ -47,8 +49,7 @@ import java.util.StringTokenizer;
  * @author Jeremy D Monin
  * @since 1.1.12
  */
-public class SOCDebugFreePlace extends SOCMessage
-    implements SOCMessageForGame
+public class SOCDebugFreePlace extends SOCMessageForGame
 {
     /** matches version (1.1.12) */
     private static final long serialVersionUID = 1112L;
@@ -58,11 +59,6 @@ public class SOCDebugFreePlace extends SOCMessage
      * and send DEBUGFREEPLACE.
      */
     public static final int VERSION_FOR_DEBUGFREEPLACE = 1112;
-
-    /**
-     * the name of the game
-     */
-    private String game;
 
     /**
      * the type of piece being placed, such as {@link soc.game.SOCPlayingPiece#CITY}
@@ -91,13 +87,12 @@ public class SOCDebugFreePlace extends SOCMessage
     public SOCDebugFreePlace(String na, int pn, int pt, int co)
         throws IllegalArgumentException
     {
+        super( DEBUGFREEPLACE, na );
         if (pt < 0)
             throw new IllegalArgumentException("pt: " + pt);
         if (co < 0)
             throw new IllegalArgumentException("coord < 0");
 
-        messageType = DEBUGFREEPLACE;
-        game = na;
         pieceType = pt;
         playerNumber = pn;
         coordinates = co;
@@ -115,14 +110,6 @@ public class SOCDebugFreePlace extends SOCMessage
     public SOCDebugFreePlace(String na, int pn, boolean onOff)
     {
         this(na, pn, 0, onOff ? 1 : 0);
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -158,7 +145,7 @@ public class SOCDebugFreePlace extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber, pieceType, coordinates);
+        return toCmd( getGame(), playerNumber, pieceType, coordinates );
     }
 
     /**
@@ -250,9 +237,7 @@ public class SOCDebugFreePlace extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCDebugFreePlace:game=" + game + "|playerNumber=" + playerNumber + "|pieceType=" + pieceType + "|coord=0x" + Integer.toHexString(coordinates);
-
-        return s;
+        return "SOCDebugFreePlace:game=" + getGame() + "|playerNumber=" + playerNumber + "|pieceType="
+            + PieceType.valueOf( pieceType ).name() + "|coord=0x" + Integer.toHexString(coordinates);
     }
-
 }

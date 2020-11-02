@@ -91,6 +91,8 @@ import java.util.Random;
 import java.util.Stack;
 import java.util.Vector;
 
+import static soc.message.SOCInventoryItemAction.IIAction.*;
+
 
 /**
  * AI for playing Settlers of Catan.
@@ -1606,7 +1608,7 @@ public class SOCRobotBrain extends Thread
                         break;
 
                     case SOCMessage.INVENTORYITEMACTION:
-                        if (((SOCInventoryItemAction) mes).action == SOCInventoryItemAction.CANNOT_PLAY)
+                        if (((SOCInventoryItemAction) mes).action == CANNOT_PLAY)
                         {
                             final List<SOCInventoryItem> itms = ourPlayerData.getInventory().getByStateAndType
                                 (SOCInventory.PLAYABLE, ((SOCInventoryItemAction) mes).itemType);

@@ -77,12 +77,12 @@ public class SOCCreateAccount extends SOCMessage
     public SOCCreateAccount(String nn, String pw, String hn, String em)
         throws IllegalArgumentException
     {
+        super( CREATEACCOUNT );
         if ((pw == null) || (pw.length() == 0))
             throw new IllegalArgumentException("pw");
         if ((hn == null) || (hn.length() == 0))
             throw new IllegalArgumentException("hn");
 
-        messageType = CREATEACCOUNT;
         nickname = nn;
         password = pw;
         email = (em != null) ? em : "";
@@ -213,8 +213,6 @@ public class SOCCreateAccount extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCCreateAccount:nickname=" + nickname + "|password=***|host=" + host + "|email=" + email;
-
-        return s;
+        return "SOCCreateAccount:nickname=" + nickname + "|password=***|host=" + host + "|email=" + email;
     }
 }

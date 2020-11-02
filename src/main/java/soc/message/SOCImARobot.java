@@ -101,6 +101,7 @@ public class SOCImARobot extends SOCMessage
     public SOCImARobot(final String nn, final String cookie, final String rbclass)
         throws IllegalArgumentException
     {
+        super( IMAROBOT );
         if (cookie != null)
         {
             if (! SOCMessage.isSingleLineAndSafe(cookie))
@@ -109,7 +110,6 @@ public class SOCImARobot extends SOCMessage
                 throw new IllegalArgumentException("null rbclass");
         }
 
-        messageType = IMAROBOT;
         nickname = nn;
         this.cookie = cookie;
         this.rbclass = rbclass;
@@ -217,11 +217,8 @@ public class SOCImARobot extends SOCMessage
      */
     public String toString()
     {
-        final String s = (cookie != null)
+        return (cookie != null)
             ? ("SOCImARobot:nickname=" + nickname + "|cookie=**|rbclass=" + rbclass)
             : ("SOCImARobot:nickname=" + nickname + "|cookie=null|rbclass=" + rbclass);
-
-        return s;
     }
-
 }

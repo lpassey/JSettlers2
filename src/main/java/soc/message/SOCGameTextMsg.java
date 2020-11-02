@@ -40,8 +40,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S Thomas
  */
-public class SOCGameTextMsg extends SOCMessage
-    implements SOCMessageForGame
+public class SOCGameTextMsg extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -93,11 +92,6 @@ public class SOCGameTextMsg extends SOCMessage
     private static String sep2_alt = "" + (char) 0;
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * Nickname of sender from server, or {@link #SERVERNAME} or {@link #SERVER_FOR_CHAT}, or "-";
      * see {@link #getNickname()}.
      */
@@ -122,18 +116,9 @@ public class SOCGameTextMsg extends SOCMessage
      */
     public SOCGameTextMsg(String ga, String nn, String tm)
     {
-        messageType = GAMETEXTMSG;
-        game = ga;
+        super( GAMETEXTMSG, ga );
         nickname = nn;
         text = tm;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -169,7 +154,7 @@ public class SOCGameTextMsg extends SOCMessage
      */
     public String toCmd()
     {
-        return GAMETEXTMSG + sep + game + sep2_alt + nickname + sep2_alt + text;
+        return GAMETEXTMSG + sep + getGame() + sep2_alt + nickname + sep2_alt + text;
     }
 
     /**
@@ -247,9 +232,7 @@ public class SOCGameTextMsg extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCGameTextMsg:game=" + game + "|nickname=" + nickname + "|text=" + text;
+        return "SOCGameTextMsg:game=" + getGame() + "|nickname=" + nickname + "|text=" + text;
 
-        return s;
     }
-
 }

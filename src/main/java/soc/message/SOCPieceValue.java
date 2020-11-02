@@ -108,7 +108,7 @@ public class SOCPieceValue extends SOCMessageTemplate4i
     @Override
     public String toString()
     {
-        return "SOCPieceValue:game=" + game
+        return "SOCPieceValue:game=" + getGame()
             + "|pieceType=" + p1 + "|coord=" + p2
             + "|pv1=" + p3 + "|pv2=" + p4;
     }

@@ -53,15 +53,9 @@ import soc.game.SOCBoardLarge;  // for javadocs only
  * @author Robert S Thomas
  * @see SOCJoinChannelAuth
  */
-public class SOCJoinGameAuth extends SOCMessage
-    implements SOCMessageForGame
+public class SOCJoinGameAuth extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
-
-    /**
-     * Name of game
-     */
-    private final String game;
 
     /**
      * Board height and width for {@link SOCBoardLarge}, or 0.
@@ -104,21 +98,12 @@ public class SOCJoinGameAuth extends SOCMessage
     public SOCJoinGameAuth(final String gaName, final int height, final int width, final int[] layoutVS)
         throws IllegalArgumentException
     {
-        messageType = JOINGAMEAUTH;
-        game = gaName;
+        super( JOINGAMEAUTH, gaName );
         this.boardHeight = height;
         this.boardWidth = width;
         if ((layoutVS != null) && (layoutVS.length < 2))
             throw new IllegalArgumentException("layoutVS");
         this.layoutVS = layoutVS;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -173,7 +158,7 @@ public class SOCJoinGameAuth extends SOCMessage
      */
     public String toCmd()
     {
-        StringBuilder sb = new StringBuilder(JOINGAMEAUTH + sep + game);
+        StringBuilder sb = new StringBuilder( getType() + sep + getGame() );
 
         if ((boardHeight != 0) || (boardWidth != 0))
         {
@@ -282,12 +267,12 @@ public class SOCJoinGameAuth extends SOCMessage
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder("SOCJoinGameAuth:game=" + game);
+        StringBuilder sb = new StringBuilder("SOCJoinGameAuth:game=" + getGame());
         if ((boardHeight != 0) || (boardWidth != 0))
         {
-            sb.append("|bh=" + boardHeight + "|bw=" + boardWidth);
+            sb.append( "|bh=" ).append( boardHeight ).append( "|bw=" ).append( boardWidth );
             if (layoutVS != null)
-                sb.append("|vs=" + Arrays.toString(layoutVS));
+                sb.append( "|vs=" ).append( Arrays.toString( layoutVS ) );
         }
 
         return sb.toString();

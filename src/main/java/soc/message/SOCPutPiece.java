@@ -25,6 +25,7 @@ import java.util.StringTokenizer;
 
 import soc.game.SOCGame;  // for javadocs only
 import soc.game.SOCPlayingPiece;  // for javadocs only
+import soc.game.SOCPlayingPiece.PieceType;
 
 /**
  * Client player is asking to place, or server is announcing placement of, a piece on the board.
@@ -71,20 +72,14 @@ import soc.game.SOCPlayingPiece;  // for javadocs only
  *
  * @author Robert S Thomas
  */
-public class SOCPutPiece extends SOCMessage
-    implements SOCMessageForGame
+public class SOCPutPiece extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
     /**
-     * the name of the game
-     */
-    private String game;
-
-    /**
      * the type of piece being placed, such as {@link SOCPlayingPiece#CITY}
      */
-    private int pieceType;
+    private PieceType pieceType;
 
     /**
      * the player number who played the piece, or -1 for non-player-owned {@link SOCPlayingPiece#VILLAGE}.
@@ -110,24 +105,15 @@ public class SOCPutPiece extends SOCMessage
     public SOCPutPiece(String na, int pn, int pt, int co)
         throws IllegalArgumentException
     {
+        super( PUTPIECE, na );
         if (pt < 0)
             throw new IllegalArgumentException("pt: " + pt);
         if (co < 0)
             throw new IllegalArgumentException("coord < 0");
 
-        messageType = PUTPIECE;
-        game = na;
-        pieceType = pt;
+        pieceType = PieceType.valueOf( pt );
         playerNumber = pn;
         coordinates = co;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -135,7 +121,7 @@ public class SOCPutPiece extends SOCMessage
      */
     public int getPieceType()
     {
-        return pieceType;
+        return pieceType.getValue();
     }
 
     /**
@@ -163,7 +149,7 @@ public class SOCPutPiece extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber, pieceType, coordinates);
+        return toCmd( getGame(), playerNumber, pieceType.getValue(), coordinates );
     }
 
     /**
@@ -247,8 +233,7 @@ public class SOCPutPiece extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCPutPiece:game=" + game + "|playerNumber=" + playerNumber + "|pieceType=" + pieceType + "|coord=" + Integer.toHexString(coordinates);
-
-        return s;
+        return "SOCPutPiece:game=" + getGame() + "|playerNumber=" + playerNumber + "|pieceType="
+            + pieceType + "|coord=0x" + Integer.toHexString(coordinates);
     }
 }

@@ -52,8 +52,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCBankTrade extends SOCMessage
-    implements SOCMessageForGame
+public class SOCBankTrade extends SOCMessageForGame
 {
 
     /**
@@ -83,11 +82,6 @@ public class SOCBankTrade extends SOCMessage
     public static final int PN_REPLY_NOT_YOUR_TURN = -3;
 
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The set of resources being given to the bank/port
@@ -120,19 +114,10 @@ public class SOCBankTrade extends SOCMessage
      */
     public SOCBankTrade(String ga, SOCResourceSet give, SOCResourceSet get, final int pn)
     {
-        messageType = BANKTRADE;
-        game = ga;
+        super( BANKTRADE, ga );
         this.give = give;
         this.get = get;
         playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -178,7 +163,7 @@ public class SOCBankTrade extends SOCMessage
      */
     public String toCmd()
     {
-        StringBuilder cmd = new StringBuilder(BANKTRADE + sep + game);
+        StringBuilder cmd = new StringBuilder(BANKTRADE + sep + getGame());
 
         for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
                 i++)
@@ -272,7 +257,7 @@ public class SOCBankTrade extends SOCMessage
      */
     public String toString()
     {
-        return "SOCBankTrade:game=" + game + "|give=" + give + "|get=" + get
+        return "SOCBankTrade:game=" + getGame() + "|give=" + give + "|get=" + get
             + ((playerNumber != -1) ? ("|pn=" + playerNumber) : "");
     }
 

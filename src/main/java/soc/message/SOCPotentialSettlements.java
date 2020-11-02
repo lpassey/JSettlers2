@@ -63,8 +63,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S Thomas
  */
-public class SOCPotentialSettlements extends SOCMessage
-    implements SOCMessageForGame
+public class SOCPotentialSettlements extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -74,11 +73,6 @@ public class SOCPotentialSettlements extends SOCMessage
      * @since 2.0.00
      */
     public static final int VERSION_FOR_PLAYERNUM_ALL = 2000;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Player number, or -1 for all players; see {@link #getPlayerNumber()} for details.
@@ -166,8 +160,7 @@ public class SOCPotentialSettlements extends SOCMessage
      */
     public SOCPotentialSettlements(String ga, int pn, List<Integer> ps)
     {
-        messageType = POTENTIALSETTLEMENTS;
-        game = ga;
+        super( POTENTIALSETTLEMENTS, ga );
         playerNumber = pn;
         psNodes = ps;
         psNodesFromAll = false;
@@ -237,8 +230,7 @@ public class SOCPotentialSettlements extends SOCMessage
         (String ga, int pn, final List<Integer> ps, final int pan, HashSet<Integer>[] lan, final int[][] lse)
         throws IllegalArgumentException, NullPointerException
     {
-        messageType = POTENTIALSETTLEMENTS;
-        game = ga;
+        super( POTENTIALSETTLEMENTS, ga );
         playerNumber = pn;
         psNodes = ps;
         psNodesFromAll = (pan == 0) && (ps == null);
@@ -252,14 +244,6 @@ public class SOCPotentialSettlements extends SOCMessage
         for (int i = 1; i < lan.length; ++i)
             if (lan[i] == null)
                 throw new IllegalArgumentException("lan[" + i + "] null");
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -292,11 +276,11 @@ public class SOCPotentialSettlements extends SOCMessage
         {
             if (psNodesFromAll)
             {
-                ps = new ArrayList<Integer>();
+                ps = new ArrayList<>();
                 for (int i = 1; i < landAreasLegalNodes.length; ++i)
                     ps.addAll(landAreasLegalNodes[i]);
             } else {
-                ps = new ArrayList<Integer>(landAreasLegalNodes[startingLandArea]);
+                ps = new ArrayList<>( landAreasLegalNodes[startingLandArea] );
             }
         }
 
@@ -315,14 +299,14 @@ public class SOCPotentialSettlements extends SOCMessage
     {
         if ((landAreasLegalNodes == null) && (legalSeaEdges == null))
         {
-            return toCmd(game, playerNumber, psNodes);
+            return toCmd( getGame(), playerNumber, psNodes );
         } else {
             if (landAreasLegalNodes != null)
-                return toCmd(game, playerNumber, psNodes, startingLandArea, landAreasLegalNodes, legalSeaEdges);
+                return toCmd( getGame(), playerNumber, psNodes, startingLandArea, landAreasLegalNodes, legalSeaEdges );
             else
                 // legalSeaEdges but no landAreasLegalNodes:
                 // used only for pn > 0 when joining a game that's already started (SC_PIRI)
-                return toCmd(game, playerNumber, psNodes, 0, null, legalSeaEdges);
+                return toCmd(getGame(), playerNumber, psNodes, 0, null, legalSeaEdges );
         }
     }
 
@@ -428,7 +412,7 @@ public class SOCPotentialSettlements extends SOCMessage
                 while (pnIter.hasNext())
                 {
                     cmd.append(sep2);
-                    int number = pnIter.next().intValue();
+                    int number = pnIter.next();
                     cmd.append(number);
                 }
             }
@@ -478,7 +462,7 @@ public class SOCPotentialSettlements extends SOCMessage
     {
         String ga;
         int pn;
-        List<Integer> ps = new ArrayList<Integer>();
+        List<Integer> ps = new ArrayList<>();
         HashSet<Integer>[] lan = null;  // landAreasLegalNodes
         int pan = 0;
         int[][] legalSeaEdges = null;
@@ -499,7 +483,7 @@ public class SOCPotentialSettlements extends SOCMessage
                     hadNA = true;
                     break;
                 }
-                ps.add(Integer.valueOf(Integer.parseInt(tok)));
+                ps.add( Integer.parseInt( tok ) );
             }
 
             if (hadNA)
@@ -544,7 +528,7 @@ public class SOCPotentialSettlements extends SOCMessage
                     final int areaNum = Integer.parseInt(tok.substring(2));
                     if (areaNum <= 0)
                         return null;  // malformed
-                    HashSet<Integer> ls = new HashSet<Integer>();
+                    HashSet<Integer> ls = new HashSet<>();
 
                     // Loop for node numbers, until next "LA#" (or "SE")
                     while (st.hasMoreTokens())
@@ -554,7 +538,7 @@ public class SOCPotentialSettlements extends SOCMessage
                             break;
                         if (areaNum == 0)
                             return null;  // WIP: LA0 must be empty
-                        ls.add(Integer.valueOf(Integer.parseInt(tok)));
+                        ls.add( Integer.parseInt( tok ) );
                     }
 
                     lan[areaNum] = ls;
@@ -563,10 +547,10 @@ public class SOCPotentialSettlements extends SOCMessage
                 // legalSeaEdges[][]: Parse the optional "SE" edge lists (SC_PIRI)
                 if (st.hasMoreTokens() && tok.equals("SE"))
                 {
-                    ArrayList<int[]> allLSE = new ArrayList<int[]>();
+                    ArrayList<int[]> allLSE = new ArrayList<>();
                     while (st.hasMoreTokens() && tok.equals("SE"))
                     {
-                        ArrayList<Integer> lse = new ArrayList<Integer>();
+                        ArrayList<Integer> lse = new ArrayList<>();
 
                         // Loop for edge coords, until next "SE"
                         while (st.hasMoreTokens())
@@ -578,7 +562,7 @@ public class SOCPotentialSettlements extends SOCMessage
                             if (edge != 0)
                                 // 0 is used for padding the last SE list if empty;
                                 // otherwise, at the end of the message, an empty list will have no tokens.
-                                lse.add(Integer.valueOf(edge));
+                                lse.add( edge );
                         }
 
                         final int L = lse.size();
@@ -809,7 +793,7 @@ public class SOCPotentialSettlements extends SOCMessage
     public String toString()
     {
         StringBuilder s = new StringBuilder
-            ("SOCPotentialSettlements:game=" + game + "|playerNum=" + playerNumber + "|list=");
+            ("SOCPotentialSettlements:game=" + getGame() + "|playerNum=" + playerNumber + "|list=");
         if (psNodesFromAll)
             s.append("(fromAllLANodes)");
         else if (psNodes == null)
@@ -819,7 +803,7 @@ public class SOCPotentialSettlements extends SOCMessage
         else
             for (Integer number : psNodes)
             {
-                s.append(Integer.toHexString(number.intValue()));
+                s.append(Integer.toHexString( number ));
                 s.append(' ');
             }
 
@@ -843,7 +827,7 @@ public class SOCPotentialSettlements extends SOCMessage
                 Iterator<Integer> laIter = nodes.iterator();
                 while (laIter.hasNext())
                 {
-                    int number = laIter.next().intValue();
+                    int number = laIter.next();
                     s.append(Integer.toHexString(number));
                     s.append(' ');
                 }

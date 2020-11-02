@@ -49,15 +49,9 @@ import soc.game.SOCGame;  // for javadocs only
  * @author Robert S. Thomas
  * @see SOCSetTurn
  */
-public class SOCTurn extends SOCMessage
-    implements SOCMessageForGame
+public class SOCTurn extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The seat number
@@ -81,18 +75,9 @@ public class SOCTurn extends SOCMessage
      */
     public SOCTurn(final String ga, final int pn, final int gs)
     {
-        messageType = TURN;
-        game = ga;
+        super( TURN, ga );
         playerNumber = pn;
         gameState = (gs > 0) ? gs : 0;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -121,7 +106,7 @@ public class SOCTurn extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber, gameState);
+        return toCmd( getGame(), playerNumber, gameState);
     }
 
     /**
@@ -169,7 +154,7 @@ public class SOCTurn extends SOCMessage
      */
     public String toString()
     {
-        return "SOCTurn:game=" + game + "|playerNumber=" + playerNumber
+        return "SOCTurn:game=" + getGame() + "|playerNumber=" + playerNumber
             + ((gameState != 0) ? "|gameState=" + gameState : "");
     }
 

@@ -176,10 +176,10 @@ public class SOCGameOptionGetInfos extends SOCMessage
         (final List<String> okeys, final boolean withTokenI18nDescs, final boolean withOnlyTokenI18n)
         throws IllegalArgumentException
     {
+        super( GAMEOPTIONGETINFOS );
         if (withOnlyTokenI18n && (okeys != null))
             throw new IllegalArgumentException(okeys.toString());
 
-        messageType = GAMEOPTIONGETINFOS;
 
         optionKeys = okeys;
         hasTokenGetI18nDescs = withTokenI18nDescs;
@@ -204,7 +204,7 @@ public class SOCGameOptionGetInfos extends SOCMessage
     public SOCGameOptionGetInfos
         (final List<SOCGameOption> opts, final boolean withTokenI18nDescs)
     {
-        messageType = GAMEOPTIONGETINFOS;
+        super( GAMEOPTIONGETINFOS );
 
         if (opts != null)
         {
@@ -285,7 +285,7 @@ public class SOCGameOptionGetInfos extends SOCMessage
      */
     public static SOCGameOptionGetInfos parseDataStr(String s)
     {
-        List<String> okey = new ArrayList<String>();
+        List<String> okey = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(s, sep2);
         boolean hasDash = false, hasTokenI18n = false, hasTokenAllChanges = false;
 

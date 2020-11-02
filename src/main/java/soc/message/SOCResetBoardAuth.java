@@ -129,7 +129,7 @@ public class SOCResetBoardAuth extends SOCMessageTemplate2i
     @Override
     public String toString()
     {
-        return "SOCResetBoardAuth:game=" + game
+        return "SOCResetBoardAuth:game=" + getGame()
             + "|rejoinPN=" + p1 + "|requestingPN=" + p2;
     }
 

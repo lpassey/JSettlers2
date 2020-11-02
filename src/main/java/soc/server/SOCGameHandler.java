@@ -65,6 +65,7 @@ import soc.message.SOCGameState;
 import soc.message.SOCGameStats;
 import soc.message.SOCGameTextMsg;
 import soc.message.SOCInventoryItemAction;
+import soc.message.SOCInventoryItemAction.IIAction;
 import soc.message.SOCJoinGame;
 import soc.message.SOCJoinGameAuth;
 import soc.message.SOCKeyedMessage;
@@ -554,15 +555,19 @@ public class SOCGameHandler extends GameHandler
                 // removePort calls gameEventListener.playerEvent(REMOVED_TRADE_PORT),
                 // which sends some messages but not GAMESTATE
                 sendGameState(ga);
-            } else {
-                pl.getInventory().addItem
-                    (SOCInventoryItem.createForScenario(ga, -ptype, true, false, false, ! placeNow));
-                srv.messageToGame(gaName, true, new SOCInventoryItemAction
-                    (gaName, pl.getPlayerNumber(), SOCInventoryItemAction.ADD_PLAYABLE, -ptype, false, false, true));
+            }
+            else
+            {
+                pl.getInventory().addItem( SOCInventoryItem.createForScenario(ga, -ptype,
+                    true, false, false, ! placeNow));
+                srv.messageToGame(gaName, true, new SOCInventoryItemAction(
+                    gaName, pl.getPlayerNumber(), IIAction.ADD_PLAYABLE, -ptype, false, false, true));
             }
 
-        } else {
-            srv.messageToPlayer(c, gaName, SOCServer.PN_NON_EVENT, "Unknown debug command: " + subCmd);
+        }
+        else
+        {
+            srv.messageToPlayer( c, gaName, SOCServer.PN_NON_EVENT, "Unknown debug command: " + subCmd );
         }
     }
 
@@ -857,7 +862,7 @@ public class SOCGameHandler extends GameHandler
                 } else {
                     retItemActionMsg = new SOCInventoryItemAction
                         (gaName, cpn,
-                         (itemCard.isPlayable() ? SOCInventoryItemAction.ADD_PLAYABLE : SOCInventoryItemAction.ADD_OTHER),
+                         (itemCard.isPlayable() ? IIAction.ADD_PLAYABLE : IIAction.ADD_OTHER ),
                          itemCard.itype, itemCard.isKept(), itemCard.isVPItem(), itemCard.canCancelPlay);
                     srv.messageToPlayer(c, gaName, cpn, retItemActionMsg);
                 }
@@ -2000,7 +2005,9 @@ public class SOCGameHandler extends GameHandler
                     // or another general inventory item
                     addMsg = new SOCInventoryItemAction
                         (gaName, pn,
-                         (iitem.isPlayable() ? SOCInventoryItemAction.ADD_PLAYABLE : SOCInventoryItemAction.ADD_OTHER),
+                         (iitem.isPlayable()
+                             ? IIAction.ADD_PLAYABLE
+                             : IIAction.ADD_OTHER ),
                          iitem.itype, iitem.isKept(), iitem.isVPItem(), iitem.canCancelPlay);
                 }
 
@@ -4456,12 +4463,12 @@ public class SOCGameHandler extends GameHandler
                     // We just need to send the client PLACING_EXTRA, for the port type and not-cancelable flag.
                     Connection c = srv.getConnection(plName);
                     srv.messageToPlayer(c, gaName, pn, new SOCInventoryItemAction
-                        (gaName, pn, SOCInventoryItemAction.PLACING_EXTRA, -portType, false, false, false));
+                        (gaName, pn, IIAction.PLACING_EXTRA, -portType, false, false, false));
                 } else {
                     // port was added to player's inventory;
                     // if this message changes, also update SOCGameHandler.processDebugCommand_scenario
                     srv.messageToGame(gaName, true, new SOCInventoryItemAction
-                        (gaName, pn, SOCInventoryItemAction.ADD_PLAYABLE, -portType, false, false, true));
+                        (gaName, pn, IIAction.ADD_PLAYABLE, -portType, false, false, true));
                 }
             }
             break;

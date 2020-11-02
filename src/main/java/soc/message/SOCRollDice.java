@@ -29,18 +29,12 @@ package soc.message;
  *
  * @author Robert S Thomas
  */
-public class SOCRollDice extends SOCMessage
-    implements SOCMessageForGame
+public class SOCRollDice extends SOCMessageForGame
 {
     /** Class marked for v1.1.11 with SOCMessageForGame.
      *  Over the network, fields are unchanged since v1.0.0 or earlier, per git and old cvs history. -JM
      */
     private static final long serialVersionUID = 1111L;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Create a RollDice message.
@@ -49,27 +43,18 @@ public class SOCRollDice extends SOCMessage
      */
     public SOCRollDice(String ga)
     {
-        messageType = ROLLDICE;
-        game = ga;
+        super( ROLLDICE, ga );
     }
 
     /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
-    /**
-     * ROLLDICE sep game
+     * ROLLDICE sep game -- super method is good enough
      *
      * @return the command String
      */
-    public String toCmd()
-    {
-        return toCmd(game);
-    }
+//    public String toCmd()
+//    {
+//        return toCmd(game);
+//    }
 
     /**
      * ROLLDICE sep game
@@ -79,7 +64,7 @@ public class SOCRollDice extends SOCMessage
      */
     public static String toCmd(String ga)
     {
-        return ROLLDICE + sep + ga;
+        return new SOCRollDice( ga ).toCmd();
     }
 
     /**
@@ -98,8 +83,6 @@ public class SOCRollDice extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCRollDice:game=" + game;
-
-        return s;
+        return  "SOCRollDice:game=" + getGame();
     }
 }

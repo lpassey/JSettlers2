@@ -54,7 +54,7 @@ public class SOCJoinChannelAuth extends SOCMessage
      */
     public SOCJoinChannelAuth(String nn, String ch)
     {
-        messageType = JOINCHANNELAUTH;
+        super( JOINCHANNELAUTH );
         nickname = nn;
         channel = ch;
     }
@@ -116,9 +116,6 @@ public class SOCJoinChannelAuth extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCJoinChannelAuth:nickname=" + nickname + "|channel=" + channel;
-
-        return s;
+        return "SOCJoinChannelAuth:nickname=" + nickname + "|channel=" + channel;
     }
-
 }

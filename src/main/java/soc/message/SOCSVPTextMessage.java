@@ -40,15 +40,10 @@ import java.util.StringTokenizer;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 2.0.00
  */
-public class SOCSVPTextMessage extends SOCMessage
-    implements SOCKeyedMessage, SOCMessageForGame
+public class SOCSVPTextMessage extends SOCMessageForGame
+    implements SOCKeyedMessage
 {
     private static final long serialVersionUID = 2000L;
-
-    /**
-     * Name of the game.
-     */
-    public final String game;
 
     /**
      * Player number.
@@ -111,23 +106,14 @@ public class SOCSVPTextMessage extends SOCMessage
     public SOCSVPTextMessage(final String ga, final int pn, final int svp, final String desc, final boolean isLocal)
         throws IllegalArgumentException
     {
+        super( SVPTEXTMSG, ga );
         if ((desc == null) || ! isSingleLineAndSafe(desc, true))
             throw new IllegalArgumentException("desc");
 
-        messageType = SVPTEXTMSG;
-        game = ga;
         this.pn = pn;
         this.svp = svp;
         this.desc = desc;
         isLocalized = isLocal;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -137,7 +123,7 @@ public class SOCSVPTextMessage extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(messageType, game, pn, svp, desc);
+        return super.toCmd() + sep2 + pn + sep2 + svp + sep2 + desc;
     }
 
     /**
@@ -149,10 +135,9 @@ public class SOCSVPTextMessage extends SOCMessage
      * @param desc  Description of the player's action that led to the SVP
      * @return    the command string
      */
-    protected static String toCmd
-        (final int messageType, final String ga, final int pn, final int svp, final String desc)
+    protected static String toCmd( final String ga, final int pn, final int svp, final String desc )
     {
-        return Integer.toString(messageType) + sep + ga + sep2 + pn + sep2 + svp + sep2 + desc;
+        return new SOCSVPTextMessage( ga, pn, svp, desc ).toCmd();
     }
 
     /**
@@ -167,7 +152,7 @@ public class SOCSVPTextMessage extends SOCMessage
 
     public SOCMessage localize(final String localizedText)
     {
-        return new SOCSVPTextMessage(game, pn, svp, localizedText, true);
+        return new SOCSVPTextMessage(getGame(), pn, svp, localizedText, true);
     }
 
     /**
@@ -209,7 +194,7 @@ public class SOCSVPTextMessage extends SOCMessage
      */
     public String toString()
     {
-        return getClass().getSimpleName() + ":game=" + game
+        return getClass().getSimpleName() + ":game=" + getGame()
             + "|pn=" + pn + "|svp=" + svp + "|desc=" + desc;
     }
 

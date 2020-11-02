@@ -39,15 +39,9 @@ import soc.game.SOCGame;
  *
  * @author Robert S. Thomas
  */
-public class SOCStartGame extends SOCMessage
-    implements SOCMessageForGame
+public class SOCStartGame extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The optional {@link SOCGame} State field, or 0.
@@ -66,17 +60,8 @@ public class SOCStartGame extends SOCMessage
      */
     public SOCStartGame(final String ga, final int gs)
     {
-        messageType = STARTGAME;
-        game = ga;
+        super( STARTGAME, ga );
         gameState = (gs > 0) ? gs : 0;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -99,7 +84,7 @@ public class SOCStartGame extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, gameState);
+        return toCmd( getGame(), gameState );
     }
 
     /**
@@ -144,7 +129,7 @@ public class SOCStartGame extends SOCMessage
      */
     public String toString()
     {
-        return "SOCStartGame:game=" + game + ((gameState != 0) ? "|gameState=" + gameState : "");
+        return "SOCStartGame:game=" + getGame() + ((gameState != 0) ? "|gameState=" + gameState : "");
     }
 
 }

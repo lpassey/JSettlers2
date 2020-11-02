@@ -41,7 +41,7 @@ public class SOCLeaveAll extends SOCMessage
      */
     public SOCLeaveAll()
     {
-        messageType = LEAVEALL;
+        super( LEAVEALL );
     }
 
     /**

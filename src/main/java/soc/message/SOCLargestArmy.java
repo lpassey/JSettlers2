@@ -36,15 +36,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCLargestArmy extends SOCMessage
-    implements SOCMessageForGame
+public class SOCLargestArmy extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The number of the player with largest army
@@ -59,17 +53,8 @@ public class SOCLargestArmy extends SOCMessage
      */
     public SOCLargestArmy(String ga, int pn)
     {
-        messageType = LARGESTARMY;
-        game = ga;
+        super( LARGESTARMY, ga );
         playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -87,7 +72,7 @@ public class SOCLargestArmy extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber);
+        return toCmd( getGame(), playerNumber );
     }
 
     /**
@@ -133,6 +118,6 @@ public class SOCLargestArmy extends SOCMessage
      */
     public String toString()
     {
-        return "SOCLargestArmy:game=" + game + "|playerNumber=" + playerNumber;
+        return "SOCLargestArmy:game=" + getGame() + "|playerNumber=" + playerNumber;
     }
 }

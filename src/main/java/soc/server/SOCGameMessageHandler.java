@@ -51,9 +51,12 @@ import soc.game.SOCTradeOffer;
 import soc.game.SOCVillage;
 import soc.message.*;
 import soc.message.SOCGameElements.GEType;
+import soc.message.SOCInventoryItemAction.IIAction;
 import soc.message.SOCPlayerElement.PEType;
 import soc.server.genericServer.Connection;
 import soc.util.SOCStringManager;
+
+import static soc.message.SOCInventoryItemAction.IIAction.*;
 
 /**
  * Game message handler for {@link SOCGameHandler}: Dispatches all messages received from the
@@ -1957,7 +1960,7 @@ public class SOCGameMessageHandler
 
                     if (item != null)
                         srv.messageToGame(gaName, true, new SOCInventoryItemAction
-                            (gaName, pn, SOCInventoryItemAction.ADD_PLAYABLE, item.itype,
+                            (gaName, pn, ADD_PLAYABLE, item.itype,
                              item.isKept(), item.isVPItem(), item.canCancelPlay));
 
                     if ((item != null) || (gstate != ga.getGameState()))
@@ -3257,7 +3260,7 @@ public class SOCGameMessageHandler
      */
     private void handleINVENTORYITEMACTION(SOCGame ga, Connection c, final SOCInventoryItemAction mes)
     {
-        if (mes.action != SOCInventoryItemAction.PLAY)
+        if (mes.action != IIAction.PLAY)
             return;
 
         final String gaName = ga.getName();
@@ -3272,7 +3275,7 @@ public class SOCGameMessageHandler
         {
             srv.messageToPlayer(c, gaName, pn,
                 new SOCInventoryItemAction
-                    (gaName, -1, SOCInventoryItemAction.CANNOT_PLAY, mes.itemType, replyCannot));
+                    (gaName, -1, IIAction.CANNOT_PLAY, mes.itemType, replyCannot));
             return;
         }
 
@@ -3286,7 +3289,7 @@ public class SOCGameMessageHandler
             // volatile of its conditions is player's inventory, so assume that's what changed.
             srv.messageToPlayer(c, gaName, pn,
                 new SOCInventoryItemAction
-                    (gaName, -1, SOCInventoryItemAction.CANNOT_PLAY, mes.itemType, 1));  // 1 == item not in inventory
+                    (gaName, -1, IIAction.CANNOT_PLAY, mes.itemType, 1));  // 1 == item not in inventory
             return;
         }
 
@@ -3294,7 +3297,7 @@ public class SOCGameMessageHandler
         // Announce game state if changed.
         srv.messageToGame(gaName, true,
             new SOCInventoryItemAction
-                (gaName, pn, SOCInventoryItemAction.PLAYED, item.itype,
+                (gaName, pn, IIAction.PLAYED, item.itype,
                  item.isKept(), item.isVPItem(), item.canCancelPlay));
 
         final int gstate = ga.getGameState();

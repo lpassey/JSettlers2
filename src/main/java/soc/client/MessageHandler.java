@@ -51,6 +51,7 @@ import soc.game.SOCVillage;
 
 import soc.message.*;
 import soc.message.SOCGameElements.GEType;
+import soc.message.SOCInventoryItemAction.IIAction;
 import soc.message.SOCPlayerElement.PEType;
 
 import soc.util.SOCFeatureSet;
@@ -2979,14 +2980,16 @@ import soc.util.Version;
         if (isReject)
         {
             pcl.invItemPlayRejected(mes.itemType, mes.reasonCode);
-        } else {
+        }
+        else
+        {
             SOCGame ga = client.games.get(mes.getGame());
             if (ga != null)
             {
                 final SOCPlayer pl = ga.getPlayer(mes.playerNumber);
                 pcl.playerDevCardsUpdated
-                    (pl, (mes.action == SOCInventoryItemAction.ADD_PLAYABLE));
-                if (mes.action == SOCInventoryItemAction.PLAYED)
+                    (pl, (mes.action == IIAction.ADD_PLAYABLE));
+                if (mes.action == IIAction.PLAYED)
                     pcl.playerCanCancelInvItemPlay(pl, mes.canCancelPlay);
             }
         }

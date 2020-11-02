@@ -44,15 +44,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCSitDown extends SOCMessage
-    implements SOCMessageForGame
+public class SOCSitDown extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Nickname of player; ignored from client, can be "-" or {@link SOCMessage#EMPTYSTR} but not blank
@@ -79,19 +73,10 @@ public class SOCSitDown extends SOCMessage
      */
     public SOCSitDown(String ga, String nk, int pn, boolean rf)
     {
-        messageType = SITDOWN;
-        game = ga;
+        super( SITDOWN, ga );
         nickname = nk;
         playerNumber = pn;
         robotFlag = rf;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -126,7 +111,7 @@ public class SOCSitDown extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, nickname, playerNumber, robotFlag);
+        return super.toCmd() + sep2 + nickname + sep2 + playerNumber + sep2 + robotFlag;
     }
 
     /**
@@ -140,7 +125,7 @@ public class SOCSitDown extends SOCMessage
      */
     public static String toCmd(String ga, String nk, int pn, boolean rf)
     {
-        return SITDOWN + sep + ga + sep2 + nk + sep2 + pn + sep2 + rf;
+        return new SOCSitDown( ga, nk, pn, rf ).toCmd();
     }
 
     /**
@@ -163,7 +148,7 @@ public class SOCSitDown extends SOCMessage
             ga = st.nextToken();
             nk = st.nextToken();
             pn = Integer.parseInt(st.nextToken());
-            rf = (Boolean.valueOf(st.nextToken())).booleanValue();
+            rf = Boolean.valueOf( st.nextToken() );
         }
         catch (Exception e)
         {
@@ -178,6 +163,7 @@ public class SOCSitDown extends SOCMessage
      */
     public String toString()
     {
-        return "SOCSitDown:game=" + game + "|nickname=" + nickname + "|playerNumber=" + playerNumber + "|robotFlag=" + robotFlag;
+        return "SOCSitDown:game=" + getGame() + "|nickname=" + nickname
+            + "|playerNumber=" + playerNumber + "|robotFlag=" + robotFlag;
     }
 }

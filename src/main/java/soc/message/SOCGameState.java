@@ -124,8 +124,7 @@ import soc.game.SOCGame;  // for javadoc's use
  * @author Robert S Thomas &lt;thomas@infolab.northwestern.edu&gt;
  * @see SOCGame#getGameState()
  */
-public class SOCGameState extends SOCMessage
-    implements SOCMessageForGame
+public class SOCGameState extends SOCMessageForGame
 {
     /**
      * Minimum client version (v2.0.00) which can be sent message types with an optional Game State field.
@@ -134,11 +133,6 @@ public class SOCGameState extends SOCMessage
     public static final int VERSION_FOR_GAME_STATE_AS_FIELD = 2000;
 
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Game state
@@ -153,17 +147,8 @@ public class SOCGameState extends SOCMessage
      */
     public SOCGameState(String ga, int gs)
     {
-        messageType = GAMESTATE;
-        game = ga;
+        super( GAMESTATE, ga );
         state = gs;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -181,7 +166,7 @@ public class SOCGameState extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, state);
+        return toCmd( getGame(), state );
     }
 
     /**
@@ -227,7 +212,7 @@ public class SOCGameState extends SOCMessage
      */
     public String toString()
     {
-        String s = "SOCGameState:game=" + game + "|state=" + state;
+        String s = "SOCGameState:game=" + getGame() + "|state=" + state;
 
         return s;
     }

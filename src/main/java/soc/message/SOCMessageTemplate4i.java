@@ -63,15 +63,9 @@ package soc.message;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.18
  */
-public abstract class SOCMessageTemplate4i extends SOCMessage
-    implements SOCMessageForGame
+public abstract class SOCMessageTemplate4i extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1118L;
-
-    /**
-     * Name of the game.
-     */
-    protected String game;
 
     /**
      * First integer parameter.
@@ -103,23 +97,14 @@ public abstract class SOCMessageTemplate4i extends SOCMessage
      * @param p3  Parameter 3
      * @param p4  Parameter 4
      */
-    protected SOCMessageTemplate4i
-        (final int messageType, final String ga, final int p1, final int p2, final int p3, final int p4)
+    protected SOCMessageTemplate4i( final int messageType, final String ga, final int p1,
+        final int p2, final int p3, final int p4 )
     {
-        this.messageType = messageType;
-        game = ga;
+        super( messageType, ga );
         this.p1 = p1;
         this.p2 = p2;
         this.p3 = p3;
         this.p4 = p4;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -161,7 +146,7 @@ public abstract class SOCMessageTemplate4i extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(messageType, game, p1, p2, p3, p4);
+        return toCmd( getType(), getGame(), p1, p2, p3, p4);
     }
 
     /**
@@ -219,7 +204,7 @@ public abstract class SOCMessageTemplate4i extends SOCMessage
      */
     public String toString()
     {
-        return getClass().getSimpleName() + ":game=" + game
+        return getClass().getSimpleName() + ":game=" + getGame()
             + "|param1=" + p1 + "|param2=" + p2
             + "|param3=" + p3 + "|param4=" + p4;
     }

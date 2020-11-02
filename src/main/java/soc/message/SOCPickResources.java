@@ -56,15 +56,10 @@ import java.util.StringTokenizer;
  * @see SOCPickResourceType
  * @author Robert S. Thomas
  */
-public class SOCPickResources extends SOCMessage
-    implements SOCMessageForGame
+public class SOCPickResources extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The set of resources picked to be gained
@@ -95,17 +90,8 @@ public class SOCPickResources extends SOCMessage
      */
     public SOCPickResources(String ga, SOCResourceSet rs)
     {
-        messageType = PICKRESOURCES;
-        game = ga;
+        super( PICKRESOURCES, ga );
         resources = rs;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -124,7 +110,7 @@ public class SOCPickResources extends SOCMessage
      */
     public String toCmd()
     {
-        StringBuilder cmd = new StringBuilder(PICKRESOURCES + sep + game);
+        StringBuilder cmd = new StringBuilder( getType() + sep + getGame() );
 
         for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
                 i++)
@@ -188,7 +174,7 @@ public class SOCPickResources extends SOCMessage
      */
     public String toString()
     {
-        return "SOCPickResources:game=" + game + "|resources=" + resources;
+        return "SOCPickResources:game=" + getGame() + "|resources=" + resources;
     }
 
 }
