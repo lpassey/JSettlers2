@@ -792,6 +792,8 @@ public class SOCPlayerElement extends SOCMessageForGame
 
         if (actType != -1)
             pieces[2] = Integer.toString(actType);
+        PEType peType = PEType.valueOf( pieces[3] );
+        pieces[3] = String.valueOf( peType.getValue() );
         StringBuilder ret = new StringBuilder();
         for (int i = 0; i < pieces.length; ++i)
         {

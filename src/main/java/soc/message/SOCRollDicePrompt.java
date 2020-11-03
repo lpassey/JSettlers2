@@ -85,7 +85,7 @@ public class SOCRollDicePrompt extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return toCmd() + sep2 + playerNumber;
+        return super.toCmd() + sep2 + playerNumber;
     }
 
     /**

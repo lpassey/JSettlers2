@@ -165,6 +165,31 @@ public class SOCMovePiece extends SOCMessageTemplate4i
     }
 
     /**
+     * Strip out the parameter/attribute names from {@link #toString()}'s format,
+     * returning message parameters as a comma-delimited list for {@link SOCMessage#parseMsgStr(String)}.
+     * Converts piece coordinate to decimal from hexadecimal format.
+     * @param messageStrParams Params part of a message string formatted by {@link #toString()}; not {@code null}
+     * @return Message parameters without attribute names, or {@code null} if params are malformed
+     * @since 2.4.50
+     */
+    public static String stripAttribNames(String messageStrParams)
+    {
+        String s = SOCMessage.stripAttribNames(messageStrParams);
+        if (s == null)
+            return null;
+        String[] pieces = s.split(SOCMessage.sep2);
+        SOCPlayingPiece.PieceType peType = SOCPlayingPiece.PieceType.valueOf( pieces[2] );
+        pieces[2] = String.valueOf( peType.getValue() );
+        StringBuilder ret = new StringBuilder();
+        for (int i = 0; i < 3; i++)
+            ret.append(pieces[i]).append( sep2 );
+        ret.append(Integer.parseInt(pieces[3].substring( 2 ), 16)).append( sep2 );
+        ret.append(Integer.parseInt(pieces[4].substring( 2 ), 16));
+
+        return ret.toString();
+    }
+
+    /**
      * Minimum version where this message type is used.
      * MOVEPIECE introduced in 2.0.00.
      * @return Version number, 2000 for JSettlers 2.0.00.

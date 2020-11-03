@@ -112,9 +112,13 @@ public class GameLoaderJSON
              final InputStreamReader reader = new InputStreamReader(fis, "UTF-8"); )
         {
             sgm = gsonb.create().fromJson(reader, SavedGameModel.class);
-        } catch (JsonIOException e) {
+        }
+        catch (JsonIOException e)
+        {
             throw new IOException("JSON: " + e.getMessage(), e);
-        } catch (JsonSyntaxException e) {
+        }
+        catch (JsonSyntaxException e)
+        {
             StringIndexOutOfBoundsException wrap = new StringIndexOutOfBoundsException("JSON: " + e.getMessage());
             wrap.initCause(e);
             throw wrap;

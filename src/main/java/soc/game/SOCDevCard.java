@@ -192,10 +192,33 @@ public class SOCDevCard
      * @see #getCardTypeName(int)
      * @since 2.4.00
      */
-    public static int getCardType(final String ctypeName)
+    public static int getCardType( final String ctypeName )
         throws IllegalArgumentException, NumberFormatException
     {
-        return SOCPlayingPiece.getType(ctypeName, GETCARDTYPENAME_KEYS[2], 0);
+        if ((ctypeName == null) || ctypeName.isEmpty())
+            throw new IllegalArgumentException("typeName empty or null");
+//        if (allTypeNames == null)
+//            throw new IllegalArgumentException("allTypeNames");
+
+        final char c0 = ctypeName.charAt(0);
+        if ((c0 >= '0') && (c0 <= '9'))
+        {
+            return Integer.parseInt(ctypeName);
+        }
+        else if ((c0 >= 'A') && (c0 <= 'Z'))
+        {
+            // for these very small arrays, linear search is fast enough
+            for (int i = 0; i < GETCARDTYPENAME_KEYS[2].length; ++i)
+                if (ctypeName.equals(GETCARDTYPENAME_KEYS[2][i]))
+                    return i;
+
+            return 0;
+        }
+        else
+        {
+            throw new IllegalArgumentException("typeName format");
+        }
+//        return SOCPlayingPiece.getType(ctypeName, GETCARDTYPENAME_KEYS[2], 0);
     }
 
     /**

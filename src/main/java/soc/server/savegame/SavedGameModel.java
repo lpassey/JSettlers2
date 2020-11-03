@@ -1169,7 +1169,9 @@ public class SavedGameModel
                         // handles int (3 or "3") or string from getPieceTypeName ("CITY")
                     if (ptype == -1)
                         throw new IOException("unknown pieceType: " + ptStr);
-                } catch (RuntimeException e) {
+                }
+                catch (RuntimeException e)
+                {
                     throw new IOException("can't parse pieceType", e);
                 }
                 try
@@ -1219,10 +1221,8 @@ public class SavedGameModel
                         throw new IOException("can't parse specialVP", e);
                     }
                 }
-
                 return pp;
             }
-
         }
     }
 

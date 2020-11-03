@@ -163,7 +163,7 @@ public class SOCSetSeatLock extends SOCMessageForGame
         else
         {
             StringBuilder sb = new StringBuilder( super.toCmd() );
-            for (int pn = 0; pn < states.length; ++pn)
+            for (SeatLockState seatLockState : states )
             {
                 sb.append( sep2_char );
                 sb.append( (seatLockState == SeatLockState.LOCKED) ? "true"
@@ -205,31 +205,33 @@ public class SOCSetSeatLock extends SOCMessageForGame
         int pn; // the number of the changing player
         final SeatLockState ls; // the state of the lock
 
-        StringTokenizer st = new StringTokenizer(s, sep2);
+        StringTokenizer st = new StringTokenizer( s, sep2 );
 
         try
         {
             ga = st.nextToken();
             final String tok = st.nextToken();
-            if (Character.isDigit(tok.charAt(0)))
+            if (Character.isDigit( tok.charAt( 0 ) ))
             {
-                pn = Integer.parseInt(tok);
-                ls = parseLockState(st.nextToken());
+                pn = Integer.parseInt( tok );
+                ls = parseLockState( st.nextToken() );
 
-                return new SOCSetSeatLock(ga, pn, ls);
-            } else {
+                return new SOCSetSeatLock( ga, pn, ls );
+            }
+            else
+            {
                 final int np = 1 + st.countTokens();
                 if ((np != 4) && (np != 6))
                     return null;
                 final SeatLockState[] sls = new SeatLockState[np];
-                sls[0] = parseLockState(tok);
+                sls[0] = parseLockState( tok );
                 for (pn = 1; pn < np; ++pn)
-                    sls[pn] = parseLockState(st.nextToken());
+                    sls[pn] = parseLockState( st.nextToken() );
 
-                return new SOCSetSeatLock(ga, sls);
+                return new SOCSetSeatLock( ga, sls );
             }
         }
-        catch (Exception e)
+        catch( Exception e )
         {
             return null;
         }
@@ -250,11 +252,11 @@ public class SOCSetSeatLock extends SOCMessageForGame
     {
         final SeatLockState ls;
 
-        if (lockst.equals("true"))
+        if (lockst.equals("true") || "LOCKED".equalsIgnoreCase( lockst ))
             ls = SeatLockState.LOCKED;
-        else if (lockst.equals("false"))
+        else if (lockst.equals("false") || "UNLOCKED".equalsIgnoreCase( lockst ))
             ls = SeatLockState.UNLOCKED;
-        else if (lockst.equals("clear"))
+        else if (lockst.equals("clear") || "CLEAR_ON_RESET".equalsIgnoreCase( lockst ))
             ls = SeatLockState.CLEAR_ON_RESET;
         else
             throw new InputMismatchException("lockstate: " + lockst);

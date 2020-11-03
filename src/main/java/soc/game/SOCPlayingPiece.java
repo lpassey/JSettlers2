@@ -416,7 +416,7 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
      * @see #getType(String)
      * @since 2.4.00
      */
-    public static String getTypeName(final int pieceType)
+    public static String getTypeName( final int pieceType )
         throws IllegalArgumentException
     {
         return PieceType.valueOf( pieceType ).name();
@@ -467,11 +467,12 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
      * @see #getTypeName(int)
      * @since 2.4.00
      */
-    public static int getType(final String typeName)
-        throws IllegalArgumentException, NumberFormatException
-    {
-        return PieceType.valueOf( typeName ).getValue();
-    }
+//    public static int getType( final String typeName )
+//        throws IllegalArgumentException, NumberFormatException
+//    {
+////        return getType(typeName, PIECETYPE_NAMES, -1);
+//        throw new IllegalArgumentException();
+//    }
 
     /**
      * For game items which have different type constants ({@link SOCPlayingPiece}, {@link SOCDevCard}, etc),
@@ -492,30 +493,20 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
      * @see #getTypeName(int, String[])
      * @since 2.4.00
      */
-    public static int getType(final String typeName, final String[] allTypeNames, final int unknownValue)
+    public static int getType( final String typeName )
         throws IllegalArgumentException, NumberFormatException
     {
         if ((typeName == null) || typeName.isEmpty())
             throw new IllegalArgumentException("typeName empty or null");
-        if (allTypeNames == null)
-            throw new IllegalArgumentException("allTypeNames");
 
         final char c0 = typeName.charAt(0);
         if ((c0 >= '0') && (c0 <= '9'))
         {
             return Integer.parseInt(typeName);
         }
-        else if ((c0 >= 'A') && (c0 <= 'Z'))
+        else
         {
-            // for these very small arrays, linear search is fast enough
-            for (int i = 0; i < allTypeNames.length; ++i)
-                if (typeName.equals(allTypeNames[i]))
-                    return i;
-
-            return unknownValue;
-        } else {
-            throw new IllegalArgumentException("typeName format");
+            return PieceType.valueOf( typeName ).getValue();
         }
     }
-
 }

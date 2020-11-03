@@ -1133,62 +1133,68 @@ public abstract class SOCMessage implements Serializable, Cloneable
         // pieces[1] = params
 
         if (messageStr == null)
-            throw new ParseException("null messageStr", 0);
-        final int colonIdx = messageStr.indexOf(':');
+            throw new ParseException( "null messageStr", 0 );
+        final int colonIdx = messageStr.indexOf( ':' );
         if (colonIdx < 1)
-            throw new ParseException("Missing \"SomeMsgClassName:\" prefix", 0);
+            throw new ParseException( "Missing \"SomeMsgClassName:\" prefix", 0 );
         String className = null;
         String currentCall = null;
 
         try
         {
-            className = messageStr.substring(0, colonIdx);
-            String msgBody = messageStr.substring(colonIdx+1);
+            className = messageStr.substring( 0, colonIdx );
+            String msgBody = messageStr.substring( colonIdx + 1 );
 
             final String origClassName = className,
-                renamedClassName = MESSAGE_RENAME_MAP.get(className);
+                renamedClassName = MESSAGE_RENAME_MAP.get( className );
             if (renamedClassName != null)
                 className = renamedClassName;
 
             @SuppressWarnings("unchecked")
-            Class<SOCMessage> c = (Class<SOCMessage>) Class.forName("soc.message." + className);
+            Class<SOCMessage> c = (Class<SOCMessage>) Class.forName( "soc.message." + className );
 
             Method m;
 
             // if SOCMessageMulti, look for stripAttribsToList first
-            if (SOCMessageMulti.class.isAssignableFrom(c))
+            if (   (SOCMessageMulti.class.isAssignableFrom( c ))
+                || (SOCMessageTemplateMi.class.isAssignableFrom( c )))
             {
                 try
                 {
-                    m = c.getMethod("stripAttribsToList", String.class);
-                    if (! Modifier.isStatic(m.getModifiers()))
+                    m = c.getMethod( "stripAttribsToList", String.class );
+                    if (!Modifier.isStatic( m.getModifiers() ))
                         throw new ParseException
-                            (className + ".stripAttribsToList must be static", 0);
+                            ( className + ".stripAttribsToList must be static", 0 );
                     currentCall = m.getDeclaringClass().getName() + "." + "stripAttribsToList";
                     @SuppressWarnings("unchecked")
-                    List<String> treatedAttribs = (List<String>) m.invoke(null, msgBody);
+                    List<String> treatedAttribs = (List<String>) m.invoke( null, msgBody );
                     if (treatedAttribs == null)
                         throw new InputMismatchException
-                            ("Unparsable message: stripAttribsToList rets null: " + messageStr);
+                            ( "Unparsable message: stripAttribsToList rets null: " + messageStr );
 
                     try
                     {
-                        m = c.getMethod("parseDataStr", List.class);
-                    } catch (NoSuchMethodException e) {
-                        throw new ParseException
-                            (className + ".parseDataStr(List) not found", 0);
+                        m = c.getMethod( "parseDataStr", List.class );
                     }
-                    if (! Modifier.isStatic(m.getModifiers()))
+                    catch( NoSuchMethodException e )
+                    {
                         throw new ParseException
-                            (className + ".parseDataStr(List) must be static", 0);
+                            ( className + ".parseDataStr(List) not found", 0 );
+                    }
+                    if (!Modifier.isStatic( m.getModifiers() ))
+                        throw new ParseException
+                            ( className + ".parseDataStr(List) must be static", 0 );
                     currentCall = m.getDeclaringClass().getName() + "." + "parseDataStr";
-                    Object o = m.invoke(null, treatedAttribs);
+                    Object o = m.invoke( null, treatedAttribs );
                     if (o == null)
                         throw new InputMismatchException
-                            ("Unparsable message: parseDataStr(List) rets null: " + messageStr);
+                            ( "Unparsable message: parseDataStr(List) rets null: " + messageStr );
 
                     return (SOCMessage) o;
-                } catch (NoSuchMethodException e) {}
+                }
+                catch( NoSuchMethodException e )
+                {
+                }
             }
 
             String treatedAttribs = null;  // output from stripAttribNames
@@ -1198,47 +1204,52 @@ public abstract class SOCMessage implements Serializable, Cloneable
                 // in case this is a renamed message type's old or new name,
                 // look first for stripAttribNames(String,String) to pass message type name
 
-                m = c.getMethod("stripAttribNames", String.class, String.class);
+                m = c.getMethod( "stripAttribNames", String.class, String.class );
                 currentCall = m.getDeclaringClass().getName() + "." + "stripAttribNames(String,String)";
-                if (! Modifier.isStatic(m.getModifiers()))
+                if (!Modifier.isStatic( m.getModifiers() ))
                     throw new ParseException
-                        (currentCall + " must be static", 0);
-                if (! m.getReturnType().equals(String.class))
+                        ( currentCall + " must be static", 0 );
+                if (!m.getReturnType().equals( String.class ))
                     throw new ParseException
-                        (currentCall + " must return String", 0);
+                        ( currentCall + " must return String", 0 );
 
                 treatedAttribs = (String) m.invoke
-                    (null, (origClassName != null) ? origClassName : className, msgBody);
+                    ( null, (origClassName != null) ? origClassName : className, msgBody );
                 if (treatedAttribs == null)
                     throw new InputMismatchException
-                        ("Unparsable message: stripAttribNames(String,String) rets null: " + messageStr);
-            } catch (NoSuchMethodException e) {}
+                        ( "Unparsable message: stripAttribNames(String,String) rets null: " + messageStr );
+            }
+            catch( NoSuchMethodException e )
+            {
+            }
 
             if (treatedAttribs == null)
             {
                 // call message class's or SOCMessage's stripAttribNames(String)
 
-                m = c.getMethod("stripAttribNames", String.class);
+                m = c.getMethod( "stripAttribNames", String.class );
                 currentCall = m.getDeclaringClass().getName() + "." + "stripAttribNames(String)";
-                if (! Modifier.isStatic(m.getModifiers()))
+                if (!Modifier.isStatic( m.getModifiers() ))
                     throw new ParseException
-                        (currentCall + " must be static", 0);
+                        ( currentCall + " must be static", 0 );
                 // no need to check return type, because it's declared in SOCMessage as String
                 // and any change in a subclass is a syntax error
 
-                treatedAttribs = (String) m.invoke(null,  msgBody);
+                treatedAttribs = (String) m.invoke( null, msgBody );
             }
             if (treatedAttribs == null)
+            {
                 throw new InputMismatchException
-                    ("Unparsable message: stripAttribNames rets null: " + messageStr);
-
-            m = c.getMethod("parseDataStr", String.class);
+                    ( "Unparsable message: stripAttribNames rets null: " + messageStr );
+            }
+            m = c.getMethod( "parseDataStr", String.class );
             currentCall = m.getDeclaringClass().getName() + "." + "parseDataStr";
-            if (! Modifier.isStatic(m.getModifiers()))
+            if (!Modifier.isStatic( m.getModifiers() ))
+            {
                 throw new ParseException
-                    (currentCall + " must be static", 0);
-
-            Object o = m.invoke(null, treatedAttribs);
+                    ( currentCall + " must be static", 0 );
+            }
+            Object o = m.invoke( null, treatedAttribs );
             if (o == null)
             {
                 // This occurs when a message can't be parsed.  Likely means stripAttribNames
@@ -1247,25 +1258,35 @@ public abstract class SOCMessage implements Serializable, Cloneable
                 //  log file, just in case.
 
                 throw new InputMismatchException
-                    ("Unparsable message: parseDataStr rets null: " + messageStr);
+                    ( "Unparsable message: parseDataStr rets null: " + messageStr );
             }
 
             return (SOCMessage) o;
-        } catch (ClassNotFoundException ex) {
+        }
+        catch( ClassNotFoundException ex )
+        {
             throw new ParseException
-                ("Class not found" + ((className != null) ? ": " + className : "") + ": " + messageStr, 0);
-        } catch (InvocationTargetException ex) {
+                ( "Class not found" + ((className != null) ? ": " + className : "") + ": " + messageStr, 0 );
+        }
+        catch( InvocationTargetException ex )
+        {
             throw new ParseException
-                ("Exception from " + currentCall + ": " + ex.getCause(), 0);
-        } catch (NoSuchMethodException | SecurityException
-            | IllegalAccessException | ExceptionInInitializerError ex) {
+                ( "Exception from " + currentCall + ": " + ex.getCause(), 0 );
+        }
+        catch( NoSuchMethodException | SecurityException
+            | IllegalAccessException | ExceptionInInitializerError ex )
+        {
             throw new ParseException
-                ("Reflection error calling " + currentCall + ": " + ex, 0);
-        } catch (InputMismatchException ex) {
+                ( "Reflection error calling " + currentCall + ": " + ex, 0 );
+        }
+        catch( InputMismatchException ex )
+        {
             throw ex;  // probably from recursive or "super" call of this method
-        } catch (Exception ex) {
+        }
+        catch( Exception ex )
+        {
             throw new ParseException
-                ("Exception from " + currentCall + ": " + ex, 0);
+                ( "Exception from " + currentCall + ": " + ex, 0 );
         }
     }
 

@@ -225,8 +225,9 @@ public class SOCDebugFreePlace extends SOCMessageForGame
         String[] pieces = s.split(SOCMessage.sep2);
 
         StringBuilder ret = new StringBuilder();
-        for (int i = 0; i < 3; i++)
-            ret.append(pieces[i]).append(sep2_char);
+        for (int i = 0; i < 2; i++)
+            ret.append(pieces[i]).append(sep2);
+        ret.append( PieceType.valueOf( pieces[2] ).getValue()).append( sep2 );
         ret.append(Integer.parseInt(pieces[3].substring(2), 16));  // skip "0x"
 
         return ret.toString();

@@ -21,9 +21,12 @@ package soc.message;
 import java.util.ArrayList;
 import java.util.List;
 
+import soc.game.SOCPlayingPiece;
 import soc.game.SOCResourceConstants;
 import soc.game.SOCResourceSet;
 import soc.message.SOCPlayerElement.PEType;
+
+import static soc.game.SOCPlayingPiece.*;
 
 /**
  * This message from the server sends information on some parts of a player's status,
@@ -275,6 +278,7 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
      * @return Message parameters to finish parsing into a SOCMessage, or {@code null} if malformed
      * @since 2.4.50
      */
+    @SuppressWarnings("unused")
     public static List<String> stripAttribsToList(String messageStrParams)
     {
         // don't call SOCMessage.stripAttribsToList, we need the e# names in elemNum=value pairs
@@ -317,18 +321,14 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
         }
         ret.add(act);
 
-        // "e5=9,e7=12" -> "5", "9, "7", "12"
+        // "CLAY=9,SHEEP=12" -> "0", "9, "3", "12"
         pieces = pieces[3].split(",");
         for (String piece : pieces)
         {
-            if (piece.charAt( 0 ) != 'e')
-                return null;
-
             int j = piece.indexOf( '=' );
-            if (j < 2)
-                return null;
-
-            ret.add( piece.substring( 1, j ) );
+            String pieceName = piece.substring( 0, j );
+            PEType pieceType = PEType.valueOf( pieceName );
+            ret.add( String.valueOf( pieceType.getValue() ));
             ret.add( piece.substring( j + 1 ) );
         }
 

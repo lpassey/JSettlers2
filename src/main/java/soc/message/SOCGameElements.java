@@ -313,7 +313,9 @@ public class SOCGameElements extends SOCMessageTemplateMi
             }
 
             return new SOCGameElements(gaName, elementTypes, values);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             return null;
         }
     }
@@ -348,14 +350,15 @@ public class SOCGameElements extends SOCMessageTemplateMi
         pieces = pieces[1].split(",");
         for (String piece : pieces)
         {
-            if (piece.charAt( 0 ) != 'e')
-                return null;
+//            if (piece.charAt( 0 ) != 'e')
+//                return null;
 
             int j = piece.indexOf( '=' );
-            if (j < 2)
-                return null;
-
-            ret.add( piece.substring( 1, j ) );
+//            if (j < 2)
+//                return null;
+            String typeName = piece.substring( 0, j );
+            GEType elementType = GEType.valueOf( typeName );
+            ret.add( String.valueOf( elementType.getValue() ));
             ret.add( piece.substring( j + 1 ) );
         }
 
@@ -383,5 +386,4 @@ public class SOCGameElements extends SOCMessageTemplateMi
 
         return sb.toString();
     }
-
 }

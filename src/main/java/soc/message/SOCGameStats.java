@@ -164,7 +164,7 @@ public class SOCGameStats extends SOCMessageForGame
     {
         StringBuilder text = new StringBuilder("SOCGameStats:game=");
         text.append( getGame() );
-        for (int i = 0; i < scores.length; i++)
+        for (int score : scores )
         {
             text.append( "|" );
             text.append( score );

@@ -22,6 +22,10 @@ package soc.message;
 import java.util.StringTokenizer;
 
 import soc.game.SOCPlayingPiece;
+import soc.game.SOCPlayingPiece.PieceType;
+
+import static soc.message.SOCPlayerElement.*;
+import static soc.message.SOCPlayerElement.PEType.*;
 
 /**
  * This message from server announces a SOCShip removed from the board.
@@ -122,6 +126,30 @@ public class SOCRemovePiece extends SOCMessageTemplate3i
     }
 
     /**
+     * Strip out the parameter/attribute names from {@link #toString()}'s format,
+     * returning message parameters as a comma-delimited list for {@link SOCMessage#parseMsgStr(String)}.
+     * Converts piece coordinate to decimal from hexadecimal format.
+     * @param messageStrParams Params part of a message string formatted by {@link #toString()}; not {@code null}
+     * @return Message parameters without attribute names, or {@code null} if params are malformed
+     * @since 2.4.50
+     */
+    public static String stripAttribNames(String messageStrParams)
+    {
+        String s = SOCMessage.stripAttribNames(messageStrParams);
+        if (s == null)
+            return null;
+        String[] pieces = s.split(SOCMessage.sep2);
+        PieceType peType = PieceType.valueOf( pieces[2] );
+        pieces[2] = String.valueOf( peType.getValue() );
+        StringBuilder ret = new StringBuilder();
+        for (int i = 0; i < 3; i++)
+            ret.append(pieces[i]).append(sep2_char);
+        ret.append(Integer.parseInt(pieces[3].substring( 2 ), 16));
+
+        return ret.toString();
+    }
+
+    /**
      * Minimum version where this message type is used.
      * REMOVEPIECE introduced in 2.0.00 for the Pirate Islands scenario ({@code _SC_PIRI}).
      * @return Version number, 2000 for JSettlers 2.0.00.
@@ -138,7 +166,7 @@ public class SOCRemovePiece extends SOCMessageTemplate3i
     public String toString()
     {
         return "SOCRemovePiece:game=" + getGame()
-            + "|pn=" + p1 + "|pieceType=" + p2 + "|coord=" + p3;
+            + "|pn=" + p1 + "|pieceType=" + PieceType.valueOf( p2 ) + "|coord=" + p3;
     }
 
 }

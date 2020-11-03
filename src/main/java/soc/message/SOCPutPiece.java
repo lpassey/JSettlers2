@@ -219,11 +219,12 @@ public class SOCPutPiece extends SOCMessageForGame
         if (s == null)
             return null;
         String[] pieces = s.split(SOCMessage.sep2);
-
+        PieceType peType = PieceType.valueOf( pieces[2] );
+        pieces[2] = String.valueOf( peType.getValue() );
         StringBuilder ret = new StringBuilder();
         for (int i = 0; i < 3; i++)
             ret.append(pieces[i]).append(sep2_char);
-        ret.append(Integer.parseInt(pieces[3], 16));
+        ret.append(Integer.parseInt(pieces[3].substring( 2 ), 16));
 
         return ret.toString();
     }

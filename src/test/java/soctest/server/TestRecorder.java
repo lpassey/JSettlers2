@@ -725,8 +725,8 @@ public class TestRecorder
         StringBuilder comparesBuyCard = compareRecordsToExpected
             (records, new String[][]
             {
-                {"all:SOCPlayerElements:", "|playerNum=3|actionType=LOSE|e2=1,e3=1,e4=1"},
-                {"all:SOCGameElements:", "|e2=22"},
+                {"all:SOCPlayerElements:", "|playerNum=3|actionType=LOSE|ORE=1,SHEEP=1,WHEAT=1"},
+                {"all:SOCGameElements:", "|DEV_CARD_COUNT=22"},
                 {"p3:SOCDevCardAction:", "|playerNum=3|actionType=DRAW|cardType=5"},  // type known from savegame devCardDeck
                 {"!p3:SOCDevCardAction:", "|playerNum=3|actionType=DRAW|cardType=0"},
                 {"all:SOCSimpleAction:", "|pn=3|actType=1|v1=22|v2=0"},
@@ -753,8 +753,8 @@ public class TestRecorder
                 {
                     {"all:SOCGameServerText:", "|text=" + CLIENT_NAME + " played a Soldier card."},
                     {"all:SOCDevCardAction:", "|playerNum=3|actionType=PLAY|cardType=9"},
-                    {"all:SOCPlayerElement:", "|playerNum=3|actionType=SET|elementType=19|amount=1"},
-                    {"all:SOCPlayerElement:", "|playerNum=3|actionType=GAIN|elementType=15|amount=1"}
+                    {"all:SOCPlayerElement:", "|playerNum=3|actionType=SET|elementType=PLAYED_DEV_CARD_FLAG|amount=1"},
+                    {"all:SOCPlayerElement:", "|playerNum=3|actionType=GAIN|elementType=NUMKNIGHTS|amount=1"}
                 });
 
         /* leave game, consolidate results */
@@ -767,6 +767,7 @@ public class TestRecorder
         {
             compares.append("Build road: Message mismatch: ");
             compares.append(comparesBuild);
+            System.out.println(comparesBuild);
         }
         if (comparesBuyCard != null)
         {
@@ -774,6 +775,7 @@ public class TestRecorder
                 compares.append("   ");
             compares.append("Buy dev card: Message mismatch: ");
             compares.append(comparesBuyCard);
+            System.out.println(comparesBuyCard);
         }
         if (comparesSoldierMoveRobber != null)
         {
@@ -781,6 +783,7 @@ public class TestRecorder
                 compares.append("   ");
             compares.append("Play soldier Move robber: Message mismatch: ");
             compares.append(comparesSoldierMoveRobber);
+            System.out.println(comparesSoldierMoveRobber);
         }
 
         if (compares.length() > 0)
@@ -837,10 +840,10 @@ public class TestRecorder
         return compareRecordsToExpected
             (records, new String[][]
             {
-                {"all:SOCPlayerElements:", "|playerNum=3|actionType=LOSE|e1=1,e5=1"},
+                {"all:SOCPlayerElements:", "|playerNum=3|actionType=LOSE|CLAY=1,WOOD=1"},
                 ((withBuildRequest) ? new String[]{"all:SOCGameState:", "|state=30"} : null),
                 {"all:SOCGameServerText:", "|text=" + clientName + " built a road."},
-                {"all:SOCPutPiece:", "|playerNumber=3|pieceType=0|coord=40a"},
+                {"all:SOCPutPiece:", "|playerNumber=3|pieceType=ROAD|coord=0x40a"},
                 {"all:SOCGameState:", "|state=20"}
             });
     }
