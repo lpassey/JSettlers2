@@ -84,7 +84,7 @@ public class SOCNewGameWithOptionsRequest extends SOCMessageTemplateJoinGame
      */
     public SOCNewGameWithOptionsRequest(String nn, String pw, String hn, String ga, String optstr)
     {
-        super(nn, pw, hn, ga);
+        super( NEWGAMEWITHOPTIONSREQUEST, nn, pw, hn, ga);
         optsStr = optstr;
         opts = null;
     }

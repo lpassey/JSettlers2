@@ -71,9 +71,9 @@ public abstract class SOCMessageTemplateJoinGame extends SOCMessage
      * @param hn  unused; optional server host name, or "-" or {@link SOCMessage#EMPTYSTR}
      * @param ga  name of the game
      */
-    public SOCMessageTemplateJoinGame(String nn, String pw, String hn, String ga)
+    public SOCMessageTemplateJoinGame(int messageType, String nn, String pw, String hn, String ga)
     {
-        super( JOINGAME );
+        super( messageType );
         nickname = nn;
         password = (pw != null) ? pw : "";
         game = ga;
