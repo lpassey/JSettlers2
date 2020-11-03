@@ -137,7 +137,7 @@ public class SOCRemovePiece extends SOCMessageTemplate3i
     @Override
     public String toString()
     {
-        return "SOCRemovePiece:game=" + game
+        return "SOCRemovePiece:game=" + getGame()
             + "|pn=" + p1 + "|pieceType=" + p2 + "|coord=" + p3;
     }
 

@@ -34,15 +34,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCDevCardCount extends SOCMessage
-    implements SOCMessageForGame
+public class SOCDevCardCount extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The number of dev cards
@@ -57,17 +51,8 @@ public class SOCDevCardCount extends SOCMessage
      */
     public SOCDevCardCount(String ga, int nd)
     {
-        messageType = DEVCARDCOUNT;
-        game = ga;
+        super( DEVCARDCOUNT, ga );
         numDevCards = nd;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -85,7 +70,7 @@ public class SOCDevCardCount extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, numDevCards);
+        return toCmd( getGame(), numDevCards );
     }
 
     /**
@@ -131,7 +116,7 @@ public class SOCDevCardCount extends SOCMessage
      */
     public String toString()
     {
-        return "SOCDevCardCount:game=" + game + "|numDevCards=" + numDevCards;
+        return "SOCDevCardCount:game=" + getGame() + "|numDevCards=" + numDevCards;
     }
 
 }

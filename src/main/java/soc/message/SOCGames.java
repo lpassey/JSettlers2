@@ -111,7 +111,7 @@ public class SOCGames extends SOCMessage
      */
     private SOCGames(List<String> ga, final boolean clientMarker)
     {
-        messageType = GAMES;
+        super( GAMES );
         games = ga;
     }
 

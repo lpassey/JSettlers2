@@ -348,13 +348,15 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
             act = Integer.toString(actionType);
 
         StringBuilder sb = new StringBuilder
-            ("SOCPlayerElements:game=" + game + "|playerNum=" + playerNumber + "|actionType=" + act + '|');
+            ("SOCPlayerElements:game=" + getGame() + "|playerNum=" + playerNumber + "|actionType=" + act + '|');
         for (int i = 2; i < pa.length; )
         {
             if (i > 2)
                 sb.append(',');
-            sb.append('e');
-            sb.append(pa[i]);  ++i;
+//            sb.append('e');
+//            sb.append(pa[i]);
+            sb.append( PEType.valueOf( pa[i] ).name() );
+            ++i;
             sb.append('=');
             sb.append(pa[i]);  ++i;
         }

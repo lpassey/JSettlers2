@@ -42,15 +42,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCMakeOffer extends SOCMessage
-    implements SOCMessageForGame
+public class SOCMakeOffer extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The offer being made
@@ -68,17 +62,8 @@ public class SOCMakeOffer extends SOCMessage
      */
     public SOCMakeOffer(String ga, SOCTradeOffer of)
     {
-        messageType = MAKEOFFER;
-        game = ga;
+        super( MAKEOFFER, ga );
         offer = of;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -99,7 +84,7 @@ public class SOCMakeOffer extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, offer);
+        return toCmd(getGame(), offer);
     }
 
     /**
@@ -236,7 +221,6 @@ public class SOCMakeOffer extends SOCMessage
      */
     public String toString()
     {
-        return "SOCMakeOffer:game=" + game + "|offer=" + offer;
+        return "SOCMakeOffer:game=" + getGame() + "|offer=" + offer;
     }
-
 }

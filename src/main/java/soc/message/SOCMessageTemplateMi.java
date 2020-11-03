@@ -63,15 +63,9 @@ package soc.message;
  * @since 1.1.00
  * @see SOCMessageTemplateMs
  */
-public abstract class SOCMessageTemplateMi extends SOCMessageMulti
-    implements SOCMessageForGame
+public abstract class SOCMessageTemplateMi extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;
-
-    /**
-     * Name of the game, or null if none.
-     */
-    protected String game;
 
     /**
      * Array of int parameters, or null if none.
@@ -90,17 +84,8 @@ public abstract class SOCMessageTemplateMi extends SOCMessageMulti
      */
     protected SOCMessageTemplateMi(int id, String ga, int[] parr)
     {
-        messageType = id;
-        game = ga;
+        super( id, ga );
         pa = parr;
-    }
-
-    /**
-     * @return the name of the game, or null if none
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -118,7 +103,7 @@ public abstract class SOCMessageTemplateMi extends SOCMessageMulti
      */
     public String toCmd()
     {
-        return toCmd(messageType, game, pa);
+        return toCmd( getType(), getGame(), pa);
     }
 
     /**
@@ -187,10 +172,10 @@ public abstract class SOCMessageTemplateMi extends SOCMessageMulti
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        if (game != null)
+        if (getGame() != null)
         {
             sb.append (":game=");
-            sb.append (game);
+            sb.append (getGame());
         }
         if (pa != null)
         {

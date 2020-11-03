@@ -46,18 +46,12 @@ import java.util.StringTokenizer;
  * @author Jeremy D. Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public class SOCRollDicePrompt extends SOCMessage
-    implements SOCMessageForGame
+public class SOCRollDicePrompt extends SOCMessageForGame
 {
     /** Class marked for v1.1.11 with SOCMessageForGame.
      *  Introduced at v1.1.00.
      */
     private static final long serialVersionUID = 1111L;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The player whose turn it is to roll
@@ -72,17 +66,8 @@ public class SOCRollDicePrompt extends SOCMessage
      */
     public SOCRollDicePrompt(String ga, int pn)
     {
-        messageType = ROLLDICEPROMPT;
-        game = ga;
+        super( ROLLDICEPROMPT, ga );
         playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -100,7 +85,7 @@ public class SOCRollDicePrompt extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber);
+        return toCmd() + sep2 + playerNumber;
     }
 
     /**
@@ -112,7 +97,7 @@ public class SOCRollDicePrompt extends SOCMessage
      */
     public static String toCmd(String ga, int pn)
     {
-        return ROLLDICEPROMPT + sep + ga + sep2 + pn;
+        return new SOCRollDicePrompt( ga, pn ).toCmd();
     }
 
     /**
@@ -146,7 +131,7 @@ public class SOCRollDicePrompt extends SOCMessage
      */
     public String toString()
     {
-        return "SOCRollDicePrompt:game=" + game + "|playerNumber=" + playerNumber;
+        return "SOCRollDicePrompt:game=" + getGame() + "|playerNumber=" + playerNumber;
     }
 
     /**

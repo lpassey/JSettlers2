@@ -48,6 +48,7 @@ import soc.message.SOCPlayerElement.PEType;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static soc.message.SOCInventoryItemAction.IIAction.*;
 
 /**
  * A few tests for {@link SOCMessage} formats and parsing:
@@ -523,26 +524,26 @@ public class TestToCmdToStringParse
         },
         {new SOCImARobot("robot 7", "**", "soc.robot.SomeExample"), "1022|robot 7,**,soc.robot.SomeExample", "SOCImARobot:nickname=robot 7|cookie=**|rbclass=soc.robot.SomeExample"},
         {
-            new SOCInventoryItemAction("ga", 3, SOCInventoryItemAction.PLAY, 3),
+            new SOCInventoryItemAction("ga", 3, PLAY, 3),
             "1098|ga,3,4,3",
             "SOCInventoryItemAction:game=ga|playerNum=3|action=PLAY|itemType=3|rc=0",
             OPT_SKIP_PARSE
             // TODO +stripAttribNames
         },
         {
-            new SOCInventoryItemAction("ga", 3, SOCInventoryItemAction.CANNOT_PLAY, 3, 1),
+            new SOCInventoryItemAction("ga", 3, CANNOT_PLAY, 3, 1),
             "1098|ga,3,5,3,1",
             "SOCInventoryItemAction:game=ga|playerNum=3|action=CANNOT_PLAY|itemType=3|rc=1",
             OPT_SKIP_PARSE
         },
         {
-            new SOCInventoryItemAction("ga", 3, SOCInventoryItemAction.ADD_OTHER, 5, true, false, true),
+            new SOCInventoryItemAction("ga", 3, ADD_OTHER, 5, true, false, true),
             "1098|ga,3,3,5,5",
             "SOCInventoryItemAction:game=ga|playerNum=3|action=ADD_OTHER|itemType=5|kept=true|isVP=false|canCancel=true",
             OPT_SKIP_PARSE
         },
         {
-            new SOCInventoryItemAction("ga", 3, SOCInventoryItemAction.ADD_PLAYABLE, 2, false, false, false),
+            new SOCInventoryItemAction("ga", 3, ADD_PLAYABLE, 2, false, false, false),
             "1098|ga,3,2,2",
             "SOCInventoryItemAction:game=ga|playerNum=3|action=ADD_PLAYABLE|itemType=2|kept=false|isVP=false|canCancel=false",
             OPT_SKIP_PARSE

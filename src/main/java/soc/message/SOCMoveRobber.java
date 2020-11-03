@@ -51,15 +51,10 @@ import soc.game.SOCGame;  // for javadocs only
  * @author Robert S Thomas
  * @see SOCMovePiece
  */
-public class SOCMoveRobber extends SOCMessage
-    implements SOCMessageForGame
+public class SOCMoveRobber extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
-    /**
-     * the name of the game
-     */
-    private String game;
 
     /**
      * the number of the player moving the robber
@@ -80,18 +75,9 @@ public class SOCMoveRobber extends SOCMessage
      */
     public SOCMoveRobber(String na, int pn, int co)
     {
-        messageType = MOVEROBBER;
-        game = na;
+        super( MOVEROBBER, na );
         playerNumber = pn;
         coordinates = co;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -120,7 +106,7 @@ public class SOCMoveRobber extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber, coordinates);
+        return toCmd( getGame(), playerNumber, coordinates );
     }
 
     /**
@@ -194,7 +180,7 @@ public class SOCMoveRobber extends SOCMessage
      */
     public String toString()
     {
-        return "SOCMoveRobber:game=" + game + "|playerNumber=" + playerNumber + "|coord="
+        return  "SOCMoveRobber:game=" + getGame() + "|playerNumber=" + playerNumber + "|coord="
             + ((coordinates >= 0)
               ? Integer.toHexString(coordinates)
               : ("-" + Integer.toHexString(- coordinates)));

@@ -37,7 +37,6 @@ import soc.game.SOCGame;  // for javadocs only
  * @since 2.0.00
  */
 public class SOCGameElements extends SOCMessageTemplateMi
-    implements SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -47,7 +46,7 @@ public class SOCGameElements extends SOCMessageTemplateMi
     public static final int MIN_VERSION = 2000;
 
     /**
-     * Game element type list.
+     * Game element type enumeration.
      * To send over the network as an int, use {@link #getValue()}.
      * When received from network as int, use {@link #valueOf(int)} to convert to {@link GEType}.
      *<P>
@@ -151,15 +150,16 @@ public class SOCGameElements extends SOCMessageTemplateMi
         /**
          * Get a GEType from its int {@link #getValue()}, if type is known.
          * @param ti  Type int value ({@link #DEV_CARD_COUNT} == 2, etc).
-         * @return  GEType for that value, or {@code null} if unknown
+         * @return  GEType for that value, or {@code UNKNOWN_TYPE} if unknown
          */
-        public static GEType valueOf(final int ti)
+        public static GEType valueOf( final int ti )
         {
             for (GEType et : values())
+            {
                 if (et.value == ti)
                     return et;
-
-            return null;
+            }
+            return UNKNOWN_TYPE;
         }
 
         /**
@@ -368,13 +368,15 @@ public class SOCGameElements extends SOCMessageTemplateMi
     public String toString()
     {
         StringBuilder sb = new StringBuilder
-            ("SOCGameElements:game=" + game + '|');
+            ("SOCGameElements:game=" + getGame() + '|');
         for (int i = 0; i < pa.length; )
         {
             if (i > 0)
                 sb.append(',');
-            sb.append('e');
-            sb.append(pa[i]);  ++i;
+//            sb.append('e');
+//            sb.append(pa[i]);
+            sb.append( GEType.valueOf( pa[i] ).name() );
+            ++i;
             sb.append('=');
             sb.append(pa[i]);  ++i;
         }

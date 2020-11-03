@@ -27,15 +27,9 @@ package soc.message;
  *
  * @author Robert S Thomas
  */
-public class SOCRollDiceRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCRollDiceRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Create a RollDiceRequest message.
@@ -44,27 +38,18 @@ public class SOCRollDiceRequest extends SOCMessage
      */
     public SOCRollDiceRequest(String ga)
     {
-        messageType = ROLLDICEREQUEST;
-        game = ga;
+        super( ROLLDICEREQUEST, ga );
     }
 
     /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
-    /**
-     * ROLLDICEREQUEST sep game
+     * ROLLDICEREQUEST sep game -- super method is good enough
      *
      * @return the command String
      */
-    public String toCmd()
-    {
-        return toCmd(game);
-    }
+//    public String toCmd()
+//    {
+//        return toCmd(game);
+//    }
 
     /**
      * ROLLDICEREQUEST sep game
@@ -74,7 +59,7 @@ public class SOCRollDiceRequest extends SOCMessage
      */
     public static String toCmd(String ga)
     {
-        return ROLLDICEREQUEST + sep + ga;
+        return new SOCRollDiceRequest( ga ).toCmd();
     }
 
     /**
@@ -93,6 +78,6 @@ public class SOCRollDiceRequest extends SOCMessage
      */
     public String toString()
     {
-        return "SOCRollDiceRequest:game=" + game;
+        return  "SOCRollDiceRequest:game=" + getGame();
     }
 }

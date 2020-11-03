@@ -91,8 +91,7 @@ import soc.util.DataUtils;
  * @see SOCBoardLayout
  * @since 1.1.08
  */
-public class SOCBoardLayout2 extends SOCMessage
-    implements SOCMessageForGame
+public class SOCBoardLayout2 extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2300L;
 
@@ -117,11 +116,6 @@ public class SOCBoardLayout2 extends SOCMessage
      * @since 2.0.00
      */
     private static final int SENTLAND_WATER = 6, SENTLAND_DESERT = 0;
-
-    /**
-     * Name of game
-     */
-    private final String game;
 
     /**
      * Board layout encoding version, from {@link SOCBoard#getBoardEncodingFormat()}.
@@ -152,8 +146,7 @@ public class SOCBoardLayout2 extends SOCMessage
      */
     public SOCBoardLayout2(String ga, int bef, Map<String, Object> parts)
     {
-        messageType = BOARDLAYOUT2;
-        game = ga;
+        super( BOARDLAYOUT2, ga );
         boardEncodingFormat = bef;
         layoutParts = parts;
     }
@@ -173,8 +166,7 @@ public class SOCBoardLayout2 extends SOCMessage
      */
     public SOCBoardLayout2(final String ga, final int bef, final int[] hl, final int[] nl, final int[] pl, final int rh)
     {
-        messageType = BOARDLAYOUT2;
-        game = ga;
+        super( BOARDLAYOUT2, ga );
         boardEncodingFormat = bef;
         layoutParts = new HashMap<>();
 
@@ -222,8 +214,7 @@ public class SOCBoardLayout2 extends SOCMessage
          final int[] lh, final int[] pl, final int rh, final int ph, final int[] px, final int[] rx,
          final Map<String, int[]> other)
     {
-        messageType = BOARDLAYOUT2;
-        game = ga;
+        super( BOARDLAYOUT2, ga );
         boardEncodingFormat = bef;
         layoutParts = new HashMap<>();
         if (lh != null)
@@ -241,15 +232,6 @@ public class SOCBoardLayout2 extends SOCMessage
 
         if (other != null)
             layoutParts.putAll(other);
-    }
-
-    /**
-     * Game name
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -407,7 +389,7 @@ public class SOCBoardLayout2 extends SOCMessage
         StringBuilder cmd = new StringBuilder();
 
         cmd.append(BOARDLAYOUT2);
-        cmd.append(sep).append(game);
+        cmd.append(sep).append( getGame() );
         cmd.append(sep2_char).append(boardEncodingFormat);
 
         for (String okey : layoutParts.keySet())
@@ -491,7 +473,7 @@ public class SOCBoardLayout2 extends SOCMessage
     public String toString()
     {
         StringBuffer sb = new StringBuffer("SOCBoardLayout2:game=");
-        sb.append(game);
+        sb.append( getGame() );
         sb.append("|bef=");
         sb.append(boardEncodingFormat);
         for (String okey : layoutParts.keySet())

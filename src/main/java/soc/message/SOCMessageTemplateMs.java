@@ -85,7 +85,7 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
      */
     protected SOCMessageTemplateMs(final int id, final List<String> pal)
     {
-        messageType = id;
+        super( id );
         pa = pal;
     }
 
@@ -104,7 +104,7 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
      */
     public String toCmd()
     {
-        return toCmd(messageType, pa);
+        return toCmd( getType(), pa );
     }
 
     /**

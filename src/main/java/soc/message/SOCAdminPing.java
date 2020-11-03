@@ -35,15 +35,9 @@ package soc.message;
  * @see SOCServerPing
  * @see SOCTimingPing
  */
-public class SOCAdminPing extends SOCMessage
-    implements SOCMessageForGame
+public class SOCAdminPing extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of the game.
-     */
-    private String game;
 
     /**
      * Create a AdminPing message.
@@ -52,27 +46,18 @@ public class SOCAdminPing extends SOCMessage
      */
     public SOCAdminPing(String ga)
     {
-        messageType = ADMINPING;
-        game = ga;
+        super( ADMINPING, ga );
     }
 
     /**
-     * @return the name of the game having the robot and the admin user as members
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
-    /**
-     * ADMINPING sep game
+     * ADMINPING sep game -- super method is good enough
      *
      * @return the command String
      */
-    public String toCmd()
-    {
-        return ADMINPING + sep + game;
-    }
+//    public String toCmd()
+//    {
+//        return ADMINPING + sep + game;
+//    }
 
     /**
      * Parse the command String into a AdminPing message
@@ -88,9 +73,10 @@ public class SOCAdminPing extends SOCMessage
     /**
      * @return a human readable form of the message
      */
+    @Override
     public String toString()
     {
-        return "SOCAdminPing:game=" + game;
+        return "SOCAdminPing:game=" + getGame();
     }
 
 }

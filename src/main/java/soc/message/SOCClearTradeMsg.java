@@ -33,8 +33,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCClearTradeMsg extends SOCMessage
-    implements SOCMessageForGame
+public class SOCClearTradeMsg extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1112L;  // last structural change v1.1.12
 
@@ -43,11 +42,6 @@ public class SOCClearTradeMsg extends SOCMessage
      * @since 1.1.12
      */
     public static final int VERSION_FOR_CLEAR_ALL = 1112;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The seat number, or -1 to clear all seats
@@ -62,17 +56,8 @@ public class SOCClearTradeMsg extends SOCMessage
      */
     public SOCClearTradeMsg(String ga, int pn)
     {
-        messageType = CLEARTRADEMSG;
-        game = ga;
+        super( CLEARTRADEMSG, ga );
         playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -90,7 +75,7 @@ public class SOCClearTradeMsg extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber);
+        return toCmd( getGame(), playerNumber);
     }
 
     /**
@@ -136,6 +121,6 @@ public class SOCClearTradeMsg extends SOCMessage
      */
     public String toString()
     {
-        return "SOCClearTradeMsg:game=" + game + "|playerNumber=" + playerNumber;
+        return "SOCClearTradeMsg:game=" + getGame() + "|playerNumber=" + playerNumber;
     }
 }

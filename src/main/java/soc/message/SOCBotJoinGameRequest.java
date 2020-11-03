@@ -44,15 +44,9 @@ import soc.game.SOCGameOptionSet;
  * @author Robert S Thomas
  * @see SOCJoinGameAuth
  */
-public class SOCBotJoinGameRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCBotJoinGameRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2450L;  // last structural change v2.4.50
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Where the robot should sit
@@ -84,8 +78,7 @@ public class SOCBotJoinGameRequest extends SOCMessage
      */
     public SOCBotJoinGameRequest(String ga, int pn, SOCGameOptionSet opts)
     {
-        messageType = BOTJOINGAMEREQUEST;
-        game = ga;
+        super( BOTJOINGAMEREQUEST, ga );
         playerNumber = pn;
         Map<String, SOCGameOption> optsMap = (opts != null) ? opts.getAll() : null;
         this.opts = optsMap;
@@ -103,19 +96,10 @@ public class SOCBotJoinGameRequest extends SOCMessage
      */
     public SOCBotJoinGameRequest(String ga, int pn, final String optsStr)
     {
-        messageType = BOTJOINGAMEREQUEST;
-        game = ga;
+        super( BOTJOINGAMEREQUEST, ga );
         playerNumber = pn;
         opts = null;
         this.optsStr = optsStr;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -151,7 +135,7 @@ public class SOCBotJoinGameRequest extends SOCMessage
     @Override
     public String toCmd()
     {
-        return BOTJOINGAMEREQUEST + sep + game + sep2 + playerNumber + sep2 + optsStr;
+        return BOTJOINGAMEREQUEST + sep + getGame() + sep2 + playerNumber + sep2 + optsStr;
     }
 
     /**
@@ -193,7 +177,7 @@ public class SOCBotJoinGameRequest extends SOCMessage
     @Override
     public String toString()
     {
-        String s = "SOCBotJoinGameRequest:game=" + game + "|playerNumber=" + playerNumber + "|opts=" + optsStr;
+        String s = "SOCBotJoinGameRequest:game=" + getGame() + "|playerNumber=" + playerNumber + "|opts=" + optsStr;
         return s;
     }
 

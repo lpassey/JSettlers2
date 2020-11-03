@@ -72,8 +72,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCCancelBuildRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCCancelBuildRequest extends SOCMessageForGame
 {
     /**
      * pieceType to cancel special {@code SOCInventoryItem} placement; see {@link SOCCancelBuildRequest class javadoc}.
@@ -82,11 +81,6 @@ public class SOCCancelBuildRequest extends SOCMessage
     public static final int INV_ITEM_PLACE_CANCEL = -3;
 
     private static final long serialVersionUID = 2000L;
-
-    /**
-     * Name of game
-     */
-    private final String game;
 
     /**
      * The type of piece to cancel build, such as {@link soc.game.SOCPlayingPiece#CITY}
@@ -107,17 +101,8 @@ public class SOCCancelBuildRequest extends SOCMessage
      */
     public SOCCancelBuildRequest(String ga, int pt)
     {
-        messageType = CANCELBUILDREQUEST;
-        game = ga;
+        super( CANCELBUILDREQUEST, ga );
         pieceType = pt;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -138,7 +123,7 @@ public class SOCCancelBuildRequest extends SOCMessage
      */
     public String toCmd()
     {
-        return CANCELBUILDREQUEST + sep + game + sep2 + pieceType;
+        return CANCELBUILDREQUEST + sep + getGame() + sep2 + pieceType;
     }
 
     /**
@@ -172,7 +157,7 @@ public class SOCCancelBuildRequest extends SOCMessage
      */
     public String toString()
     {
-        return "SOCCancelBuildRequest:game=" + game + "|pieceType=" + pieceType;
+        return "SOCCancelBuildRequest:game=" + getGame() + "|pieceType=" + pieceType;
     }
 
 }

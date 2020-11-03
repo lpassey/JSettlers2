@@ -46,6 +46,7 @@ import soc.game.SOCVillage;
 
 import soc.message.*;
 import soc.message.SOCGameElements.GEType;
+import soc.message.SOCInventoryItemAction.IIAction;
 import soc.message.SOCPlayerElement.PEType;
 
 import soc.server.genericServer.StringConnection;
@@ -64,6 +65,8 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+
+import static soc.message.SOCInventoryItemAction.IIAction.*;
 
 
 /**
@@ -2315,7 +2318,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
         if (ga == null)
             return false;
 
-        if ((mes.playerNumber == -1) || (mes.action == SOCInventoryItemAction.CANNOT_PLAY))
+        if ((mes.playerNumber == -1) || (mes.action == CANNOT_PLAY))
             return true;
 
         SOCPlayer pl = ga.getPlayer(mes.playerNumber);
@@ -2327,16 +2330,16 @@ public class SOCDisplaylessPlayerClient implements Runnable
 
         switch (mes.action)
         {
-        case SOCInventoryItemAction.ADD_PLAYABLE:
+        case ADD_PLAYABLE:
             // fall through
 
-        case SOCInventoryItemAction.ADD_OTHER:
+        case ADD_OTHER:
             inv.addItem(SOCInventoryItem.createForScenario
-                (ga, mes.itemType, (mes.action == SOCInventoryItemAction.ADD_PLAYABLE),
+                (ga, mes.itemType, (mes.action == ADD_PLAYABLE),
                  mes.isKept, mes.isVP, mes.canCancelPlay));
             break;
 
-        case SOCInventoryItemAction.PLAYED:
+        case PLAYED:
             if (mes.isKept)
                 inv.keepPlayedItem(mes.itemType);
             else
@@ -2346,7 +2349,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
                 break;
             // fall through to PLACING_EXTRA if isPlayForPlacement
 
-        case SOCInventoryItemAction.PLACING_EXTRA:
+        case PLACING_EXTRA:
             if (item == null)
                 item = SOCInventoryItem.createForScenario
                     (ga, mes.itemType, true, mes.isKept, mes.isVP, mes.canCancelPlay);
@@ -2984,7 +2987,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
     public void playInventoryItem(SOCGame ga, final int ourPN, final int itype)
     {
         put(SOCInventoryItemAction.toCmd
-            (ga.getName(), ourPN, SOCInventoryItemAction.PLAY, itype, 0));
+            (ga.getName(), ourPN, PLAY.getValue(), itype, 0));
     }
 
     /**

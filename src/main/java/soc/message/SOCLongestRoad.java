@@ -36,15 +36,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCLongestRoad extends SOCMessage
-    implements SOCMessageForGame
+public class SOCLongestRoad extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The number of the player with longest road
@@ -59,17 +53,8 @@ public class SOCLongestRoad extends SOCMessage
      */
     public SOCLongestRoad(String ga, int pn)
     {
-        messageType = LONGESTROAD;
-        game = ga;
+        super( LONGESTROAD, ga );
         playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -87,7 +72,7 @@ public class SOCLongestRoad extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber);
+        return toCmd( getGame(), playerNumber );
     }
 
     /**
@@ -133,6 +118,6 @@ public class SOCLongestRoad extends SOCMessage
      */
     public String toString()
     {
-        return "SOCLongestRoad:game=" + game + "|playerNumber=" + playerNumber;
+        return "SOCLongestRoad:game=" + getGame() + "|playerNumber=" + playerNumber;
     }
 }

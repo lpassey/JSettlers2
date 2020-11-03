@@ -59,8 +59,7 @@ import soc.util.DataUtils;
  *
  * @author Robert S. Thomas
  */
-public class SOCBoardLayout extends SOCMessage
-    implements SOCMessageForGame
+public class SOCBoardLayout extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -101,11 +100,6 @@ public class SOCBoardLayout extends SOCMessage
      * @since 2.0.00
      */
     private static final int SENTLAND_WATER = 6, SENTLAND_DESERT = 0;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The hex layout; a mapping/unmapping step is done in constructor/{@link #getHexLayout()}.
@@ -156,8 +150,7 @@ public class SOCBoardLayout extends SOCMessage
     public SOCBoardLayout
         (String ga, final int[] hl, final int[] nl, final int rh, final boolean alreadyMapped)
     {
-        messageType = BOARDLAYOUT;
-        game = ga;
+        super( BOARDLAYOUT, ga );
         if (alreadyMapped)
         {
             hexLayout = hl;
@@ -189,14 +182,6 @@ public class SOCBoardLayout extends SOCMessage
             }
         }
         robberHex = rh;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -264,7 +249,7 @@ public class SOCBoardLayout extends SOCMessage
      */
     public String toCmd()
     {
-        StringBuilder cmd = new StringBuilder(BOARDLAYOUT + sep + game);
+        StringBuilder cmd = new StringBuilder(BOARDLAYOUT + sep + getGame());
 
         for (int i = 0; i < 37; i++)
             cmd.append(sep2_char).append(hexLayout[i]);
@@ -360,7 +345,7 @@ public class SOCBoardLayout extends SOCMessage
     public String toString()
     {
         StringBuffer sb = new StringBuffer("SOCBoardLayout:game=");
-        sb.append(game);
+        sb.append(getGame());
         sb.append("|hexLayout=");
         DataUtils.arrayIntoStringBuf(hexLayout, sb, false);
         sb.append("|numberLayout=");
@@ -370,5 +355,4 @@ public class SOCBoardLayout extends SOCMessage
 
         return sb.toString();
     }
-
 }

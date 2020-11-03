@@ -270,7 +270,7 @@ public class SOCSimpleRequest extends SOCMessageTemplate4i
     @Override
     public String toString()
     {
-        return "SOCSimpleRequest:game=" + game
+        return "SOCSimpleRequest:game=" + getGame()
             + "|pn=" + p1 + "|reqType=" + p2
             + "|v1=" + p3 + "|v2=" + p4;
     }

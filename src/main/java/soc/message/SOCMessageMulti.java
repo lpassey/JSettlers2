@@ -20,10 +20,6 @@
  **/
 package soc.message;
 
-// import java.util.NoSuchElementException;
-// import java.util.StringTokenizer;
-
-
 /**
  * Message type containing multiple field groups, each of which may have fields.  <BR>
  * Format: MESSAGETYPECONST SEP fieldgroup1 SEP fieldgroup2 SEP fieldgroup3 SEP ...    <BR>
@@ -73,5 +69,10 @@ package soc.message;
  */
 public abstract class SOCMessageMulti extends SOCMessage
 {
+    SOCMessageMulti( int messageType )
+    {
+        super( messageType );
+    }
+
     private static final long serialVersionUID = 1100L;  // last structural change v1.1.00
 }

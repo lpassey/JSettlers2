@@ -47,15 +47,9 @@ import java.util.StringTokenizer;
  * @author Robert S. Thomas
  * @see SOCRejectOffer
  */
-public class SOCAcceptOffer extends SOCMessage
-    implements SOCMessageForGame
+public class SOCAcceptOffer extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The accepting player number from server, or indication that the trade could not occur:
@@ -80,18 +74,9 @@ public class SOCAcceptOffer extends SOCMessage
      */
     public SOCAcceptOffer(String ga, int ac, int of)
     {
-        messageType = ACCEPTOFFER;
-        game = ga;
+        super( ACCEPTOFFER, ga );
         accepting = ac;
         offering = of;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -125,7 +110,7 @@ public class SOCAcceptOffer extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, accepting, offering);
+        return toCmd( getGame(), accepting, offering );
     }
 
     /**
@@ -175,7 +160,7 @@ public class SOCAcceptOffer extends SOCMessage
      */
     public String toString()
     {
-        return "SOCAcceptOffer:game=" + game + "|accepting=" + accepting + "|offering=" + offering;
+        return "SOCAcceptOffer:game=" + getGame() + "|accepting=" + accepting + "|offering=" + offering;
     }
 
 }

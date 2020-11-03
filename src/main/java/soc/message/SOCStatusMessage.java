@@ -418,7 +418,7 @@ public class SOCStatusMessage extends SOCMessage
      */
     public SOCStatusMessage(int sv, String st)
     {
-        messageType = STATUSMESSAGE;
+        super( STATUSMESSAGE );
         status = st;
         svalue = sv;
     }

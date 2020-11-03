@@ -41,15 +41,9 @@ import soc.game.SOCResourceConstants;  // for javadocs only
  * @see SOCPickResources
  * @author Robert S. Thomas
  */
-public class SOCPickResourceType extends SOCMessage
-    implements SOCMessageForGame
+public class SOCPickResourceType extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The chosen resource type,
@@ -66,17 +60,8 @@ public class SOCPickResourceType extends SOCMessage
      */
     public SOCPickResourceType(String ga, int rs)
     {
-        messageType = PICKRESOURCETYPE;
-        game = ga;
+        super( PICKRESOURCETYPE, ga );
         resource = rs;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -98,7 +83,7 @@ public class SOCPickResourceType extends SOCMessage
      */
     public String toCmd()
     {
-        return PICKRESOURCETYPE + sep + game + sep2 + resource;
+        return super.toCmd() + sep2 + resource;
     }
 
     /**
@@ -132,7 +117,7 @@ public class SOCPickResourceType extends SOCMessage
      */
     public String toString()
     {
-        return "SOCPickResourceType:game=" + game + "|resType=" + resource;
+        return "SOCPickResourceType:game=" + getGame() + "|resType=" + resource;
     }
 
 }

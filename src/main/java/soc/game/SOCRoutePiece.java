@@ -61,7 +61,7 @@ public abstract class SOCRoutePiece extends SOCPlayingPiece
      */
     public final boolean isRoadNotShip()
     {
-        return (pieceType == SOCPlayingPiece.ROAD);
+        return (pieceType == PieceType.ROAD);
     }
 
 }

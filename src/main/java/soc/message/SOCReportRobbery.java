@@ -38,8 +38,7 @@ import soc.message.SOCPlayerElement.PEType;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 2.4.50
  */
-public class SOCReportRobbery extends SOCMessage
-    implements SOCMessageForGame
+public class SOCReportRobbery extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2450L;  // last structural change v2.4.50
 
@@ -47,11 +46,6 @@ public class SOCReportRobbery extends SOCMessage
      * Version number (2.4.50) where this message type was introduced.
      */
     public static final int MIN_VERSION = 2450;
-
-    /**
-     * Name of the game
-     */
-    public final String gaName;
 
     /** Victim player number, or -1 if none (for future use by scenarios/expansions) */
     public final int victimPN;
@@ -140,6 +134,7 @@ public class SOCReportRobbery extends SOCMessage
          final boolean isGainLose, final int amount, final int victimAmount)
         throws IllegalArgumentException
     {
+        super( REPORTROBBERY, gaName );
         if ((peType == null) && (resType < 0))
             throw new IllegalArgumentException("peType/resType");
         if ((amount < 0) || (victimAmount < 0))
@@ -147,8 +142,6 @@ public class SOCReportRobbery extends SOCMessage
         if (isGainLose && (victimAmount != 0))
             throw new IllegalArgumentException("victimAmount but isGainLose");
 
-        messageType = REPORTROBBERY;
-        this.gaName = gaName;
         this.perpPN = perpPN;
         this.victimPN = victimPN;
         this.resType = resType;
@@ -156,14 +149,6 @@ public class SOCReportRobbery extends SOCMessage
         this.isGainLose = isGainLose;
         this.amount = amount;
         this.victimAmount = victimAmount;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return gaName;
     }
 
     /**
@@ -184,7 +169,7 @@ public class SOCReportRobbery extends SOCMessage
     public String toCmd()
     {
         StringBuilder sb = new StringBuilder
-            (REPORTROBBERY + sep + gaName + sep2 + perpPN + sep2 + victimPN + sep2);
+            (REPORTROBBERY + sep + getGame() + sep2 + perpPN + sep2 + victimPN + sep2);
         if (peType != null)
             sb.append('E').append(sep2).append(peType.getValue());
         else
@@ -298,7 +283,7 @@ public class SOCReportRobbery extends SOCMessage
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder("SOCReportRobbery:game=" + gaName);
+        StringBuilder sb = new StringBuilder("SOCReportRobbery:game=" + getGame());
         sb.append("|perp=").append(perpPN)
           .append("|victim=").append(victimPN);
         if (peType != null)

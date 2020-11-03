@@ -63,8 +63,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S Thomas
  */
-public class SOCPotentialSettlements extends SOCMessage
-    implements SOCMessageForGame
+public class SOCPotentialSettlements extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -74,11 +73,6 @@ public class SOCPotentialSettlements extends SOCMessage
      * @since 2.0.00
      */
     public static final int VERSION_FOR_PLAYERNUM_ALL = 2000;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Player number, or -1 for all players; see {@link #getPlayerNumber()} for details.
@@ -166,8 +160,7 @@ public class SOCPotentialSettlements extends SOCMessage
      */
     public SOCPotentialSettlements(String ga, int pn, List<Integer> ps)
     {
-        messageType = POTENTIALSETTLEMENTS;
-        game = ga;
+        super( POTENTIALSETTLEMENTS, ga );
         playerNumber = pn;
         psNodes = ps;
         psNodesFromAll = false;
@@ -237,8 +230,7 @@ public class SOCPotentialSettlements extends SOCMessage
         (String ga, int pn, final List<Integer> ps, final int pan, HashSet<Integer>[] lan, final int[][] lse)
         throws IllegalArgumentException, NullPointerException
     {
-        messageType = POTENTIALSETTLEMENTS;
-        game = ga;
+        super( POTENTIALSETTLEMENTS, ga );
         playerNumber = pn;
         psNodes = ps;
         psNodesFromAll = (pan == 0) && (ps == null);
@@ -252,14 +244,6 @@ public class SOCPotentialSettlements extends SOCMessage
         for (int i = 1; i < lan.length; ++i)
             if (lan[i] == null)
                 throw new IllegalArgumentException("lan[" + i + "] null");
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -315,14 +299,14 @@ public class SOCPotentialSettlements extends SOCMessage
     {
         if ((landAreasLegalNodes == null) && (legalSeaEdges == null))
         {
-            return toCmd(game, playerNumber, psNodes);
+            return toCmd( getGame(), playerNumber, psNodes );
         } else {
             if (landAreasLegalNodes != null)
-                return toCmd(game, playerNumber, psNodes, startingLandArea, landAreasLegalNodes, legalSeaEdges);
+                return toCmd( getGame(), playerNumber, psNodes, startingLandArea, landAreasLegalNodes, legalSeaEdges );
             else
                 // legalSeaEdges but no landAreasLegalNodes:
                 // used only for pn > 0 when joining a game that's already started (SC_PIRI)
-                return toCmd(game, playerNumber, psNodes, 0, null, legalSeaEdges);
+                return toCmd(getGame(), playerNumber, psNodes, 0, null, legalSeaEdges );
         }
     }
 
@@ -445,7 +429,9 @@ public class SOCPotentialSettlements extends SOCMessage
                     cmd.append(0);
                     // 0 is used for padding the last SE list if empty;
                     // otherwise, at the end of the message, an empty list will have no tokens.
-                } else {
+                }
+                else
+                {
                     for (int value : lse_i)
                     {
                         cmd.append( sep2 );
@@ -806,7 +792,7 @@ public class SOCPotentialSettlements extends SOCMessage
     public String toString()
     {
         StringBuilder s = new StringBuilder
-            ("SOCPotentialSettlements:game=" + game + "|playerNum=" + playerNumber + "|list=");
+            ("SOCPotentialSettlements:game=" + getGame() + "|playerNum=" + playerNumber + "|list=");
         if (psNodesFromAll)
             s.append("(fromAllLANodes)");
         else if (psNodes == null)

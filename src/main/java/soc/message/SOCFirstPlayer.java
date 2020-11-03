@@ -31,15 +31,10 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCFirstPlayer extends SOCMessage
-    implements SOCMessageForGame
+public class SOCFirstPlayer extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The seat number
@@ -54,17 +49,8 @@ public class SOCFirstPlayer extends SOCMessage
      */
     public SOCFirstPlayer(String ga, int pn)
     {
-        messageType = FIRSTPLAYER;
-        game = ga;
+        super( FIRSTPLAYER, ga );
         playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -82,7 +68,7 @@ public class SOCFirstPlayer extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber);
+        return toCmd( getGame(), playerNumber );
     }
 
     /**
@@ -128,6 +114,6 @@ public class SOCFirstPlayer extends SOCMessage
      */
     public String toString()
     {
-        return "SOCFirstPlayer:game=" + game + "|playerNumber=" + playerNumber;
+        return "SOCFirstPlayer:game=" + getGame() + "|playerNumber=" + playerNumber;
     }
 }

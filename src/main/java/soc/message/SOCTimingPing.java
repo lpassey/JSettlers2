@@ -30,16 +30,10 @@ package soc.message;
  * @see SOCServerPing
  * @since 1.1.13
  */
-public class SOCTimingPing extends SOCMessage
-    implements SOCMessageForGame
+public class SOCTimingPing extends SOCMessageForGame
 {
     /** matches version (1.1.13) */
     private static final long serialVersionUID = 1113L;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Create a SOCTimingPing message.
@@ -48,16 +42,7 @@ public class SOCTimingPing extends SOCMessage
      */
     public SOCTimingPing(String ga)
     {
-        messageType = TIMINGPING;
-        game = ga;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
+        super( TIMINGPING, ga );
     }
 
     /**
@@ -65,10 +50,10 @@ public class SOCTimingPing extends SOCMessage
      *
      * @return the command String
      */
-    public String toCmd()
-    {
-        return toCmd(game);
-    }
+//    public String toCmd()
+//    {
+//        return super.toCmd();
+//    }
 
     /**
      * TIMINGPING sep game
@@ -78,7 +63,7 @@ public class SOCTimingPing extends SOCMessage
      */
     public static String toCmd(String ga)
     {
-        return TIMINGPING + sep + ga;
+        return new SOCTimingPing( ga ).toCmd();
     }
 
     /**
@@ -97,6 +82,6 @@ public class SOCTimingPing extends SOCMessage
      */
     public String toString()
     {
-        return "SOCTimingPing:game=" + game;
+        return  "SOCTimingPing:game=" + getGame() ;
     }
 }

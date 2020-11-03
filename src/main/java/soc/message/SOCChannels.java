@@ -57,7 +57,7 @@ public class SOCChannels extends SOCMessage
      */
     public SOCChannels(final List<String> cl)
     {
-        messageType = CHANNELS;
+        super( CHANNELS );
         channels = cl;
     }
 

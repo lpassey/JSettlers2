@@ -51,8 +51,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas &lt;thomas@infolab.northwestern.edu&gt;
  */
-public class SOCChoosePlayer extends SOCMessage
-    implements SOCMessageForGame
+public class SOCChoosePlayer extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -73,11 +72,6 @@ public class SOCChoosePlayer extends SOCMessage
      *  @since 2.0.00
      */
     public static final int CHOICE_MOVE_PIRATE = -3;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The number of the chosen player,
@@ -102,17 +96,8 @@ public class SOCChoosePlayer extends SOCMessage
      */
     public SOCChoosePlayer(String ga, int ch)
     {
-        messageType = CHOOSEPLAYER;
-        game = ga;
+        super( CHOOSEPLAYER, ga );
         choice = ch;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -139,7 +124,7 @@ public class SOCChoosePlayer extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, choice);
+        return toCmd( getGame(), choice );
     }
 
     /**
@@ -186,7 +171,7 @@ public class SOCChoosePlayer extends SOCMessage
      */
     public String toString()
     {
-        return "SOCChoosePlayer:game=" + game + "|choice=" + choice;
+        return "SOCChoosePlayer:game=" + getGame() + "|choice=" + choice;
     }
 
 }

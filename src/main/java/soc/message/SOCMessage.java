@@ -36,7 +36,7 @@ import java.util.StringTokenizer;
 
 
 /**
- * Messages used for game data, events, and chatting on a channel.
+ * The root of all messages used for game data, events, and chatting on a channel.
  *<P>
  * Text announcements ({@link SOCGameServerText} or {@link SOCGameTextMsg})
  * are often sent after data messages. Bots ignore text messages except for
@@ -529,7 +529,18 @@ public abstract class SOCMessage implements Serializable, Cloneable
     /**
      * An ID identifying the type of message; see {@link #getType()}.
      */
-    protected int messageType;
+    private int messageType;
+
+    /**
+     * Build a new message with the appropriage message type. This parameterized constructor will
+     * remove the default constructor, ensuring that every message will have a message type (although
+     * it will not enforce the correct message type).
+     * @param messageType The message type for this message. TODO: replace with an enum?
+     */
+    SOCMessage( int messageType )
+    {
+        this.messageType = messageType;
+    }
 
     /**
      * @return  the message type number sent over the network, such as {@link #JOINGAMEAUTH} or {@link #PUTPIECE}

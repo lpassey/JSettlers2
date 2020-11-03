@@ -37,7 +37,7 @@ public class SOCAdminReset extends SOCMessage
      */
     public SOCAdminReset()
     {
-        messageType = ADMINRESET;
+        super( ADMINRESET );
     }
 
     /**
@@ -56,7 +56,7 @@ public class SOCAdminReset extends SOCMessage
      * @param s   the String to parse; contents ignored, since this message has no parameters
      * @return    a AdminReset message
      */
-    public static SOCAdminReset parseDataStr(String s)
+    public static SOCAdminReset parseDataStr(String unused)
     {
         return new SOCAdminReset();
     }

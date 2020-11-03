@@ -92,7 +92,7 @@ public class SOCChannelMembers extends SOCMessage
      */
     private SOCChannelMembers(String ch, List<String> ml, final boolean clientMarker)
     {
-        messageType = CHANNELMEMBERS;
+        super( CHANNELMEMBERS );
         members = ml;
         channel = ch;
     }
@@ -193,5 +193,4 @@ public class SOCChannelMembers extends SOCMessage
 
         return sb.toString();
     }
-
 }

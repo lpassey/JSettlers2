@@ -28,7 +28,6 @@ import soc.game.SOCPlayer;  // for javadocs only
 import soc.game.SOCPlayingPiece;
 import soc.game.SOCResourceConstants; // for javadocs only
 
-
 /**
  * This message from the server conveys one part of a player's status,
  * such as their number of settlements remaining.
@@ -69,8 +68,7 @@ import soc.game.SOCResourceConstants; // for javadocs only
  * @author Robert S Thomas
  * @see SOCGameElements
  */
-public class SOCPlayerElement extends SOCMessage
-    implements SOCMessageForGame
+public class SOCPlayerElement extends SOCMessageForGame
 {
     /**
      * First version number (2.0.00) that has element types replacing single-purpose message types:
@@ -341,7 +339,7 @@ public class SOCPlayerElement extends SOCMessage
 
         private int value;
 
-        PEType( final int v )
+        PEType(final int v)
         {
             value = v;
         }
@@ -366,7 +364,7 @@ public class SOCPlayerElement extends SOCMessage
                 if (et.value == ti)
                     return et;
 
-            return null;
+            return UNKNOWN_TYPE;
         }
 
         /**
@@ -423,11 +421,6 @@ public class SOCPlayerElement extends SOCMessage
      * @since 1.2.00
      */
     public static final int LOSE_NEWS = -102;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Player number; can be -1 for some elements.
@@ -581,24 +574,15 @@ public class SOCPlayerElement extends SOCMessage
     public SOCPlayerElement(String ga, int pn, int ac, int et, int amt, boolean isNews)
         throws IllegalArgumentException
     {
+        super( PLAYERELEMENT, ga );
         if ((ac == GAIN_NEWS) || (ac == SET_NEWS) || (ac == LOSE_NEWS))
             throw new IllegalArgumentException("use isNews instead");
 
-        messageType = PLAYERELEMENT;
-        game = ga;
         playerNumber = pn;
         actionType = ac;
         elementType = et;
         amount = amt;
         news = isNews;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -685,7 +669,7 @@ public class SOCPlayerElement extends SOCMessage
                 ac = SET_NEWS;  break;
             }
 
-        return toCmd(game, playerNumber, ac, elementType, amount);
+        return toCmd( getGame(), playerNumber, ac, elementType, amount );
     }
 
     /**
@@ -829,9 +813,8 @@ public class SOCPlayerElement extends SOCMessage
             act = ACTION_STRINGS[actionType - 100];
         else
             act = Integer.toString(actionType);
-
-        return "SOCPlayerElement:game=" + game + "|playerNum=" + playerNumber + "|actionType=" + act
-            + "|elementType=" + elementType + "|amount=" + amount + ((news) ? "|news=Y" : "");
+        return "SOCPlayerElement:game=" + getGame() + "|playerNum=" + playerNumber + "|actionType=" + act
+            + "|elementType=" +  PEType.valueOf( elementType ).name() + "|amount=" + amount + ((news) ? "|news=Y" : "");
     }
 
 }

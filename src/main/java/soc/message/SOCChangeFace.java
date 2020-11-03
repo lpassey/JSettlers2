@@ -30,15 +30,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCChangeFace extends SOCMessage
-    implements SOCMessageForGame
+public class SOCChangeFace extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The player number changing their face, from server;
@@ -61,18 +55,9 @@ public class SOCChangeFace extends SOCMessage
      */
     public SOCChangeFace(String ga, int pn, int id)
     {
-        messageType = CHANGEFACE;
-        game = ga;
+        super( CHANGEFACE, ga );
         playerNumber = pn;
         faceId = id;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -101,7 +86,7 @@ public class SOCChangeFace extends SOCMessage
      */
     public String toCmd()
     {
-        return CHANGEFACE + sep + game + sep2 + playerNumber + sep2 + faceId;
+        return CHANGEFACE + sep + getGame() + sep2 + playerNumber + sep2 + faceId;
     }
 
     /**
@@ -137,7 +122,6 @@ public class SOCChangeFace extends SOCMessage
      */
     public String toString()
     {
-        return "SOCChangeFace:game=" + game + "|playerNumber=" + playerNumber + "|faceId=" + faceId;
+        return "SOCChangeFace:game=" + getGame() + "|playerNumber=" + playerNumber + "|faceId=" + faceId;
     }
-
 }

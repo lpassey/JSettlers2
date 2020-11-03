@@ -66,8 +66,7 @@ import soc.game.SOCSpecialItem;  // for javadocs only
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 2.0.00
  */
-public class SOCSetSpecialItem extends SOCMessage
-    implements SOCMessageForGame
+public class SOCSetSpecialItem extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;
 
@@ -172,9 +171,6 @@ public class SOCSetSpecialItem extends SOCMessage
      */
     public static final int OP_CLEAR_PICK = 6;
 
-    /** Name of game. */
-    public final String game;
-
     /** Special item type key; see the {@link SOCSpecialItem} class javadoc for details. */
     public final String typeKey;
 
@@ -271,13 +267,12 @@ public class SOCSetSpecialItem extends SOCMessage
          final int pn, final int co, final int lv, final String sv)
         throws IllegalArgumentException
     {
+        super( SETSPECIALITEM, ga );
         if ((ga == null) || (typeKey == null) || ((pn != -1) && (pi == -1))
             || ((pi == -1) && (gi == -1))
             || ((sv != null) && ! SOCMessage.isSingleLineAndSafe(sv)))
             throw new IllegalArgumentException();
 
-        messageType = SETSPECIALITEM;
-        game = ga;
         this.op = op;
         this.typeKey = typeKey;
         gameItemIndex = gi;
@@ -288,17 +283,7 @@ public class SOCSetSpecialItem extends SOCMessage
         this.sv = ((sv != null) && (sv.length() > 0)) ? sv : null;
     }
 
-    // getGame is required by interface; all message fields are public final, no getters needed
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
-    /**
+     /**
      * Parse the command String into a SOCSetSpecialItem message.
      *
      * @param s   the String to parse, from {@link #toCmd()}
@@ -359,8 +344,8 @@ public class SOCSetSpecialItem extends SOCMessage
     {
         final String svStr = (sv != null) ? sv : EMPTYSTR;
 
-        return SETSPECIALITEM + sep + game + sep2 + op + sep2 + typeKey + sep2 + gameItemIndex + sep2 + playerItemIndex
-            + sep2 + playerNumber + sep2 + coord + sep2 + level + sep2 + svStr;
+        return SETSPECIALITEM + sep + getGame() + sep2 + op + sep2 + typeKey + sep2 + gameItemIndex
+            + sep2 + playerItemIndex + sep2 + playerNumber + sep2 + coord + sep2 + level + sep2 + svStr;
     }
 
     /** OP_* constant strings for {@link #toString()} and {@link #stripAttribNames(String)}. */
@@ -386,7 +371,7 @@ public class SOCSetSpecialItem extends SOCMessage
             return null;
 
         List<String> pieces = SOCMessage.stripAttribsToList(messageStrParams);
-        if ((pieces == null) || (pieces.size() != 9))
+        if (pieces.size() != 9)
             return null;
 
         int op;
@@ -424,7 +409,7 @@ public class SOCSetSpecialItem extends SOCMessage
         else
             opStr = Integer.toString(op);
 
-        return "SOCSetSpecialItem:game=" + game + "|op=" + opStr + "|typeKey=" + typeKey
+        return "SOCSetSpecialItem:game=" + getGame() + "|op=" + opStr + "|typeKey=" + typeKey
                 + "|gi=" + gameItemIndex + "|pi=" + playerItemIndex + "|pn=" + playerNumber
                 + "|co=" + ((coord >= 0) ? Integer.toHexString(coord) : Integer.toString(coord))
                 + "|lv=" + level + ((sv != null) ? "|sv=" + sv : "|sv null");

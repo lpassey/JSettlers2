@@ -45,7 +45,7 @@ public class SOCUpdateRobotParams extends SOCMessage
      */
     public SOCUpdateRobotParams(SOCRobotParameters par)
     {
-        messageType = UPDATEROBOTPARAMS;
+        super( UPDATEROBOTPARAMS );
         params = par;
     }
 

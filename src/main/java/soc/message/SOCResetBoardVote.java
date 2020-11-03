@@ -131,7 +131,7 @@ public class SOCResetBoardVote extends SOCMessageTemplate2i
     @Override
     public String toString()
     {
-        return "SOCResetBoardVote:game=" + game
+        return "SOCResetBoardVote:game=" + getGame()
             + "|pn=" + p1 + "|vote=" + p2;
     }
 

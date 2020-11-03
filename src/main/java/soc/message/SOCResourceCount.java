@@ -37,15 +37,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCResourceCount extends SOCMessage
-    implements SOCMessageForGame
+public class SOCResourceCount extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The seat number
@@ -66,18 +60,9 @@ public class SOCResourceCount extends SOCMessage
      */
     public SOCResourceCount(String ga, int pn, int rc)
     {
-        messageType = RESOURCECOUNT;
-        game = ga;
+        super( RESOURCECOUNT, ga );
         playerNumber = pn;
         count = rc;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -103,7 +88,7 @@ public class SOCResourceCount extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber, count);
+        return super.toCmd() + sep2 + playerNumber + sep2 + count;
     }
 
     /**
@@ -116,7 +101,7 @@ public class SOCResourceCount extends SOCMessage
      */
     public static String toCmd(String ga, int pn, int rc)
     {
-        return RESOURCECOUNT + sep + ga + sep2 + pn + sep2 + rc;
+        return new SOCResourceCount( ga, pn, rc ).toCmd();
     }
 
     /**
@@ -152,6 +137,6 @@ public class SOCResourceCount extends SOCMessage
      */
     public String toString()
     {
-        return "SOCResourceCount:game=" + game + "|playerNumber=" + playerNumber + "|count=" + count;
+        return "SOCResourceCount:game=" + getGame() + "|playerNumber=" + playerNumber + "|count=" + count;
     }
 }

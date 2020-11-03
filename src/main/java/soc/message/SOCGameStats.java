@@ -41,15 +41,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCGameStats extends SOCMessage
-    implements SOCMessageForGame
+public class SOCGameStats extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The scores; always indexed 0 to {@link soc.game.SOCGame#maxPlayers} - 1,
@@ -73,18 +67,9 @@ public class SOCGameStats extends SOCMessage
      */
     public SOCGameStats(String ga, int[] sc, boolean[] rb)
     {
-        messageType = GAMESTATS;
-        game = ga;
+        super( GAMESTATS, ga );
         scores = sc;
         robots = rb;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -108,7 +93,7 @@ public class SOCGameStats extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, scores, robots);
+        return toCmd( getGame(), scores, robots );
     }
 
     /**
@@ -178,8 +163,8 @@ public class SOCGameStats extends SOCMessage
     public String toString()
     {
         StringBuilder text = new StringBuilder("SOCGameStats:game=");
-        text.append(game);
-        for (int score : scores)
+        text.append( getGame() );
+        for (int i = 0; i < scores.length; i++)
         {
             text.append( "|" );
             text.append( score );
