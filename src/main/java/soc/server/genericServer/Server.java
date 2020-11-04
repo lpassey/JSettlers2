@@ -39,6 +39,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import soc.communication.Connection;
+import soc.communication.MemConnection;
 import soc.communication.MemServerSocket;
 import soc.communication.NetConnection;
 
@@ -57,7 +58,7 @@ import soc.server.SOCServer;
  *  to a {@link MemServerSocket}.
  *<P>
  *  Newly connecting clients arrive in {@link #run()},
- *  start a thread for the server side of their {@link NetConnection} or {@link StringConnection},
+ *  start a thread for the server side of their {@link NetConnection} or {@link MemConnection},
  *  and are integrated into server data via {@link #addConnection(Connection)}
  *  called from that thread.  If the client's connection is accepted in
  *  {@link #newConnection1(Connection)}, the per-client thread enters a while-loop and
@@ -85,13 +86,14 @@ import soc.server.SOCServer;
  *<P>
  *  @author Original author: <A HREF="http://www.nada.kth.se/~cristi">Cristian Bogdan</A> <br>
  *  Lots of mods (version "1.7") by Robert S. Thomas and Jay Budzik <br>
- *  Local (StringConnection) network system by Jeremy D Monin &lt;jeremy@nand.net&gt; <br>
+ *  Local (Connection) network system by Jeremy D Monin &lt;jeremy@nand.net&gt; <br>
  *  Version-tracking system, javadocs, and other minor mods by Jeremy D Monin &lt;jeremy@nand.net&gt;
  */
 @SuppressWarnings("serial")  // not expecting to persist an instance between versions
 public abstract class Server extends Thread implements Serializable, Cloneable
 {
-    public static final String ROBOT_ENDPOINT = "ROBOT_ENDPOINT";
+    public static final String ROBOT_ENDPOINT = "SOCPRACTICE";
+
     /*
       We need both of these endpoints, because robots exist on the server side so they only
       talk to the server via an in-memory connection, not via a network (TCP) connection
@@ -306,7 +308,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         try
         {
             serverSocket = new NetServerSocket( port );
-            localSocket = new MemServerSocket( ROBOT_ENDPOINT, this );
+            localSocket = new MemServerSocket( ROBOT_ENDPOINT );
         }
         catch (IOException e)
         {
@@ -344,11 +346,10 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         this.inboundMsgDispatcher = imd;
         this.multiplexQueue = new InboundMessageQueue(imd);
 
-        localSocket = new MemServerSocket(stringSocketName, this );
+        localSocket = new MemServerSocket( stringSocketName );
         setName("server-localstring-" + stringSocketName);  // Thread name for debugging
 
         initMisc();
-
         // Most other fields are set by initializers in their declaration.
     }
 
@@ -543,6 +544,28 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         return up;
     }
 
+    private void startMessageProcessing( Connection connection )
+    {
+        // {@code connection}'s message processing thread will take from the message wait
+        // queue then call one of these methods to handle the first message or place the
+        // message in the server's multiplexing InboundMessageQueue.
+        connection.startMessageProcessing( new SOCMessageDispatcher()
+        {
+            @Override
+            public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
+            {
+                processFirstCommand(message, connection);
+            }
+
+            @Override
+            public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
+            {
+                // This is where we check for the first messge
+                multiplexQueue.push( message, connection );
+            }
+        } );
+    }
+
     /**
      * Run method for Server. This method watches
      * Start a single thread for processing inbound messages,
@@ -574,29 +597,16 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             {
                 while (isUp()) try
                 {
-                    // we could limit the number of accepted connections here
+                    // We could limit the number of accepted connections here.
                     // Currently it's limited in SOCServer.newConnection1 by checking connectionCount()
                     // which is more modular.
 
-                    NetConnection connection = (NetConnection) serverSocket.accept(); // blocks until a network connection request is received.
+                    Connection connection = serverSocket.accept(); // blocks until a network connection request is received.
                     addConnection( connection ); // calls connect which attaches to the i/o streams and set connected to true;
-                    // NetConnection will read from the input stream, convert strings to SOCMessage
-                    // instances, then call this method to place the message in the server's
-                    // multiplexing InboundMessageQueue
-                    connection.startMessageProcessing( new SOCMessageDispatcher()
-                    {
-                        @Override
-                        public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
-                        {
-                            processFirstCommand( message, connection );
-                        }
 
-                        @Override
-                        public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
-                        {
-                            multiplexQueue.push( message, connection );
-                        }
-                    } );
+                    // NetConnection's message processing thread will read from the network input
+                    // stream, convert strings to SOCMessage instances, then dispatch the message.
+                    startMessageProcessing( connection );
                 }
                 catch( InterruptedException ignore ) {}
                 catch( SocketException e )
@@ -643,7 +653,6 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
         MemAccepter( Server server )
         {
-
             this.server = server;
         }
 
@@ -654,10 +663,17 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             {
                 while (isUp()) try
                 {
-                    // reads from the server accept queue, creates a server peer, and starts
-                    // a processing thread on the peer. The in-memory client is responsible for
-                    // starting the processing thread on its own side.
-                    localSocket.accept();
+                    MemConnection connection = localSocket.accept();
+                    startMessageProcessing( connection );
+                    addConnection( connection );
+                    // The client connection is waiting for us to complete the setup of the server
+                    // side connection; let him know he can proceed.
+                    MemConnection peer = connection.getPeer();
+                    peer.setAccepted();
+                    synchronized (peer)
+                    {
+                        peer.notifyAll();
+                    }
                 }
                 catch( InterruptedException ignore )
                 {
@@ -673,7 +689,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                 if (up)
                 {
                     // retry
-                    localSocket = new MemServerSocket( strSocketName, server );
+                    localSocket = new MemServerSocket( strSocketName );
                 }
             }
         }

@@ -24,7 +24,6 @@ import java.io.DataOutputStream;  // strictly for javadocs
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.MissingResourceException;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import soc.game.SOCGame;  // strictly for passthrough in getLocalizedSpecial, and javadocs; not used otherwise
@@ -34,7 +33,7 @@ import soc.util.SOCStringManager;
 
 /**
  * {@code Connection} is the client's connection at the server, with a common API for
- * local ({@link StringConnection}) and actual networked traffic ({@link NetConnection}).
+ * local ({@link MemConnection}) and actual networked traffic ({@link NetConnection}).
  *
  *<PRE>
  *  1.0.0 - 2007-11-18 - initial release, becoming part of jsettlers v1.1.00
@@ -72,7 +71,7 @@ public abstract class Connection implements Runnable
      * (which is not Java's internal string encoding).
      *<P>
      * This limitation is mentioned here for writing code which may send messages over either type of
-     * {@code Connection}. {@link StringConnection} is limited only by java's {@code String} max length.
+     * {@code Connection}. {@link MemConnection} is limited only by java's {@code String} max length.
      *<P>
      * You can check a string's {@code UTF-8} length with {@link String#getBytes(String) str.getBytes("utf-8")}.length.
      * Because of its cost, that's probably best done within the test cases, not production code.
@@ -144,8 +143,6 @@ public abstract class Connection implements Runnable
      * @since 1.0.5
      */
     protected boolean hideTimeoutMessage;
-
-    protected LinkedBlockingQueue<SOCMessage> waitQueue = new LinkedBlockingQueue<>(  );
 
     protected SOCMessageDispatcher messageDispatcher;
 

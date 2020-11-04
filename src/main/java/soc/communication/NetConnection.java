@@ -43,7 +43,7 @@ import java.util.Date;
  * Constructors will not create or start a thread.
  *<P>
  * As used within JSettlers, the structure of this class has much in common
- * with {@link StringConnection}, as they both subclass {@link Connection}.
+ * with {@link MemConnection}, as they both subclass {@link Connection}.
  * If you add something to one class you should probably add it to the other,
  * or to the superclass instead.
  *<P>
@@ -61,7 +61,7 @@ public final class NetConnection
 
     DataInputStream in = null;
     DataOutputStream out = null;
-    Socket socket = null;
+    Socket socket;
 
     /** Hostname of the remote end of the connection, for {@link #host()} */
     protected String hst;

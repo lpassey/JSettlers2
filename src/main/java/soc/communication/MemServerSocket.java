@@ -20,10 +20,6 @@
  **/
 package soc.communication;
 
-import soc.message.SOCMessage;
-// import soc.server.genericServer.SOCServerSocket;
-import soc.server.genericServer.Server;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -57,19 +53,17 @@ public class MemServerSocket implements SOCServerSocket
     protected static Hashtable<String, MemServerSocket> allSockets = new Hashtable<>();
 
     /** Server-peer sides of connected clients; Added by accept method */
-    final protected Vector<MemConnection> allConnected;
+    final private Vector<MemConnection> allConnected;
 
     /** Waiting client connections (client-peer sides); Added by connectClient, removed by accept method */
-    final protected LinkedBlockingQueue<MemConnection> acceptQueue = new LinkedBlockingQueue<>(  );
+    final private LinkedBlockingQueue<MemConnection> acceptQueue = new LinkedBlockingQueue<>(  );
 
-    private final Server server;
     boolean out_setEOF;
 
     private final Object sync_out_setEOF;  // For synchronized methods, so we don't sync on "this".
 
-    public MemServerSocket( String memSocketName, Server server )
+    public MemServerSocket( String memSocketName )
     {
-        this.server = server;
         allConnected = new Vector<>();
         out_setEOF = false;
         sync_out_setEOF = new Object();
@@ -88,7 +82,7 @@ public class MemServerSocket implements SOCServerSocket
      *                          or if its connect/accept queue is full.
      * @throws IllegalArgumentException If name is null
      */
-    public static MemConnection connectTo(String name)
+    public static MemConnection connectTo( String name )
         throws ConnectException, IllegalArgumentException
     {
         return connectTo (name, new MemConnection());
@@ -118,12 +112,12 @@ public class MemServerSocket implements SOCServerSocket
         if (client.getPeer() != null)
             throw new IllegalArgumentException("client already peered");
 
-        if (! allSockets.containsKey(name)) // TODO: Will a server really ever instantiate multiple in-memory sockets?
-            throw new ConnectException("StringServerSocket name not found: " + name);
+        if (! allSockets.containsKey( name )) // TODO: Will a server really ever instantiate multiple in-memory sockets?
+            throw new ConnectException("MemServerSocket name not found: " + name);
 
         MemServerSocket ss = allSockets.get(name);
         if (ss.isOutEOF())
-            throw new ConnectException("StringServerSocket name is EOF: " + name);
+            throw new ConnectException("MemServerSocket name is EOF: " + name);
 
         try
         {
@@ -142,7 +136,6 @@ public class MemServerSocket implements SOCServerSocket
         synchronized (client)
         {
             // Sync vs. critical section in accept
-
             if (! client.isAccepted())
             {
                 try
@@ -194,15 +187,15 @@ public class MemServerSocket implements SOCServerSocket
     }
 
     /**
-     * For server to call.  Blocks waiting for next inbound connection.
-     * (Synchronizes on accept queue.)
+     * For server to call.  Blocks waiting for next inbound connection. Server is responsible
+     * for notifying the client he can proceed after starting the message processor.
      *
      * @return The server-side peer to the inbound client connection
      * @throws SocketException if our setEOF() has been called, thus
      *    new clients won't receive any data from us
      * @throws IOException if a network problem occurs (Which won't happen with this local communication)
      */
-    public Connection accept() throws IOException, InterruptedException
+    public MemConnection accept() throws IOException, InterruptedException
     {
         if (out_setEOF)
             throw new SocketException( "Server socket already at EOF" );
@@ -221,95 +214,14 @@ public class MemServerSocket implements SOCServerSocket
             cliPeer.disconnect();
         }
 
-        // synchronized so that we can notify the waiting thread that initialization is complete.
-        synchronized (cliPeer)
+        if (out_setEOF) synchronized (cliPeer)
         {
-            // Sync vs. critical section in connectTo; client has been waiting there for our acceptance.
-            if (!out_setEOF)
-            {
-                cliPeer.setAccepted();
-
-                // Our peer's message processor will take from the message wait queue then call one
-                // of these methods to place the message in the server's multiplexing
-                // InboundMessageQueue For servers the first message in the queue is dispatched
-                // separately from the remaining messages.
-                servPeer.startMessageProcessing( new SOCMessageDispatcher()
-                {
-                    @Override
-                    public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
-                    {
-                        server.processFirstCommand(message, connection);
-                    }
-
-                    @Override
-                    public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
-                    {
-                        // This is where we check for the first messge
-                        server.multiplexQueue.push( message, connection );
-                    }
-                } );
-
-            }
+            // synchronized so that we can notify the waiting thread that initialization is complete.
             cliPeer.notifyAll();
-        }
-
-        if (out_setEOF)
             throw new SocketException( "Server socket already at EOF" );
-        server.addConnection( servPeer );   // Calls connect(). TODO: make sure this is really what we want to do!
-        allConnected.addElement( servPeer );
-        return cliPeer;
-    }
-
-    /**
-     * @return Server-peer sides of all currently connected clients (StringConnections)
-     * /
-    public Enumeration<MemConnection> allClients()
-    {
-        return allConnected.elements();
-    }
-
-    /**
-     * If our server won't receive any more data from the client, disconnect them.
-     * Considered EOF if the client's server-side peer connection inbound EOF is set.
-     * Removes from allConnected and set outbound EOF flag on that connection.
-     * /
-    public void disconnectEOFClients()
-    {
-        MemConnection servPeer;
-
-        synchronized (allConnected)
-        {
-            for (int i = allConnected.size() - 1; i >= 0; --i)
-            {
-                servPeer = allConnected.elementAt(i);
-                if (servPeer.isInEOF())
-                {
-                    allConnected.removeElementAt(i);
-                    servPeer.setEOF();
-                }
-            }
         }
-    }
-
-    /**
-     * @return Returns the socketName.
-     * /
-    public String getSocketName()
-    {
-        return socketName;
-    }
-
-    /**
-     * Close down server socket, but don't disconnect anyone:
-     * Accept no new inbound connections.
-     * Send EOF marker in all current outbound connections.
-     * Continue to allow data from open inbound connections.
-     *
-     * @see #close()
-     * /
-    public void setEOF()
-    {
-        setEOF(false);
+        allConnected.addElement( servPeer );
+        return servPeer;
     }
 
     /**

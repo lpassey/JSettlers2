@@ -1,5 +1,5 @@
 /**
- * Local (StringConnection) network system.
+ * Local (MemConnection) communication system.
  * This file Copyright (C) 2007-2010,2012-2013,2016-2017,2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
  * Portions of this file Copyright (C) 2016 Alessandro D'Ottavio
@@ -21,15 +21,14 @@
  **/
 package soc.communication;
 
-import soc.client.MessageHandler;
 import soc.disableDebug.D;
 import soc.message.SOCDisconnect;
 import soc.message.SOCMessage;
 import soc.server.genericServer.Server;
 
 import java.io.EOFException;
-import java.net.ConnectException;
 import java.util.Date;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Symmetric buffered connection sending strings between two local peers.
@@ -74,23 +73,19 @@ public class MemConnection
     extends Connection implements Runnable
 {
     /** Unique end-of-file marker object.  Always compare against this with == not string.equals. */
-    protected static String EOF_MARKER = "__EOF_MARKER__" + '\004';
+//    protected static String EOF_MARKER = "__EOF_MARKER__" + '\004';
+
+    private LinkedBlockingQueue<SOCMessage> waitQueue = new LinkedBlockingQueue<>(  );
 
     private MemConnection ourPeer;
 
     /**
      * Create a new, unused StringConnection.
      *<P>
-     * After construction, call {@link #connect(String)} to use this object.
-     * When using this class from the server (not client)
-     * call {@link #setServer(Server)} before {@code connect(..)}
-     * and before starting any thread.
-     *<P>
      * This class has a run method, but you must start the thread yourself.
      * Constructors will not create or start a thread.
      */
-    public MemConnection()
-    { }
+    public MemConnection() {}
 
     /**
      * Constructor for an existing peer
@@ -213,28 +208,6 @@ public class MemConnection
     }
 
     /**
-     * Connect to specified stringport. Calling thread waits until accepted.
-     *<P>
-     * Connection must be unnamed (<tt>{@link #getData()} == null</tt>) at this point.
-     *
-     * @param serverSocketName  stringport name to connect to
-     * @throws ConnectException If stringport name is not found, or is EOF,
-     *                          or if its connect/accept queue is full.
-     * @throws IllegalStateException If this object is already connected
-     */
-    public void connect(String serverSocketName) throws ConnectException, IllegalStateException
-    {
-        if (isAccepted())
-            throw new IllegalStateException("Already accepted by a server");
-
-//        StringServerSocket.connectTo(serverSocketName, this);
-        connectTime = new Date();
-
-        // ** connectTo will Thread.wait until accepted by server.
-        setAccepted();
-    }
-
-    /**
      * Remember, the peer's in is our out, and vice versa.
      *
      * @return Returns our peer, or null if not yet connected.
@@ -302,32 +275,6 @@ public class MemConnection
         return out_setEOF.get();
     }
 
-//    /**
-//     * Server-side: Reference to the server handling this connection.
-//     *
-//     * @return The generic server (optional) for this connection
-//     */
-//    public Server getServer()
-//    {
-//        return ourServer;
-//    }
-
-    /**
-     * Server-side: Set the generic server for this connection.
-     * This is how the code knows it's on the server (not client) side.
-     * If a server is set, its removeConnection method is called if our input reaches EOF,
-     * and it's notified if our version changes.
-     *<P>
-     * Call this before calling run().
-     *
-     * @param srv The new server, or null
-     * @see #setVersionTracking(boolean)
-     */
-//    public void setServer(Server srv)
-//    {
-//        ourServer = srv;
-//    }
-
     /**
      * Hostname of the remote side of the connection -
      * Always returns localhost; this method required for
@@ -349,6 +296,7 @@ public class MemConnection
     @Override
     public boolean connect()
     {
+        connectTime = new Date();
         return isAccepted();
     }
 
@@ -396,7 +344,7 @@ public class MemConnection
         }
         catch (Exception e)
         {
-            D.ebugPrintlnINFO("Exception in StringConnection.run - " + e);
+            D.ebugPrintlnINFO("Exception in " + getClass().getSimpleName() + ".run - " + e);
 
             if (D.ebugOn)
             {
@@ -419,7 +367,7 @@ public class MemConnection
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder("StringConnection[");
+        StringBuilder sb = new StringBuilder( getClass().getSimpleName() + "[");
         if (data != null)
             sb.append(data);
         else
