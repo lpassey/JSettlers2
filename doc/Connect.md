@@ -1,5 +1,5 @@
 #
-##JSettlers connection model
+## JSettlers connection model
 
 JSettlers is, by design a client/server application. The server side is responsible for maintaining game state and enforcing game rules. The client side is responsible solely for displaying the game board and pieces, together with appropriate data about each player, their actions, and capabilities as directed by the game server.
 
@@ -7,7 +7,7 @@ In this iteration, communication between the client and the server is handled by
 
 All classes that are used for client/server communication are found in the package `soc.communication`.
 
-###The `Connection` Class
+### The `Connection` Class
 
 The abstract `Connection` class defines the methods that are used to pass message back and forth from and to clients and servers. Generally, code that sends or retrieves messages need not be aware of the sub-class being used; the `Connection`
 interface should be all that is necessary.
@@ -30,7 +30,7 @@ interface should be all that is necessary.
  
  There are a number of other methods defined by the Connection class; primarily getters and setters for class properties. Consult the javadocs for the `Connection` class for more details.
 
-##The `MemConnection` class
+## The `MemConnection` class
 
 The `MemConnection` class derives from `Connection` and is used for communication between clients and servers which exist in the same process space. Default robots run in the same process space as the server, so these robots connect to the server using `MemConnection` even when other clients may connect via a TCP network connection.
 
@@ -44,7 +44,7 @@ When a client's `MemConnection` instance is connected to a server running in the
 
 `MemConnection.disconnect()` resets `ourPeer`'s peer instance (which should be equal to `this`) to null, sends a `SOCDisconnect` message to the peer, and interrupts the dispatcher thread, which will cause it to exit. Upon receiving the `SOCDisconnect` message the peer should call its own `disconnect()` method. Its own peer was previously set to null so it will not reply with another `SOCDisconnect` message.
 
-##The `NetConnection` class
+## The `NetConnection` class
 
 The `NetConnection` class derives from `Connection` and is used for communication between clients and servers using the TCP/IP protocol. It is implmented using `DataInputStream` and `DataOutputStream` instances for communication. It requires a connected `java.net.Socket` instance in its constructor. 
 
