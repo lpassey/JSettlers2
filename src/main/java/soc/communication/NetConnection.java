@@ -23,6 +23,7 @@
 package soc.communication;
 
 import soc.disableDebug.D;
+import soc.message.SOCDisconnect;
 import soc.message.SOCMessage;
 
 // TODO: we need to break this dependency!
@@ -59,20 +60,20 @@ public final class NetConnection
 {
     protected final static int TIMEOUT_VALUE = 3600000; // approx. 1 hour
 
-    DataInputStream in = null;
-    DataOutputStream out = null;
-    Socket socket;
+    private final Socket socket;
+    private DataInputStream in = null;
+    private DataOutputStream out = null;
 
     /** Hostname of the remote end of the connection, for {@link #host()} */
-    protected String hst;
+    private String hst;
 
-    protected boolean connected = false;
+    private boolean connected = false;
 
     /**
      * @see #disconnectSoft()
      * @since 1.0.3
      */
-    protected boolean inputConnected = false;
+    private boolean inputConnected = false;
 
     /** initialize the connection data */
     public NetConnection( Socket so )
@@ -82,27 +83,15 @@ public final class NetConnection
     }
 
     /**
-     * Get our connection thread name for debugging.  Also used by {@link #toString()}.
-     * @return "connection-" + <em>remotehostname-portnumber</em>, or "connection-(null)-" + {@link #hashCode()}
-     * @since 2.0.0
-     */
-    public String getName()
-    {
-        if ((hst != null) && (socket != null))
-            return "connection-" + hst + "-" + socket.getPort();
-        else
-            return "connection-(null)-" + hashCode();
-    }
-
-    /**
      * @return Hostname of the remote end of the connection
      */
+    @Override
     public String getHost()
     {
         return hst;
     }
 
-    /** Set up to reading from the net, start a new Putter thread to send to the net; called only by the server.
+    /** Set up the connection to read from the network; called only by the server.
      * If successful, also sets connectTime to now.
      * Before calling {@code connect()}, be sure to make a new {@link Thread}{@code (this)} and {@code start()} it
      * for the inbound reading thread.
@@ -111,6 +100,7 @@ public final class NetConnection
      *
      * @return true if thread start was successful, false if an error occurred.
      */
+    @Override
     public boolean connect()
     {
         if (getData() != null)
@@ -157,6 +147,7 @@ public final class NetConnection
      * Same idea as {@link DataInputStream#available()}.
      * @since 1.0.5
      */
+    @Override
     public boolean isInputAvailable()
     {
         try
@@ -175,6 +166,7 @@ public final class NetConnection
      * When starting the thread, {@link #getData()} must be null;
      * {@link #connect()} mentions and checks that, but {@code connect()} is a different thread.
      */
+    @Override
     public void run()
     {
         Thread.currentThread().setName(getName());  // connection-remotehostname-portnumber
@@ -191,7 +183,15 @@ public final class NetConnection
             {
                 // readUTF max message size is 65535 chars, modified utf-8 format
                 final String msgStr = in.readUTF();  // blocks until next message is available
-                messageDispatcher.dispatch( SOCMessage.toMsg(msgStr), this );
+                SOCMessage socMessage = SOCMessage.toMsg(msgStr);
+                if (socMessage instanceof SOCDisconnect)
+                {
+                   disconnect();    // sets inputConnected = false, so this thread will now terminate
+                }
+                else
+                {
+                    messageDispatcher.dispatch( socMessage, this );
+                }
             }
         }
         catch (Exception e)
@@ -226,6 +226,7 @@ public final class NetConnection
      *
      * @param str Data to send
      */
+    @Override
     public final void send( SOCMessage socMessage )
     {
         putForReal( socMessage.toCmd() );
@@ -301,6 +302,7 @@ public final class NetConnection
     }
 
     /** close the socket, stop the reader; called after conn is removed from server structures */
+    @Override
     public void disconnect()
     {
         inputConnected = false;
@@ -309,7 +311,7 @@ public final class NetConnection
 
         D.ebugPrintlnINFO("DISCONNECTING " + data);
         connected = false;
-
+        send( new SOCDisconnect());
         try
         {
             if (out != null)
@@ -318,10 +320,9 @@ public final class NetConnection
                 {
                     out.flush();
                 }
-                catch( IOException e )
-                {
-                }
+                catch( IOException ignored ) {}
             }
+            myRunner.interrupt();   // shut down the dispatcher thread, if it is still running.
             if (socket != null)
                 socket.close();
         }
@@ -337,7 +338,7 @@ public final class NetConnection
             error = e;
         }
 
-        socket = null;
+//        socket = null;
         in = null;
         out = null;
     }
@@ -348,6 +349,7 @@ public final class NetConnection
      * sent to the other side.
      * @since 1.0.3
      */
+    @Override
     public void disconnectSoft()
     {
         if (! inputConnected)
@@ -367,9 +369,23 @@ public final class NetConnection
     /**
      * Are we currently connected and active?
      */
+    @Override
     public boolean isConnected()
     {
         return connected && inputConnected;
+    }
+
+    /**
+     * Get our connection thread name for debugging.  Also used by {@link #toString()}.
+     * @return "connection-" + <em>remotehostname-portnumber</em>, or "connection-(null)-" + {@link #hashCode()}
+     * @since 2.0.0
+     */
+    private String getName()
+    {
+        if ((hst != null) && (socket != null))
+            return "connection-" + hst + "-" + socket.getPort();
+        else
+            return "connection-(null)-" + hashCode();
     }
 
     /**

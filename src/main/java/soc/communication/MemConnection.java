@@ -69,8 +69,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public class MemConnection
-    extends Connection implements Runnable
+public class MemConnection extends Connection
 {
     /** Unique end-of-file marker object.  Always compare against this with == not string.equals. */
 //    protected static String EOF_MARKER = "__EOF_MARKER__" + '\004';
@@ -115,6 +114,36 @@ public class MemConnection
         peer.ourPeer = this;
      }
 
+    /**
+     * Accept a message to be "treated". In the case of in-memory connections this will place the
+     * message in the inbound queue for the MessageHandler to deal with in a separate thread.
+     * In the case of a network connection, this will bundle up the message and send it over the wire.
+     *
+     * @param receivedMessage from the connection; will never be {@code null}
+     */
+    public boolean receive( SOCMessage receivedMessage )
+    {
+        try
+        {
+            waitQueue.put( receivedMessage );
+            return true;
+        }
+        catch( InterruptedException e )
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Remember, the peer's in is our out, and vice versa.
+     *
+     * @return Returns our peer, or null if not yet connected.
+     */
+    public MemConnection getPeer()
+    {
+        return ourPeer;
+    }
+
      /**
      * Send data over the connection.  Does not block.
      * Ignored if setEOF() has been called.
@@ -137,84 +166,66 @@ public class MemConnection
         {
             // accepted is false before server accepts connection,
             // and after disconnect() (data != null at that point if auth'd)
-
             error = new IllegalStateException("Not accepted by server yet");
             throw (IllegalStateException) error;
         }
         if (isInEOF())
             return;
 
-//        if (null != ourPeer.getData() && (ourPeer.getData().startsWith( "robot" ) || ourPeer.getData().startsWith( "droid" )))
-//            System.out.println( ourPeer.getData());
         ourPeer.receive( socMessage );
     }
 
 
     /**
-     * Accept a message to be "treated". In the case of in-memory connections this will place the
-     * message in the inbound queue for the MessageHandler to deal with in a separate thread.
-     * In the case of a network connection, this will bundle up the message and send it over the wire.
-     *
-     * @param receivedMessage from the connection; will never be {@code null}
+     * <p>Fetches the next message from this connection's message queue and dispatches it to the
+     * registered message handler. The first message in the queue is dispatched separately from
+     * the remaining messages for the benefit of server-side code. Client-side code typically
+     * treats all messages equally.
+     *</p>
+     * When starting the thread, {@link #getData()} must be null.
      */
-    public boolean receive( SOCMessage receivedMessage )
+    @Override
+    public void run()
     {
+        Thread.currentThread().setName("connection-srv-localstring");
+
         try
         {
-            waitQueue.put( receivedMessage );
-            return true;
+            if (! isInEOF())
+            {
+                final SOCMessage msgObj = waitQueue.take();  // blocks until next message is available
+                messageDispatcher.dispatchFirst( msgObj, this );
+            }
+
+            while (! isInEOF())
+            {
+                final SOCMessage msgObj = waitQueue.take();  // blocks until next message is available
+                if (msgObj instanceof SOCDisconnect)
+                {
+                    disconnect();   // will set input EOF so this while loop will now terminate
+                }
+                else
+                {
+                    messageDispatcher.dispatch( msgObj, this );
+                }
+            }
         }
-        catch( InterruptedException e )
+        catch (Exception e)
         {
-            return false;
+            D.ebugPrintlnINFO("Exception in " + getClass().getSimpleName() + ".run - " + e);
+
+            if (D.ebugOn)
+            {
+                e.printStackTrace(System.out);
+            }
+
+            if (isInEOF())
+            {
+                return;
+            }
+
+            error = e;
         }
-    }
-
-    /**
-     * close the connection, discard pending buffered data, set EOF.
-     * Called after conn is removed from server structures.
-     */
-    public void disconnect()
-    {
-        if (! accepted.get())
-            return;  // <--- Early return: Already disconnected, or never connected ---
-
-        D.ebugPrintlnINFO("DISCONNECTING " + data);
-        accepted.set( false );
-        waitQueue.clear();
-
-        // let the remote-end know we're closing
-        ourPeer.receive( new SOCDisconnect() );
-        out_setEOF.set( true );
-
-        disconnectSoft();  // clear "in", set its EOF
-    }
-
-    /**
-     * Accept no further input, allow output to drain, don't immediately close the socket.
-     * Once called, {@link #isConnected()} will return false, even if output is still being
-     * sent to the other side.
-     */
-    public void disconnectSoft()
-    {
-        if (isInEOF())
-            return;  // <--- Early return: Already stopped input and draining output ---
-
-        // Don't check accepted; it'll be false if we're called from
-        // disconnect(), and it's OK to do this part twice.
-
-        D.ebugPrintlnINFO("DISCONNECTING(SOFT) " + data);
-        in_reachedEOF.set( true );
-    }
-
-    /**
-     * Remember, the peer's in is our out, and vice versa.
-     *
-     * @return Returns our peer, or null if not yet connected.
-     */
-    public MemConnection getPeer()
-    {
-        return ourPeer;
     }
 
     /**
@@ -236,6 +247,7 @@ public class MemConnection
      *
      * @throws IllegalStateException If we can't be, or already are, accepted
      */
+    @Override
     public void setAccepted() throws IllegalStateException
     {
         if (ourPeer == null)
@@ -244,15 +256,6 @@ public class MemConnection
             throw new IllegalStateException("Already accepted");
         if (! (isOutEOF() || isInEOF()))
             accepted.set( true );
-    }
-
-    /**
-     * Signal the end of outbound data.
-     * Not the same as closing, because we don't terminate the inbound side.
-     */
-    public void setEOF()
-    {
-        out_setEOF.set( true );
     }
 
     /**
@@ -280,9 +283,12 @@ public class MemConnection
      * Always returns localhost; this method required for
      * the Connection interface.
      */
+    @Override
     public String getHost()
     {
-        return "localhost";
+        if (null == data)
+            return "localhost";
+        return data;
     }
 
     /**
@@ -301,9 +307,54 @@ public class MemConnection
     }
 
     /** Are we currently connected and active? */
+    @Override
     public boolean isConnected()
     {
         return isAccepted() && ! (isOutEOF() || isInEOF());
+    }
+
+    /**
+     * close the connection, discard pending buffered data, set EOF.
+     * Called after conn is removed from server structures.
+     */
+    @Override
+    public void disconnect()
+    {
+        if (! accepted.get())
+            return;  // <--- Early return: Already disconnected, or never connected ---
+
+        D.ebugPrintlnINFO("DISCONNECTING " + data);
+        // let the remote-end know we're closing
+        if (null != ourPeer)
+        {
+            ourPeer.ourPeer = null; // prevent infinite loops
+            ourPeer.receive( new SOCDisconnect() );
+        }
+        accepted.set( false );
+        waitQueue.clear();
+
+        out_setEOF.set( true );
+
+        disconnectSoft();  // clear "in", set its EOF
+        myRunner.interrupt();
+    }
+
+    /**
+     * Accept no further input, allow output to drain, don't immediately close the socket.
+     * Once called, {@link #isConnected()} will return false, even if output is still being
+     * sent to the other side.
+     */
+    @Override
+    public void disconnectSoft()
+    {
+        if (isInEOF())
+            return;  // <--- Early return: Already stopped input and draining output ---
+
+        // Don't check accepted; it'll be false if we're called from
+        // disconnect(), and it's OK to do this part twice.
+
+        D.ebugPrintlnINFO("DISCONNECTING(SOFT) " + data);
+        in_reachedEOF.set( true );
     }
 
     /**
@@ -311,53 +362,10 @@ public class MemConnection
      * Same idea as {@link java.io.DataInputStream#available()}.
      * @since 1.0.5
      */
+    @Override
     public boolean isInputAvailable()
     {
         return (! isInEOF()) && (! waitQueue.isEmpty());
-    }
-
-    /**
-     * <p>Fetches the next message from this connection's message queue and dispatches it to the
-     * registered message handler. The first message in the queue is dispatched separately from
-     * the remaining messages for the benefit of server-side code. Client-side code typically
-     * treats all messages equally.
-     *</p>
-     * When starting the thread, {@link #getData()} must be null.
-     */
-    public void run()
-    {
-        Thread.currentThread().setName("connection-srv-localstring");
-
-        try
-        {
-            if (! isInEOF())
-            {
-                final SOCMessage msgObj = waitQueue.take();  // blocks until next message is available
-                messageDispatcher.dispatchFirst( msgObj, this );
-            }
-
-            while (! isInEOF())
-            {
-                final SOCMessage msgObj = waitQueue.take();  // blocks until next message is available
-                messageDispatcher.dispatch( msgObj, this );
-            }
-        }
-        catch (Exception e)
-        {
-            D.ebugPrintlnINFO("Exception in " + getClass().getSimpleName() + ".run - " + e);
-
-            if (D.ebugOn)
-            {
-                e.printStackTrace(System.out);
-            }
-
-            if (isInEOF())
-            {
-                return;
-            }
-
-            error = e;
-        }
     }
 
     /**

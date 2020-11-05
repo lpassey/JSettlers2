@@ -20,7 +20,6 @@
 package soc.communication;
 
 import soc.message.SOCMessage;
-// import soc.server.genericServer.Connection;
 
 /**
  * Dispatcher for all incoming messages from clients.
@@ -34,18 +33,16 @@ public interface SOCMessageDispatcher
 {
     /**
      * Remove a queued incoming message from a client, and handle it.
-     * Called from the handler thread of {@link Connection}.
+     * Called from the message handler thread of {@link Connection}.
      *<P>
-     * <em>Do not block or sleep</em> because this is single-threaded.
+     * <em>Do not block or sleep</em> in any derived code because this is single-threaded.
      * Any slow or lengthy work for a message should be done on other threads.
-     * If the result of that work needs to be handled on the 'treater' thread,
-     * use {@link InboundMessageQueue#post(Runnable)}.
      *<P>
      * {@code dispatch(..)} must catch any exception thrown by conditions or
      * bugs in server or gameName code it calls.
      *<P>
-     * The first message from a client is treated by
-     * {@link #processFirstCommand(SOCMessage, Connection)} instead.
+     * The first message from a peer is dispatched by
+     * {@link dispatchFirst(SOCMessage, Connection)}.
      *<P>
      *<B>Security Note:</B> When there is a choice, always use local information
      * over information from the message.  For example, use the nickname from the connection to get the player
@@ -53,14 +50,14 @@ public interface SOCMessageDispatcher
      * messages making players do things they didn't want to do.
      *
      * @param message Message from the client. Will never be {@code null}.
-     * @param connection Connection (client) sending this message. Will never be {@code null}.
+     * @param connection Connection (peer) sending this message. Will never be {@code null}.
      * @throws IllegalStateException if not ready to dispatch because some
      *    initialization method needs to be called first;
      */
-    void dispatch(SOCMessage message, Connection connection)
+    void dispatch( SOCMessage message, Connection connection )
         throws IllegalStateException;
 
-    void dispatchFirst(SOCMessage message, Connection connection)
+    void dispatchFirst( SOCMessage message, Connection connection )
         throws IllegalStateException;
 }
 

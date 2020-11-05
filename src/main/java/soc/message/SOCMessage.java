@@ -454,6 +454,11 @@ public abstract class SOCMessage implements Serializable, Cloneable
      */
     public static final int REPORTROBBERY = 1102;  // Report Robbery, 20200915, v2.4.50
 
+    /**
+     * {@link SOCDisconnect} - Notice to a peer that a connection is being disconnected
+     * @Since 3.0.0
+     */
+    public static final int DISCONNECT = 1103;
 
     /////////////////////////////////////////
     // REQUEST FOR FUTURE MESSAGE NUMBERS: //

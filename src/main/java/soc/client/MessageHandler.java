@@ -255,7 +255,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              * game has been destroyed
              */
             case SOCMessage.DELETEGAME:
-                handleDELETEGAME((SOCDeleteGame) mes, isPractice);
+                handleDELETEGAME((SOCDeleteGame) mes, connection);
                 break;
 
             /**
@@ -1023,6 +1023,7 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         case SOCStatusMessage.SV_SERVER_SHUTDOWN:
         {
+            // TODO: if possible, restart connect frame?
             handleBCASTTEXTMSG(statusText);
             client.getNet().disconnect();
         }
@@ -1304,13 +1305,15 @@ public final class MessageHandler implements SOCMessageDispatcher
      * handle the "delete game" message
      * @param mes  the message
      */
-    protected void handleDELETEGAME(SOCDeleteGame mes, final boolean isPractice)
+    protected void handleDELETEGAME(SOCDeleteGame mes, final Connection connection)
     {
         final String gaName = mes.getGame();
+        final boolean isPractice = connection instanceof MemConnection;
 
+        if (isPractice)
+            connection.disconnect();
         // run on AWT event thread, not network thread, to avoid occasional ArrayIndexOutOfBoundsException
         // console stack trace (javax.swing.DefaultListModel.getElementAt) after deleteFromGameList
-
         EventQueue.invokeLater(new Runnable()
         {
             public void run()

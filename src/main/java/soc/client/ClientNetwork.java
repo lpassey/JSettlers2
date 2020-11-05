@@ -252,7 +252,7 @@ import soc.util.Version;
 
         Connection prCli = client.getConnection();
 
-        if (prCli == null)
+//        if (prCli == null)
         {
             try
             {

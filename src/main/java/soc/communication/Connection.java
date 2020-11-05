@@ -155,7 +155,7 @@ public abstract class Connection implements Runnable
      */
     protected Date connectTime = new Date();
 
-    private Thread myRunner;
+    protected Thread myRunner;
 
 
     //--- abstract method declarations
@@ -183,22 +183,6 @@ public abstract class Connection implements Runnable
     public abstract String getHost();
 
     /**
-     * Send a message to the other side of the connection.
-     *<P>
-     * <B>Threads:</B> Safe to call from any thread.
-     *
-     * @param socMessage  Message to send.
-     * @throws IllegalArgumentException if {@code msg} is {@code null}
-     * @throws IllegalStateException if not yet accepted by server
-     * @since 2.1.00
-     */
-    public abstract void send(SOCMessage socMessage)
-        throws IllegalArgumentException, IllegalStateException;
-
-    /** For thread which reads and handles incoming messages */
-    public abstract void run();
-
-    /**
      * Start ability to read from the net; called only by the server framework's
      * {@link Server#addConnection(Connection)}, not from any code specific to a
      * connection subclass.
@@ -223,8 +207,22 @@ public abstract class Connection implements Runnable
      */
     public abstract void disconnectSoft();
 
+    // -- The following two methods are the most important ones!
 
-     //--- concrete public methods
+    /**
+     * Send a message to the other side of the connection.
+     *<P>
+     * <B>Threads:</B> Safe to call from any thread.
+     *
+     * @param socMessage  Message to send.
+     * @throws IllegalArgumentException if {@code msg} is {@code null}
+     * @throws IllegalStateException if not yet accepted by server
+     * @since 2.1.00
+     */
+    public abstract void send(SOCMessage socMessage)
+        throws IllegalArgumentException, IllegalStateException;
+
+    //--- concrete public methods
 
     /**
      * Start the internal thread that calls the server when new messages arrive.

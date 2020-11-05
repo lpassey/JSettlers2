@@ -249,7 +249,7 @@ public class MemServerSocket implements SOCServerSocket
             if (forceDisconnect)
                 connected.nextElement().disconnect();
             else
-                connected.nextElement().setEOF();
+                connected.nextElement().out_setEOF.set( true );
         }
     }
 
