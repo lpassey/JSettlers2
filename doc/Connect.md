@@ -1,3 +1,4 @@
+#
 ##JSettlers connection model
 
 JSettlers is, by design a client/server application. The server side is responsible for maintaining game state and enforcing game rules. The client side is responsible solely for displaying the game board and pieces, together with appropriate data about each player, their actions, and capabilities as directed by the game server.
