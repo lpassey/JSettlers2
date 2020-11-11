@@ -156,9 +156,10 @@ public class SOCJoinGameAuth extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        StringBuilder sb = new StringBuilder( getType() + sep + getGame() );
+        StringBuilder sb = new StringBuilder( super.toCmd() );
 
         if ((boardHeight != 0) || (boardWidth != 0))
         {

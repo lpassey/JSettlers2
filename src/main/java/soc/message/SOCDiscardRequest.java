@@ -69,22 +69,10 @@ public class SOCDiscardRequest extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return toCmd( getGame(), numDiscards );
+        return super.toCmd() + sep2 + numDiscards;
     }
 
-    /**
-     * DISCARDREQUEST sep game sep2 numDiscards
-     *
-     * @param ga  the name of the game
-     * @param nd  the number of discards
-     * @return the command string
-     */
-    public static String toCmd(String ga, int nd)
-    {
-        return DISCARDREQUEST + sep + ga + sep2 + nd;
-    }
-
-    /**
+   /**
      * Parse the command String into a DiscardRequest message
      *
      * @param s   the String to parse

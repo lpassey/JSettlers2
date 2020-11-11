@@ -86,7 +86,7 @@ public class SOCChangeFace extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return CHANGEFACE + sep + getGame() + sep2 + playerNumber + sep2 + faceId;
+        return super.toCmd() + sep2 + playerNumber + sep2 + faceId;
     }
 
     /**

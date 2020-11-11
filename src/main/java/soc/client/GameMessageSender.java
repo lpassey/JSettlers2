@@ -169,8 +169,8 @@ import soc.message.SOCStartGame;
     {
         final int co = pp.getCoordinates();
         final String ppm = (ga.isDebugFreePlacement())
-            ? SOCDebugFreePlace.toCmd(ga.getName(), pp.getPlayerNumber(), pp.getType(), co)
-            : SOCPutPiece.toCmd(ga.getName(), pp.getPlayerNumber(), pp.getType(), co);
+            ? new SOCDebugFreePlace( ga.getName(), pp.getPlayerNumber(), pp.getType(), co ).toCmd()
+            : new SOCPutPiece(ga.getName(), pp.getPlayerNumber(), pp.getType(), co).toCmd();
 
         put(ppm, ga.isPractice);
     }
@@ -185,11 +185,11 @@ import soc.message.SOCStartGame;
      * @throws IllegalArgumentException if {@code ptype} &lt; 0, {@code fromCoord} &lt; 0, or {@code toCoord} &lt; 0
      * @since 2.0.00
      */
-    public void movePieceRequest
-        (final SOCGame ga, final int pn, final int ptype, final int fromCoord, final int toCoord)
+    public void movePieceRequest( final SOCGame ga, final int pn, final int ptype,
+        final int fromCoord, final int toCoord)
         throws IllegalArgumentException
     {
-        put(SOCMovePiece.toCmd(ga.getName(), pn, ptype, fromCoord, toCoord), ga.isPractice);
+        put( new SOCMovePiece(ga.getName(), pn, ptype, fromCoord, toCoord).toCmd(), ga.isPractice);
     }
 
     /**
@@ -201,7 +201,7 @@ import soc.message.SOCStartGame;
      */
     public void moveRobber(SOCGame ga, SOCPlayer pl, int coord)
     {
-        put(SOCMoveRobber.toCmd(ga.getName(), pl.getPlayerNumber(), coord), ga.isPractice);
+        put( new SOCMoveRobber(ga.getName(), pl.getPlayerNumber(), coord).toCmd(), ga.isPractice);
     }
 
     /**
@@ -241,7 +241,7 @@ import soc.message.SOCStartGame;
     public void sendSimpleRequest(final SOCPlayer pl, final int reqtype, final int value1, final int value2)
     {
         final SOCGame ga = pl.getGame();
-        put(SOCSimpleRequest.toCmd(ga.getName(), pl.getPlayerNumber(), reqtype, value1, value2),
+        put(new SOCSimpleRequest(ga.getName(), pl.getPlayerNumber(), reqtype, value1, value2).toCmd(),
             ga.isPractice);
     }
 
@@ -277,7 +277,7 @@ import soc.message.SOCStartGame;
      */
     public void sitDown(SOCGame ga, int pn)
     {
-        put(SOCSitDown.toCmd(ga.getName(), SOCMessage.EMPTYSTR, pn, false), ga.isPractice);
+        put( new SOCSitDown(ga.getName(), SOCMessage.EMPTYSTR, pn, false).toCmd(), ga.isPractice);
     }
 
     /**
@@ -287,7 +287,7 @@ import soc.message.SOCStartGame;
      */
     public void startGame(SOCGame ga)
     {
-        put(SOCStartGame.toCmd(ga.getName(), 0), ga.isPractice);
+        put( new SOCStartGame(ga.getName(), 0).toCmd(), ga.isPractice);
     }
 
     /**
@@ -307,7 +307,7 @@ import soc.message.SOCStartGame;
      */
     public void endTurn(SOCGame ga)
     {
-        put(SOCEndTurn.toCmd(ga.getName()), ga.isPractice);
+        put( new SOCEndTurn(ga.getName()).toCmd(), ga.isPractice);
     }
 
     /**
@@ -317,7 +317,7 @@ import soc.message.SOCStartGame;
      */
     public void discard(SOCGame ga, SOCResourceSet rs)
     {
-        put(SOCDiscard.toCmd(ga.getName(), rs), ga.isPractice);
+        put( new SOCDiscard( ga.getName(), rs).toCmd(), ga.isPractice);
     }
 
     /**
@@ -350,7 +350,7 @@ import soc.message.SOCStartGame;
      */
     public void choosePlayer(SOCGame ga, final int ch)
     {
-        put(SOCChoosePlayer.toCmd(ga.getName(), ch), ga.isPractice);
+        put(new SOCChoosePlayer( ga.getName(), ch ).toCmd(), ga.isPractice);
     }
 
     /**
@@ -380,7 +380,7 @@ import soc.message.SOCStartGame;
      */
     public void rejectOffer(SOCGame ga)
     {
-        put(SOCRejectOffer.toCmd(ga.getName(), 0), ga.isPractice);
+        put( new SOCRejectOffer(ga.getName(), 0).toCmd(), ga.isPractice);
     }
 
     /**
@@ -391,7 +391,7 @@ import soc.message.SOCStartGame;
      */
     public void acceptOffer(SOCGame ga, final int offeringPN)
     {
-        put(SOCAcceptOffer.toCmd(ga.getName(), 0, offeringPN), ga.isPractice);
+        put( new SOCAcceptOffer(ga.getName(), 0, offeringPN).toCmd(), ga.isPractice);
     }
 
     /**
@@ -401,7 +401,7 @@ import soc.message.SOCStartGame;
      */
     public void clearOffer(SOCGame ga)
     {
-        put(SOCClearOffer.toCmd(ga.getName(), 0), ga.isPractice);
+        put( new SOCClearOffer( ga.getName(), 0).toCmd(), ga.isPractice);
     }
 
     /**
@@ -424,7 +424,7 @@ import soc.message.SOCStartGame;
      */
     public void offerTrade(SOCGame ga, SOCTradeOffer offer)
     {
-        put(SOCMakeOffer.toCmd(ga.getName(), offer), ga.isPractice);
+        put( new SOCMakeOffer(ga.getName(), offer).toCmd(), ga.isPractice );
     }
 
     /**
@@ -442,7 +442,7 @@ import soc.message.SOCStartGame;
             else if (dc == SOCDevCardConstants.UNKNOWN)
                 dc = SOCDevCardConstants.UNKNOWN_FOR_VERS_1_X;
         }
-        put(SOCPlayDevCardRequest.toCmd(ga.getName(), dc), ga.isPractice);
+        put( new SOCPlayDevCardRequest(ga.getName(), dc).toCmd(), ga.isPractice );
     }
 
     /**
@@ -454,8 +454,7 @@ import soc.message.SOCStartGame;
      */
     public void playInventoryItem(SOCGame ga, final int itype)
     {
-        put(SOCInventoryItemAction.toCmd
-            (ga.getName(), ga.getCurrentPlayerNumber(), IIAction.PLAY.getValue(), itype, 0), ga.isPractice);
+        put( new SOCInventoryItemAction( ga.getName(), ga.getCurrentPlayerNumber(), IIAction.PLAY, itype, 0).toCmd(), ga.isPractice);
     }
 
     /**
@@ -527,7 +526,7 @@ import soc.message.SOCStartGame;
      */
     public void resetBoardRequest(SOCGame ga)
     {
-        put(SOCResetBoardRequest.toCmd(SOCMessage.RESETBOARDREQUEST, ga.getName()), ga.isPractice);
+        put( new SOCResetBoardRequest( ga.getName() ).toCmd(), ga.isPractice);
     }
 
     /**

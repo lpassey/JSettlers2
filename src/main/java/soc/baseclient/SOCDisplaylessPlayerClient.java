@@ -46,7 +46,6 @@ import soc.game.SOCVillage;
 
 import soc.message.*;
 import soc.message.SOCGameElements.GEType;
-import soc.message.SOCInventoryItemAction.IIAction;
 import soc.message.SOCPlayerElement.PEType;
 
 import soc.server.genericServer.StringConnection;
@@ -194,7 +193,6 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     protected SOCFeatureSet sFeatures, sLocalFeatures;
 
-    protected Thread reader = null;
     protected Exception ex = null;
     protected boolean connected = false;
 
@@ -2906,7 +2904,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
         /**
          * send the command
          */
-        put(SOCPutPiece.toCmd(ga.getName(), pp.getPlayerNumber(), pt, pp.getCoordinates()));
+        put( new SOCPutPiece(ga.getName(), pp.getPlayerNumber(), pt, pp.getCoordinates()).toCmd() );
     }
 
     /**
@@ -2935,7 +2933,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void moveRobber(SOCGame ga, SOCPlayer pl, int coord)
     {
-        put(SOCMoveRobber.toCmd(ga.getName(), pl.getPlayerNumber(), coord));
+        put( new SOCMoveRobber(ga.getName(), pl.getPlayerNumber(), coord).toCmd() );
     }
 
     /**
@@ -2954,7 +2952,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
     public void simpleRequest
         (final SOCGame ga, final int ourPN, final int reqType, final int value1, final int value2)
     {
-        put(SOCSimpleRequest.toCmd(ga.getName(), ourPN, reqType, value1, value2));
+        put( new SOCSimpleRequest(ga.getName(), ourPN, reqType, value1, value2).toCmd());
     }
 
     /**
@@ -2986,8 +2984,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void playInventoryItem(SOCGame ga, final int ourPN, final int itype)
     {
-        put(SOCInventoryItemAction.toCmd
-            (ga.getName(), ourPN, PLAY.getValue(), itype, 0));
+        put(new SOCInventoryItemAction( ga.getName(), ourPN, PLAY, itype, 0).toCmd());
     }
 
     /**
@@ -3036,7 +3033,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void sitDown(SOCGame ga, int pn)
     {
-        put(SOCSitDown.toCmd(ga.getName(), SOCMessage.EMPTYSTR, pn, false));
+        put(new SOCSitDown(ga.getName(), SOCMessage.EMPTYSTR, pn, false).toCmd());
     }
 
     /**
@@ -3046,7 +3043,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void startGame(SOCGame ga)
     {
-        put(SOCStartGame.toCmd(ga.getName(), 0));
+        put( new SOCStartGame(ga.getName(), 0).toCmd());
     }
 
     /**
@@ -3066,7 +3063,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void endTurn(SOCGame ga)
     {
-        put(SOCEndTurn.toCmd(ga.getName()));
+        put( new SOCEndTurn(ga.getName()).toCmd() );
     }
 
     /**
@@ -3077,7 +3074,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void discard(SOCGame ga, SOCResourceSet rs)
     {
-        put(SOCDiscard.toCmd(ga.getName(), rs));
+        put( new SOCDiscard(ga.getName(), rs).toCmd() );
     }
 
     /**
@@ -3096,7 +3093,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void choosePlayer(SOCGame ga, final int ch)
     {
-        put(SOCChoosePlayer.toCmd(ga.getName(), ch));
+        put( new SOCChoosePlayer( ga.getName(), ch ).toCmd());
     }
 
     /**
@@ -3106,7 +3103,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void rejectOffer(SOCGame ga)
     {
-        put(SOCRejectOffer.toCmd(ga.getName(), ga.getPlayer(nickname).getPlayerNumber()));
+        put( new SOCRejectOffer(ga.getName(), ga.getPlayer(nickname).getPlayerNumber()).toCmd());
     }
 
     /**
@@ -3117,7 +3114,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void acceptOffer(SOCGame ga, int from)
     {
-        put(SOCAcceptOffer.toCmd(ga.getName(), ga.getPlayer(nickname).getPlayerNumber(), from));
+        put( new SOCAcceptOffer( ga.getName(), ga.getPlayer(nickname).getPlayerNumber(), from ).toCmd() );
     }
 
     /**
@@ -3127,7 +3124,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void clearOffer(SOCGame ga)
     {
-        put(SOCClearOffer.toCmd(ga.getName(), ga.getPlayer(nickname).getPlayerNumber()));
+        put(new SOCClearOffer(ga.getName(), ga.getPlayer(nickname).getPlayerNumber()).toCmd());
     }
 
     /**
@@ -3150,7 +3147,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void offerTrade(SOCGame ga, SOCTradeOffer offer)
     {
-        put(SOCMakeOffer.toCmd(ga.getName(), offer));
+        put( new SOCMakeOffer(ga.getName(), offer).toCmd() );
     }
 
     /**
@@ -3172,7 +3169,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
             else if (dc == SOCDevCardConstants.UNKNOWN)
                 dc = SOCDevCardConstants.UNKNOWN_FOR_VERS_1_X;
         }
-        put(SOCPlayDevCardRequest.toCmd(ga.getName(), dc));
+        put( new SOCPlayDevCardRequest(ga.getName(), dc).toCmd());
     }
 
     /**

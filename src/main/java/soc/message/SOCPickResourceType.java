@@ -81,6 +81,7 @@ public class SOCPickResourceType extends SOCMessageForGame
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
         return super.toCmd() + sep2 + resource;

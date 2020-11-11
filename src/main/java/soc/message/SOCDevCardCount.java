@@ -70,19 +70,7 @@ public class SOCDevCardCount extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return toCmd( getGame(), numDevCards );
-    }
-
-    /**
-     * DEVCARDCOUNT sep game sep2 numDevCards
-     *
-     * @param ga  the name of the game
-     * @param nd  the number of dev cards
-     * @return the command string
-     */
-    public static String toCmd(String ga, int nd)
-    {
-        return DEVCARDCOUNT + sep + ga + sep2 + nd;
+        return super.toCmd()  + sep2 + numDevCards;
     }
 
     /**

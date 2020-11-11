@@ -79,19 +79,7 @@ public class SOCClearOffer extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return toCmd( getGame(), playerNumber );
-    }
-
-    /**
-     * CLEAROFFER sep game sep2 playerNumber
-     *
-     * @param ga  the name of the game
-     * @param pn  the seat number from server, or -1 for all; always ignored when sent from client
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn)
-    {
-        return CLEAROFFER + sep + ga + sep2 + pn;
+        return super.toCmd() + sep2 + playerNumber;
     }
 
     /**

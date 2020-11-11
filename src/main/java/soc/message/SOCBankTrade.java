@@ -165,15 +165,13 @@ public class SOCBankTrade extends SOCMessageForGame
     {
         StringBuilder cmd = new StringBuilder(BANKTRADE + sep + getGame());
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD; i++)
         {
             cmd.append(sep2);
             cmd.append(give.getAmount(i));
         }
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD; i++)
         {
             cmd.append(sep2);
             cmd.append(get.getAmount(i));

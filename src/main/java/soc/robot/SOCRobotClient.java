@@ -1003,7 +1003,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
          * sit down to play
          */
         Integer pn = seatRequests.get(mes.getGame());
-
+/*
         try
         {
             //wait(Math.round(Math.random()*1000));
@@ -1012,11 +1012,13 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         {
             ;
         }
-
+*/
         if (pn != null)
         {
-            put(SOCSitDown.toCmd(mes.getGame(), SOCMessage.EMPTYSTR, pn, true));
-        } else {
+            put( new SOCSitDown( mes.getGame(), SOCMessage.EMPTYSTR, pn, true).toCmd());
+        }
+        else
+        {
             System.err.println("** Cannot sit down: Assert failed: null pn for game " + mes.getGame());
         }
     }

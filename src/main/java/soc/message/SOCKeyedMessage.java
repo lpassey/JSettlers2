@@ -33,7 +33,7 @@ public interface SOCKeyedMessage
      * to look up and send the text of as part of this message.
      * @return  The text key to be localized from the message's key field, or (rarely) {@code null}
      */
-    public abstract String getKey();
+    String getKey();
 
     /**
      * Construct a localized copy of this message to be sent to clients.
@@ -44,6 +44,5 @@ public interface SOCKeyedMessage
      *     client's locale, or {@code null} if {@code getKey() == null}
      * @return  A message with localized fields
      */
-    public abstract SOCMessage localize(final String localizedText);
-
+    SOCMessage localize(final String localizedText);
 }

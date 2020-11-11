@@ -152,9 +152,10 @@ public class SOCGameTextMsg extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return GAMETEXTMSG + sep + getGame() + sep2_alt + nickname + sep2_alt + text;
+        return super.toCmd() + sep2_alt + nickname + sep2_alt + text;
     }
 
     /**

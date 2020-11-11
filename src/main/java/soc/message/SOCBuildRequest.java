@@ -92,7 +92,7 @@ public class SOCBuildRequest extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return BUILDREQUEST + sep + getGame() + sep2 + pieceType;
+        return super.toCmd() + sep2 + pieceType;
     }
 
     /**

@@ -299,37 +299,27 @@ public class SOCPotentialSettlements extends SOCMessageForGame
     {
         if ((landAreasLegalNodes == null) && (legalSeaEdges == null))
         {
-            return toCmd( getGame(), playerNumber, psNodes );
-        } else {
+            StringBuilder cmd = new StringBuilder( super.toCmd() + sep2 + playerNumber );
+
+            for (Integer number : psNodes)
+            {
+                cmd.append( sep2 ).append( number );
+            }
+            return cmd.toString();
+        }
+        else
+        {
             if (landAreasLegalNodes != null)
-                return toCmd( getGame(), playerNumber, psNodes, startingLandArea, landAreasLegalNodes, legalSeaEdges );
+            {
+                return toCmd( psNodes, startingLandArea, landAreasLegalNodes, legalSeaEdges );
+            }
             else
+            {
                 // legalSeaEdges but no landAreasLegalNodes:
                 // used only for pn > 0 when joining a game that's already started (SC_PIRI)
-                return toCmd(getGame(), playerNumber, psNodes, 0, null, legalSeaEdges );
+                return toCmd( psNodes, 0, null, legalSeaEdges );
+            }
         }
-    }
-
-    /**
-     * <tt>toCmd</tt> for a SOCPotentialSettlements message with 1 land area.
-     *<P><tt>
-     * POTENTIALSETTLEMENTS sep game sep2 playerNumber sep2 psNodes
-     *</tt>
-     * @param ga  the game name
-     * @param pn  the player number
-     * @param ps  the list of potential settlements
-     * @return    the command string
-     * @see #toCmd(String, int, int, HashSet[], int[][])
-     */
-    private static String toCmd(String ga, int pn, List<Integer> ps)
-    {
-        StringBuilder cmd = new StringBuilder( POTENTIALSETTLEMENTS + sep + ga + sep2 + pn );
-
-        for (Integer number : ps)
-        {
-            cmd.append( sep2 ).append( number );
-        }
-        return cmd.toString();
     }
 
     /**
@@ -356,7 +346,7 @@ public class SOCPotentialSettlements extends SOCMessageForGame
      *     and either {@code pan != 0} and all players' list is {@code lan[pan]}, or because players
      *     can start anywhere ({@code pan == 0}). Empty if game has started and player currently has no
      *     potential settlement nodes.
-     * @param pan  Potential settlements' land area number, or 0 if the game has started and so player's
+     * @param potLandArea  Potential settlements' land area number, or 0 if the game has started and so player's
      *     unique list of potential settlements doesn't match any of the land area coordinate lists.
      *     In that case use <tt>lan[0]</tt> to hold the potential settlements node list,
      *     which may be empty.
@@ -368,10 +358,10 @@ public class SOCPotentialSettlements extends SOCMessageForGame
      * @return   the command string
      * @see #toCmd(String, int, List)
      */
-    private static String toCmd
-        (String ga, int pn, final List<Integer> ps, final int pan, final HashSet<Integer>[] lan, final int[][] lse)
+    private String toCmd
+        ( final List<Integer> ps, final int potLandArea, final HashSet<Integer>[] lan, final int[][] lse)
     {
-        StringBuilder cmd = new StringBuilder(POTENTIALSETTLEMENTS + sep + ga + sep2 + pn);
+        StringBuilder cmd = new StringBuilder(super.toCmd() + sep2 + playerNumber);
 
         if (ps != null)
         {
@@ -396,7 +386,7 @@ public class SOCPotentialSettlements extends SOCMessageForGame
         cmd.append(sep2);
         cmd.append("PAN");
         cmd.append(sep2);
-        cmd.append(pan);
+        cmd.append(potLandArea);
 
         if (lan != null)
         {

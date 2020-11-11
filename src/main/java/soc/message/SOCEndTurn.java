@@ -41,27 +41,6 @@ public class SOCEndTurn extends SOCMessageForGame
     }
 
     /**
-     * ENDTURN sep game
-     *
-     * @return the command string
-     */
-    public String toCmd()
-    {
-        return toCmd( getGame() );
-    }
-
-    /**
-     * ENDTURN sep game
-     *
-     * @param ga  the name of the game
-     * @return the command string
-     */
-    public static String toCmd(String ga)
-    {
-        return ENDTURN + sep + ga;
-    }
-
-    /**
      * Parse the command String into a EndTurn message
      *
      * @param s   the String to parse

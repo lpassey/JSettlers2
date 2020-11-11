@@ -64,7 +64,7 @@ public class SOCNewGameWithOptions extends SOCMessageTemplate2s
 
     /**
      * Create a SOCNewGameWithOptions message at server, to send to a specific client version.
-     * Game otions and minimum required version will be extracted from {@code ga}.
+     * Game options and minimum required version will be extracted from {@code ga}.
      *<P>
      * Before v2.4.50 this constructor was a static {@code toCmd(..)} method.
      *

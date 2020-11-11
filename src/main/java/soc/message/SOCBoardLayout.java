@@ -249,7 +249,7 @@ public class SOCBoardLayout extends SOCMessageForGame
      */
     public String toCmd()
     {
-        StringBuilder cmd = new StringBuilder(BOARDLAYOUT + sep + getGame());
+        StringBuilder cmd = new StringBuilder( super.toCmd() );
 
         for (int i = 0; i < 37; i++)
             cmd.append(sep2_char).append(hexLayout[i]);

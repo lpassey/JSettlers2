@@ -48,16 +48,6 @@ public class SOCTimingPing extends SOCMessageForGame
     /**
      * TIMINGPING sep game
      *
-     * @return the command String
-     */
-//    public String toCmd()
-//    {
-//        return super.toCmd();
-//    }
-
-    /**
-     * TIMINGPING sep game
-     *
      * @param ga  the game name
      * @return    the command string
      */

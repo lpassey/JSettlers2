@@ -81,6 +81,7 @@ public class SOCJoinGame extends SOCMessageTemplateJoinGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
         return toCmd(nickname, password, host, game);

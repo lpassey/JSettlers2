@@ -92,49 +92,11 @@ public abstract class SOCMessageTemplate1i extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getType(), getGame(), p1 );
+        return super.toCmd() + sep2 + p1;
     }
-
-    /**
-     * MESSAGETYPE sep game sep2 param
-     *
-     * @param messageType The message type id
-     * @param ga  the game name
-     * @param param The parameter
-     * @return    the command string
-     */
-    protected static String toCmd( final int messageType, String ga, int param )
-    {
-        return messageType + sep + ga + sep2 + param;
-    }
-
-    /**
-     * Parse the command String into a MessageType message
-     *
-     * @param s   the String to parse
-     * @return    a LongestRoad message, or null if parsing errors
-    public static SOCLongestRoad parseDataStr(final String s)
-    {
-        String ga; // the game name
-        int pn; // the seat number
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCLongestRoad(ga, pn);
-    }
-     */
 
     /**
      * @return a human readable form of the message

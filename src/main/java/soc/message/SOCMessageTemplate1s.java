@@ -92,9 +92,10 @@ public abstract class SOCMessageTemplate1s extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(getType(), getGame(), p1);
+        return super.toCmd() + sep2 + p1;
     }
 
     /**

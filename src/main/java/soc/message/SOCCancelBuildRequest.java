@@ -123,7 +123,7 @@ public class SOCCancelBuildRequest extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return CANCELBUILDREQUEST + sep + getGame() + sep2 + pieceType;
+        return super.toCmd() + sep2 + pieceType;
     }
 
     /**

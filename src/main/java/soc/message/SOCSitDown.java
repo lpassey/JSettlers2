@@ -66,17 +66,17 @@ public class SOCSitDown extends SOCMessageForGame
     /**
      * Create a SitDown message.
      *
-     * @param ga  the name of the game
-     * @param nk  nickname of the player; ignored from client, can be "-" or {@link SOCMessage#EMPTYSTR} but not blank
-     * @param pn  the seat number
-     * @param rf  true if this is a robot
+     * @param gameName  the name of the game
+     * @param nickname  nickname of the player; ignored from client, can be "-" or {@link SOCMessage#EMPTYSTR} but not blank
+     * @param playerNumber  the seat number
+     * @param isRobot   true if this player is a robot
      */
-    public SOCSitDown(String ga, String nk, int pn, boolean rf)
+    public SOCSitDown( String gameName, String nickname, int playerNumber, boolean isRobot )
     {
-        super( SITDOWN, ga );
-        nickname = nk;
-        playerNumber = pn;
-        robotFlag = rf;
+        super( SITDOWN, gameName );
+        this.nickname = nickname;
+        this.playerNumber = playerNumber;
+        robotFlag = isRobot ;
     }
 
     /**
@@ -109,23 +109,10 @@ public class SOCSitDown extends SOCMessageForGame
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
         return super.toCmd() + sep2 + nickname + sep2 + playerNumber + sep2 + robotFlag;
-    }
-
-    /**
-     * SITDOWN sep game sep2 nickname sep2 playerNumber sep2 robotFlag
-     *
-     * @param ga  the name of the game
-     * @param nk  nickname of the player; ignored from client, can be "-" or {@link SOCMessage#EMPTYSTR} but not blank
-     * @param pn  the seat number
-     * @param rf  the value of the robot flag
-     * @return the command string
-     */
-    public static String toCmd(String ga, String nk, int pn, boolean rf)
-    {
-        return new SOCSitDown( ga, nk, pn, rf ).toCmd();
     }
 
     /**

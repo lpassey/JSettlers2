@@ -46,13 +46,15 @@ public class SOCGameStats extends SOCMessageForGame
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
     /**
-     * The scores; always indexed 0 to {@link soc.game.SOCGame#maxPlayers} - 1,
+     * The player scores by seat number; always indexed 0 to {@link soc.game.SOCGame#maxPlayers} - 1,
      *   regardless of number of players in the game.
      */
     private int[] scores;
 
     /**
-     * Where robots are sitting; indexed same as scores.
+     * Where robots are sitting; indexed same as scores. For example, robots[0] is true if a robot
+     * is sitting in seat 0, robots[1] is true if a robot is sitting in seat 1, robots[2] is false
+     * is /not/ sitting in seat 2, and so forth.
      */
     private boolean[] robots;
 
@@ -81,7 +83,9 @@ public class SOCGameStats extends SOCMessageForGame
     }
 
     /**
-     * @return where the robots are sitting
+     * @return if a robot is sitting in a particular seat. robots[0] is true if a robot is sitting
+     * in seat 0, robots[1] is true if a robot is sitting in seat 1, robots[2] is false if a robot
+     * is /not/ sitting in seat 2, and so forth.
      */
     public boolean[] getRobotSeats()
     {
@@ -93,25 +97,13 @@ public class SOCGameStats extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return toCmd( getGame(), scores, robots );
-    }
+        StringBuilder cmd = new StringBuilder( super.toCmd() );
 
-    /**
-     * @return the command string
-     *
-     * @param ga  the name of the game
-     * @param sc  the scores
-     * @param rb  where robots are sitting
-     */
-    public static String toCmd(String ga, int[] sc, boolean[] rb)
-    {
-        StringBuilder cmd = new StringBuilder( GAMESTATS + sep + ga );
-
-        for (int value : sc)
+        for (int value : scores)
         {
             cmd.append( sep2 ).append( value );
         }
-        for (boolean b : rb)
+        for (boolean b : robots)
         {
             cmd.append( sep2 ).append( b );
         }

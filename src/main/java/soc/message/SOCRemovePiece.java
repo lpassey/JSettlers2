@@ -86,14 +86,14 @@ public class SOCRemovePiece extends SOCMessageTemplate3i
      * @param co  coordinates of the piece to remove; must be >= 0
      * @return the command string
      */
-    public static String toCmd(final String ga, final int pn, final int ptype, final int co)
-        throws IllegalArgumentException
-    {
-        if (co < 0)
-            throw new IllegalArgumentException("coord < 0");
-
-        return SOCMessageTemplate3i.toCmd(REMOVEPIECE, ga, pn, ptype, co);
-    }
+//    public static String toCmd(final String ga, final int pn, final int ptype, final int co)
+//        throws IllegalArgumentException
+//    {
+//        if (co < 0)
+//            throw new IllegalArgumentException("coord < 0");
+//
+//        return SOCMessageTemplate3i.toCmd(REMOVEPIECE, ga, pn, ptype, co);
+//    }
 
     /**
      * Parse the command string into a SOCRemovePiece message.

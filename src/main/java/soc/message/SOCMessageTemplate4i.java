@@ -144,60 +144,11 @@ public abstract class SOCMessageTemplate4i extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getType(), getGame(), p1, p2, p3, p4);
+        return super.toCmd() + sep2 + p1 + sep2 + p2 + sep2 + p3 + sep2 + p4;
     }
-
-    /**
-     * MESSAGETYPE sep game sep2 param1 sep2 param2 sep2 param3 sep2 param4
-     *
-     * @param messageType The message type id
-     * @param ga  the new game name
-     * @param p1  The first parameter
-     * @param p2  The second parameter
-     * @param p3  the third parameter
-     * @param p4  the fourth parameter
-     * @return    the command string
-     */
-    protected static String toCmd(final int messageType, final String ga, final int p1, final int p2, final int p3, final int p4)
-    {
-        return messageType + sep + ga + sep2 + p1 + sep2 + p2 + sep2 + p3 + sep2 + p4;
-    }
-
-    /**
-     * Parse the command String into a MessageType message
-     *
-     * @param s   the String to parse.
-     *            Format of s: MOVEPIECE sep game sep2 playerNumber sep2 pType sep2 coordFrom sep2 coordTo
-     * @return    a MovePiece message, or null if parsing errors
-     *
-    public static SOCMovePiece parseDataStr(final String s)
-    {
-        String ga; // the game name
-        int pn; // the player number
-        int pt; // piece type
-        int cf; // coordinates from
-        int ct; // coordinates to
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
-            pt = Integer.parseInt(st.nextToken());
-            cf = Integer.parseInt(st.nextToken());
-            ct = Integer.parseInt(st.nextToken());
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-         return new SOCMovePiece(ga, pn, pt, cf, ct);
-     }
-     */
 
     /**
      * @return a human readable form of the message

@@ -246,20 +246,22 @@ public class SOCDevCardAction extends SOCMessageForGame
      */
     public String toCmd()
     {
-        StringBuilder sb = new StringBuilder
-            (DEVCARDACTION + sep + getGame() + sep2 + playerNumber + sep2 + actionType);
+        StringBuilder sb = new StringBuilder( super.toCmd())
+            .append( sep2 ).append( playerNumber )
+            .append( sep2 ).append( actionType );
         if (cardTypes == null)
         {
             sb.append(sep2);
             sb.append(cardType);
-        } else {
+        }
+        else
+        {
             for (Integer ctype : cardTypes)
             {
                 sb.append(sep2);
                 sb.append(ctype);
             }
         }
-
         return sb.toString();
     }
 

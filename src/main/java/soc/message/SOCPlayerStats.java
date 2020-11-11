@@ -48,7 +48,7 @@ import soc.game.SOCResourceConstants;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.09
  */
-public class SOCPlayerStats extends SOCMessageTemplateMi
+public class SOCPlayerStats extends SOCMessageTemplateMi // which extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 

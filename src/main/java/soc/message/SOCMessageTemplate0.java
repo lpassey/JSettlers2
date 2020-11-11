@@ -53,41 +53,6 @@ public abstract class SOCMessageTemplate0 extends SOCMessageForGame
     }
 
     /**
-     * MESSAGETYPE sep game
-     *
-     * @return the command String
-     */
-    public String toCmd()
-    {
-        return toCmd( getType(), getGame() );
-    }
-
-    /**
-     * MESSAGETYPE sep game
-     *<P>
-     * Public method only because there are no parameters, so this is easy to call.
-     *
-     * @param messageType The message type id
-     * @param ga  the game name
-     * @return    the command string
-     */
-    public static String toCmd(final int messageType, final String ga)
-    {
-        return messageType + sep + ga;
-    }
-
-    /**
-     * Parse the command String into a MessageType message
-     *
-     * @param s   the String to parse
-     * @return    an AdminPing message
-    public static SOCAdminPing parseDataStr(final String s)
-    {
-        return new SOCAdminPing(s);
-    }
-     */
-
-    /**
      * @return a human readable form of the message
      */
     public String toString()

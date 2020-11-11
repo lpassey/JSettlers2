@@ -145,30 +145,7 @@ public class SOCDebugFreePlace extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return toCmd( getGame(), playerNumber, pieceType, coordinates );
-    }
-
-    /**
-     * Command string:
-     *
-     * DEBUGFREEPLACE sep game sep2 playerNumber sep2 pieceType sep2 coordinates
-     *
-     * @param na  the name of the game
-     * @param pt  type of playing piece, such as {@link soc.game.SOCPlayingPiece#CITY}; must be >= 0
-     * @param pn  player number
-     * @param co  coordinates; must be >= 0
-     * @return the command string
-     * @throws IllegalArgumentException if {@code pt} &lt; 0 or {@code co} &lt; 0
-     */
-    public static String toCmd(String na, int pn, int pt, int co)
-        throws IllegalArgumentException
-    {
-        if (pt < 0)
-            throw new IllegalArgumentException("pt: " + pt);
-        if (co < 0)
-            throw new IllegalArgumentException("coord < 0");
-
-        return DEBUGFREEPLACE + sep + na + sep2 + pn + sep2 + pt + sep2 + co;
+        return super.toCmd() + sep2 + playerNumber + sep2 + pieceType + sep2 + coordinates;
     }
 
     /**

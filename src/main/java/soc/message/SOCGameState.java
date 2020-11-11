@@ -164,22 +164,12 @@ public class SOCGameState extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getGame(), state );
+        return super.toCmd() + sep2 + state;
     }
 
-    /**
-     * GAMESTATE sep game sep2 state
-     *
-     * @param ga  the game name
-     * @param gs  the game state
-     * @return    the command string
-     */
-    public static String toCmd(String ga, int gs)
-    {
-        return GAMESTATE + sep + ga + sep2 + gs;
-    }
 
     /**
      * Parse the command String into a GameState message
@@ -212,8 +202,6 @@ public class SOCGameState extends SOCMessageForGame
      */
     public String toString()
     {
-        String s = "SOCGameState:game=" + getGame() + "|state=" + state;
-
-        return s;
+        return "SOCGameState:game=" + getGame() + "|state=" + state;
     }
 }

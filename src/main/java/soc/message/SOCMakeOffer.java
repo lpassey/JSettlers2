@@ -82,43 +82,42 @@ public class SOCMakeOffer extends SOCMessageForGame
     /**
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(getGame(), offer);
-    }
+//        return toCmd(getGame(), offer);
+//    }
+//
+//    /**
+//     * @return the command string
+//     *
+//     * @param ga  the name of the game
+//     * @param of   the offer being made.
+//     *    From server, this offer's {@link SOCTradeOffer#getFrom()} is the player number
+//     *    making the offer. From client, value of {@code of.getFrom()} is ignored at server.
+//     */
+//    public static String toCmd(String ga, SOCTradeOffer of)
+//    {
+        StringBuilder cmd = new StringBuilder( super.toCmd() );
+        cmd.append( sep2 ).append( offer.getFrom() );
 
-    /**
-     * @return the command string
-     *
-     * @param ga  the name of the game
-     * @param of   the offer being made.
-     *    From server, this offer's {@link SOCTradeOffer#getFrom()} is the player number
-     *    making the offer. From client, value of {@code of.getFrom()} is ignored at server.
-     */
-    public static String toCmd(String ga, SOCTradeOffer of)
-    {
-        StringBuilder cmd = new StringBuilder( MAKEOFFER + sep + ga );
-        cmd.append( sep2 ).append( of.getFrom() );
-
-        boolean[] to = of.getTo();
+        boolean[] to = offer.getTo();
 
         for (boolean b : to)
         {
             cmd.append( sep2 ).append( b );
         }
 
-        SOCResourceSet give = of.getGiveSet();
+        SOCResourceSet give = offer.getGiveSet();
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD; i++)
         {
             cmd.append( sep2 ).append( give.getAmount( i ) );
         }
 
-        SOCResourceSet get = of.getGetSet();
+        SOCResourceSet get = offer.getGetSet();
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD; i++)
         {
             cmd.append( sep2 ).append( get.getAmount( i ) );
         }

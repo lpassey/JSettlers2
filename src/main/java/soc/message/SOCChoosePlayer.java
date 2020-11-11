@@ -124,20 +124,7 @@ public class SOCChoosePlayer extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return toCmd( getGame(), choice );
-    }
-
-    /**
-     * CHOOSEPLAYER sep game sep2 choice
-     *
-     * @param ga  the name of the game
-     * @param ch  the number of the chosen player;
-     *            see {@link #SOCChoosePlayer(String, int)} for meaning
-     * @return the command string
-     */
-    public static String toCmd(String ga, int ch)
-    {
-        return CHOOSEPLAYER + sep + ga + sep2 + ch;
+        return super.toCmd() + sep2 + choice;
     }
 
     /**

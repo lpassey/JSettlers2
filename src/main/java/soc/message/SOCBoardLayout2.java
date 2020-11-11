@@ -386,10 +386,8 @@ public class SOCBoardLayout2 extends SOCMessageForGame
     @Override
     public String toCmd()
     {
-        StringBuilder cmd = new StringBuilder();
+        StringBuilder cmd = new StringBuilder( super.toCmd() );
 
-        cmd.append(BOARDLAYOUT2);
-        cmd.append(sep).append( getGame() );
         cmd.append(sep2_char).append(boardEncodingFormat);
 
         for (String okey : layoutParts.keySet())

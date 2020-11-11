@@ -54,16 +54,6 @@ public class SOCNewGame extends SOCMessageForGame
     }
 
     /**
-     * NEWGAME sep game
-     *
-     * @return the command String
-     */
-    public String toCmd()
-    {
-        return getType() + sep + getGame();
-    }
-
-    /**
      * Parse the command String into a NewGame message
      *
      * @param s   the String to parse

@@ -108,16 +108,15 @@ public class SOCPickResources extends SOCMessageForGame
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        StringBuilder cmd = new StringBuilder( getType() + sep + getGame() );
+        StringBuilder cmd = new StringBuilder( super.toCmd());
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD; i++)
         {
             cmd.append(sep2_char).append(resources.getAmount(i));
         }
-
         return cmd.toString();
     }
 

@@ -135,7 +135,7 @@ public class SOCBotJoinGameRequest extends SOCMessageForGame
     @Override
     public String toCmd()
     {
-        return BOTJOINGAMEREQUEST + sep + getGame() + sep2 + playerNumber + sep2 + optsStr;
+        return super.toCmd() + sep2 + playerNumber + sep2 + optsStr;
     }
 
     /**

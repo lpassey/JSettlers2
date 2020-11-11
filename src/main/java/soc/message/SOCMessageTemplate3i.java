@@ -126,56 +126,11 @@ public abstract class SOCMessageTemplate3i extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getType(), getGame(), p1, p2, p3 );
+        return super.toCmd() + sep2 + p1 + sep2 + p2 + sep2 + p3;
     }
-
-    /**
-     * MESSAGETYPE sep game sep2 param1 sep2 param2 sep2 param3
-     *
-     * @param messageType The message type id
-     * @param ga  the game name
-     * @param param1 The first parameter
-     * @param param2 The second parameter
-     * @param param3 The third parameter
-     * @return    the command string
-     */
-    protected static String toCmd
-        (final int messageType, final String ga, final int param1, final int param2, final int param3)
-    {
-        return messageType + sep + ga + sep2 + param1 + sep2 + param2 + sep2 + param3;
-    }
-
-    /**
-     * Parse the command string into a MessageType message.
-     *
-     * @param s   the String to parse; format: game sep2 hexcoord sep2 hextype sep2 dicenum
-     * @return    a SOCRevealFogHex message, or null if parsing errors
-    public static SOCRevealFogHex parseDataStr(final String s)
-    {
-        String ga; // the game name
-        int hc; // the hex coordinate
-        int ht; // hex type
-        int dn; // dice number
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            hc = Integer.parseInt(st.nextToken());
-            ht = Integer.parseInt(st.nextToken());
-            dn = Integer.parseInt(st.nextToken());
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCRevealFogHex(ga, hc, ht, dn);
-    }
-     */
 
     /**
      * @return a human readable form of the message

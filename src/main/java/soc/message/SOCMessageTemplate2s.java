@@ -114,51 +114,9 @@ public abstract class SOCMessageTemplate2s extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return toCmd( getType(), getGame(), p1, p2 );
+        return super.toCmd() + sep2 + p1
+        + sep2 + (p2 != null ? p2 : "");
     }
-
-    /**
-     * MESSAGETYPE sep game sep2 param1 sep2 param2
-     *
-     * @param messageType The message type id
-     * @param ga  the game name
-     * @param param1 The first parameter
-     * @param param2 The second parameter, or null
-     * @return    the command string
-     */
-    protected static String toCmd( final int messageType, String ga, String param1, String param2 )
-    {
-        return messageType + sep + ga + sep2 + param1
-        + sep2 + (param2 != null ? param2 : "");
-    }
-
-    /**
-     * Parse the command String into a MessageType message
-     *
-     * @param s   the String to parse
-     * @return    a RejectCardName message, or null if parsing errors
-    public static SOCRejectCardName parseDataStr(final String s)
-    {
-        String ga; // the game name
-        String cid; // the card id
-        String cname; // the card name, or null for unknown
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            cid = st.nextToken();
-            cname = st.nextToken();
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCRejectCardName(ga, cid, cname);
-    }
-     */
 
     /**
      * @return a human readable form of the message

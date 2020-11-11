@@ -51,33 +51,31 @@ import soc.game.SOCGame;  // for javadocs only
  * @author Robert S Thomas
  * @see SOCMovePiece
  */
-public class SOCMoveRobber extends SOCMessageForGame
+public class SOCMoveRobber extends SOCMessageTemplate2i
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
 
     /**
-     * the number of the player moving the robber
+     * the seat number of the player moving the robber. Is {@code p1}
      */
-    private int playerNumber;
+//    private int playerNumber;
 
     /**
-     * the hex coordinates of the piece (positive for robber, negative for pirate)
+     * the hex coordinates of the piece (positive for robber, negative for pirate). Is {@code p2}
      */
-    private int coordinates;
+//    private int coordinates;
 
     /**
      * create a MoveRobber message
      *
-     * @param na  name of the game
-     * @param pn  player number
+     * @param gameName  name of the game
+     * @param pn  player seat number
      * @param co  hex coordinates: positive for robber, negative or 0 for pirate
      */
-    public SOCMoveRobber(String na, int pn, int co)
+    public SOCMoveRobber(String gameName, int pn, int co)
     {
-        super( MOVEROBBER, na );
-        playerNumber = pn;
-        coordinates = co;
+        super( MOVEROBBER, gameName, pn, co );
     }
 
     /**
@@ -85,7 +83,7 @@ public class SOCMoveRobber extends SOCMessageForGame
      */
     public int getPlayerNumber()
     {
-        return playerNumber;
+        return p1;
     }
 
     /**
@@ -94,34 +92,7 @@ public class SOCMoveRobber extends SOCMessageForGame
      */
     public int getCoordinates()
     {
-        return coordinates;
-    }
-
-    /**
-     * Command string:
-     *
-     * MOVEROBBER sep game sep2 playerNumber sep2 coordinates
-     *
-     * @return the command string
-     */
-    public String toCmd()
-    {
-        return toCmd( getGame(), playerNumber, coordinates );
-    }
-
-    /**
-     * Command string:
-     *
-     * MOVEROBBER sep game sep2 playerNumber sep2 coordinates
-     *
-     * @param na  the name of the game
-     * @param pn  player number
-     * @param co  hex coordinates: positive for robber, negative or 0 for pirate
-     * @return the command string
-     */
-    public static String toCmd(String na, int pn, int co)
-    {
-        return MOVEROBBER + sep + na + sep2 + pn + sep2 + co;
+        return p2;
     }
 
     /**
@@ -130,7 +101,7 @@ public class SOCMoveRobber extends SOCMessageForGame
      * @param s   the String to parse
      * @return    a SOCMoveRobber message, or null if the data is garbled
      */
-    public static SOCMoveRobber parseDataStr(String s)
+    public static SOCMoveRobber parseDataStr( String s )
     {
         String na; // name of the game
         int pn; // player number
@@ -180,9 +151,9 @@ public class SOCMoveRobber extends SOCMessageForGame
      */
     public String toString()
     {
-        return  "SOCMoveRobber:game=" + getGame() + "|playerNumber=" + playerNumber + "|coord="
-            + ((coordinates >= 0)
-              ? Integer.toHexString(coordinates)
-              : ("-" + Integer.toHexString(- coordinates)));
+        return "SOCMoveRobber:game=" + getGame() + "|playerNumber=" + p1 + "|coord="
+            + ((p2 >= 0)
+              ? Integer.toHexString(p2)
+              : ("-" + Integer.toHexString(- p2)));
     }
 }

@@ -42,16 +42,6 @@ public class SOCDeleteGame extends SOCMessageForGame
     }
 
     /**
-     * DELETEGAME sep game
-     *
-     * @return the command String
-     */
-    public String toCmd()
-    {
-        return DELETEGAME + sep + getGame();
-    }
-
-    /**
      * Parse the command String into a DeleteGame message
      *
      * @param s   the String to parse

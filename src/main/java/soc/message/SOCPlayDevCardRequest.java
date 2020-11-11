@@ -81,21 +81,10 @@ public class SOCPlayDevCardRequest extends SOCMessageForGame
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
         return super.toCmd() + sep2 + devCard;
-    }
-
-    /**
-     * PLAYDEVCARDREQUEST sep game sep2 devCard
-     *
-     * @param ga  the name of the game
-     * @param dc  the type of dev card
-     * @return the command string
-     */
-    public static String toCmd(String ga, int devType)
-    {
-        return new SOCPlayDevCardRequest( ga, devType ).toCmd();
     }
 
     /**

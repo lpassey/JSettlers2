@@ -53,15 +53,15 @@ public class SOCStartGame extends SOCMessageForGame
     /**
      * Create a StartGame message.
      *
-     * @param ga  the name of the game
-     * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0.
+     * @param gameName  the name of the game
+     * @param gameState  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0.
      *     Ignored from client. Values &lt; 0 are out of range and ignored (treated as 0).
      *     Must not send {@code gs} to a client older than {@link SOCGameState#VERSION_FOR_GAME_STATE_AS_FIELD}.
      */
-    public SOCStartGame(final String ga, final int gs)
+    public SOCStartGame( final String gameName, final int gameState )
     {
-        super( STARTGAME, ga );
-        gameState = (gs > 0) ? gs : 0;
+        super( STARTGAME, gameName );
+        this.gameState = (gameState > 0) ? gameState : 0;
     }
 
     /**
@@ -82,21 +82,10 @@ public class SOCStartGame extends SOCMessageForGame
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getGame(), gameState );
-    }
-
-    /**
-     * STARTGAME sep game [sep2 gameState]
-     *
-     * @param ga  the name of the game
-     * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0 to omit that field
-     * @return the command string
-     */
-    public static String toCmd(final String ga, final int gs)
-    {
-        return STARTGAME + sep + ga + ((gs > 0) ? sep2 + gs : "");
+        return super.toCmd()+ ((gameState > 0) ? sep2 + gameState : "");
     }
 
     /**

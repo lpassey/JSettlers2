@@ -20,8 +20,6 @@
  **/
 package soc.message;
 
-// import java.util.StringTokenizer;
-
 
 /**
  * Template for message types with variable number of integer parameters.
@@ -101,70 +99,20 @@ public abstract class SOCMessageTemplateMi extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getType(), getGame(), pa);
-    }
-
-    /**
-     * MESSAGETYPE [sep game] sep param1 sep param2 sep ...
-     *
-     * @param messageType The message type id
-     * @param gaName  the game name, or null
-     * @param parr  The parameter array, or null if no additional parameters
-     * @return    the command string
-     */
-    protected static String toCmd(final int messageType, String gaName, int[] parr)
-    {
-        StringBuilder sb = new StringBuilder(Integer.toString(messageType));
-
-        if (gaName != null)
+        StringBuilder sb = new StringBuilder( super.toCmd() );
+        if (pa != null)
         {
-            sb.append(sep);
-            sb.append(gaName);
-        }
-        if (parr != null)
-        {
-            for (int value : parr)
+            for (int value : pa )
             {
                 sb.append( sep );
                 sb.append( value );
             }
         }
-
         return sb.toString();
     }
-
-    /**
-     * Parse the command String into a MessageType message.
-     * Calls {@link #MessageType(String, int[])} constructor,
-     * see its javadoc for parameter details.
-     *
-     * @param s   the String parameters
-     * @return    a DiceResultResources message, or null if parsing errors
-    public static SOCDiceResultResources parseDataStr(List<String> s)
-    {
-        String gaName;  // the game name
-        int[] ipa;      // the parameters
-
-        if ((s == null) || (s.size() < 2))
-            return null;  // must have at least game name + 1 further param
-
-        gaName = s.get(0);
-        ipa = new int[s.size() - 1];
-        try
-        {
-            for (int i = 0; i < ipa.length; ++i)
-                ipa[i] = Integer.parseInt(s.get(i + 1));
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCDiceResultResources(gaName, ipa);
-    }
-    */
 
     /**
      * @return a human readable form of the message

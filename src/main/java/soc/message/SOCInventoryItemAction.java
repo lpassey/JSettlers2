@@ -24,8 +24,6 @@ import java.util.StringTokenizer;
 import soc.game.SOCGame;
 import soc.game.SOCGameOptionSet;
 import soc.game.SOCInventoryItem;     // for javadoc's use
-import soc.game.SOCPlayingPiece;
-
 
 /**
  * This message is a client player request, or server response or announcement,
@@ -305,28 +303,14 @@ public class SOCInventoryItemAction extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getGame(), playerNumber, action.getValue(), itemType, reasonCode );
-    }
-
-    /**
-     * INVENTORYITEMACTION sep game sep2 playerNumber sep2 action sep2 itemType [ sep2 rcode ]
-     *
-     * @param ga  the game name
-     * @param pn  the player number if sent from server; ignored if sent from client
-     * @param ac  the type of action
-     * @param it  the item type code
-     * @param rc  the reason code if action == CANNOT_PLAY
-     * @return    the command string
-     */
-    public static String toCmd
-        (final String ga, final int pn, final int ac, final int it, final int rc)
-    {
-        String cmd = INVENTORYITEMACTION + sep + ga + sep2 + pn + sep2 + ac + sep2 + it;
-        if (rc != 0)
-            cmd = cmd + sep2 + rc;
-        return cmd;
+        StringBuilder cmd = new StringBuilder( super.toCmd() + sep2 + playerNumber
+                                               + sep2 + action.getValue() + sep2 + itemType );
+        if (reasonCode != 0)
+            cmd.append( sep2 ).append( reasonCode );
+        return cmd.toString();
     }
 
     /**

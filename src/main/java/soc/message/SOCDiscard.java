@@ -80,7 +80,7 @@ public class SOCDiscard extends SOCMessageForGame
      * @param ga  the name of the game
      * @param rs  the resources being discarded
      */
-    public SOCDiscard(String ga, int pn, SOCResourceSet rs)
+    public SOCDiscard(String ga, SOCResourceSet rs)
     {
         super( DISCARD, ga );
         resources = rs;
@@ -102,26 +102,13 @@ public class SOCDiscard extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return toCmd( getGame(), resources );
-    }
-
-    /**
-     * DISCARD sep game sep2 clay sep2 ore sep2 sheep sep2
-     * wheat sep2 wood sep2 unknown
-     *
-     * @param ga  the name of the game
-     * @param rs  the resources being discarded
-     * @return the command string
-     */
-    public static String toCmd(String ga, SOCResourceSet rs)
-    {
-        return DISCARD + sep + ga + sep2
-            + rs.getAmount(SOCResourceConstants.CLAY) + sep2
-            + rs.getAmount(SOCResourceConstants.ORE) + sep2
-            + rs.getAmount(SOCResourceConstants.SHEEP) + sep2
-            + rs.getAmount(SOCResourceConstants.WHEAT) + sep2
-            + rs.getAmount(SOCResourceConstants.WOOD) + sep2
-            + rs.getAmount(SOCResourceConstants.UNKNOWN);
+        return super.toCmd() + sep2
+            + resources.getAmount(SOCResourceConstants.CLAY) + sep2
+            + resources.getAmount(SOCResourceConstants.ORE) + sep2
+            + resources.getAmount(SOCResourceConstants.SHEEP) + sep2
+            + resources.getAmount(SOCResourceConstants.WHEAT) + sep2
+            + resources.getAmount(SOCResourceConstants.WOOD) + sep2
+            + resources.getAmount(SOCResourceConstants.UNKNOWN);
     }
 
     /**
@@ -181,5 +168,4 @@ public class SOCDiscard extends SOCMessageForGame
     {
         return "SOCDiscard:game=" + getGame() + "|resources=" + resources;
     }
-
 }

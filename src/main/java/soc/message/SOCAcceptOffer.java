@@ -108,9 +108,10 @@ public class SOCAcceptOffer extends SOCMessageForGame
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getGame(), accepting, offering );
+        return super.toCmd() + sep2 + accepting + sep2 + offering;
     }
 
     /**
@@ -122,10 +123,10 @@ public class SOCAcceptOffer extends SOCMessageForGame
      * @param of  the player number of the offering player
      * @return the command string
      */
-    public static String toCmd(String ga, int ac, int of)
-    {
-        return ACCEPTOFFER + sep + ga + sep2 + ac + sep2 + of;
-    }
+//    public static String toCmd(String ga, int ac, int of)
+//    {
+//        return ACCEPTOFFER + sep + ga + sep2 + ac + sep2 + of;
+//    }
 
     /**
      * Parse the command String into an ACCEPTOFFER message.

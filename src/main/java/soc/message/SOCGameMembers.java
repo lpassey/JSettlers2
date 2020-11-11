@@ -85,33 +85,18 @@ public class SOCGameMembers extends SOCMessageForGame
     }
 
     /**
-     * GAMEMEMBERS sep game sep2 members
+     * GAMEMEMBERS sep game sep2 member sep2 member ...
      *
      * @return the command String
      */
     @Override
     public String toCmd()
     {
-        return toCmd( getGame(), members);
-    }
-
-    /**
-     * GAMEMEMBERS sep game sep2 members
-     *<P>
-     * Used from instance method {@link #toCmd()} with Strings,
-     * and from other callers with {@link Connection}s for convenience.
-     *
-     * @param ga  the game name
-     * @param ml  the list of members (String or {@link Connection})
-     * @return    the command string
-     */
-    public static String toCmd(String ga, List<?> ml)
-    {
-        StringBuilder cmd = new StringBuilder( GAMEMEMBERS + sep + ga );
+        StringBuilder cmd = new StringBuilder( super.toCmd() );
 
         try
         {
-            for (Object obj : ml)
+            for (Object obj : members)
             {
                 String str;
                 if (obj instanceof Connection)
@@ -130,7 +115,7 @@ public class SOCGameMembers extends SOCMessageForGame
                 cmd.append( sep2 ).append( str );
             }
         }
-        catch (Exception e) {}
+        catch (Exception ignored) {}
 
         return cmd.toString();
     }

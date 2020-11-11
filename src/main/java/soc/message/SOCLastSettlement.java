@@ -83,24 +83,10 @@ public class SOCLastSettlement extends SOCMessageForGame
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getGame(), playerNumber, coordinates );
-    }
-
-    /**
-     * Command string:
-     *
-     * LASTSETTLEMENT sep game sep2 playerNumber sep2 coordinates
-     *
-     * @param na  the name of the game
-     * @param pn  player number
-     * @param co  coordinates
-     * @return the command string
-     */
-    public static String toCmd(String na, int pn, int co)
-    {
-        return LASTSETTLEMENT + sep + na + sep2 + pn + sep2 + co;
+        return super.toCmd() + sep2 + playerNumber + sep2 + coordinates;
     }
 
     /**

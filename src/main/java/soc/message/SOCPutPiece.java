@@ -147,32 +147,10 @@ public class SOCPutPiece extends SOCMessageForGame
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getGame(), playerNumber, pieceType.getValue(), coordinates );
-    }
-
-    /**
-     * Command string:
-     *
-     * PUTPIECE sep game sep2 playerNumber sep2 pieceType sep2 coordinates
-     *
-     * @param ga  the name of the game
-     * @param pn  player number, or -1 for non-player-owned {@link SOCPlayingPiece#VILLAGE}
-     * @param pt  type of playing piece, such as {@link SOCPlayingPiece#CITY}; must be >= 0
-     * @param co  coordinates; must be >= 0
-     * @return the command string
-     * @throws IllegalArgumentException if {@code pt} &lt; 0 or {@code co} &lt; 0
-     */
-    public static String toCmd(String ga, int pn, int pt, int co)
-        throws IllegalArgumentException
-    {
-        if (pt < 0)
-            throw new IllegalArgumentException("pt: " + pt);
-        if (co < 0)
-            throw new IllegalArgumentException("coord < 0");
-
-        return PUTPIECE + sep + ga + sep2 + pn + sep2 + pt + sep2 + co;
+        return super.toCmd() + sep2 + playerNumber + sep2 +  pieceType.getValue() + sep2 + coordinates;
     }
 
     /**

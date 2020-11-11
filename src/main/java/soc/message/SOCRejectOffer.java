@@ -73,22 +73,10 @@ public class SOCRejectOffer extends SOCMessageForGame
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
         return super.toCmd() + sep2 + playerNumber;
-    }
-
-    /**
-     * REJECTOFFER sep game sep2 playerNumber
-     *
-     * @param ga  the name of the game
-     * @param pn  the player number rejecting all offers made to them.
-     *     Sent from server, always ignored when sent from client.
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn)
-    {
-        return REJECTOFFER + sep + ga + sep2 + pn;
     }
 
     /**

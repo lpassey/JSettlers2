@@ -110,52 +110,11 @@ public abstract class SOCMessageTemplate2i extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getType(), getGame(), p1, p2);
+        return super.toCmd()+ sep2 + p1+ sep2 + p2;
     }
-
-    /**
-     * MESSAGETYPE sep game sep2 param1 sep2 param2
-     *
-     * @param messageType The message type id
-     * @param ga  the new game name
-     * @param param1 The first parameter
-     * @param param2 The second parameter
-     * @return    the command string
-     */
-    protected static String toCmd(final int messageType, String ga, int param1, int param2)
-    {
-        return messageType + sep + ga + sep2 + param1 + sep2 + param2;
-    }
-
-    /**
-     * Parse the command String into a MessageType message
-     *
-     * @param s   the String to parse
-     * @return    a MoveRobber message, or null if parsing errors
-    public static SOCMoveRobber parseDataStr(final String s)
-    {
-        String ga; // the game name
-        int pn; // the seat number
-        int co; // coordinates
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
-            co = Integer.parseInt(st.nextToken());
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCMoveRobber(ga, pn, co);
-    }
-     */
 
     /**
      * @return a human readable form of the message

@@ -42,7 +42,7 @@ import java.util.StringTokenizer;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 2.0.00
  */
-public class SOCPieceValue extends SOCMessageTemplate4i
+public class SOCPieceValue extends SOCMessageTemplate4i // which extends SOCMessageForGame...
 {
     private static final long serialVersionUID = 2000L;
 

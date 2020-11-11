@@ -300,6 +300,18 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
     }
 
     /**
+     * Build the command string; used at server side.
+     * Empty or null elements will be built as {@link SOCMessage#EMPTYSTR}.
+     * At the receiver, {@link #parseDataStr(List)} will automatically replace {@code EMPTYSTR} with "".
+     * See {@link #SOCLocalizedStrings(String, int, List)} for field/parameter details.
+     */
+    @Override
+    public String toCmd()
+    {
+        return toCmd( pa.get(0), flags, pa, true);
+    }
+
+    /**
      * See {@link #SOCLocalizedStrings(String, int, List)} for field/parameter details.
      * Will build empty or null elements as {@link SOCMessage#EMPTYSTR}.
      * Relies on callers to make sure {@code type} and every element of {@code strs} passes
@@ -331,20 +343,9 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
                 sb.append(itm);
             }
         }
-
         return sb.toString();
     }
 
-    /**
-     * Build the command string; used at server side.
-     * Empty or null elements will be built as {@link SOCMessage#EMPTYSTR}.
-     * At the receiver, {@link #parseDataStr(List)} will automatically replace {@code EMPTYSTR} with "".
-     * See {@link #SOCLocalizedStrings(String, int, List)} for field/parameter details.
-     */
-    public String toCmd()
-    {
-        return toCmd(pa.get(0), flags, pa, true);
-    }
 
     /**
      * Check parameter format.

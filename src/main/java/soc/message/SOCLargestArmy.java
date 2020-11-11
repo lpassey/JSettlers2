@@ -70,21 +70,10 @@ public class SOCLargestArmy extends SOCMessageForGame
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getGame(), playerNumber );
-    }
-
-    /**
-     * LARGESTARMY sep game sep2 playerNumber
-     *
-     * @param ga  the name of the game
-     * @param pn  the seat number
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn)
-    {
-        return LARGESTARMY + sep + ga + sep2 + pn;
+        return super.toCmd()+ sep2 + playerNumber;
     }
 
     /**

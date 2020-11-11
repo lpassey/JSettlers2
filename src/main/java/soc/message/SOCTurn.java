@@ -106,20 +106,7 @@ public class SOCTurn extends SOCMessageForGame
      */
     public String toCmd()
     {
-        return toCmd( getGame(), playerNumber, gameState);
-    }
-
-    /**
-     * TURN sep game sep2 playerNumber [sep2 gameState]
-     *
-     * @param ga  the name of the game
-     * @param pn  the seat number
-     * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0 to omit that field
-     * @return the command string
-     */
-    public static String toCmd(final String ga, final int pn, final int gs)
-    {
-        return TURN + sep + ga + sep2 + pn + ((gs > 0) ? sep2 + gs : "");
+        return super.toCmd() + sep2 + playerNumber + ((gameState > 0) ? sep2 + gameState : "");
     }
 
     /**
@@ -144,7 +131,9 @@ public class SOCTurn extends SOCMessageForGame
                 gs = Integer.parseInt(st.nextToken());
 
             return new SOCTurn(ga, pn, gs);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             return null;
         }
     }
@@ -157,5 +146,4 @@ public class SOCTurn extends SOCMessageForGame
         return "SOCTurn:game=" + getGame() + "|playerNumber=" + playerNumber
             + ((gameState != 0) ? "|gameState=" + gameState : "");
     }
-
 }

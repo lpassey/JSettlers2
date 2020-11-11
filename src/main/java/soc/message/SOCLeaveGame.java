@@ -87,6 +87,7 @@ public class SOCLeaveGame extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
         return getType() + sep + nickname + sep2 + host + sep2 + getGame();

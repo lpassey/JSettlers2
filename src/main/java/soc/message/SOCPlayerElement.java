@@ -655,21 +655,28 @@ public class SOCPlayerElement extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
         int ac = actionType;
-        if (news)
-            switch (ac)
-            {
-            case GAIN:
-                ac = GAIN_NEWS;  break;
-            case LOSE:
-                ac = LOSE_NEWS;  break;
-            case SET:
-                ac = SET_NEWS;  break;
-            }
-
-        return toCmd( getGame(), playerNumber, ac, elementType, amount );
+        return super.toCmd() + sep2 + playerNumber + sep2 + ac + sep2 + elementType + sep2 + amount
+            + ((news) ? (sep2 + 'Y') : "");
+//        if (news)
+//        {
+//            switch (ac)
+//            {
+//            case GAIN:
+//                ac = GAIN_NEWS;
+//                break;
+//            case LOSE:
+//                ac = LOSE_NEWS;
+//                break;
+//            case SET:
+//                ac = SET_NEWS;
+//                break;
+//            }
+//        }
+//        return toCmd( getGame(), playerNumber, ac, elementType, amount );
     }
 
     /**
@@ -686,30 +693,30 @@ public class SOCPlayerElement extends SOCMessageForGame
      * @param amt the amount to set or change the element
      * @return    the command string
      */
-    public static String toCmd(String ga, int pn, int ac, PEType et, int amt)
-    {
-        return toCmd(ga, pn, ac, et.getValue(), amt);
-    }
-
-    private static String toCmd(String ga, int pn, int ac, int et, int amt)
-    {
-        boolean isNews = false;
-        switch (ac)
-        {
-        case GAIN_NEWS:
-            isNews = true;  ac = GAIN;  break;
-        case SET_NEWS:
-            isNews = true;  ac = SET;  break;
-        case LOSE_NEWS:
-            isNews = true;  ac = LOSE;  break;
-        default:
-            // no ac change needed
-        }
-
-        return PLAYERELEMENT + sep + ga + sep2 + pn + sep2 + ac + sep2 + et + sep2 + amt
-            + ((isNews) ? (sep2 + 'Y') : "");
-    }
-
+//    public static String toCmd(String ga, int pn, int ac, PEType et, int amt)
+//    {
+//        return toCmd(ga, pn, ac, et.getValue(), amt);
+//    }
+//
+//    private static String toCmd(String ga, int pn, int ac, int et, int amt)
+//    {
+//        boolean isNews = false;
+//        switch (ac)
+//        {
+//        case GAIN_NEWS:
+//            isNews = true;  ac = GAIN;  break;
+//        case SET_NEWS:
+//            isNews = true;  ac = SET;  break;
+//        case LOSE_NEWS:
+//            isNews = true;  ac = LOSE;  break;
+//        default:
+//            // no ac change needed
+//        }
+//
+//        return PLAYERELEMENT + sep + ga + sep2 + pn + sep2 + ac + sep2 + et + sep2 + amt
+//            + ((isNews) ? (sep2 + 'Y') : "");
+//    }
+//
     /**
      * Parse the command String into a PlayerElement message
      *

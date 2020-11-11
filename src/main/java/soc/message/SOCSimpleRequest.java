@@ -216,10 +216,10 @@ public class SOCSimpleRequest extends SOCMessageTemplate4i
      * @param value2  Second optional detail value, or 0
      * @return the command string
      */
-    public static String toCmd(final String ga, final int pn, final int reqType, final int value1, final int value2)
-    {
-        return SOCMessageTemplate4i.toCmd(SIMPLEREQUEST, ga, pn, reqType, value1, value2);
-    }
+//    public static String toCmd(final String ga, final int pn, final int reqType, final int value1, final int value2)
+//    {
+//        return SOCMessageTemplate4i.toCmd(SIMPLEREQUEST, ga, pn, reqType, value1, value2);
+//    }
 
     /**
      * Parse the command String into a SOCSimpleRequest message

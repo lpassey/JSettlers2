@@ -96,21 +96,10 @@ public class SOCGameServerText extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getGame(), text );
-    }
-
-    /**
-     * GAMESERVERTEXT sep game char1 text
-     *
-     * @param ga  the game name
-     * @param tm  the text message
-     * @return    the command string
-     */
-    public static String toCmd(final String ga, final String tm)
-    {
-        return GAMESERVERTEXT + sep + ga + UNLIKELY_CHAR1 + tm;
+        return super.toCmd() + UNLIKELY_CHAR1 + text;
     }
 
     /**

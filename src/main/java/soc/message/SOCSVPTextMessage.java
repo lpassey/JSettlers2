@@ -121,23 +121,10 @@ public class SOCSVPTextMessage extends SOCMessageForGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
         return super.toCmd() + sep2 + pn + sep2 + svp + sep2 + desc;
-    }
-
-    /**
-     * SVPTEXTMSG sep game sep2 pn sep2 svp sep2 desc
-     *
-     * @param ga  the game name
-     * @param pn  Player number
-     * @param svp  Number of Special Victory Points (SVP) awarded
-     * @param desc  Description of the player's action that led to the SVP
-     * @return    the command string
-     */
-    protected static String toCmd( final String ga, final int pn, final int svp, final String desc )
-    {
-        return new SOCSVPTextMessage( ga, pn, svp, desc ).toCmd();
     }
 
     /**
