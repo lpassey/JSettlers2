@@ -507,9 +507,9 @@ public class SOCServerMessageHandler
         if (rejectReason != null)
         {
             if (rejectReason.equals(SOCServer.MSG_NICKNAME_ALREADY_IN_USE))
-                c.put(SOCStatusMessage.buildForVersion
-                        (SOCStatusMessage.SV_NAME_IN_USE, c.getVersion(), rejectReason));
-            c.put(new SOCRejectConnection(rejectReason));
+                c.send(SOCStatusMessage.buildForVersion
+                        (SOCStatusMessage.SV_NAME_IN_USE, c.getRemoteVersion(), rejectReason));
+            c.send(new SOCRejectConnection(rejectReason));
             c.disconnectSoft();
 
             // make an effort to send reject message before closing socket

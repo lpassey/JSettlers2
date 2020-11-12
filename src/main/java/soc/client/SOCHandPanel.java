@@ -1294,200 +1294,200 @@ import javax.swing.UIManager;
     {
         try
         {
-            String target = e.getActionCommand();
+        String target = e.getActionCommand();
 
-            if (target == LOCKSEAT)
-            {
-                // Seat Lock while game forming (gamestate NEW); see below for ROBOTLOCKBUT_L etc
-                messageSender.setSeatLock( game, playerNumber, SOCGame.SeatLockState.LOCKED );
-            }
-            else if (target == UNLOCKSEAT)
-            {
-                // Unlock while game forming
-                messageSender.setSeatLock( game, playerNumber, SOCGame.SeatLockState.UNLOCKED );
-            }
-            else if (target == TAKEOVER)
-            {
-                messageSender.sitDown( game, playerNumber );
-            }
-            else if (target == SIT)
-            {
-                messageSender.sitDown( game, playerNumber );
-            }
-            else if ((target == START) && startBut.isVisible())
-            {
-                messageSender.startGame( game );
+        if (target == LOCKSEAT)
+        {
+            // Seat Lock while game forming (gamestate NEW); see below for ROBOTLOCKBUT_L etc
+            messageSender.setSeatLock(game, playerNumber, SOCGame.SeatLockState.LOCKED);
+        }
+        else if (target == UNLOCKSEAT)
+        {
+            // Unlock while game forming
+            messageSender.setSeatLock(game, playerNumber, SOCGame.SeatLockState.UNLOCKED);
+        }
+        else if (target == TAKEOVER)
+        {
+            messageSender.sitDown(game, playerNumber);
+        }
+        else if (target == SIT)
+        {
+            messageSender.sitDown(game, playerNumber);
+        }
+        else if ((target == START) && startBut.isVisible())
+        {
+            messageSender.startGame(game);
 
-                // checks isVisible to guard against button action from hitting spacebar
-                // when hidden but has focus because startBut is the first button added to panel;
-                // this bug seen on OSX 10.9.1 (1.5.0 JVM)
-            }
+            // checks isVisible to guard against button action from hitting spacebar
+            // when hidden but has focus because startBut is the first button added to panel;
+            // this bug seen on OSX 10.9.1 (1.5.0 JVM)
+        }
 //            else if (target == ROBOT)
 //            {
 //                // cf.cc.addRobot(cf.cname, playerNum);
 //            }
-            else if (target == ROLL)
+        else if (target == ROLL)
+        {
+            if (autoRollTimerTask != null)
             {
-                if (autoRollTimerTask != null)
-                {
-                    autoRollTimerTask.cancel();
-                    autoRollTimerTask = null;
-                }
-                clickRollButton();
+                autoRollTimerTask.cancel();
+                autoRollTimerTask = null;
             }
-            else if (target == QUIT)
+            clickRollButton();
+        }
+        else if (target == QUIT)
+        {
+            SOCQuitConfirmDialog.createAndShow(playerInterface.getMainDisplay(), playerInterface);
+        }
+        else if (target == DONE)
+        {
+            clickDoneButton();
+        }
+        else if (target == DONE_RESTART)
+        {
+            playerInterface.resetBoardRequest(game.isPractice && ! game.isInitialPlacement());
+        }
+        else if (target == CLEAR)
+        {
+            clearOffer(true);    // Zero the square panel numbers, unless board-reset vote in progress
+            if (game.getGameState() == SOCGame.PLAY1)
             {
-                SOCQuitConfirmDialog.createAndShow( playerInterface.getMainDisplay(), playerInterface );
+                messageSender.clearOffer(game);
             }
-            else if (target == DONE)
+        }
+        else if (target == BANK)
+        {
+            int gstate = game.getGameState();
+            if (gstate == SOCGame.PLAY1)
             {
-                clickDoneButton();
+                int[] give = new int[5];
+                int[] get = new int[5];
+                sqPanel.getValues(give, get);
+                createSendBankTradeRequest(give, get, true);
             }
-            else if (target == DONE_RESTART)
+            else if (gstate == SOCGame.OVER)
             {
-                playerInterface.resetBoardRequest( game.isPractice && !game.isInitialPlacement() );
-            }
-            else if (target == CLEAR)
-            {
-                clearOffer( true );    // Zero the square panel numbers, unless board-reset vote in progress
-                if (game.getGameState() == SOCGame.PLAY1)
-                {
-                    messageSender.clearOffer( game );
-                }
-            }
-            else if (target == BANK)
-            {
-                int gstate = game.getGameState();
-                if (gstate == SOCGame.PLAY1)
-                {
-                    int[] give = new int[5];
-                    int[] get = new int[5];
-                    sqPanel.getValues( give, get );
-                    createSendBankTradeRequest( give, get, true );
-                }
-                else if (gstate == SOCGame.OVER)
-                {
-                    String msg = game.gameOverMessageToPlayer( player );
+                String msg = game.gameOverMessageToPlayer(player);
                     // msg = "The game is over; you are the winner!";
                     // msg = "The game is over; <someone> won.";
                     // msg = "The game is over; no one won.";
-                    playerInterface.print( "* " + msg );
-                }
+                playerInterface.print("* " + msg);
             }
-            else if (target == BANK_UNDO)
+        }
+        else if (target == BANK_UNDO)
+        {
+            if ((bankGive != null) && (bankGet != null))
             {
-                if ((bankGive != null) && (bankGet != null))
+                messageSender.bankTrade(game, bankGet, bankGive);  // undo by reversing previous request
+                bankGive = null;
+                bankGet = null;
+                bankUndoBut.setEnabled(false);
+            }
+        }
+        else if (target == ROBOTLOCKBUT_L)
+        {
+            // Seat Lock while game in progress; see above for UNLOCKSEAT etc
+            clickRobotSeatLockButton(SOCGame.SeatLockState.LOCKED);
+        }
+        else if (target == ROBOTLOCKBUT_U)
+        {
+            clickRobotSeatLockButton(SOCGame.SeatLockState.UNLOCKED);
+        }
+        else if (target == ROBOTLOCKBUT_M)
+        {
+            clickRobotSeatLockButton(SOCGame.SeatLockState.CLEAR_ON_RESET);
+        }
+        else if (target == SEND)
+        {
+            if (playerTradingDisabled)
+                return;
+
+            if (game.getGameState() == SOCGame.PLAY1)
+            {
+                int[] give = new int[5];
+                int[] get = new int[5];
+                int giveSum = 0;
+                int getSum = 0;
+                sqPanel.getValues(give, get);
+
+                for (int i = 0; i < 5; i++)
                 {
-                    messageSender.bankTrade( game, bankGet, bankGive );  // undo by reversing previous request
-                    bankGive = null;
-                    bankGet = null;
-                    bankUndoBut.setEnabled( false );
+                    giveSum += give[i];
+                    getSum += get[i];
                 }
-            }
-            else if (target == ROBOTLOCKBUT_L)
-            {
-                // Seat Lock while game in progress; see above for UNLOCKSEAT etc
-                clickRobotSeatLockButton( SOCGame.SeatLockState.LOCKED );
-            }
-            else if (target == ROBOTLOCKBUT_U)
-            {
-                clickRobotSeatLockButton( SOCGame.SeatLockState.UNLOCKED );
-            }
-            else if (target == ROBOTLOCKBUT_M)
-            {
-                clickRobotSeatLockButton( SOCGame.SeatLockState.CLEAR_ON_RESET );
-            }
-            else if (target == SEND)
-            {
-                if (playerTradingDisabled)
-                    return;
 
-                if (game.getGameState() == SOCGame.PLAY1)
+                SOCResourceSet giveSet = new SOCResourceSet(give);
+                SOCResourceSet getSet = new SOCResourceSet(get);
+
+                if (! player.getResources().contains(giveSet))
                 {
-                    int[] give = new int[5];
-                    int[] get = new int[5];
-                    int giveSum = 0;
-                    int getSum = 0;
-                    sqPanel.getValues( give, get );
-
-                    for (int i = 0; i < 5; i++)
-                    {
-                        giveSum += give[i];
-                        getSum += get[i];
-                    }
-
-                    SOCResourceSet giveSet = new SOCResourceSet( give );
-                    SOCResourceSet getSet = new SOCResourceSet( get );
-
-                    if (!player.getResources().contains( giveSet ))
-                    {
-                        playerInterface.print( "*** " + strings.get( "hpan.trade.msg.donthave" ) );
+                    playerInterface.print("*** " + strings.get("hpan.trade.msg.donthave"));
                         // "You can't offer what you don't have."
-                    }
-                    else if ((giveSum == 0) || (getSum == 0))
-                    {
-                        playerInterface.print( "*** " + strings.get( "hpan.trade.msg.eachplayer" ) );
+                }
+                else if ((giveSum == 0) || (getSum == 0))
+                {
+                    playerInterface.print("*** " + strings.get("hpan.trade.msg.eachplayer"));
                         // "A trade must contain at least one resource from each player."
-                    }
-                    else
-                    {
-                        // bool array elements begin as false
-                        boolean[] to = new boolean[game.maxPlayers];
-                        boolean toAny = false;
-
-                        if (game.getCurrentPlayerNumber() == playerNumber)
-                        {
-                            for (int i = 0; i < (game.maxPlayers - 1); i++)
-                            {
-                                if (playerSend[i].getBoolValue() && !game.isSeatVacant( playerSendMap[i] ))
-                                {
-                                    to[playerSendMap[i]] = true;
-                                    toAny = true;
-                                    playerSendForPrevTrade[i] = true;
-                                }
-                                else
-                                {
-                                    playerSendForPrevTrade[i] = false;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // can only offer to current player
-                            to[game.getCurrentPlayerNumber()] = true;
-                            toAny = true;
-                        }
-
-                        if (!toAny)
-                        {
-                            playerInterface.print( "*** " + strings.get( "hpan.trade.msg.chooseoppo" ) );
-                            // "Choose at least one opponent's checkbox."
-                        }
-                        else
-                        {
-                            SOCTradeOffer tradeOffer =
-                                new SOCTradeOffer( game.getName(),
-                                    playerNumber,
-                                    to, giveSet, getSet );
-                            messageSender.offerTrade( game, tradeOffer );
-                            disableBankUndoButton();
-                        }
-                    }
                 }
                 else
                 {
-                    getPlayerInterface().print( "* " + strings.get( "hpan.trade.msg.notnow" ) + "\n" );
-                    // "You cannot trade at this time."
+                    // bool array elements begin as false
+                    boolean[] to = new boolean[game.maxPlayers];
+                    boolean toAny = false;
+
+                    if (game.getCurrentPlayerNumber() == playerNumber)
+                    {
+                        for (int i = 0; i < (game.maxPlayers - 1); i++)
+                        {
+                            if (playerSend[i].getBoolValue() && ! game.isSeatVacant(playerSendMap[i]))
+                            {
+                                to[playerSendMap[i]] = true;
+                                toAny = true;
+                                playerSendForPrevTrade[i] = true;
+                                }
+                                else
+                                {
+                                playerSendForPrevTrade[i] = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // can only offer to current player
+                        to[game.getCurrentPlayerNumber()] = true;
+                        toAny = true;
+                    }
+
+                    if (! toAny)
+                    {
+                        playerInterface.print("*** " + strings.get("hpan.trade.msg.chooseoppo"));
+                            // "Choose at least one opponent's checkbox."
+                    }
+                    else
+                    {
+                        SOCTradeOffer tradeOffer =
+                            new SOCTradeOffer(game.getName(),
+                                              playerNumber,
+                                              to, giveSet, getSet);
+                        messageSender.offerTrade(game, tradeOffer);
+                        disableBankUndoButton();
+                    }
                 }
+                }
+                else
+                {
+                getPlayerInterface().print("* " + strings.get("hpan.trade.msg.notnow") + "\n");
+                    // "You cannot trade at this time."
             }
-            else if ((e.getSource() == inventory) || (e.getSource() == playCardBut))
-            {
-                clickPlayCardButton();
-            }
+        }
+        else if ((e.getSource() == inventory) || (e.getSource() == playCardBut))
+        {
+            clickPlayCardButton();
+        }
         }
         catch( Throwable th )
         {
-            playerInterface.chatPrintStackTrace( th );
+            playerInterface.chatPrintStackTrace(th);
         }
     }
 
@@ -4241,7 +4241,7 @@ import javax.swing.UIManager;
             int topFaceAreaHeight = y + lineH;
 
             // always position these: though they may not be visible
-            larmyLab.setBounds( topStuffW, y, (dim.width - (topStuffW + inset + space)) / 2, lineH );
+            larmyLab.setBounds(topStuffW, y, (dim.width - (topStuffW + inset + space)) / 2, lineH);
             lroadLab.setBounds(topStuffW + ((dim.width - (topStuffW + inset + space)) / 2) + space, y,
                 (dim.width - (topStuffW + inset + space)) / 2, lineH);
 

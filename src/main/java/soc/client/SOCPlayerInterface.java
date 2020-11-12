@@ -46,6 +46,7 @@ import soc.game.SOCShip;
 import soc.game.SOCSpecialItem;
 import soc.game.SOCTradeOffer;
 import soc.game.SOCVillage;
+import soc.message.SOCMessage;
 import soc.message.SOCPlayerElement.PEType;
 import soc.message.SOCBankTrade;     // for reply code constant
 import soc.message.SOCSimpleAction;  // for action type constants
@@ -67,6 +68,7 @@ import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.TextArea;
 import java.awt.TextComponent;
+import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;

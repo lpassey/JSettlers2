@@ -3090,18 +3090,18 @@ public class SOCGameHandler extends GameHandler
             srv.messageToGameForVersions(ga, -1, SOCReportRobbery.MIN_VERSION - 1, gainRsrc, true);
             srv.messageToGameForVersions(ga, -1, SOCReportRobbery.MIN_VERSION - 1, loseRsrc, true);
 
-            if (peCon.getVersion() < SOCReportRobbery.MIN_VERSION)
+            if (peCon.getRemoteVersion() < SOCReportRobbery.MIN_VERSION)
                 srv.messageToPlayerKeyedSpecial
                     (peCon, ga, SOCServer.PN_NON_EVENT,
                      "robber.common.you.stole.resource.from", -1, rsrc, viName);  // "You stole {0,rsrcs} from {2}."
-            if (viCon.getVersion() < SOCReportRobbery.MIN_VERSION)
+            if (viCon.getRemoteVersion() < SOCReportRobbery.MIN_VERSION)
                 srv.messageToPlayerKeyedSpecial
                     (viCon, ga, SOCServer.PN_NON_EVENT,
                      "robber.common.stole.resource.from.you", peName, -1, rsrc);  // "{0} stole {1,rsrcs} from you."
         }
         else
         {
-            if (peCon.getVersion() < SOCReportRobbery.MIN_VERSION)
+            if (peCon.getRemoteVersion() < SOCReportRobbery.MIN_VERSION)
             {
                 srv.messageToPlayer(peCon, null, SOCServer.PN_NON_EVENT, gainRsrc);
                 srv.messageToPlayer(peCon, null, SOCServer.PN_NON_EVENT, loseRsrc);
