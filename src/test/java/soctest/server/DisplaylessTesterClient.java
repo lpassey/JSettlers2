@@ -215,11 +215,9 @@ public class DisplaylessTesterClient
             opts.put(opt);
         }
 
-        final SOCGame ga = new SOCGame(gameName, opts, knownOpts);
+        final SOCGame ga = new SOCGame(gaName, opts, knownOpts);
         ga.isPractice = isPractice;
         ga.serverVersion = connection.getRemoteVersion();   // (isPractice) ? sLocalVersion : sVersion;
         games.put(gameName, ga);
     }
-
-
 }

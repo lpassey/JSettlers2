@@ -2013,6 +2013,9 @@ public class SOCPlayerInterface extends Frame
             String s = textInput.getText().trim();
             String sOverflow = null;
 
+            if (! checkTextCharactersOrPopup(s, mainDisplay, this))
+                return;
+
             if (s.length() > 100)
             {
                 // wrap long line at a word if possible
@@ -2112,6 +2115,34 @@ public class SOCPlayerInterface extends Frame
                 textInput.setCaretPosition(sOverflow.length());
             }
         }
+    }
+
+    /**
+     * Check characters in {@code txt} to see if they're allowed within a message to the server.
+     * If not, show a modal {@link NotifyDialog} to let the user know what can't be sent.
+     * Currently disallows only {@code '|'}, the message field delimiter ({@link SOCMessage#sep_char}).
+     *
+     * @param txt  Text to check; may be "" but not null
+     * @param md       Player client's main display. Not null, required by NotifyDialog if shown
+     * @param parent   Current game's player interface or channel window,
+     *                 or another Frame or Dialog for our parent window,
+     *                 or null to look for client's main Frame/Dialog as parent,
+     *                 for NotifyDialog if shown
+     * @return true if OK to send, false if a dialog was shown
+     * @since 2.4.50
+     */
+    public static boolean checkTextCharactersOrPopup
+        (final String txt, final MainDisplay md, final Window parent)
+    {
+        if (txt.indexOf(SOCMessage.sep_char) != -1)
+        {
+            NotifyDialog.createAndShow
+                (md, parent, strings.get("interface.chat.text.no_pipe_symbol"), null, true);
+                    // "Chat text can't contain the '|' symbol."
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -3107,7 +3138,7 @@ public class SOCPlayerInterface extends Frame
         (final int perpPN, final int victimPN, final int resType, final PEType peType,
          final boolean isGainLose, final int amount, final int victimAmount)
     {
-        // These texts are also sent from SOCGameHandler.reportRobbery to older clients;
+        // These texts are also sent from server SOCGameHandler.reportRobbery to clients older than v2.4.50;
         // if you change the logic or text, make sure it's updated in both places
 
         final String peName = (perpPN >= 0) ? game.getPlayer(perpPN).getName() : null,
@@ -3118,7 +3149,13 @@ public class SOCPlayerInterface extends Frame
             if ((resType == SOCResourceConstants.UNKNOWN) || (clientHandPlayerNum < 0)
                 || ((clientHandPlayerNum != perpPN) && (clientHandPlayerNum != victimPN)))
             {
-                printKeyed("robber.common.stole.resource.from", peName, viName);  // "{0} stole a resource from {1}."
+                if (isGameFullyObservable)
+                    printKeyedSpecial
+                        ("robber.stole.resource.from.play_fo",  // "{0} stole {2,rsrcs} from {1}."
+                         peName, viName, (amount != 1) ? amount : -1, resType);
+                else
+                    printKeyed
+                        ("robber.common.stole.resource.from", peName, viName);  // "{0} stole a resource from {1}."
             }
             else
             {

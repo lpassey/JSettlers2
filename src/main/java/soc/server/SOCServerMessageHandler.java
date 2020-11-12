@@ -507,9 +507,9 @@ public class SOCServerMessageHandler
         if (rejectReason != null)
         {
             if (rejectReason.equals(SOCServer.MSG_NICKNAME_ALREADY_IN_USE))
-                c.send(SOCStatusMessage.buildForVersion
-                        (SOCStatusMessage.SV_NAME_IN_USE, c.getRemoteVersion(), rejectReason));
-            c.send(new SOCRejectConnection(rejectReason));
+                c.put(SOCStatusMessage.buildForVersion
+                        (SOCStatusMessage.SV_NAME_IN_USE, c.getVersion(), rejectReason));
+            c.put(new SOCRejectConnection(rejectReason));
             c.disconnectSoft();
 
             // make an effort to send reject message before closing socket
@@ -2538,7 +2538,7 @@ public class SOCServerMessageHandler
          * make sure this player isn't already sitting
          */
         boolean canSit = true;
-        boolean gameIsFull = false, gameAlreadyStarted = false;
+        boolean gameIsFull = false, gameAlreadyStarted = false, sentBotDismiss = false;
 
         /*
            for (int i = 0; i < SOCGame.MAXPLAYERS; i++) {
@@ -2635,6 +2635,7 @@ public class SOCServerMessageHandler
 
                     if ((robotCon != null) && gameList.isMember(robotCon, gaName))
                     {
+                        sentBotDismiss = true;
                         server.messageToPlayer(robotCon, gaName, pn,
                             new SOCRobotDismiss(gaName));
 
@@ -2725,10 +2726,10 @@ public class SOCServerMessageHandler
                 server.messageToPlayerKeyed(c, gaName, SOCServer.PN_OBSERVER, "member.sit.game.full");
                     // "This game is full; you cannot sit down."
             }
-            else
+            else if (! sentBotDismiss)
             {
                 server.messageToPlayer
-                    (c, null, SOCServer.PN_NON_EVENT,
+                    (c, gaName, SOCServer.PN_NON_EVENT,
                      "This seat is claimed by another game member, choose another.");
                          // I18N OK: client shouldn't ask to take that seat
             }
