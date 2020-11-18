@@ -2646,7 +2646,8 @@ import javax.swing.UIManager;
 
         inPlay = true;
 
-        validate();  // doLayout() will lay things out for our hand or other player's hand
+        invalidate();
+        doLayout();
         if (blankStandIn != null)
             blankStandIn.setVisible(false);
         setVisible(true);
@@ -3048,6 +3049,7 @@ import javax.swing.UIManager;
     {
         if (game.getGameState() != SOCGame.NEW)
             return;  // TODO consider IllegalStateException
+
         final String buttonText, ttipText;
         if (game.getSeatLock(playerNumber) == SOCGame.SeatLockState.LOCKED)
         {
@@ -3064,7 +3066,8 @@ import javax.swing.UIManager;
         sitBut.setText(buttonText);
         sitBut.setToolTipText(ttipText);
         sitButIsLock = true;
-        validate();  // sitBut minimum width may change with text
+        invalidate();  // sitBut minimum width may change with text
+        doLayout();
         sitBut.repaint();
     }
 
@@ -4533,6 +4536,9 @@ import javax.swing.UIManager;
                             (inset, py, offerW, ph);
                         counterOfferPanel.setBounds
                             (inset, py + ph + space, offerW, counterOfferHeight);
+
+                        if (resInventoryHeight > 0)
+                            resourceInventoryTop = topFaceAreaHeight + space;
                     }
 
                     if (miscInfoArea != null)

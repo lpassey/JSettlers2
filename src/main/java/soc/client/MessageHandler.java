@@ -1025,7 +1025,8 @@ public final class MessageHandler implements SOCMessageDispatcher
         {
             // TODO: if possible, restart connect frame?
             handleBCASTTEXTMSG(statusText);
-            client.getNet().disconnect();
+            client.getNet().ex = new RuntimeException(statusText);
+            client.shutdownFromNetwork();
         }
         break;
 
