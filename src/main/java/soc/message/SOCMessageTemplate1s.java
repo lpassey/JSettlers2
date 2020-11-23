@@ -99,19 +99,6 @@ public abstract class SOCMessageTemplate1s extends SOCMessageForGame
     }
 
     /**
-     * MESSAGETYPE sep game sep2 param
-     *
-     * @param messageType The message type id
-     * @param ga  the game name
-     * @param param The parameter
-     * @return    the command string
-     */
-    protected static String toCmd(final int messageType, String ga, String param)
-    {
-        return messageType + sep + ga + sep2 + param;
-    }
-
-    /**
      * Parse the command String into a MessageType message
      *
      * @param s   the String to parse

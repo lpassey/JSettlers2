@@ -102,28 +102,14 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getType(), pa );
-    }
+        StringBuilder sb = new StringBuilder(Integer.toString( getType() ));
 
-    /**
-     * MESSAGETYPE [sep game] sep param1 sep param2 sep ...
-     *
-     * @param messageType The message type id
-     * @param gaName  the game name, or null
-     * @param pal  The parameter list, or null if no additional parameters.
-     *     Blank or null values in this list are automatically sent as the {@link SOCMessage#EMPTYSTR} token
-     *     and must be converted back on the receiving end: See {@link #parseData_FindEmptyStrs(List)}.
-     * @return    the command string
-     */
-    protected static String toCmd(final int messageType, final List<String> pal)
-    {
-        StringBuilder sb = new StringBuilder(Integer.toString(messageType));
-
-        if (pal != null)
+        if (pa != null)
         {
-            for (final String p : pal)
+            for (final String p : pa)
             {
                 sb.append(sep);
                 if ((p != null) && (p.length() > 0))
@@ -132,7 +118,6 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
                     sb.append(EMPTYSTR);
             }
         }
-
         return sb.toString();
     }
 

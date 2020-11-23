@@ -2824,7 +2824,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
     public void leaveChannel(String ch)
     {
         channels.remove(ch);
-        put(SOCLeaveChannel.toCmd(nickname, "-", ch));
+        put( new SOCLeaveChannel(nickname, "-", ch).toCmd());
     }
 
     /**
@@ -3053,7 +3053,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void rollDice(SOCGame ga)
     {
-        put(SOCRollDice.toCmd(ga.getName()));
+        put( new SOCRollDice(ga.getName()).toCmd());
     }
 
     /**
@@ -3221,7 +3221,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void setSeatLock(SOCGame ga, int pn, SOCGame.SeatLockState sl)
     {
-        put(SOCSetSeatLock.toCmd(ga.getName(), pn, sl));
+        put( new SOCSetSeatLock(ga.getName(), pn, sl).toCmd());
     }
 
     /**

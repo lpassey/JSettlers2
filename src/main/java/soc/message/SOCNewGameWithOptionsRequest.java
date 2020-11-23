@@ -112,27 +112,9 @@ public class SOCNewGameWithOptionsRequest extends SOCMessageTemplateJoinGame
      */
     public String toCmd()
     {
-        return toCmd(nickname, password, host, game, optsStr);
-    }
-
-    /**
-     * NEWGAMEWITHOPTIONSREQUEST sep nickname sep2 password sep2 host sep2 game sep2 options
-     *
-     * @param nn  player's nickname, or "-" if already auth'd to server
-     * @param pw  the optional password, or "" if none; not null
-     * @param hn  unused; the optional server host name to which client is connected,
-     *     or "-" or {@link SOCMessage#EMPTYSTR}
-     * @param ga  the game name
-     * @param optstr the game options as a string name-value pairs, as created by
-     *             {@link SOCGameOption#packOptionsToString(Map, boolean, boolean)}.
-     * @return    the command string
-     */
-    public static String toCmd(String nn, String pw, String hn, String ga, String optstr)
-    {
-        if (pw.length() == 0)
-            pw = EMPTYSTR;
-
-        return NEWGAMEWITHOPTIONSREQUEST + sep + nn + sep2 + pw + sep2 + hn + sep2 + ga + sep2 + optstr;
+        return getType() + sep + nickname + sep2 +
+            (null == password || 0 == password.length() ? EMPTYSTR : password)
+            + sep2 + host + sep2 + game + sep2 + optsStr;
     }
 
     /**
@@ -146,9 +128,11 @@ public class SOCNewGameWithOptionsRequest extends SOCMessageTemplateJoinGame
      * @param opts the game options ({@link SOCGameOption})
      * @return    the command string
      */
-    public static String toCmd(String nn, String pw, String hn, String ga, Map<String, SOCGameOption> opts)
+    public static String toCmd(String nickname, String password, String hostName, String gameName,
+        Map<String, SOCGameOption> opts)
     {
-        return toCmd(nn, pw, hn, ga, SOCGameOption.packOptionsToString(opts, false, false));
+        return new SOCNewGameWithOptionsRequest( nickname, password, hostName, gameName,
+            SOCGameOption.packOptionsToString(opts, false, false) ).toCmd();
     }
 
     /**

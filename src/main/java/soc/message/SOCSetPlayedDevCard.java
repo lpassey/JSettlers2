@@ -93,10 +93,10 @@ public class SOCSetPlayedDevCard extends SOCMessageForGame
      * @param pd  the value of the playedDevCard flag
      * @return the command string
      */
-    public static String toCmd(String ga, int pn, boolean pd)
-    {
-        return SETPLAYEDDEVCARD + sep + ga + sep2 + pn + sep2 + pd;
-    }
+//    public static String toCmd(String ga, int pn, boolean pd)
+//    {
+//        return SETPLAYEDDEVCARD + sep + ga + sep2 + pn + sep2 + pd;
+//    }
 
     /**
      * Parse the command String into a SETPLAYEDDEVCARD message.

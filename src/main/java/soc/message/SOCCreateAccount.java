@@ -146,33 +146,10 @@ public class SOCCreateAccount extends SOCMessage
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(nickname, password, host, email);
-    }
-
-    /**
-     * CREATEACCOUNT sep nickname sep2 password sep2 host sep2 email
-     *
-     * @param nn  the nickname
-     * @param pw  the password; must not be null or ""
-     * @param hn  the host name; must not be null or ""
-     * @param em  the email; optional, can use null or ""
-     * @return    the command string
-     * @throws IllegalArgumentException if {@code pw} or {@code hn} are null or empty ("")
-     */
-    public static String toCmd(String nn, String pw, String hn, String em)
-        throws IllegalArgumentException
-    {
-        if ((pw == null) || (pw.length() == 0))
-            throw new IllegalArgumentException("pw");
-        if ((hn == null) || (hn.length() == 0))
-            throw new IllegalArgumentException("hn");
-
-        if ((em == null) || (em.length() == 0))
-            em = EMPTYSTR;
-
-        return CREATEACCOUNT + sep + nn + sep2 + pw + sep2 + hn + sep2 + em;
+        return getType() + sep + nickname + sep2 + password + sep2 + host + sep2 + email;
     }
 
     /**

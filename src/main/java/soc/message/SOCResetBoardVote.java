@@ -71,20 +71,9 @@ public class SOCResetBoardVote extends SOCMessageTemplate2i
         return (p2 != 0);
     }
 
-    /**
-     * RESETBOARDVOTE sep game sep2 playernumber sep2 yesno [Yes is 1, No is 0]
-     *
-     * @param ga  the name of the game
-     * @param pn  the voter's player number.
-     *     Used only from server when sending to other players; server has always ignored this param from client.
-     * @param pyes if the vote was yes
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn, boolean pyes)
-    {
-        return RESETBOARDVOTE + sep + ga + sep2 + pn + sep2
-            + (pyes ? "1" : "0");
-    }
+    // The super method is acceptable in this case
+    //    @Override
+    //    public String toCmd()
 
     /**
      * Parse the command String into a SOCResetBoardVote message

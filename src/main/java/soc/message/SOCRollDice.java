@@ -62,10 +62,10 @@ public class SOCRollDice extends SOCMessageForGame
      * @param ga  the game name
      * @return    the command string
      */
-    public static String toCmd(String ga)
-    {
-        return new SOCRollDice( ga ).toCmd();
-    }
+//    public static String toCmd(String ga)
+//    {
+//        return new SOCRollDice( ga ).toCmd();
+//    }
 
     /**
      * Parse the command String into a RollDice message

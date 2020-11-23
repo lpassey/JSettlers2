@@ -61,7 +61,8 @@ public class SOCRejectConnection extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(text);
+        return getType() + sep + text;
+//        return toCmd(text);
     }
 
     /**
@@ -70,10 +71,10 @@ public class SOCRejectConnection extends SOCMessage
      * @param tm  the text message
      * @return    the command string
      */
-    public static String toCmd(String tm)
-    {
-        return REJECTCONNECTION + sep + tm;
-    }
+//    public static String toCmd(String tm)
+//    {
+//        return REJECTCONNECTION + sep + tm;
+//    }
 
     /**
      * Parse the command String into a RejectConnection message

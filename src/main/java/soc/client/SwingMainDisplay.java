@@ -1407,8 +1407,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             }
 
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
-            net.putNet(SOCJoinChannel.toCmd
-                (client.nickname, (client.gotPassword ? "" : client.password), SOCMessage.EMPTYSTR, ch));
+            net.putNet( new SOCJoinChannel( client.nickname, (client.gotPassword ? "" : client.password),
+                SOCMessage.EMPTYSTR, ch).toCmd() );
         }
         else
         {
@@ -1628,8 +1628,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
                 status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                net.putNet(SOCJoinGame.toCmd
-                    (client.nickname, (client.gotPassword ? "" : client.password), SOCMessage.EMPTYSTR, gm));
+                net.putNet( new SOCJoinGame( client.nickname, (client.gotPassword ? "" : client.password),
+                    SOCMessage.EMPTYSTR, gm).toCmd());
             }
         }
         else
@@ -1986,10 +1986,9 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             final String pw = (client.gotPassword ? "" : client.password);  // after successful auth, don't need to send
             String askMsg =
                 (client.sVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
-                ? SOCNewGameWithOptionsRequest.toCmd
-                    (client.nickname, pw, SOCMessage.EMPTYSTR, gmName, opts.getAll())
-                : SOCJoinGame.toCmd
-                    (client.nickname, pw, SOCMessage.EMPTYSTR, gmName);
+                ? new SOCNewGameWithOptionsRequest( client.nickname, pw, SOCMessage.EMPTYSTR, gmName,
+                    SOCGameOption.packOptionsToString(opts.getAll(), false, false )).toCmd()
+                : new SOCJoinGame( client.nickname, pw, SOCMessage.EMPTYSTR, gmName).toCmd();
             net.putNet(askMsg);
             System.out.flush();  // for debug print output (temporary)
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."

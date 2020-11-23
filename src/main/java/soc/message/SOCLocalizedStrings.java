@@ -308,35 +308,22 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
     @Override
     public String toCmd()
     {
-        return toCmd( pa.get(0), flags, pa, true);
-    }
-
-    /**
-     * See {@link #SOCLocalizedStrings(String, int, List)} for field/parameter details.
-     * Will build empty or null elements as {@link SOCMessage#EMPTYSTR}.
-     * Relies on callers to make sure {@code type} and every element of {@code strs} passes
-     * {@link SOCMessage#isSingleLineAndSafe(String)}.
-     * @param skipFirstStr  If true, {@code str}'s first element is {@code type}: skip it while building cmd.
-     */
-    private static String toCmd
-        (final String type, final int flags, List<String> strs, final boolean skipFirstStr)
-    {
-        StringBuilder sb = new StringBuilder(Integer.toString(SOCMessage.LOCALIZEDSTRINGS));
+        StringBuilder sb = new StringBuilder(Integer.toString(getType()));
         sb.append(sep);
-        sb.append(type);
+        sb.append(pa.get(0));
         sb.append(sep);
         sb.append(Integer.toHexString(flags));
 
-        if (strs != null)
+        if (pa != null)
         {
-            for (int i = 0; i < strs.size(); ++i)
+            for (int i = 0; i < pa.size(); ++i)
             {
-                if ((i == 0) && skipFirstStr)
+                if ((i == 0)) // && skipFirstStr)
                     continue;
 
                 sb.append(sep);
 
-                String itm = strs.get(i);
+                String itm = pa.get(i);
                 if ((itm == null) || (itm.length() == 0))
                     itm = EMPTYSTR;
 

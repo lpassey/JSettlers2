@@ -37,6 +37,7 @@ import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
 import soc.disableDebug.D;
 import soc.game.SOCGame;
+import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
 import soc.message.SOCChannels;
 import soc.message.SOCGames;
@@ -300,10 +301,11 @@ import soc.util.Version;
 
         // Ask internal practice server to create the game
         if (gameOpts == null)
-            putPractice(SOCJoinGame.toCmd(client.practiceNickname, "", SOCMessage.EMPTYSTR, practiceGameName));
+            putPractice(new SOCJoinGame(client.practiceNickname, "", SOCMessage.EMPTYSTR, practiceGameName).toCmd());
         else
-            putPractice(SOCNewGameWithOptionsRequest.toCmd
-                (client.practiceNickname, "", SOCMessage.EMPTYSTR, practiceGameName, gameOpts.getAll()));
+            putPractice( new SOCNewGameWithOptionsRequest( client.practiceNickname, "",
+                SOCMessage.EMPTYSTR, practiceGameName,
+                SOCGameOption.packOptionsToString(gameOpts.getAll(), false, false)).toCmd());
 
         return true;
     }
@@ -528,9 +530,8 @@ import soc.util.Version;
                 feats = ';' + gameopt3p;
         }
 
-        final String msg = SOCVersion.toCmd
-            (Version.versionNumber(), Version.version(), Version.buildnum(),
-             feats, client.cliLocale.toString());
+        final String msg = new SOCVersion( Version.versionNumber(), Version.version(), Version.buildnum(),
+             feats, client.cliLocale.toString()).toCmd();
 
         if (isPractice)
             putPractice(msg);

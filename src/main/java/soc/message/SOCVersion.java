@@ -105,6 +105,7 @@ public class SOCVersion extends SOCMessage
         super( VERSION );
         if ((verBuild == null) && (feats != null))
             throw new IllegalArgumentException("null verBuild, non-null feats");
+        // don't need to check for null build && non-null cliLocale: that's 2.0.00+ only
 
         versNum = verNum;
         versStr = verStr;
@@ -145,39 +146,35 @@ public class SOCVersion extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(versNum, versStr, versBuild, feats, cliLocale);
-    }
-
-    /**
-     * VERSION SEP vernum SEP2 verstr [SEP2 build [SEP2 feats [SEP2 cliLocale]]].
-     * Build, feats, and cliLocale are optional and may be blank ({@link SOCMessage#EMPTYSTR}).
-     *<P>
-     * Empty strings should not be given as parameters; use {@code null} instead for optional fields.
-     *
-     * @param verNum  the version number, like 1100 for 1.1.00, as in {@link soc.util.Version#versionNumber()}; not null
-     * @param verStr  the version as string, like "1.1.00"; not null
-     * @param verBuild the version build, or null, from {@link soc.util.Version#buildnum()}
-     * @param feats  The server's or client's active optional features, or null, as in
-     *     {@link SOCFeatureSet#getEncodedList()}.
-     *     Not sent by servers older than 1.1.19 or clients older than 2.0.00;
-     *     see {@link SOCFeatureSet#SOCFeatureSet(boolean, boolean)} for default features at older versions.
-     *     Server can send this to a client older than 1.1.19, it is safely ignored.
-     * @param cliLocale The client's JVM locale, or null, as in {@link java.util.Locale#toString()}.
-     *     Not sent by servers or by clients older than 2.0.00.
-     * @return    the command string
-     * @throws IllegalArgumentException if {@code verBuild} is null and {@code feats} != null;
-     *     not supported by message encoding to clients older than 2.0.00.
-     */
-    public static String toCmd
-        (final int verNum, final String verStr, final String verBuild, final String feats, final String cliLocale)
-        throws IllegalArgumentException
-    {
-        if ((verBuild == null) && (feats != null))
-            throw new IllegalArgumentException("null verBuild, non-null feats");
-        // don't need to check for null build && non-null cliLocale: that's 2.0.00+ only
-
-        return VERSION + sep + verNum + sep2 + verStr
-            + sep2 + (verBuild != null ? verBuild : EMPTYSTR)
+//        return toCmd(versNum, versStr, versBuild, feats, cliLocale);
+//    }
+//
+//    /**
+//     * VERSION SEP vernum SEP2 verstr [SEP2 build [SEP2 feats [SEP2 cliLocale]]].
+//     * Build, feats, and cliLocale are optional and may be blank ({@link SOCMessage#EMPTYSTR}).
+//     *<P>
+//     * Empty strings should not be given as parameters; use {@code null} instead for optional fields.
+//     *
+//     * @param verNum  the version number, like 1100 for 1.1.00, as in {@link soc.util.Version#versionNumber()}; not null
+//     * @param verStr  the version as string, like "1.1.00"; not null
+//     * @param verBuild the version build, or null, from {@link soc.util.Version#buildnum()}
+//     * @param feats  The server's or client's active optional features, or null, as in
+//     *     {@link SOCFeatureSet#getEncodedList()}.
+//     *     Not sent by servers older than 1.1.19 or clients older than 2.0.00;
+//     *     see {@link SOCFeatureSet#SOCFeatureSet(boolean, boolean)} for default features at older versions.
+//     *     Server can send this to a client older than 1.1.19, it is safely ignored.
+//     * @param cliLocale The client's JVM locale, or null, as in {@link java.util.Locale#toString()}.
+//     *     Not sent by servers or by clients older than 2.0.00.
+//     * @return    the command string
+//     * @throws IllegalArgumentException if {@code verBuild} is null and {@code feats} != null;
+//     *     not supported by message encoding to clients older than 2.0.00.
+//     */
+//    public static String toCmd
+//        (final int verNum, final String verStr, final String verBuild, final String feats, final String cliLocale)
+//        throws IllegalArgumentException
+//    {
+        return VERSION + sep + versNum + sep2 + versStr
+            + sep2 + (versBuild != null ? versBuild : EMPTYSTR)
             + sep2 + (feats != null ? feats : EMPTYSTR)
             + (cliLocale != null ? (sep2 + cliLocale) : "");
     }

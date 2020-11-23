@@ -94,19 +94,6 @@ public class SOCLeaveGame extends SOCMessageForGame
     }
 
     /**
-     * LEAVEGAME sep nickname sep2 host sep2 game
-     *
-     * @param nn  leaving member's nickname; server has always ignored this field from client, can send "-" but not blank
-     * @param hn  unused; the optional host name, or "-"
-     * @param ga  the name of the game
-     * @return    the command string
-     */
-    public static String toCmd(String nn, String hn, String ga)
-    {
-        return new SOCLeaveGame( nn, hn, ga ).toCmd();
-    }
-
-    /**
      * Parse the command String into a LeaveGame message.
      *
      * @param s   the String to parse

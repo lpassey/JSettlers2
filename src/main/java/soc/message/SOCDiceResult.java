@@ -76,16 +76,15 @@ public class SOCDiceResult extends SOCMessageTemplate1i
     }
 
     /**
-     * DICERESULT sep game sep2 result
+     *  The super method is acceptable in this case
      *
-     * @param ga  the name of the game
-     * @param dr  the dice result, from {@link soc.game.SOCGame#getCurrentDice()}
      * @return the command string
      */
-    public static String toCmd(String ga, int dr)
-    {
-        return DICERESULT + sep + ga + sep2 + dr;
-    }
+//    @Override
+//    public String toCmd(r)
+//    {
+//        return DICERESULT + sep + ga + sep2 + dr;
+//    }
 
     /**
      * Parse the command String into a DiceResult message

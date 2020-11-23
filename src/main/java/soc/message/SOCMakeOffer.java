@@ -85,19 +85,6 @@ public class SOCMakeOffer extends SOCMessageForGame
     @Override
     public String toCmd()
     {
-//        return toCmd(getGame(), offer);
-//    }
-//
-//    /**
-//     * @return the command string
-//     *
-//     * @param ga  the name of the game
-//     * @param of   the offer being made.
-//     *    From server, this offer's {@link SOCTradeOffer#getFrom()} is the player number
-//     *    making the offer. From client, value of {@code of.getFrom()} is ignored at server.
-//     */
-//    public static String toCmd(String ga, SOCTradeOffer of)
-//    {
         StringBuilder cmd = new StringBuilder( super.toCmd() );
         cmd.append( sep2 ).append( offer.getFrom() );
 

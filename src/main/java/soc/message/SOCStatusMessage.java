@@ -452,36 +452,37 @@ public class SOCStatusMessage extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(svalue, status);
-    }
-
-    /**
-     * STATUSMESSAGE sep [svalue sep2] status -- does not include backwards compatibility.
-     * This method is best for sending status values {@link #SV_OK} or {@link #SV_NOT_OK_GENERIC}.
-     * for other newer status values, call {@link #buildForVersion(int, int, String)} instead.
-     *
-     * @param sv  the status value; if 0 or less, is not output.
-     *            Should be a constant such as {@link #SV_OK}.
-     *            Remember that not all client versions recognize every status;
-     *            see {@link #buildForVersion(int, int, String)}.
-     * @param st  the status message text.
-     *            If sv is nonzero, you may embed {@link SOCMessage#sep2} characters
-     *            in your string, and they will be passed on for the receiver to parse.
-     * @return the command string
-     */
-    public static String toCmd(int sv, String st)
-    {
+//        return toCmd(svalue, status);
+//    }
+//
+//    /**
+//     * STATUSMESSAGE sep [svalue sep2] status -- does not include backwards compatibility.
+//     * This method is best for sending status values {@link #SV_OK} or {@link #SV_NOT_OK_GENERIC}.
+//     * for other newer status values, call {@link #buildForVersion(int, int, String)} instead.
+//     *
+//     * @param sv  the status value; if 0 or less, is not output.
+//     *            Should be a constant such as {@link #SV_OK}.
+//     *            Remember that not all client versions recognize every status;
+//     *            see {@link #buildForVersion(int, int, String)}.
+//     * @param st  the status message text.
+//     *            If sv is nonzero, you may embed {@link SOCMessage#sep2} characters
+//     *            in your string, and they will be passed on for the receiver to parse.
+//     * @return the command string
+//     */
+//    public static String toCmd(int sv, String st)
+//    {
         StringBuilder sb = new StringBuilder();
         sb.append(STATUSMESSAGE);
         sb.append(sep);
-        if (sv > 0)
+        if (svalue > 0)
         {
-            sb.append(sv);
+            sb.append(svalue);
             sb.append(sep2);
         }
-        sb.append(st);
+        sb.append(status);
 
         return sb.toString();
     }
@@ -516,7 +517,7 @@ public class SOCStatusMessage extends SOCMessage
         if (fallSV != sv)
             return toCmd(fallSV, cliVers, st);  // ensure fallback value is valid at client's version
         else
-            return toCmd(sv, st);
+            return new SOCStatusMessage( sv, st ).toCmd();
     }
 
     /**

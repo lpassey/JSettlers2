@@ -266,7 +266,7 @@ import soc.message.SOCStartGame;
     {
         clientListeners.remove(ga.getName());
         client.games.remove(ga.getName());
-        put(SOCLeaveGame.toCmd("-", "-", ga.getName()), ga.isPractice);
+        put(new SOCLeaveGame("-", "-", ga.getName()).toCmd(), ga.isPractice);
     }
 
     /**
@@ -297,7 +297,7 @@ import soc.message.SOCStartGame;
      */
     public void rollDice(SOCGame ga)
     {
-        put(SOCRollDice.toCmd(ga.getName()), ga.isPractice);
+        put( new SOCRollDice(ga.getName()).toCmd(), ga.isPractice);
     }
 
     /**
@@ -511,7 +511,7 @@ import soc.message.SOCStartGame;
      */
     public void setSeatLock(SOCGame ga, int pn, SOCGame.SeatLockState sl)
     {
-        put(SOCSetSeatLock.toCmd(ga.getName(), pn, sl), ga.isPractice);
+        put( new SOCSetSeatLock(ga.getName(), pn, sl).toCmd(), ga.isPractice);
     }
 
     /**
@@ -542,7 +542,7 @@ import soc.message.SOCStartGame;
      */
     public void resetBoardVote(final SOCGame ga, final boolean voteYes)
     {
-        put(SOCResetBoardVote.toCmd(ga.getName(), 0, voteYes), ga.isPractice);
+        put( new SOCResetBoardVote(ga.getName(), 0, voteYes).toCmd(), ga.isPractice);
     }
 
     /**

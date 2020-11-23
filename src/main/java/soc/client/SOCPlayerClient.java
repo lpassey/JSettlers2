@@ -839,7 +839,7 @@ public class SOCPlayerClient
     public void leaveChannel(String ch)
     {
         mainDisplay.channelLeft(ch);
-        net.putNet(SOCLeaveChannel.toCmd("-", "-", ch));
+        net.putNet(new SOCLeaveChannel("-", "-", ch).toCmd());
     }
 
     /**

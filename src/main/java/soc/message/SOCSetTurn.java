@@ -63,16 +63,16 @@ public class SOCSetTurn extends SOCMessageTemplate1i
     }
 
     /**
+     * The super method is acceptable in this case
      * SETTURN sep game sep2 playerNumber
      *
-     * @param ga  the name of the game
-     * @param pn  the seat number
      * @return the command string
      */
-    public static String toCmd(String ga, int pn)
-    {
-        return SETTURN + sep + ga + sep2 + pn;
-    }
+//    @Override
+//    public String toCmd()
+//    {
+//        return super.toCmd();
+//    }
 
     /**
      * Parse the command String into a SetTurn message

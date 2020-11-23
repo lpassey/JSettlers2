@@ -51,10 +51,10 @@ public class SOCTimingPing extends SOCMessageForGame
      * @param ga  the game name
      * @return    the command string
      */
-    public static String toCmd(String ga)
-    {
-        return new SOCTimingPing( ga ).toCmd();
-    }
+//    public static String toCmd(String ga)
+//    {
+//        return new SOCTimingPing( ga ).toCmd();
+//    }
 
     /**
      * Parse the command String into a TIMINGPING message.

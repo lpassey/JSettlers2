@@ -95,10 +95,10 @@ public class SOCRollDicePrompt extends SOCMessageForGame
      * @param pn  the player number to roll
      * @return the command string
      */
-    public static String toCmd(String ga, int pn)
-    {
-        return new SOCRollDicePrompt( ga, pn ).toCmd();
-    }
+//    public static String toCmd(String ga, int pn)
+//    {
+//        return new SOCRollDicePrompt( ga, pn ).toCmd();
+//    }
 
     /**
      * Parse the command String into a ROLLDICEPROMPT message.

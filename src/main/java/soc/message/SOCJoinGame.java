@@ -84,27 +84,7 @@ public class SOCJoinGame extends SOCMessageTemplateJoinGame
     @Override
     public String toCmd()
     {
-        return toCmd(nickname, password, host, game);
-    }
-
-    /**
-     * JOINGAME sep nickname sep2 password sep2 host sep2 game
-     *
-     * @param nn  the nickname when announced from server, or "-" from client if already auth'd to server;
-     *     server has always ignored this field from client after auth, can send "-" but not blank
-     * @param pw  the optional password, or "" if none
-     * @param hn  unused; the optional server host name to which client is connected,
-     *     or "-" or {@link SOCMessage#EMPTYSTR}
-     * @param ga  the game name
-     * @return    the command string
-     */
-    public static String toCmd(String nn, String pw, String hn, String ga)
-    {
-        String temppw = pw;
-        if (temppw.length() == 0)
-            temppw = EMPTYSTR;
-
-        return JOINGAME + sep + nn + sep2 + temppw + sep2 + hn + sep2 + ga;
+        return getType() + sep + nickname + sep2 + (password.length() == 0 ? EMPTYSTR : password) + sep2 + host + sep2 + game;
     }
 
     /**

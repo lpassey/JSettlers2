@@ -115,20 +115,6 @@ public class SOCAcceptOffer extends SOCMessageForGame
     }
 
     /**
-     * ACCEPTOFFER sep game sep2 accepting sep2 offering
-     *
-     * @param ga  the name of the game
-     * @param ac  the player number of the accepting player
-     *     when sent from server; always ignored if sent from client
-     * @param of  the player number of the offering player
-     * @return the command string
-     */
-//    public static String toCmd(String ga, int ac, int of)
-//    {
-//        return ACCEPTOFFER + sep + ga + sep2 + ac + sep2 + of;
-//    }
-
-    /**
      * Parse the command String into an ACCEPTOFFER message.
      *
      * @param s   the String to parse

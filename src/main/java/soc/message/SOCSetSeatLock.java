@@ -184,13 +184,13 @@ public class SOCSetSeatLock extends SOCMessageForGame
      *     seatLockState will be "true" for LOCKED, "false" for UNLOCKED, or "clear" for CLEAR_ON_RESET.
      *     Versions before v2.0.00 won't recognize {@code "clear"}.
      */
-    public static String toCmd(final String ga, final int pn, final SeatLockState st)
-    {
-        return SETSEATLOCK + sep + ga + sep2 + pn + sep2 +
-            ((st == SeatLockState.LOCKED) ? "true"
-             : (st == SeatLockState.UNLOCKED) ? "false"
-               : "clear");   // st == SeatLockState.CLEAR_ON_RESET
-    }
+//    public static String toCmd(final String ga, final int pn, final SeatLockState st)
+//    {
+//        return SETSEATLOCK + sep + ga + sep2 + pn + sep2 +
+//            ((st == SeatLockState.LOCKED) ? "true"
+//             : (st == SeatLockState.UNLOCKED) ? "false"
+//               : "clear");   // st == SeatLockState.CLEAR_ON_RESET
+//    }
 
     /**
      * Parse the command String into a SetSeatLock message

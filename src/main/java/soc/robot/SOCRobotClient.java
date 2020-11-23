@@ -374,9 +374,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
             //resetThread = new SOCRobotResetThread(this);
             //resetThread.start();
-            put(SOCVersion.toCmd
-                (Version.versionNumber(), Version.version(), Version.buildnum(), cliFeats.getEncodedList(), null));
-            put(SOCImARobot.toCmd(nickname, serverConnectInfo.robotCookie, rbclass));
+            put( new SOCVersion( Version.versionNumber(), Version.version(), Version.buildnum(),
+                cliFeats.getEncodedList(), null).toCmd());
+            put( new SOCImARobot(nickname, serverConnectInfo.robotCookie, rbclass).toCmd());
         }
         catch (Exception e)
         {
@@ -419,9 +419,10 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
                 //resetThread = new SOCRobotResetThread(this);
                 //resetThread.start();
-                put(SOCVersion.toCmd
-                    (Version.versionNumber(), Version.version(), Version.buildnum(), cliFeats.getEncodedList(), null));
-                put(SOCImARobot.toCmd(nickname, serverConnectInfo.robotCookie, SOCImARobot.RBCLASS_BUILTIN));
+                put( new SOCVersion( Version.versionNumber(), Version.version(), Version.buildnum(),
+                    cliFeats.getEncodedList(), null).toCmd() );
+                put( new SOCImARobot( nickname, serverConnectInfo.robotCookie,
+                    SOCImARobot.RBCLASS_BUILTIN ).toCmd());
 
                 break;  // <--- Exit attempt-loop ---
             }
@@ -429,7 +430,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             {
                 ex = e;
                 System.err.println("disconnectReconnect error: " + ex);
-                if (attempt > 0)
+//                if (attempt > 0)
                     System.err.println("-> Retrying");
             }
         }
@@ -842,7 +843,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         }
         else
         {
-            put(SOCJoinGame.toCmd(nickname, password, SOCMessage.EMPTYSTR, mes.getGame()));
+            put( new SOCJoinGame(nickname, password, SOCMessage.EMPTYSTR, mes.getGame()).toCmd() );
         }
     }
 
@@ -909,7 +910,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             gameOptions.put(gaName, new SOCGameOptionSet(gaOpts));
 
         seatRequests.put(gaName, mes.getPlayerNumber() );
-        if (put(SOCJoinGame.toCmd(nickname, password, SOCMessage.EMPTYSTR, gaName)))
+        if (put( new SOCJoinGame(nickname, password, SOCMessage.EMPTYSTR, gaName).toCmd() ))
         {
             D.ebugPrintlnINFO("**** sent SOCJoinGame ****");
         }
@@ -1605,7 +1606,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             System.err.flush();
         }
 
-        put(SOCLeaveGame.toCmd(nickname, "-", gaName));
+        put( new SOCLeaveGame(nickname, "-", gaName).toCmd() );
     }
 
     /**

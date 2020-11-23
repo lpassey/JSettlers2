@@ -122,28 +122,10 @@ public class SOCJoinChannel extends SOCMessage
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(nickname, password, host, channel);
-    }
-
-    /**
-     * JOINCHANNEL sep nickname sep2 password sep2 host sep2 channel
-     *
-     * @param nn  nickname when announced from server, or "-" from client if already auth'd to server;
-     *     ignored from client by server 1.2.01 and newer, can send "-" but not blank
-     * @param pw  the optional password, or "" if none
-     * @param hn  unused; optional server host name, or "-" or {@link SOCMessage#EMPTYSTR}
-     * @param ch  the channel name
-     * @return    the command string
-     */
-    public static String toCmd(String nn, String pw, String hn, String ch)
-    {
-        String temppw = pw;
-        if (pw.length() == 0)
-            temppw = EMPTYSTR;
-
-        return JOINCHANNEL + sep + nn + sep2 + temppw + sep2 + hn + sep2 + ch;
+        return getType() + sep + nickname + sep2 + (password.length() == 0 ? EMPTYSTR : password) + sep2 + host + sep2 + channel;
     }
 
     /**

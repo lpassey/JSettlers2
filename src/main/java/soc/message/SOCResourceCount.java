@@ -99,10 +99,10 @@ public class SOCResourceCount extends SOCMessageForGame
      * @param rc  the resource count
      * @return the command string
      */
-    public static String toCmd(String ga, int pn, int rc)
-    {
-        return new SOCResourceCount( ga, pn, rc ).toCmd();
-    }
+//    public static String toCmd(String ga, int pn, int rc)
+//    {
+//        return new SOCResourceCount( ga, pn, rc ).toCmd();
+//    }
 
     /**
      * Parse the command String into a ResourceCount message
