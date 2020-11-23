@@ -82,11 +82,11 @@ public class MemServerSocket implements SOCServerSocket
      *                          or if its connect/accept queue is full.
      * @throws IllegalArgumentException If name is null
      */
-    public static MemConnection connectTo( String name )
-        throws ConnectException, IllegalArgumentException
-    {
-        return connectTo (name, new MemConnection());
-    }
+//    public static MemConnection connectTo( String name )
+//        throws ConnectException, IllegalArgumentException
+//    {
+//        return connectTo (name, new MemConnection());
+//    }
 
     /**
      * Find and connect to stringport with this name.
@@ -94,7 +94,7 @@ public class MemServerSocket implements SOCServerSocket
      * Will block-wait until the server calls accept().
      *
      * @param name Stringport server name to connect to
-     * @param client Existing unused connection object to connect with
+     * @param clientConnection Existing unused connection object to connect with
      *
      * @throws ConnectException If stringport name is not found, or is EOF,
      *                          or if its connect/accept queue is full.
@@ -102,14 +102,15 @@ public class MemServerSocket implements SOCServerSocket
      *                          or client is already peered/connected.
      * @return a new {@link MemConnection} object connected to the in-memory SOCServer instance.
      */
-    public static MemConnection connectTo(String name, MemConnection client)
+    public static MemConnection connectTo( String name, MemConnection clientConnection )
         throws ConnectException, IllegalArgumentException
     {
         if (name == null)
             throw new IllegalArgumentException("name null");
-        if (client == null)
-            throw new IllegalArgumentException("client null");
-        if (client.getPeer() != null)
+        if (clientConnection == null)
+            clientConnection = new MemConnection();
+//            throw new IllegalArgumentException("client null");
+        if (clientConnection.getPeer() != null)
             throw new IllegalArgumentException("client already peered");
 
         if (! allSockets.containsKey( name )) // TODO: Will a server really ever instantiate multiple in-memory sockets?
@@ -121,7 +122,7 @@ public class MemServerSocket implements SOCServerSocket
 
         try
         {
-            ss.queueAcceptClient(client);
+            ss.queueAcceptClient(clientConnection);
         }
         catch (Throwable t)
         {
@@ -133,26 +134,26 @@ public class MemServerSocket implements SOCServerSocket
         // Since we called queueAcceptClient, that server-side thread may have woken
         // and accepted the connection from this client-side thread already.
         // So, check if we're accepted, before waiting to be accepted.
-        synchronized (client)
+        synchronized (clientConnection)
         {
             // Sync vs. critical section in accept
-            if (! client.isAccepted())
+            if (! clientConnection.isAccepted())
             {
                 try
                 {
-                    client.wait();  // Notified by accept method
+                    clientConnection.wait();  // Notified by accept method
                 }
                 catch (InterruptedException e) {}
             }
         }
 
-        if (client != client.getPeer().getPeer())
+        if (clientConnection != clientConnection.getPeer().getPeer())
             throw new IllegalStateException("Internal error: Peer is wrong");
 
-        if (client.isOutEOF())
+        if (clientConnection.isOutEOF())
             throw new ConnectException("Server at EOF, closed waiting to be accepted");
 
-        return client;
+        return clientConnection;
     }
 
     /**

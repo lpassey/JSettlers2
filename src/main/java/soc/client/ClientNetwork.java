@@ -33,6 +33,7 @@ import java.util.Locale;
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
 import soc.communication.Connection;
+import soc.communication.MemConnection;
 import soc.communication.NetConnection;
 // import soc.disableDebug.D;
 import soc.game.SOCGame;
@@ -252,27 +253,30 @@ import soc.util.Version;
 
         Connection prCli = client.getConnection();
 
-//        if (prCli == null)
+        if (prCli instanceof MemConnection)
         {
-            try
-            {
-                prCli = MemServerSocket.connectTo(SOCServer.PRACTICE_STRINGPORT);
-                client.setConnection( prCli );
-                prCli.startMessageProcessing( client.getMessageHandler() );  // Reader will start its own thread
-
-                // Send VERSION right away
-                sendVersion();
-
-                // Practice server supports per-game options
-                mainDisplay.enableOptions();
-            }
-            catch (ConnectException e)
-            {
-                ex_P = e;
-
-                return false;
-            }
+            ((MemConnection) prCli).reset();
         }
+
+        try
+        {
+            prCli = MemServerSocket.connectTo( SOCServer.PRACTICE_STRINGPORT, (MemConnection) prCli );
+            client.setConnection( prCli );
+            prCli.startMessageProcessing( client.getMessageHandler() );  // Reader will start its own thread
+
+            // Send VERSION right away
+            sendVersion();
+
+            // Practice server supports per-game options
+            mainDisplay.enableOptions();
+        }
+        catch( ConnectException e )
+        {
+            ex_P = e;
+
+            return false;
+        }
+
 
         // Ask internal practice server to create the game
         if (gameOpts == null)

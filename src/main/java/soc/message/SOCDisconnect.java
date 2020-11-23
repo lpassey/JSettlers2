@@ -11,15 +11,32 @@ public class SOCDisconnect extends SOCMessage
 //        super( DISCONNECT );
     }
 
+    /**
+     * <ADMINRESET>
+     *
+     * @return the command String
+     */
     @Override
     public String toCmd()
     {
-        return null;
+        return Integer.toString( DISCONNECT );
     }
+
+    /**
+     * Parse the command String into a AdminReset message
+     *
+     * @param s   the String to parse; contents ignored, since this message has no parameters
+     * @return    a AdminReset message
+     */
+    public static SOCDisconnect parseDataStr( String s )
+    {
+        return new SOCDisconnect();
+    }
+
 
     @Override
     public String toString()
     {
-        return null;
+        return "SOCDisconnect:";
     }
 }

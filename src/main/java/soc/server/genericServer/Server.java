@@ -554,13 +554,13 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             @Override
             public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
             {
+                // This is where we check for the first messge
                 processFirstCommand(message, connection);
             }
 
             @Override
             public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
             {
-                // This is where we check for the first messge
                 multiplexQueue.push( message, connection );
             }
         } );

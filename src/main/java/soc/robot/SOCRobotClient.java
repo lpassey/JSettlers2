@@ -343,7 +343,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         {
 //            if (serverConnectInfo.memSocketName == null)
             {
-                connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT );
+                connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT, null );
             }
 //            else
 //            {
@@ -403,7 +403,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 */
                 {
                     connection.disconnect();
-                    connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT );
+                    connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT, null );
                     connection.setData( nickname  );
                     connection.startMessageProcessing( this );
                 }

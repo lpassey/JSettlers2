@@ -71,15 +71,12 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class MemConnection extends Connection
 {
-    /** Unique end-of-file marker object.  Always compare against this with == not string.equals. */
-//    protected static String EOF_MARKER = "__EOF_MARKER__" + '\004';
-
-    private LinkedBlockingQueue<SOCMessage> waitQueue = new LinkedBlockingQueue<>(  );
+    private LinkedBlockingQueue<SOCMessage> waitQueue = new LinkedBlockingQueue<>();
 
     private MemConnection ourPeer;
 
     /**
-     * Create a new, unused StringConnection.
+     * Create a new, unused MemConnection.
      *<P>
      * This class has a run method, but you must start the thread yourself.
      * Constructors will not create or start a thread.
@@ -89,17 +86,14 @@ public class MemConnection extends Connection
     /**
      * Constructor for an existing peer
      *<P>
-     * When using this class from the server (not client)
-     * call {@link #setServer(Server)} before starting any thread.
-     *<P>
      * This class has a run method, but you must start the thread yourself.
      * Constructors will not create or start a thread.
      *
-     * @param peer The peer to use.
+     * @param peer The MemConnection instance to be paired with this connection
+     *             and with which this connection will communicate.
      *
      * @throws EOFException If peer is at EOF already
-     * @throws IllegalArgumentException if peer is null, or already
-     *   has a peer.
+     * @throws IllegalArgumentException if peer is null, or already has a peer.
      */
     public MemConnection( MemConnection peer) throws EOFException
     {
@@ -112,7 +106,23 @@ public class MemConnection extends Connection
 
         this.ourPeer = peer;
         peer.ourPeer = this;
-     }
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean reset()
+    {
+        if (null == myRunner || !myRunner.isAlive())
+        {
+            out_setEOF.set( false );
+            in_reachedEOF.set( false );
+            ourPeer = null;
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Accept a message to be "treated". In the case of in-memory connections this will place the
@@ -196,18 +206,10 @@ public class MemConnection extends Connection
                 final SOCMessage msgObj = waitQueue.take();  // blocks until next message is available
                 messageDispatcher.dispatchFirst( msgObj, this );
             }
-
             while (! isInEOF())
             {
                 final SOCMessage msgObj = waitQueue.take();  // blocks until next message is available
-                if (msgObj instanceof SOCDisconnect)
-                {
-                    disconnect();   // will set input EOF so this while loop will now terminate
-                }
-                else
-                {
-                    messageDispatcher.dispatch( msgObj, this );
-                }
+                messageDispatcher.dispatch( msgObj, this );
             }
         }
         catch (Exception e)
@@ -218,12 +220,10 @@ public class MemConnection extends Connection
             {
                 e.printStackTrace(System.out);
             }
-
             if (isInEOF())
             {
                 return;
             }
-
             error = e;
         }
     }
@@ -329,14 +329,14 @@ public class MemConnection extends Connection
         {
             ourPeer.ourPeer = null; // prevent infinite loops
             ourPeer.receive( new SOCDisconnect() );
+            ourPeer = null;
         }
         accepted.set( false );
         waitQueue.clear();
 
         out_setEOF.set( true );
 
-        disconnectSoft();  // clear "in", set its EOF
-        myRunner.interrupt();
+        stopMessageProcessing();
     }
 
     /**
