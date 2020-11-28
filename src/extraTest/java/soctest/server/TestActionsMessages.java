@@ -961,7 +961,7 @@ public class TestActionsMessages
                                 continue;
 
                             SOCResourceSet rsPlayer = pl.getResources();
-                            playerNums.add(Integer.valueOf(pn));
+                            playerNums.add( pn );
                             StringBuilder rsStrAdd = new StringBuilder("|playerNum=" + pn + "|actionType=SET|");
                             for (int rtype = SOCResourceConstants.CLAY; rtype <= SOCResourceConstants.WOOD; ++rtype)
                             {

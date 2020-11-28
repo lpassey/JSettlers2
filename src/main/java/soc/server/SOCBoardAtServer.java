@@ -1582,7 +1582,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         {
             ArrayList<Integer> frequentGold = new ArrayList<>();
             for (Integer hexCoord : redHexes)
-                if (getHexTypeFromCoord(hexCoord.intValue()) == GOLD_HEX)
+                if (getHexTypeFromCoord( hexCoord ) == GOLD_HEX)
                     frequentGold.add(hexCoord);
 
             if (! frequentGold.isEmpty())

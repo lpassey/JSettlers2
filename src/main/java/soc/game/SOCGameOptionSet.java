@@ -585,8 +585,8 @@ public class SOCGameOptionSet
             {
                 if  (! (oldValue instanceof Integer))
                     return;  // ignore unless int
-                final int ov = ((Integer) oldValue).intValue();
-                final int nv = ((Integer) newValue).intValue();
+                final int ov = (Integer) oldValue;
+                final int nv = (Integer) newValue;
                 if ((ov <= 4) && (nv > 4))
                 {
                     SOCGameOption plb = currentOpts.get("PLB");
