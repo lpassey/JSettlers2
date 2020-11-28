@@ -392,7 +392,7 @@ public class SOCRobotBrain extends Thread
      * The data and code that determines how we negotiate.
      * {@link SOCRobotNegotiator#setTargetPiece(int, SOCPossiblePiece)}
      * is set when {@link #buildingPlan} is updated.
-     * @see #tradeToTarget2(SOCResourceSet)
+     * @see #tradeWithBank(SOCBuildPlan)
      * @see #makeOffer(SOCBuildPlan)
      * @see #considerOffer(SOCTradeOffer)
      * @see #tradeStopWaitingClearOffer()
@@ -1224,10 +1224,12 @@ public class SOCRobotBrain extends Thread
         if (n == 0)
         {
             toList.add("  " + msgDesc + " turn: No messages received.");
-        } else {
+        }
+        else
+        {
             toList.add("  " + msgDesc + " turn: " + n + " messages received:");
-            for (Object o : msgV)
-                toList.add( "\t" + o );
+            for (int i = 0; i < n; ++i)
+                toList.add("\t" + msgV.get(i));
         }
     }
 
@@ -1797,7 +1799,7 @@ public class SOCRobotBrain extends Thread
                                 {
                                     // If we have the resources right now, ask to Special Build
 
-                                    final SOCPossiblePiece targetPiece = buildingPlan.peek();
+                                    final SOCPossiblePiece targetPiece = buildingPlan.getPlannedPiece(0);
                                     final SOCResourceSet targetResources = targetPiece.getResourcesToBuild();
                                         // may be null
 
@@ -2605,7 +2607,7 @@ public class SOCRobotBrain extends Thread
                 counter = 0;
                 expectPLAY1 = true;
 
-                SOCPossiblePiece posPiece = buildingPlan.pop();
+                SOCPossiblePiece posPiece = buildingPlan.advancePlan();
 
                 if (posPiece.getType() == SOCPossiblePiece.ROAD)
                     whatWeWantToBuild = new SOCRoad(ourPlayerData, posPiece.getCoordinates(), null);
@@ -2807,7 +2809,7 @@ public class SOCRobotBrain extends Thread
      * the {@link SOCDevCardConstants#ROADS Road Building} or
      * {@link SOCDevCardConstants#MONO Monopoly} or
      * {@link SOCDevCardConstants#DISC Discovery} development cards,
-     * then trades with the bank ({@link #tradeToTarget2(SOCResourceSet)})
+     * then trades with the bank ({@link #tradeWithBank(SOCBuildPlan)})
      * or with other players ({@link #makeOffer(SOCBuildPlan)}).
      *<P>
      * Call when these conditions are all true:
@@ -2863,12 +2865,12 @@ public class SOCRobotBrain extends Thread
             && (rejectedPlayDevCardType != SOCDevCardConstants.ROADS))
         {
             //D.ebugPrintln("** Checking for Road Building Plan **");
-            SOCPossiblePiece topPiece = buildingPlan.pop();
+            SOCPossiblePiece topPiece = buildingPlan.getPlannedPiece(0);
 
             //D.ebugPrintln("$ POPPED "+topPiece);
-            if (topPiece instanceof SOCPossibleRoad)
+            if ((topPiece instanceof SOCPossibleRoad) && (buildingPlan.getPlanDepth() > 1))
             {
-                SOCPossiblePiece secondPiece = (buildingPlan.isEmpty()) ? null : buildingPlan.peek();
+                SOCPossiblePiece secondPiece = buildingPlan.getPlannedPiece(1);
 
                 //D.ebugPrintln("secondPiece="+secondPiece);
                 if (secondPiece instanceof SOCPossibleRoad)
@@ -2890,6 +2892,7 @@ public class SOCRobotBrain extends Thread
                         waitingForGameState = true;
                         counter = 0;
                         expectPLACING_FREE_ROAD1 = true;
+                        buildingPlan.advancePlan();  // consume topPiece
 
                         //D.ebugPrintln("!! PLAYING ROAD BUILDING CARD");
                         client.playDevCard(game, SOCDevCardConstants.ROADS);
@@ -2900,16 +2903,6 @@ public class SOCRobotBrain extends Thread
                         // cancel sets whatWeWantToBuild = null;
                     }
                 }
-                else
-                {
-                    //D.ebugPrintln("$ PUSHING "+topPiece);
-                    buildingPlan.push(topPiece);
-                }
-            }
-            else
-            {
-                //D.ebugPrintln("$ PUSHING "+topPiece);
-                buildingPlan.push(topPiece);
             }
         }
 
@@ -2921,7 +2914,7 @@ public class SOCRobotBrain extends Thread
         ///
         /// figure out what resources we need
         ///
-        SOCPossiblePiece targetPiece = buildingPlan.peek();
+        SOCPossiblePiece targetPiece = buildingPlan.getPlannedPiece(0);
         SOCResourceSet targetResources = targetPiece.getResourcesToBuild();  // may be null
 
         //D.ebugPrintln("^^^ targetPiece = "+targetPiece);
@@ -2991,7 +2984,7 @@ public class SOCRobotBrain extends Thread
                     /**
                      * trade with the bank/ports
                      */
-                    if (tradeToTarget2(targetResources))
+                    if (tradeWithBank(buildingPlan))
                     {
                         counter = 0;
                         waitingForTradeMsg = true;
@@ -3670,8 +3663,8 @@ public class SOCRobotBrain extends Thread
 
     /**
      * Have the client ask to build our top planned piece
-     * (calls {@link #buildingPlan}{@link Stack#pop() .pop()}),
      * unless we've already been told by the server to not build it.
+     * Calls {@link #buildingPlan}.{@link SOCBuildPlan#advancePlan() advancePlan()}.
      * Sets {@link #whatWeWantToBuild}, {@link #waitingForDevCard},
      * or {@link #waitingForPickSpecialItem}.
      * Called from {@link #buildOrGetResourceByTradeOrCard()}.
@@ -3693,7 +3686,7 @@ public class SOCRobotBrain extends Thread
      */
     protected void buildRequestPlannedPiece()
     {
-        final SOCPossiblePiece targetPiece = buildingPlan.pop();
+        final SOCPossiblePiece targetPiece = buildingPlan.advancePlan();
         D.ebugPrintlnINFO("$ POPPED " + targetPiece);
         lastMove = targetPiece;
         currentDRecorder = (currentDRecorder + 1) % 2;
@@ -3820,7 +3813,7 @@ public class SOCRobotBrain extends Thread
 
         if (! buildingPlan.empty())
         {
-            lastTarget = buildingPlan.peek();
+            lastTarget = buildingPlan.getPlannedPiece(0);
             negotiator.setTargetPiece(ourPlayerNumber, lastTarget);
         }
     }
@@ -4060,7 +4053,7 @@ public class SOCRobotBrain extends Thread
             && (action != SOCPlayerElement.GAIN)
             && ! buildingPlan.isEmpty())
         {
-            final SOCPossiblePiece targetPiece = buildingPlan.peek();
+            final SOCPossiblePiece targetPiece = buildingPlan.getPlannedPiece(0);
             final SOCResourceSet targetResources = targetPiece.getResourcesToBuild();  // may be null
 
             if (! ourPlayerData.getResources().contains(targetResources))
@@ -5009,20 +5002,25 @@ public class SOCRobotBrain extends Thread
 
     /**
      * Make bank trades or port trades to get the target resources, if possible.
+     * Calls {@link SOCRobotNegotiator#getOfferToBank(SOCBuildPlan, SOCResourceSet)}.
+     *<P>
+     * Before v2.4.50 this method was {@code tradeToTarget2(SOCResourceSet)}.
      *
-     * @param targetResources  the resources that we want, can be {@code null} for an empty set (method returns false)
+     * @param buildPlan  Build plan to look for resources to build. {@code getOfferToBank(..)}
+     *     will typically call {@link SOCBuildPlan#getFirstPieceResources()} to determine
+     *     the resources we want. Can be {@code null} or an empty plan (returns false).
      * @return true if we sent a request to trade, false if
      *     we already have the resources or if we don't have
-     *     enough to trade in for <tt>targetResources</tt>.
+     *     enough to trade in for {@code buildPlan}'s required resources.
      */
-    protected boolean tradeToTarget2(SOCResourceSet targetResources)
+    protected boolean tradeWithBank(SOCBuildPlan buildPlan)
     {
-        if ((targetResources == null) || ourPlayerData.getResources().contains(targetResources))
-        {
+        if (   (buildPlan == null)
+            || buildPlan.isEmpty()
+            || ourPlayerData.getResources().contains(buildPlan.getFirstPieceResources()))
             return false;
-        }
 
-        SOCTradeOffer bankTrade = negotiator.getOfferToBank(targetResources, ourPlayerData.getResources());
+        SOCTradeOffer bankTrade = negotiator.getOfferToBank(buildPlan, ourPlayerData.getResources());
 
         if ((bankTrade != null) && (ourPlayerData.getResources().contains(bankTrade.getGiveSet())))
         {
@@ -5031,7 +5029,6 @@ public class SOCRobotBrain extends Thread
 
             return true;
         }
-
         return false;
     }
 
