@@ -218,15 +218,8 @@ import soc.util.Version;
         disconnect();
     }
 
-    /**
-     * Start a practice game.  If needed, create and start {@link #practiceServer}.
-     * @param practiceGameName  Game name
-     * @param gameOpts  Game options, or {@code null}
-     * @return True if the practice game request was sent, false if there was a problem
-     *         starting the practice server or client
-     * @since 1.1.00
-     */
-    public boolean startPracticeGame( final String practiceGameName, final SOCGameOptionSet gameOpts )
+
+    public boolean startPracticeServer()
     {
         if (practiceServer == null)
         {
@@ -245,10 +238,27 @@ import soc.util.Version;
             {
                 mainDisplay.showErrorDialog
                     (client.strings.get("pcli.error.startingpractice") + "\n" + th,  // "Problem starting practice server:"
-                     client.strings.get("base.cancel"));
-
+                        client.strings.get("base.cancel"));
                 return false;
             }
+        }
+        return true;
+    }
+
+    /**
+     * Start a practice game.  If needed, create and start {@link #practiceServer}.
+     * @param practiceGameName  Game name
+     * @param gameOpts  Game options, or {@code null}
+     * @return True if the practice game request was sent, false if there was a problem
+     *         starting the practice server or client
+     * @since 1.1.00
+     */
+    public boolean startPracticeGame( final String practiceGameName, final SOCGameOptionSet gameOpts )
+    {
+        if (practiceServer == null)
+        {
+            if (!startPracticeServer())
+                return false;
         }
 
         Connection prCli = client.getConnection();
@@ -261,6 +271,11 @@ import soc.util.Version;
         try
         {
             prCli = MemServerSocket.connectTo( SOCServer.PRACTICE_STRINGPORT, (MemConnection) prCli );
+            if (client.debugTraffic)
+            {
+                prCli.setData( "client" );
+                prCli.setDebugTraffic( true );
+            }
             client.setConnection( prCli );
             prCli.startMessageProcessing( client.getMessageHandler() );  // Reader will start its own thread
 

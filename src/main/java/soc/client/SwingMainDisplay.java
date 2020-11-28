@@ -1299,6 +1299,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
     public void clickPracticeButton()
     {
+        // start the in-memory server before launching the NewGameOptionsFrame
+        client.startPracticeServer();
         guardedActionPerform(pgm);
     }
 

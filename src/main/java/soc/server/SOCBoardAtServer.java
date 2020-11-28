@@ -5243,8 +5243,8 @@ public class SOCBoardAtServer extends SOCBoardLarge
             }
             else
             {
-                return new SOCBoardAtServer
-                    (gameOpts, maxPlayers, getBoardSize(gameOpts, maxPlayers));
+                return new SOCBoardAtServer( gameOpts, maxPlayers,
+                    getBoardSize( gameOpts, maxPlayers ));
             }
         }
 

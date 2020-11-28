@@ -113,7 +113,7 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         final boolean isPractice = connection instanceof MemConnection;
         if (client.debugTraffic || D.ebugIsEnabled())
-            soc.debug.D.ebugPrintlnINFO(mes.toString());
+            soc.debug.D.ebugPrintlnINFO("IN - client - " + mes.toString());
 
         try
         {

@@ -96,31 +96,6 @@ import soc.message.SOCStartGame;
         this.clientListeners = clientListeners;
     }
 
-//    public Connection getConnection()
-//    {
-//        return net.prCli;
-//    }
-    /**
-     * Send a message to the net or practice server by calling {@link ClientNetwork} methods.
-     * This is a convenience method. Because the player can be in both network games and practice games,
-     * uses {@code isPractice} to route to the appropriate client-server connection.
-     *
-     * @param s  the message command, formatted by a {@code soc.message} class's {@code toCmd()}
-     * @param isPractice  Send to the practice server, not tcp network?
-     *                {@link ClientNetwork#localTCPServer} is considered "network" here.
-     *                Use <tt>isPractice</tt> only with {@link ClientNetwork#practiceServer}.
-     * @return true if the message was sent, false if not
-     * @throws IllegalArgumentException if {@code s} is {@code null}
-     */
-//    synchronized boolean put(SOCMessage s, final boolean isPractice)
-//        throws IllegalArgumentException
-//    {
-//        if (s == null)
-//            throw new IllegalArgumentException("null");
-//
-//        return connection.send(s);
-//    }
-
     /**
      * request to buy a development card
      *

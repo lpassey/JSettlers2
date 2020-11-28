@@ -95,7 +95,7 @@ public class DisplaylessTesterClient
     {
         try
         {
-            connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT );
+            connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT, null );
             connected = true;
             connection.startMessageProcessing( this );
 

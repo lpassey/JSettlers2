@@ -24,6 +24,7 @@
 package soc.server;
 
 import soc.communication.SOCClientData;
+import soc.disableDebug.D;
 import soc.game.SOCGame;
 import soc.game.SOCPlayer;
 import soc.robot.SOCRobotClient;
@@ -103,22 +104,23 @@ import soc.communication.Connection;
             return;  // shouldn't happen
         }
 
-        // if it's the built-in type, print brain variables
-        SOCClientData scd = (SOCClientData) rconn.getAppData();
-        if (scd.isBuiltInRobot)
+        if (D.ebugIsEnabled())
         {
-            SOCRobotClient rcli = SOCLocalRobotClient.robotClients.get(rname);
-            if (rcli != null)
-                rcli.debugPrintBrainStatus(ga.getName(), false);
+            // if it's the built-in type, print brain variables
+            SOCClientData scd = (SOCClientData) rconn.getAppData();
+            if (scd.isBuiltInRobot)
+            {
+                SOCRobotClient rcli = SOCLocalRobotClient.robotClients.get( rname );
+                if (rcli != null)
+                    rcli.debugPrintBrainStatus( ga.getName(), false );
+                else
+                    System.err.println( "L9397: internal error: can't find robotClient for " + rname );
+            }
             else
-                System.err.println("L9397: internal error: can't find robotClient for " + rname);
+            {
+                System.err.println( "  Can't print brain status; robot type is " + scd.robot3rdPartyBrainClass );
+            }
         }
-        else
-        {
-            System.err.println("  Can't print brain status; robot type is " + scd.robot3rdPartyBrainClass);
-        }
-
         hand.endGameTurnOrForce(ga, plNum, rname, rconn, false);
     }
-
 }  // class SOCForceEndTurnThread

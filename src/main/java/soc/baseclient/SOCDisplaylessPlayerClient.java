@@ -307,10 +307,12 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         if (mes == null)
             return;  // Msg parsing error
 
-        if ((debugTraffic || D.ebugIsEnabled()) && (! didDebugPrintAlready)
-            && ! ((mes instanceof SOCServerPing) && (nextServerPingExpectedAt != 0)
+        if (   (debugTraffic || D.ebugIsEnabled())
+            && (! didDebugPrintAlready)
+            && ! (   (mes instanceof SOCServerPing)
+                  && (nextServerPingExpectedAt != 0)
                   && (Math.abs(System.currentTimeMillis() - nextServerPingExpectedAt) <= 66000)))
-                          // within 66 seconds of the expected time; see handleSERVERPING
+                    // within 66 seconds of the expected time; see handleSERVERPING
         {
             soc.debug.D.ebugPrintlnINFO("IN - " + nickname + " - " + mes.toString());
         }

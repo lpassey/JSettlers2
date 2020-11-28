@@ -215,6 +215,8 @@ public class SOCPlayerClient
      */
     public static final String PREF_FACE_ICON = "faceIcon";
 
+    private static final String PROP_JSETTLERS_DEBUG_TRAFFIC = "jsettlers.debug.client.traffic";
+
     /**
      * i18n text strings in our {@link #cliLocale}.
      * @since 2.0.00
@@ -493,7 +495,7 @@ public class SOCPlayerClient
             id = SOCPlayer.FIRST_HUMAN_FACE_ID;  // use default if not remembering
         lastFaceChange = id;
 
-        if (null != System.getProperty(SOCDisplaylessPlayerClient.PROP_JSETTLERS_DEBUG_TRAFFIC))
+        if (null != System.getProperty( PROP_JSETTLERS_DEBUG_TRAFFIC ))
             debugTraffic = true;  // set flag if debug prop has any value at all
 
         String jsLocale = System.getProperty(I18n.PROP_JSETTLERS_LOCALE);
@@ -916,6 +918,11 @@ public class SOCPlayerClient
         ignoreList.removeElement(name);
     }
 
+    public void startPracticeServer()
+    {
+        net.startPracticeServer();
+    }
+
     /**
      * Create a game name, and start a practice game.
      * Assumes {@link SwingMainDisplay#MAIN_PANEL} is initialized.
@@ -943,8 +950,8 @@ public class SOCPlayerClient
      *         starting the practice server or client
      * @since 1.1.00
      */
-    public boolean startPracticeGame
-        (String practiceGameName, final SOCGameOptionSet gameOpts, final boolean mainPanelIsActive)
+    public boolean startPracticeGame( String practiceGameName, final SOCGameOptionSet gameOpts,
+        final boolean mainPanelIsActive )
     {
         ++numPracticeGames;
 

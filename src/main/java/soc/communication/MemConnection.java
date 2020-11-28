@@ -181,6 +181,8 @@ public class MemConnection extends Connection
         }
         if (isInEOF())
             return;
+        if (debugTraffic || D.ebugIsEnabled())
+            soc.debug.D.ebugPrintlnINFO("OUT - " + data + " - " + socMessage.toString());
 
         ourPeer.receive( socMessage );
     }

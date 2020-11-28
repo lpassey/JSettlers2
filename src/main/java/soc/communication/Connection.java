@@ -157,6 +157,7 @@ public abstract class Connection implements Runnable
 
     protected Thread myRunner;
 
+    protected boolean debugTraffic;
 
     //--- abstract method declarations
 
@@ -243,6 +244,12 @@ public abstract class Connection implements Runnable
     }
 
     //--- getter/setter pairs
+
+    public Connection setDebugTraffic( boolean debugTraffic )
+    {
+        this.debugTraffic = debugTraffic;
+        return this;
+    }
 
     /**
      * Is currently accepted by a server
