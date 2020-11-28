@@ -1368,7 +1368,7 @@ public class SOCDBHelper
         if (writeIfNeeded)
             checkAll = true;
 
-        final ArrayList<String> mm = new ArrayList<String>();  // keyname, db value, props value, keyname, db value, ...
+        final ArrayList<String> mm = new ArrayList<>();  // keyname, db value, props value, keyname, db value, ...
         boolean anyMissing = false;  // is table missing any expected params like SETTING_BCRYPT_WORK__FACTOR?
 
         // bcryptWorkFactor
@@ -2412,7 +2412,7 @@ public class SOCDBHelper
         if (! isInitialized())
             throw new IllegalStateException();
 
-        List<String> li = new ArrayList<String>();
+        List<String> li = new ArrayList<>();
 
         li.add("Schema version");
         li.add
@@ -2489,8 +2489,8 @@ public class SOCDBHelper
             throw new IllegalStateException(e);
         }
 
-        HashMap<String,String> namesFromLC = new HashMap<String,String>();  // lowercase -> non-lowercase name
-        Map<String,List<String>> dupeMap = new HashMap<String,List<String>>();  // duplicates from namesFromLC
+        HashMap<String,String> namesFromLC = new HashMap<>();  // lowercase -> non-lowercase name
+        Map<String,List<String>> dupeMap = new HashMap<>();  // duplicates from namesFromLC
 
         Statement s = connection.createStatement();
         ResultSet rs = null;
@@ -2506,7 +2506,7 @@ public class SOCDBHelper
                     List<String> li = dupeMap.get(nmLC);
                     if (li == null)
                     {
-                        li = new ArrayList<String>();
+                        li = new ArrayList<>();
                         li.add(namesFromLC.get(nmLC));  // previously-found name with this lc
                         dupeMap.put(nmLC, li);
                     }
@@ -3020,7 +3020,7 @@ public class SOCDBHelper
 
         FileReader fr = new FileReader(setupScriptPath);
         BufferedReader br = new BufferedReader(fr);
-        List<String> sqls = new ArrayList<String>();
+        List<String> sqls = new ArrayList<>();
 
         // Read 1 line at a time, with continuations; build a list
         try
@@ -3140,7 +3140,7 @@ public class SOCDBHelper
                 ("Upgrade on oracle to schema 2.0.00 not yet implemented", "unused", "unused");
         }
 
-        final Set<String> upg_1200_allUsers = new HashSet<String>();  // built during pre-check, used during upgrade
+        final Set<String> upg_1200_allUsers = new HashSet<>();  // built during pre-check, used during upgrade
         if (schemaVersion < SCHEMA_VERSION_1200)
         {
             /* pre-checks */
@@ -3698,7 +3698,7 @@ public class SOCDBHelper
         if (beginText != null)
             System.err.println(beginText);
 
-        Map<String, String> userConvPW = new HashMap<String, String>();
+        Map<String, String> userConvPW = new HashMap<>();
         for (String uname : users)
         {
             userPasswordQuery.setString(1, uname);
@@ -4745,7 +4745,7 @@ public class SOCDBHelper
             System.err.println("Schema upgrade: Encoding passwords for users");
 
             SecureRandom sr = new SecureRandom();
-            HashSet<String> users = new HashSet<String>();
+            HashSet<String> users = new HashSet<>();
             do
             {
                 users.clear();
@@ -4784,7 +4784,7 @@ public class SOCDBHelper
             System.err.println("Schema upgrade: Normalizing games into games2");
 
             // key = nickname_lc, value = nickname
-            final HashMap<String, String> allDBUsers = new HashMap<String, String>();
+            final HashMap<String, String> allDBUsers = new HashMap<>();
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery("SELECT nickname_lc, nickname FROM users");
             while (rs.next())
@@ -4804,7 +4804,7 @@ public class SOCDBHelper
 
             boolean hasGames;  // if so, some games were converted: should call psInsPlayer.executeBatch()
             boolean hasSetWinners;  // if so, some game winners were determined: psSetWinner.executeBatch()
-            HashMap<String, IntPair> winLossDBUsers = new HashMap<String, IntPair>();  // users' win,loss adds in this batch
+            HashMap<String, IntPair> winLossDBUsers = new HashMap<>();  // users' win,loss adds in this batch
 
             // begin transaction of first loop iteration
             final boolean wasConnAutocommit = enterTransactionMode();

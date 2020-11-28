@@ -842,11 +842,11 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         if (ga.isGameOptionSet(SOCGameOptionSet.K_SC_PIRI))
             --numPieces[SOCPlayingPiece.SETTLEMENT];  // Pirate Fortress is a captured settlement
 
-        pieces = new Vector<SOCPlayingPiece>(ROAD_COUNT + SETTLEMENT_COUNT + CITY_COUNT);
-        roadsAndShips = new Vector<SOCRoutePiece>(ROAD_COUNT);
-        settlements = new Vector<SOCSettlement>(SETTLEMENT_COUNT);
-        cities = new Vector<SOCCity>(CITY_COUNT);
-        spItems = new HashMap<String, ArrayList<SOCSpecialItem>>();
+        pieces = new Vector<>( ROAD_COUNT + SETTLEMENT_COUNT + CITY_COUNT );
+        roadsAndShips = new Vector<>( ROAD_COUNT );
+        settlements = new Vector<>( SETTLEMENT_COUNT );
+        cities = new Vector<>( CITY_COUNT );
+        spItems = new HashMap<>();
         longestRoadLength = 0;
         lrPaths = new Vector<>();
         resources = new SOCResourceSet();
@@ -895,7 +895,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
             legalSettlements = board.initPlayerLegalSettlements();
             legalShips = new HashSet<>();  // will remain empty
             potentialSettlements = new HashSet<>( legalSettlements );
-        } else {
+        }
+        else
+        {
             legalRoads = new HashSet<>();
             legalSettlements = new HashSet<>();
             legalShips = new HashSet<>();

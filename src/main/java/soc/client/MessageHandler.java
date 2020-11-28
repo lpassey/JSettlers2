@@ -114,7 +114,9 @@ import soc.util.Version;
                 // Allows null gaName, for the few message types (like SOCScenarioInfo) which
                 // for convenience use something like SOCTemplateMs which extends SOCMessageForGame
                 // but aren't actually game-specific messages.
-            } else {
+            }
+            else
+            {
                 gaName = null;
                 ga = null;
             }
