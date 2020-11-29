@@ -462,12 +462,12 @@ import soc.util.Version;
 
             if (in != null)
             {
-                try { in.close(); } catch (Throwable th) {}
+                try { in.close(); } catch (Throwable ignored) {}
                 in = null;
             }
             if (out != null)
             {
-                try { out.close(); } catch (Throwable th) {}
+                try { out.close(); } catch (Throwable ignored) {}
                 out = null;
             }
 

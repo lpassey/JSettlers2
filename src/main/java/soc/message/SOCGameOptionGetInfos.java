@@ -3,20 +3,20 @@
  * This file Copyright (C) 2009-2010,2013,2017,2019-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
@@ -173,11 +173,11 @@ public class SOCGameOptionGetInfos extends SOCMessage
      * @see #SOCGameOptionGetInfos(List, boolean)
      */
     public SOCGameOptionGetInfos
-        (final List<String> okeys, final boolean withTokenI18nDescs, final boolean withOnlyTokenI18n)
+    ( final List<String> okeys, final boolean withTokenI18nDescs, final boolean withOnlyTokenI18n )
         throws IllegalArgumentException
     {
         if (withOnlyTokenI18n && (okeys != null))
-            throw new IllegalArgumentException(okeys.toString());
+            throw new IllegalArgumentException( okeys.toString() );
 
         messageType = GAMEOPTIONGETINFOS;
 
@@ -202,17 +202,19 @@ public class SOCGameOptionGetInfos extends SOCMessage
      * @since 2.4.50
      */
     public SOCGameOptionGetInfos
-        (final List<SOCGameOption> opts, final boolean withTokenI18nDescs)
+    ( final List<SOCGameOption> opts, final boolean withTokenI18nDescs )
     {
         messageType = GAMEOPTIONGETINFOS;
 
         if (opts != null)
         {
-            List<String> okeys = new ArrayList<>(opts.size());
+            List<String> okeys = new ArrayList<>( opts.size() );
             for (SOCGameOption opt : opts)
-                okeys.add(opt.key);
+                okeys.add( opt.key );
             optionKeys = okeys;
-        } else {
+        }
+        else
+        {
             optionKeys = null;
         }
         hasTokenGetI18nDescs = withTokenI18nDescs;
@@ -225,7 +227,10 @@ public class SOCGameOptionGetInfos extends SOCMessage
      * @return Version number, 1107 for JSettlers 1.1.07.
      */
     @Override
-    public int getMinimumVersion() { return 1107; }
+    public int getMinimumVersion()
+    {
+        return 1107;
+    }
 
     /**
      * @return True if client is also asking server for localized game option descriptions (v2.0.00 and
@@ -247,31 +252,33 @@ public class SOCGameOptionGetInfos extends SOCMessage
     public String toCmd()
     {
         StringBuilder cmd = new StringBuilder();
-        cmd.append(GAMEOPTIONGETINFOS).append(sep);
+        cmd.append( GAMEOPTIONGETINFOS ).append( sep );
 
         if ((optionKeys == null) || optionKeys.isEmpty())
         {
-            if (! hasOnlyTokenI18n)
-                cmd.append("-");
-        } else {
+            if (!hasOnlyTokenI18n)
+                cmd.append( "-" );
+        }
+        else
+        {
             boolean hadAny = false;
 
             for (final String key : optionKeys)
             {
                 if (hadAny)
-                    cmd.append(sep2);
+                    cmd.append( sep2 );
                 else
                     hadAny = true;
 
-                cmd.append(key);
+                cmd.append( key );
             }
         }
 
         if (hasTokenGetI18nDescs)
         {
-            if (! hasOnlyTokenI18n)
-                cmd.append(sep2);
-            cmd.append(OPTKEY_GET_I18N_DESCS);
+            if (!hasOnlyTokenI18n)
+                cmd.append( sep2 );
+            cmd.append( OPTKEY_GET_I18N_DESCS );
         }
 
         return cmd.toString();
@@ -281,12 +288,12 @@ public class SOCGameOptionGetInfos extends SOCMessage
      * Parse the command String into a GameOptionGetInfos message
      *
      * @param s   the String to parse
-     * @return    a GetInfos message, or null if the data is garbled
+     * @return a GetInfos message, or null if the data is garbled
      */
-    public static SOCGameOptionGetInfos parseDataStr(String s)
+    public static SOCGameOptionGetInfos parseDataStr( String s )
     {
         List<String> okey = new ArrayList<>();
-        StringTokenizer st = new StringTokenizer(s, sep2);
+        StringTokenizer st = new StringTokenizer( s, sep2 );
         boolean hasDash = false, hasTokenI18n = false, hasTokenAllChanges = false;
 
         try
@@ -295,28 +302,28 @@ public class SOCGameOptionGetInfos extends SOCMessage
             {
                 String ntok = st.nextToken();
 
-                if (ntok.equals("-"))
+                if (ntok.equals( "-" ))
                 {
                     hasDash = true;
                     continue;
                 }
-                else if (ntok.equals(OPTKEY_GET_I18N_DESCS))
+                else if (ntok.equals( OPTKEY_GET_I18N_DESCS ))
                 {
                     hasTokenI18n = true;
                     continue;  // not an optkey, don't add it to list
                 }
-                else if (ntok.equals(OPTKEY_GET_ANY_CHANGES))
+                else if (ntok.equals( OPTKEY_GET_ANY_CHANGES ))
                 {
                     hasTokenAllChanges = true;
                     continue;
                 }
 
-                okey.add(ntok);
+                okey.add( ntok );
             }
         }
-        catch (Exception e)
+        catch( Exception e )
         {
-            System.err.println("SOCGameOptionGetInfos parseDataStr ERROR - " + e);
+            System.err.println( "SOCGameOptionGetInfos parseDataStr ERROR - " + e );
 
             return null;
         }
@@ -327,7 +334,7 @@ public class SOCGameOptionGetInfos extends SOCMessage
             return null;  // parse error: more than "-" in list which contains "-"
 
         SOCGameOptionGetInfos ret = new SOCGameOptionGetInfos
-            (okey, hasTokenI18n, hasTokenI18n && (okey == null) && ! hasDash);
+            ( okey, hasTokenI18n, hasTokenI18n && (okey == null) && !hasDash );
         if (hasTokenAllChanges)
             ret.hasTokenGetAnyChanges = true;
 
@@ -340,23 +347,25 @@ public class SOCGameOptionGetInfos extends SOCMessage
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder("SOCGameOptionGetInfos:options=");
+        StringBuilder sb = new StringBuilder( "SOCGameOptionGetInfos:options=" );
 
         if (optionKeys == null)
         {
-            if (! hasOnlyTokenI18n)
-                sb.append('-');
-        } else {
-            DataUtils.listIntoStringBuilder(optionKeys, sb);
-            if (hasTokenGetAnyChanges && ! optionKeys.contains(OPTKEY_GET_ANY_CHANGES))
-                sb.append(',').append(OPTKEY_GET_ANY_CHANGES);
+            if (!hasOnlyTokenI18n)
+                sb.append( '-' );
+        }
+        else
+        {
+            DataUtils.listIntoStringBuilder( optionKeys, sb );
+            if (hasTokenGetAnyChanges && !optionKeys.contains( OPTKEY_GET_ANY_CHANGES ))
+                sb.append( ',' ).append( OPTKEY_GET_ANY_CHANGES );
         }
 
         if (hasTokenGetI18nDescs)
         {
-            if (! hasOnlyTokenI18n)
-                sb.append(',');
-            sb.append(OPTKEY_GET_I18N_DESCS);
+            if (!hasOnlyTokenI18n)
+                sb.append( ',' );
+            sb.append( OPTKEY_GET_I18N_DESCS );
         }
 
         return sb.toString();

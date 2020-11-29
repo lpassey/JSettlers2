@@ -1,20 +1,20 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2014-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.util;
@@ -174,7 +174,7 @@ public class SOCFeatureSet
      *     <LI> Ignored unless {@code withOldDefaults} is set.
      *     </UL>
      */
-    public SOCFeatureSet(final boolean withOldDefaults, final boolean withOldDefaultsForServer)
+    public SOCFeatureSet( final boolean withOldDefaults, final boolean withOldDefaultsForServer )
     {
         if (withOldDefaults)
         {
@@ -183,9 +183,13 @@ public class SOCFeatureSet
                     + SEP_CHAR + SERVER_OPEN_REG + SEP_CHAR;
             else
                 featureList = SEP_CHAR + CLIENT_6_PLAYERS + SEP_CHAR;
-        } else {
+        }
+/*
+        else
+        {
             // featureList is already empty (null)
         }
+*/
     }
 
     /**
@@ -194,7 +198,7 @@ public class SOCFeatureSet
      * @throws IllegalArgumentException if {@code encodedList} is not empty but
      *     doesn't start and end with {@link #SEP_CHAR}
      */
-    public SOCFeatureSet(String encodedList)
+    public SOCFeatureSet( String encodedList )
         throws IllegalArgumentException
     {
         if (encodedList != null)
@@ -202,8 +206,8 @@ public class SOCFeatureSet
             final int L = encodedList.length();
             if (L == 0)
                 encodedList = null;
-            else if ((encodedList.charAt(0) != SEP_CHAR) || (encodedList.charAt(L - 1) != SEP_CHAR))
-                throw new IllegalArgumentException("Bad encoding: " + encodedList);
+            else if ((encodedList.charAt( 0 ) != SEP_CHAR) || (encodedList.charAt( L - 1 ) != SEP_CHAR))
+                throw new IllegalArgumentException( "Bad encoding: " + encodedList );
         }
 
         featureList = encodedList;
@@ -214,7 +218,7 @@ public class SOCFeatureSet
      * @param feats  Copy from this to create the new SOCFeatureSet
      * @throws NullPointerException if {@code feats} == null
      */
-    public SOCFeatureSet(SOCFeatureSet feats)
+    public SOCFeatureSet( SOCFeatureSet feats )
         throws NullPointerException
     {
         super();
@@ -224,21 +228,21 @@ public class SOCFeatureSet
     /**
      * Is this feature active?
      * @param featureName  A defined feature name, such as {@link #SERVER_ACCOUNTS}
-     * @return  True if {@code featureName} is in the features list, as either a flag or an int-valued feature
+     * @return True if {@code featureName} is in the features list, as either a flag or an int-valued feature
      * @throws IllegalArgumentException if {@code featureName} is null or ""
      * @see #getValue(String, int)
      */
-    public boolean isActive(final String featureName)
+    public boolean isActive( final String featureName )
         throws IllegalArgumentException
     {
         if ((featureName == null) || (featureName.length() == 0))
-            throw new IllegalArgumentException("featureName: " + featureName);
+            throw new IllegalArgumentException( "featureName: " + featureName );
 
         if (featureList == null)
             return false;
 
-        return featureList.contains(SEP_CHAR + featureName + SEP_CHAR)
-            || featureList.contains(SEP_CHAR + featureName + '=');
+        return featureList.contains( SEP_CHAR + featureName + SEP_CHAR )
+            || featureList.contains( SEP_CHAR + featureName + '=' );
     }
 
     /**
@@ -246,30 +250,32 @@ public class SOCFeatureSet
      * @param featureName  A defined int-valued feature name
      * @param dflt  Default value if feature isn't found or is a boolean flag.
      *     If value can't be parsed as an integer, returns {@code dflt}.
-     * @return  Feature's int value or {@code dflt}
+     * @return Feature's int value or {@code dflt}
      * @see #isActive(String)
      */
-    public int getValue(final String featureName, final int dflt)
+    public int getValue( final String featureName, final int dflt )
     {
         if ((featureName == null) || (featureName.length() == 0))
-            throw new IllegalArgumentException("featureName: " + featureName);
+            throw new IllegalArgumentException( "featureName: " + featureName );
 
         if (featureList == null)
             return dflt;
 
-        int iStart = featureList.indexOf(SEP_CHAR + featureName + '=');
+        int iStart = featureList.indexOf( SEP_CHAR + featureName + '=' );
         if (iStart == -1)
             return dflt;
         iStart += featureName.length() + 2;  // move past SEP_CHAR + featureName + '='
 
-        int iEnd = featureList.indexOf(SEP_CHAR, iStart);
+        int iEnd = featureList.indexOf( SEP_CHAR, iStart );
         if (iEnd == -1)
             iEnd = featureList.length();  // just in case; shouldn't occur if well-formed
 
         try
         {
-            return Integer.parseInt(featureList.substring(iStart, iEnd));
-        } catch (RuntimeException e) {
+            return Integer.parseInt( featureList.substring( iStart, iEnd ) );
+        }
+        catch( RuntimeException e )
+        {
             // IndexOutOfBoundsException, NumberFormatException; shouldn't occur if well-formed
             return dflt;
         }
@@ -285,17 +291,17 @@ public class SOCFeatureSet
      * @see #add(String, int)
      * @see #remove(String)
      */
-    public void add(final String featureName)
+    public void add( final String featureName )
         throws IllegalArgumentException
     {
         if ((featureName == null) || (featureName.length() == 0)
-            || (-1 != featureName.indexOf(SEP_CHAR)) || (-1 != featureName.indexOf('=')))
-            throw new IllegalArgumentException("featureName: " + featureName);
+            || (-1 != featureName.indexOf( SEP_CHAR )) || (-1 != featureName.indexOf( '=' )))
+            throw new IllegalArgumentException( "featureName: " + featureName );
 
         if (featureList == null)
             featureList = SEP_CHAR + featureName + SEP_CHAR;
         else
-            featureList = featureList.concat(featureName + SEP_CHAR);
+            featureList = featureList.concat( featureName + SEP_CHAR );
     }
 
     /**
@@ -309,17 +315,17 @@ public class SOCFeatureSet
      * @see #remove(String)
      * @since 2.0.00
      */
-    public void add(final String featureName, final int val)
+    public void add( final String featureName, final int val )
         throws IllegalArgumentException
     {
         if ((featureName == null) || (featureName.length() == 0)
-            || (-1 != featureName.indexOf(SEP_CHAR)) || (-1 != featureName.indexOf('=')))
-            throw new IllegalArgumentException("featureName: " + featureName);
+            || (-1 != featureName.indexOf( SEP_CHAR )) || (-1 != featureName.indexOf( '=' )))
+            throw new IllegalArgumentException( "featureName: " + featureName );
 
         if (featureList == null)
             featureList = SEP_CHAR + featureName + "=" + val + SEP_CHAR;
         else
-            featureList = featureList.concat(featureName + "=" + val + SEP_CHAR);
+            featureList = featureList.concat( featureName + "=" + val + SEP_CHAR );
     }
 
     /**
@@ -329,11 +335,11 @@ public class SOCFeatureSet
      * @throws IllegalArgumentException if {@code featureName} is null or ""
      * @since 2.4.50
      */
-    public void remove(final String featureName)
+    public void remove( final String featureName )
         throws IllegalArgumentException
     {
         if ((featureName == null) || (featureName.length() == 0))
-            throw new IllegalArgumentException("featureName: " + featureName);
+            throw new IllegalArgumentException( "featureName: " + featureName );
 
         if (featureList == null)
             return;
@@ -342,18 +348,18 @@ public class SOCFeatureSet
         int i = 0;
         while ((i > -1) && (i < LTotal))
         {
-            i = featureList.indexOf(SEP_CHAR + featureName, i);
+            i = featureList.indexOf( SEP_CHAR + featureName, i );
             if (i == -1)
                 return;
 
             int iNext = i + L + 1;  // index of char after featureName
             if (iNext < LTotal)
             {
-                int ch = featureList.charAt(iNext);
+                int ch = featureList.charAt( iNext );
                 if (ch == '=')
                 {
                     // name matched; also remove =value
-                    iNext = featureList.indexOf(SEP_CHAR, iNext + 1);
+                    iNext = featureList.indexOf( SEP_CHAR, iNext + 1 );
                 }
                 else if (ch != SEP_CHAR)
                 {
@@ -367,13 +373,15 @@ public class SOCFeatureSet
                 if ((i == 0) && (iNext == LTotal))
                     featureList = null;
                 else
-                    featureList = featureList.substring(0, i + 1)
-                        + (((iNext > 0) && (iNext < LTotal)) ? featureList.substring(iNext) : "");
+                    featureList = featureList.substring( 0, i + 1 )
+                        + (((iNext > 0) && (iNext < LTotal)) ? featureList.substring( iNext ) : "");
 
                 return;
-            } else {
+            }
+            else
+            {
                 // featureList malformed: missing final SEP_CHAR
-                featureList = featureList.substring(0, i);
+                featureList = featureList.substring( 0, i );
 
                 return;
             }
@@ -397,7 +405,7 @@ public class SOCFeatureSet
      *     If {@code stopAtFirstFound}, might return one missing feature instead of the full list.
      * @since 2.0.00
      */
-    public String findMissingAgainst(SOCFeatureSet otherSet, final boolean stopAtFirstFound)
+    public String findMissingAgainst( SOCFeatureSet otherSet, final boolean stopAtFirstFound )
     {
         if ((otherSet == null) || (otherSet.featureList == null))
             return null;
@@ -409,9 +417,9 @@ public class SOCFeatureSet
 
         // loop through fList, checking our own list
         StringBuilder missingList = null;
-        for (int i = fList.indexOf(SEP_CHAR, 1), iprev = 0;  // assumes fList is well-formed and starts with ';'
-             ;
-             iprev = i, i = fList.indexOf(SEP_CHAR, i+1))
+        for (int i = fList.indexOf( SEP_CHAR, 1 ), iprev = 0;  // assumes fList is well-formed and starts with ';'
+            ;
+             iprev = i, i = fList.indexOf( SEP_CHAR, i + 1 ))
         {
             if (i == -1)
                 i = L;
@@ -419,26 +427,33 @@ public class SOCFeatureSet
             if (i - iprev > 1)
             {
                 String missingItem = null;
-                String f = fList.substring(iprev + 1, i);
-                int ieq = f.indexOf('=');
+                String f = fList.substring( iprev + 1, i );
+                int ieq = f.indexOf( '=' );
                 if (ieq == -1)
                 {
-                    if (! isActive(f))
+                    if (!isActive( f ))
                     {
                         missingItem = f;
                     }
-                } else if (ieq == 0) {
+                }
+                else if (ieq == 0)
+                {
                     missingItem = "?";  // malformed
-                } else {
-                    String name = f.substring(0, ieq), val = f.substring(ieq + 1);
+                }
+                else
+                {
+                    String name = f.substring( 0, ieq ), val = f.substring( ieq + 1 );
                     int ival = 0;
                     if (val.length() > 0)
-                        try {
-                            ival = Integer.parseInt(val);
-                            int ourval = getValue(name, ival - 1);
+                        try
+                        {
+                            ival = Integer.parseInt( val );
+                            int ourval = getValue( name, ival - 1 );
                             if (ourval < ival)
                                 missingItem = f;  // name + "=" + val
-                        } catch (NumberFormatException e) {
+                        }
+                        catch( NumberFormatException e )
+                        {
                             missingItem = name;
                         }
                 }
@@ -451,13 +466,13 @@ public class SOCFeatureSet
                     if (missingList == null)
                         missingList = new StringBuilder();
                     else
-                        missingList.append(SOCFeatureSet.SEP_CHAR);
+                        missingList.append( SOCFeatureSet.SEP_CHAR );
 
-                    missingList.append(missingItem);
+                    missingList.append( missingItem );
                 }
             }
 
-            if (i >= (L-1))
+            if (i >= (L - 1))
                 break;
         }
 
@@ -490,10 +505,10 @@ public class SOCFeatureSet
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(super.toString());
-        sb.append('{');
-        sb.append((featureList != null) ? featureList : "(empty)");
-        sb.append('}');
+        StringBuilder sb = new StringBuilder( super.toString() );
+        sb.append( '{' );
+        sb.append( (featureList != null) ? featureList : "(empty)" );
+        sb.append( '}' );
         return sb.toString();
     }
 

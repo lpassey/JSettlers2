@@ -4,20 +4,20 @@
  * Portions of this file Copyright (C) 2007-2018,2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net> - parameterize types, removeConnection bugfix
  * Portions of this file Copyright (C) 2016 Alessandro D'Ottavio
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.server.genericServer;
@@ -223,7 +223,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * Timer for scheduling timed/recurring tasks.
      * @since 1.1.06
      */
-    public Timer utilTimer = new Timer(true);  // use daemon thread
+    public Timer utilTimer = new Timer( true );  // use daemon thread
 
     /**
      * Client disconnect error messages, to be printed after a short delay
@@ -273,11 +273,11 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @param props  Optional properties to configure and run the server.
      *       If null, the properties field will be created empty.
      */
-    public Server(final int port, final InboundMessageDispatcher imd, Properties props)
+    public Server( final int port, final InboundMessageDispatcher imd, Properties props )
         throws IllegalArgumentException
     {
         if (imd == null)
-            throw new IllegalArgumentException("imd null");
+            throw new IllegalArgumentException( "imd null" );
 
         if (props == null)
             props = new Properties();
@@ -285,19 +285,19 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         this.port = port;
         this.strSocketName = null;
         this.inboundMsgDispatcher = imd;
-        this.inQueue = new InboundMessageQueue(imd);
+        this.inQueue = new InboundMessageQueue( imd );
 
         try
         {
-            ss = new NetServerSocket(port, this);
+            ss = new NetServerSocket( port, this );
         }
-        catch (IOException e)
+        catch( IOException e )
         {
-            System.err.println("Could not listen on port " + port + ": " + e);
+            System.err.println( "Could not listen on port " + port + ": " + e );
             error = e;
         }
 
-        setName("server-" + port);  // Thread name for debugging
+        setName( "server-" + port );  // Thread name for debugging
 
         initMisc();
 
@@ -311,13 +311,13 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      *       If null, the properties field will be created empty.
      * @since 1.1.00
      */
-    public Server(final String stringSocketName, final InboundMessageDispatcher imd, Properties props)
+    public Server( final String stringSocketName, final InboundMessageDispatcher imd, Properties props )
         throws IllegalArgumentException
     {
         if (stringSocketName == null)
-            throw new IllegalArgumentException("stringSocketName null");
+            throw new IllegalArgumentException( "stringSocketName null" );
         if (imd == null)
-            throw new IllegalArgumentException("imd null");
+            throw new IllegalArgumentException( "imd null" );
 
         if (props == null)
             props = new Properties();
@@ -325,10 +325,10 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         this.port = -1;
         this.strSocketName = stringSocketName;
         this.inboundMsgDispatcher = imd;
-        this.inQueue = new InboundMessageQueue(imd);
+        this.inQueue = new InboundMessageQueue( imd );
 
-        ss = new StringServerSocket(stringSocketName);
-        setName("server-localstring-" + stringSocketName);  // Thread name for debugging
+        ss = new StringServerSocket( stringSocketName );
+        setName( "server-localstring-" + stringSocketName );  // Thread name for debugging
 
         initMisc();
 
@@ -347,8 +347,8 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             return;
 
         // recurring schedule the version set's consistency-chk
-        ConnVersionSetCheckerTask cvChkTask = new ConnVersionSetCheckerTask(this);
-        utilTimer.schedule(cvChkTask, 0L, SOCServer.CLI_VERSION_SET_CONSIS_CHECK_MINUTES * 60 * 1000);
+        ConnVersionSetCheckerTask cvChkTask = new ConnVersionSetCheckerTask( this );
+        utilTimer.schedule( cvChkTask, 0L, SOCServer.CLI_VERSION_SET_CONSIS_CHECK_MINUTES * 60 * 1000 );
     }
 
     /**
@@ -363,10 +363,10 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see SOCServer#getRobotConnection(String)
      * @since 1.1.00
      */
-    public Connection getConnection(final String connKey)
+    public Connection getConnection( final String connKey )
     {
         if (connKey != null)
-            return conns.get(connKey);
+            return conns.get( connKey );
         else
             return null;
     }
@@ -380,16 +380,16 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #getConnection(String)
      * @since 1.2.00
      */
-    public Connection getConnection(String connKey, final boolean isCaseSensitive)
+    public Connection getConnection( String connKey, final boolean isCaseSensitive )
     {
-        if ((! isCaseSensitive) && (connKey != null))
-            synchronized(unnamedConns)
+        if ((!isCaseSensitive) && (connKey != null))
+            synchronized (unnamedConns)
             {
-                connKey = connNames.get(connKey.toLowerCase(Locale.US));
+                connKey = connNames.get( connKey.toLowerCase( Locale.US ) );
             }
 
         if (connKey != null)
-            return getConnection(connKey);
+            return getConnection( connKey );
         else
             return null;
     }
@@ -435,15 +435,17 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @since 1.1.10
      * @see #getConfigBoolProperty(String, boolean)
      */
-    public final int getConfigIntProperty(final String pName, final int pDefault)
+    public final int getConfigIntProperty( final String pName, final int pDefault )
     {
         try
         {
-            String mcs = props.getProperty(pName);
+            String mcs = props.getProperty( pName );
             if (mcs != null)
-                return Integer.parseInt(mcs);
+                return Integer.parseInt( mcs );
         }
-        catch (NumberFormatException e) { }
+        catch( NumberFormatException e )
+        {
+        }
 
         return pDefault;
     }
@@ -463,25 +465,27 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @since 1.1.14
      * @see #getConfigIntProperty(String, int)
      */
-    public final boolean getConfigBoolProperty(final String pName, final boolean pDefault)
+    public final boolean getConfigBoolProperty( final String pName, final boolean pDefault )
     {
         try
         {
-            String mcs = props.getProperty(pName);
+            String mcs = props.getProperty( pName );
             if (mcs == null)
                 return pDefault;
-            if (mcs.equalsIgnoreCase("Y") || mcs.equalsIgnoreCase("T"))
+            if (mcs.equalsIgnoreCase( "Y" ) || mcs.equalsIgnoreCase( "T" ))
                 return true;
-            else if (mcs.equalsIgnoreCase("N") || mcs.equalsIgnoreCase("F"))
+            else if (mcs.equalsIgnoreCase( "N" ) || mcs.equalsIgnoreCase( "F" ))
                 return false;
 
-            final int iv = Integer.parseInt(mcs);
+            final int iv = Integer.parseInt( mcs );
             if (iv == 0)
                 return false;
             else if (iv == 1)
                 return true;
         }
-        catch (NumberFormatException e) { }
+        catch( NumberFormatException e )
+        {
+        }
 
         return pDefault;
     }
@@ -560,24 +564,24 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                     Connection connection = ss.accept();
                     if (port != -1)
                     {
-                        new Thread((NetConnection) connection).start();
+                        new Thread( (NetConnection) connection ).start();
                     }
                     else
                     {
                         StringConnection localConnection = (StringConnection) connection;
-                        localConnection.setServer(this);
+                        localConnection.setServer( this );
 
-                        new Thread(localConnection).start();
+                        new Thread( localConnection ).start();
                     }
 
                     //addConnection(new Connection());
                 }
             }
-            catch (IOException e)
+            catch( IOException e )
             {
                 error = e;
                 if (up)
-                    D.ebugPrintlnINFO("Exception " + e + " during accept");
+                    D.ebugPrintlnINFO( "Exception " + e + " during accept" );
 
                 //System.out.println("STOPPING SERVER");
                 //stopServer();
@@ -590,16 +594,16 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                 {
                     // retry
                     if (strSocketName == null)
-                        ss = new NetServerSocket(port, this);
+                        ss = new NetServerSocket( port, this );
                     else
-                        ss = new StringServerSocket(strSocketName);
+                        ss = new StringServerSocket( strSocketName );
                 }
             }
-            catch (IOException e)
+            catch( IOException e )
             {
                 if (up)
                 {
-                    System.err.println("Could not listen on port " + port + ": " + e);
+                    System.err.println( "Could not listen on port " + port + ": " + e );
                     up = false;
                 }
                 inQueue.stopMessageProcessing();
@@ -624,7 +628,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      *     {@link Server.InboundMessageDispatcher#dispatch(SOCMessage, Connection)}.
      * @since 1.1.06
      */
-    public boolean processFirstCommand(SOCMessage mes, Connection con)
+    public boolean processFirstCommand( SOCMessage mes, Connection con )
     {
         return false;
     }
@@ -638,10 +642,14 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      *
      * @since 1.1.09
      */
-    protected void serverUp() {}
+    protected void serverUp()
+    {
+    }
 
     /** placeholder for doing things when server gets down */
-    protected void serverDown() {}
+    protected void serverDown()
+    {
+    }
 
     /**
      * placeholder for doing things when a new connection comes, part 1 -
@@ -678,7 +686,10 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #nameConnection(Connection, boolean)
      * @since 1.1.00
      */
-    protected boolean newConnection1(Connection c) { return true; }
+    protected boolean newConnection1( Connection c )
+    {
+        return true;
+    }
 
     /** placeholder for doing things when a new connection comes, part 2 -
      *  has been accepted and added to a connection list.
@@ -691,7 +702,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      *
      * @since 1.1.00
      */
-    protected void newConnection2(Connection c) {}
+    protected void newConnection2( Connection c )
+    {
+    }
 
     /** placeholder for doing things when a connection is closed.
      *  Called after connection is removed from conns collection
@@ -701,7 +714,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      *
      * @see #removeConnectionCleanup(Connection)
      */
-    protected void leaveConnection(Connection c) {}
+    protected void leaveConnection( Connection c )
+    {
+    }
 
     /** The server is being cleanly stopped, disconnect all the connections.
      * Calls {@link #serverDown()} before disconnect; if your child class has more work
@@ -723,8 +738,13 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         }
 
         if (ss != null)
-            try { ss.close(); }
-            catch (IOException e) {}
+            try
+            {
+                ss.close();
+            }
+            catch( IOException e )
+            {
+            }
 
         conns.clear();
         connNames.clear();
@@ -745,7 +765,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      *     {@link Connection#getData()} may be null.
      * @param doCleanup  If true, will also call {@link #removeConnectionCleanup(Connection)}.
      */
-    public void removeConnection(final Connection c, final boolean doCleanup)
+    public void removeConnection( final Connection c, final boolean doCleanup )
     {
         final String cKey = c.getData();  // client player name
 
@@ -753,7 +773,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         {
             if (cKey != null)
             {
-                final Connection cKeyConn = conns.get(cKey);
+                final Connection cKeyConn = conns.get( cKey );
                 if (null == cKeyConn)
                 {
                     // Was not a member
@@ -761,8 +781,8 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                 }
                 if (c == cKeyConn)
                 {
-                    conns.remove(cKey);
-                    connNames.remove(cKey.toLowerCase(Locale.US));
+                    conns.remove( cKey );
+                    connNames.remove( cKey.toLowerCase( Locale.US ) );
                 }
                 // else, was replaced by a
                 // different conn for cKey.
@@ -770,38 +790,40 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             }
             else
             {
-                unnamedConns.removeElement(c);
+                unnamedConns.removeElement( c );
             }
 
             --numberCurrentConnections;
-            clientVersionRem(c.getVersion());  // One less of the cli's version
-            c.setVersionTracking(false);
+            clientVersionRem( c.getVersion() );  // One less of the cli's version
+            c.setVersionTracking( false );
         }
 
         c.disconnect();
-        leaveConnection(c);
+        leaveConnection( c );
         if (D.ebugIsEnabled())
         {
             Exception cerr = c.getError();
-            if (( ! (cerr instanceof SocketTimeoutException)) || !c.wantsHideTimeoutMessage())
+            if ((!(cerr instanceof SocketTimeoutException)) || !c.wantsHideTimeoutMessage())
             {
                 if (cKey != null)
                 {
-                    ConnExcepDelayedPrintTask leftMsgTask = new ConnExcepDelayedPrintTask(false, cerr, c);
-                    cliConnDisconPrintsPending.put(cKey, leftMsgTask);
-                    utilTimer.schedule(leftMsgTask, CLI_DISCON_PRINT_TIMER_FIRE_MS);
-                } else {
+                    ConnExcepDelayedPrintTask leftMsgTask = new ConnExcepDelayedPrintTask( false, cerr, c );
+                    cliConnDisconPrintsPending.put( cKey, leftMsgTask );
+                    utilTimer.schedule( leftMsgTask, CLI_DISCON_PRINT_TIMER_FIRE_MS );
+                }
+                else
+                {
                     // no connection-name key data; we can't identify it later if it reconnects;
                     // just print the announcement right now.
                     D.ebugPrintlnINFO
-                        (c.host() + " left (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  "
-                         + (new Date()).toString() + ((cerr != null) ? (": " + cerr.toString()) : ""));
+                        ( c.host() + " left (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  "
+                            + (new Date()).toString() + ((cerr != null) ? (": " + cerr.toString()) : "") );
                 }
             }
         }
 
         if (doCleanup)
-            removeConnectionCleanup(c);
+            removeConnectionCleanup( c );
     }
 
     /**
@@ -809,7 +831,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      *
      * @see #leaveConnection(Connection)
      */
-    protected void removeConnectionCleanup(Connection c) {}
+    protected void removeConnectionCleanup( Connection c )
+    {
+    }
 
     /**
      * Add a connection to the system.
@@ -830,7 +854,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #nameConnection(Connection, boolean)
      * @see #removeConnection(Connection, boolean)
      */
-    public void addConnection(Connection c)
+    public void addConnection( Connection c )
         throws IllegalArgumentException
     {
         boolean connAccepted;
@@ -839,31 +863,35 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         {
             if (c.connect())
             {
-                connAccepted = newConnection1(c);  // <-- App-specific #1 --
+                connAccepted = newConnection1( c );  // <-- App-specific #1 --
                 if (connAccepted)
                 {
                     final String cKey = c.getData();
                     if (cKey != null)
                     {
-                        final String cName = cKey.toLowerCase(Locale.US);
-                        if (connNames.containsKey(cName))
-                                throw new IllegalArgumentException("already in connNames: " + cName);
+                        final String cName = cKey.toLowerCase( Locale.US );
+                        if (connNames.containsKey( cName ))
+                            throw new IllegalArgumentException( "already in connNames: " + cName );
 
-                        conns.put(cKey, c);
-                        connNames.put(cName, cKey);
-                    } else {
-                        unnamedConns.add(c);
+                        conns.put( cKey, c );
+                        connNames.put( cName, cKey );
+                    }
+                    else
+                    {
+                        unnamedConns.add( c );
                     }
 
-                    clientVersionAdd(c.getVersion());  // Count one more client with that version
+                    clientVersionAdd( c.getVersion() );  // Count one more client with that version
                     numberCurrentConnections++;
-                    c.setVersionTracking(true);
+                    c.setVersionTracking( true );
                 }
                 else
                 {
                     c.disconnectSoft();
                 }
-            } else {
+            }
+            else
+            {
                 return;  // <--- early return: c.connect failed ---
             }
         }
@@ -874,15 +902,17 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             numberOfConnections++;
             if (D.ebugIsEnabled())
             {
-                ConnExcepDelayedPrintTask cameMsgTask = new ConnExcepDelayedPrintTask(true, null, c);
-                cliConnDisconPrintsPending.put(c, cameMsgTask);
-                utilTimer.schedule(cameMsgTask, CLI_CONN_PRINT_TIMER_FIRE_MS);
+                ConnExcepDelayedPrintTask cameMsgTask = new ConnExcepDelayedPrintTask( true, null, c );
+                cliConnDisconPrintsPending.put( c, cameMsgTask );
+                utilTimer.schedule( cameMsgTask, CLI_CONN_PRINT_TIMER_FIRE_MS );
 
                 // D.ebugPrintln(c.host() + " came (" + connectionCount() + ")  " + (new Date()).toString());
             }
-            newConnection2(c);  // <-- App-specific #2 --
-        } else {
-            D.ebugPrintlnINFO(c.host() + " came but rejected (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  " + (new Date()).toString());
+            newConnection2( c );  // <-- App-specific #2 --
+        }
+        else
+        {
+            D.ebugPrintlnINFO( c.host() + " came but rejected (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  " + (new Date()).toString() );
         }
     }
 
@@ -905,27 +935,27 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #getConnection(String, boolean)
      * @since 1.1.00
      */
-    public void nameConnection(Connection c, final boolean isReplacing)
+    public void nameConnection( Connection c, final boolean isReplacing )
         throws IllegalArgumentException
     {
         String cKey = c.getData();
         if (cKey == null)
-            throw new IllegalArgumentException("null c.getData");
+            throw new IllegalArgumentException( "null c.getData" );
 
         synchronized (unnamedConns)
         {
-            final String cName = cKey.toLowerCase(Locale.US);
-            if ((! isReplacing) && connNames.containsKey(cName))
-                throw new IllegalArgumentException("already in connNames: " + cName);
+            final String cName = cKey.toLowerCase( Locale.US );
+            if ((!isReplacing) && connNames.containsKey( cName ))
+                throw new IllegalArgumentException( "already in connNames: " + cName );
 
-            if (unnamedConns.removeElement(c))
+            if (unnamedConns.removeElement( c ))
             {
-                conns.put(cKey, c);
-                connNames.put(cName, cKey);
+                conns.put( cKey, c );
+                connNames.put( cName, cKey );
             }
             else
             {
-                throw new IllegalArgumentException("was not both connected and unnamed");
+                throw new IllegalArgumentException( "was not both connected and unnamed" );
             }
         }
     }
@@ -942,15 +972,17 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #getMaxConnectedCliVersion()
      * @since 1.1.06
      */
-    public void clientVersionAdd(final int cvers)
+    public void clientVersionAdd( final int cvers )
     {
         Integer cvkey = cvers;
-        ConnVersionCounter cv = cliVersionsConnected.get(cvkey);
+        ConnVersionCounter cv = cliVersionsConnected.get( cvkey );
         if (cv == null)
         {
-            cv = new ConnVersionCounter(cvers);
-            cliVersionsConnected.put(cvkey, cv);  // with cliCount == 1
-        } else {
+            cv = new ConnVersionCounter( cvers );
+            cliVersionsConnected.put( cvkey, cv );  // with cliCount == 1
+        }
+        else
+        {
             cv.cliCount++;
             return;  // <---- Early return: We already have this version ----
         }
@@ -961,7 +993,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             // Use its version# as the min/max.
             cliVersionMin = cvers;
             cliVersionMax = cvers;
-        } else {
+        }
+        else
+        {
             if (cvers < cliVersionMin)
                 cliVersionMin = cvers;
             else if (cvers > cliVersionMax)
@@ -982,14 +1016,14 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #getMaxConnectedCliVersion()
      * @since 1.1.06
      */
-    public void clientVersionRem(final int cvers)
+    public void clientVersionRem( final int cvers )
     {
         Integer cvkey = cvers;
-        ConnVersionCounter cv = cliVersionsConnected.get(cvkey);
+        ConnVersionCounter cv = cliVersionsConnected.get( cvkey );
         if (cv == null)
         {
             // not found - must rebuild
-            clientVersionRebuildMap(null);
+            clientVersionRebuildMap( null );
             return;  // <---- Early return: Had to rebuild ----
         }
 
@@ -1003,7 +1037,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         // Update min/max if needed.
         // (If there aren't any clients connected, doesn't matter.)
 
-        cliVersionsConnected.remove(cvkey);
+        cliVersionsConnected.remove( cvkey );
 
         if (cliVersionsConnected.size() == 0)
         {
@@ -1013,7 +1047,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         if (cv.cliCount < 0)
         {
             // must rebuild - got below 0 somehow
-            clientVersionRebuildMap(null);
+            clientVersionRebuildMap( null );
             return;  // <---- Early return: Had to rebuild ----
         }
 
@@ -1052,14 +1086,14 @@ public abstract class Server extends Thread implements Serializable, Cloneable
     /**
      * Is a client with this version number currently connected?
      * @param cvers Client version number, from {@link Connection#getVersion()}.
-     * @return  True if a client of this version is currently connected,
+     * @return True if a client of this version is currently connected,
      *    according to calls to {@link #clientVersionAdd(int)}
      *    and {@link #clientVersionRem(int)}
      * @since 1.1.13
      * @see #getMinConnectedCliVersion()
      * @see #getMaxConnectedCliVersion()
      */
-    public boolean isCliVersionConnected(final int cvers)
+    public boolean isCliVersionConnected( final int cvers )
     {
         ConnVersionCounter cv = cliVersionsConnected.get( cvers );
         return (cv != null) && (cv.cliCount > 0);
@@ -1086,18 +1120,18 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
         // same enums as broadcast()
 
-        for (Enumeration<Connection> e = getConnections(); e.hasMoreElements();)
+        for (Enumeration<Connection> e = getConnections(); e.hasMoreElements(); )
         {
             cvers = e.nextElement().getVersion();
 
             if ((cvkey == null) || (cvers != lastVers))
             {
                 cvkey = cvers;
-                cvc = cvmap.get(cvkey);
+                cvc = cvmap.get( cvkey );
                 if (cvc == null)
                 {
-                    cvc = new ConnVersionCounter(cvers);
-                    cvmap.put(cvkey, cvc);  // with cliCount == 1
+                    cvc = new ConnVersionCounter( cvers );
+                    cvmap.put( cvkey, cvc );  // with cliCount == 1
                     cvc.cliCount--;  // -- now, since we'll ++ it just below
                 }
             }
@@ -1105,18 +1139,18 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             lastVers = cvers;
         }
 
-        for (Enumeration<Connection> e = unnamedConns.elements(); e.hasMoreElements();)
+        for (Enumeration<Connection> e = unnamedConns.elements(); e.hasMoreElements(); )
         {
             cvers = e.nextElement().getVersion();
 
             if ((cvkey == null) || (cvers != lastVers))
             {
                 cvkey = cvers;
-                cvc = cvmap.get(cvkey);
+                cvc = cvmap.get( cvkey );
                 if (cvc == null)
                 {
-                    cvc = new ConnVersionCounter(cvers);
-                    cvmap.put(cvkey, cvc);  // with cliCount == 1
+                    cvc = new ConnVersionCounter( cvers );
+                    cvmap.put( cvkey, cvc );  // with cliCount == 1
                     cvc.cliCount--;  // -- now, since we'll ++ it just below
                 }
             }
@@ -1147,7 +1181,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #clientVersionRebuildMap(TreeMap)
      * @since 1.1.06
      */
-    private boolean clientVersionCheckMap(TreeMap<Integer, ConnVersionCounter> tree2, final boolean fullCheck)
+    private boolean clientVersionCheckMap( TreeMap<Integer, ConnVersionCounter> tree2, final boolean fullCheck )
     {
         if (fullCheck)
         {
@@ -1181,7 +1215,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                     {
                         return false;
                     }
-                } else {
+                }
+                else
+                {
                     cliCount += cvc1.cliCount;
                 }
             }
@@ -1190,11 +1226,13 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             {
                 if (cve2.hasNext())
                     return false;
-            } else {
+            }
+            else
+            {
                 return (cliCount == numberCurrentConnections);
             }
         }
-        catch (Throwable t)
+        catch( Throwable t )
         {
             return false;  // obj mismatch, iterator failure, other problem
         }
@@ -1214,7 +1252,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #clientVersionCheckMap(TreeMap, boolean)
      * @since 1.1.06
      */
-    private void clientVersionRebuildMap(TreeMap<Integer, ConnVersionCounter> newTree)
+    private void clientVersionRebuildMap( TreeMap<Integer, ConnVersionCounter> newTree )
     {
         if (newTree == null)
             newTree = clientVersionBuildMap();
@@ -1231,7 +1269,9 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         if (1 == treeSize)
         {
             cliVersionMax = cvers;
-        } else {
+        }
+        else
+        {
             cliVersionMax = cliVersionsConnected.lastKey();
         }
     }
@@ -1245,19 +1285,19 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #broadcastToVers(String, int, int)
      * @throws IllegalArgumentException if {@code m} is {@code null}
      */
-    private synchronized void broadcast(final String m)
+    private synchronized void broadcast( final String m )
         throws IllegalArgumentException
     {
         if (m == null)
-            throw new IllegalArgumentException("null");
+            throw new IllegalArgumentException( "null" );
 
-        for (Enumeration<Connection> e = getConnections(); e.hasMoreElements();)
+        for (Enumeration<Connection> e = getConnections(); e.hasMoreElements(); )
         {
-            e.nextElement().put(m);
+            e.nextElement().put( m );
         }
-        for (Enumeration<Connection> e = unnamedConns.elements(); e.hasMoreElements();)
+        for (Enumeration<Connection> e = unnamedConns.elements(); e.hasMoreElements(); )
         {
-            e.nextElement().put(m);
+            e.nextElement().put( m );
         }
     }
 
@@ -1269,13 +1309,13 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @throws IllegalArgumentException if {@code m} is {@code null}
      * @since 2.1.00
      */
-    public synchronized void broadcast(final SOCMessage m)
+    public synchronized void broadcast( final SOCMessage m )
         throws IllegalArgumentException
     {
         if (m == null)
-            throw new IllegalArgumentException("m");
+            throw new IllegalArgumentException( "m" );
 
-        broadcast(m.toCmd());
+        broadcast( m.toCmd() );
     }
 
     /**
@@ -1296,28 +1336,28 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @throws IllegalArgumentException if {@code m} is {@code null}
      * @since 1.1.06
      */
-    private synchronized void broadcastToVers(final String m, final int vmin, final int vmax)
+    private synchronized void broadcastToVers( final String m, final int vmin, final int vmax )
         throws IllegalArgumentException
     {
         if (m == null)
-            throw new IllegalArgumentException("null");
+            throw new IllegalArgumentException( "null" );
 
         if (vmin > vmax)
             return;
 
-        for (Enumeration<Connection> e = getConnections(); e.hasMoreElements();)
+        for (Enumeration<Connection> e = getConnections(); e.hasMoreElements(); )
         {
             Connection c = e.nextElement();
             int cvers = c.getVersion();
             if ((cvers >= vmin) && (cvers <= vmax))
-                c.put(m);
+                c.put( m );
         }
-        for (Enumeration<Connection> e = unnamedConns.elements(); e.hasMoreElements();)
+        for (Enumeration<Connection> e = unnamedConns.elements(); e.hasMoreElements(); )
         {
             Connection c = e.nextElement();
             int cvers = c.getVersion();
             if ((cvers >= vmin) && (cvers <= vmax))
-                c.put(m);
+                c.put( m );
         }
     }
 
@@ -1338,13 +1378,13 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      * @see #broadcast(SOCMessage)
      * @since 2.1.00
      */
-    public synchronized void broadcastToVers(final SOCMessage m, final int vmin, final int vmax)
+    public synchronized void broadcastToVers( final SOCMessage m, final int vmin, final int vmax )
         throws IllegalArgumentException
     {
         if (m == null)
-            throw new IllegalArgumentException("null");
+            throw new IllegalArgumentException( "null" );
 
-        broadcastToVers(m.toCmd(), vmin, vmax);
+        broadcastToVers( m.toCmd(), vmin, vmax );
     }
 
     /**
@@ -1406,20 +1446,20 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         public final int vers;
         public int cliCount;
 
-        public ConnVersionCounter(final int version)
+        public ConnVersionCounter( final int version )
         {
             vers = version;
             cliCount = 1;
         }
 
         @Override
-        public boolean equals(Object o)
+        public boolean equals( Object o )
         {
             return (o instanceof ConnVersionCounter)
                 && (this.vers == ((ConnVersionCounter) o).vers);
         }
 
-        public int compareTo(ConnVersionCounter cvc)
+        public int compareTo( ConnVersionCounter cvc )
         {
             return (this.vers - cvc.vers);
         }
@@ -1440,7 +1480,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
     {
         private Server srv;
 
-        public ConnVersionSetCheckerTask(Server s)
+        public ConnVersionSetCheckerTask( Server s )
         {
             srv = s;
         }
@@ -1453,17 +1493,18 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         public void run()
         {
             final boolean wantsFull = (srv.cliVersionsConnectedQuickCheckCount
-                    >= CLI_VERSION_SET_CONSIS_CHECK_QUICK_COUNT);
+                >= CLI_VERSION_SET_CONSIS_CHECK_QUICK_COUNT);
 
             synchronized (srv.unnamedConns)
             {
                 TreeMap<Integer, ConnVersionCounter> tree2 = (wantsFull ? srv.clientVersionBuildMap() : null);
 
-                boolean checkPassed = srv.clientVersionCheckMap(tree2, wantsFull);
-                if (! checkPassed)
+                boolean checkPassed = srv.clientVersionCheckMap( tree2, wantsFull );
+                if (!checkPassed)
                 {
-                    srv.clientVersionRebuildMap(tree2);
-                } else
+                    srv.clientVersionRebuildMap( tree2 );
+                }
+                else
                 {
                     if (wantsFull)
                         srv.cliVersionsConnectedQuickCheckCount = 0;
@@ -1534,13 +1575,13 @@ public abstract class Server extends Thread implements Serializable, Cloneable
          * @throws IllegalArgumentException if c or c.getData is null
          * @see D#ebugIsEnabled()
          */
-        public ConnExcepDelayedPrintTask(boolean isArrival, Throwable ex, Connection c)
+        public ConnExcepDelayedPrintTask( boolean isArrival, Throwable ex, Connection c )
             throws IllegalArgumentException
         {
-            if (! D.ebugIsEnabled())
+            if (!D.ebugIsEnabled())
                 return;
             if (c == null)
-                throw new IllegalArgumentException("null conn");
+                throw new IllegalArgumentException( "null conn" );
             excep = ex;
             thrownAt = System.currentTimeMillis();
             isArriveNotDepart = isArrival;
@@ -1549,7 +1590,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             if (isArrival)
                 arrivingConn = c;
             else if (connName == null)
-                throw new IllegalArgumentException("null c.getData");
+                throw new IllegalArgumentException( "null c.getData" );
         }
 
         /**
@@ -1561,11 +1602,13 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         {
             if (isArriveNotDepart)
             {
-                D.ebugPrintlnINFO(connHost + " came (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  " + (new Date(thrownAt)).toString());
-                cliConnDisconPrintsPending.remove(arrivingConn);
-            } else {
-                D.ebugPrintlnINFO(connHost + " left (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  " + (new Date(thrownAt)).toString() + ((excep != null) ? (": " + excep.toString()) : ""));
-                cliConnDisconPrintsPending.remove(connName);
+                D.ebugPrintlnINFO( connHost + " came (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  " + (new Date( thrownAt )).toString() );
+                cliConnDisconPrintsPending.remove( arrivingConn );
+            }
+            else
+            {
+                D.ebugPrintlnINFO( connHost + " left (" + getNamedConnectionCount() + "," + numberCurrentConnections + ")  " + (new Date( thrownAt )).toString() + ((excep != null) ? (": " + excep.toString()) : "") );
+                cliConnDisconPrintsPending.remove( connName );
             }
         }
 

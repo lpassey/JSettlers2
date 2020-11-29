@@ -1,20 +1,20 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
@@ -158,11 +158,11 @@ public class SOCReportRobbery extends SOCMessage
      * @see #SOCReportRobbery(String, int, int, PEType, boolean, int, int, int)
      */
     public SOCReportRobbery
-        (final String gaName, final int perpPN, final int victimPN, final int resType,
-         final boolean isGainLose, final int amount, final int victimAmount, final int extraValue)
+    ( final String gaName, final int perpPN, final int victimPN, final int resType,
+        final boolean isGainLose, final int amount, final int victimAmount, final int extraValue )
         throws IllegalArgumentException
     {
-        this(gaName, perpPN, victimPN, resType, null, null, isGainLose, amount, victimAmount, extraValue);
+        this( gaName, perpPN, victimPN, resType, null, null, isGainLose, amount, victimAmount, extraValue );
     }
 
     /**
@@ -181,10 +181,10 @@ public class SOCReportRobbery extends SOCMessage
      * @see #SOCReportRobbery(String, int, int, PEType, boolean, int, int, int)
      */
     public SOCReportRobbery
-        (final String gaName, final int perpPN, final int victimPN, final SOCResourceSet resSet, final int extraValue)
+    ( final String gaName, final int perpPN, final int victimPN, final SOCResourceSet resSet, final int extraValue )
         throws IllegalArgumentException
     {
-        this(gaName, perpPN, victimPN, -1, resSet, null, true, 0, 0, extraValue);
+        this( gaName, perpPN, victimPN, -1, resSet, null, true, 0, 0, extraValue );
     }
 
     /**
@@ -205,27 +205,27 @@ public class SOCReportRobbery extends SOCMessage
      * @see #SOCReportRobbery(String, int, int, SOCResourceSet, int)
      */
     public SOCReportRobbery
-        (final String gaName, final int perpPN, final int victimPN, final PEType peType,
-         final boolean isGainLose, final int amount, final int victimAmount, final int extraValue)
+    ( final String gaName, final int perpPN, final int victimPN, final PEType peType,
+        final boolean isGainLose, final int amount, final int victimAmount, final int extraValue )
         throws IllegalArgumentException
     {
-        this(gaName, perpPN, victimPN, -1, null, peType, isGainLose, amount, victimAmount, extraValue);
+        this( gaName, perpPN, victimPN, -1, null, peType, isGainLose, amount, victimAmount, extraValue );
     }
 
     private SOCReportRobbery
-        (final String gaName, final int perpPN, final int victimPN,
-         final int resType, final SOCResourceSet resSet, final PEType peType,
-         final boolean isGainLose, final int amount, final int victimAmount, final int extraValue)
+        ( final String gaName, final int perpPN, final int victimPN,
+            final int resType, final SOCResourceSet resSet, final PEType peType,
+            final boolean isGainLose, final int amount, final int victimAmount, final int extraValue )
         throws IllegalArgumentException
     {
         if ((peType == null) && (resSet == null) && (resType < 0))
-            throw new IllegalArgumentException("peType/resSet/resType");
+            throw new IllegalArgumentException( "peType/resSet/resType" );
         if ((resSet == null) && ((amount < 0) || (victimAmount < 0)))
-            throw new IllegalArgumentException("amounts");
+            throw new IllegalArgumentException( "amounts" );
         if (isGainLose && (victimAmount != 0))
-            throw new IllegalArgumentException("victimAmount but isGainLose");
+            throw new IllegalArgumentException( "victimAmount but isGainLose" );
         if ((resSet != null) && resSet.isEmpty())
-            throw new IllegalArgumentException("resSet empty");
+            throw new IllegalArgumentException( "resSet empty" );
 
         messageType = REPORTROBBERY;
         this.gaName = gaName;
@@ -254,7 +254,10 @@ public class SOCReportRobbery extends SOCMessage
      * @return Version number, 2450 for JSettlers 2.4.50
      */
     @Override
-    public final int getMinimumVersion() { return MIN_VERSION; }
+    public final int getMinimumVersion()
+    {
+        return MIN_VERSION;
+    }
 
     /**
      * {@link #REPORTROBBERY} sep gameName sep2 perpPN sep2 victimPN sep2
@@ -267,27 +270,27 @@ public class SOCReportRobbery extends SOCMessage
     public String toCmd()
     {
         StringBuilder sb = new StringBuilder
-            (REPORTROBBERY + sep + gaName + sep2 + perpPN + sep2 + victimPN + sep2);
+            ( REPORTROBBERY + sep + gaName + sep2 + perpPN + sep2 + victimPN + sep2 );
         if (resSet != null)
         {
-            sb.append('S');
+            sb.append( 'S' );
             for (int rt = SOCResourceConstants.MIN; rt <= SOCResourceConstants.WOOD; ++rt)
             {
-                int am = resSet.getAmount(rt);
+                int am = resSet.getAmount( rt );
                 if (am != 0)
-                    sb.append(sep2).append(rt).append(sep2).append(am);
+                    sb.append( sep2 ).append( rt ).append( sep2 ).append( am );
             }
         }
         else if (peType != null)
-            sb.append('E').append(sep2).append(peType.getValue()).append(sep2).append(amount);
+            sb.append( 'E' ).append( sep2 ).append( peType.getValue() ).append( sep2 ).append( amount );
         else
-            sb.append('R').append(sep2).append(resType).append(sep2).append(amount);
-        sb.append(sep2).append(isGainLose ? 'T' : 'F');
+            sb.append( 'R' ).append( sep2 ).append( resType ).append( sep2 ).append( amount );
+        sb.append( sep2 ).append( isGainLose ? 'T' : 'F' );
         if ((victimAmount != 0) || (extraValue != 0))
         {
-            sb.append(sep2).append(victimAmount);
+            sb.append( sep2 ).append( victimAmount );
             if (extraValue != 0)
-                sb.append(sep2).append(extraValue);
+                sb.append( sep2 ).append( extraValue );
         }
 
         return sb.toString();
@@ -297,11 +300,11 @@ public class SOCReportRobbery extends SOCMessage
      * Parse the command String into a {@link SOCReportRobbery} message.
      *
      * @param cmd   the String to parse, from {@link #toCmd()}
-     * @return    a SOCReportRobbery message, or {@code null} if parsing errors
+     * @return a SOCReportRobbery message, or {@code null} if parsing errors
      */
-    public static SOCReportRobbery parseDataStr(final String cmd)
+    public static SOCReportRobbery parseDataStr( final String cmd )
     {
-        StringTokenizer st = new StringTokenizer(cmd, sep2);
+        StringTokenizer st = new StringTokenizer( cmd, sep2 );
 
         try
         {
@@ -314,14 +317,14 @@ public class SOCReportRobbery extends SOCMessage
             int victimAmt, extraVal;
 
             ga = st.nextToken();
-            ppn = Integer.parseInt(st.nextToken());
-            vpn = Integer.parseInt(st.nextToken());
+            ppn = Integer.parseInt( st.nextToken() );
+            vpn = Integer.parseInt( st.nextToken() );
             String s = st.nextToken();
             if (s.length() != 1)
                 return null;  // expected type char ('R' etc)
-            char ch = s.charAt(0);
+            char ch = s.charAt( 0 );
 
-            int typeval = Integer.parseInt(st.nextToken());
+            int typeval = Integer.parseInt( st.nextToken() );
             if (ch == 'S')
             {
                 rtype = -1;
@@ -329,7 +332,7 @@ public class SOCReportRobbery extends SOCMessage
                 amt = 0;
 
                 rset = new SOCResourceSet();
-                rset.add(Integer.parseInt(st.nextToken()), typeval);
+                rset.add( Integer.parseInt( st.nextToken() ), typeval );
 
                 // expect type & amount pair(s), then next field's T or F
                 do
@@ -337,29 +340,29 @@ public class SOCReportRobbery extends SOCMessage
                     s = st.nextToken();
                     if (s.length() == 0)
                         return null;
-                    if (! Character.isDigit(s.charAt(0)))
+                    if (!Character.isDigit( s.charAt( 0 ) ))
                         break;  // is most likely next field's T or F
 
-                    int resTypeval = Integer.parseInt(s);
-                    int resAmt = Integer.parseInt(st.nextToken());
-                    rset.add(resAmt, resTypeval);
+                    int resTypeval = Integer.parseInt( s );
+                    int resAmt = Integer.parseInt( st.nextToken() );
+                    rset.add( resAmt, resTypeval );
                 } while (true);
             }
             else if (ch == 'R')
             {
                 rtype = typeval;
                 petype = null;
-                amt = Integer.parseInt(st.nextToken());
+                amt = Integer.parseInt( st.nextToken() );
 
                 s = st.nextToken();
             }
             else if (ch == 'E')
             {
                 rtype = -1;
-                petype = PEType.valueOf(typeval);
+                petype = PEType.valueOf( typeval );
                 if (petype == null)
                     return null;
-                amt = Integer.parseInt(st.nextToken());
+                amt = Integer.parseInt( st.nextToken() );
 
                 s = st.nextToken();
             }
@@ -369,7 +372,7 @@ public class SOCReportRobbery extends SOCMessage
             // at this point, s should be 'T' or 'F'
             if (s.length() != 1)
                 return null;  // expected boolean char
-            ch = s.charAt(0);
+            ch = s.charAt( 0 );
             if (ch == 'T')
                 gainLose = true;
             else if (ch == 'F')
@@ -377,11 +380,13 @@ public class SOCReportRobbery extends SOCMessage
             else
                 return null;
 
-            victimAmt = (st.hasMoreTokens()) ? Integer.parseInt(st.nextToken()) : 0;
-            extraVal = (st.hasMoreTokens()) ? Integer.parseInt(st.nextToken()) : 0;
+            victimAmt = (st.hasMoreTokens()) ? Integer.parseInt( st.nextToken() ) : 0;
+            extraVal = (st.hasMoreTokens()) ? Integer.parseInt( st.nextToken() ) : 0;
 
-            return new SOCReportRobbery(ga, ppn, vpn, rtype, rset, petype, gainLose, amt, victimAmt, extraVal);
-        } catch (Exception e) {
+            return new SOCReportRobbery( ga, ppn, vpn, rtype, rset, petype, gainLose, amt, victimAmt, extraVal );
+        }
+        catch( Exception e )
+        {
             return null;
         }
     }
@@ -395,26 +400,26 @@ public class SOCReportRobbery extends SOCMessage
      * @param messageStrParams Params part of a message string formatted by {@link #toString()}; not {@code null}
      * @return Message parameters to finish parsing into a SOCMessage, or {@code null} if malformed
      */
-    public static String stripAttribNames(final String messageStrParams)
+    public static String stripAttribNames( final String messageStrParams )
     {
-        final boolean isPENotRes = messageStrParams.contains("|peType="),
-            isResSet = (! isPENotRes) && messageStrParams.contains("|resSet="),
-            hasExtraValSkipsVictimAmt = messageStrParams.contains("|extraValue=")
-                && ! messageStrParams.contains("|victimAmount=");
-        List<String> pieces = SOCMessage.stripAttribsToList(messageStrParams);
+        final boolean isPENotRes = messageStrParams.contains( "|peType=" ),
+            isResSet = (!isPENotRes) && messageStrParams.contains( "|resSet=" ),
+            hasExtraValSkipsVictimAmt = messageStrParams.contains( "|extraValue=" )
+                && !messageStrParams.contains( "|victimAmount=" );
+        List<String> pieces = SOCMessage.stripAttribsToList( messageStrParams );
 
         if (pieces.size() < 6)
             return null;
-        if (! (pieces instanceof ArrayList<?>))
-            pieces = new ArrayList<>(pieces);  // must support add method
+        if (!(pieces instanceof ArrayList<?>))
+            pieces = new ArrayList<>( pieces );  // must support add method
 
-        pieces.add(3, isResSet ? "S" : (isPENotRes ? "E" : "R"));
+        pieces.add( 3, isResSet ? "S" : (isPENotRes ? "E" : "R") );
         int boolParamIdx = 6;
         if (isPENotRes)
         {
-            PEType pe = PEType.valueOf(pieces.get(4));
+            PEType pe = PEType.valueOf( pieces.get( 4 ) );
             int v = (pe != null) ? pe.getValue() : 0;
-            pieces.set(4, Integer.toString(v));
+            pieces.set( 4, Integer.toString( v ) );
         }
         else if (isResSet)
         {
@@ -429,35 +434,37 @@ public class SOCReportRobbery extends SOCMessage
             {
                 try
                 {
-                    String s = pieces.get(i);
-                    if ((i == 4) && s.startsWith("clay="))
-                        s = s.substring(5);
-                    int amt = Integer.parseInt(s);
+                    String s = pieces.get( i );
+                    if ((i == 4) && s.startsWith( "clay=" ))
+                        s = s.substring( 5 );
+                    int amt = Integer.parseInt( s );
                     if (amt != 0)
                     {
-                        resPairs.add(Integer.toString(rtype));
-                        resPairs.add(Integer.toString(amt));
+                        resPairs.add( Integer.toString( rtype ) );
+                        resPairs.add( Integer.toString( amt ) );
                     }
                 }
-                catch (NumberFormatException e) {}
+                catch( NumberFormatException e )
+                {
+                }
             }
 
             // Replace the 6 resource amounts in pieces[4..9] with resPairs
             for (int i = 1; i <= 6; ++i)
-                pieces.remove(4);
-            pieces.addAll(4, resPairs);
+                pieces.remove( 4 );
+            pieces.addAll( 4, resPairs );
             boolParamIdx = 4 + resPairs.size();
         }
 
-        pieces.set(boolParamIdx, (pieces.get(boolParamIdx).equals("true") ? "T" : "F"));
+        pieces.set( boolParamIdx, (pieces.get( boolParamIdx ).equals( "true" ) ? "T" : "F") );
 
         if (hasExtraValSkipsVictimAmt)
-            pieces.add(pieces.size() - 1, "0");  // needed because toString skipped victimAmount=0 before extraValue=...
+            pieces.add( pieces.size() - 1, "0" );  // needed because toString skipped victimAmount=0 before extraValue=...
 
-        StringBuilder ret = new StringBuilder(pieces.get(0));
+        StringBuilder ret = new StringBuilder( pieces.get( 0 ) );
         final int L = pieces.size();
         for (int i = 1; i < L; ++i)
-            ret.append(sep2_char).append(pieces.get(i));
+            ret.append( sep2_char ).append( pieces.get( i ) );
 
         return ret.toString();
     }
@@ -467,20 +474,20 @@ public class SOCReportRobbery extends SOCMessage
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder("SOCReportRobbery:game=" + gaName);
-        sb.append("|perp=").append(perpPN)
-          .append("|victim=").append(victimPN);
+        StringBuilder sb = new StringBuilder( "SOCReportRobbery:game=" + gaName );
+        sb.append( "|perp=" ).append( perpPN )
+            .append( "|victim=" ).append( victimPN );
         if (resSet != null)
-            sb.append("|resSet=").append(resSet);
+            sb.append( "|resSet=" ).append( resSet );
         else if (peType != null)
-            sb.append("|peType=").append(peType).append("|amount=").append(amount);
+            sb.append( "|peType=" ).append( peType ).append( "|amount=" ).append( amount );
         else
-            sb.append("|resType=").append(resType).append("|amount=").append(amount);
-        sb.append("|isGainLose=").append(isGainLose);
-        if ((victimAmount != 0) || ! isGainLose)
-            sb.append("|victimAmount=").append(victimAmount);
+            sb.append( "|resType=" ).append( resType ).append( "|amount=" ).append( amount );
+        sb.append( "|isGainLose=" ).append( isGainLose );
+        if ((victimAmount != 0) || !isGainLose)
+            sb.append( "|victimAmount=" ).append( victimAmount );
         if (extraValue != 0)
-            sb.append("|extraValue=").append(extraValue);
+            sb.append( "|extraValue=" ).append( extraValue );
 
         return sb.toString();
     }

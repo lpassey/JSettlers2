@@ -248,9 +248,9 @@ public class InboundMessageQueue
                             //D.ebugPrintln("treater waiting");
                             inQueue.wait(1000);  // timeout to help avoid deadlock
                         }
-                        catch (Exception ex)
+                        catch (Exception ignored)
                         {
-                            ;   // catch InterruptedException from inQueue.notify() in treat(...)
+                            // catch InterruptedException from inQueue.notify() in treat(...)
                         }
                     }
                 }

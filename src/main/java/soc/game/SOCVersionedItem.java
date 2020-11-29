@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2013,2015,2017,2019-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file from SOCGameOption.java Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.game;
@@ -91,7 +91,7 @@ public abstract class SOCVersionedItem implements Cloneable
      * See {@link #getDesc()} for more info about this field.
      */
     protected String desc;  // OTYPE_* - if a new SOCGameOption type is added, update this field's javadoc
-        // and getDesc() javadoc.
+    // and getDesc() javadoc.
 
     /**
      * Create a new unknown item ({@link #isKnown == false}).
@@ -103,10 +103,10 @@ public abstract class SOCVersionedItem implements Cloneable
      * @throws IllegalArgumentException if key length is > 3 or not alphanumeric,
      *        or if minVers or lastModVers is under 1000 but not -1
      */
-    protected SOCVersionedItem(final String key)
+    protected SOCVersionedItem( final String key )
         throws IllegalArgumentException
     {
-        this(key, Integer.MAX_VALUE, Integer.MAX_VALUE, false, key);
+        this( key, Integer.MAX_VALUE, Integer.MAX_VALUE, false, key );
     }
 
     /**
@@ -126,18 +126,18 @@ public abstract class SOCVersionedItem implements Cloneable
      *        or if desc contains {@link SOCMessage#sep_char} or {@link SOCMessage#sep2_char},
      *        or if minVers or lastModVers is under 1000 but not -1
      */
-    public SOCVersionedItem(final String key, final int minVers, final int lastModVers,
-        final boolean isKnown, final String desc)
+    public SOCVersionedItem( final String key, final int minVers, final int lastModVers,
+        final boolean isKnown, final String desc )
         throws IllegalArgumentException
     {
-        if (! (isAlphanumericUpcaseAscii(key) || key.equals("-")))  // "-" is for server/network use
-            throw new IllegalArgumentException("Key not alphanumeric: " + key);
+        if (!(isAlphanumericUpcaseAscii( key ) || key.equals( "-" )))  // "-" is for server/network use
+            throw new IllegalArgumentException( "Key not alphanumeric: " + key );
         if ((minVers < 1000) && (minVers != -1))
-            throw new IllegalArgumentException("minVers " + minVers + " for key " + key);
+            throw new IllegalArgumentException( "minVers " + minVers + " for key " + key );
         if ((lastModVers < 1000) && (lastModVers != -1))
-            throw new IllegalArgumentException("lastModVers " + lastModVers + " for key " + key);
-        if (! SOCMessage.isSingleLineAndSafe(desc))
-            throw new IllegalArgumentException("desc fails isSingleLineAndSafe");
+            throw new IllegalArgumentException( "lastModVers " + lastModVers + " for key " + key );
+        if (!SOCMessage.isSingleLineAndSafe( desc ))
+            throw new IllegalArgumentException( "desc fails isSingleLineAndSafe" );
 
         this.key = key;
         minVersion = minVers;
@@ -159,7 +159,7 @@ public abstract class SOCVersionedItem implements Cloneable
      * description which might violate the formatting rules mentioned here.  For i18n, v2.0.00 needed to be able to
      * change the field contents, so {@code getDesc()} and {@link #setDesc(String)} were added.
      *
-     * @return  the description; never null
+     * @return the description; never null
      * @since 2.0.00
      */
     public final String getDesc()
@@ -182,11 +182,11 @@ public abstract class SOCVersionedItem implements Cloneable
      * @throws IllegalArgumentException if desc contains {@link SOCMessage#sep_char} or {@link SOCMessage#sep2_char}
      * @since 2.0.00
      */
-    public void setDesc(final String newDesc)
+    public void setDesc( final String newDesc )
         throws IllegalArgumentException
     {
-        if (! SOCMessage.isSingleLineAndSafe(newDesc))
-            throw new IllegalArgumentException("desc fails isSingleLineAndSafe");
+        if (!SOCMessage.isSingleLineAndSafe( newDesc ))
+            throw new IllegalArgumentException( "desc fails isSingleLineAndSafe" );
 
         desc = newDesc;
     }
@@ -220,7 +220,7 @@ public abstract class SOCVersionedItem implements Cloneable
      *     depending on the item subclass.
      * @see #itemsMinimumVersion(Map)
      */
-    public int getMinVersion(Map<?, ? extends SOCVersionedItem> items)
+    public int getMinVersion( Map<?, ? extends SOCVersionedItem> items )
     {
         return minVersion;
     }
@@ -234,22 +234,22 @@ public abstract class SOCVersionedItem implements Cloneable
      * @return List of unknown items' {@link #key}s, or null if all are known
      */
     public static <I extends SOCVersionedItem> List<String> findUnknowns
-        (final Map<String, I> items, final Set<String> alreadyKnown)
+    ( final Map<String, I> items, final Set<String> alreadyKnown )
     {
         ArrayList<String> unknowns = null;
 
         for (Map.Entry<String, I> e : items.entrySet())
         {
-            if ((alreadyKnown != null) && alreadyKnown.contains(e.getKey()))
+            if ((alreadyKnown != null) && alreadyKnown.contains( e.getKey() ))
                 continue;
 
             SOCVersionedItem it = e.getValue();
-            if (! it.isKnown)
+            if (!it.isKnown)
             {
                 if (unknowns == null)
                     unknowns = new ArrayList<>();
 
-                unknowns.add(it.key);
+                unknowns.add( it.key );
             }
         }
 
@@ -278,9 +278,9 @@ public abstract class SOCVersionedItem implements Cloneable
      * @see #itemsMinimumVersion(Map, boolean)
      * @see #getMinVersion(Map)
      */
-    public static int itemsMinimumVersion(final Map<?, ? extends SOCVersionedItem> items)
+    public static int itemsMinimumVersion( final Map<?, ? extends SOCVersionedItem> items )
     {
-        return itemsMinimumVersion(items, false);
+        return itemsMinimumVersion( items, false );
     }
 
     /**
@@ -318,7 +318,7 @@ public abstract class SOCVersionedItem implements Cloneable
      * @see #getMinVersion(Map)
      */
     public static int itemsMinimumVersion
-        (final Map<?, ? extends SOCVersionedItem> items, final boolean calcMinVersionForUnchanged)
+    ( final Map<?, ? extends SOCVersionedItem> items, final boolean calcMinVersionForUnchanged )
     {
         if (items == null)
             return -1;
@@ -328,7 +328,7 @@ public abstract class SOCVersionedItem implements Cloneable
 
         for (SOCVersionedItem itm : items.values())
         {
-            int itmMin = itm.getMinVersion(itemsChk);  // includes any item-value checking for minVers
+            int itmMin = itm.getMinVersion( itemsChk );  // includes any item-value checking for minVers
             if (itmMin > minVers)
                 minVers = itmMin;
         }
@@ -362,10 +362,10 @@ public abstract class SOCVersionedItem implements Cloneable
      * @throws NullPointerException if {@code items} is null
      */
     public static <I extends SOCVersionedItem> List<I> itemsNewerThanVersion
-        (final int vers, final boolean checkValues, Map<String, I> items)
+    ( final int vers, final boolean checkValues, Map<String, I> items )
         throws IllegalArgumentException
     {
-        return implItemsVersionCheck(vers, false, checkValues, items);
+        return implItemsVersionCheck( vers, false, checkValues, items );
     }
 
     /**
@@ -378,14 +378,14 @@ public abstract class SOCVersionedItem implements Cloneable
      *
      * @param vers  Version to compare items against
      * @param items  Set of {@link SOCVersionedItem}s to check versions
-     * @return  List of all {@link SOCVersionedItem}s valid at version {@code vers}, or {@code null} if none.
+     * @return List of all {@link SOCVersionedItem}s valid at version {@code vers}, or {@code null} if none.
      * @throws NullPointerException if {@code items} is null
      */
     public static <I extends SOCVersionedItem> List<I> itemsForVersion
-        (final int vers, Map<String, I> items)
+    ( final int vers, Map<String, I> items )
         throws IllegalArgumentException
     {
-        return implItemsVersionCheck(vers, true, false, items);
+        return implItemsVersionCheck( vers, true, false, items );
     }
 
     /**
@@ -410,8 +410,8 @@ public abstract class SOCVersionedItem implements Cloneable
      * @throws NullPointerException if {@code items} is null
      */
     protected static <I extends SOCVersionedItem> List<I> implItemsVersionCheck
-        (final int vers, final boolean getAllForVersion, final boolean checkValues,
-         Map<String, I> items)
+    ( final int vers, final boolean getAllForVersion, final boolean checkValues,
+        Map<String, I> items )
         throws IllegalArgumentException
     {
         if (getAllForVersion && checkValues)
@@ -425,12 +425,16 @@ public abstract class SOCVersionedItem implements Cloneable
             {
                 if (itm.minVersion > vers)
                     itm = null;  // too new for vers to use
-            } else {
+            }
+            else
+            {
                 if (checkValues)
                 {
-                    if (itm.getMinVersion(null) <= vers)
+                    if (itm.getMinVersion( null ) <= vers)
                         itm = null;  // not too new
-                } else {
+                }
+                else
+                {
                     if (itm.lastModVersion <= vers)
                         itm = null;  // not modified since vers
                 }
@@ -441,7 +445,7 @@ public abstract class SOCVersionedItem implements Cloneable
 
             if (ret == null)
                 ret = new ArrayList<>();
-            ret.add(itm);
+            ret.add( itm );
         }
 
         return ret;
@@ -466,11 +470,11 @@ public abstract class SOCVersionedItem implements Cloneable
      * @param s string to test
      * @return true if all characters are OK, false otherwise
      */
-    public static boolean isAlphanumericUpcaseAscii(String s)
+    public static boolean isAlphanumericUpcaseAscii( String s )
     {
-        for (int i = s.length()-1; i>=0; --i)
+        for (int i = s.length() - 1; i >= 0; --i)
         {
-            final char c = s.charAt(i);
+            final char c = s.charAt( i );
             if (((c < '0') || (c > '9'))
                 && ((c < 'A') || (c > 'Z'))
                 && (c != '_'))

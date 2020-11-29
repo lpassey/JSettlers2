@@ -88,9 +88,10 @@ public class SOCApplet extends Applet
     @Override
     public synchronized void init()
     {
-        try {
+        try
+        {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
 
         client = new SOCPlayerClient();
         mainDisplay = new SwingMainDisplay(false, client, 1);
@@ -127,12 +128,14 @@ public class SOCApplet extends Applet
             host = "127.0.0.1"; // localhost - don't use "localhost" because Java 6 applets do not work
 
         int port = ClientNetwork.SOC_PORT_DEFAULT;
-        try {
+        try
+        {
             param = getParameter("PORT");
             if (param != null)
                 port = Integer.parseInt(param);
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             System.err.println("Invalid port: " + param);
         }
 

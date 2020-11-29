@@ -47,20 +47,23 @@ public abstract class DataUtils
         throws NullPointerException
     {
         sb.append("{");
-        for (int i = 0; i < ia.length; ++i)
+        for (int value : ia)
         {
-            sb.append(' ');
-            if (! useHex)
+            sb.append( ' ' );
+            if (!useHex)
             {
-                sb.append(ia[i]);
-            } else {
-                final int iai = ia[i];
-                if (iai >= 0)
+                sb.append( value );
+            }
+            else
+            {
+                if (value >= 0)
                 {
-                    sb.append(Integer.toHexString(iai));
-                } else {
-                    sb.append('-');
-                    sb.append(Integer.toHexString(-iai));
+                    sb.append( Integer.toHexString( value ) );
+                }
+                else
+                {
+                    sb.append( '-' );
+                    sb.append( Integer.toHexString( -value ) );
                 }
             }
         }

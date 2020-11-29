@@ -158,7 +158,9 @@ import soc.server.genericServer.Server;
                             return;  // <--- Early return: ignore unknown games or unlikely missing con ---
 
                         // For SOCSitDown, SOCServerMessageHandler will reply to con
-                    } else {
+                    }
+                    else
+                    {
                         final GameMessageHandler hand = gameList.getGameTypeMessageHandler(gaName);
                         if (hand != null)  // all consistent games will have a handler
                         {

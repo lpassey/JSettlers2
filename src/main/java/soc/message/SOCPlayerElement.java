@@ -794,7 +794,7 @@ public class SOCPlayerElement extends SOCMessage
             {
                 if (Integer.parseInt(act) >= 0)
                     return s;  // action field already an integer
-            } catch (NumberFormatException e) {}
+            } catch (NumberFormatException ignored) {}
 
         int actType = -1;
         for (int ac = 0; ac < ACTION_STRINGS.length; ++ac)

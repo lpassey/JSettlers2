@@ -207,7 +207,9 @@ import javax.swing.JPanel;
             g.fillPolygon(xPoints, yPoints, 8);
             g.setColor(Color.BLACK);
             g.drawPolygon(xPoints, yPoints, 8);
-        } else {
+        }
+        else
+        {
             g.fillRect(0, bpSize, w - xm, h - ym - bpSize);
             g.setColor(Color.BLACK);
             g.drawRect(0, bpSize, w - xm, h - ym - bpSize);

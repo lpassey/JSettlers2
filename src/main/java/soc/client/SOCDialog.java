@@ -162,7 +162,9 @@ public abstract class SOCDialog
         {
             middlePanel = makeJPanel(panelFont);
             add(middlePanel, BorderLayout.CENTER);
-        } else {
+        }
+        else
+        {
             // middlePanel, the actual content of this dialog, gets centered horizontally in the larger container.
             // Since the content pane's BorderLayout wants to stretch things to fill its center,
             // to leave space on the left and right we wrap it in a wider wrapperContainer.
@@ -298,7 +300,9 @@ public abstract class SOCDialog
                     co.setForeground(null);  // inherit panel's color
                     co.setBackground(null);
                 }
-            } else if (shouldClearButtonBGs) {
+            }
+            else if (shouldClearButtonBGs)
+            {
                 co.setBackground(null);  // inherit panel's bg color; required on win32 to avoid gray corners on JButton
             }
         }

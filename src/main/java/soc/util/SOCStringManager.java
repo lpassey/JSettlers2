@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2013 Luis A. Ramirez <lartkma@gmail.com>
  * Some parts of this file Copyright (C) 2013,2017-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.util;
@@ -105,9 +105,9 @@ public class SOCStringManager extends StringManager
      * Remember that bundle files are encoded not in {@code UTF-8} but in {@code ISO-8859-1}, see class javadoc.
      * @param bundlePath  Bundle path, will be retrieved with {@link ResourceBundle#getBundle(String)}
      */
-    public SOCStringManager(String bundlePath)
+    public SOCStringManager( String bundlePath )
     {
-        super(bundlePath);
+        super( bundlePath );
     }
 
     /**
@@ -116,9 +116,9 @@ public class SOCStringManager extends StringManager
      * @param bundlePath  Bundle path, will be retrieved with {@link ResourceBundle#getBundle(String, Locale)}
      * @param loc  Locale to use; not {@code null}
      */
-    public SOCStringManager(final String bundlePath, final Locale loc)
+    public SOCStringManager( final String bundlePath, final Locale loc )
     {
-        super(bundlePath, loc);
+        super( bundlePath, loc );
     }
 
     // If you add get methods, for server convenience also add them in Connection and classes implementing that.
@@ -132,17 +132,17 @@ public class SOCStringManager extends StringManager
      * @see #getSOCResourceCount(int, Integer)
      */
     private static final String[][] GETSPECIAL_RSRC_KEYS =
-    {
-        {     // 1
-            "spec.rsrcs.1unknown", "spec.rsrcs.1clay", "spec.rsrcs.1ore", "spec.rsrcs.1sheep", "spec.rsrcs.1wheat", "spec.rsrcs.1wood"
-        }, {  // n
+        {
+            {     // 1
+                "spec.rsrcs.1unknown", "spec.rsrcs.1clay", "spec.rsrcs.1ore", "spec.rsrcs.1sheep", "spec.rsrcs.1wheat", "spec.rsrcs.1wood"
+            }, {  // n
             "spec.rsrcs.nunknown", "spec.rsrcs.nclay", "spec.rsrcs.nore", "spec.rsrcs.nsheep", "spec.rsrcs.nwheat", "spec.rsrcs.nwood"
         }, {  // a, an
             "spec.rsrcs.aunknown", "spec.rsrcs.aclay", "spec.rsrcs.aore", "spec.rsrcs.asheep", "spec.rsrcs.awheat", "spec.rsrcs.awood"
         }, {  // resource type names, all of 1 resource ("la madera")
             "spec.rsrcs.unknown", "spec.rsrcs.clay", "spec.rsrcs.ore", "spec.rsrcs.sheep", "spec.rsrcs.wheat", "spec.rsrcs.wood"
         }
-    };
+        };
 
     /**
      * Get a resource count, such as "5 sheep"; used by {@link #getSpecial(SOCGame, String, Object...)}.
@@ -150,11 +150,11 @@ public class SOCStringManager extends StringManager
      * @param rcountObj  Resource count; uses the Integer object passed into {@code getSpecial}.
      *          As a special case, -1 will localize with the indefinite article, such as "a sheep" or "an ore".
      *          -2 will localize to the plural resource name without a count, as in "clay" or "la lana".
-     * @return  A localized string such as "1 wood" or "5 clay" or "a sheep", or if {@code rtype} is out of range,
+     * @return A localized string such as "1 wood" or "5 clay" or "a sheep", or if {@code rtype} is out of range,
      *          "3 resources of unknown type 37"
      * @throws MissingResourceException if no string can be found for {@code key}; this is a RuntimeException
      */
-    public final String getSOCResourceCount(final int rtype, final Integer rcountObj)
+    public final String getSOCResourceCount( final int rtype, final Integer rcountObj )
         throws MissingResourceException
     {
         final int rcount = rcountObj;
@@ -165,10 +165,17 @@ public class SOCStringManager extends StringManager
             final int idx;
             switch (rcount)
             {
-            case  1:  idx = 0;  break;  // 1 resource
-            case -1:  idx = 2;  break;  // an/a resource
-            case -2:  idx = 3;  break;  // resource [no count shown]
-            default:  idx = 1;          // n resources
+            case 1:
+                idx = 0;
+                break;  // 1 resource
+            case -1:
+                idx = 2;
+                break;  // an/a resource
+            case -2:
+                idx = 3;
+                break;  // resource [no count shown]
+            default:
+                idx = 1;          // n resources
             }
             rkeyArray = GETSPECIAL_RSRC_KEYS[idx];
         }
@@ -177,15 +184,17 @@ public class SOCStringManager extends StringManager
         if ((rtype >= SOCResourceConstants.CLAY) && (rtype <= SOCResourceConstants.WOOD))
         {
             if ((rcount == 1) || (rcount == -1))
-                resText = bundle.getString(rkeyArray[rtype]);
+                resText = bundle.getString( rkeyArray[rtype] );
             else
-                resText = MessageFormat.format(bundle.getString(rkeyArray[rtype]), rcountObj);
-        } else {
+                resText = MessageFormat.format( bundle.getString( rkeyArray[rtype] ), rcountObj );
+        }
+        else
+        {
             // out of range, unknown type
             if ((rcount == 1) || (rcount < 0))
-                resText = MessageFormat.format(bundle.getString(rkeyArray[0]), rtype);
+                resText = MessageFormat.format( bundle.getString( rkeyArray[0] ), rtype );
             else
-                resText = MessageFormat.format(bundle.getString(rkeyArray[0]), rcountObj, rtype);
+                resText = MessageFormat.format( bundle.getString( rkeyArray[0] ), rcountObj, rtype );
         }
 
         return resText;
@@ -221,10 +230,10 @@ public class SOCStringManager extends StringManager
      * @throws IllegalArgumentException if the localized pattern string has a parse error (closing '}' brace without opening '{' brace, etc)
      * @see #getSOCResourceCount(int, Integer)
      */
-    public String getSpecial(final SOCGame game, final String key, Object ... arguments)
+    public String getSpecial( final SOCGame game, final String key, Object... arguments )
         throws MissingResourceException, IllegalArgumentException
     {
-        return formatSpecial(game, bundle.getString(key), arguments);
+        return formatSpecial( game, bundle.getString( key ), arguments );
     }
 
     /**
@@ -237,31 +246,31 @@ public class SOCStringManager extends StringManager
      *     or from another source
      * @param arguments Objects to go with {@code txtfmt}; details are in {@code getSpecial(..)} javadoc
      */
-    public String formatSpecial(final SOCGame game, String txtfmt, Object ... arguments)
+    public String formatSpecial( final SOCGame game, String txtfmt, Object... arguments )
         throws MissingResourceException, IllegalArgumentException
     {
         /** Clone of arguments, with specials replaced with their localized strings */
         Object[] argsLocal = null;
 
         // look for any "{#,rsrcs}" parameter here, and replace that arg with a String
-        int ir = txtfmt.indexOf(",rsrcs}");
+        int ir = txtfmt.indexOf( ",rsrcs}" );
         while (ir != -1)
         {
-            final int i0 = txtfmt.lastIndexOf('{', ir - 1);
+            final int i0 = txtfmt.lastIndexOf( '{', ir - 1 );
             if (i0 == -1)
-                throw new IllegalArgumentException("Missing '{' before ',rsrcs}' in pattern: " + txtfmt);
+                throw new IllegalArgumentException( "Missing '{' before ',rsrcs}' in pattern: " + txtfmt );
 
             if (argsLocal == null)
                 argsLocal = arguments.clone();
 
-            final int pnum = Integer.parseInt(txtfmt.substring(i0 + 1, ir));
+            final int pnum = Integer.parseInt( txtfmt.substring( i0 + 1, ir ) );
             final Object arg = argsLocal[pnum];
             if (arg instanceof Integer)
             {
                 // [pnum] is rcount, [pnum+1] is rtype;
                 // replace the argument obj with its localized String
                 argsLocal[pnum] = getSOCResourceCount
-                    ( (Integer) arguments[pnum + 1], (Integer) arg);
+                    ( (Integer) arguments[pnum + 1], (Integer) arg );
             }
             else if (arg instanceof SOCResourceSet)
             {
@@ -269,78 +278,84 @@ public class SOCStringManager extends StringManager
                 ArrayList<String> resList = new ArrayList<>();
                 for (int rtype = SOCResourceConstants.CLAY; rtype <= SOCResourceConstants.WOOD; ++rtype)
                 {
-                    int n = rset.getAmount(rtype);
+                    int n = rset.getAmount( rtype );
                     if (n > 0)
-                        resList.add(getSOCResourceCount(rtype, n ));
+                        resList.add( getSOCResourceCount( rtype, n ) );
                 }
 
                 // replace the argument obj
                 if (resList.isEmpty())
-                    argsLocal[pnum] = bundle.getString("spec.rsrcs.none");  // "nothing"
+                    argsLocal[pnum] = bundle.getString( "spec.rsrcs.none" );  // "nothing"
                 else
-                    argsLocal[pnum] = I18n.listItems(resList, this);
+                    argsLocal[pnum] = I18n.listItems( resList, this );
 
-            } else {
+            }
+/*
+            else
+            {
                 // keep obj as whatever it is; MessageFormat.format will call its toString()
             }
+*/
 
             // splice the format string: "{#,rsrcs}" -> "{#}"
-            txtfmt = txtfmt.substring(0, ir) + txtfmt.substring(ir + 6);
+            txtfmt = txtfmt.substring( 0, ir ) + txtfmt.substring( ir + 6 );
 
             // look for any others (at top of loop)
-            ir = txtfmt.indexOf(",rsrcs}");
+            ir = txtfmt.indexOf( ",rsrcs}" );
         }
 
         // look for any "{#,list}" parameter here, and replace that arg with a String
-        ir = txtfmt.indexOf(",list}");
+        ir = txtfmt.indexOf( ",list}" );
         while (ir != -1)
         {
-            final int i0 = txtfmt.lastIndexOf('{', ir - 1);
+            final int i0 = txtfmt.lastIndexOf( '{', ir - 1 );
             if (i0 == -1)
-                throw new IllegalArgumentException("Missing '{' before ',list}' in pattern: " + txtfmt);
+                throw new IllegalArgumentException( "Missing '{' before ',list}' in pattern: " + txtfmt );
 
             if (argsLocal == null)
                 argsLocal = arguments.clone();
 
-            final int pnum = Integer.parseInt(txtfmt.substring(i0 + 1, ir));
+            final int pnum = Integer.parseInt( txtfmt.substring( i0 + 1, ir ) );
             final Object arg = argsLocal[pnum];
             if (arg instanceof List)
             {
                 // replace the argument obj with String of its localized items
-                argsLocal[pnum] = I18n.listItems((List<?>) arg, this);
-            } else {
+                argsLocal[pnum] = I18n.listItems( (List<?>) arg, this );
+            }
+            else
+            {
                 // keep obj as whatever it is; MessageFormat.format will call its toString()
             }
 
             // splice the format string: "{#,list}" -> "{#}"
-            txtfmt = txtfmt.substring(0, ir) + txtfmt.substring(ir + 5);
+            txtfmt = txtfmt.substring( 0, ir ) + txtfmt.substring( ir + 5 );
 
             // look for any others (at top of loop)
-            ir = txtfmt.indexOf(",list}");
+            ir = txtfmt.indexOf( ",list}" );
         }
 
         // look for any "{#,dcards}" parameter here, and replace that arg with a String
-        ir = txtfmt.indexOf(",dcards}");
+        ir = txtfmt.indexOf( ",dcards}" );
         while (ir != -1)
         {
-            final int i0 = txtfmt.lastIndexOf('{', ir - 1);
+            final int i0 = txtfmt.lastIndexOf( '{', ir - 1 );
             if (i0 == -1)
-                throw new IllegalArgumentException("Missing '{' before ',dcards}' in pattern: " + txtfmt);
+                throw new IllegalArgumentException( "Missing '{' before ',dcards}' in pattern: " + txtfmt );
 
             if (argsLocal == null)
                 argsLocal = arguments.clone();
 
-            final int pnum = Integer.parseInt(txtfmt.substring(i0 + 1, ir));
+            final int pnum = Integer.parseInt( txtfmt.substring( i0 + 1, ir ) );
             final Object arg = argsLocal[pnum];
             if (arg instanceof Integer)
             {
                 // replace the argument obj with its localized String
-                argsLocal[pnum] = SOCDevCard.getCardTypeName(((Integer) arg), game, true, this);
+                argsLocal[pnum] = SOCDevCard.getCardTypeName( ((Integer) arg), game, true, this );
             }
             else if (arg instanceof SOCInventoryItem)
             {
                 // replace the argument obj with its localized String
-                argsLocal[pnum] = ((SOCInventoryItem) arg).getItemName(game, true, this);
+                argsLocal[pnum] = ((SOCInventoryItem) arg).getItemName( game, true, this );
             }
             else if (arg instanceof List)
             {
@@ -348,50 +363,54 @@ public class SOCStringManager extends StringManager
                 final int L = ((List<?>) arg).size();
                 if (L == 0)
                 {
-                    argsLocal[pnum] = bundle.getString("base.emptylist.nothing");  // "nothing"
-                } else {
+                    argsLocal[pnum] = bundle.getString( "base.emptylist.nothing" );  // "nothing"
+                }
+                else
+                {
                     ArrayList<String> resList = new ArrayList<>( L );
                     for (Object itm : ((List<?>) arg))
                     {
                         if (itm instanceof Integer)
-                            resList.add(SOCDevCard.getCardTypeName( (Integer) itm, game, true, this));
+                            resList.add( SOCDevCard.getCardTypeName( (Integer) itm, game, true, this ) );
                         else if (itm instanceof SOCInventoryItem)
-                            resList.add(((SOCInventoryItem) itm).getItemName(game, true, this));
+                            resList.add( ((SOCInventoryItem) itm).getItemName( game, true, this ) );
                         else
-                            resList.add(itm.toString());
+                            resList.add( itm.toString() );
                     }
 
-                    argsLocal[pnum] = I18n.listItems(resList, this);
+                    argsLocal[pnum] = I18n.listItems( resList, this );
                 }
-            } else {
+            }
+            else
+            {
                 // keep obj as whatever it is; MessageFormat.format will call its toString()
             }
 
             // splice the format string: "{#,dcards}" -> "{#}"
-            txtfmt = txtfmt.substring(0, ir) + txtfmt.substring(ir + 7);
+            txtfmt = txtfmt.substring( 0, ir ) + txtfmt.substring( ir + 7 );
 
             // look for any others (at top of loop)
-            ir = txtfmt.indexOf(",dcards}");
+            ir = txtfmt.indexOf( ",dcards}" );
         }
 
         // now format the rest of the message:
         if (argsLocal == null)
             argsLocal = arguments;
 
-        return MessageFormat.format(txtfmt, argsLocal);
+        return MessageFormat.format( txtfmt, argsLocal );
     }
 
     /**
      * Create or retrieve the cached client string manager, with the default Locale.
      * If the client manager already exists, further gets will return that manager
      * with its Locale, ignoring the default locale of the new call.
-     * @return  The client manager
+     * @return The client manager
      * @see #getClientManager(Locale)
      */
     public static SOCStringManager getClientManager()
     {
-        if(clientManager == null)
-            clientManager = new SOCStringManager("resources/strings/client/data");
+        if (clientManager == null)
+            clientManager = new SOCStringManager( "resources/strings/client/data" );
 
         return clientManager;
     }
@@ -401,13 +420,13 @@ public class SOCStringManager extends StringManager
      * If the client manager already exists, further gets will return that manager
      * with its Locale, ignoring the Locale of the new call.
      * @param loc  Locale to use; not {@code null}
-     * @return  The client manager
+     * @return The client manager
      * @see #getClientManager()
      */
-    public static SOCStringManager getClientManager(Locale loc)
+    public static SOCStringManager getClientManager( Locale loc )
     {
         if (clientManager == null)
-            clientManager = new SOCStringManager("resources/strings/client/data", loc);
+            clientManager = new SOCStringManager( "resources/strings/client/data", loc );
 
         return clientManager;
     }
@@ -416,20 +435,20 @@ public class SOCStringManager extends StringManager
      * Create or retrieve the server's string manager to send text to a clients with a certain locale.
      * @param loc  Locale to use, or {@code null} to fall back to {@link Locale#US} ({@code en_US}) to
      *     localize server announcement text for v1.x.xx clients.
-     * @return  The server manager for that client locale
+     * @return The server manager for that client locale
      * @see #getFallbackServerManagerForClient()
      */
-    public static SOCStringManager getServerManagerForClient(Locale loc)
+    public static SOCStringManager getServerManagerForClient( Locale loc )
     {
         if (loc == null)
             loc = Locale.US;  // not null; fall back to en_US regardless of server's own locale
 
         final String lstr = loc.toString();
-        SOCStringManager smc = serverManagerForClientLocale.get(lstr);
+        SOCStringManager smc = serverManagerForClientLocale.get( lstr );
         if (smc == null)
         {
-            smc = new SOCStringManager(PROPS_PATH_SERVER_FOR_CLIENT, loc);
-            serverManagerForClientLocale.put(lstr, smc);
+            smc = new SOCStringManager( PROPS_PATH_SERVER_FOR_CLIENT, loc );
+            serverManagerForClientLocale.put( lstr, smc );
         }
 
         return smc;
@@ -440,7 +459,7 @@ public class SOCStringManager extends StringManager
      * Can be used for messages while a client hasn't yet sent their locale.
      * Text sent to v1.x.xx clients will always use {@code en_US} regardless of the server's own locale.
      *
-     * @return  The server string manager with {@code en_US} locale
+     * @return The server string manager with {@code en_US} locale
      *     from {@link #getServerManagerForClient(Locale) getServerManagerForClient(null)}
      */
     public static SOCStringManager getFallbackServerManagerForClient()
@@ -448,7 +467,7 @@ public class SOCStringManager extends StringManager
         SOCStringManager sm = serverManagerForClientLocale_fallback;
         if (sm == null)
         {
-            sm = getServerManagerForClient(null);
+            sm = getServerManagerForClient( null );
             serverManagerForClientLocale_fallback = sm;
             // multithreading: If multiple threads race to initialize this field,
             // any of the created objects will have the same contents and function

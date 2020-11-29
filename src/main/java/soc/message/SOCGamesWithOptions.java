@@ -68,18 +68,19 @@ public class SOCGamesWithOptions extends SOCMessageTemplateMs
         this(null);
         pa = new ArrayList<>();
 
-        for (int i = 0; i < ga.size(); ++i)
+        for (Object ob : ga)
         {
-            Object ob = ga.get(i);
             if (ob instanceof SOCGame)
             {
                 SOCGameOptionSet opts = ((SOCGame) ob).getGameOptions();
-                pa.add(((SOCGame) ob).getName());
-                pa.add(SOCGameOption.packOptionsToString
-                    ((opts != null) ? opts.getAll() : null, false, false, cliVers));
-            } else {
-                pa.add((String) ob);  // ob is most likely a String already
-                pa.add("-");
+                pa.add( ((SOCGame) ob).getName() );
+                pa.add( SOCGameOption.packOptionsToString
+                    ( (opts != null) ? opts.getAll() : null, false, false, cliVers ) );
+            }
+            else
+            {
+                pa.add( (String) ob );  // ob is most likely a String already
+                pa.add( "-" );
             }
         }
     }

@@ -4,17 +4,17 @@
  * Portions of this file Copyright (C) 2007-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
  * Portions of this file Copyright (C) 2017-2018 Strategic Conversation (STAC Project) https://www.irit.fr/STAC/
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
@@ -478,7 +478,6 @@ public abstract class SOCMessage implements Serializable, Cloneable
     public static final int REVEALFOGHEX = 10001;  // fog hexes, 20121108, v2.0.00
 
 
-
     /**
      * Token separators. At most one SEP per message; multiple SEP2 are allowed after SEP.
      * For multi-messages, multiple SEP are allowed; see {@link SOCMessageMulti}.
@@ -532,7 +531,7 @@ public abstract class SOCMessage implements Serializable, Cloneable
     protected int messageType;
 
     /**
-     * @return  the message type number sent over the network, such as {@link #JOINGAMEAUTH} or {@link #PUTPIECE}
+     * @return the message type number sent over the network, such as {@link #JOINGAMEAUTH} or {@link #PUTPIECE}
      */
     public int getType()
     {
@@ -549,7 +548,10 @@ public abstract class SOCMessage implements Serializable, Cloneable
      * @return Version number, as in 1006 for JSettlers 1.0.06.
      * @since 1.1.00
      */
-    public int getMinimumVersion() { return 1000; }
+    public int getMinimumVersion()
+    {
+        return 1000;
+    }
 
     /**
      * To identify obsolete message types, give the maximum version where this
@@ -611,9 +613,9 @@ public abstract class SOCMessage implements Serializable, Cloneable
      * @see #isSingleLineAndSafe(String, boolean)
      * @since 1.1.07
      */
-    public static boolean isSingleLineAndSafe(String s)
+    public static boolean isSingleLineAndSafe( String s )
     {
-        return isSingleLineAndSafe(s, false);
+        return isSingleLineAndSafe( s, false );
     }
 
     /**
@@ -626,13 +628,13 @@ public abstract class SOCMessage implements Serializable, Cloneable
      *            Null string or 0-length string returns false.
      * @since 2.0.00
      */
-    public static boolean isSingleLineAndSafe(final String s, final boolean allowSepChars)
+    public static boolean isSingleLineAndSafe( final String s, final boolean allowSepChars )
     {
         if (s == null)
             return false;
-        if ((! allowSepChars)
-            && ((-1 != s.indexOf(sep_char))
-                || (-1 != s.indexOf(sep2_char))))
+        if ((!allowSepChars)
+            && ((-1 != s.indexOf( sep_char ))
+            || (-1 != s.indexOf( sep2_char ))))
             return false;
 
         int i = s.length();
@@ -640,11 +642,11 @@ public abstract class SOCMessage implements Serializable, Cloneable
             return false;
 
         --i;
-        for (; i>=0; --i)
+        for (; i >= 0; --i)
         {
-            final char c = s.charAt(i);
-            if (Character.isISOControl(c) ||
-                (Character.isSpaceChar(c) && (Character.getType(c) != Character.SPACE_SEPARATOR)))
+            final char c = s.charAt( i );
+            if (Character.isISOControl( c ) ||
+                (Character.isSpaceChar( c ) && (Character.getType( c ) != Character.SPACE_SEPARATOR)))
                 return false;
         }
 
@@ -658,19 +660,19 @@ public abstract class SOCMessage implements Serializable, Cloneable
      * Otherwise calls message type's static {@code parseDataStr} method.
      *
      * @param s  String to convert
-     * @return   converted String to a SOCMessage, or null if the string is garbled,
+     * @return converted String to a SOCMessage, or null if the string is garbled,
      *           or is an unknown command id
      */
-    public static SOCMessage toMsg(String s)
+    public static SOCMessage toMsg( String s )
     {
         try
         {
-            StringTokenizer st = new StringTokenizer(s, sep);
+            StringTokenizer st = new StringTokenizer( s, sep );
 
             /**
              * get the id that identifies the type of message
              */
-            int msgId = Integer.parseInt(st.nextToken());
+            int msgId = Integer.parseInt( st.nextToken() );
 
             /**
              * get the rest of the data
@@ -706,23 +708,25 @@ public abstract class SOCMessage implements Serializable, Cloneable
                 data = st.nextToken();
                 if (st.hasMoreTokens())
                 {
-                        // SOCMessageMulti
+                    // SOCMessageMulti
 
-                        int n = st.countTokens();  // remaining (== number of parameters after "data")
-                        multiData = new ArrayList<>( n + 1 );
-                        multiData.add(data);
-                        while (st.hasMoreTokens())
+                    int n = st.countTokens();  // remaining (== number of parameters after "data")
+                    multiData = new ArrayList<>( n + 1 );
+                    multiData.add( data );
+                    while (st.hasMoreTokens())
+                    {
+                        try
                         {
-                                try {
-                                        multiData.add(st.nextToken());
-                                } catch (NoSuchElementException e)
-                                {
-                                        multiData.add(null);
-                                }
+                            multiData.add( st.nextToken() );
                         }
+                        catch( NoSuchElementException e )
+                        {
+                            multiData.add( null );
+                        }
+                    }
                 }
             }
-            catch (NoSuchElementException e)
+            catch( NoSuchElementException e )
             {
                 data = "";
             }
@@ -733,327 +737,327 @@ public abstract class SOCMessage implements Serializable, Cloneable
             switch (msgId)
             {
             case AUTHREQUEST:        // authentication request, 20141106, v1.1.19
-                return SOCAuthRequest.parseDataStr(data);
+                return SOCAuthRequest.parseDataStr( data );
 
             case NULLMESSAGE:
                 return null;
 
             case NEWCHANNEL:
-                return SOCNewChannel.parseDataStr(data);
+                return SOCNewChannel.parseDataStr( data );
 
             case CHANNELMEMBERS:
-                return SOCChannelMembers.parseDataStr(data);
+                return SOCChannelMembers.parseDataStr( data );
 
             case CHANNELS:
-                return SOCChannels.parseDataStr(data);
+                return SOCChannels.parseDataStr( data );
 
             case JOINCHANNEL:
-                return SOCJoinChannel.parseDataStr(data);
+                return SOCJoinChannel.parseDataStr( data );
 
             case CHANNELTEXTMSG:
-                return SOCChannelTextMsg.parseDataStr(data);
+                return SOCChannelTextMsg.parseDataStr( data );
 
             case LEAVECHANNEL:
-                return SOCLeaveChannel.parseDataStr(data);
+                return SOCLeaveChannel.parseDataStr( data );
 
             case DELETECHANNEL:
-                return SOCDeleteChannel.parseDataStr(data);
+                return SOCDeleteChannel.parseDataStr( data );
 
             case LEAVEALL:
-                return SOCLeaveAll.parseDataStr(data);
+                return SOCLeaveAll.parseDataStr( data );
 
             case PUTPIECE:
-                return SOCPutPiece.parseDataStr(data);
+                return SOCPutPiece.parseDataStr( data );
 
             case GAMETEXTMSG:
-                return SOCGameTextMsg.parseDataStr(data);
+                return SOCGameTextMsg.parseDataStr( data );
 
             case LEAVEGAME:
-                return SOCLeaveGame.parseDataStr(data);
+                return SOCLeaveGame.parseDataStr( data );
 
             case SITDOWN:
-                return SOCSitDown.parseDataStr(data);
+                return SOCSitDown.parseDataStr( data );
 
             case JOINGAME:
-                return SOCJoinGame.parseDataStr(data);
+                return SOCJoinGame.parseDataStr( data );
 
             case BOARDLAYOUT:
-                return SOCBoardLayout.parseDataStr(data);
+                return SOCBoardLayout.parseDataStr( data );
 
             case GAMES:
-                return SOCGames.parseDataStr(data);
+                return SOCGames.parseDataStr( data );
 
             case DELETEGAME:
-                return SOCDeleteGame.parseDataStr(data);
+                return SOCDeleteGame.parseDataStr( data );
 
             case NEWGAME:
-                return SOCNewGame.parseDataStr(data);
+                return SOCNewGame.parseDataStr( data );
 
             case GAMEMEMBERS:
-                return SOCGameMembers.parseDataStr(data);
+                return SOCGameMembers.parseDataStr( data );
 
             case STARTGAME:
-                return SOCStartGame.parseDataStr(data);
+                return SOCStartGame.parseDataStr( data );
 
             case JOINCHANNELAUTH:
-                return SOCJoinChannelAuth.parseDataStr(data);
+                return SOCJoinChannelAuth.parseDataStr( data );
 
             case JOINGAMEAUTH:
-                return SOCJoinGameAuth.parseDataStr(data);
+                return SOCJoinGameAuth.parseDataStr( data );
 
             case IMAROBOT:
-                return SOCImARobot.parseDataStr(data);
+                return SOCImARobot.parseDataStr( data );
 
             case BOTJOINGAMEREQUEST:
-                return SOCBotJoinGameRequest.parseDataStr(data);
+                return SOCBotJoinGameRequest.parseDataStr( data );
 
             case PLAYERELEMENT:
-                return SOCPlayerElement.parseDataStr(data);
+                return SOCPlayerElement.parseDataStr( data );
 
             case GAMESTATE:
-                return SOCGameState.parseDataStr(data);
+                return SOCGameState.parseDataStr( data );
 
             case TURN:
-                return SOCTurn.parseDataStr(data);
+                return SOCTurn.parseDataStr( data );
 
             case DICERESULT:
-                return SOCDiceResult.parseDataStr(data);
+                return SOCDiceResult.parseDataStr( data );
 
             case DISCARDREQUEST:
-                return SOCDiscardRequest.parseDataStr(data);
+                return SOCDiscardRequest.parseDataStr( data );
 
             case ROLLDICEREQUEST:
-                return SOCRollDiceRequest.parseDataStr(data);
+                return SOCRollDiceRequest.parseDataStr( data );
 
             case ROLLDICE:
-                return SOCRollDice.parseDataStr(data);
+                return SOCRollDice.parseDataStr( data );
 
             case ENDTURN:
-                return SOCEndTurn.parseDataStr(data);
+                return SOCEndTurn.parseDataStr( data );
 
             case DISCARD:
-                return SOCDiscard.parseDataStr(data);
+                return SOCDiscard.parseDataStr( data );
 
             case MOVEROBBER:
-                return SOCMoveRobber.parseDataStr(data);
+                return SOCMoveRobber.parseDataStr( data );
 
             case CHOOSEPLAYER:
-                return SOCChoosePlayer.parseDataStr(data);
+                return SOCChoosePlayer.parseDataStr( data );
 
             case CHOOSEPLAYERREQUEST:
-                return SOCChoosePlayerRequest.parseDataStr(data);
+                return SOCChoosePlayerRequest.parseDataStr( data );
 
             case REJECTOFFER:
-                return SOCRejectOffer.parseDataStr(data);
+                return SOCRejectOffer.parseDataStr( data );
 
             case CLEAROFFER:
-                return SOCClearOffer.parseDataStr(data);
+                return SOCClearOffer.parseDataStr( data );
 
             case ACCEPTOFFER:
-                return SOCAcceptOffer.parseDataStr(data);
+                return SOCAcceptOffer.parseDataStr( data );
 
             case BANKTRADE:
-                return SOCBankTrade.parseDataStr(data);
+                return SOCBankTrade.parseDataStr( data );
 
             case MAKEOFFER:
-                return SOCMakeOffer.parseDataStr(data);
+                return SOCMakeOffer.parseDataStr( data );
 
             case CLEARTRADEMSG:
-                return SOCClearTradeMsg.parseDataStr(data);
+                return SOCClearTradeMsg.parseDataStr( data );
 
             case BUILDREQUEST:
-                return SOCBuildRequest.parseDataStr(data);
+                return SOCBuildRequest.parseDataStr( data );
 
             case CANCELBUILDREQUEST:
-                return SOCCancelBuildRequest.parseDataStr(data);
+                return SOCCancelBuildRequest.parseDataStr( data );
 
             case BUYDEVCARDREQUEST:
-                return SOCBuyDevCardRequest.parseDataStr(data);
+                return SOCBuyDevCardRequest.parseDataStr( data );
 
             case DEVCARDACTION:
-                return SOCDevCardAction.parseDataStr(data);
+                return SOCDevCardAction.parseDataStr( data );
 
             case DEVCARDCOUNT:
-                return SOCDevCardCount.parseDataStr(data);
+                return SOCDevCardCount.parseDataStr( data );
 
             case SETPLAYEDDEVCARD:
-                return SOCSetPlayedDevCard.parseDataStr(data);
+                return SOCSetPlayedDevCard.parseDataStr( data );
 
             case PLAYDEVCARDREQUEST:
-                return SOCPlayDevCardRequest.parseDataStr(data);
+                return SOCPlayDevCardRequest.parseDataStr( data );
 
             case PICKRESOURCES:  // Discovery/Year of Plenty, or v2.0.00 gold hex resources
-                return SOCPickResources.parseDataStr(data);
+                return SOCPickResources.parseDataStr( data );
 
             case PICKRESOURCETYPE:  // Monopoly
-                return SOCPickResourceType.parseDataStr(data);
+                return SOCPickResourceType.parseDataStr( data );
 
             case FIRSTPLAYER:
-                return SOCFirstPlayer.parseDataStr(data);
+                return SOCFirstPlayer.parseDataStr( data );
 
             case SETTURN:
-                return SOCSetTurn.parseDataStr(data);
+                return SOCSetTurn.parseDataStr( data );
 
             case ROBOTDISMISS:
-                return SOCRobotDismiss.parseDataStr(data);
+                return SOCRobotDismiss.parseDataStr( data );
 
             case POTENTIALSETTLEMENTS:
-                return SOCPotentialSettlements.parseDataStr(data);
+                return SOCPotentialSettlements.parseDataStr( data );
 
             case CHANGEFACE:
-                return SOCChangeFace.parseDataStr(data);
+                return SOCChangeFace.parseDataStr( data );
 
             case REJECTCONNECTION:
-                return SOCRejectConnection.parseDataStr(data);
+                return SOCRejectConnection.parseDataStr( data );
 
             case LASTSETTLEMENT:
-                return SOCLastSettlement.parseDataStr(data);
+                return SOCLastSettlement.parseDataStr( data );
 
             case GAMESTATS:
-                return SOCGameStats.parseDataStr(data);
+                return SOCGameStats.parseDataStr( data );
 
             case BCASTTEXTMSG:
-                return SOCBCastTextMsg.parseDataStr(data);
+                return SOCBCastTextMsg.parseDataStr( data );
 
             case RESOURCECOUNT:
-                return SOCResourceCount.parseDataStr(data);
+                return SOCResourceCount.parseDataStr( data );
 
             case ADMINPING:
-                return SOCAdminPing.parseDataStr(data);
+                return SOCAdminPing.parseDataStr( data );
 
             case ADMINRESET:
-                return SOCAdminReset.parseDataStr(data);
+                return SOCAdminReset.parseDataStr( data );
 
             case LONGESTROAD:
-                return SOCLongestRoad.parseDataStr(data);
+                return SOCLongestRoad.parseDataStr( data );
 
             case LARGESTARMY:
-                return SOCLargestArmy.parseDataStr(data);
+                return SOCLargestArmy.parseDataStr( data );
 
             case SETSEATLOCK:
-                return SOCSetSeatLock.parseDataStr(data);
+                return SOCSetSeatLock.parseDataStr( data );
 
             case STATUSMESSAGE:
-                return SOCStatusMessage.parseDataStr(data);
+                return SOCStatusMessage.parseDataStr( data );
 
             case CREATEACCOUNT:
-                return SOCCreateAccount.parseDataStr(data);
+                return SOCCreateAccount.parseDataStr( data );
 
             case UPDATEROBOTPARAMS:
-                return SOCUpdateRobotParams.parseDataStr(data);
+                return SOCUpdateRobotParams.parseDataStr( data );
 
             case SERVERPING:
-                return SOCServerPing.parseDataStr(data);
+                return SOCServerPing.parseDataStr( data );
 
             case ROLLDICEPROMPT:     // autoroll, 20071003, sf patch #1812254
-                return SOCRollDicePrompt.parseDataStr(data);
+                return SOCRollDicePrompt.parseDataStr( data );
 
             case RESETBOARDREQUEST:  // resetboard, 20080217, v1.1.00
-                return SOCResetBoardRequest.parseDataStr(data);
+                return SOCResetBoardRequest.parseDataStr( data );
 
             case RESETBOARDAUTH:     // resetboard, 20080217, v1.1.00
-                return SOCResetBoardAuth.parseDataStr(data);
+                return SOCResetBoardAuth.parseDataStr( data );
 
             case RESETBOARDVOTEREQUEST:  // resetboard, 20080223, v1.1.00
-                return SOCResetBoardVoteRequest.parseDataStr(data);
+                return SOCResetBoardVoteRequest.parseDataStr( data );
 
             case RESETBOARDVOTE:     // resetboard, 20080223, v1.1.00
-                return SOCResetBoardVote.parseDataStr(data);
+                return SOCResetBoardVote.parseDataStr( data );
 
             case RESETBOARDREJECT:   // resetboard, 20080223, v1.1.00
-                return SOCResetBoardReject.parseDataStr(data);
+                return SOCResetBoardReject.parseDataStr( data );
 
             case VERSION:            // cli-serv versioning, 20080807, v1.1.00
-                return SOCVersion.parseDataStr(data);
+                return SOCVersion.parseDataStr( data );
 
             case NEWGAMEWITHOPTIONS:     // per-game options, 20090601, v1.1.07
-                return SOCNewGameWithOptions.parseDataStr(data);
+                return SOCNewGameWithOptions.parseDataStr( data );
 
             case NEWGAMEWITHOPTIONSREQUEST:  // per-game options, 20090601, v1.1.07
-                return SOCNewGameWithOptionsRequest.parseDataStr(data);
+                return SOCNewGameWithOptionsRequest.parseDataStr( data );
 
             case GAMEOPTIONGETDEFAULTS:  // per-game options, 20090601, v1.1.07
-                return SOCGameOptionGetDefaults.parseDataStr(data);
+                return SOCGameOptionGetDefaults.parseDataStr( data );
 
             case GAMEOPTIONGETINFOS:     // per-game options, 20090601, v1.1.07
-                return SOCGameOptionGetInfos.parseDataStr(data);
+                return SOCGameOptionGetInfos.parseDataStr( data );
 
             case GAMEOPTIONINFO:         // per-game options, 20090601, v1.1.07
-                return SOCGameOptionInfo.parseDataStr(multiData);
+                return SOCGameOptionInfo.parseDataStr( multiData );
 
             case GAMESWITHOPTIONS:       // per-game options, 20090601, v1.1.07
-                return SOCGamesWithOptions.parseDataStr(multiData);
+                return SOCGamesWithOptions.parseDataStr( multiData );
 
             case BOARDLAYOUT2:      // 6-player board, 20091104, v1.1.08
-                return SOCBoardLayout2.parseDataStr(data);
+                return SOCBoardLayout2.parseDataStr( data );
 
             case PLAYERSTATS:       // per-player statistics, 20100312, v1.1.09
-                return SOCPlayerStats.parseDataStr(multiData);
+                return SOCPlayerStats.parseDataStr( multiData );
 
             case PLAYERELEMENTS:    // multiple PLAYERELEMENT, 20100313, v1.1.09
-                return SOCPlayerElements.parseDataStr(multiData);
+                return SOCPlayerElements.parseDataStr( multiData );
 
             case DEBUGFREEPLACE:    // debug piece Free Placement, 20110104, v1.1.12
-                return SOCDebugFreePlace.parseDataStr(data);
+                return SOCDebugFreePlace.parseDataStr( data );
 
             case TIMINGPING:        // robot timing ping, 20111011, v1.1.13
-                return SOCTimingPing.parseDataStr(data);
+                return SOCTimingPing.parseDataStr( data );
 
             case SIMPLEREQUEST:     // simple player requests, 20130217, v1.1.18
-                return SOCSimpleRequest.parseDataStr(data);
+                return SOCSimpleRequest.parseDataStr( data );
 
             case SIMPLEACTION:     // simple actions for players, 20130904, v1.1.19
-                return SOCSimpleAction.parseDataStr(data);
+                return SOCSimpleAction.parseDataStr( data );
 
             case GAMESERVERTEXT:    // game server text, 20130905; v2.0.00
-                return SOCGameServerText.parseDataStr(data);
+                return SOCGameServerText.parseDataStr( data );
 
             case DICERESULTRESOURCES:  // dice roll result resources, 20130920; v2.0.00
-                return SOCDiceResultResources.parseDataStr(multiData);
+                return SOCDiceResultResources.parseDataStr( multiData );
 
             case MOVEPIECE:         // move piece announcement, 20111203, v2.0.00
-                return SOCMovePiece.parseDataStr(data);
+                return SOCMovePiece.parseDataStr( data );
 
             case REMOVEPIECE:       // pirate islands scenario, 20130218, v2.0.00
-                return SOCRemovePiece.parseDataStr(data);
+                return SOCRemovePiece.parseDataStr( data );
 
             case PIECEVALUE:        // cloth villages scenario, 20121115, v2.0.00
-                return SOCPieceValue.parseDataStr(data);
+                return SOCPieceValue.parseDataStr( data );
 
             case GAMEELEMENTS:      // game status fields, 20171223, v2.0.00
-                return SOCGameElements.parseDataStr(multiData);
+                return SOCGameElements.parseDataStr( multiData );
 
             case SVPTEXTMSG:        // SVP text messages, 20121221, v2.0.00
-                return SOCSVPTextMessage.parseDataStr(data);
+                return SOCSVPTextMessage.parseDataStr( data );
 
             case INVENTORYITEMACTION:         // player inventory items, 20131126, v2.0.00
-                return SOCInventoryItemAction.parseDataStr(data);
+                return SOCInventoryItemAction.parseDataStr( data );
 
             case SETSPECIALITEM:       // Special Items, 20140416, v2.0.00
-                return SOCSetSpecialItem.parseDataStr(data);
+                return SOCSetSpecialItem.parseDataStr( data );
 
             case LOCALIZEDSTRINGS:     // Localized strings, 20150111, v2.0.00
-                return SOCLocalizedStrings.parseDataStr(multiData);
+                return SOCLocalizedStrings.parseDataStr( multiData );
 
             case SCENARIOINFO:         // Scenario info, 20150920, v2.0.00
-                return SOCScenarioInfo.parseDataStr(multiData, data);
+                return SOCScenarioInfo.parseDataStr( multiData, data );
 
             case REPORTROBBERY:        // Report Robbery, 20200915, v2.4.50
-                return SOCReportRobbery.parseDataStr(data);
+                return SOCReportRobbery.parseDataStr( data );
 
             // gametype-specific messages:
 
             case REVEALFOGHEX:      // fog hexes, 20121108, v2.0.00
-                return SOCRevealFogHex.parseDataStr(data);
+                return SOCRevealFogHex.parseDataStr( data );
 
             default:
-                System.err.println("Unhandled message type in SOCMessage.toMsg: " + msgId);
+                System.err.println( "Unhandled message type in SOCMessage.toMsg: " + msgId );
                 return null;
             }
         }
-        catch (Exception e)
+        catch( Exception e )
         {
-            System.err.println("toMsg ERROR - " + e);
+            System.err.println( "toMsg ERROR - " + e );
             e.printStackTrace();
 
             return null;
@@ -1068,6 +1072,7 @@ public abstract class SOCMessage implements Serializable, Cloneable
      * @since 2.4.50
      */
     public static Map<String, String> MESSAGE_RENAME_MAP = new HashMap<>();
+
     static
     {
         for (final String[] fromTo : new String[][]
@@ -1083,7 +1088,7 @@ public abstract class SOCMessage implements Serializable, Cloneable
                 {"SOCMonopolyPick", "SOCPickResourceType"},
                 {"SOCTextMsg", "SOCChannelTextMsg"},
             })
-            MESSAGE_RENAME_MAP.put(fromTo[0], fromTo[1]);
+            MESSAGE_RENAME_MAP.put( fromTo[0], fromTo[1] );
     }
 
     /**
@@ -1115,69 +1120,74 @@ public abstract class SOCMessage implements Serializable, Cloneable
      *     {@link #stripAttribNames(String)} or {@link #parseMsgStr(String)} threw an exception
      * @since 2.4.50
      */
-    public static SOCMessage parseMsgStr(final String messageStr)
+    public static SOCMessage parseMsgStr( final String messageStr )
         throws ParseException, InputMismatchException
     {
         // pieces[0] = classname
         // pieces[1] = params
 
         if (messageStr == null)
-            throw new ParseException("null messageStr", 0);
-        final int colonIdx = messageStr.indexOf(':');
+            throw new ParseException( "null messageStr", 0 );
+        final int colonIdx = messageStr.indexOf( ':' );
         if (colonIdx < 1)
-            throw new ParseException("Missing \"SomeMsgClassName:\" prefix", 0);
+            throw new ParseException( "Missing \"SomeMsgClassName:\" prefix", 0 );
         String className = null;
         String currentCall = null;
 
         try
         {
-            className = messageStr.substring(0, colonIdx);
-            String msgBody = messageStr.substring(colonIdx+1);
+            className = messageStr.substring( 0, colonIdx );
+            String msgBody = messageStr.substring( colonIdx + 1 );
 
             final String origClassName = className,
-                renamedClassName = MESSAGE_RENAME_MAP.get(className);
+                renamedClassName = MESSAGE_RENAME_MAP.get( className );
             if (renamedClassName != null)
                 className = renamedClassName;
 
             @SuppressWarnings("unchecked")
-            Class<SOCMessage> c = (Class<SOCMessage>) Class.forName("soc.message." + className);
+            Class<SOCMessage> c = (Class<SOCMessage>) Class.forName( "soc.message." + className );
 
             Method m;
 
             // if SOCMessageMulti, look for stripAttribsToList first
-            if (SOCMessageMulti.class.isAssignableFrom(c))
+            if (SOCMessageMulti.class.isAssignableFrom( c ))
             {
                 try
                 {
-                    m = c.getMethod("stripAttribsToList", String.class);
-                    if (! Modifier.isStatic(m.getModifiers()))
+                    m = c.getMethod( "stripAttribsToList", String.class );
+                    if (!Modifier.isStatic( m.getModifiers() ))
                         throw new ParseException
-                            (className + ".stripAttribsToList must be static", 0);
+                            ( className + ".stripAttribsToList must be static", 0 );
                     currentCall = m.getDeclaringClass().getName() + "." + "stripAttribsToList";
                     @SuppressWarnings("unchecked")
-                    List<String> treatedAttribs = (List<String>) m.invoke(null, msgBody);
+                    List<String> treatedAttribs = (List<String>) m.invoke( null, msgBody );
                     if (treatedAttribs == null)
                         throw new InputMismatchException
-                            ("Unparsable message: stripAttribsToList rets null: " + messageStr);
+                            ( "Unparsable message: stripAttribsToList rets null: " + messageStr );
 
                     try
                     {
-                        m = c.getMethod("parseDataStr", List.class);
-                    } catch (NoSuchMethodException e) {
-                        throw new ParseException
-                            (className + ".parseDataStr(List) not found", 0);
+                        m = c.getMethod( "parseDataStr", List.class );
                     }
-                    if (! Modifier.isStatic(m.getModifiers()))
+                    catch( NoSuchMethodException e )
+                    {
                         throw new ParseException
-                            (className + ".parseDataStr(List) must be static", 0);
+                            ( className + ".parseDataStr(List) not found", 0 );
+                    }
+                    if (!Modifier.isStatic( m.getModifiers() ))
+                        throw new ParseException
+                            ( className + ".parseDataStr(List) must be static", 0 );
                     currentCall = m.getDeclaringClass().getName() + "." + "parseDataStr";
-                    Object o = m.invoke(null, treatedAttribs);
+                    Object o = m.invoke( null, treatedAttribs );
                     if (o == null)
                         throw new InputMismatchException
-                            ("Unparsable message: parseDataStr(List) rets null: " + messageStr);
+                            ( "Unparsable message: parseDataStr(List) rets null: " + messageStr );
 
                     return (SOCMessage) o;
-                } catch (NoSuchMethodException e) {}
+                }
+                catch( NoSuchMethodException e )
+                {
+                }
             }
 
             String treatedAttribs = null;  // output from stripAttribNames
@@ -1187,47 +1197,50 @@ public abstract class SOCMessage implements Serializable, Cloneable
                 // in case this is a renamed message type's old or new name,
                 // look first for stripAttribNames(String,String) to pass message type name
 
-                m = c.getMethod("stripAttribNames", String.class, String.class);
+                m = c.getMethod( "stripAttribNames", String.class, String.class );
                 currentCall = m.getDeclaringClass().getName() + "." + "stripAttribNames(String,String)";
-                if (! Modifier.isStatic(m.getModifiers()))
+                if (!Modifier.isStatic( m.getModifiers() ))
                     throw new ParseException
-                        (currentCall + " must be static", 0);
-                if (! m.getReturnType().equals(String.class))
+                        ( currentCall + " must be static", 0 );
+                if (!m.getReturnType().equals( String.class ))
                     throw new ParseException
-                        (currentCall + " must return String", 0);
+                        ( currentCall + " must return String", 0 );
 
                 treatedAttribs = (String) m.invoke
-                    (null, (origClassName != null) ? origClassName : className, msgBody);
+                    ( null, (origClassName != null) ? origClassName : className, msgBody );
                 if (treatedAttribs == null)
                     throw new InputMismatchException
-                        ("Unparsable message: stripAttribNames(String,String) rets null: " + messageStr);
-            } catch (NoSuchMethodException e) {}
+                        ( "Unparsable message: stripAttribNames(String,String) rets null: " + messageStr );
+            }
+            catch( NoSuchMethodException e )
+            {
+            }
 
             if (treatedAttribs == null)
             {
                 // call message class's or SOCMessage's stripAttribNames(String)
 
-                m = c.getMethod("stripAttribNames", String.class);
+                m = c.getMethod( "stripAttribNames", String.class );
                 currentCall = m.getDeclaringClass().getName() + "." + "stripAttribNames(String)";
-                if (! Modifier.isStatic(m.getModifiers()))
+                if (!Modifier.isStatic( m.getModifiers() ))
                     throw new ParseException
-                        (currentCall + " must be static", 0);
+                        ( currentCall + " must be static", 0 );
                 // no need to check return type, because it's declared in SOCMessage as String
                 // and any change in a subclass is a syntax error
 
-                treatedAttribs = (String) m.invoke(null,  msgBody);
+                treatedAttribs = (String) m.invoke( null, msgBody );
             }
             if (treatedAttribs == null)
                 throw new InputMismatchException
-                    ("Unparsable message: stripAttribNames rets null: " + messageStr);
+                    ( "Unparsable message: stripAttribNames rets null: " + messageStr );
 
-            m = c.getMethod("parseDataStr", String.class);
+            m = c.getMethod( "parseDataStr", String.class );
             currentCall = m.getDeclaringClass().getName() + "." + "parseDataStr";
-            if (! Modifier.isStatic(m.getModifiers()))
+            if (!Modifier.isStatic( m.getModifiers() ))
                 throw new ParseException
-                    (currentCall + " must be static", 0);
+                    ( currentCall + " must be static", 0 );
 
-            Object o = m.invoke(null, treatedAttribs);
+            Object o = m.invoke( null, treatedAttribs );
             if (o == null)
             {
                 // This occurs when a message can't be parsed.  Likely means stripAttribNames
@@ -1236,25 +1249,35 @@ public abstract class SOCMessage implements Serializable, Cloneable
                 //  log file, just in case.
 
                 throw new InputMismatchException
-                    ("Unparsable message: parseDataStr rets null: " + messageStr);
+                    ( "Unparsable message: parseDataStr rets null: " + messageStr );
             }
 
             return (SOCMessage) o;
-        } catch (ClassNotFoundException ex) {
+        }
+        catch( ClassNotFoundException ex )
+        {
             throw new ParseException
-                ("Class not found" + ((className != null) ? ": " + className : "") + ": " + messageStr, 0);
-        } catch (InvocationTargetException ex) {
+                ( "Class not found" + ((className != null) ? ": " + className : "") + ": " + messageStr, 0 );
+        }
+        catch( InvocationTargetException ex )
+        {
             throw new ParseException
-                ("Exception from " + currentCall + ": " + ex.getCause(), 0);
-        } catch (NoSuchMethodException | SecurityException
-            | IllegalAccessException | ExceptionInInitializerError ex) {
+                ( "Exception from " + currentCall + ": " + ex.getCause(), 0 );
+        }
+        catch( NoSuchMethodException | SecurityException
+            | IllegalAccessException | ExceptionInInitializerError ex )
+        {
             throw new ParseException
-                ("Reflection error calling " + currentCall + ": " + ex, 0);
-        } catch (InputMismatchException ex) {
+                ( "Reflection error calling " + currentCall + ": " + ex, 0 );
+        }
+        catch( InputMismatchException ex )
+        {
             throw ex;  // probably from recursive or "super" call of this method
-        } catch (Exception ex) {
+        }
+        catch( Exception ex )
+        {
             throw new ParseException
-                ("Exception from " + currentCall + ": " + ex, 0);
+                ( "Exception from " + currentCall + ": " + ex, 0 );
         }
     }
 
@@ -1277,18 +1300,18 @@ public abstract class SOCMessage implements Serializable, Cloneable
      * @see #stripAttribsToList(String)
      * @since 2.4.50
      */
-    public static String stripAttribNames(String messageStrParams)
+    public static String stripAttribNames( String messageStrParams )
     {
         StringBuilder sb = new StringBuilder();
 
-        for (String s : messageStrParams.split(sepRE))
+        for (String s : messageStrParams.split( sepRE ))
         {
-            int eqIdx = s.indexOf('=');
+            int eqIdx = s.indexOf( '=' );
             // if no '=', appends entire string
-            sb.append(s.substring(eqIdx + 1)).append(sep2_char);
+            sb.append( s.substring( eqIdx + 1 ) ).append( sep2_char );
         }
 
-        return sb.substring(0, sb.length() - 1);  // omit final ','
+        return sb.substring( 0, sb.length() - 1 );  // omit final ','
     }
 
     /**
@@ -1302,17 +1325,17 @@ public abstract class SOCMessage implements Serializable, Cloneable
      * @see #stripAttribNames(String)
      * @since 2.4.50
      */
-    public static List<String> stripAttribsToList(String messageStrParams)
+    public static List<String> stripAttribsToList( String messageStrParams )
     {
-        String[] params = messageStrParams.split(sepRE);
+        String[] params = messageStrParams.split( sepRE );
         for (int i = 0; i < params.length; ++i)
         {
-            int eqIdx = params[i].indexOf('=');
+            int eqIdx = params[i].indexOf( '=' );
             if (eqIdx > 0)
-                params[i] = params[i].substring(eqIdx + 1);
+                params[i] = params[i].substring( eqIdx + 1 );
         }
 
-        return Arrays.asList(params);
+        return Arrays.asList( params );
     }
 
 }

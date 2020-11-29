@@ -2,25 +2,26 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2010,2014,2017,2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
 
 import java.util.StringTokenizer;
+
 import soc.game.SOCGame;  // for javadocs only
 
 
@@ -79,7 +80,7 @@ public class SOCTurn extends SOCMessage
      * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0.
      *     Values &lt; 0 are out of range and ignored (treated as 0).
      */
-    public SOCTurn(final String ga, final int pn, final int gs)
+    public SOCTurn( final String ga, final int pn, final int gs )
     {
         messageType = TURN;
         game = ga;
@@ -121,7 +122,7 @@ public class SOCTurn extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber, gameState);
+        return toCmd( game, playerNumber, gameState );
     }
 
     /**
@@ -132,7 +133,7 @@ public class SOCTurn extends SOCMessage
      * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0 to omit that field
      * @return the command string
      */
-    public static String toCmd(final String ga, final int pn, final int gs)
+    public static String toCmd( final String ga, final int pn, final int gs )
     {
         return TURN + sep + ga + sep2 + pn + ((gs > 0) ? sep2 + gs : "");
     }
@@ -141,9 +142,9 @@ public class SOCTurn extends SOCMessage
      * Parse the command String into a TURN message.
      *
      * @param s   the String to parse
-     * @return    a TURN message, or null if the data is garbled
+     * @return a TURN message, or null if the data is garbled
      */
-    public static SOCTurn parseDataStr(String s)
+    public static SOCTurn parseDataStr( String s )
     {
         try
         {
@@ -151,15 +152,17 @@ public class SOCTurn extends SOCMessage
             int pn;  // the seat number
             int gs = 0;  // the game state
 
-            StringTokenizer st = new StringTokenizer(s, sep2);
+            StringTokenizer st = new StringTokenizer( s, sep2 );
 
             ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
+            pn = Integer.parseInt( st.nextToken() );
             if (st.hasMoreTokens())
-                gs = Integer.parseInt(st.nextToken());
+                gs = Integer.parseInt( st.nextToken() );
 
-            return new SOCTurn(ga, pn, gs);
-        } catch (Exception e) {
+            return new SOCTurn( ga, pn, gs );
+        }
+        catch( Exception e )
+        {
             return null;
         }
     }

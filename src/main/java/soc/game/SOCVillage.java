@@ -1,20 +1,20 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2012,2019-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 
@@ -69,10 +69,10 @@ public class SOCVillage extends SOCPlayingPiece
     private List<SOCPlayer> traders;
 
     // Temporary with defaults until dice, cloth sent to client
-    public SOCVillage(final int node, SOCBoard board)
+    public SOCVillage( final int node, SOCBoard board )
         throws IllegalArgumentException
     {
-        this(node, 0, STARTING_CLOTH, board);
+        this( node, 0, STARTING_CLOTH, board );
     }
 
     /**
@@ -86,10 +86,10 @@ public class SOCVillage extends SOCPlayingPiece
      * @param board  board
      * @throws IllegalArgumentException  if board null
      */
-    public SOCVillage(final int node, final int dice, final int cloth, SOCBoard board)
+    public SOCVillage( final int node, final int dice, final int cloth, SOCBoard board )
         throws IllegalArgumentException
     {
-        super(SOCPlayingPiece.VILLAGE, node, board);
+        super( SOCPlayingPiece.VILLAGE, node, board );
         diceNum = dice;
         numCloth = cloth;
     }
@@ -108,7 +108,7 @@ public class SOCVillage extends SOCPlayingPiece
      * For use at client based on messages from server.
      * @param numCloth  Number of cloth
      */
-    public void setCloth(final int numCloth)
+    public void setCloth( final int numCloth )
     {
         this.numCloth = numCloth;
     }
@@ -117,19 +117,21 @@ public class SOCVillage extends SOCPlayingPiece
      * Take this many cloth, if available, from this village.
      * Cloth should be given to players, and is worth 1 VP for every 2 cloth they have.
      * @param numTake  Number of cloth to try and take
-     * @return  Number of cloth actually taken, a number from 0 to <tt>numTake</tt>.
+     * @return Number of cloth actually taken, a number from 0 to <tt>numTake</tt>.
      *          If &gt; 0 but &lt; <tt>numTake</tt>, the rest should be taken from the
      *          board's "general supply" of cloth.
      * @see #getCloth()
      * @see SOCBoardLarge#takeCloth(int)
      */
-    public int takeCloth(int numTake)
+    public int takeCloth( int numTake )
     {
         if (numTake > numCloth)
         {
             numTake = numCloth;
             numCloth = 0;
-        } else {
+        }
+        else
+        {
             numCloth -= numTake;
         }
         return numTake;
@@ -140,22 +142,24 @@ public class SOCVillage extends SOCPlayingPiece
      * If the village has some {@link #getCloth()} remaining,
      * gives <tt>pl</tt> 1 cloth now (at server only).
      * @param pl  Player who's just established trade with this village
-     * @return   True if <tt>pl</tt> received 1 cloth
+     * @return True if <tt>pl</tt> received 1 cloth
      */
-    public boolean addTradingPlayer(SOCPlayer pl)
+    public boolean addTradingPlayer( SOCPlayer pl )
     {
         if (traders == null)
             traders = new ArrayList<>();
-        else if (traders.contains(pl))
+        else if (traders.contains( pl ))
             return false;
 
-        traders.add(pl);
+        traders.add( pl );
         if ((numCloth > 0) && pl.getGame().isAtServer)
         {
             --numCloth;
-            pl.setCloth(1 + pl.getCloth());
+            pl.setCloth( 1 + pl.getCloth() );
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -175,35 +179,39 @@ public class SOCVillage extends SOCPlayingPiece
      * @param game  Game with this village
      * @param rollRes  {@code game}'s roll results, to add cloth distribution into:
      *     Updates {@link SOCGame.RollResult#cloth}, {@link SOCGame.RollResult#clothVillages} fields
-     * @return  True if this village had cloth and trading partners to distribute cloth to
+     * @return True if this village had cloth and trading partners to distribute cloth to
      *     (from the village or general supply)
      */
-    public boolean distributeCloth(final SOCGame game, final SOCGame.RollResult rollRes)
+    public boolean distributeCloth( final SOCGame game, final SOCGame.RollResult rollRes )
     {
         if ((numCloth == 0) || (traders == null) || traders.isEmpty())
             return false;
 
         if (rollRes.clothVillages == null)
             rollRes.clothVillages = new ArrayList<>();
-        rollRes.clothVillages.add(this);
+        rollRes.clothVillages.add( this );
 
         final int[] results;
         if (rollRes.cloth != null)
         {
             results = rollRes.cloth;
-        } else {
+        }
+        else
+        {
             results = new int[1 + game.maxPlayers];
             rollRes.cloth = results;
         }
 
         final int n = traders.size();
-        final int nFromHere = takeCloth(n);  // will be > 0 because numCloth != 0
+        final int nFromHere = takeCloth( n );  // will be > 0 because numCloth != 0
         final int nFromGeneral;
         if (nFromHere < n)
         {
-            nFromGeneral = ((SOCBoardLarge) board).takeCloth(n - nFromHere);
+            nFromGeneral = ((SOCBoardLarge) board).takeCloth( n - nFromHere );
             results[0] += nFromGeneral;
-        } else {
+        }
+        else
+        {
             nFromGeneral = 0;
         }
 
@@ -216,10 +224,10 @@ public class SOCVillage extends SOCPlayingPiece
         final int cpn = game.getCurrentPlayerNumber();
         if (cpn != -1)
         {
-            SOCPlayer currPl = game.getPlayer(cpn);
-            if (traders.contains(currPl))
+            SOCPlayer currPl = game.getPlayer( cpn );
+            if (traders.contains( currPl ))
             {
-                currPl.setCloth(1 + currPl.getCloth());
+                currPl.setCloth( 1 + currPl.getCloth() );
                 ++results[1 + cpn];
                 --remain;
             }
@@ -227,12 +235,12 @@ public class SOCVillage extends SOCPlayingPiece
 
         for (int i = 0; (i < n) && (remain > 0); ++i)
         {
-            SOCPlayer pl = traders.get(i);
+            SOCPlayer pl = traders.get( i );
             final int pn = pl.getPlayerNumber();
             if (pn == cpn)
                 continue;  // already gave
 
-            pl.setCloth(1 + pl.getCloth());
+            pl.setCloth( 1 + pl.getCloth() );
             ++results[1 + pn];
             --remain;
         }

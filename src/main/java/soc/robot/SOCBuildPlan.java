@@ -38,13 +38,13 @@ public interface SOCBuildPlan
     /**
      * Reset the build plan
      */
-    public void clear();
+    void clear();
 
     /**
      * Is this plan currently empty?
      * @return true if nothing is currently planned
      */
-    public boolean isEmpty();
+    boolean isEmpty();
 
     /**
      * Get the <em>i</em>th planned build item, without removing it from the plan.
@@ -65,7 +65,7 @@ public interface SOCBuildPlan
      * @throws IndexOutOfBoundsException if {@code pieceNum} is out of range
      * @see #advancePlan()
      */
-    public SOCPossiblePiece getPlannedPiece( int pieceNum )
+    SOCPossiblePiece getPlannedPiece( int pieceNum )
         throws IndexOutOfBoundsException;
 
     /**
@@ -73,7 +73,7 @@ public interface SOCBuildPlan
      * @return Number of pieces in this plan
      * @see #getPlannedPiece(int)
      */
-    public int getPlanDepth();
+    int getPlanDepth();
 
     /**
      * Step forward in the plan.  Equivalent to a pop in the stack implementation.
@@ -81,7 +81,7 @@ public interface SOCBuildPlan
      * @throws NoSuchElementException if {@link #isEmpty()}
      * @see #getPlannedPiece(int)
      */
-    public SOCPossiblePiece advancePlan()
+    SOCPossiblePiece advancePlan()
         throws NoSuchElementException;
 
     /**
@@ -89,12 +89,12 @@ public interface SOCBuildPlan
      * @return {@link #getPlannedPiece(int) getPlannedPiece(0)}{@link SOCPossiblePiece#getResourcesToBuild() .getResourcesToBuild()},
      *     or {@link SOCResourceSet#EMPTY_SET} if that's null or if {@link #isEmpty()}
      */
-    public SOCResourceSet getFirstPieceResources();
+    SOCResourceSet getFirstPieceResources();
 
     /**
      * Calculate the total resources needed to build all pieces in this plan.
      * @return Total resources, from each piece's {@link SOCPossiblePiece#getResourcesToBuild()}
      */
-    public SOCResourceSet getTotalResourcesForBuildPlan();
+    SOCResourceSet getTotalResourcesForBuildPlan();
 
 }

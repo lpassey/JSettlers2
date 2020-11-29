@@ -142,70 +142,79 @@ public class PropsFileParser
                 if (comment == null)
                     comment = new ArrayList<String>();
                 comment.add(L);
-            } else {
-                final int ieq = L.indexOf('=');  // assumes keyname won't have an escaped = in it
+            } else
+            {
+                final int ieq = L.indexOf( '=' );  // assumes keyname won't have an escaped = in it
                 if (ieq != -1)
                 {
-                    final String key = L.substring(0, ieq).trim();
+                    final String key = L.substring( 0, ieq ).trim();
                     if (key.length() > 0)
                     {
-                        CharSequence val = L.subSequence(ieq + 1, L.length());
-                        final boolean spacedEquals = Character.isWhitespace(L.charAt(ieq - 1));
+                        CharSequence val = L.subSequence( ieq + 1, L.length() );
+                        final boolean spacedEquals = Character.isWhitespace( L.charAt( ieq - 1 ) );
 
                         // trim leading spaces from val, but not trailing spaces
-                        if ((val.length() > 0) && Character.isWhitespace(val.charAt(0)))
+                        if ((val.length() > 0) && Character.isWhitespace( val.charAt( 0 ) ))
                         {
                             final int vlen = val.length();
                             int i;
-                            for (i = 1; (i < vlen) && Character.isWhitespace(val.charAt(i)); ++i)
+                            for (i = 1; (i < vlen) && Character.isWhitespace( val.charAt( i ) ); ++i)
                                 ;  // iterate
 
                             if (i < vlen)
-                                val = val.subSequence(i, vlen);
+                                val = val.subSequence( i, vlen );
                             else
                                 val = "";
                         }
 
                         // look for escaped leading spaces
-                        if ((val.length() > 0) && (val.charAt(0) == '\\') && (val.charAt(1) == ' '))
+                        if ((val.length() > 0) && (val.charAt( 0 ) == '\\') && (val.charAt( 1 ) == ' '))
                         {
                             // What about other backslash escapes?
                             // Should note somewhere, we want to have \r \n \t as 2 characters in editor, not as newlines or tabs
                             final int vlen = val.length();
-                            StringBuilder spc = new StringBuilder(" ");
+                            StringBuilder spc = new StringBuilder( " " );
                             int i;
-                            for (i = 2; (i+1 < vlen) && (val.charAt(i) == '\\') && (val.charAt(i+1) == ' '); i += 2)
-                                spc.append(' ');
+                            for (i = 2; (i + 1 < vlen) && (val.charAt( i ) == '\\') && (val.charAt( i + 1 ) == ' '); i += 2)
+                                spc.append( ' ' );
 
                             if (i < vlen)
                             {
-                                spc.append(val.subSequence(i, vlen));
+                                spc.append( val.subSequence( i, vlen ) );
                                 val = spc;
-                            } else {
+                            }
+                            else
+                            {
                                 val = "";
                             }
                         }
 
                         String valStr = val.toString();
-                        if (valStr.contains("\\u"))
-                            valStr = unescapeUnicodes(valStr);
+                        if (valStr.contains( "\\u" ))
+                            valStr = unescapeUnicodes( valStr );
                         if (valStr.trim().length() == 0)  // null for whitespace-only entries
                             valStr = null;
 
-                        if (! firstKeySeen)
+                        if (!firstKeySeen)
                         {
                             firstKeySeen = true;
-                            if ((headerComment != null) && ! headerComment.isEmpty())
-                                ret.add(new KeyPairLine(headerComment));
+                            if ((headerComment != null) && !headerComment.isEmpty())
+                                ret.add( new KeyPairLine( headerComment ) );
                         }
 
-                        ret.add(new KeyPairLine(key, valStr, comment, spacedEquals));
+                        ret.add( new KeyPairLine( key, valStr, comment, spacedEquals ) );
                         comment = null;  // Don't share comment reference with next KeyPairLine
-                    } else {
+                    }
+/*
+                    else
+                    {
                         // TODO malformed: 0-length key
                     }
-                } else {
+                }
+                else
+                {
                     // TODO malformed
+ */
                 }
             }
         }

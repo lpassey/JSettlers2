@@ -142,9 +142,11 @@ import javax.swing.SwingConstants;
         if (message != null)
         {
             newText = message;
-            newlineIndex = message.indexOf('\n');
+            newlineIndex = message.indexOf( '\n' );
             newMsgLines = (newlineIndex >= 0) ? 2 : 1;
-        } else {
+        }
+        else
+        {
             newText = " ";
             newlineIndex = -1;
             newMsgLines = 1;
@@ -152,18 +154,20 @@ import javax.swing.SwingConstants;
 
         if (newMsgLines == 1)
         {
-            msg.setText(newText);
-            msg2.setText(" ");
-        } else {
-            msg.setText(newText.substring(0, newlineIndex));
-            msg2.setText(newText.substring(newlineIndex + 1));
+            msg.setText( newText );
+            msg2.setText( " " );
+        }
+        else
+        {
+            msg.setText( newText.substring( 0, newlineIndex ));
+            msg2.setText( newText.substring( newlineIndex + 1 ));
         }
 
         if (msgLines != newMsgLines)
         {
             msgLines = newMsgLines;
             msgHeight = 0;
-            msg2.setVisible(newMsgLines != 1);
+            msg2.setVisible( newMsgLines != 1 );
             validate();
         }
     }

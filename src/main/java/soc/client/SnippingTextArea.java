@@ -5,20 +5,20 @@
  * Portions of this file Copyright (C) 2004 Chad McHenry
  * Portions of this file Copyright (C) 2009,2012,2018-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -37,7 +37,7 @@ import java.awt.TextArea;
  * Note that the empty string is also considered a line.
  */
 @SuppressWarnings("serial")
-/*package*/ class SnippingTextArea extends TextArea
+    /*package*/ class SnippingTextArea extends TextArea
 {
     /**
      * A bug in Java 1.4.2: the first time replaceRange() is called, it
@@ -50,7 +50,7 @@ import java.awt.TextArea;
      * @since 1.1.06
      */
     static final boolean isJava142 =
-        System.getProperty("java.version").startsWith("1.4.2");
+        System.getProperty( "java.version" ).startsWith( "1.4.2" );
 
     /**
      * Bug in Mac OS X java display: If multiple threads try to update display at once,
@@ -63,7 +63,7 @@ import java.awt.TextArea;
      */
     static final boolean isJavaOnOSX105 =
         SOCPlayerClient.IS_PLATFORM_MAC_OSX
-        && System.getProperty("os.version").startsWith("10.");
+            && System.getProperty( "os.version" ).startsWith( "10." );
 
     int maximumLines = 100;
     int lines = 0;
@@ -73,18 +73,18 @@ import java.awt.TextArea;
      * Creates a SnippingTextArea which limits hard line breaks to maxLines,
      * and uses {@link TextArea#SCROLLBARS_VERTICAL_ONLY}.
      */
-    public SnippingTextArea(int rows, int columns, int maxLines)
+    public SnippingTextArea( int rows, int columns, int maxLines )
     {
-        this("", rows, columns, SCROLLBARS_VERTICAL_ONLY, maxLines);
+        this( "", rows, columns, SCROLLBARS_VERTICAL_ONLY, maxLines );
     }
 
     /**
      * Creates a new SnippingTextArea object with specified text, which limits
      * hard line breaks to maxLines, and uses {@link TextArea#SCROLLBARS_VERTICAL_ONLY}.
      */
-    public SnippingTextArea(String text, int maxLines)
+    public SnippingTextArea( String text, int maxLines )
     {
-        this("", 40, 80, SCROLLBARS_VERTICAL_ONLY, maxLines);
+        this( "", 40, 80, SCROLLBARS_VERTICAL_ONLY, maxLines );
     }
 
     /**
@@ -92,13 +92,13 @@ import java.awt.TextArea;
      * columns, and scroll bar visibility, which limits hard line breaks to
      * maxLines.
      */
-    public SnippingTextArea(String text, int rows, int columns,
-        int scrollbars, int maxLines)
+    public SnippingTextArea( String text, int rows, int columns,
+        int scrollbars, int maxLines )
     {
-        super(text, rows, columns, scrollbars);
+        super( text, rows, columns, scrollbars );
         maximumLines = maxLines;
         lines = 1; // the empty string is a line, text==null results in empty string
-        lines += countNewLines(text);
+        lines += countNewLines( text );
     }
 
     /**
@@ -113,7 +113,7 @@ import java.awt.TextArea;
      * Set the maximum lines this text area will display, contents are snipped
      * if necessary.
      */
-    public void setMaximumLines(int newMax)
+    public void setMaximumLines( int newMax )
     {
         maximumLines = newMax;
         snipText();
@@ -123,44 +123,45 @@ import java.awt.TextArea;
      * @return current number of lines in text
      * @since 1.1.06
      */
-    public int lines() {
+    public int lines()
+    {
         return lines;
     }
 
     // inherit javadoc from TextArea
     @Override
-    public synchronized void setText(String newString)
+    public synchronized void setText( String newString )
     {
-        super.setText(newString);
-        lines = countNewLines(newString);
+        super.setText( newString );
+        lines = countNewLines( newString );
         snipText();
     }
 
     // inherit javadoc from TextArea
     @Override
-    public synchronized void replaceRange(String newString, int x, int y)
+    public synchronized void replaceRange( String newString, int x, int y )
     {
-        lines -= countNewLines(getText().substring(x,y));
-        super.replaceRange(newString, x, y);
-        lines += countNewLines(newString);
-        snipText ();
-    }
-
-    // inherit javadoc from TextArea
-    @Override
-    public synchronized void insert(String newString, int x)
-    {
-        super.insert(newString, x);
-        lines += countNewLines(newString);
+        lines -= countNewLines( getText().substring( x, y ) );
+        super.replaceRange( newString, x, y );
+        lines += countNewLines( newString );
         snipText();
     }
 
     // inherit javadoc from TextArea
     @Override
-    public synchronized void append(String newString)
+    public synchronized void insert( String newString, int x )
     {
-        super.append(newString);
-        lines += countNewLines(newString);
+        super.insert( newString, x );
+        lines += countNewLines( newString );
+        snipText();
+    }
+
+    // inherit javadoc from TextArea
+    @Override
+    public synchronized void append( String newString )
+    {
+        super.append( newString );
+        lines += countNewLines( newString );
         snipText();
     }
 
@@ -168,12 +169,12 @@ import java.awt.TextArea;
      * Count the lines in a string of text.
      * Before v1.1.06 this method was {@code countLines}.
      */
-    protected static int countNewLines(String s)
+    protected static int countNewLines( String s )
     {
         int nLines = 0;
         int last = -1;
 
-        while ( (last = s.indexOf('\n', last+1)) > -1)
+        while ((last = s.indexOf( '\n', last + 1 )) > -1)
             nLines++;
 
         return nLines;
@@ -193,20 +194,22 @@ import java.awt.TextArea;
             while (lines > maximumLines)
             {
                 String s = getText();
-                int nextLine = s.indexOf('\n') + 1;
+                int nextLine = s.indexOf( '\n' ) + 1;
 
                 if (isJava142) // see comment for isJava142
-                    super.setText(s.substring(nextLine));
+                    super.setText( s.substring( nextLine ) );
                 else
-                    super.replaceRange("", 0, nextLine);
+                    super.replaceRange( "", 0, nextLine );
 
                 lines--;
             }
 
             if (isDisplayable())
-                setCaretPosition(getText().length());
-        } catch (Throwable th) {
-            System.out.println("snipText ERROR - " + th.getMessage());
+                setCaretPosition( getText().length() );
+        }
+        catch( Throwable th )
+        {
+            System.out.println( "snipText ERROR - " + th.getMessage() );
             th.printStackTrace();
         }
     }

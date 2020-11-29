@@ -77,7 +77,9 @@ import javax.swing.JPanel;
             setBackground(bg);
             setForeground(Color.black);
             this.interior = interior;
-        } else {
+        }
+        else
+        {
             // probably high-contrast mode
             final Color[] sysColors = SwingMainDisplay.getForegroundBackgroundColors(false, true);
             interior = sysColors[2];

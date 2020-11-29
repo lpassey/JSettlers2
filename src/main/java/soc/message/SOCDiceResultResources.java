@@ -2,17 +2,17 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2013-2015,2017-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2017 Ruud Poutsma <rtimon@gmail.com>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
@@ -98,19 +98,19 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
      * also skips players having {@link SOCGame#isSeatVacant(int) ga.isSeatVacant(pn)}.
      * Ignores game state.
      * @param ga  Game to check for rolled resources
-     * @return  Message for this game's rolled resources, or {@code null} if no players gained known resources
+     * @return Message for this game's rolled resources, or {@code null} if no players gained known resources
      */
-    public static SOCDiceResultResources buildForGame(final SOCGame ga)
+    public static SOCDiceResultResources buildForGame( final SOCGame ga )
     {
         ArrayList<Integer> pnum = null;
         ArrayList<SOCResourceSet> rsrc = null;
 
         for (int pn = 0; pn < ga.maxPlayers; ++pn)
         {
-            if (ga.isSeatVacant(pn))
+            if (ga.isSeatVacant( pn ))
                 continue;
 
-            final SOCPlayer pp = ga.getPlayer(pn);
+            final SOCPlayer pp = ga.getPlayer( pn );
             final SOCResourceSet rs = pp.getRolledResources();
             if (rs.getKnownTotal() == 0)
                 continue;
@@ -121,7 +121,7 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
                 rsrc = new ArrayList<>();
             }
             pnum.add( pn );
-            rsrc.add(rs);
+            rsrc.add( rs );
         }
 
         if (pnum == null)
@@ -131,7 +131,7 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
         for (int pn : pnum)
             rTotal.add( ga.getPlayer( pn ).getResources().getTotal() );
 
-        return new SOCDiceResultResources(ga.getName(), pnum, rTotal, rsrc);
+        return new SOCDiceResultResources( ga.getName(), pnum, rTotal, rsrc );
     }
 
     /**
@@ -149,11 +149,11 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
      * @throws NullPointerException if any parameter is null
      */
     private SOCDiceResultResources
-        (final String gaName, final List<Integer> pn, final List<Integer> rTotal, final List<SOCResourceSet> rsrc)
+    ( final String gaName, final List<Integer> pn, final List<Integer> rTotal, final List<SOCResourceSet> rsrc )
         throws IllegalArgumentException, NullPointerException
     {
-        super(DICERESULTRESOURCES, gaName, buildIntList(pn, rTotal, rsrc));
-            // buildIntList checks pn, rTotal, rsrc for null and lengths
+        super( DICERESULTRESOURCES, gaName, buildIntList( pn, rTotal, rsrc ) );
+        // buildIntList checks pn, rTotal, rsrc for null and lengths
     }
 
     /**
@@ -167,10 +167,10 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
      *     in format described in {@link SOCDiceResultResources class javadoc}
      * @throws IllegalArgumentException if {@code pa[]} doesn't fit that format, or ends in the middle of parsing
      */
-    private SOCDiceResultResources(final String gameName, final int[] pa)
+    private SOCDiceResultResources( final String gameName, final int[] pa )
         throws IllegalArgumentException
     {
-        super(DICERESULTRESOURCES, gameName, pa);
+        super( DICERESULTRESOURCES, gameName, pa );
 
         final int plCount = pa[0];
 
@@ -194,26 +194,32 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
 
                 // Parse pairs of res amount + res type, until we get a 0
                 SOCResourceSet rsrc = new SOCResourceSet();
-                int amount = pa[i];  ++i;
+                int amount = pa[i];
+                ++i;
                 while ((amount != 0) && (i < L))
                 {
-                    rsrc.add(amount, pa[i]);  ++i;
+                    rsrc.add( amount, pa[i] );
+                    ++i;
                     if (i < L)
                     {
-                        amount = pa[i];  ++i;
-                    } else {
+                        amount = pa[i];
+                        ++i;
+                    }
+                    else
+                    {
                         amount = 0;  // last player, end of array
                     }
                 }
 
-                playerRsrc.add(rsrc);
+                playerRsrc.add( rsrc );
             }
 
             if (p != plCount)
-                throw new IllegalArgumentException("player count mismatch");
+                throw new IllegalArgumentException( "player count mismatch" );
         }
-        catch (ArrayIndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("too short", e );
+        catch( ArrayIndexOutOfBoundsException e )
+        {
+            throw new IllegalArgumentException( "too short", e );
         }
     }
 
@@ -228,15 +234,15 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
      * @throws NullPointerException if any parameter is null
      */
     private static int[] buildIntList
-        (final List<Integer> pnum, final List<Integer> rTotal, final List<SOCResourceSet> rsrc)
+    ( final List<Integer> pnum, final List<Integer> rTotal, final List<SOCResourceSet> rsrc )
     {
         final int n = pnum.size();
         if ((n == 0) || (n != rsrc.size()) || (n != rTotal.size()))
             throw new IllegalArgumentException();
 
         int len = 3 * n;  // player count elem, then for each player: player number, total rsrc count,
-            // and the 0 separating their rsrc set from the next player unless last
-            // (so, +1 for player count elem, -1 for no 0 after last player)
+        // and the 0 separating their rsrc set from the next player unless last
+        // (so, +1 for player count elem, -1 for no 0 after last player)
         for (SOCResourceSet rs : rsrc)
             len += 2 * (rs.getResourceTypeCount());  // for each rtype, amount and type number
 
@@ -245,23 +251,28 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
         int i = 1;  // to write next value to pa[i]
         for (int p = 0; p < n; ++p)  // player index for reading from pnum, rTotal, and rsrc
         {
-            pa[i] = pnum.get(p);  ++i;
-            pa[i] = rTotal.get(p);  ++i;
+            pa[i] = pnum.get( p );
+            ++i;
+            pa[i] = rTotal.get( p );
+            ++i;
 
-            final SOCResourceSet rs = rsrc.get(p);
+            final SOCResourceSet rs = rsrc.get( p );
             for (int rtype = SOCResourceConstants.MIN; rtype <= SOCResourceConstants.WOOD; ++rtype)
             {
-                int amt = rs.getAmount(rtype);
+                int amt = rs.getAmount( rtype );
                 if (amt != 0)
                 {
-                    pa[i] = amt;    ++i;
-                    pa[i] = rtype;  ++i;
+                    pa[i] = amt;
+                    ++i;
+                    pa[i] = rtype;
+                    ++i;
                 }
             }
 
-            if (p != (n-1))
+            if (p != (n - 1))
             {
-                pa[i] = 0;  ++i;  // separate from next player
+                pa[i] = 0;
+                ++i;  // separate from next player
             }
         }
 
@@ -273,7 +284,10 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
      * DICERESULTRESOURCES introduced in 2.0.00 for dice roll result resources.
      * @return Version number, 2000 for JSettlers 2.0.00.
      */
-    public int getMinimumVersion() { return VERSION_FOR_DICERESULTRESOURCES; /* == 2000 */ }
+    public int getMinimumVersion()
+    {
+        return VERSION_FOR_DICERESULTRESOURCES; /* == 2000 */
+    }
 
     /**
      * Parse the command String list into a SOCDiceResultResources message.
@@ -281,22 +295,24 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
      * see {@link SOCDiceResultResources class javadoc} for details
      *
      * @param pa   the parameters; length 2 or more required.
-     * @return    a parsed message, or null if parsing errors
+     * @return a parsed message, or null if parsing errors
      */
-    public static SOCDiceResultResources parseDataStr(List<String> pa)
+    public static SOCDiceResultResources parseDataStr( List<String> pa )
     {
         if ((pa == null) || (pa.size() < 2))
             return null;
 
         try
         {
-            final String gaName = pa.get(0);
+            final String gaName = pa.get( 0 );
             int[] ipa = new int[pa.size() - 1];
             for (int i = 0; i < ipa.length; ++i)
-                ipa[i] = Integer.parseInt(pa.get(i + 1));
+                ipa[i] = Integer.parseInt( pa.get( i + 1 ) );
 
-            return new SOCDiceResultResources(gaName, ipa);
-        } catch (Exception e) {
+            return new SOCDiceResultResources( gaName, ipa );
+        }
+        catch( Exception e )
+        {
             return null;
         }
     }
