@@ -490,7 +490,9 @@ public class SOCGameList
                 gaName = ((SOCGame) ob).getName();
                 gaOpts = ((SOCGame) ob).getGameOptions();
                 cannotJoin = (ourVersion < ((SOCGame) ob).getClientVersionMinRequired());
-            } else {
+            }
+            else
+            {
                 gaName = (String) ob;
                 gaOpts = null;
                 cannotJoin = false;

@@ -193,8 +193,7 @@ public class SOCBotJoinGameRequest extends SOCMessage
     @Override
     public String toString()
     {
-        String s = "SOCBotJoinGameRequest:game=" + game + "|playerNumber=" + playerNumber + "|opts=" + optsStr;
-        return s;
+        return "SOCBotJoinGameRequest:game=" + game + "|playerNumber=" + playerNumber + "|opts=" + optsStr;
     }
 
 }

@@ -69,7 +69,9 @@ public class SampleDiscardStrategy extends DiscardStrategy
             SOCResourceSet discards = new SOCResourceSet();
             discards.add(numDiscards, SOCResourceConstants.CLAY);
             return discards;
-        } else {
+        }
+        else
+        {
             return super.discard(numDiscards, buildingPlan);
         }
     }

@@ -3,17 +3,17 @@
  * Copyright (C) 2003  Robert S. Thomas
  * This file copyright (C) 2007-2010,2013-2014,2016-2017,2019-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2013 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
@@ -184,18 +184,18 @@ public abstract class AskDialog extends JDialog
      * @throws IllegalArgumentException If both default1 and default2 are true,
      *    or if any of these is null: cli, gamePI, prompt, choice1, choice2.
      */
-    public AskDialog(MainDisplay cli, SOCPlayerInterface gamePI,
+    public AskDialog( MainDisplay cli, SOCPlayerInterface gamePI,
         String titlebar, String prompt, String choice1, String choice2,
-        boolean default1, boolean default2)
+        boolean default1, boolean default2 )
         throws IllegalArgumentException
     {
-        this(cli, (Window) gamePI,
+        this( cli, (Window) gamePI,
             titlebar, prompt, choice1, choice2,
-            default1, default2);
+            default1, default2 );
         if (gamePI != null)
             pi = gamePI;
         else
-            throw new IllegalArgumentException("gamePI cannot be null");
+            throw new IllegalArgumentException( "gamePI cannot be null" );
     }
 
     /**
@@ -204,17 +204,17 @@ public abstract class AskDialog extends JDialog
      * parent cannot be null; use {@link #getParentWindow(Component)} to find it.
      * @since 1.1.06
      */
-    protected AskDialog(MainDisplay cli, Window parent,
+    protected AskDialog( MainDisplay cli, Window parent,
         String titlebar, String prompt, String btnText,
-        boolean hasDefault)
+        boolean hasDefault )
         throws IllegalArgumentException
     {
-        this (cli,
-              parent,
-              titlebar, prompt,
-              btnText, null, null,
-              (hasDefault ? 1 : 0)
-              );
+        this( cli,
+            parent,
+            titlebar, prompt,
+            btnText, null, null,
+            (hasDefault ? 1 : 0)
+        );
     }
 
     /**
@@ -233,17 +233,17 @@ public abstract class AskDialog extends JDialog
      * @throws IllegalArgumentException If both default1 and default2 are true,
      *    or if any of these is null: cli, gamePI, prompt, choice1, choice2.
      */
-    public AskDialog(MainDisplay cli, Window parent,
+    public AskDialog( MainDisplay cli, Window parent,
         String titlebar, String prompt, String choice1, String choice2,
-        boolean default1, boolean default2)
+        boolean default1, boolean default2 )
         throws IllegalArgumentException
     {
-        this (cli, parent, titlebar, prompt,
-              choice1, choice2, null,
-              (default1 ? 1 : (default2 ? 2 : 0))
-              );
+        this( cli, parent, titlebar, prompt,
+            choice1, choice2, null,
+            (default1 ? 1 : (default2 ? 2 : 0))
+        );
         if (default1 && default2)
-            throw new IllegalArgumentException("Cannot have 2 default buttons");
+            throw new IllegalArgumentException( "Cannot have 2 default buttons" );
     }
 
     /**
@@ -265,19 +265,19 @@ public abstract class AskDialog extends JDialog
      *    or if choice3 is null and defaultChoice is 3.
      * @since 1.1.00
      */
-    public AskDialog(MainDisplay cli, SOCPlayerInterface gamePI,
+    public AskDialog( MainDisplay cli, SOCPlayerInterface gamePI,
         String titlebar, String prompt, String choice1, String choice2, String choice3,
-        int defaultChoice)
+        int defaultChoice )
         throws IllegalArgumentException
     {
-        this(cli, (Window) gamePI,
-             titlebar, prompt, choice1, choice2, choice3,
-             defaultChoice);
+        this( cli, (Window) gamePI,
+            titlebar, prompt, choice1, choice2, choice3,
+            defaultChoice );
 
         if (gamePI != null)
             pi = gamePI;
         else
-            throw new IllegalArgumentException("gamePI cannot be null");
+            throw new IllegalArgumentException( "gamePI cannot be null" );
     }
 
     /**
@@ -299,59 +299,59 @@ public abstract class AskDialog extends JDialog
      *    or if any of these is null: cli, parent, prompt, choice1, choice2,
      *    or if choice3 is null and defaultChoice is 3.
      */
-    public AskDialog(MainDisplay md, Window parent,
+    public AskDialog( MainDisplay md, Window parent,
         String titlebar, String prompt, String choice1, String choice2, String choice3,
-        int defaultChoice)
+        int defaultChoice )
         throws IllegalArgumentException
     {
-        super(parent, firstLine(titlebar));
-        setModalityType(ModalityType.DOCUMENT_MODAL);
+        super( parent, firstLine( titlebar ) );
+        setModalityType( ModalityType.DOCUMENT_MODAL );
 
         if (md == null)
-            throw new IllegalArgumentException("md cannot be null");
+            throw new IllegalArgumentException( "md cannot be null" );
         if (parent == null)
-            throw new IllegalArgumentException("parent cannot be null");
+            throw new IllegalArgumentException( "parent cannot be null" );
         if (choice1 == null)
-            throw new IllegalArgumentException("choice1 cannot be null");
+            throw new IllegalArgumentException( "choice1 cannot be null" );
         if ((defaultChoice < 0) || (defaultChoice > 3))
-            throw new IllegalArgumentException("defaultChoice out of range: " + defaultChoice);
+            throw new IllegalArgumentException( "defaultChoice out of range: " + defaultChoice );
         if ((choice3 == null) && (defaultChoice == 3))
-            throw new IllegalArgumentException("defaultChoice cannot be 3 when choice3 null");
+            throw new IllegalArgumentException( "defaultChoice cannot be 3 when choice3 null" );
         if ((choice2 == null) && (defaultChoice > 1))
-            throw new IllegalArgumentException("defaultChoice must be 1 when choice2 null");
+            throw new IllegalArgumentException( "defaultChoice must be 1 when choice2 null" );
 
         this.md = md;
         pi = null;
         final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
-        if (! isOSHighContrast)
+        if (!isOSHighContrast)
         {
-            final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors(true, false);
-            setBackground(colors[2]);  // SwingMainDisplay.DIALOG_BG_GOLDENROD
-            setForeground(colors[0]);  // Color.BLACK
+            final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors( true, false );
+            setBackground( colors[2] );  // SwingMainDisplay.DIALOG_BG_GOLDENROD
+            setForeground( colors[0] );  // Color.BLACK
 
-            getRootPane().setBackground(null);  // inherit
-            getContentPane().setBackground(null);
+            getRootPane().setBackground( null );  // inherit
+            getContentPane().setBackground( null );
         }
 
-        setFont(new Font("Dialog", Font.PLAIN, 12));
+        setFont( new Font( "Dialog", Font.PLAIN, 12 ) );
 
-        final boolean shouldClearButtonBGs = (! isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
+        final boolean shouldClearButtonBGs = (!isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
 
-        choice1But = new JButton(choice1);
+        choice1But = new JButton( choice1 );
         if (shouldClearButtonBGs)
-            choice1But.setBackground(null);  // needed on win32 to avoid gray corners
+            choice1But.setBackground( null );  // needed on win32 to avoid gray corners
 
         if (choice2 != null)
         {
-            choice2But = new JButton(choice2);
+            choice2But = new JButton( choice2 );
             if (shouldClearButtonBGs)
-                choice2But.setBackground(null);
+                choice2But.setBackground( null );
 
             if (choice3 != null)
             {
-                choice3But = new JButton(choice3);
+                choice3But = new JButton( choice3 );
                 if (shouldClearButtonBGs)
-                    choice3But.setBackground(null);
+                    choice3But.setBackground( null );
             }
             else
             {
@@ -364,27 +364,27 @@ public abstract class AskDialog extends JDialog
             choice3But = null;
         }
         choiceDefault = defaultChoice;
-        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        setLayout( new BoxLayout( getContentPane(), BoxLayout.Y_AXIS ) );
 
-        int promptMultiLine = prompt.indexOf('\n');
+        int promptMultiLine = prompt.indexOf( '\n' );
         if (promptMultiLine == 0)
         {
             // In some calls from subclasses, \n as first character has
             // side effect of not using prompt as window title
             // (this constructor is called with titlebar == prompt).
             // Remove leading \n and check if there are any further newlines:
-            prompt = prompt.substring(1);
-            promptMultiLine = prompt.indexOf('\n');
+            prompt = prompt.substring( 1 );
+            promptMultiLine = prompt.indexOf( '\n' );
         }
         int promptMaxWid;
         int promptLines = 1;
         if (promptMultiLine == -1)
         {
             isMsgMultiLine = false;
-            msg = new JLabel(prompt, SwingConstants.CENTER);
-            msg.setAlignmentX(Component.CENTER_ALIGNMENT);
-            add(msg);
-            promptMaxWid = getFontMetrics(msg.getFont()).stringWidth(prompt);
+            msg = new JLabel( prompt, SwingConstants.CENTER );
+            msg.setAlignmentX( Component.CENTER_ALIGNMENT );
+            add( msg );
+            promptMaxWid = getFontMetrics( msg.getFont() ).stringWidth( prompt );
         }
         else
         {
@@ -394,99 +394,99 @@ public abstract class AskDialog extends JDialog
                 // Try to get maximum width of each line, in case they're all short,
                 // and also use JTextArea to do automatic wrapping of long lines.
 
-                StringTokenizer st = new StringTokenizer(prompt, "\n");
+                StringTokenizer st = new StringTokenizer( prompt, "\n" );
                 Font ourfont = getFont();
-                FontMetrics fm = ourfont != null ? getFontMetrics(getFont()) : null;
+                FontMetrics fm = ourfont != null ? getFontMetrics( getFont() ) : null;
                 if (fm != null)
                 {
                     while (st.hasMoreTokens())
                     {
                         final String promptline = st.nextToken();
-                        int mwid = fm.stringWidth(promptline);
+                        int mwid = fm.stringWidth( promptline );
                         if (mwid > promptMaxWid)
                             promptMaxWid = mwid;
                     }
                 }
 
-                JTextArea pmsg = new JTextArea(prompt);
-                pmsg.setEditable(false);
+                JTextArea pmsg = new JTextArea( prompt );
+                pmsg.setEditable( false );
                 // override fixed-width font in JFrame on win32
                 if (ourfont != null)
-                    pmsg.setFont(ourfont);
+                    pmsg.setFont( ourfont );
                 else
-                    pmsg.setFont(new Font("Dialog", Font.PLAIN, 12));
-                pmsg.setLineWrap(true);
-                pmsg.setWrapStyleWord(true);
-                if (! isOSHighContrast)
+                    pmsg.setFont( new Font( "Dialog", Font.PLAIN, 12 ) );
+                pmsg.setLineWrap( true );
+                pmsg.setWrapStyleWord( true );
+                if (!isOSHighContrast)
                 {
-                    pmsg.setBackground(getBackground());  // avoid white background
-                    pmsg.setForeground(null);
+                    pmsg.setBackground( getBackground() );  // avoid white background
+                    pmsg.setForeground( null );
                 }
-                JScrollPane pScroll = new JScrollPane(pmsg);
-                pScroll.setOpaque(false);
+                JScrollPane pScroll = new JScrollPane( pmsg );
+                pScroll.setOpaque( false );
                 msg = pScroll;
-                add(pScroll);
+                add( pScroll );
 
                 final int maxWid80pct = (4 * parent.getWidth()) / 5;
                 if (promptMaxWid > maxWid80pct)
                     promptMaxWid = maxWid80pct;  // text must wrap, it's too wide otherwise
 
             }
-            catch (Throwable t)
+            catch( Throwable t )
             {
                 // fallback to 1 long line
-                msg = new JLabel(prompt, SwingConstants.CENTER);
-                msg.setAlignmentX(Component.CENTER_ALIGNMENT);
-                add(msg);
-                promptMaxWid = getFontMetrics(msg.getFont()).stringWidth(prompt);
+                msg = new JLabel( prompt, SwingConstants.CENTER );
+                msg.setAlignmentX( Component.CENTER_ALIGNMENT );
+                add( msg );
+                promptMaxWid = getFontMetrics( msg.getFont() ).stringWidth( prompt );
                 promptMultiLine = -1;  // force msgIsMultiLine to be false
             }
             isMsgMultiLine = (promptMultiLine != -1);
         }
-        msg.setBorder(BorderFactory.createEmptyBorder(MSG_BORDER, MSG_BORDER, MSG_BORDER, MSG_BORDER));
+        msg.setBorder( BorderFactory.createEmptyBorder( MSG_BORDER, MSG_BORDER, MSG_BORDER, MSG_BORDER ) );
 
         wantW = (2 * MSG_BORDER) + promptMaxWid;
         if (wantW < 280)
             wantW = 280;
-        if ((choice3 != null) && (wantW < (280+80)))
+        if ((choice3 != null) && (wantW < (280 + 80)))
             wantW = (280 + 80);
-        wantH = 41 + (promptLines * getFontMetrics(msg.getFont()).getHeight());  // includes assumed button height
+        wantH = 41 + (promptLines * getFontMetrics( msg.getFont() ).getHeight());  // includes assumed button height
         padW = 0;  // Won't be able to call getInsets and know the values, until windowOpened()
         padH = 0;
         if (isMsgMultiLine)
         {
             // to be adjusted in windowOpened()
-            setSize(wantW + 6, wantH + 20);
+            setSize( wantW + 6, wantH + 20 );
         }
-        setLocationRelativeTo(parent);
+        setLocationRelativeTo( parent );
 
         pBtns = new JPanel();
-        if (! isOSHighContrast)
+        if (!isOSHighContrast)
         {
-            pBtns.setOpaque(true);
-            pBtns.setBackground(null);  // avoid gray bg on win32
+            pBtns.setOpaque( true );
+            pBtns.setBackground( null );  // avoid gray bg on win32
         }
-        pBtns.setLayout(new FlowLayout(FlowLayout.CENTER, 3, 0));  // horiz border 3 pixels
+        pBtns.setLayout( new FlowLayout( FlowLayout.CENTER, 3, 0 ) );  // horiz border 3 pixels
         final int pbboarder = ColorSquare.HEIGHT / 2;
         pBtns.setBorder
-            (BorderFactory.createEmptyBorder(pbboarder, pbboarder, pbboarder, pbboarder));
+            ( BorderFactory.createEmptyBorder( pbboarder, pbboarder, pbboarder, pbboarder ) );
 
-        pBtns.add(choice1But);
-        choice1But.addActionListener(this);
+        pBtns.add( choice1But );
+        choice1But.addActionListener( this );
 
         if (choice2But != null)
         {
-            pBtns.add(choice2But);
-            choice2But.addActionListener(this);
+            pBtns.add( choice2But );
+            choice2But.addActionListener( this );
 
             if (choice3But != null)
             {
-                pBtns.add(choice3But);
-                choice3But.addActionListener(this);
+                pBtns.add( choice3But );
+                choice3But.addActionListener( this );
             }
         }
 
-        add(pBtns);
+        add( pBtns );
 
         // Now that we've added buttons to the dialog layout,
         // we can get their font and adjust style of default button.
@@ -494,29 +494,32 @@ public abstract class AskDialog extends JDialog
         switch (choiceDefault)
         {
         case 1:
-            dfltB = choice1But;  break;
+            dfltB = choice1But;
+            break;
         case 2:
-            dfltB = choice2But;  break;
+            dfltB = choice2But;
+            break;
         case 3:
-            dfltB = choice3But;  break;
+            dfltB = choice3But;
+            break;
         default:
             // 0, no button is default
             dfltB = null;
         }
-        getRootPane().setDefaultButton(dfltB);
+        getRootPane().setDefaultButton( dfltB );
 
-        addWindowListener(this);  // To handle close-button
-        addMouseListener(this);   // for mouseEntered size-check
-        addKeyListener(this);     // To handle Enter, Esc keys.
-        choice1But.addKeyListener(this);  // (win32: Keyboard focus will be on these buttons)
+        addWindowListener( this );  // To handle close-button
+        addMouseListener( this );   // for mouseEntered size-check
+        addKeyListener( this );     // To handle Enter, Esc keys.
+        choice1But.addKeyListener( this );  // (win32: Keyboard focus will be on these buttons)
         if (choice2But != null)
         {
-            choice2But.addKeyListener(this);
+            choice2But.addKeyListener( this );
             if (choice3But != null)
-                choice3But.addKeyListener(this);
+                choice3But.addKeyListener( this );
         }
 
-        if (! isMsgMultiLine)
+        if (!isMsgMultiLine)
         {
             validate();
             pack();
@@ -534,10 +537,10 @@ public abstract class AskDialog extends JDialog
         padH = getInsets().top + getInsets().bottom;
         if ((padW > 0) || (padH > 0))
         {
-            if (isMsgMultiLine && ! isSizeCheckedAlready)
+            if (isMsgMultiLine && !isSizeCheckedAlready)
             {
                 wantH = 12 + msg.getPreferredSize().height + pBtns.getPreferredSize().height;
-                setSize(wantW + padW + 20, wantH + padH);
+                setSize( wantW + padW + 20, wantH + padH );
                 validate();
                 isSizeCheckedAlready = true;
             }
@@ -565,7 +568,7 @@ public abstract class AskDialog extends JDialog
      * A button has been chosen by the user.
      * Call button1Chosen, button2Chosen or button3chosen, and dispose of this dialog.
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed( ActionEvent e )
     {
         try
         {
@@ -587,25 +590,25 @@ public abstract class AskDialog extends JDialog
                 button3Chosen();  // <--- Callback for button 3 ---
             }
 
-            callbackDiaDismissListener(false);
+            callbackDiaDismissListener( false );
         }
-        catch (Throwable thr)
+        catch( Throwable thr )
         {
             if (pi != null)
             {
-                pi.chatPrintStackTrace(thr);
+                pi.chatPrintStackTrace( thr );
             }
             else
             {
-                System.err.println("-- Exception in AskDialog.actionPerformed: " + thr.toString() + " --");
+                System.err.println( "-- Exception in AskDialog.actionPerformed: " + thr.toString() + " --" );
                 thr.printStackTrace();
                 while (thr.getCause() != null)
                 {
                     thr = thr.getCause();
-                    System.err.println(" --> Cause: " + thr + " --");
+                    System.err.println( " --> Cause: " + thr + " --" );
                     thr.printStackTrace();
                 }
-                System.err.println("-- Error stack trace end --");
+                System.err.println( "-- Error stack trace end --" );
                 System.err.println();
             }
         }
@@ -631,7 +634,9 @@ public abstract class AskDialog extends JDialog
      * Please override this empty stub if you have a third button.
      * @since 1.1.00
      */
-    public void button3Chosen() { }
+    public void button3Chosen()
+    {
+    }
 
     /**
      * The dialog window was closed by the user, or ESC was pressed. React accordingly.
@@ -643,36 +648,46 @@ public abstract class AskDialog extends JDialog
     /**
      * Dialog close requested by user. Dispose and call {@link #windowCloseChosen()}.
      */
-    public void windowClosing(WindowEvent e)
+    public void windowClosing( WindowEvent e )
     {
         dispose();
         windowCloseChosen();  // <--- Callback for close/ESC ---
-        callbackDiaDismissListener(true);
+        callbackDiaDismissListener( true );
     }
 
     /** Window is appearing - check the size and the default button keyboard focus */
-    public void windowOpened(WindowEvent e)
+    public void windowOpened( WindowEvent e )
     {
         checkSizeAndFocus();
     }
 
     /** Stub required by WindowListener */
-    public void windowActivated(WindowEvent e) { }
+    public void windowActivated( WindowEvent e )
+    {
+    }
 
     /** Stub required by WindowListener */
-    public void windowClosed(WindowEvent e) { }
+    public void windowClosed( WindowEvent e )
+    {
+    }
 
     /** Stub required by WindowListener */
-    public void windowDeactivated(WindowEvent e) { }
+    public void windowDeactivated( WindowEvent e )
+    {
+    }
 
     /** Stub required by WindowListener */
-    public void windowDeiconified(WindowEvent e) { }
+    public void windowDeiconified( WindowEvent e )
+    {
+    }
 
     /** Stub required by WindowListener */
-    public void windowIconified(WindowEvent e) { }
+    public void windowIconified( WindowEvent e )
+    {
+    }
 
     /** Handle Enter or Esc key */
-    public void keyPressed(KeyEvent e)
+    public void keyPressed( KeyEvent e )
     {
         if (e.isConsumed())
             return;
@@ -697,7 +712,7 @@ public abstract class AskDialog extends JDialog
                     break;
                 }  // switch
 
-                callbackDiaDismissListener(false);
+                callbackDiaDismissListener( false );
             }
             break;
 
@@ -706,34 +721,46 @@ public abstract class AskDialog extends JDialog
             dispose();
             e.consume();
             windowCloseChosen();  // <--- Callback for close/ESC ---
-            callbackDiaDismissListener(true);
+            callbackDiaDismissListener( true );
             break;
         }
     }
 
     /** Stub required by KeyListener */
-    public void keyReleased(KeyEvent arg0) { }
+    public void keyReleased( KeyEvent arg0 )
+    {
+    }
 
     /** Stub required by KeyListener */
-    public void keyTyped(KeyEvent arg0) { }
+    public void keyTyped( KeyEvent arg0 )
+    {
+    }
 
     /** Check versus minimum size: calls (@link #checkSizeAndFocus()} */
-    public void mouseEntered(MouseEvent e)
+    public void mouseEntered( MouseEvent e )
     {
         checkSizeAndFocus();  // vs. minimum size
     }
 
     /** Stub required by MouseListener */
-    public void mouseExited(MouseEvent e) {}
+    public void mouseExited( MouseEvent e )
+    {
+    }
 
     /** Stub required by MouseListener */
-    public void mouseClicked(MouseEvent e) {}
+    public void mouseClicked( MouseEvent e )
+    {
+    }
 
     /** Stub required by MouseListener */
-    public void mousePressed(MouseEvent e) {}
+    public void mousePressed( MouseEvent e )
+    {
+    }
 
     /** Stub required by MouseListener */
-    public void mouseReleased(MouseEvent e) {}
+    public void mouseReleased( MouseEvent e )
+    {
+    }
 
     /**
      * Get a component's top-level frame or dialog.
@@ -747,12 +774,12 @@ public abstract class AskDialog extends JDialog
      *         before a {@link Window}, or if any parent == itself
      * @since 1.1.06
      */
-    public static Window getParentWindow(Component c)
+    public static Window getParentWindow( Component c )
         throws IllegalStateException
     {
         String throwMsg = null;
         Component last;
-        while (! (c instanceof Window))
+        while (!(c instanceof Window))
         {
             last = c;
             c = c.getParent();
@@ -762,7 +789,7 @@ public abstract class AskDialog extends JDialog
                 throwMsg = "Assert failed, parent == itself: ";
             if (throwMsg != null)
                 throw new IllegalStateException
-                    (throwMsg + last.getClass().getName() + " " + last);
+                    ( throwMsg + last.getClass().getName() + " " + last );
         }
 
         return (Window) c;
@@ -777,16 +804,16 @@ public abstract class AskDialog extends JDialog
      *     if {@code f} starts with \n, returns "JSettlers" to avoid an empty title.
      * @since 1.1.07
      */
-    public static String firstLine(String f)
+    public static String firstLine( String f )
     {
-        final int i = f.indexOf("\n");
+        final int i = f.indexOf( "\n" );
 
         if (i == -1)
             return f;
         else if (i == 0)  // avoid blank title: added in v1.1.20
             return "JSettlers";
         else
-            return f.substring(0, i);
+            return f.substring( 0, i );
     }
 
     /**
@@ -797,13 +824,16 @@ public abstract class AskDialog extends JDialog
      *     {@link PlayerClientListener.NonBlockingDialogDismissListener#dialogDismissed(Object, boolean)}
      * @since 2.0.00
      */
-    protected final void callbackDiaDismissListener(final boolean wasCanceled)
+    protected final void callbackDiaDismissListener( final boolean wasCanceled )
     {
         if (nbddListener != null)
-            EventQueue.invokeLater(new Runnable()
+            EventQueue.invokeLater( new Runnable()
             {
-                public void run() { nbddListener.dialogDismissed(AskDialog.this, wasCanceled); }
-            });
+                public void run()
+                {
+                    nbddListener.dialogDismissed( AskDialog.this, wasCanceled );
+                }
+            } );
     }
 
     /**
@@ -812,7 +842,7 @@ public abstract class AskDialog extends JDialog
      * @param li  Listener, or {@code null} to clear
      */
     public void setNonBlockingDialogDismissListener
-        (PlayerClientListener.NonBlockingDialogDismissListener li)
+    ( PlayerClientListener.NonBlockingDialogDismissListener li )
     {
         nbddListener = li;
     }
@@ -828,9 +858,10 @@ public abstract class AskDialog extends JDialog
     {
         try
         {
-            setVisible(true);
+            setVisible( true );
         }
-        catch (Throwable e) {
+        catch( Throwable e )
+        {
             e.printStackTrace();
         }
     }

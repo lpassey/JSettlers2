@@ -1,20 +1,20 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file copyright (C) 2019-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -47,6 +47,7 @@ public class UserPreferences
      * @since 1.2.00
      */
     private static Preferences userPrefs;
+
     static
     {
         /*
@@ -61,18 +62,20 @@ public class UserPreferences
         Level currLevel = null;
         try
         {
-            logger = Logger.getLogger("java.util.prefs");
+            logger = Logger.getLogger( "java.util.prefs" );
             currLevel = logger.getLevel();
-            logger.setLevel(Level.SEVERE);
-        } catch (Throwable th) {}
+            logger.setLevel( Level.SEVERE );
+        }
+        catch( Throwable ignored ) {}
 
         try
         {
-            userPrefs = Preferences.userNodeForPackage(SOCPlayerInterface.class);
-            int i = getPref("nonExistentDummy", 0);
+            userPrefs = Preferences.userNodeForPackage( SOCPlayerInterface.class );
+            int i = getPref( "nonExistentDummy", 0 );
             if ((i != 42) && (currLevel != null))  // use i, to not optimize away getPref
-                logger.setLevel(currLevel);
-        } catch (Throwable th) {}
+                logger.setLevel( currLevel );
+        }
+        catch( Throwable ignored ) {}
     }
 
     /**
@@ -82,20 +85,22 @@ public class UserPreferences
      *
      * @param prefKey  Preference name key, such as {@link SOCPlayerClient#PREF_SOUND_ON}
      * @param dflt  Default value to get if no preference, or if {@code prefKey} is null
-     * @return  Preference value or {@code dflt}
+     * @return Preference value or {@code dflt}
      * @see #putPref(String, boolean)
      * @see #getPref(String, int)
      * @since 1.2.00
      */
-    public static boolean getPref(final String prefKey, final boolean dflt)
+    public static boolean getPref( final String prefKey, final boolean dflt )
     {
         if (userPrefs == null)
             return dflt;
 
         try
         {
-            return userPrefs.getBoolean(prefKey, dflt);
-        } catch (RuntimeException e) {
+            return userPrefs.getBoolean( prefKey, dflt );
+        }
+        catch( RuntimeException e )
+        {
             return dflt;
         }
     }
@@ -107,20 +112,22 @@ public class UserPreferences
      *
      * @param prefKey  Preference name key, such as {@link SOCPlayerClient#PREF_BOT_TRADE_REJECT_SEC}
      * @param dflt  Default value to get if no preference, or if {@code prefKey} is null
-     * @return  Preference value or {@code dflt}
+     * @return Preference value or {@code dflt}
      * @see #putPref(String, int)
      * @see #getPref(String, boolean)
      * @since 1.2.00
      */
-    public static int getPref(final String prefKey, final int dflt)
+    public static int getPref( final String prefKey, final int dflt )
     {
         if (userPrefs == null)
             return dflt;
 
         try
         {
-            return userPrefs.getInt(prefKey, dflt);
-        } catch (RuntimeException e) {
+            return userPrefs.getInt( prefKey, dflt );
+        }
+        catch( RuntimeException e )
+        {
             return dflt;
         }
     }
@@ -140,7 +147,7 @@ public class UserPreferences
      * @see #clear(String)
      * @since 1.2.00
      */
-    public static void putPref(final String prefKey, final boolean val)
+    public static void putPref( final String prefKey, final boolean val )
         throws NullPointerException, IllegalArgumentException
     {
         if (userPrefs == null)
@@ -148,11 +155,13 @@ public class UserPreferences
 
         try
         {
-            userPrefs.putBoolean(prefKey, val);
+            userPrefs.putBoolean( prefKey, val );
             flushSoon();
-        } catch (IllegalStateException e) {
+        }
+        catch( IllegalStateException e )
+        {
             // unlikely
-            System.err.println("Error setting userPref " + prefKey + ": " + e);
+            System.err.println( "Error setting userPref " + prefKey + ": " + e );
         }
     }
 
@@ -171,7 +180,7 @@ public class UserPreferences
      * @see #clear(String)
      * @since 1.2.00
      */
-    public static void putPref(final String prefKey, final int val)
+    public static void putPref( final String prefKey, final int val )
         throws NullPointerException, IllegalArgumentException
     {
         if (userPrefs == null)
@@ -179,11 +188,13 @@ public class UserPreferences
 
         try
         {
-            userPrefs.putInt(prefKey, val);
+            userPrefs.putInt( prefKey, val );
             flushSoon();
-        } catch (IllegalStateException e) {
+        }
+        catch( IllegalStateException e )
+        {
             // unlikely
-            System.err.println("Error setting userPref " + prefKey + ": " + e);
+            System.err.println( "Error setting userPref " + prefKey + ": " + e );
         }
     }
 
@@ -194,18 +205,20 @@ public class UserPreferences
      */
     private static void flushSoon()
     {
-        EventQueue.invokeLater(new Runnable()
+        EventQueue.invokeLater( new Runnable()
         {
             public void run()
             {
                 try
                 {
                     userPrefs.flush();
-                } catch (BackingStoreException e) {
-                    System.err.println("Error writing userPrefs: " + e);
+                }
+                catch( BackingStoreException e )
+                {
+                    System.err.println( "Error writing userPrefs: " + e );
                 }
             }
-        });
+        } );
     }
 
     /**
@@ -223,26 +236,31 @@ public class UserPreferences
      *     an exception.
      * @since 1.2.00
      */
-    public static void clear(final String prefKeyList)
+    public static void clear( final String prefKeyList )
     {
         if ((prefKeyList == null) || (prefKeyList.length() == 0) || (userPrefs == null))
             return;
 
-        for (String key : prefKeyList.split(","))
+        for (String key : prefKeyList.split( "," ))
         {
             try
             {
-                userPrefs.remove(key);
-            } catch (IllegalStateException e) {}
+                userPrefs.remove( key );
+            }
+            catch( IllegalStateException e )
+            {
+            }
         }
 
         try
         {
             userPrefs.flush();
         }
-        catch (BackingStoreException e) {}
+        catch( BackingStoreException e )
+        {
+        }
 
-        System.err.println("Cleared user preferences: " + prefKeyList);
+        System.err.println( "Cleared user preferences: " + prefKeyList );
     }
 
 }

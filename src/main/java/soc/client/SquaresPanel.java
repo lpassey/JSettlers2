@@ -173,8 +173,10 @@ import soc.game.SOCResourceSet;
 
     @Override
     public Dimension getMinimumSize()   { return size; }
+
     @Override
     public Dimension getMaximumSize()   { return size; }
+
     @Override
     public Dimension getPreferredSize() { return size; }
 

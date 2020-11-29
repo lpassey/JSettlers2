@@ -3,20 +3,20 @@
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2007-2009,2011-2014,2017-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -48,10 +48,10 @@ import javax.swing.SwingConstants;
  * Before v2.0.00 this class was {@code SOCDiscardDialog},
  * and Year of Plenty used {@code SOCDiscoveryDialog}.
  *
- * @author  Robert S. Thomas
+ * @author Robert S. Thomas
  */
 @SuppressWarnings("serial")
-/*package*/ class SOCDiscardOrGainResDialog
+    /*package*/ class SOCDiscardOrGainResDialog
     extends SOCDialog implements ActionListener, MouseListener, Runnable
 {
 
@@ -96,111 +96,111 @@ import javax.swing.SwingConstants;
      * @param numPickNeeded Player must discard or gain this many resources
      * @param isDiscard  True for discard (after 7), false for gain (after gold hex)
      */
-    public SOCDiscardOrGainResDialog(SOCPlayerInterface pi, final int numPickNeeded, final boolean isDiscard)
+    public SOCDiscardOrGainResDialog( SOCPlayerInterface pi, final int numPickNeeded, final boolean isDiscard )
     {
-        super(pi,
+        super( pi,
             strings.get
-                (isDiscard ? "dialog.discard.title" : "dialog.discard.title.gain", pi.getClientNickname()),
-                 // "Discard [{0}]" or "Gain Resources [{0}]"
-            strings.get((isDiscard) ? "dialog.discard.please.discard.n" : "dialog.discard.please.pick.n", numPickNeeded),
-                 // "Please discard {0} resources." or "Please pick {0} resources.",
-            false);
+                ( isDiscard ? "dialog.discard.title" : "dialog.discard.title.gain", pi.getClientNickname() ),
+            // "Discard [{0}]" or "Gain Resources [{0}]"
+            strings.get( (isDiscard) ? "dialog.discard.please.discard.n" : "dialog.discard.please.pick.n", numPickNeeded ),
+            // "Please discard {0} resources." or "Please pick {0} resources.",
+            false );
 
         this.isDiscard = isDiscard;
         this.numPickNeeded = numPickNeeded;
         numChosen = 0;
 
-        getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        getRootPane().setBorder( BorderFactory.createEmptyBorder( 8, 16, 8, 16 ) );
 
-        clearBut = new JButton(strings.get("base.clear"));
-        okBut = new JButton(strings.get(isDiscard ? "dialog.discard.discard" : "dialog.discard.pick"));
-            // "Discard" or "Pick"
+        clearBut = new JButton( strings.get( "base.clear" ) );
+        okBut = new JButton( strings.get( isDiscard ? "dialog.discard.discard" : "dialog.discard.pick" ) );
+        // "Discard" or "Pick"
 
         final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
-        final boolean shouldClearButtonBGs = (! isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
+        final boolean shouldClearButtonBGs = (!isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
         if (shouldClearButtonBGs)
         {
-            clearBut.setBackground(null);  // avoid gray corners on win32 JButtons
-            okBut.setBackground(null);
+            clearBut.setBackground( null );  // avoid gray corners on win32 JButtons
+            okBut.setBackground( null );
         }
 
         // Resource panel: labels and colorsquares.
         // X-align must be same for all in BoxLayout
         JPanel resPanel = getMiddlePanel();
-        resPanel.setLayout(new BoxLayout(resPanel, BoxLayout.Y_AXIS));
+        resPanel.setLayout( new BoxLayout( resPanel, BoxLayout.Y_AXIS ) );
 
-        final JLabel youHave = new JLabel(strings.get("dialog.discard.you.have"), SwingConstants.LEFT);  // "You have:"
-        youHave.setAlignmentX(LEFT_ALIGNMENT);
-        youHave.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 0));
-        resPanel.add(youHave);
+        final JLabel youHave = new JLabel( strings.get( "dialog.discard.you.have" ), SwingConstants.LEFT );  // "You have:"
+        youHave.setAlignmentX( LEFT_ALIGNMENT );
+        youHave.setBorder( BorderFactory.createEmptyBorder( 4, 0, 4, 0 ) );
+        resPanel.add( youHave );
 
         keep = new ColorSquare[5];
         pick = new ColorSquare[5];
 
         final int sqSize = ColorSquareLarger.WIDTH_L * pi.displayScale;
-        JPanel keepPanel = new JPanel(new GridLayout(1, 0, sqSize, 0));
-        JPanel pickPanel = new JPanel(new GridLayout(1, 0, sqSize, 0));
-        if (! isOSHighContrast)
+        JPanel keepPanel = new JPanel( new GridLayout( 1, 0, sqSize, 0 ) );
+        JPanel pickPanel = new JPanel( new GridLayout( 1, 0, sqSize, 0 ) );
+        if (!isOSHighContrast)
         {
-            keepPanel.setBackground(null);
-            pickPanel.setBackground(null);
+            keepPanel.setBackground( null );
+            pickPanel.setBackground( null );
         }
-        keepPanel.setAlignmentX(LEFT_ALIGNMENT);
-        pickPanel.setAlignmentX(LEFT_ALIGNMENT);
+        keepPanel.setAlignmentX( LEFT_ALIGNMENT );
+        pickPanel.setAlignmentX( LEFT_ALIGNMENT );
 
         for (int i = 0; i < 5; i++)
         {
             final Color sqColor = ColorSquare.RESOURCE_COLORS[i];
 
-            keep[i] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, sqSize, sqSize, sqColor);
-            pick[i] = new ColorSquare(ColorSquare.BOUNDED_INC, false, sqSize, sqSize, sqColor);
-            keepPanel.add(keep[i]);
-            pickPanel.add(pick[i]);
-            keep[i].addMouseListener(this);
-            pick[i].addMouseListener(this);
+            keep[i] = new ColorSquare( ColorSquare.BOUNDED_DEC, false, sqSize, sqSize, sqColor );
+            pick[i] = new ColorSquare( ColorSquare.BOUNDED_INC, false, sqSize, sqSize, sqColor );
+            keepPanel.add( keep[i] );
+            pickPanel.add( pick[i] );
+            keep[i].addMouseListener( this );
+            pick[i].addMouseListener( this );
         }
 
-        resPanel.add(keepPanel);
+        resPanel.add( keepPanel );
 
         // "Discard this:"/"Discard these:" or "Gain this:"/"Gain these:"
         final JLabel pickThese = new JLabel
-            (strings.get
-                ((numPickNeeded == 1)
-                  ? (isDiscard ? "dialog.discard.this" : "dialog.discard.gain.this")
-                  : (isDiscard ? "dialog.discard.this.plural" : "dialog.discard.gain.this.plural")),
-             SwingConstants.LEFT);
-        pickThese.setAlignmentX(LEFT_ALIGNMENT);
-        pickThese.setBorder(BorderFactory.createEmptyBorder(20, 0, 4, 0));  // also gives 20-pixel margin above.
-        resPanel.add(pickThese);
+            ( strings.get
+                ( (numPickNeeded == 1)
+                    ? (isDiscard ? "dialog.discard.this" : "dialog.discard.gain.this")
+                    : (isDiscard ? "dialog.discard.this.plural" : "dialog.discard.gain.this.plural") ),
+                SwingConstants.LEFT );
+        pickThese.setAlignmentX( LEFT_ALIGNMENT );
+        pickThese.setBorder( BorderFactory.createEmptyBorder( 20, 0, 4, 0 ) );  // also gives 20-pixel margin above.
+        resPanel.add( pickThese );
 
-        resPanel.add(pickPanel);
+        resPanel.add( pickPanel );
 
         // set initial values
         final SOCResourceSet resources
             = playerInterface.getClientPlayer().getResources();
-        keep[0].setIntValue(resources.getAmount(SOCResourceConstants.CLAY));
-        keep[1].setIntValue(resources.getAmount(SOCResourceConstants.ORE));
-        keep[2].setIntValue(resources.getAmount(SOCResourceConstants.SHEEP));
-        keep[3].setIntValue(resources.getAmount(SOCResourceConstants.WHEAT));
-        keep[4].setIntValue(resources.getAmount(SOCResourceConstants.WOOD));
+        keep[0].setIntValue( resources.getAmount( SOCResourceConstants.CLAY ) );
+        keep[1].setIntValue( resources.getAmount( SOCResourceConstants.ORE ) );
+        keep[2].setIntValue( resources.getAmount( SOCResourceConstants.SHEEP ) );
+        keep[3].setIntValue( resources.getAmount( SOCResourceConstants.WHEAT ) );
+        keep[4].setIntValue( resources.getAmount( SOCResourceConstants.WOOD ) );
 
-        styleButtonsAndLabels(resPanel);
+        styleButtonsAndLabels( resPanel );
 
         // bottom button panel:
 
         final JPanel btnsPanel = getSouthPanel();
 
-        btnsPanel.add(clearBut);
-        clearBut.addActionListener(this);
-        clearBut.setEnabled(false);  // since nothing picked yet
+        btnsPanel.add( clearBut );
+        clearBut.addActionListener( this );
+        clearBut.setEnabled( false );  // since nothing picked yet
 
-        btnsPanel.add(okBut);
-        okBut.addActionListener(this);
+        btnsPanel.add( okBut );
+        okBut.addActionListener( this );
         if (numPickNeeded > 0)
-            okBut.setEnabled(false);  // Must choose that many first
+            okBut.setEnabled( false );  // Must choose that many first
 
-        styleButtonsAndLabels(btnsPanel);
-        getRootPane().setDefaultButton(okBut);
+        styleButtonsAndLabels( btnsPanel );
+        getRootPane().setDefaultButton( okBut );
     }
 
     /**
@@ -212,17 +212,17 @@ import javax.swing.SwingConstants;
      * @param vis  True to make visible, false to hide
      */
     @Override
-    public void setVisible(final boolean vis)
+    public void setVisible( final boolean vis )
     {
         if (vis)
         {
             okBut.requestFocus();
 
             playerInterface.playSound
-                ((isDiscard) ? SOCPlayerInterface.SOUND_RSRC_LOST : SOCPlayerInterface.SOUND_RSRC_GAINED_FREE);
+                ( (isDiscard) ? SOCPlayerInterface.SOUND_RSRC_LOST : SOCPlayerInterface.SOUND_RSRC_GAINED_FREE );
         }
 
-        super.setVisible(vis);
+        super.setVisible( vis );
     }
 
     /**
@@ -232,42 +232,45 @@ import javax.swing.SwingConstants;
      *
      * @param e  ActionEvent for the click, with {@link ActionEvent#getSource()} == our button
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed( ActionEvent e )
     {
-        try {
-        Object target = e.getSource();
-
-        if (target == okBut)
+        try
         {
-            SOCResourceSet rsrcs = new SOCResourceSet
-                (pick[0].getIntValue(), pick[1].getIntValue(), pick[2].getIntValue(),
-                 pick[3].getIntValue(), pick[4].getIntValue(), 0);
+            Object target = e.getSource();
 
-            if (rsrcs.getTotal() == numPickNeeded)
+            if (target == okBut)
             {
-                final GameMessageSender messageSender = playerInterface.getClient().getGameMessageSender();
-                if (isDiscard)
-                    messageSender.discard(playerInterface.getGame(), rsrcs);
-                else
-                    messageSender.pickResources(playerInterface.getGame(), rsrcs);
+                SOCResourceSet rsrcs = new SOCResourceSet
+                    ( pick[0].getIntValue(), pick[1].getIntValue(), pick[2].getIntValue(),
+                        pick[3].getIntValue(), pick[4].getIntValue(), 0 );
 
-                dispose();
+                if (rsrcs.getTotal() == numPickNeeded)
+                {
+                    final GameMessageSender messageSender = playerInterface.getClient().getGameMessageSender();
+                    if (isDiscard)
+                        messageSender.discard( playerInterface.getGame(), rsrcs );
+                    else
+                        messageSender.pickResources( playerInterface.getGame(), rsrcs );
+
+                    dispose();
+                }
+            }
+            else if (target == clearBut)
+            {
+                for (int i = pick.length - 1; i >= 0; --i)
+                {
+                    if (isDiscard)
+                        keep[i].addValue( pick[i].getIntValue() );
+                    pick[i].setIntValue( 0 );
+                }
+                numChosen = 0;
+                clearBut.setEnabled( false );
+                okBut.setEnabled( numPickNeeded == numChosen );
             }
         }
-        else if (target == clearBut)
+        catch( Throwable th )
         {
-            for (int i = pick.length - 1; i >= 0; --i)
-            {
-                if (isDiscard)
-                    keep[i].addValue(pick[i].getIntValue());
-                pick[i].setIntValue(0);
-            }
-            numChosen = 0;
-            clearBut.setEnabled(false);
-            okBut.setEnabled(numPickNeeded == numChosen);
-        }
-        } catch (Throwable th) {
-            playerInterface.chatPrintStackTrace(th);
+            playerInterface.chatPrintStackTrace( th );
         }
     }
 
@@ -284,95 +287,106 @@ import javax.swing.SwingConstants;
      *<P>
      * Clear/Discard button clicks are handled in {@link #actionPerformed(ActionEvent)}.
      */
-    public void mousePressed(MouseEvent e)
+    public void mousePressed( MouseEvent e )
     {
-        try {
-        Object target = e.getSource();
-        boolean wantsRepaint = false;
-
-        for (int i = 0; i < 5; i++)
+        try
         {
-            if ((target == keep[i]) && (pick[i].getIntValue() > 0))
+            Object target = e.getSource();
+            boolean wantsRepaint = false;
+
+            for (int i = 0; i < 5; i++)
             {
-                if (isDiscard)
-                    keep[i].addValue(1);
-                pick[i].subtractValue(1);
-                --numChosen;
-                if (numChosen == (numPickNeeded-1))
+                if ((target == keep[i]) && (pick[i].getIntValue() > 0))
                 {
-                    okBut.setEnabled(false);  // Count un-reached (too few)
-                    wantsRepaint = true;
+                    if (isDiscard)
+                        keep[i].addValue( 1 );
+                    pick[i].subtractValue( 1 );
+                    --numChosen;
+                    if (numChosen == (numPickNeeded - 1))
+                    {
+                        okBut.setEnabled( false );  // Count un-reached (too few)
+                        wantsRepaint = true;
+                    }
+                    else if (numChosen == numPickNeeded)
+                    {
+                        okBut.setEnabled( true );   // Exact count reached
+                        wantsRepaint = true;
+                    }
+                    break;
                 }
-                else if (numChosen == numPickNeeded)
+                else if ((target == pick[i]) && ((keep[i].getIntValue() > 0) || !isDiscard))
                 {
-                    okBut.setEnabled(true);   // Exact count reached
-                    wantsRepaint = true;
+                    if ((numPickNeeded == 1) && (numChosen == 1))
+                    {
+                        // We only need 1 total, change our previous choice to the new one
+
+                        if (pick[i].getIntValue() == 1)
+                            return;  // <--- early return: already set to 1 ---
+                        else
+                            // clear all to 0
+                            for (int j = 0; j < 5; ++j)
+                            {
+                                final int n = pick[j].getIntValue();
+                                if (n == 0)
+                                    continue;
+                                if (isDiscard)
+                                    keep[j].addValue( n );
+                                pick[j].subtractValue( n );
+                            }
+
+                        numChosen = 0;
+                    }
+
+                    if (isDiscard)
+                        keep[i].subtractValue( 1 );
+                    pick[i].addValue( 1 );
+                    ++numChosen;
+                    if (numChosen == numPickNeeded)
+                    {
+                        okBut.setEnabled( true );  // Exact count reached
+                        wantsRepaint = true;
+                    }
+                    else if (numChosen == (numPickNeeded + 1))
+                    {
+                        okBut.setEnabled( false );  // Count un-reached (too many)
+                        wantsRepaint = true;
+                    }
+                    break;
                 }
-                break;
             }
-            else if ((target == pick[i]) && ((keep[i].getIntValue() > 0) || ! isDiscard))
+
+            clearBut.setEnabled( numChosen > 0 );
+
+            if (wantsRepaint)
             {
-                if ((numPickNeeded == 1) && (numChosen == 1))
-                {
-                    // We only need 1 total, change our previous choice to the new one
-
-                    if (pick[i].getIntValue() == 1)
-                        return;  // <--- early return: already set to 1 ---
-                    else
-                        // clear all to 0
-                        for (int j = 0; j < 5; ++j)
-                        {
-                            final int n = pick[j].getIntValue();
-                            if (n == 0)
-                                continue;
-                            if (isDiscard)
-                                keep[j].addValue(n);
-                            pick[j].subtractValue(n);
-                        }
-
-                    numChosen = 0;
-                }
-
-                if (isDiscard)
-                    keep[i].subtractValue(1);
-                pick[i].addValue(1);
-                ++numChosen;
-                if (numChosen == numPickNeeded)
-                {
-                    okBut.setEnabled(true);  // Exact count reached
-                    wantsRepaint = true;
-                }
-                else if (numChosen == (numPickNeeded+1))
-                {
-                    okBut.setEnabled(false);  // Count un-reached (too many)
-                    wantsRepaint = true;
-                }
-                break;
+                okBut.repaint();
             }
+
         }
-
-        clearBut.setEnabled(numChosen > 0);
-
-        if (wantsRepaint)
+        catch( Throwable th )
         {
-            okBut.repaint();
-        }
-
-        } catch (Throwable th) {
-            playerInterface.chatPrintStackTrace(th);
+            playerInterface.chatPrintStackTrace( th );
         }
     }
 
     /** Stub required for {@link MouseListener}. */
-    public void mouseEntered(MouseEvent e) {}
+    public void mouseEntered( MouseEvent e )
+    {
+    }
 
     /** Stub required for {@link MouseListener}. */
-    public void mouseExited(MouseEvent e) {}
+    public void mouseExited( MouseEvent e )
+    {
+    }
 
     /** Stub required for {@link MouseListener}. */
-    public void mouseClicked(MouseEvent e) {}
+    public void mouseClicked( MouseEvent e )
+    {
+    }
 
     /** Stub required for {@link MouseListener}. */
-    public void mouseReleased(MouseEvent e) {}
+    public void mouseReleased( MouseEvent e )
+    {
+    }
 
 }

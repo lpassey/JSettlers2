@@ -3,20 +3,20 @@
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2009,2014,2017,2019-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2017-2018 Strategic Conversation (STAC Project) https://www.irit.fr/STAC/
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.game;
@@ -64,12 +64,12 @@ public class SOCTradeOffer implements Serializable, Cloneable
      * @param  give  the set of resources being given (offered) by the {@code from} player; not null
      * @param  get   the set of resources being asked for; not null
      */
-    public SOCTradeOffer(String game, int from, boolean[] to, SOCResourceSet give, SOCResourceSet get)
+    public SOCTradeOffer( String game, int from, boolean[] to, SOCResourceSet give, SOCResourceSet get )
     {
         this.game = game;
         this.from = from;
         this.to = to;
-        waitingReply = Arrays.copyOf(to, to.length);
+        waitingReply = Arrays.copyOf( to, to.length );
         this.give = give;
         this.get = get;
     }
@@ -79,13 +79,13 @@ public class SOCTradeOffer implements Serializable, Cloneable
      *
      * @param offer   the trade offer to copy
      */
-    public SOCTradeOffer(SOCTradeOffer offer)
+    public SOCTradeOffer( SOCTradeOffer offer )
     {
         game = offer.game;
         from = offer.from;
         final int maxPlayers = offer.to.length;
-        to = Arrays.copyOf(offer.to, maxPlayers);
-        waitingReply = Arrays.copyOf(offer.waitingReply, maxPlayers);
+        to = Arrays.copyOf( offer.to, maxPlayers );
+        waitingReply = Arrays.copyOf( offer.waitingReply, maxPlayers );
         give = offer.give.copy();
         get = offer.get.copy();
     }
@@ -146,10 +146,10 @@ public class SOCTradeOffer implements Serializable, Cloneable
      *<B>Threads:</B> Not synchronized; caller must synchronize if needed.
      *
      * @param pn  Player number to check
-     * @return  True if waiting for a reply from {@code pn}
+     * @return True if waiting for a reply from {@code pn}
      * @since 2.0.00
      */
-    public boolean isWaitingReplyFrom(final int pn)
+    public boolean isWaitingReplyFrom( final int pn )
     {
         return (pn >= 0) && (pn < waitingReply.length) && waitingReply[pn];
     }
@@ -163,11 +163,11 @@ public class SOCTradeOffer implements Serializable, Cloneable
      * @throws IllegalArgumentException if <tt>pn &lt; 0</tt> or <tt>&gt;= {@link SOCGame#MAXPLAYERS}</tt>
      * @since 2.0.00
      */
-    public void clearWaitingReplyFrom(final int pn)
+    public void clearWaitingReplyFrom( final int pn )
         throws IllegalArgumentException
     {
         if ((pn < 0) || (pn >= SOCGame.MAXPLAYERS))
-            throw new IllegalArgumentException("pn: " + pn);
+            throw new IllegalArgumentException( "pn: " + pn );
 
         if (pn < waitingReply.length)
             waitingReply[pn] = false;
@@ -199,11 +199,11 @@ public class SOCTradeOffer implements Serializable, Cloneable
     public String toString()
     {
         StringBuilder str = new StringBuilder
-            ("game=" + game + "|from=" + from + "|to=" + to[0]);
+            ( "game=" + game + "|from=" + from + "|to=" + to[0] );
         for (int pn = 1; pn < to.length; ++pn)
         {
-            str.append(',');
-            str.append(to[pn]);
+            str.append( ',' );
+            str.append( to[pn] );
         }
         str.append( "|give=" ).append( give ).append( "|get=" ).append( get );
 
@@ -218,7 +218,7 @@ public class SOCTradeOffer implements Serializable, Cloneable
      * @since 2.4.50
      */
     @Override
-    public boolean equals(Object o)
+    public boolean equals( Object o )
     {
         if (o instanceof SOCTradeOffer)
         {
@@ -228,8 +228,8 @@ public class SOCTradeOffer implements Serializable, Cloneable
                     return false;
 
             return (from == offer.from
-                && give.equals(offer.give)
-                && get.equals(offer.get));
+                && give.equals( offer.give )
+                && get.equals( offer.get ));
         }
         else
         {
@@ -246,7 +246,7 @@ public class SOCTradeOffer implements Serializable, Cloneable
     public int hashCode()
     {
         return give.hashCode() ^ get.hashCode()
-            ^ from ^ Arrays.hashCode(to) ^ Arrays.hashCode(waitingReply);
+            ^ from ^ Arrays.hashCode( to ) ^ Arrays.hashCode( waitingReply );
     }
 
 }

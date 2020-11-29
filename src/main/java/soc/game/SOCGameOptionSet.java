@@ -1,20 +1,20 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.game;
@@ -32,6 +32,7 @@ import soc.communication.SOCClientData;
 import soc.server.savegame.SavedGameModel;  // for javadocs only
 import soc.util.SOCFeatureSet;
 import soc.util.Version;
+
 import static soc.game.SOCGameOption.FLAG_DROP_IF_UNUSED;  // for convenience in getAllKnownOptions()
 
 /**
@@ -237,7 +238,7 @@ public class SOCGameOptionSet
      *     instead of doing a shallow copy to a new set with to those same option references
      * @throws NullPointerException if {@code opts} is null
      */
-    public SOCGameOptionSet(final SOCGameOptionSet opts, final boolean deepCopy)
+    public SOCGameOptionSet( final SOCGameOptionSet opts, final boolean deepCopy )
         throws NullPointerException
     {
         if (deepCopy)
@@ -246,13 +247,17 @@ public class SOCGameOptionSet
             try
             {
                 for (final SOCGameOption opt : opts.options.values())
-                    options.put(opt.key, (SOCGameOption) opt.clone());
-            } catch (CloneNotSupportedException e) {
-                // catch required, but not expected to ever happen
-                throw new IllegalStateException("clone failed");
+                    options.put( opt.key, (SOCGameOption) opt.clone() );
             }
-        } else {
-            options = new HashMap<>(opts.options);
+            catch( CloneNotSupportedException e )
+            {
+                // catch required, but not expected to ever happen
+                throw new IllegalStateException( "clone failed" );
+            }
+        }
+        else
+        {
+            options = new HashMap<>( opts.options );
         }
     }
 
@@ -260,9 +265,9 @@ public class SOCGameOptionSet
      * Create a set which contains options.
      * @param opts  Options to include, or null to make an empty set
      */
-    public SOCGameOptionSet(final Map<String, SOCGameOption> opts)
+    public SOCGameOptionSet( final Map<String, SOCGameOption> opts )
     {
-        options = (opts != null) ? new HashMap<>(opts) : new HashMap<String, SOCGameOption>();
+        options = (opts != null) ? new HashMap<>( opts ) : new HashMap<String, SOCGameOption>();
     }
 
     /**
@@ -469,47 +474,47 @@ public class SOCGameOptionSet
         //       to be sent to clients if needed.
 
         final SOCGameOption optPL = new SOCGameOption
-            ("PL", -1, 1108, 4, 2, 6, 0, "Maximum # players");
-        opts.add(optPL);
+            ( "PL", -1, 1108, 4, 2, 6, 0, "Maximum # players" );
+        opts.add( optPL );
 
         final SOCGameOption optPLB = new SOCGameOption
-            ("PLB", 1108, 1113, false, FLAG_DROP_IF_UNUSED, "Use 6-player board");
-        optPLB.setClientFeature(SOCFeatureSet.CLIENT_6_PLAYERS);
-        opts.add(optPLB);
+            ( "PLB", 1108, 1113, false, FLAG_DROP_IF_UNUSED, "Use 6-player board" );
+        optPLB.setClientFeature( SOCFeatureSet.CLIENT_6_PLAYERS );
+        opts.add( optPLB );
 
         final SOCGameOption optPLP = new SOCGameOption
-            ("PLP", 1108, 2300, false, FLAG_DROP_IF_UNUSED, "6-player board: Can Special Build only if 5 or 6 players in game");
-        optPLP.setClientFeature(SOCFeatureSet.CLIENT_6_PLAYERS);
-        opts.add(optPLP);
+            ( "PLP", 1108, 2300, false, FLAG_DROP_IF_UNUSED, "6-player board: Can Special Build only if 5 or 6 players in game" );
+        optPLP.setClientFeature( SOCFeatureSet.CLIENT_6_PLAYERS );
+        opts.add( optPLP );
 
         SOCGameOption optSBL = new SOCGameOption
-            ("SBL", 2000, 2000, false, FLAG_DROP_IF_UNUSED, "Use sea board");  // see also SOCBoardLarge
-        optSBL.setClientFeature(SOCFeatureSet.CLIENT_SEA_BOARD);
-        opts.add(optSBL);
+            ( "SBL", 2000, 2000, false, FLAG_DROP_IF_UNUSED, "Use sea board" );  // see also SOCBoardLarge
+        optSBL.setClientFeature( SOCFeatureSet.CLIENT_SEA_BOARD );
+        opts.add( optSBL );
 
-        opts.add(new SOCGameOption
-            ("_BHW", 2000, 2000, 0, 0, 0xFFFF, FLAG_DROP_IF_UNUSED | SOCGameOption.FLAG_INTERNAL_GAME_PROPERTY,
-             "Large board's height and width (0xRRCC) if not default (local to client only)"));
-        opts.add(new SOCGameOption
-            ("RD", -1, 1107, false, 0, "Robber can't return to the desert"));
-        opts.add(new SOCGameOption
-            ("N7", -1, 1107, false, 7, 1, 999, 0, "Roll no 7s during first # rounds"));
+        opts.add( new SOCGameOption
+            ( "_BHW", 2000, 2000, 0, 0, 0xFFFF, FLAG_DROP_IF_UNUSED | SOCGameOption.FLAG_INTERNAL_GAME_PROPERTY,
+                "Large board's height and width (0xRRCC) if not default (local to client only)" ) );
+        opts.add( new SOCGameOption
+            ( "RD", -1, 1107, false, 0, "Robber can't return to the desert" ) );
+        opts.add( new SOCGameOption
+            ( "N7", -1, 1107, false, 7, 1, 999, 0, "Roll no 7s during first # rounds" ) );
         // N7C's keyname puts it after N7 in the NewGameOptionsFrame list
-        opts.add(new SOCGameOption
-            ("N7C", -1, 1119, false, FLAG_DROP_IF_UNUSED, "Roll no 7s until a city is built"));
-        opts.add(new SOCGameOption
-            ("BC", -1, 1107, true, 4, 3, 9, 0, "Break up clumps of # or more same-type hexes/ports"));
-        opts.add(new SOCGameOption
-            ("NT", 1107, 1107, false, FLAG_DROP_IF_UNUSED, "No trading allowed between players"));
-        opts.add(new SOCGameOption
-            ("VP", -1, 2000, false, 10, 10, 20, FLAG_DROP_IF_UNUSED, "Victory points to win: #"));
-            // If min or max changes, test client to make sure New Game dialog still shows it as a dropdown
-            // (not a text box) for user convenience
+        opts.add( new SOCGameOption
+            ( "N7C", -1, 1119, false, FLAG_DROP_IF_UNUSED, "Roll no 7s until a city is built" ) );
+        opts.add( new SOCGameOption
+            ( "BC", -1, 1107, true, 4, 3, 9, 0, "Break up clumps of # or more same-type hexes/ports" ) );
+        opts.add( new SOCGameOption
+            ( "NT", 1107, 1107, false, FLAG_DROP_IF_UNUSED, "No trading allowed between players" ) );
+        opts.add( new SOCGameOption
+            ( "VP", -1, 2000, false, 10, 10, 20, FLAG_DROP_IF_UNUSED, "Victory points to win: #" ) );
+        // If min or max changes, test client to make sure New Game dialog still shows it as a dropdown
+        // (not a text box) for user convenience
 
         final SOCGameOption optSC = new SOCGameOption
-            ("SC", 2000, 2000, 8, false, FLAG_DROP_IF_UNUSED, "Game Scenario: #");
-        optSC.setClientFeature(SOCFeatureSet.CLIENT_SCENARIO_VERSION);
-        opts.add(optSC);
+            ( "SC", 2000, 2000, 8, false, FLAG_DROP_IF_UNUSED, "Game Scenario: #" );
+        optSC.setClientFeature( SOCFeatureSet.CLIENT_SCENARIO_VERSION );
+        opts.add( optSC );
 
         // Game scenario options (rules and events)
         //      Constructor calls setClientFeature(SOCFeatureSet.CLIENT_SCENARIO_VERSION) for these
@@ -520,54 +525,54 @@ public class SOCGameOptionSet
         //      keep a consistent prefix that showScenarioInfoDialog() knows to look for.
         //      In client/strings/data_*.properties, set game.options.scenario.optprefix to that prefix.
 
-        opts.add(new SOCGameOption
-            (K_SC_SANY, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
-             "Scenarios: SVP for your first settlement on any island after initial placement"));
-        opts.add(new SOCGameOption
-            (K_SC_SEAC, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
-             "Scenarios: 2 SVP for your first settlement on each island after initial placement"));
-        opts.add(new SOCGameOption
-            (K_SC_FOG, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
-             "Scenarios: Some hexes initially hidden by fog"));
-        opts.add(new SOCGameOption
-            (K_SC_0RVP, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
-             "Scenarios: No longest trade route VP (no Longest Road)"));
-        opts.add(new SOCGameOption
-            (K_SC_3IP, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
-             "Scenarios: Third initial settlement"));
-        opts.add(new SOCGameOption
-            (K_SC_CLVI, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
-             "Scenarios: Cloth Trade with neutral villages"));
-        opts.add(new SOCGameOption
-            (K_SC_PIRI, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
-             "Scenarios: Pirate Islands and fortresses"));
-        opts.add(new SOCGameOption
-            (K_SC_FTRI, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
-             "Scenarios: The Forgotten Tribe"));
-        opts.add(new SOCGameOption
-            (K_SC_WOND, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
-             "Scenarios: Wonders"));
+        opts.add( new SOCGameOption
+            ( K_SC_SANY, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
+                "Scenarios: SVP for your first settlement on any island after initial placement" ) );
+        opts.add( new SOCGameOption
+            ( K_SC_SEAC, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
+                "Scenarios: 2 SVP for your first settlement on each island after initial placement" ) );
+        opts.add( new SOCGameOption
+            ( K_SC_FOG, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
+                "Scenarios: Some hexes initially hidden by fog" ) );
+        opts.add( new SOCGameOption
+            ( K_SC_0RVP, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
+                "Scenarios: No longest trade route VP (no Longest Road)" ) );
+        opts.add( new SOCGameOption
+            ( K_SC_3IP, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
+                "Scenarios: Third initial settlement" ) );
+        opts.add( new SOCGameOption
+            ( K_SC_CLVI, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
+                "Scenarios: Cloth Trade with neutral villages" ) );
+        opts.add( new SOCGameOption
+            ( K_SC_PIRI, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
+                "Scenarios: Pirate Islands and fortresses" ) );
+        opts.add( new SOCGameOption
+            ( K_SC_FTRI, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
+                "Scenarios: The Forgotten Tribe" ) );
+        opts.add( new SOCGameOption
+            ( K_SC_WOND, 2000, 2000, false, FLAG_DROP_IF_UNUSED,
+                "Scenarios: Wonders" ) );
 
         // "Extra" options for third-party developers
 
-        opts.add(new SOCGameOption
-            (K__EXT_BOT, 2000, 2000, SOCGameOption.TEXT_OPTION_MAX_LENGTH, false, FLAG_DROP_IF_UNUSED,
-             "Extra non-core option available for robots in this game"));
-        opts.add(new SOCGameOption
-            (K__EXT_CLI, 2000, 2000, SOCGameOption.TEXT_OPTION_MAX_LENGTH, false, FLAG_DROP_IF_UNUSED,
-             "Extra non-core option available for clients in this game"));
-        opts.add(new SOCGameOption
-            (K__EXT_GAM, 2000, 2000, SOCGameOption.TEXT_OPTION_MAX_LENGTH, false, FLAG_DROP_IF_UNUSED,
-             "Extra non-core option available for this game"));
+        opts.add( new SOCGameOption
+            ( K__EXT_BOT, 2000, 2000, SOCGameOption.TEXT_OPTION_MAX_LENGTH, false, FLAG_DROP_IF_UNUSED,
+                "Extra non-core option available for robots in this game" ) );
+        opts.add( new SOCGameOption
+            ( K__EXT_CLI, 2000, 2000, SOCGameOption.TEXT_OPTION_MAX_LENGTH, false, FLAG_DROP_IF_UNUSED,
+                "Extra non-core option available for clients in this game" ) );
+        opts.add( new SOCGameOption
+            ( K__EXT_GAM, 2000, 2000, SOCGameOption.TEXT_OPTION_MAX_LENGTH, false, FLAG_DROP_IF_UNUSED,
+                "Extra non-core option available for this game" ) );
 
         // Player info observability, for developers
 
-        opts.add(new SOCGameOption
-            (K_PLAY_FO, 2000, 2450, false, SOCGameOption.FLAG_INACTIVE_HIDDEN | FLAG_DROP_IF_UNUSED,
-             "Show all player info and resources"));
-        opts.add(new SOCGameOption
-            (K_PLAY_VPO, 2000, 2450, false, SOCGameOption.FLAG_INACTIVE_HIDDEN | FLAG_DROP_IF_UNUSED,
-             "Show all VP/dev card info"));
+        opts.add( new SOCGameOption
+            ( K_PLAY_FO, 2000, 2450, false, SOCGameOption.FLAG_INACTIVE_HIDDEN | FLAG_DROP_IF_UNUSED,
+                "Show all player info and resources" ) );
+        opts.add( new SOCGameOption
+            ( K_PLAY_VPO, 2000, 2450, false, SOCGameOption.FLAG_INACTIVE_HIDDEN | FLAG_DROP_IF_UNUSED,
+                "Show all VP/dev card info" ) );
 
         // NEW_OPTION - Add opt.put here at end of list, and update the
         //       list of "current known options" in javadoc just above.
@@ -577,64 +582,66 @@ public class SOCGameOptionSet
         // If you create a ChangeListener, also update adjustOptionsToKnown for server-side code.
 
         // If PL goes over 4, set PLB.
-        optPL.addChangeListener(new SOCGameOption.ChangeListener()
+        optPL.addChangeListener( new SOCGameOption.ChangeListener()
         {
             public void valueChanged
-                (final SOCGameOption op, Object oldValue, Object newValue,
-                 final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts)
+                ( final SOCGameOption op, Object oldValue, Object newValue,
+                    final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts )
             {
-                if  (! (oldValue instanceof Integer))
+                if (!(oldValue instanceof Integer))
                     return;  // ignore unless int
-                final int ov = ((Integer) oldValue).intValue();
-                final int nv = ((Integer) newValue).intValue();
+                final int ov = (Integer) oldValue;
+                final int nv = (Integer) newValue;
                 if ((ov <= 4) && (nv > 4))
                 {
-                    SOCGameOption plb = currentOpts.get("PLB");
+                    SOCGameOption plb = currentOpts.get( "PLB" );
                     if (plb == null)
                         return;
-                    plb.setBoolValue(true);
+                    plb.setBoolValue( true );
                     plb.refreshDisplay();
                 }
             }
-        });
+        } );
 
         // If PLB becomes unchecked, set PL to 4 if it's 5 or 6;
         // if it becomes checked, set PL to 6 if <= 4, unless PL.userChanged already
-        optPLB.addChangeListener(new SOCGameOption.ChangeListener()
+        optPLB.addChangeListener( new SOCGameOption.ChangeListener()
         {
             public void valueChanged
-                (final SOCGameOption op, Object oldValue, Object newValue,
-                 final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts)
+                ( final SOCGameOption op, Object oldValue, Object newValue,
+                    final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts )
             {
-                SOCGameOption pl = currentOpts.get("PL");
+                SOCGameOption pl = currentOpts.get( "PL" );
                 if (pl == null)
                     return;
                 final int numPl = pl.getIntValue();
                 boolean refreshPl = false;
 
-                if (Boolean.TRUE.equals(newValue))
+                if (Boolean.TRUE.equals( newValue ))
                 {
                     // PLB became checked; check PL 4 vs 6
-                    if ((numPl <= 4) && ! pl.userChanged)
+                    if ((numPl <= 4) && !pl.userChanged)
                     {
-                        pl.setIntValue(6);
+                        pl.setIntValue( 6 );
                         refreshPl = true;
                     }
-                } else {
+                }
+                else
+                {
                     // PLB became unchecked
 
                     if (numPl > 4)
                     {
-                        pl.setIntValue(4);
+                        pl.setIntValue( 4 );
                         pl.userChanged = false;  // so re-check will set to 6
                         refreshPl = true;
                     }
 
                     // numPl <= 4, so PLP doesn't apply
-                    SOCGameOption plp = currentOpts.get("PLP");
-                    if ((plp != null) && plp.getBoolValue() && ! plp.userChanged)
+                    SOCGameOption plp = currentOpts.get( "PLP" );
+                    if ((plp != null) && plp.getBoolValue() && !plp.userChanged)
                     {
-                        plp.setBoolValue(false);
+                        plp.setBoolValue( false );
                         plp.refreshDisplay();
                     }
                 }
@@ -642,25 +649,25 @@ public class SOCGameOptionSet
                 if (refreshPl)
                     pl.refreshDisplay();
             }
-        });
+        } );
 
         // If PLP is set or cleared, also set or clear PLB unless user's already changed it
-        optPLP.addChangeListener(new SOCGameOption.ChangeListener()
+        optPLP.addChangeListener( new SOCGameOption.ChangeListener()
         {
             public void valueChanged
-                (final SOCGameOption op, Object oldValue, Object newValue,
-                 final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts)
+                ( final SOCGameOption op, Object oldValue, Object newValue,
+                    final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts )
             {
-                final boolean changedTo = (Boolean.TRUE.equals(newValue));
+                final boolean changedTo = (Boolean.TRUE.equals( newValue ));
 
-                SOCGameOption plb = currentOpts.get("PLB");
+                SOCGameOption plb = currentOpts.get( "PLB" );
                 if ((plb == null) || plb.userChanged || (changedTo == plb.getBoolValue()))
                     return;
 
-                plb.setBoolValue(changedTo);
+                plb.setBoolValue( changedTo );
                 plb.refreshDisplay();
             }
-        });
+        } );
 
         // If SC (scenario) is chosen, also set SBL (use sea board)
         // and VP (vp to win), unless already changed by user.
@@ -668,28 +675,28 @@ public class SOCGameOptionSet
         // Game creation at the server doesn't rely on these updates.
         // For game creation with scenario options, see adjustOptionsToKnown(doServerPreadjust=true).
 
-        optSC.addChangeListener(new SOCGameOption.ChangeListener()
+        optSC.addChangeListener( new SOCGameOption.ChangeListener()
         {
             public void valueChanged
-                (final SOCGameOption optSc, Object oldValue, Object newValue,
-                 final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts)
+                ( final SOCGameOption optSc, Object oldValue, Object newValue,
+                    final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts )
             {
                 final String newSC = optSc.getStringValue();
                 final boolean isScenPicked = optSc.getBoolValue() && (newSC.length() != 0);
 
                 // check/update #VP if scenario specifies it, otherwise revert to standard
-                SOCGameOption vp = currentOpts.get("VP");
-                if ((vp != null) && ! vp.userChanged)
+                SOCGameOption vp = currentOpts.get( "VP" );
+                if ((vp != null) && !vp.userChanged)
                 {
                     int newVP = SOCGame.VP_WINNER_STANDARD;
                     if (isScenPicked)
                     {
-                        final SOCScenario scen = SOCScenario.getScenario(newSC);
+                        final SOCScenario scen = SOCScenario.getScenario( newSC );
                         if (scen != null)
                         {
                             final Map<String, SOCGameOption> scenOpts =
-                                SOCGameOption.parseOptionsToMap(scen.scOpts, knownOpts);
-                            final SOCGameOption scOptVP = (scenOpts != null) ? scenOpts.get("VP") : null;
+                                SOCGameOption.parseOptionsToMap( scen.scOpts, knownOpts );
+                            final SOCGameOption scOptVP = (scenOpts != null) ? scenOpts.get( "VP" ) : null;
                             if (scOptVP != null)
                                 newVP = scOptVP.getIntValue();
 
@@ -699,24 +706,24 @@ public class SOCGameOptionSet
 
                     if (newVP != vp.getIntValue())
                     {
-                        vp.setIntValue(newVP);
-                        vp.setBoolValue(newVP != SOCGame.VP_WINNER_STANDARD);
+                        vp.setIntValue( newVP );
+                        vp.setBoolValue( newVP != SOCGame.VP_WINNER_STANDARD );
                         vp.refreshDisplay();
                     }
                 }
 
                 // check/update SBL
-                SOCGameOption sbl = currentOpts.get("SBL");
-                if ((sbl != null) && ! sbl.userChanged)
+                SOCGameOption sbl = currentOpts.get( "SBL" );
+                if ((sbl != null) && !sbl.userChanged)
                 {
                     if (isScenPicked != sbl.getBoolValue())
                     {
-                        sbl.setBoolValue(isScenPicked);
+                        sbl.setBoolValue( isScenPicked );
                         sbl.refreshDisplay();
                     }
                 }
             }
-        });
+        } );
 
         /*
             // A commented-out debug option for testing convenience:
@@ -807,10 +814,10 @@ public class SOCGameOptionSet
      * @see #containsKey(String)
      * @see #get(String)
      */
-    public boolean contains(final SOCGameOption opt)
+    public boolean contains( final SOCGameOption opt )
         throws NullPointerException
     {
-        return options.containsKey(opt.key);
+        return options.containsKey( opt.key );
     }
 
     /**
@@ -820,9 +827,9 @@ public class SOCGameOptionSet
      * @see #contains(SOCGameOption)
      * @see #get(String)
      */
-    public boolean containsKey(final String optKey)
+    public boolean containsKey( final String optKey )
     {
-        return options.containsKey(optKey);
+        return options.containsKey( optKey );
     }
 
     /**
@@ -835,9 +842,9 @@ public class SOCGameOptionSet
      * @see #remove(String)
      * @see #addKnownOption(SOCGameOption)
      */
-    public boolean add(final SOCGameOption opt)
+    public boolean add( final SOCGameOption opt )
     {
-        return (options.put(opt.key, opt) == null);
+        return (options.put( opt.key, opt ) == null);
     }
 
     /**
@@ -851,9 +858,9 @@ public class SOCGameOptionSet
      * @see #remove(String)
      * @see #addKnownOption(SOCGameOption)
      */
-    public SOCGameOption put(final SOCGameOption opt)
+    public SOCGameOption put( final SOCGameOption opt )
     {
-        return options.put(opt.key, opt);
+        return options.put( opt.key, opt );
     }
 
     /**
@@ -865,9 +872,9 @@ public class SOCGameOptionSet
      * @see #containsKey(String)
      * @see #getAll()
      */
-    public SOCGameOption get(final String optKey)
+    public SOCGameOption get( final String optKey )
     {
-        return options.get(optKey);
+        return options.get( optKey );
     }
 
     /**
@@ -923,9 +930,9 @@ public class SOCGameOptionSet
      *     or {@code null} if none was removed
      * @see #clear()
      */
-    public SOCGameOption remove(final String optKey)
+    public SOCGameOption remove( final String optKey )
     {
-        return options.remove(optKey);
+        return options.remove( optKey );
     }
 
     /**
@@ -953,11 +960,11 @@ public class SOCGameOptionSet
      * @see #getOptionStringValue(String)
      * @since 1.1.07
      */
-    public boolean isOptionSet(final String optKey)
+    public boolean isOptionSet( final String optKey )
     {
         // OTYPE_* - if a new type is added and it uses a boolean field, update this method's javadoc.
 
-        SOCGameOption op = options.get(optKey);
+        SOCGameOption op = options.get( optKey );
         if (op == null)
             return false;
         return op.getBoolValue();
@@ -973,19 +980,19 @@ public class SOCGameOptionSet
      * @see #setIntOption(String, int, boolean, SOCGameOptionSet)
      * @since 1.1.17
      */
-    public void setBoolOption(final String boKey, final SOCGameOptionSet knownOpts)
+    public void setBoolOption( final String boKey, final SOCGameOptionSet knownOpts )
         throws NullPointerException
     {
-        SOCGameOption opt = options.get(boKey);
+        SOCGameOption opt = options.get( boKey );
         if (opt == null)
         {
-            opt = knownOpts.getKnownOption(boKey, true);
-            opt.setBoolValue(true);
-            options.put(boKey, opt);
+            opt = knownOpts.getKnownOption( boKey, true );
+            opt.setBoolValue( true );
+            options.put( boKey, opt );
         }
         else
         {
-            opt.setBoolValue(true);
+            opt.setBoolValue( true );
         }
     }
 
@@ -1002,21 +1009,21 @@ public class SOCGameOptionSet
      * @since 1.1.17
      */
     public void setIntOption
-        (final String ioKey, final int ivalue, final boolean bvalue, final SOCGameOptionSet knownOpts)
+    ( final String ioKey, final int ivalue, final boolean bvalue, final SOCGameOptionSet knownOpts )
         throws NullPointerException
     {
-        SOCGameOption opt = options.get(ioKey);
+        SOCGameOption opt = options.get( ioKey );
         if (opt == null)
         {
-            opt = knownOpts.getKnownOption(ioKey, true);
-            opt.setIntValue(ivalue);
-            opt.setBoolValue(bvalue);
-            options.put(ioKey, opt);
+            opt = knownOpts.getKnownOption( ioKey, true );
+            opt.setIntValue( ivalue );
+            opt.setBoolValue( bvalue );
+            options.put( ioKey, opt );
         }
         else
         {
-            opt.setIntValue(ivalue);
-            opt.setBoolValue(bvalue);
+            opt.setIntValue( ivalue );
+            opt.setBoolValue( bvalue );
         }
     }
 
@@ -1038,11 +1045,11 @@ public class SOCGameOptionSet
      * @see #getOptionStringValue(String)
      * @since 1.1.07
      */
-    public int getOptionIntValue(final String optKey)
+    public int getOptionIntValue( final String optKey )
     {
         // OTYPE_* - if a new type is added, update this method's javadoc.
 
-        return getOptionIntValue(optKey, 0, false);
+        return getOptionIntValue( optKey, 0, false );
     }
 
     /**
@@ -1067,14 +1074,14 @@ public class SOCGameOptionSet
      * @since 1.1.14
      */
     public int getOptionIntValue
-        (final String optKey, final int defValue, final boolean onlyIfBoolSet)
+    ( final String optKey, final int defValue, final boolean onlyIfBoolSet )
     {
         // OTYPE_* - if a new type is added, update this method's javadoc.
 
-        SOCGameOption op = options.get(optKey);
+        SOCGameOption op = options.get( optKey );
         if (op == null)
             return defValue;
-        if (onlyIfBoolSet && ! op.getBoolValue())
+        if (onlyIfBoolSet && !op.getBoolValue())
             return defValue;
         return op.getIntValue();
     }
@@ -1091,11 +1098,11 @@ public class SOCGameOptionSet
      * @see #getOptionIntValue(Map, String)
      * @since 1.1.07
      */
-    public String getOptionStringValue(final String optKey)
+    public String getOptionStringValue( final String optKey )
     {
         // OTYPE_* - if a new type is added, update this method's javadoc.
 
-        SOCGameOption op = options.get(optKey);
+        SOCGameOption op = options.get( optKey );
         if (op == null)
             return null;
         return op.getStringValue();
@@ -1119,13 +1126,13 @@ public class SOCGameOptionSet
      * @see #setKnownOptionCurrentValue(SOCGameOption)
      * @since 1.1.07
      */
-    public SOCGameOption getKnownOption(final String key, final boolean clone)
+    public SOCGameOption getKnownOption( final String key, final boolean clone )
         throws IllegalStateException
     {
         SOCGameOption op;
         synchronized (options)
         {
-            op = options.get(key);
+            op = options.get( key );
         }
         if (op == null)
             return null;
@@ -1135,9 +1142,11 @@ public class SOCGameOptionSet
             try
             {
                 op = (SOCGameOption) op.clone();
-            } catch (CloneNotSupportedException ce) {
+            }
+            catch( CloneNotSupportedException ce )
+            {
                 // required, but not expected to happen
-                throw new IllegalStateException("Clone failed!", ce);
+                throw new IllegalStateException( "Clone failed!", ce );
             }
         }
 
@@ -1157,14 +1166,14 @@ public class SOCGameOptionSet
      * @see #setKnownOptionCurrentValue(SOCGameOption)
      * @since 1.1.07
      */
-    public boolean addKnownOption(final SOCGameOption onew)
+    public boolean addKnownOption( final SOCGameOption onew )
     {
         final String oKey = onew.key;
         final boolean hadOld;
 
         synchronized (options)
         {
-            final SOCGameOption oldcopy = options.remove(oKey);
+            final SOCGameOption oldcopy = options.remove( oKey );
             hadOld = (oldcopy != null);
 
             if (onew.optType != SOCGameOption.OTYPE_UNKNOWN)
@@ -1173,14 +1182,14 @@ public class SOCGameOptionSet
                 {
                     final SOCGameOption.ChangeListener cl = oldcopy.getChangeListener();
                     if (cl != null)
-                        onew.addChangeListener(cl);
+                        onew.addChangeListener( cl );
                 }
 
-                options.put(oKey, onew);
+                options.put( oKey, onew );
             }
         }
 
-        return ! hadOld;
+        return !hadOld;
     }
 
     // Comparison and synchronization, Known Options:
@@ -1201,25 +1210,25 @@ public class SOCGameOptionSet
      * @throws IllegalArgumentException if {@code optKey} isn't a known game option, or if that option
      *     has neither {@link SOCGameOption#FLAG_INACTIVE_HIDDEN} nor {@link SOCGameOption#FLAG_ACTIVATED}
      */
-    public void activate(final String optKey)
+    public void activate( final String optKey )
         throws IllegalArgumentException
     {
         synchronized (options)
         {
-            final SOCGameOption orig = options.get(optKey);
+            final SOCGameOption orig = options.get( optKey );
             if (orig == null)
-                throw new IllegalArgumentException("unknown: " + optKey);
+                throw new IllegalArgumentException( "unknown: " + optKey );
 
-            if (! orig.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN))
+            if (!orig.hasFlag( SOCGameOption.FLAG_INACTIVE_HIDDEN ))
             {
-                if (orig.hasFlag(SOCGameOption.FLAG_ACTIVATED))
+                if (orig.hasFlag( SOCGameOption.FLAG_ACTIVATED ))
                     return;
 
-                throw new IllegalArgumentException("not inactive: " + optKey);
+                throw new IllegalArgumentException( "not inactive: " + optKey );
             }
 
-            options.put(optKey, new SOCGameOption
-                ((orig.optFlags | SOCGameOption.FLAG_ACTIVATED) & ~SOCGameOption.FLAG_INACTIVE_HIDDEN, orig));
+            options.put( optKey, new SOCGameOption
+                ( (orig.optFlags | SOCGameOption.FLAG_ACTIVATED) & ~SOCGameOption.FLAG_INACTIVE_HIDDEN, orig ) );
         }
     }
 
@@ -1230,19 +1239,19 @@ public class SOCGameOptionSet
      * @param ocurr Option with the requested current value.
      *     {@code ocurr}'s value field contents are copied to the known option's values,
      *     the {@code ocurr} reference won't be added to the known option set.
-     * @throws  IllegalArgumentException if string value is not permitted; note that
+     * @throws IllegalArgumentException if string value is not permitted; note that
      *     int values outside of range are silently clipped, and will not throw this exception.
      * @see #getKnownOption(String, boolean)
      * @since 1.1.07
      */
-    public void setKnownOptionCurrentValue(SOCGameOption ocurr)
+    public void setKnownOptionCurrentValue( SOCGameOption ocurr )
         throws IllegalArgumentException
     {
         final String oKey = ocurr.key;
 
         synchronized (options)
         {
-            final SOCGameOption oKnown = options.get(oKey);
+            final SOCGameOption oKnown = options.get( oKey );
 
             if (oKnown == null)
                 return;
@@ -1250,23 +1259,23 @@ public class SOCGameOptionSet
             switch (oKnown.optType)  // OTYPE_*
             {
             case SOCGameOption.OTYPE_BOOL:
-                oKnown.setBoolValue(ocurr.getBoolValue());
+                oKnown.setBoolValue( ocurr.getBoolValue() );
                 break;
 
             case SOCGameOption.OTYPE_INT:
             case SOCGameOption.OTYPE_ENUM:
-                oKnown.setIntValue(ocurr.getIntValue());
+                oKnown.setIntValue( ocurr.getIntValue() );
                 break;
 
             case SOCGameOption.OTYPE_INTBOOL:
             case SOCGameOption.OTYPE_ENUMBOOL:
-                oKnown.setBoolValue(ocurr.getBoolValue());
-                oKnown.setIntValue(ocurr.getIntValue());
+                oKnown.setBoolValue( ocurr.getBoolValue() );
+                oKnown.setIntValue( ocurr.getIntValue() );
                 break;
 
             case SOCGameOption.OTYPE_STR:
             case SOCGameOption.OTYPE_STRHIDE:
-                oKnown.setStringValue(ocurr.getStringValue());
+                oKnown.setStringValue( ocurr.getStringValue() );
                 break;
             }
         }
@@ -1332,9 +1341,9 @@ public class SOCGameOptionSet
      * @since 1.1.07
      */
     public List<SOCGameOption> optionsNewerThanVersion
-        (final int vers, final boolean checkValues, final boolean trimEnums)
+    ( final int vers, final boolean checkValues, final boolean trimEnums )
     {
-        return implOptionsVersionCheck(vers, false, checkValues, trimEnums);
+        return implOptionsVersionCheck( vers, false, checkValues, trimEnums );
     }
 
     /**
@@ -1350,14 +1359,14 @@ public class SOCGameOptionSet
      * Will omit any option that has {@link SOCGameOption#FLAG_INACTIVE_HIDDEN}.
      *
      * @param vers  Version to compare options against
-     * @return  List of all {@link SOCGameOption}s valid at version {@code vers}, or {@code null} if none.
+     * @return List of all {@link SOCGameOption}s valid at version {@code vers}, or {@code null} if none.
      * @see #optionsNewerThanVersion(int, boolean, boolean)
      * @see #optionsTrimmedForSupport(SOCFeatureSet)
      * @since 2.0.00
      */
-    public List<SOCGameOption> optionsForVersion(final int vers)
+    public List<SOCGameOption> optionsForVersion( final int vers )
     {
-        return implOptionsVersionCheck(vers, true, false, true);
+        return implOptionsVersionCheck( vers, true, false, true );
     }
 
     /**
@@ -1401,15 +1410,15 @@ public class SOCGameOptionSet
      * @since 2.0.00
      */
     private List<SOCGameOption> implOptionsVersionCheck
-        (final int vers, final boolean getAllForVersion, final boolean checkValues, final boolean trimEnums)
+    ( final int vers, final boolean getAllForVersion, final boolean checkValues, final boolean trimEnums )
         throws IllegalArgumentException
     {
         /** collect newer options here, or all options if getAllForVersion */
         List<SOCGameOption> uopt
-            = SOCVersionedItem.implItemsVersionCheck(vers, getAllForVersion, checkValues, options);
-                // throws IllegalArgumentException if (getAllForVersion && checkValues)
+            = SOCVersionedItem.implItemsVersionCheck( vers, getAllForVersion, checkValues, options );
+        // throws IllegalArgumentException if (getAllForVersion && checkValues)
 
-        if (! checkValues)
+        if (!checkValues)
         {
             if (uopt != null)
             {
@@ -1417,29 +1426,29 @@ public class SOCGameOptionSet
                 while (li.hasNext())
                 {
                     SOCGameOption opt = li.next();
-                    if (opt.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN))
+                    if (opt.hasFlag( SOCGameOption.FLAG_INACTIVE_HIDDEN ))
                         li.remove();
                 }
             }
 
             // add any activated ones, even if unchanged since vers
             {
-                SOCGameOptionSet actives = optionsWithFlag(SOCGameOption.FLAG_ACTIVATED, vers);
+                SOCGameOptionSet actives = optionsWithFlag( SOCGameOption.FLAG_ACTIVATED, vers );
                 if (actives != null)
                 {
                     if (uopt != null)
                         for (SOCGameOption opt : uopt)
-                            actives.remove(opt.key);  // remove if happens to already be in list, to avoid double add
+                            actives.remove( opt.key );  // remove if happens to already be in list, to avoid double add
                     else
                         uopt = new ArrayList<>();
 
                     for (SOCGameOption aopt : actives)
-                        uopt.add(aopt);
+                        uopt.add( aopt );
                 }
             }
 
             // if client-side, also add any with FLAG_3RD_PARTY
-            if (! (getAllForVersion || trimEnums))
+            if (!(getAllForVersion || trimEnums))
             {
                 for (SOCGameOption opt : options.values())
                 {
@@ -1449,13 +1458,15 @@ public class SOCGameOptionSet
 
                     if (uopt != null)
                     {
-                        if (uopt.contains(opt))
+                        if (uopt.contains( opt ))
                             continue;
-                    } else {
+                    }
+                    else
+                    {
                         uopt = new ArrayList<>();
                     }
 
-                    uopt.add(opt);
+                    uopt.add( opt );
                 }
             }
 
@@ -1478,26 +1489,27 @@ public class SOCGameOptionSet
                     {
                         // Possibly trim enum values. (OTYPE_ENUM, OTYPE_ENUMBOOL)
                         // OTYPE_* - Add here in comment if enum-valued option type
-                        final int ev = SOCGameOption.getMaxEnumValueForVersion(opt.key, vers);
+                        final int ev = SOCGameOption.getMaxEnumValueForVersion( opt.key, vers );
                         if (ev < opt.enumVals.length)
                         {
-                            opt = SOCGameOption.trimEnumForVersion(opt, vers);
+                            opt = SOCGameOption.trimEnumForVersion( opt, vers );
                             changed = true;
                         }
-                    } else if (opt.maxIntValue != opt.minIntValue)
+                    }
+                    else if (opt.maxIntValue != opt.minIntValue)
                     {
                         // Possibly trim max int value. (OTYPE_INT, OTYPE_INTBOOL)
                         // OTYPE_* - Add here in comment if int-valued option type
-                        final int iv = SOCGameOption.getMaxIntValueForVersion(opt.key, vers);
+                        final int iv = SOCGameOption.getMaxIntValueForVersion( opt.key, vers );
                         if ((iv != opt.maxIntValue) && (iv != Integer.MAX_VALUE))
                         {
-                            opt = new SOCGameOption(opt, iv);
+                            opt = new SOCGameOption( opt, iv );
                             changed = true;
                         }
                     }
 
                     if (changed)
-                        li.set(opt);
+                        li.set( opt );
                 }
             }
         }
@@ -1559,11 +1571,11 @@ public class SOCGameOptionSet
      * @since 1.1.07
      */
     public StringBuilder adjustOptionsToKnown
-        (final SOCGameOptionSet knownOpts, final boolean doServerPreadjust, final SOCFeatureSet limitedCliFeats)
+    ( final SOCGameOptionSet knownOpts, final boolean doServerPreadjust, final SOCFeatureSet limitedCliFeats )
         throws IllegalArgumentException
     {
         if (knownOpts == null)
-            throw new IllegalArgumentException("null");
+            throw new IllegalArgumentException( "null" );
 
         String unknownScenario = null;
 
@@ -1574,40 +1586,42 @@ public class SOCGameOptionSet
                 Iterator<String> ki = options.keySet().iterator();  // keySet lets us remove without disrupting iterator
                 while (ki.hasNext())
                 {
-                    SOCGameOption op = options.get(ki.next());
+                    SOCGameOption op = options.get( ki.next() );
                     if (0 != (op.optFlags & SOCGameOption.FLAG_INTERNAL_GAME_PROPERTY))
                         ki.remove();
                 }
             }
 
             // If has "VP" but boolean part is false, use server default instead
-            SOCGameOption opt = options.get("VP");
-            if ((opt != null) && ! opt.getBoolValue())
-                options.remove("VP");
+            SOCGameOption opt = options.get( "VP" );
+            if ((opt != null) && !opt.getBoolValue())
+                options.remove( "VP" );
 
             // Apply scenario options, if any
-            opt = options.get("SC");
+            opt = options.get( "SC" );
             if (opt != null)
             {
                 final String scKey = opt.getStringValue();
                 if (scKey.length() > 0)
                 {
-                    SOCScenario sc = SOCScenario.getScenario(scKey);
+                    SOCScenario sc = SOCScenario.getScenario( scKey );
                     if (sc == null)
                     {
                         unknownScenario = scKey;
-                    } else {
+                    }
+                    else
+                    {
                         // include this scenario's opts,
                         // overwriting any values for those
                         // opts if already in newOpts, except
                         // keep VP if specified.
-                        opt = options.get("VP");
+                        opt = options.get( "VP" );
 
-                        final Map<String, SOCGameOption> scOpts = SOCGameOption.parseOptionsToMap(sc.scOpts, knownOpts);
-                        if (scOpts.containsKey("VP") && (opt != null))
-                            scOpts.remove("VP");
+                        final Map<String, SOCGameOption> scOpts = SOCGameOption.parseOptionsToMap( sc.scOpts, knownOpts );
+                        if (scOpts.containsKey( "VP" ) && (opt != null))
+                            scOpts.remove( "VP" );
 
-                        options.putAll(scOpts);
+                        options.putAll( scOpts );
                     }
                 }
 
@@ -1621,11 +1635,11 @@ public class SOCGameOptionSet
             //    set a boolean option, think carefully before un-setting it and surprising them.
 
             // Set PLB if PL>4 or PLP
-            opt = options.get("PL");
-            SOCGameOption optPLP = options.get("PLP");
+            opt = options.get( "PL" );
+            SOCGameOption optPLP = options.get( "PLP" );
             if (((opt != null) && (opt.getIntValue() > 4))
                 || ((optPLP != null) && optPLP.getBoolValue()))
-                setBoolOption("PLB", knownOpts);
+                setBoolOption( "PLB", knownOpts );
 
         }  // if(doServerPreadjust)
 
@@ -1638,10 +1652,12 @@ public class SOCGameOptionSet
         if (unknownScenario != null)
         {
             allKnown = false;
-            optProblems.append("SC: unknown scenario ");
-            optProblems.append(unknownScenario);
-            optProblems.append(". ");
-        } else {
+            optProblems.append( "SC: unknown scenario " );
+            optProblems.append( unknownScenario );
+            optProblems.append( ". " );
+        }
+        else
+        {
             allKnown = true;  // might be set false in loop below
         }
 
@@ -1652,48 +1668,51 @@ public class SOCGameOptionSet
             Map.Entry<String, SOCGameOption> okv = ikv.next();
 
             SOCGameOption op;
-            try {
+            try
+            {
                 op = okv.getValue();
             }
-            catch (ClassCastException ce)
+            catch( ClassCastException ce )
             {
-                throw new IllegalArgumentException("wrong class, expected gameoption");
+                throw new IllegalArgumentException( "wrong class, expected gameoption" );
             }
 
-            SOCGameOption knownOp = knownOpts.get(op.key);
+            SOCGameOption knownOp = knownOpts.get( op.key );
             if (knownOp == null)
             {
                 allKnown = false;
-                optProblems.append(op.key);
-                optProblems.append(": unknown. ");
+                optProblems.append( op.key );
+                optProblems.append( ": unknown. " );
             }
-            else if (knownOp.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN))
+            else if (knownOp.hasFlag( SOCGameOption.FLAG_INACTIVE_HIDDEN ))
             {
                 allKnown = false;
-                optProblems.append(op.key);
-                optProblems.append(": inactive. ");
+                optProblems.append( op.key );
+                optProblems.append( ": inactive. " );
             }
             else if (knownOp.optType != op.optType)
             {
                 allKnown = false;
-                optProblems.append(op.key);
-                optProblems.append(": optType mismatch (");
-                optProblems.append(knownOp.optType);
-                optProblems.append(" != ");
-                optProblems.append(op.optType);
-                optProblems.append("). ");
-            } else {
+                optProblems.append( op.key );
+                optProblems.append( ": optType mismatch (" );
+                optProblems.append( knownOp.optType );
+                optProblems.append( " != " );
+                optProblems.append( op.optType );
+                optProblems.append( "). " );
+            }
+            else
+            {
                 // Clip int values, check default values, check dropIfUnused
 
                 if (knownOp.lastModVersion != op.lastModVersion)
                 {
                     allKnown = false;
-                    optProblems.append(op.key);
-                    optProblems.append(": lastModVersion mismatch (");
-                    optProblems.append(knownOp.lastModVersion);
-                    optProblems.append(" != ");
-                    optProblems.append(op.lastModVersion);
-                    optProblems.append("). ");
+                    optProblems.append( op.key );
+                    optProblems.append( ": lastModVersion mismatch (" );
+                    optProblems.append( knownOp.lastModVersion );
+                    optProblems.append( " != " );
+                    optProblems.append( op.lastModVersion );
+                    optProblems.append( "). " );
                 }
 
                 switch (op.optType)  // OTYPE_*
@@ -1702,38 +1721,38 @@ public class SOCGameOptionSet
                 case SOCGameOption.OTYPE_INTBOOL:
                 case SOCGameOption.OTYPE_ENUM:
                 case SOCGameOption.OTYPE_ENUMBOOL:
+                {
+                    int iv = op.getIntValue();
+                    if (iv < knownOp.minIntValue)
                     {
-                        int iv = op.getIntValue();
-                        if (iv < knownOp.minIntValue)
-                        {
-                            iv = knownOp.minIntValue;
-                            op.setIntValue(iv);
-                        }
-                        else if (iv > knownOp.maxIntValue)
-                        {
-                            iv = knownOp.maxIntValue;
-                            op.setIntValue(iv);
-                        }
-
-                        if (knownOp.hasFlag(FLAG_DROP_IF_UNUSED)
-                            && (iv == knownOp.defaultIntValue))
-                        {
-                            // ignore boolValue unless also boolean-type: OTYPE_INTBOOL and OTYPE_ENUMBOOL.
-                            if ((op.optType == SOCGameOption.OTYPE_INT) || (op.optType == SOCGameOption.OTYPE_ENUM)
-                                || ! op.getBoolValue())
-                                ikv.remove();
-                        }
+                        iv = knownOp.minIntValue;
+                        op.setIntValue( iv );
                     }
-                    break;
+                    else if (iv > knownOp.maxIntValue)
+                    {
+                        iv = knownOp.maxIntValue;
+                        op.setIntValue( iv );
+                    }
+
+                    if (knownOp.hasFlag( FLAG_DROP_IF_UNUSED )
+                        && (iv == knownOp.defaultIntValue))
+                    {
+                        // ignore boolValue unless also boolean-type: OTYPE_INTBOOL and OTYPE_ENUMBOOL.
+                        if ((op.optType == SOCGameOption.OTYPE_INT) || (op.optType == SOCGameOption.OTYPE_ENUM)
+                            || !op.getBoolValue())
+                            ikv.remove();
+                    }
+                }
+                break;
 
                 case SOCGameOption.OTYPE_BOOL:
-                    if (knownOp.hasFlag(FLAG_DROP_IF_UNUSED) && ! op.getBoolValue())
+                    if (knownOp.hasFlag( FLAG_DROP_IF_UNUSED ) && !op.getBoolValue())
                         ikv.remove();
                     break;
 
                 case SOCGameOption.OTYPE_STR:
                 case SOCGameOption.OTYPE_STRHIDE:
-                    if (knownOp.hasFlag(FLAG_DROP_IF_UNUSED))
+                    if (knownOp.hasFlag( FLAG_DROP_IF_UNUSED ))
                     {
                         String sval = op.getStringValue();
                         if ((sval == null) || (sval.length() == 0))
@@ -1752,7 +1771,7 @@ public class SOCGameOptionSet
             // See also SOCServerMessageHandler.handleGAMEOPTIONGETINFOS which has
             // very similar code for limited client feats.
 
-            final Map<String, SOCGameOption> unsupportedOpts = optionsNotSupported(limitedCliFeats);
+            final Map<String, SOCGameOption> unsupportedOpts = optionsNotSupported( limitedCliFeats );
 
             if (unsupportedOpts != null)
             {
@@ -1760,16 +1779,18 @@ public class SOCGameOptionSet
                 for (String okey : unsupportedOpts.keySet())
                 {
                     if (optProblems.length() > 0)
-                        optProblems.append(", ");
-                    optProblems.append(okey);
+                        optProblems.append( ", " );
+                    optProblems.append( okey );
                 }
-                optProblems.append(": requires missing feature(s). ");
-            } else {
-                final Map<String, SOCGameOption> trimmedOpts = optionsTrimmedForSupport(limitedCliFeats);
+                optProblems.append( ": requires missing feature(s). " );
+            }
+            else
+            {
+                final Map<String, SOCGameOption> trimmedOpts = optionsTrimmedForSupport( limitedCliFeats );
 
                 if (trimmedOpts != null)
                     for (SOCGameOption opt : trimmedOpts.values())
-                        options.put(opt.key, opt);
+                        options.put( opt.key, opt );
             }
         }
 
@@ -1795,7 +1816,7 @@ public class SOCGameOptionSet
      * @see #optionsTrimmedForSupport(SOCFeatureSet)
      * @since 2.4.00
      */
-    public Map<String, SOCGameOption> optionsNotSupported(final SOCFeatureSet cliFeats)
+    public Map<String, SOCGameOption> optionsNotSupported( final SOCFeatureSet cliFeats )
     {
         Map<String, SOCGameOption> ret = null;
 
@@ -1804,12 +1825,12 @@ public class SOCGameOptionSet
             final String cliFeat = opt.getClientFeature();
             if (cliFeat == null)
                 continue;
-            if ((cliFeats != null) && cliFeats.isActive(cliFeat))
+            if ((cliFeats != null) && cliFeats.isActive( cliFeat ))
                 continue;
 
             if (ret == null)
                 ret = new HashMap<>();
-            ret.put(opt.key, opt);
+            ret.put( opt.key, opt );
         }
 
         return ret;
@@ -1830,17 +1851,17 @@ public class SOCGameOptionSet
      * @see SOCGameOption#getMaxIntValueForVersion(String, int)
      * @since 2.4.00
      */
-    public Map<String, SOCGameOption> optionsTrimmedForSupport(final SOCFeatureSet cliFeats)
+    public Map<String, SOCGameOption> optionsTrimmedForSupport( final SOCFeatureSet cliFeats )
     {
-        if ((cliFeats != null) && cliFeats.isActive(SOCFeatureSet.CLIENT_6_PLAYERS))
+        if ((cliFeats != null) && cliFeats.isActive( SOCFeatureSet.CLIENT_6_PLAYERS ))
             return null;
 
-        SOCGameOption pl = getKnownOption("PL", false);
+        SOCGameOption pl = getKnownOption( "PL", false );
         if (pl == null)
             return null;  // shouldn't happen, PL is a known option
 
         Map<String, SOCGameOption> ret = new HashMap<>();
-        ret.put("PL", new SOCGameOption(pl, SOCGame.MAXPLAYERS_STANDARD));
+        ret.put( "PL", new SOCGameOption( pl, SOCGame.MAXPLAYERS_STANDARD ) );
         return ret;
     }
 
@@ -1866,11 +1887,11 @@ public class SOCGameOptionSet
      * @param flagMask  Flag(s) to check for; {@link #hasFlag(int)} return value is the filter
      * @param minVers  Minimum compatible version to look for, same format as {@link Version#versionNumber()},
      *     or 0 to ignore {@link SOCVersionedItem#minVersion opt.minVersion}
-     * @return  Map of found options compatible with {@code minVers}, or {@code null} if none.
+     * @return Map of found options compatible with {@code minVers}, or {@code null} if none.
      *     Each map key is its option value's {@link SOCVersionedItem#key key}.
      * @see SOCGameOption#activate()
      */
-    public SOCGameOptionSet optionsWithFlag(final int flagMask, final int minVers)
+    public SOCGameOptionSet optionsWithFlag( final int flagMask, final int minVers )
     {
         Map<String, SOCGameOption> ret = null;
         final boolean ignoreInactives = (0 == (flagMask & SOCGameOption.FLAG_INACTIVE_HIDDEN));
@@ -1883,21 +1904,24 @@ public class SOCGameOptionSet
             if (ignoreInactives && (0 != (opt.optFlags & SOCGameOption.FLAG_INACTIVE_HIDDEN)))
                 continue;
 
-            if (opt.hasFlag(flagMask))
+            if (opt.hasFlag( flagMask ))
             {
                 if (ret == null)
                     ret = new HashMap<>();
-                ret.put(opt.key, opt);
+                ret.put( opt.key, opt );
             }
         }
 
-        return (ret != null) ? new SOCGameOptionSet(ret) : null;
+        return (ret != null) ? new SOCGameOptionSet( ret ) : null;
     }
 
     /**
      * Human-readable contents of the Set: Returns its game options {@link Map#toString()}.
      */
     @Override
-    public String toString() { return options.toString(); }
+    public String toString()
+    {
+        return options.toString();
+    }
 
 }

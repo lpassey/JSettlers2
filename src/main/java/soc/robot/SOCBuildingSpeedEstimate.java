@@ -181,10 +181,7 @@ public class SOCBuildingSpeedEstimate
                 estimatesFromNothing[SHIP] = calculateRollsAccurate
                     (SOCResourceSet.EMPTY_SET, SOCShip.COST, DEFAULT_ROLL_LIMIT, ports).getRolls();
             }
-            catch (CutoffExceededException e)
-            {
-                ;
-            }
+            catch (CutoffExceededException ignored) {}
         }
 
         return estimatesFromNothing;
@@ -218,10 +215,8 @@ public class SOCBuildingSpeedEstimate
                 estimatesFromNothing[SHIP] = calculateRollsAndRsrcFast
                     (SOCResourceSet.EMPTY_SET, SOCShip.COST, DEFAULT_ROLL_LIMIT, ports).getRolls();
             }
-            catch (CutoffExceededException e)
-            {
-                ;
-            }
+            catch (CutoffExceededException ignored)
+            {}
         }
 
         return estimatesFromNothing;
@@ -255,10 +250,7 @@ public class SOCBuildingSpeedEstimate
                 estimatesFromNothing[SHIP] = calculateRollsAndRsrcFast
                     (SOCResourceSet.EMPTY_SET, SOCShip.COST, limit, ports).getRolls();
             }
-            catch (CutoffExceededException e)
-            {
-                ;
-            }
+            catch (CutoffExceededException ignored) {}
         }
 
         return estimatesFromNothing;
@@ -286,10 +278,7 @@ public class SOCBuildingSpeedEstimate
             estimatesFromNow[CARD] = calculateRollsAccurate(resources, SOCDevCard.COST, DEFAULT_ROLL_LIMIT, ports).getRolls();
             estimatesFromNow[SHIP] = calculateRollsAccurate(resources, SOCShip.COST, DEFAULT_ROLL_LIMIT, ports).getRolls();
         }
-        catch (CutoffExceededException e)
-        {
-            ;
-        }
+        catch (CutoffExceededException ignored) {}
 
         return estimatesFromNow;
     }
@@ -316,10 +305,7 @@ public class SOCBuildingSpeedEstimate
             estimatesFromNow[CARD] = calculateRollsAndRsrcFast(resources, SOCDevCard.COST, DEFAULT_ROLL_LIMIT, ports).getRolls();
             estimatesFromNow[SHIP] = calculateRollsAndRsrcFast(resources, SOCShip.COST, DEFAULT_ROLL_LIMIT, ports).getRolls();
         }
-        catch (CutoffExceededException e)
-        {
-            ;
-        }
+        catch (CutoffExceededException ignored) {}
 
         return estimatesFromNow;
     }

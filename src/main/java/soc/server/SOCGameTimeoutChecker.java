@@ -48,7 +48,7 @@ package soc.server;
         server = srv;
         alive = true;
         setName ("timeoutChecker");  // Thread name for debug
-        try { setDaemon(true); } catch (Exception e) {}  // Don't wait on us to exit program
+        try { setDaemon(true); } catch( Exception ignored ) {}  // Don't wait on us to exit program
     }
 
     /**

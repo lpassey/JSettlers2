@@ -4,20 +4,20 @@
  * Portions of this file Copyright (C) 2007-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012-2013 Paul Bilnoski <paul@bilnoski.net>
  * Portions of this file Copyright (C) 2017 Ruud Poutsma <rtimon@gmail.com>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -157,7 +157,7 @@ import javax.swing.JComponent;
  *</UL>
  */
 @SuppressWarnings("serial")
-/*package*/ class SOCBoardPanel extends JComponent implements MouseListener, MouseMotionListener
+    /*package*/ class SOCBoardPanel extends JComponent implements MouseListener, MouseMotionListener
 {
     /** i18n text strings */
     private static final SOCStringManager strings = SOCStringManager.getClientManager();
@@ -184,7 +184,7 @@ import javax.swing.JComponent;
      *
      * @since 2.0.00
      */
-    private static String[] HEX_GRAPHICS_SET_SUBDIRS = { "pastel", "classic" };
+    private static String[] HEX_GRAPHICS_SET_SUBDIRS = {"pastel", "classic"};
 
     /**
      * For {@link #isScaled}, minimum acceptable scaling factor.
@@ -255,9 +255,9 @@ import javax.swing.JComponent;
      * @since 1.1.08
      */
     private static final int[] DELTAX_FACING =
-    {
-        0, halfdeltaX, deltaX, halfdeltaX, -halfdeltaX, -deltaX, -halfdeltaX
-    };
+        {
+            0, halfdeltaX, deltaX, halfdeltaX, -halfdeltaX, -deltaX, -halfdeltaX
+        };
 
     /**
      * y-offset to move over 1 hex, for each port facing direction (1-6).
@@ -266,9 +266,9 @@ import javax.swing.JComponent;
      * @since 1.1.08
      */
     private static final int[] DELTAY_FACING =
-    {
-        0, -deltaY, 0, deltaY, deltaY, 0, -deltaY
-    };
+        {
+            0, -deltaY, 0, deltaY, deltaY, 0, -deltaY
+        };
 
     /**
      * hex coordinates for drawing the classic 4-player board.
@@ -277,25 +277,25 @@ import javax.swing.JComponent;
      * @see #hexX_6pl
      */
     private static final int[] hexX_st =
-    {
-        deltaX + halfdeltaX, 2 * deltaX + halfdeltaX, 3 * deltaX + halfdeltaX, 4 * deltaX + halfdeltaX,  // row 1 4 hexes
-        deltaX, 2 * deltaX, 3 * deltaX, 4 * deltaX, 5 * deltaX,                                          // row 2 5 hexes
-        halfdeltaX, deltaX + halfdeltaX, 2 * deltaX + halfdeltaX, 3 * deltaX + halfdeltaX, 4 * deltaX + halfdeltaX, 5 * deltaX + halfdeltaX,  // row 3 6 hexes
-        0, deltaX, 2 * deltaX, 3 * deltaX, 4 * deltaX, 5 * deltaX, 6 * deltaX,                           // row 4 7 hexes
-        halfdeltaX, deltaX + halfdeltaX, 2 * deltaX + halfdeltaX, 3 * deltaX + halfdeltaX, 4 * deltaX + halfdeltaX, 5 * deltaX + halfdeltaX,  // row 5 6 hexes
-        deltaX, 2 * deltaX, 3 * deltaX, 4 * deltaX, 5 * deltaX,                                          // row 6 5 hexes
-        deltaX + halfdeltaX, 2 * deltaX + halfdeltaX, 3 * deltaX + halfdeltaX, 4 * deltaX + halfdeltaX   // row 7 4 hexes
-    };
+        {
+            deltaX + halfdeltaX, 2 * deltaX + halfdeltaX, 3 * deltaX + halfdeltaX, 4 * deltaX + halfdeltaX,  // row 1 4 hexes
+            deltaX, 2 * deltaX, 3 * deltaX, 4 * deltaX, 5 * deltaX,                                          // row 2 5 hexes
+            halfdeltaX, deltaX + halfdeltaX, 2 * deltaX + halfdeltaX, 3 * deltaX + halfdeltaX, 4 * deltaX + halfdeltaX, 5 * deltaX + halfdeltaX,  // row 3 6 hexes
+            0, deltaX, 2 * deltaX, 3 * deltaX, 4 * deltaX, 5 * deltaX, 6 * deltaX,                           // row 4 7 hexes
+            halfdeltaX, deltaX + halfdeltaX, 2 * deltaX + halfdeltaX, 3 * deltaX + halfdeltaX, 4 * deltaX + halfdeltaX, 5 * deltaX + halfdeltaX,  // row 5 6 hexes
+            deltaX, 2 * deltaX, 3 * deltaX, 4 * deltaX, 5 * deltaX,                                          // row 6 5 hexes
+            deltaX + halfdeltaX, 2 * deltaX + halfdeltaX, 3 * deltaX + halfdeltaX, 4 * deltaX + halfdeltaX   // row 7 4 hexes
+        };
     private static final int[] hexY_st =
-    {
-        0, 0, 0, 0,
-        deltaY, deltaY, deltaY, deltaY, deltaY,
-        2 * deltaY, 2 * deltaY, 2 * deltaY, 2 * deltaY, 2 * deltaY, 2 * deltaY,
-        3 * deltaY, 3 * deltaY, 3 * deltaY, 3 * deltaY, 3 * deltaY, 3 * deltaY, 3 * deltaY,
-        4 * deltaY, 4 * deltaY, 4 * deltaY, 4 * deltaY, 4 * deltaY, 4 * deltaY,
-        5 * deltaY, 5 * deltaY, 5 * deltaY, 5 * deltaY, 5 * deltaY,
-        6 * deltaY, 6 * deltaY, 6 * deltaY, 6 * deltaY
-    };
+        {
+            0, 0, 0, 0,
+            deltaY, deltaY, deltaY, deltaY, deltaY,
+            2 * deltaY, 2 * deltaY, 2 * deltaY, 2 * deltaY, 2 * deltaY, 2 * deltaY,
+            3 * deltaY, 3 * deltaY, 3 * deltaY, 3 * deltaY, 3 * deltaY, 3 * deltaY, 3 * deltaY,
+            4 * deltaY, 4 * deltaY, 4 * deltaY, 4 * deltaY, 4 * deltaY, 4 * deltaY,
+            5 * deltaY, 5 * deltaY, 5 * deltaY, 5 * deltaY, 5 * deltaY,
+            6 * deltaY, 6 * deltaY, 6 * deltaY, 6 * deltaY
+        };
 
     /**
      * hex coordinates for drawing the 6-player board, or null.
@@ -345,30 +345,30 @@ import javax.swing.JComponent;
      * coordinates for drawing the playing pieces
      */
     /***  road looks like "|" along left edge of hex ***/
-    private static final int[] vertRoadX = { -2,  3,  3, -2, -2 };  // center is (x=0.5, y=32 == HALF_HEXHEIGHT)
-    private static final int[] vertRoadY = { 17, 17, 47, 47, 17 };
+    private static final int[] vertRoadX = {-2, 3, 3, -2, -2};  // center is (x=0.5, y=32 == HALF_HEXHEIGHT)
+    private static final int[] vertRoadY = {17, 17, 47, 47, 17};
 
     /***  road looks like "/" along upper-left edge of hex ***/
-    private static final int[] upRoadX = { -1, 26, 29, 2, -1 };
-    private static final int[] upRoadY = { 15, -2, 2, 19, 15 };
+    private static final int[] upRoadX = {-1, 26, 29, 2, -1};
+    private static final int[] upRoadY = {15, -2, 2, 19, 15};
 
     /***  road looks like "\" along lower-left edge of hex ***/
-    private static final int[] downRoadX = { -1, 2, 29, 26, -1 };
-    private static final int[] downRoadY = { 49, 45, 62, 66, 49 };
+    private static final int[] downRoadX = {-1, 2, 29, 26, -1};
+    private static final int[] downRoadY = {49, 45, 62, 66, 49};
 
     /***  settlement  ***/
-    private static final int[] settlementX = { -7, 0, 7, 7, -7, -7, 7 };
-    private static final int[] settlementY = { -7, -14, -7, 5, 5, -7, -7 };
+    private static final int[] settlementX = {-7, 0, 7, 7, -7, -7, 7};
+    private static final int[] settlementY = {-7, -14, -7, 5, 5, -7, -7};
 
     /***  city  ***/
     private static final int[] cityX =
-    {
-        -10, -4, 2, 2, 10, 10, -10, -10, 0, 0, 10, 5, -10
-    };
+        {
+            -10, -4, 2, 2, 10, 10, -10, -10, 0, 0, 10, 5, -10
+        };
     private static final int[] cityY =
-    {
-        -8, -14, -8, -4, -4, 6, 6, -8, -8, -4, -4, -8, -8
-    };
+        {
+            -8, -14, -8, -4, -4, 6, 6, -8, -8, -4, -4, -8, -8
+        };
 
     /**
      * Ship.
@@ -377,9 +377,9 @@ import javax.swing.JComponent;
      * @since 2.0.00
      */
     private static final int[] shipX =           // center is (x=0.5, y=32)
-        { -2,  3,  6,  6,  4, 13, 11, -11, -11, -1, -1,  0,  0, -2 },
-                               shipY =
-        { 22, 24, 28, 33, 36, 36, 43,  43,  36, 36, 34, 32, 27, 22 };
+        {-2, 3, 6, 6, 4, 13, 11, -11, -11, -1, -1, 0, 0, -2},
+        shipY =
+            {22, 24, 28, 33, 36, 36, 43, 43, 36, 36, 34, 32, 27, 22};
 
     /**
      * Warship for scenario <tt>SC_PIRI</tt>.
@@ -389,9 +389,9 @@ import javax.swing.JComponent;
      * @since 2.0.00
      */
     private static final int[] warshipX =        // center is (x=0.5, y=32)
-        { -7, -2,  1,  1, -1,    4,  4,  5,  5, 3,   8, 11, 11,  9,    13, 11, -11, -11, -6, -6, -5, -5, -7 },
-                               warshipY =
-        { 22, 24, 28, 33, 36,   36, 34, 32, 27, 22, 24, 28, 33, 36,    36, 43,  43,  36, 36, 34, 32, 27, 22 };
+        {-7, -2, 1, 1, -1, 4, 4, 5, 5, 3, 8, 11, 11, 9, 13, 11, -11, -11, -6, -6, -5, -5, -7},
+        warshipY =
+            {22, 24, 28, 33, 36, 36, 34, 32, 27, 22, 24, 28, 33, 36, 36, 43, 43, 36, 36, 34, 32, 27, 22};
 
     /**
      * Fortress polygon for scenario <tt>SC_PIRI</tt>.
@@ -401,11 +401,11 @@ import javax.swing.JComponent;
     private static final int[] fortressX =
         //  left side        //  crenellations
         // right side        // bottom of towers and of main mass
-        { -14,-14, -7, -7,   -5, -5, -1, -1, 1,  1,  5, 5,
-          7,  7, 14, 14,      7, 7, -7, -7 },
-                               fortressY =
-        {  11,-11,-11, -7,   -7, -9, -9, -7,-7, -9, -9,-7,
-         -7,-11,-11, 11,     11, 9,  9, 11 };
+        {-14, -14, -7, -7, -5, -5, -1, -1, 1, 1, 5, 5,
+            7, 7, 14, 14, 7, 7, -7, -7},
+        fortressY =
+            {11, -11, -11, -7, -7, -9, -9, -7, -7, -9, -9, -7,
+                -7, -11, -11, 11, 11, 9, 9, 11};
 
     /**
      * marker diamond/"village" polygon. X is -14 to +14; Y is -10 to +10.
@@ -415,18 +415,18 @@ import javax.swing.JComponent;
      * Before v2.3.00 these fields were called villageX, villageY.
      * @since 2.0.00
      */
-    private static final int[] diamondX = {  0,  14,  0, -14,   0 },
-                               diamondY = { -10,  0, 10,   0, -10 };
+    private static final int[] diamondX = {0, 14, 0, -14, 0},
+        diamondY = {-10, 0, 10, 0, -10};
 
     /** robber polygon. X is -4 to +4; Y is -8 to +8. */
     private static final int[] robberX =
-    {
-        -2, -4, -4, -2, 2, 4, 4, 2, 4, 4, -4, -4, -2, 2
-    };
+        {
+            -2, -4, -4, -2, 2, 4, 4, 2, 4, 4, -4, -4, -2, 2
+        };
     private static final int[] robberY =
-    {
-        -2, -4, -6, -8, -8, -6, -4, -2, 0, 8, 8, 0, -2, -2
-    };
+        {
+            -2, -4, -6, -8, -8, -6, -4, -2, 0, 8, 8, 0, -2, -2
+        };
 
     // The pirate ship uses shipX, shipY like any other ship.
 
@@ -442,14 +442,14 @@ import javax.swing.JComponent;
      * @since 1.1.20
      */
     private static final int[][] portArrowsX =
-    {
-        { 27, 31, 23 },
-        { 51, 49, 45 },
-        { 51, 45, 49 },
-        { 27, 23, 31 },
-        { 3, 5, 9 },
-        { 3, 9, 5 },
-    };
+        {
+            {27, 31, 23},
+            {51, 49, 45},
+            {51, 45, 49},
+            {27, 23, 31},
+            {3, 5, 9},
+            {3, 9, 5},
+        };
 
     /**
      * For port hexes, the triangular arrowheads towards port settlement nodes:
@@ -457,14 +457,14 @@ import javax.swing.JComponent;
      * @since 1.1.20
      */
     private static final int[][] portArrowsY =
-    {
-        { 4, 8, 8 },
-        { 18, 24, 16 },
-        { 45, 47, 39 },
-        { 59, 55, 55 },
-        { 45, 39, 47 },
-        { 18, 16, 24 },
-    };
+        {
+            {4, 8, 8},
+            {18, 24, 16},
+            {45, 47, 39},
+            {59, 55, 55},
+            {45, 39, 47},
+            {18, 16, 24},
+        };
 
     /**
      * Current-player arrow, left-pointing.
@@ -476,9 +476,9 @@ import javax.swing.JComponent;
      * @since 1.1.00
      */
     private static final int[] arrowXL =
-    {
-        0,  17, 18, 18, 36, 36, 18, 18, 17,  0
-    };
+        {
+            0, 17, 18, 18, 36, 36, 18, 18, 17, 0
+        };
 
     /**
      * Current-player arrow, right-pointing.
@@ -493,9 +493,9 @@ import javax.swing.JComponent;
      * @since 1.1.00
      */
     private static final int[] arrowY =
-    {
-        17,  0,  0,  6,  6, 30, 30, 36, 36, 19
-    };
+        {
+            17, 0, 0, 6, 6, 30, 30, 36, 36, 19
+        };
 
     /**
      * Current-player arrow fits in a 37 x 37 square.
@@ -512,7 +512,7 @@ import javax.swing.JComponent;
      * @see #ARROW_COLOR_PLACING
      * @since 1.1.00
      */
-    private static final Color ARROW_COLOR = new Color(224, 255, 224);
+    private static final Color ARROW_COLOR = new Color( 224, 255, 224 );
 
     /**
      * Player arrow color when game is over,
@@ -521,7 +521,7 @@ import javax.swing.JComponent;
      * The game-over color was added in 1.1.09.  Previously, {@link #ARROW_COLOR} was used.
      * @since 1.1.08
      */
-    private static final Color ARROW_COLOR_PLACING = new Color(255, 255, 60);
+    private static final Color ARROW_COLOR_PLACING = new Color( 255, 255, 60 );
 
     /**
      * Border colors for hex rendering.
@@ -536,12 +536,12 @@ import javax.swing.JComponent;
      * @since 1.1.20
      */
     private static final Color[] HEX_BORDER_COLORS =
-    {
-        null,  // water
-        new Color(78,16,0), new Color(58,59,57), new Color(20,113,0),  // clay, ore, sheep
-        new Color(142,109,0), new Color(9,54,13), new Color(203,180,73),  // wheat, wood, desert
-        null, new Color(188,188,188)  // gold (no border), fog
-    };
+        {
+            null,  // water
+            new Color( 78, 16, 0 ), new Color( 58, 59, 57 ), new Color( 20, 113, 0 ),  // clay, ore, sheep
+            new Color( 142, 109, 0 ), new Color( 9, 54, 13 ), new Color( 203, 180, 73 ),  // wheat, wood, desert
+            null, new Color( 188, 188, 188 )  // gold (no border), fog
+        };
 
     /**
      * Border colors for hex rendering when {@link #isRotated}.
@@ -556,11 +556,11 @@ import javax.swing.JComponent;
      * @since 1.1.20
      */
     private static final Color[] ROTAT_HEX_BORDER_COLORS =
-    {
-        null,  // water
-        new Color(120,36,0), HEX_BORDER_COLORS[2], HEX_BORDER_COLORS[3],  // clay, ore, sheep
-        HEX_BORDER_COLORS[4], new Color(9,54,11), HEX_BORDER_COLORS[6]  // wheat, wood, desert
-    };
+        {
+            null,  // water
+            new Color( 120, 36, 0 ), HEX_BORDER_COLORS[2], HEX_BORDER_COLORS[3],  // clay, ore, sheep
+            HEX_BORDER_COLORS[4], new Color( 9, 54, 11 ), HEX_BORDER_COLORS[6]  // wheat, wood, desert
+        };
 
     /**
      * Water hex border color, based on {@code waterHex.gif} average color, which varies by hex Graphics Set.
@@ -572,10 +572,10 @@ import javax.swing.JComponent;
      * @since 2.0.00
      */
     private static final Color[] HEX_GRAPHICS_SET_BORDER_WATER_COLORS =
-    {
-        new Color(80, 138, 181),  // pastel.  waterHex.gif HSV 205, 48, 87: Border HSV 205, 56, 71
-        new Color(38,  60, 113),  // classic. waterHex.gif HSV 222, 60, 55: Border HSV 222, 66, 44
-    };
+        {
+            new Color( 80, 138, 181 ),  // pastel.  waterHex.gif HSV 205, 48, 87: Border HSV 205, 56, 71
+            new Color( 38, 60, 113 ),  // classic. waterHex.gif HSV 222, 60, 55: Border HSV 222, 66, 44
+        };
 
     /**
      * Pirate Path dotted-line color, which varies by hex Graphics Set, for
@@ -586,10 +586,10 @@ import javax.swing.JComponent;
      * @since 2.0.00
      */
     private static final Color[] HEX_GRAPHICS_SET_SC_PIRI_PATH_COLORS =
-    {
-        ColorSquare.WATER.darker(),    // pastel
-        ColorSquare.WATER.brighter(),  // classic
-    };
+        {
+            ColorSquare.WATER.darker(),    // pastel
+            ColorSquare.WATER.brighter(),  // classic
+        };
 
     /**
      * For repaint when retrying a failed rescale-image,
@@ -860,11 +860,11 @@ import javax.swing.JComponent;
      * @since 1.1.08
      */
     private static final Color[] DICE_NUMBER_CIRCLE_COLORS =
-        { Color.YELLOW,
-          new Color(255, 189, 0),
-          new Color(255, 125, 0),
-          new Color(255,  84, 0),
-          Color.RED
+        {Color.YELLOW,
+            new Color( 255, 189, 0 ),
+            new Color( 255, 125, 0 ),
+            new Color( 255, 84, 0 ),
+            Color.RED
         };
 
     /**
@@ -1440,9 +1440,9 @@ import javax.swing.JComponent;
      * @since 1.1.07
      */
     private static final int[] hexCornersX =
-    {
-        27, 54, 54, 27, 0, 0, 27
-    };
+        {
+            27, 54, 54, 27, 0, 0, 27
+        };
 
     /** hex polygon's corner coordinates, clockwise from top-center.
      * @see #hexCornersX
@@ -1450,9 +1450,9 @@ import javax.swing.JComponent;
      * @since 1.1.07
      */
     private static final int[] hexCornersY =
-    {
-        0, 16, 46, 62, 46, 16, 0
-    };
+        {
+            0, 16, 46, 62, 46, 16, 0
+        };
 
     /**
      * hex polygon corner coordinates, as scaled to current board size.
@@ -1785,10 +1785,10 @@ import javax.swing.JComponent;
      * @param layoutVS  Optional board layout "visual shift and trim" (Added Layout Part "VS")
      *     to use when setting minimum size of this {@code SOCBoardPanel}, or {@code null}
      */
-    public SOCBoardPanel(final SOCPlayerInterface pi, final int[] layoutVS)
+    public SOCBoardPanel( final SOCPlayerInterface pi, final int[] layoutVS )
     {
         super();
-        setOpaque(true);
+        setOpaque( true );
 
         game = pi.getGame();
         playerInterface = pi;
@@ -1881,7 +1881,7 @@ import javax.swing.JComponent;
             panelMinBH = scaledPanelH;
         }
 
-        minSize = new Dimension(scaledPanelW, scaledPanelH);
+        minSize = new Dimension( scaledPanelW, scaledPanelH );
         unscaledBoardW = scaledPanelW;  // also == panelMinBW (panelMinBH if rotated) at this point
         scaledBoardW = scaledPanelW;
         hasCalledSetSize = false;
@@ -1922,19 +1922,19 @@ import javax.swing.JComponent;
         mode = NONE;
 
         // Set up mouse listeners
-        this.addMouseListener(this);
-        this.addMouseMotionListener(this);
+        this.addMouseListener( this );
+        this.addMouseMotionListener( this );
 
         // Cached colors to be determined later
-        robberGhostFill = new Color [1 + board.max_robber_hextype];
-        robberGhostOutline = new Color [1 + board.max_robber_hextype];
+        robberGhostFill = new Color[1 + board.max_robber_hextype];
+        robberGhostOutline = new Color[1 + board.max_robber_hextype];
 
         // Set up hover tooltip info
-        hoverTip = new BoardToolTip(this);
+        hoverTip = new BoardToolTip( this );
 
         // Set up popup menu
-        popupMenu = new BoardPopupMenu(this);
-        add (popupMenu);
+        popupMenu = new BoardPopupMenu( this );
+        add( popupMenu );
         popupMenuSystime = System.currentTimeMillis();  // Set to a reasonable value
 
         // Overlay text
@@ -1942,7 +1942,7 @@ import javax.swing.JComponent;
         superText2 = null;
 
         // load the static images
-        loadImages(this, isRotated);
+        loadImages( this, isRotated );
 
         // Point to static images, unless we're later resized.
         // Now that we've called loadImages, update isHexesAlwaysScaled.
@@ -1985,85 +1985,85 @@ import javax.swing.JComponent;
         int i;
         // init edge map
         edgeMap = new int[345];
-        Arrays.fill(edgeMap, 0);
+        Arrays.fill( edgeMap, 0 );
 
         if (is6player)
         {
             // since 0x00 is a valid edge for 6player, it's
             // marked in the map as -1 (0 means invalid in the map).
-            initEdgeMapAux(3, 0, 9, 3, 0x17);    // Top row: 0x17 is first land hex of this row
-            initEdgeMapAux(2, 3, 10, 6, 0x15);
-            initEdgeMapAux(1, 6, 11, 9, 0x13);
-            initEdgeMapAux(0, 9, 12, 12, 0x11);  // Middle row: 0x11 is leftmost land hex
-            initEdgeMapAux(1, 12, 11, 15, 0x31);
-            initEdgeMapAux(2, 15, 10, 18, 0x51);
-            initEdgeMapAux(3, 18, 9, 21, 0x71);  // Bottom row: 0x71 is first land hex of this row
+            initEdgeMapAux( 3, 0, 9, 3, 0x17 );    // Top row: 0x17 is first land hex of this row
+            initEdgeMapAux( 2, 3, 10, 6, 0x15 );
+            initEdgeMapAux( 1, 6, 11, 9, 0x13 );
+            initEdgeMapAux( 0, 9, 12, 12, 0x11 );  // Middle row: 0x11 is leftmost land hex
+            initEdgeMapAux( 1, 12, 11, 15, 0x31 );
+            initEdgeMapAux( 2, 15, 10, 18, 0x51 );
+            initEdgeMapAux( 3, 18, 9, 21, 0x71 );  // Bottom row: 0x71 is first land hex of this row
         }
         else
         {
-            initEdgeMapAux(4, 3, 10, 6, 0x37);    // Top row: 0x37 is first land hex of this row
-            initEdgeMapAux(3, 6, 11, 9, 0x35);
-            initEdgeMapAux(2, 9, 12, 12, 0x33);  // Middle row: 0x33 is leftmost land hex
-            initEdgeMapAux(3, 12, 11, 15, 0x53);
-            initEdgeMapAux(4, 15, 10, 18, 0x73);  // Bottom row: 0x73 is first land hex of this row
+            initEdgeMapAux( 4, 3, 10, 6, 0x37 );    // Top row: 0x37 is first land hex of this row
+            initEdgeMapAux( 3, 6, 11, 9, 0x35 );
+            initEdgeMapAux( 2, 9, 12, 12, 0x33 );  // Middle row: 0x33 is leftmost land hex
+            initEdgeMapAux( 3, 12, 11, 15, 0x53 );
+            initEdgeMapAux( 4, 15, 10, 18, 0x73 );  // Bottom row: 0x73 is first land hex of this row
         }
 
         // init node map
         nodeMap = new int[345];
-        Arrays.fill(nodeMap, 0);
+        Arrays.fill( nodeMap, 0 );
 
         if (is6player)
         {
-            initNodeMapAux(3,  0,  9,  4, 0x17);  // Very top row: 3 across
-            initNodeMapAux(2,  3, 10,  7, 0x15);
-            initNodeMapAux(1,  6, 11, 10, 0x13);
-            initNodeMapAux(0,  9, 12, 13, 0x11);  // Middle row: 6 across, 0x11 is leftmost land hex
-            initNodeMapAux(1, 12, 11, 16, 0x31);
-            initNodeMapAux(2, 15, 10, 19, 0x51);
-            initNodeMapAux(3, 18,  9, 22, 0x71);  // Very bottom row: 3 across
+            initNodeMapAux( 3, 0, 9, 4, 0x17 );  // Very top row: 3 across
+            initNodeMapAux( 2, 3, 10, 7, 0x15 );
+            initNodeMapAux( 1, 6, 11, 10, 0x13 );
+            initNodeMapAux( 0, 9, 12, 13, 0x11 );  // Middle row: 6 across, 0x11 is leftmost land hex
+            initNodeMapAux( 1, 12, 11, 16, 0x31 );
+            initNodeMapAux( 2, 15, 10, 19, 0x51 );
+            initNodeMapAux( 3, 18, 9, 22, 0x71 );  // Very bottom row: 3 across
         }
         else
         {
-            initNodeMapAux(4,  3, 10,  7, 0x37);  // Top row: 0x37 is first land hex of this row
-            initNodeMapAux(3,  6, 11, 10, 0x35);
-            initNodeMapAux(2,  9, 12, 13, 0x33);  // Middle row: 0x33 is leftmost land hex
-            initNodeMapAux(3, 12, 11, 16, 0x53);
-            initNodeMapAux(4, 15, 10, 19, 0x73);  // Bottom row: 0x73 is first land hex of this row
+            initNodeMapAux( 4, 3, 10, 7, 0x37 );  // Top row: 0x37 is first land hex of this row
+            initNodeMapAux( 3, 6, 11, 10, 0x35 );
+            initNodeMapAux( 2, 9, 12, 13, 0x33 );  // Middle row: 0x33 is leftmost land hex
+            initNodeMapAux( 3, 12, 11, 16, 0x53 );
+            initNodeMapAux( 4, 15, 10, 19, 0x73 );  // Bottom row: 0x73 is first land hex of this row
         }
 
         // init hex map
         hexMap = new int[345];
-        Arrays.fill(hexMap, 0);
+        Arrays.fill( hexMap, 0 );
 
         if (is6player)
         {
-            initHexMapAux(3, 1, 8, 2, 0x17);    // Top row: 0x17 is first land hex
-            initHexMapAux(2, 4, 9, 5, 0x15);
-            initHexMapAux(1, 7, 10, 8, 0x13);
-            initHexMapAux(0, 10, 11, 11, 0x11);
-            initHexMapAux(1, 13, 10, 14, 0x31);
-            initHexMapAux(2, 16, 9, 17, 0x51);
-            initHexMapAux(3, 19, 8, 20, 0x71);  // Bottom row: 0x71 is first land hex
+            initHexMapAux( 3, 1, 8, 2, 0x17 );    // Top row: 0x17 is first land hex
+            initHexMapAux( 2, 4, 9, 5, 0x15 );
+            initHexMapAux( 1, 7, 10, 8, 0x13 );
+            initHexMapAux( 0, 10, 11, 11, 0x11 );
+            initHexMapAux( 1, 13, 10, 14, 0x31 );
+            initHexMapAux( 2, 16, 9, 17, 0x51 );
+            initHexMapAux( 3, 19, 8, 20, 0x71 );  // Bottom row: 0x71 is first land hex
         }
         else
         {
-            initHexMapAux(4, 4, 9, 5, 0x37);    // Top row: 0x37 is first land hex
-            initHexMapAux(3, 7, 10, 8, 0x35);
-            initHexMapAux(2, 10, 11, 11, 0x33);
-            initHexMapAux(3, 13, 10, 14, 0x53);
-            initHexMapAux(4, 16, 9, 17, 0x73);  // Bottom row: 0x73 is first land hex
+            initHexMapAux( 4, 4, 9, 5, 0x37 );    // Top row: 0x37 is first land hex
+            initHexMapAux( 3, 7, 10, 8, 0x35 );
+            initHexMapAux( 2, 10, 11, 11, 0x33 );
+            initHexMapAux( 3, 13, 10, 14, 0x53 );
+            initHexMapAux( 4, 16, 9, 17, 0x73 );  // Bottom row: 0x73 is first land hex
         }
 
         hexIDtoNum = new int[0xDE];
-        Arrays.fill(hexIDtoNum, 0);
+        Arrays.fill( hexIDtoNum, 0 );
 
-        initHexIDtoNumAux(0x17, 0x7D, 0);
-        initHexIDtoNumAux(0x15, 0x9D, 4);
-        initHexIDtoNumAux(0x13, 0xBD, 9);
-        initHexIDtoNumAux(0x11, 0xDD, 15);
-        initHexIDtoNumAux(0x31, 0xDB, 22);
-        initHexIDtoNumAux(0x51, 0xD9, 28);
-        initHexIDtoNumAux(0x71, 0xD7, 33);
+        initHexIDtoNumAux( 0x17, 0x7D, 0 );
+        initHexIDtoNumAux( 0x15, 0x9D, 4 );
+        initHexIDtoNumAux( 0x13, 0xBD, 9 );
+        initHexIDtoNumAux( 0x11, 0xDD, 15 );
+        initHexIDtoNumAux( 0x31, 0xDB, 22 );
+        initHexIDtoNumAux( 0x51, 0xD9, 28 );
+        initHexIDtoNumAux( 0x71, 0xD7, 33 );
 
         if (is6player)
         {
@@ -2118,7 +2118,7 @@ import javax.swing.JComponent;
      *   this row's {@link #edgeMap}[x,y] values will be set to
      *   edge coordinates offset from <tt>startHex</tt>.
      */
-    private void initEdgeMapAux(int x1, int y1, int x2, int y2, int startHex)
+    private void initEdgeMapAux( int x1, int y1, int x2, int y2, int startHex )
     {
         final int hexVerticalXmod2 = x1 % 2;  // to find vertical-edge (vs middle) x-coordinates within each hex
         int x;
@@ -2161,7 +2161,7 @@ import javax.swing.JComponent;
                 break;
 
             default:
-                System.out.println("initEdgeMap error");
+                System.out.println( "initEdgeMap error" );
 
                 return;
             }
@@ -2224,7 +2224,7 @@ import javax.swing.JComponent;
                     break;
 
                 default:
-                    System.out.println("initEdgeMap error");
+                    System.out.println( "initEdgeMap error" );
 
                     return;
                 }
@@ -2234,7 +2234,7 @@ import javax.swing.JComponent;
         }
     }
 
-    private void initHexMapAux(int x1, int y1, int x2, int y2, int startHex)
+    private void initHexMapAux( int x1, int y1, int x2, int y2, int startHex )
     {
         int x;
         int y;
@@ -2285,12 +2285,12 @@ import javax.swing.JComponent;
      * @param startHex  Starting hex ID (0x-coordinate of first hex in this row), to use with nodeMap[x1, y1].
      */
     @SuppressWarnings("OctalInteger")
-    private void initNodeMapAux(int x1, int y1, int x2, int y2, int startHex)
+    private void initNodeMapAux( int x1, int y1, int x2, int y2, int startHex )
     {
         int rowState = 0;  // current state; related to row# and logic for node coords from hex coords
         int row = 0;  // 0 for first row (y==y1), 1 for second, etc.
         int hexNum;  // starts with startHex, incr by 0x22 to move across a horizontal row of board coords
-                     // during rowStates 01, 12, 32, 41.
+        // during rowStates 01, 12, 32, 41.
         int nodeNum = 0;  // node number
 
         /**
@@ -2348,7 +2348,7 @@ import javax.swing.JComponent;
                 break;
 
             default:
-                System.out.println("initNodeMap error");
+                System.out.println( "initNodeMap error" );
 
                 return;
             }
@@ -2434,7 +2434,7 @@ import javax.swing.JComponent;
                     break;
 
                 default:
-                    System.out.println("initNodeMap error");
+                    System.out.println( "initNodeMap error" );
 
                     return;
                 }
@@ -2442,7 +2442,7 @@ import javax.swing.JComponent;
         }  // for (y)
     }
 
-    private void initHexIDtoNumAux(int begin, int end, int num)
+    private void initHexIDtoNumAux( int begin, int end, int num )
     {
         int i;
 
@@ -2461,7 +2461,7 @@ import javax.swing.JComponent;
     @Override
     public Dimension getPreferredSize()
     {
-        return new Dimension(scaledPanelW, scaledPanelH);
+        return new Dimension( scaledPanelW, scaledPanelH );
     }
 
     /**
@@ -2495,11 +2495,11 @@ import javax.swing.JComponent;
      * @return extra size in pixels, or (0, 0)
      * @since 2.0.00
      */
-    public Dimension getExtraSizeFromBoard(final boolean doScale)
+    public Dimension getExtraSizeFromBoard( final boolean doScale )
     {
         // Based on constructor's size calcs for panelMinBW, panelMinBH
 
-        if (! isLargeBoard)
+        if (!isLargeBoard)
         {
             if (isRotated)
             {
@@ -2507,15 +2507,15 @@ import javax.swing.JComponent;
                 int retW = 2 * deltaY, retH = halfdeltaY;
                 if (doScale)
                 {
-                    retW = scaleToActual(retW);
-                    retH = scaleToActual(retH);
+                    retW = scaleToActual( retW );
+                    retH = scaleToActual( retH );
                 }
-                return new Dimension(retW, retH);
+                return new Dimension( retW, retH );
             }
             else
             {
                 // standard 4pl
-                return new Dimension(0, 0);
+                return new Dimension( 0, 0 );
             }
         }
 
@@ -2536,14 +2536,14 @@ import javax.swing.JComponent;
 
         int retW = w - PANELPAD_CBOARD4_WIDTH + PANELPAD_LBOARD_RT,
             retH = h - PANELPAD_CBOARD4_HEIGHT + PANELPAD_LBOARD_BTM;
-                // ignore HEXY_OFF_SLOPE_HEIGHT: it adds same amount to classic & sea board height
+        // ignore HEXY_OFF_SLOPE_HEIGHT: it adds same amount to classic & sea board height
         if (doScale)
         {
-            retW = scaleToActual(retW);
-            retH = scaleToActual(retH);
+            retW = scaleToActual( retW );
+            retH = scaleToActual( retH );
         }
 
-        return new Dimension(retW, retH);
+        return new Dimension( retW, retH );
     }
 
     /**
@@ -2558,10 +2558,10 @@ import javax.swing.JComponent;
      * @since 1.1.00
      */
     @Override
-    public void setSize(int newW, int newH)
+    public void setSize( int newW, int newH )
         throws IllegalArgumentException
     {
-        setSize(newW, newH, false);
+        setSize( newW, newH, false );
     }
 
     /**
@@ -2575,7 +2575,7 @@ import javax.swing.JComponent;
      *     See {@link #setSize(int, int)} for details.
      * @since 2.0.00
      */
-    public void setSize(int newW, int newH, final boolean noException)
+    public void setSize( int newW, int newH, final boolean noException )
         throws IllegalArgumentException
     {
         if ((newW == scaledPanelW) && (newH == scaledPanelH) && hasCalledSetSize)
@@ -2591,10 +2591,10 @@ import javax.swing.JComponent;
 
         // If below min-size, rescaleBoard throws
         // IllegalArgumentException. Pass to our caller.
-        rescaleBoard(newW, newH);
+        rescaleBoard( newW, newH );
 
         // Resize
-        super.setSize(newW, newH);
+        super.setSize( newW, newH );
         if ((newW > 0) && (newH > 0))
             hasCalledSetSize = true;
         repaint();
@@ -2610,10 +2610,10 @@ import javax.swing.JComponent;
      * @since 1.1.00
      */
     @Override
-    public void setSize(Dimension sz)
+    public void setSize( Dimension sz )
         throws IllegalArgumentException
     {
-        setSize (sz.width, sz.height);
+        setSize( sz.width, sz.height );
     }
 
     /**
@@ -2630,13 +2630,13 @@ import javax.swing.JComponent;
      * @since 1.1.00
      */
     @Override
-    public void setBounds(int x, int y, int w, int h)
+    public void setBounds( int x, int y, int w, int h )
         throws IllegalArgumentException
     {
         if ((w != scaledPanelW) || (h != scaledPanelH))
-            rescaleBoard(w, h);
+            rescaleBoard( w, h );
 
-        super.setBounds(x, y, w, h);
+        super.setBounds( x, y, w, h );
     }
 
     /**
@@ -2647,7 +2647,7 @@ import javax.swing.JComponent;
      * @param piece  Piece that was updated, includes its new value
      * @since 2.0.00
      */
-    public void pieceValueUpdated(final SOCPlayingPiece piece)
+    public void pieceValueUpdated( final SOCPlayingPiece piece )
     {
         if (piece instanceof SOCFortress)
         {
@@ -2671,7 +2671,7 @@ import javax.swing.JComponent;
             final int pn = piece.getPlayerNumber();
 
             // repaint this piece in the AWT thread
-            java.awt.EventQueue.invokeLater(new Runnable()
+            java.awt.EventQueue.invokeLater( new Runnable()
             {
                 public void run()
                 {
@@ -2679,15 +2679,15 @@ import javax.swing.JComponent;
 
                     final Image ibuf = buffer;  // Local var in case field becomes null in other thread during paint
                     if (ibuf != null)
-                        drawFortress(ibuf.getGraphics(), fort, pn, false, xlat);
+                        drawFortress( ibuf.getGraphics(), fort, pn, false, xlat );
 
                     Graphics bgr = getGraphics();
                     if (bgr != null)
-                        drawFortress(bgr, fort, pn, false, xlat);
+                        drawFortress( bgr, fort, pn, false, xlat );
                     else
                         repaint();
                 }
-            });
+            } );
         }
         else if (piece instanceof SOCVillage)
         {
@@ -2729,7 +2729,7 @@ import javax.swing.JComponent;
             // force overwrite of hexes having previous graphics set
             try
             {
-                rescaleBoard(scaledPanelW, scaledPanelH);
+                rescaleBoard( scaledPanelW, scaledPanelH );
             }
             catch (IllegalArgumentException ignored) {}
         }
@@ -2756,7 +2756,7 @@ import javax.swing.JComponent;
             }
         }
 
-        if (! foundAny)
+        if (!foundAny)
             return;
 
         flushBoardLayoutAndRepaint();
@@ -2775,13 +2775,13 @@ import javax.swing.JComponent;
      *   such a call is ignored, no rescaling of graphics is done.
      * @since 1.1.00
      */
-    private void rescaleBoard(int newW, int newH)
+    private void rescaleBoard( int newW, int newH )
         throws IllegalArgumentException
     {
         if ((newW == 0) || (newH == 0))
             return;
         if ((newW < minSize.width) || (newH < minSize.height))
-            throw new IllegalArgumentException("Below minimum size");
+            throw new IllegalArgumentException( "Below minimum size" );
 
         /**
          * Set vars
@@ -2792,7 +2792,7 @@ import javax.swing.JComponent;
         scaledBoardW = newW;  // for use in next scaleToActual call
         isScaled = true;      // also needed for that call
         scaledHexesGraphicsSetIndex = hexesGraphicsSetIndex;
-        if (scaleToActual(minSize.height) > newH)
+        if (scaleToActual( minSize.height ) > newH)
         {
             // Using scaledPanelW:unscaledBoardW as a scaling ratio, newH wouldn't fit contents of board.
             // So, calc ratio based on newH:minSize.height instead
@@ -2804,7 +2804,7 @@ import javax.swing.JComponent;
         {
             isScaled = ((scaledPanelW / (float) minSize.width) >= SCALE_FACTOR_MIN)
                 && ((scaledPanelH / (float) minSize.height) >= SCALE_FACTOR_MIN);
-            if (! isScaled)
+            if (!isScaled)
             {
                 scaledBoardW = minSize.width;
             }
@@ -2819,19 +2819,19 @@ import javax.swing.JComponent;
         {
             // Because rotated, scaled on-screen width checks board height
 
-            final int hexesWidth = halfdeltaY * (board.getBoardHeight() + 2)  + HALF_HEXHEIGHT + HEXY_OFF_SLOPE_HEIGHT;
-                // getBoardHeight needs +2 to cover all of portsRing
-            panelMarginX = scaleToActual(panelMinBH - hexesWidth) / 2;  // take half, to center
+            final int hexesWidth = halfdeltaY * (board.getBoardHeight() + 2) + HALF_HEXHEIGHT + HEXY_OFF_SLOPE_HEIGHT;
+            // getBoardHeight needs +2 to cover all of portsRing
+            panelMarginX = scaleToActual( panelMinBH - hexesWidth ) / 2;  // take half, to center
 
             final int hexesHeight = halfdeltaX * (board.getBoardWidth() - 1),  // width - 1 from portsRing's extra margin
-                      scaledBoardH = scaleToActual(hexesHeight);
+                scaledBoardH = scaleToActual( hexesHeight );
             panelMarginY = (scaledPanelH - scaledBoardH) / 2;
         }
         else
         {
             final int hexesWidth = halfdeltaX * board.getBoardWidth();
-            panelMarginX = scaleToActual(panelMinBW - hexesWidth) / 2;  // take half, to center
-            panelMarginY = (scaledPanelH - scaleToActual(panelMinBH)) / 2;
+            panelMarginX = scaleToActual( panelMinBW - hexesWidth ) / 2;  // take half, to center
+            panelMarginY = (scaledPanelH - scaleToActual( panelMinBH )) / 2;
         }
 
         if (panelMarginX < (halfdeltaX / 4))  // and also if negative (larger than panelMinBW)
@@ -2842,8 +2842,8 @@ import javax.swing.JComponent;
         if (panelMarginY < (halfdeltaY / 4))  // and also if negative (larger than panelMinBW)
             panelMarginY = 0;
 
-        panelMarginX += scaleToActual(panelShiftBX);
-        panelMarginY += scaleToActual(panelShiftBY);
+        panelMarginX += scaleToActual( panelShiftBX );
+        panelMarginY += scaleToActual( panelShiftBY );
 
         /**
          * Off-screen buffer is now the wrong size.
@@ -2887,26 +2887,26 @@ import javax.swing.JComponent;
         }
         waterBC = HEX_GRAPHICS_SET_BORDER_WATER_COLORS[hexesGraphicsSetIndex];
 
-        if (! (isScaled || isHexesAlwaysScaled))
+        if (!(isScaled || isHexesAlwaysScaled))
         {
             for (int i = scaledHexes.length - 1; i >= 0; --i)
                 if (i < BC.length)
-                    scaledHexes[i] = renderBorderedHex(staticHex[i], (i != 0) ? BC[i] : waterBC);
+                    scaledHexes[i] = renderBorderedHex( staticHex[i], (i != 0) ? BC[i] : waterBC );
                 else
                     scaledHexes[i] = staticHex[i];
         }
         else
         {
-            final int w = scaleToActual((isRotated) ? HEXHEIGHT : HEXWIDTH),
-                      h = scaleToActual((isRotated) ? HEXWIDTH : HEXHEIGHT);
+            final int w = scaleToActual( (isRotated) ? HEXHEIGHT : HEXWIDTH ),
+                h = scaleToActual( (isRotated) ? HEXWIDTH : HEXHEIGHT );
 
             for (int i = scaledHexes.length - 1; i >= 0; --i)
             {
                 if (staticHex[i] != null)
                 {
-                    Image hi = getScaledImageUp(staticHex[i], w, h);
+                    Image hi = getScaledImageUp( staticHex[i], w, h );
                     if (i < BC.length)
-                        hi = renderBorderedHex(hi, (i != 0) ? BC[i] : waterBC);
+                        hi = renderBorderedHex( hi, (i != 0) ? BC[i] : waterBC );
 
                     scaledHexes[i] = hi;
                     scaledHexFail[i] = false;
@@ -2941,24 +2941,24 @@ import javax.swing.JComponent;
      * @return a new Image for the bordered hex, or the original {@code hex} if {@code borderColor} was null
      * @since 1.1.20
      */
-    private Image renderBorderedHex(final Image hex, final Color borderColor)
+    private Image renderBorderedHex( final Image hex, final Color borderColor )
     {
         if (borderColor == null)
             return hex;
 
-        final int w = hex.getWidth(null), h = hex.getHeight(null);
+        final int w = hex.getWidth( null ), h = hex.getHeight( null );
 
-        final BufferedImage bHex = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        final BufferedImage bHex = new BufferedImage( w, h, BufferedImage.TYPE_INT_ARGB );
         final Graphics2D g = bHex.createGraphics();
 
-        g.drawImage(hex, 0, 0, w, h, null);
+        g.drawImage( hex, 0, 0, w, h, null );
 
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setStroke(new BasicStroke(scaleToActual(13) / 10f));  // border line width 1.3px
-        g.setColor(borderColor);
+        g.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
+        g.setStroke( new BasicStroke( scaleToActual( 13 ) / 10f ) );  // border line width 1.3px
+        g.setColor( borderColor );
         if (isRotated)
-            g.translate(scaleToActual(1), 0);  // overlap pixel border properly, especially on right-hand side
-        g.drawPolyline(scaledHexCornersX, scaledHexCornersY, 7);
+            g.translate( scaleToActual( 1 ), 0 );  // overlap pixel border properly, especially on right-hand side
+        g.drawPolyline( scaledHexCornersX, scaledHexCornersY, 7 );
 
         g.dispose();
         return bHex;
@@ -2975,7 +2975,7 @@ import javax.swing.JComponent;
     private void renderPortImages()
     {
         final Image water = scaledHexes[0];
-        final int w = water.getWidth(null), h = water.getHeight(null);
+        final int w = water.getWidth( null ), h = water.getHeight( null );
 
         // clear circle geometry
         int diac = HEX_PORT_CIRCLE_DIA;
@@ -2986,8 +2986,9 @@ import javax.swing.JComponent;
 
         if (isRotated)
         {
-            xc = HEXHEIGHT;  yc = HEXWIDTH;
-            arrow_offx = scaleToActual(HEXHEIGHT - HEXWIDTH);  // re-center on wider hex
+            xc = HEXHEIGHT;
+            yc = HEXWIDTH;
+            arrow_offx = scaleToActual( HEXHEIGHT - HEXWIDTH );  // re-center on wider hex
         }
         else
         {
@@ -3000,8 +3001,10 @@ import javax.swing.JComponent;
 
         if (isScaled)
         {
-            diab = scaleToActual(diab);
-            xc = scaleToActual(xc); yc = scaleToActual(yc); diac = scaleToActual(diac);
+            diab = scaleToActual( diab );
+            xc = scaleToActual( xc );
+            yc = scaleToActual( yc );
+            diac = scaleToActual( diac );
             if (diab % 2 != 0)
             {
                 ++diab;
@@ -3016,41 +3019,41 @@ import javax.swing.JComponent;
         // First, clear the middle circle and draw the white border around it.
         // Then, use the resulting image as a starting point for the 6 port images with different arrowheads.
 
-        BufferedImage portBase = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage portBase = new BufferedImage( w, h, BufferedImage.TYPE_INT_ARGB );
         {
             Graphics2D g = portBase.createGraphics();
-            g.drawImage(water, 0, 0, w, h, null);
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.drawImage( water, 0, 0, w, h, null );
+            g.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
 
             // white circular border
-            g.setColor(Color.WHITE);
-            g.fillOval(xb, yb, diab, diab);
+            g.setColor( Color.WHITE );
+            g.fillOval( xb, yb, diab, diab );
 
             // clear circle to show port type
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-            g.fillOval(xc, yc, diac, diac);
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
+            g.setComposite( AlphaComposite.getInstance( AlphaComposite.CLEAR ) );
+            g.fillOval( xc, yc, diac, diac );
+            g.setComposite( AlphaComposite.getInstance( AlphaComposite.SRC_OVER ) );
 
             g.dispose();
         }
 
         for (int i = 0; i < 6; ++i)
         {
-            BufferedImage bufi = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage bufi = new BufferedImage( w, h, BufferedImage.TYPE_INT_ARGB );
             Graphics2D g = bufi.createGraphics();
-            g.drawImage(portBase, 0, 0, w, h, null);
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.drawImage( portBase, 0, 0, w, h, null );
+            g.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
+            g.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR );
 
             // arrows
-            g.setColor(Color.WHITE);
-            g.translate(arrow_offx, 0);
-            g.fillPolygon(scaledPortArrowsX[i], scaledPortArrowsY[i], 3);
+            g.setColor( Color.WHITE );
+            g.translate( arrow_offx, 0 );
+            g.fillPolygon( scaledPortArrowsX[i], scaledPortArrowsY[i], 3 );
             int i2 = i + 1;
             if (i2 == 6)
                 i2 = 0;  // wrapped around
-            g.fillPolygon(scaledPortArrowsX[i2], scaledPortArrowsY[i2], 3);
-            g.translate(-arrow_offx, 0);
+            g.fillPolygon( scaledPortArrowsX[i2], scaledPortArrowsY[i2], 3 );
+            g.translate( -arrow_offx, 0 );
 
             g.dispose();
             scaledPorts[i] = bufi;
@@ -3066,40 +3069,53 @@ import javax.swing.JComponent;
      */
     private void rescaleCoordinateArrays()
     {
-        if (! isScaled)
+        if (!isScaled)
         {
-            if (! isRotated)
+            if (!isRotated)
             {
-                scaledVertRoadX = vertRoadX;     scaledVertRoadY = vertRoadY;
-                scaledUpRoadX   = upRoadX;       scaledUpRoadY   = upRoadY;
-                scaledDownRoadX = downRoadX;     scaledDownRoadY = downRoadY;
-                scaledHexCornersX = hexCornersX; scaledHexCornersY = hexCornersY;
-                scaledPortArrowsX = portArrowsX; scaledPortArrowsY = portArrowsY;
+                scaledVertRoadX = vertRoadX;
+                scaledVertRoadY = vertRoadY;
+                scaledUpRoadX = upRoadX;
+                scaledUpRoadY = upRoadY;
+                scaledDownRoadX = downRoadX;
+                scaledDownRoadY = downRoadY;
+                scaledHexCornersX = hexCornersX;
+                scaledHexCornersY = hexCornersY;
+                scaledPortArrowsX = portArrowsX;
+                scaledPortArrowsY = portArrowsY;
             }
             else
             {
                 // (cw):  P'=(width-y, x)
-                scaledVertRoadX = rotateScaleCopyYToActualX(vertRoadY, HEXWIDTH, false);
+                scaledVertRoadX = rotateScaleCopyYToActualX( vertRoadY, HEXWIDTH, false );
                 scaledVertRoadY = vertRoadX;
-                scaledUpRoadX   = rotateScaleCopyYToActualX(upRoadY, HEXWIDTH, false);
-                scaledUpRoadY   = upRoadX;
-                scaledDownRoadX = rotateScaleCopyYToActualX(downRoadY, HEXWIDTH, false);
+                scaledUpRoadX = rotateScaleCopyYToActualX( upRoadY, HEXWIDTH, false );
+                scaledUpRoadY = upRoadX;
+                scaledDownRoadX = rotateScaleCopyYToActualX( downRoadY, HEXWIDTH, false );
                 scaledDownRoadY = downRoadX;
                 scaledHexCornersX = hexCornersY;  // special case: coordinates already "rotated", don't subtract from HEXWIDTH
                 scaledHexCornersY = hexCornersX;
                 scaledPortArrowsX = new int[portArrowsX.length][];
                 for (int i = 0; i < portArrowsX.length; i++)
-                    scaledPortArrowsX[i] = rotateScaleCopyYToActualX(portArrowsY[i], HEXWIDTH, false);
+                    scaledPortArrowsX[i] = rotateScaleCopyYToActualX( portArrowsY[i], HEXWIDTH, false );
                 scaledPortArrowsY = portArrowsX;
             }
-            scaledSettlementX = settlementX; scaledSettlementY = settlementY;
-            scaledCityX     = cityX;         scaledCityY     = cityY;
-            scaledShipX     = shipX;         scaledShipY     = shipY;
-            scaledFortressX = fortressX;     scaledFortressY = fortressY;
-            scaledDiamondX  = diamondX;      scaledDiamondY  = diamondY;
-            scaledWarshipX  = warshipX;      scaledWarshipY  = warshipY;
-            scaledRobberX   = robberX;       scaledRobberY   = robberY;
-            scaledArrowXL   = arrowXL;       scaledArrowY    = arrowY;
+            scaledSettlementX = settlementX;
+            scaledSettlementY = settlementY;
+            scaledCityX = cityX;
+            scaledCityY = cityY;
+            scaledShipX = shipX;
+            scaledShipY = shipY;
+            scaledFortressX = fortressX;
+            scaledFortressY = fortressY;
+            scaledDiamondX = diamondX;
+            scaledDiamondY = diamondY;
+            scaledWarshipX = warshipX;
+            scaledWarshipY = warshipY;
+            scaledRobberX = robberX;
+            scaledRobberY = robberY;
+            scaledArrowXL = arrowXL;
+            scaledArrowY = arrowY;
             if (arrowXR == null)
             {
                 int[] axr = new int[arrowXL.length];
@@ -3118,67 +3134,67 @@ import javax.swing.JComponent;
             scaledPortArrowsX = new int[portArrowsX.length][];
             scaledPortArrowsY = new int[portArrowsY.length][];
 
-            if (! isRotated)
+            if (!isRotated)
             {
-                scaledVertRoadX = scaleCopyToActual(vertRoadX);
-                scaledVertRoadY = scaleCopyToActual(vertRoadY);
-                scaledUpRoadX   = scaleCopyToActual(upRoadX);
-                scaledUpRoadY   = scaleCopyToActual(upRoadY);
-                scaledDownRoadX = scaleCopyToActual(downRoadX);
-                scaledDownRoadY = scaleCopyToActual(downRoadY);
-                scaledHexCornersX = scaleCopyToActual(hexCornersX);
-                scaledHexCornersY = scaleCopyToActual(hexCornersY);
+                scaledVertRoadX = scaleCopyToActual( vertRoadX );
+                scaledVertRoadY = scaleCopyToActual( vertRoadY );
+                scaledUpRoadX = scaleCopyToActual( upRoadX );
+                scaledUpRoadY = scaleCopyToActual( upRoadY );
+                scaledDownRoadX = scaleCopyToActual( downRoadX );
+                scaledDownRoadY = scaleCopyToActual( downRoadY );
+                scaledHexCornersX = scaleCopyToActual( hexCornersX );
+                scaledHexCornersY = scaleCopyToActual( hexCornersY );
                 for (int i = 0; i < portArrowsX.length; ++i)
                 {
-                    scaledPortArrowsX[i] = scaleCopyToActual(portArrowsX[i]);
-                    scaledPortArrowsY[i] = scaleCopyToActual(portArrowsY[i]);
+                    scaledPortArrowsX[i] = scaleCopyToActual( portArrowsX[i] );
+                    scaledPortArrowsY[i] = scaleCopyToActual( portArrowsY[i] );
                 }
             }
             else
             {
                 // (cw):  P'=(width-y, x)
-                scaledVertRoadX = rotateScaleCopyYToActualX(vertRoadY, HEXWIDTH, true);
-                scaledVertRoadY = scaleCopyToActual(vertRoadX);
-                scaledUpRoadX   = rotateScaleCopyYToActualX(upRoadY, HEXWIDTH, true);
-                scaledUpRoadY   = scaleCopyToActual(upRoadX);
-                scaledDownRoadX = rotateScaleCopyYToActualX(downRoadY, HEXWIDTH, true);
-                scaledDownRoadY = scaleCopyToActual(downRoadX);
-                scaledHexCornersX = scaleCopyToActual(hexCornersY);  // special case: don't subtract from HEXWIDTH
-                scaledHexCornersY = scaleCopyToActual(hexCornersX);
+                scaledVertRoadX = rotateScaleCopyYToActualX( vertRoadY, HEXWIDTH, true );
+                scaledVertRoadY = scaleCopyToActual( vertRoadX );
+                scaledUpRoadX = rotateScaleCopyYToActualX( upRoadY, HEXWIDTH, true );
+                scaledUpRoadY = scaleCopyToActual( upRoadX );
+                scaledDownRoadX = rotateScaleCopyYToActualX( downRoadY, HEXWIDTH, true );
+                scaledDownRoadY = scaleCopyToActual( downRoadX );
+                scaledHexCornersX = scaleCopyToActual( hexCornersY );  // special case: don't subtract from HEXWIDTH
+                scaledHexCornersY = scaleCopyToActual( hexCornersX );
                 for (int i = 0; i < portArrowsX.length; ++i)
                 {
-                    scaledPortArrowsX[i] = rotateScaleCopyYToActualX(portArrowsY[i], HEXWIDTH, true);
-                    scaledPortArrowsY[i] = scaleCopyToActual(portArrowsX[i]);
+                    scaledPortArrowsX[i] = rotateScaleCopyYToActualX( portArrowsY[i], HEXWIDTH, true );
+                    scaledPortArrowsY[i] = scaleCopyToActual( portArrowsX[i] );
                 }
             }
-            scaledSettlementX = scaleCopyToActual(settlementX);
-            scaledSettlementY = scaleCopyToActual(settlementY);
-            scaledCityX     = scaleCopyToActual(cityX);
-            scaledCityY     = scaleCopyToActual(cityY);
-            scaledShipX = scaleCopyToActual(shipX);
-            scaledShipY = scaleCopyToActual(shipY);
-            scaledFortressX = scaleCopyToActual(fortressX);
-            scaledFortressY = scaleCopyToActual(fortressY);
-            scaledDiamondX  = scaleCopyToActual(diamondX);
-            scaledDiamondY  = scaleCopyToActual(diamondY);
-            scaledWarshipX = scaleCopyToActual(warshipX);
-            scaledWarshipY = scaleCopyToActual(warshipY);
-            scaledRobberX   = scaleCopyToActual(robberX);
-            scaledRobberY   = scaleCopyToActual(robberY);
-            scaledArrowXL   = scaleCopyToActual(arrowXL);
-            scaledArrowY    = scaleCopyToActual(arrowY);
+            scaledSettlementX = scaleCopyToActual( settlementX );
+            scaledSettlementY = scaleCopyToActual( settlementY );
+            scaledCityX = scaleCopyToActual( cityX );
+            scaledCityY = scaleCopyToActual( cityY );
+            scaledShipX = scaleCopyToActual( shipX );
+            scaledShipY = scaleCopyToActual( shipY );
+            scaledFortressX = scaleCopyToActual( fortressX );
+            scaledFortressY = scaleCopyToActual( fortressY );
+            scaledDiamondX = scaleCopyToActual( diamondX );
+            scaledDiamondY = scaleCopyToActual( diamondY );
+            scaledWarshipX = scaleCopyToActual( warshipX );
+            scaledWarshipY = scaleCopyToActual( warshipY );
+            scaledRobberX = scaleCopyToActual( robberX );
+            scaledRobberY = scaleCopyToActual( robberY );
+            scaledArrowXL = scaleCopyToActual( arrowXL );
+            scaledArrowY = scaleCopyToActual( arrowY );
 
             // Ensure arrow-tip sides are 45 degrees.
-            int p = Math.abs(scaledArrowXL[0] - scaledArrowXL[1]);
-            if (p != Math.abs(scaledArrowY[0] - scaledArrowY[1]))
+            int p = Math.abs( scaledArrowXL[0] - scaledArrowXL[1] );
+            if (p != Math.abs( scaledArrowY[0] - scaledArrowY[1] ))
             {
                 scaledArrowY[0] = scaledArrowY[1] + p;
             }
             int L = scaledArrowXL.length - 1;
-            p = Math.abs(scaledArrowXL[L] - scaledArrowXL[L-1]);
-            if (p != Math.abs(scaledArrowY[L] - scaledArrowY[L-1]))
+            p = Math.abs( scaledArrowXL[L] - scaledArrowXL[L - 1] );
+            if (p != Math.abs( scaledArrowY[L] - scaledArrowY[L - 1] ))
             {
-                scaledArrowY[L] = scaledArrowY[L-1] - p;
+                scaledArrowY[L] = scaledArrowY[L - 1] - p;
             }
 
             // Now, flip for scaledArrowXR
@@ -3202,7 +3218,7 @@ import javax.swing.JComponent;
      * @see #rotateScaleCopyYToActualX(int[], int, boolean)
      * @since 1.1.00
      */
-    public int[] scaleCopyToActual(int[] orig)
+    public int[] scaleCopyToActual( int[] orig )
     {
         int[] xs = new int[orig.length];
         for (int i = orig.length - 1; i >= 0; --i)
@@ -3219,7 +3235,7 @@ import javax.swing.JComponent;
      * @return Rotated copy of <tt>yorig</tt> for use as x-coordinates
      * @since 1.1.08
      */
-    public int[] rotateScaleCopyYToActualX(final int[] yorig, final int width, final boolean rescale)
+    public int[] rotateScaleCopyYToActualX( final int[] yorig, final int width, final boolean rescale )
     {
         int[] xr = new int[yorig.length];
         for (int i = yorig.length - 1; i >= 0; --i)
@@ -3243,16 +3259,16 @@ import javax.swing.JComponent;
      * @param src  Source image to scale up; assumes is transparent, not opaque.
      * @param w  Scale up to this width
      * @param h  Scale up to this height
-     * @return  the scaled image
+     * @return the scaled image
      * @since 1.1.20
      */
-    public static BufferedImage getScaledImageUp(final Image src, final int w, final int h)
+    public static BufferedImage getScaledImageUp( final Image src, final int w, final int h )
     {
-        BufferedImage bufi = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage bufi = new BufferedImage( w, h, BufferedImage.TYPE_INT_ARGB );
 
         Graphics2D g = bufi.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        g.drawImage(src, 0, 0, w, h, null);
+        g.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
+        g.drawImage( src, 0, 0, w, h, null );
         g.dispose();
 
         return bufi;
@@ -3265,7 +3281,7 @@ import javax.swing.JComponent;
      * @param setOn  If true, set the flag; if false, clear it
      * @since 2.0.00
      */
-    void setDebugShowCoordsFlag(final boolean setOn)
+    void setDebugShowCoordsFlag( final boolean setOn )
     {
         if (setOn == debugShowCoordsTooltip)
             return;
@@ -3290,11 +3306,11 @@ import javax.swing.JComponent;
      * @since 2.0.00
      */
     void setDebugShowPotentialsFlag
-        (int pieceType, final boolean setPotential, final boolean setOn)
+    ( int pieceType, final boolean setPotential, final boolean setOn )
     {
         if (pieceType == -1)
         {
-            Arrays.fill(debugShowPotentials, setOn);  // all flags
+            Arrays.fill( debugShowPotentials, setOn );  // all flags
         }
         else
         {
@@ -3312,27 +3328,27 @@ import javax.swing.JComponent;
         if (setOn && ((pieceType == 2) || (pieceType == -1)))
         {
             int[] vs = (board instanceof SOCBoardLarge)
-                ? ((SOCBoardLarge) board).getAddedLayoutPart("VS") : null;
+                ? ((SOCBoardLarge) board).getAddedLayoutPart( "VS" ) : null;
             if (vs == null)
                 vs = new int[]{0, 0};
             System.err.println
-                ("debugShowPotentials: Board size (height, width) = 0x"
-                 + Integer.toHexString(board.getBoardWidth()) + ",0x" + Integer.toHexString(board.getBoardHeight())
-                 + ", VS (down, right) = " + vs[0] + "," + vs[1]);
+                ( "debugShowPotentials: Board size (height, width) = 0x"
+                    + Integer.toHexString( board.getBoardWidth() ) + ",0x" + Integer.toHexString( board.getBoardHeight() )
+                    + ", VS (down, right) = " + vs[0] + "," + vs[1] );
             System.err.println
-                ("  Panel size (width, height): unscaled = ("
-                 + panelMinBW + "," + panelMinBH + ')' + ((isRotated) ? ", rotated" : "")
-                 + ", current = (" + scaledBoardW + " of " + scaledPanelW + "," + scaledPanelH
-                 + "), margin (left, top) = (" + panelMarginX + "," + panelMarginY
-                 + "), unscaled shift (right, down) = (" + panelShiftBX + "," + panelShiftBY
-                 + ')' );
+                ( "  Panel size (width, height): unscaled = ("
+                    + panelMinBW + "," + panelMinBH + ')' + ((isRotated) ? ", rotated" : "")
+                    + ", current = (" + scaledBoardW + " of " + scaledPanelW + "," + scaledPanelH
+                    + "), margin (left, top) = (" + panelMarginX + "," + panelMarginY
+                    + "), unscaled shift (right, down) = (" + panelShiftBX + "," + panelShiftBY
+                    + ')' );
             int w = playerInterface.getWidth(), h = playerInterface.getHeight();
             Insets ins = playerInterface.getInsets();
             System.err.println
-                ("  PI window size (width, height) = " + w + "," + h
-                 + ", inner = " + (w - ins.left - ins.right) + "," + (h - ins.top - ins.bottom)
-                 + ", insets (left, right, top, bottom) = "
-                 + ins.left + "," + ins.right + "," + ins.top + "," + ins.bottom);
+                ( "  PI window size (width, height) = " + w + "," + h
+                    + ", inner = " + (w - ins.left - ins.right) + "," + (h - ins.top - ins.bottom)
+                    + ", insets (left, right, top, bottom) = "
+                    + ins.left + "," + ins.right + "," + ins.top + "," + ins.bottom );
         }
     }
 
@@ -3346,14 +3362,14 @@ import javax.swing.JComponent;
      * print stack traces to the player chat print area.
      */
     @Override
-    public void paintComponent(Graphics g)
+    public void paintComponent( Graphics g )
     {
         Image ibuf = buffer;  // Local var in case field becomes null in other thread during paint
         try
         {
             if (ibuf == null)
             {
-                ibuf = this.createImage(scaledPanelW, scaledPanelH);
+                ibuf = this.createImage( scaledPanelW, scaledPanelH );
                 buffer = ibuf;
             }
 
@@ -3364,23 +3380,23 @@ import javax.swing.JComponent;
             // in v1.x.xx with older-java piece enumerations.
             try
             {
-                drawBoard(ibuf.getGraphics());  // Do the actual drawing
+                drawBoard( ibuf.getGraphics() );  // Do the actual drawing
             }
-            catch (ConcurrentModificationException cme)
+            catch( ConcurrentModificationException cme )
             {
                 repaint();  // try again soon
                 return;
             }
 
             if (hoverTip.isVisible())
-                hoverTip.paint(ibuf.getGraphics());
+                hoverTip.paint( ibuf.getGraphics() );
             ibuf.flush();
-            g.drawImage(ibuf, 0, 0, this);
+            g.drawImage( ibuf, 0, 0, this );
 
         }
-        catch (Throwable th)
+        catch( Throwable th )
         {
-            playerInterface.chatPrintStackTrace(th);
+            playerInterface.chatPrintStackTrace( th );
         }
     }
 
@@ -3389,9 +3405,9 @@ import javax.swing.JComponent;
      * this directly, use {@link Component#repaint()} instead.
      */
     @Override
-    public void update(Graphics g)
+    public void update( Graphics g )
     {
-        paint(g);
+        paint( g );
     }
 
     /**
@@ -3404,7 +3420,7 @@ import javax.swing.JComponent;
      * @param g       graphics
      * @param hexNum  hex location number (0-36)
      */
-    private void drawHex(Graphics g, int hexNum)
+    private void drawHex( Graphics g, int hexNum )
     {
         final int portFacing;
         int hexType = board.getHexLayout()[hexNum];
@@ -3427,7 +3443,7 @@ import javax.swing.JComponent;
             hexType = hexType & 0x0F;
         }
 
-        drawHex(g, hexX[hexNum], hexY[hexNum], hexType, portFacing, hexNum);
+        drawHex( g, hexX[hexNum], hexY[hexNum], hexType, portFacing, hexNum );
     }
 
     /**
@@ -3455,11 +3471,11 @@ import javax.swing.JComponent;
      * @since 1.1.08
      */
     private void drawHex
-        (Graphics g, int x, int y, final int hexType, final int portFacing, final int hexNum)
+    ( Graphics g, int x, int y, final int hexType, final int portFacing, final int hexNum )
     {
         if (hexType < 0)
         {
-            playerInterface.chatPrintDebug("* bad hex type " + hexType + " at x,y(" + x + "," + y + ")");
+            playerInterface.chatPrintDebug( "* bad hex type " + hexType + " at x,y(" + x + "," + y + ")" );
             return;
         }
 
@@ -3470,12 +3486,12 @@ import javax.swing.JComponent;
         {
             int fsize = DICE_NUMBER_FONTPOINTS;
             if (isScaled)
-                fsize = scaleToActual(fsize);
-            diceNumberCircleFont = new Font("Dialog", Font.BOLD, fsize);
+                fsize = scaleToActual( fsize );
+            diceNumberCircleFont = new Font( "Dialog", Font.BOLD, fsize );
         }
         if ((diceNumberCircleFM == null) && (diceNumberCircleFont != null))
         {
-            diceNumberCircleFM = getFontMetrics(diceNumberCircleFont);
+            diceNumberCircleFM = getFontMetrics( diceNumberCircleFont );
         }
 
         if (isScaledOrRotated)
@@ -3489,8 +3505,8 @@ import javax.swing.JComponent;
             }
             if (isScaled)
             {
-                x = scaleToActual(x);
-                y = scaleToActual(y);
+                x = scaleToActual( x );
+                y = scaleToActual( y );
             }
         }
 
@@ -3501,7 +3517,7 @@ import javax.swing.JComponent;
          * the larger hex space, so it won't overlap other hexes.
          */
         boolean recenterPrevMiss = false;
-        int xm=0, ym=0;  // offset for re-centering miss
+        int xm = 0, ym = 0;  // offset for re-centering miss
 
         /**
          * If board is scaled, could be waiting for an image to resize.
@@ -3526,10 +3542,10 @@ import javax.swing.JComponent;
             if (isScaled && (scaledHexes[htypeIdx] == hexis[htypeIdx]))
             {
                 recenterPrevMiss = true;
-                int w = hexis[htypeIdx].getWidth(null);
-                int h = hexis[htypeIdx].getHeight(null);
-                xm = (scaleToActual(w) - w) / 2;
-                ym = (scaleToActual(h) - h) / 2;
+                int w = hexis[htypeIdx].getWidth( null );
+                int h = hexis[htypeIdx].getHeight( null );
+                xm = (scaleToActual( w ) - w) / 2;
+                ym = (scaleToActual( h ) - h) / 2;
                 x += xm;
                 y += ym;
             }
@@ -3537,16 +3553,16 @@ import javax.swing.JComponent;
             /**
              * Draw the hex graphic
              */
-            if (! g.drawImage(scaledHexes[htypeIdx], x, y, this))
+            if (!g.drawImage( scaledHexes[htypeIdx], x, y, this ))
             {
                 // for now, draw the placeholder; try to rescale and redraw soon if we can
 
-                g.translate(x, y);
-                g.setColor(hexColor(hexType));
-                g.fillPolygon(scaledHexCornersX, scaledHexCornersY, 6);
-                g.setColor(Color.BLACK);
-                g.drawPolyline(scaledHexCornersX, scaledHexCornersY, 7);
-                g.translate(-x, -y);
+                g.translate( x, y );
+                g.setColor( hexColor( hexType ) );
+                g.fillPolygon( scaledHexCornersX, scaledHexCornersY, 6 );
+                g.setColor( Color.BLACK );
+                g.drawPolyline( scaledHexCornersX, scaledHexCornersY, 7 );
+                g.translate( -x, -y );
 
                 missedDraw = true;
                 if ((isScaled || isHexesAlwaysScaled)
@@ -3561,9 +3577,9 @@ import javax.swing.JComponent;
                     else
                     {
                         scaledHexFail[htypeIdx] = true;
-                        final int w = scaleToActual((isRotated) ? HEXHEIGHT : HEXWIDTH),
-                                  h = scaleToActual((isRotated) ? HEXWIDTH : HEXHEIGHT);
-                        scaledHexes[htypeIdx] = getScaledImageUp(hexis[htypeIdx], w, h);
+                        final int w = scaleToActual( (isRotated) ? HEXHEIGHT : HEXWIDTH ),
+                            h = scaleToActual( (isRotated) ? HEXWIDTH : HEXHEIGHT );
+                        scaledHexes[htypeIdx] = getScaledImageUp( hexis[htypeIdx], w, h );
                     }
                 }
             }
@@ -3589,17 +3605,17 @@ import javax.swing.JComponent;
             if (isScaled && (scaledPorts[ptypeIdx] == hexes[htypeIdx]))
             {
                 recenterPrevMiss = true;
-                int w = hexes[htypeIdx].getWidth(null);
-                int h = hexes[htypeIdx].getHeight(null);
-                xm = (scaleToActual(w) - w) / 2;
-                ym = (scaleToActual(h) - h) / 2;
+                int w = hexes[htypeIdx].getWidth( null );
+                int h = hexes[htypeIdx].getHeight( null );
+                xm = (scaleToActual( w ) - w) / 2;
+                ym = (scaleToActual( h ) - h) / 2;
                 x += xm;
                 y += ym;
             }
 
-            if (! g.drawImage(scaledPorts[ptypeIdx], x, y, this))
+            if (!g.drawImage( scaledPorts[ptypeIdx], x, y, this ))
             {
-                g.drawImage(hexes[htypeIdx], x, y, null);  // show smaller unscaled hex graphic, instead of a blank space
+                g.drawImage( hexes[htypeIdx], x, y, null );  // show smaller unscaled hex graphic, instead of a blank space
                 missedDraw = true;
                 if ((isScaled || isHexesAlwaysScaled)
                     && (RESCALE_MAX_RETRY_MS < (drawnEmptyAt - scaledAt)))
@@ -3643,7 +3659,7 @@ import javax.swing.JComponent;
         /**
          * Draw the number
          */
-        final int hnl = board.getNumberOnHexFromNumber(hexNum);
+        final int hnl = board.getNumberOnHexFromNumber( hexNum );
         if (hnl > 0)
         {
             if ((diceNumberCircleFM != null) && (diceNumberCircleFont != null))
@@ -3651,28 +3667,30 @@ import javax.swing.JComponent;
                 final int dx, dy;  // Offset of number graphic from upper-left corner of hex
                 if (isRotated)
                 {
-                    dx = 22;  dy = 17;
+                    dx = 22;
+                    dy = 17;
                 }
                 else
                 {
-                    dx = 17;  dy = 22;
+                    dx = 17;
+                    dy = 22;
                 }
 
-                if (! isScaled)
+                if (!isScaled)
                 {
                     x += dx;
                     y += dy;
                 }
                 else
                 {
-                    x += scaleToActual(dx);
-                    y += scaleToActual(dy);
+                    x += scaleToActual( dx );
+                    y += scaleToActual( dy );
                 }
 
                 // Draw the circle and dice number:
                 int dia = DICE_NUMBER_CIRCLE_DIAMETER;
                 if (isScaled)
-                    dia = scaleToActual(dia);
+                    dia = scaleToActual( dia );
                 ++dia;
 
                 // Get color from rarity, fill dice circle, outline with darker shade
@@ -3684,20 +3702,20 @@ import javax.swing.JComponent;
                         colorIdx = 12 - hnl;
                     Color cc = DICE_NUMBER_CIRCLE_COLORS[colorIdx];
 
-                    g.setColor(cc);
-                    g.fillOval(x, y, dia, dia);
-                    g.setColor(cc.darker().darker());
-                    g.drawOval(x, y, dia, dia);
+                    g.setColor( cc );
+                    g.fillOval( x, y, dia, dia );
+                    g.setColor( cc.darker().darker() );
+                    g.drawOval( x, y, dia, dia );
                 }
 
-                final String numstr = Integer.toString(hnl);
-                x += (dia - (diceNumberCircleFM.stringWidth(numstr) - scaleToActual(1))) / 2;
-                    // -1 removes unwanted advance spacing after digit string;
-                    // if more precison needed, see java.awt.font.TextLayout.getBounds
+                final String numstr = Integer.toString( hnl );
+                x += (dia - (diceNumberCircleFM.stringWidth( numstr ) - scaleToActual( 1 ))) / 2;
+                // -1 removes unwanted advance spacing after digit string;
+                // if more precison needed, see java.awt.font.TextLayout.getBounds
                 y += (dia + diceNumberCircleFM.getAscent() - diceNumberCircleFM.getDescent()) / 2;
-                g.setFont(diceNumberCircleFont);
-                g.setColor(Color.BLACK);
-                g.drawString(numstr, x, y);
+                g.setFont( diceNumberCircleFont );
+                g.setColor( Color.BLACK );
+                g.drawString( numstr, x, y );
 
             }
             else
@@ -3727,7 +3745,7 @@ import javax.swing.JComponent;
      *                (as for previous robber position)
      */
     private void drawRobber
-        (Graphics g, final int hexID, final boolean fullNotGhost, final boolean fillNotOutline)
+    ( Graphics g, final int hexID, final boolean fullNotGhost, final boolean fillNotOutline )
     {
         int hx, hy;
         if (isLargeBoard)
@@ -3751,8 +3769,8 @@ import javax.swing.JComponent;
         }
         if (isScaled)
         {
-            hx = scaleToActual(hx);
-            hy = scaleToActual(hy);
+            hx = scaleToActual( hx );
+            hy = scaleToActual( hy );
         }
 
         Color rFill, rOutline;
@@ -3764,7 +3782,7 @@ import javax.swing.JComponent;
         else
         {
             // Determine "ghost" color, we're moving the robber
-            int hexType = board.getHexTypeFromCoord(hexID);
+            int hexType = board.getHexTypeFromCoord( hexID );
             if ((hexType >= robberGhostFill.length) || (hexType < 0))
             {
                 // should not happen
@@ -3777,9 +3795,9 @@ import javax.swing.JComponent;
                 rFill = robberGhostFill[hexType];
                 rOutline = robberGhostOutline[hexType];
 
-                if (! fillNotOutline)
+                if (!fillNotOutline)
                 {
-                    final int dnum = board.getNumberOnHexFromCoord(hexID);
+                    final int dnum = board.getNumberOnHexFromCoord( hexID );
                     if ((hexType == SOCBoard.DESERT_HEX)
                         || (dnum <= 3) || (dnum >= 11))
                     {
@@ -3791,7 +3809,7 @@ import javax.swing.JComponent;
             else
             {
                 // find basic color, "ghost" it
-                rOutline = hexColor(hexType);
+                rOutline = hexColor( hexType );
                 if (rOutline == ColorSquare.WATER)
                 {
                     // Should not happen
@@ -3800,7 +3818,7 @@ import javax.swing.JComponent;
 
                 // If hex is light, robber fill color should be dark. (average with gray)
                 // If hex is dark or midtone, it should be light. (average with white)
-                rFill = SOCPlayerInterface.makeGhostColor(rOutline);
+                rFill = SOCPlayerInterface.makeGhostColor( rOutline );
                 rOutline = rOutline.darker();  // Always darken the outline
 
                 // Remember for next time
@@ -3810,19 +3828,19 @@ import javax.swing.JComponent;
             }  // cached ghost color?
         }  // normal or ghost?
 
-        g.translate(hx, hy);
+        g.translate( hx, hy );
         if (fillNotOutline)
         {
-            g.setColor(rFill);
-            g.fillPolygon(scaledRobberX, scaledRobberY, 13);
+            g.setColor( rFill );
+            g.fillPolygon( scaledRobberX, scaledRobberY, 13 );
         }
         else
         {
             rOutline = rFill;  // stands out better against hex color
         }
-        g.setColor(rOutline);
-        g.drawPolygon(scaledRobberX, scaledRobberY, 14);
-        g.translate(-hx, -hy);
+        g.setColor( rOutline );
+        g.drawPolygon( scaledRobberX, scaledRobberY, 14 );
+        g.translate( -hx, -hy );
     }
 
     /**
@@ -3842,8 +3860,8 @@ import javax.swing.JComponent;
      * @param isWarship   True to draw a war ship (not normal ship) if {@link #isLargeBoard}, for scenario _SC_PIRI
      */
     private void drawRoadOrShip
-        (Graphics g, int edgeNum, final int pn, final boolean isHilight,
-         final boolean isRoadNotShip, final boolean isWarship)
+    ( Graphics g, int edgeNum, final int pn, final boolean isHilight,
+        final boolean isRoadNotShip, final boolean isWarship )
     {
         // Draw a road or ship
         int[] roadX, roadY;
@@ -3851,21 +3869,21 @@ import javax.swing.JComponent;
         if (edgeNum == -1)
             edgeNum = 0x00;
 
-        if (! isLargeBoard)
+        if (!isLargeBoard)
         {
             final int hexNum;
             int dy = 0;  // y-offset, if edge's hex would draw it off the map
 
             if ((((edgeNum & 0x0F) + (edgeNum >> 4)) % 2) == 0)
             { // If first and second digit
-              // are even, then it is '|'.
+                // are even, then it is '|'.
                 hexNum = hexIDtoNum[edgeNum + 0x11];
                 roadX = scaledVertRoadX;
                 roadY = scaledVertRoadY;
             }
             else if (((edgeNum >> 4) % 2) == 0)
             { // If first digit is even,
-              // then it is '/'.
+                // then it is '/'.
                 if ((edgeNum >= 0x81) && (0 == ((edgeNum - 0x81) % 0x22)))
                 {
                     // hex is off the south edge of the board.
@@ -3912,13 +3930,14 @@ import javax.swing.JComponent;
             // Remember the vertical margin of halfdeltaY (or, r+1).
 
             final int r = (edgeNum >> 8),
-                      c = (edgeNum & 0xFF);
+                c = (edgeNum & 0xFF);
 
-            if (isWarship) {
+            if (isWarship)
+            {
                 roadX = scaledWarshipX;
                 roadY = scaledWarshipY;
             }
-            else if (! isRoadNotShip)
+            else if (!isRoadNotShip)
             {
                 roadX = scaledShipX;
                 roadY = scaledShipY;
@@ -3943,11 +3962,11 @@ import javax.swing.JComponent;
             }
             else
             {
-                if ((c % 2) != ((r/2) % 2))
+                if ((c % 2) != ((r / 2) % 2))
                 {
                     // "/"
                     hx = halfdeltaX * c;
-                    hy = halfdeltaY * (r+1);
+                    hy = halfdeltaY * (r + 1);
                     if (isRoadNotShip)
                     {
                         roadX = scaledUpRoadX;
@@ -3963,7 +3982,7 @@ import javax.swing.JComponent;
                 {
                     // "\"
                     hx = halfdeltaX * c;
-                    hy = halfdeltaY * (r-1);  // offset: scaledDownRoadY is bottom of hex, not upper corner
+                    hy = halfdeltaY * (r - 1);  // offset: scaledDownRoadY is bottom of hex, not upper corner
                     if (isRoadNotShip)
                     {
                         roadX = scaledDownRoadX;
@@ -3984,71 +4003,71 @@ import javax.swing.JComponent;
             // (cw):  P'=(panelMinBH-y, x)
             int hy1 = hx;
             hx = panelMinBH - hy - deltaX;  // -deltaX is because road poly coords are against hex width/height,
-                                        // and the hex image gets similar translation in drawHex.
+            // and the hex image gets similar translation in drawHex.
             hy = hy1;
         }
         if (isScaled)
         {
-            hx = scaleToActual(hx);
-            hy = scaleToActual(hy);
+            hx = scaleToActual( hx );
+            hy = scaleToActual( hy );
         }
 
-        g.translate(hx, hy);
+        g.translate( hx, hy );
 
         // Fill
         if (pn != -3)
         {
             if (pn == -1)
-                g.setColor(Color.WHITE);
+                g.setColor( Color.WHITE );
             else if (pn == -2)  // pirate ship
             {
                 if (isHilight)
-                    g.setColor(Color.LIGHT_GRAY);
+                    g.setColor( Color.LIGHT_GRAY );
                 else
-                    g.setColor(Color.BLACK);
+                    g.setColor( Color.BLACK );
             }
             else if (isHilight)
-                g.setColor(playerInterface.getPlayerColor(pn, true));
+                g.setColor( playerInterface.getPlayerColor( pn, true ) );
             else
-                g.setColor(playerInterface.getPlayerColor(pn));
+                g.setColor( playerInterface.getPlayerColor( pn ) );
 
-            g.fillPolygon(roadX, roadY, roadX.length);
+            g.fillPolygon( roadX, roadY, roadX.length );
         }
 
         // Outline
-        if (! ((pn == -1) && isHilight))
+        if (!((pn == -1) && isHilight))
         {
             if (pn == -2)
                 if ((portHexCoords != null) && portHexCoords.contains( edgeNum ))
-                    g.setColor(Color.white);  // pirate is on a port
+                    g.setColor( Color.white );  // pirate is on a port
                 else
-                    g.setColor(Color.darkGray);
+                    g.setColor( Color.darkGray );
             else if (pn == -3)
-                g.setColor(Color.lightGray);
+                g.setColor( Color.lightGray );
             else if (isHilight)
-                g.setColor(playerInterface.getPlayerColor(pn, false));
+                g.setColor( playerInterface.getPlayerColor( pn, false ) );
             else
-                g.setColor(Color.black);
+                g.setColor( Color.black );
         }
-        g.drawPolygon(roadX, roadY, roadX.length);
+        g.drawPolygon( roadX, roadY, roadX.length );
 
-        g.translate(-hx, -hy);
+        g.translate( -hx, -hy );
     }
 
     /**
      * draw a settlement
      */
-    private void drawSettlement(Graphics g, int nodeNum, int pn, boolean isHilight, final boolean outlineOnly)
+    private void drawSettlement( Graphics g, int nodeNum, int pn, boolean isHilight, final boolean outlineOnly )
     {
-        drawSettlementOrCity(g, nodeNum, pn, isHilight, outlineOnly, false);
+        drawSettlementOrCity( g, nodeNum, pn, isHilight, outlineOnly, false );
     }
 
     /**
      * draw a city
      */
-    private void drawCity(Graphics g, int nodeNum, int pn, boolean isHilight)
+    private void drawCity( Graphics g, int nodeNum, int pn, boolean isHilight )
     {
-        drawSettlementOrCity(g, nodeNum, pn, isHilight, false, true);
+        drawSettlementOrCity( g, nodeNum, pn, isHilight, false, true );
     }
 
     /**
@@ -4057,59 +4076,60 @@ import javax.swing.JComponent;
      * @since 1.1.08
      */
     private void drawSettlementOrCity
-        (Graphics g, final int nodeNum, final int pn, final boolean isHilight, final boolean outlineOnly, final boolean isCity)
+    ( Graphics g, final int nodeNum, final int pn, final boolean isHilight, final boolean outlineOnly, final boolean isCity )
     {
         final int hx, hy;
         {
-            final int[] nodexy = nodeToXY(nodeNum);
-            hx = nodexy[0];  hy = nodexy[1];
+            final int[] nodexy = nodeToXY( nodeNum );
+            hx = nodexy[0];
+            hy = nodexy[1];
         }
 
         // System.out.println("NODEID = "+Integer.toHexString(nodeNum)+" | HEXNUM = "+hexNum);
 
-        g.translate(hx, hy);
+        g.translate( hx, hy );
 
         if (isCity)
         {
             if (isHilight)
             {
-                g.setColor(playerInterface.getPlayerColor(pn, true));
-                g.drawPolygon(scaledCityX, scaledCityY, 8);
+                g.setColor( playerInterface.getPlayerColor( pn, true ) );
+                g.drawPolygon( scaledCityX, scaledCityY, 8 );
 
                 // Draw again, slightly offset, for "ghost", since we can't fill and
                 // cover up the underlying settlement.
-                g.translate(1,1);
-                g.drawPolygon(scaledCityX, scaledCityY, 8);
-                g.translate(-(hx+1), -(hy+1));
+                g.translate( 1, 1 );
+                g.drawPolygon( scaledCityX, scaledCityY, 8 );
+                g.translate( -(hx + 1), -(hy + 1) );
 
                 return;  // <--- Early return: hilight outline only ---
             }
 
-            g.setColor(playerInterface.getPlayerColor(pn));
-            g.fillPolygon(scaledCityX, scaledCityY, 8);
-            g.setColor(Color.black);
-            g.drawPolygon(scaledCityX, scaledCityY, 8);
+            g.setColor( playerInterface.getPlayerColor( pn ) );
+            g.fillPolygon( scaledCityX, scaledCityY, 8 );
+            g.setColor( Color.black );
+            g.drawPolygon( scaledCityX, scaledCityY, 8 );
         }
         else
         {
             // settlement
 
-            if (! outlineOnly)
+            if (!outlineOnly)
             {
                 if (isHilight)
-                    g.setColor(playerInterface.getPlayerColor(pn, true));
+                    g.setColor( playerInterface.getPlayerColor( pn, true ) );
                 else
-                    g.setColor(playerInterface.getPlayerColor(pn));
-                g.fillPolygon(scaledSettlementX, scaledSettlementY, 6);
+                    g.setColor( playerInterface.getPlayerColor( pn ) );
+                g.fillPolygon( scaledSettlementX, scaledSettlementY, 6 );
             }
             if (isHilight || outlineOnly)
-                g.setColor(playerInterface.getPlayerColor(pn, false));
+                g.setColor( playerInterface.getPlayerColor( pn, false ) );
             else
-                g.setColor(Color.black);
-            g.drawPolygon(scaledSettlementX, scaledSettlementY, 7);
+                g.setColor( Color.black );
+            g.drawPolygon( scaledSettlementX, scaledSettlementY, 7 );
         }
 
-        g.translate(-hx, -hy);
+        g.translate( -hx, -hy );
     }
 
     /**
@@ -4127,7 +4147,7 @@ import javax.swing.JComponent;
      * @param lse  Set of edge coordinates, or null
      * @since 2.0.00
      */
-    private void drawSeaEdgeLines(Graphics g, Color co, final Collection<Integer> lse)
+    private void drawSeaEdgeLines( Graphics g, Color co, final Collection<Integer> lse )
     {
         if ((lse == null) || lse.isEmpty())
             return;
@@ -4140,28 +4160,28 @@ import javax.swing.JComponent;
         {
             // Draw as a dotted line with some thickness
             prevStroke = ((Graphics2D) g).getStroke();
-            final int hexPartWidth = scaleToActual(halfdeltaX);
-            final float[] dash = { hexPartWidth * 0.15f, hexPartWidth * 0.12f };  // length of dash/break
+            final int hexPartWidth = scaleToActual( halfdeltaX );
+            final float[] dash = {hexPartWidth * 0.15f, hexPartWidth * 0.12f};  // length of dash/break
             ((Graphics2D) g).setStroke
-                (new BasicStroke
-                    ((3 * scaledBoardW) / panelMinBW, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
-                     1.5f, dash, hexPartWidth * 0.1f));
+                ( new BasicStroke
+                    ( (3 * scaledBoardW) / panelMinBW, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
+                        1.5f, dash, hexPartWidth * 0.1f ) );
             if (co == null)
-                co = playerInterface.getPlayerColor(playerNumber);
+                co = playerInterface.getPlayerColor( playerNumber );
         }
         else
         {
             prevStroke = null;
             if (co == null)
-                co = playerInterface.getPlayerColor(playerNumber, true);
+                co = playerInterface.getPlayerColor( playerNumber, true );
         }
 
-        g.setColor(co);
+        g.setColor( co );
         for (Integer edge : lse)
-            drawSeaEdgeLine(g, edge);
+            drawSeaEdgeLine( g, edge );
 
         if (g instanceof Graphics2D)
-            ((Graphics2D) g).setStroke(prevStroke);
+            ((Graphics2D) g).setStroke( prevStroke );
     }
 
     /**
@@ -4171,15 +4191,15 @@ import javax.swing.JComponent;
      * @param edge  Edge coordinate
      * @since 2.0.00
      */
-    private void drawSeaEdgeLine(Graphics g, final int edge)
+    private void drawSeaEdgeLine( Graphics g, final int edge )
     {
-        final int[] enodes = board.getAdjacentNodesToEdge_arr(edge);
-        final int[][] nodexy = { nodeToXY(enodes[0]), nodeToXY(enodes[1]) };
+        final int[] enodes = board.getAdjacentNodesToEdge_arr( edge );
+        final int[][] nodexy = {nodeToXY( enodes[0] ), nodeToXY( enodes[1] )};
 
         // keep 60% of line length by removing 20% (1/5) from each end
         final int dx = (nodexy[1][0] - nodexy[0][0]) / 5, dy = (nodexy[1][1] - nodexy[0][1]) / 5;
 
-        g.drawLine(nodexy[0][0] + dx, nodexy[0][1] + dy, nodexy[1][0] - dx, nodexy[1][1] - dy);
+        g.drawLine( nodexy[0][0] + dx, nodexy[0][1] + dy, nodexy[1][0] - dx, nodexy[1][1] - dy );
     }
 
     /**
@@ -4196,40 +4216,40 @@ import javax.swing.JComponent;
      * @since 2.0.00
      */
     private void drawFortress
-        (Graphics g, final SOCFortress fo, final int pn, final boolean isHilight, final boolean doTranslate)
+    ( Graphics g, final SOCFortress fo, final int pn, final boolean isHilight, final boolean doTranslate )
     {
         final int strength = fo.getStrength();
         if (strength == 0)
             return;
 
         if (doTranslate)
-            g.translate(panelMarginX, panelMarginY);
+            g.translate( panelMarginX, panelMarginY );
 
-        g.setColor((isHilight)
-            ? playerInterface.getPlayerColor(pn, true)
-            : playerInterface.getPlayerColor(pn));
+        g.setColor( (isHilight)
+            ? playerInterface.getPlayerColor( pn, true )
+            : playerInterface.getPlayerColor( pn ) );
 
-        final int[] nodexy = nodeToXY(fo.getCoordinates());
-        g.translate(nodexy[0], nodexy[1]);
+        final int[] nodexy = nodeToXY( fo.getCoordinates() );
+        g.translate( nodexy[0], nodexy[1] );
 
-        g.fillPolygon(scaledFortressX, scaledFortressY, scaledFortressY.length);
+        g.fillPolygon( scaledFortressX, scaledFortressY, scaledFortressY.length );
         if (isHilight)
-            g.setColor(playerInterface.getPlayerColor(pn, false));
+            g.setColor( playerInterface.getPlayerColor( pn, false ) );
         else
-            g.setColor(Color.black);
-        g.drawPolygon(scaledFortressX, scaledFortressY, scaledFortressY.length);
+            g.setColor( Color.black );
+        g.drawPolygon( scaledFortressX, scaledFortressY, scaledFortressY.length );
 
         // strength
-        final String numstr = Integer.toString(strength);
-        int x = -diceNumberCircleFM.stringWidth(numstr) / 2;
+        final String numstr = Integer.toString( strength );
+        int x = -diceNumberCircleFM.stringWidth( numstr ) / 2;
         int y = (diceNumberCircleFM.getAscent() - diceNumberCircleFM.getDescent()) * 2 / 3;  // slightly below centered
-        g.setFont(diceNumberCircleFont);
-        g.drawString(numstr, x, y);
+        g.setFont( diceNumberCircleFont );
+        g.drawString( numstr, x, y );
 
-        g.translate(-nodexy[0], -nodexy[1]);
+        g.translate( -nodexy[0], -nodexy[1] );
 
         if (doTranslate)
-            g.translate(-panelMarginX, -panelMarginY);
+            g.translate( -panelMarginX, -panelMarginY );
     }
 
     /**
@@ -4243,13 +4263,13 @@ import javax.swing.JComponent;
      * @param v  Village
      * @since 2.0.00
      */
-    private void drawVillage(Graphics g, final SOCVillage v)
+    private void drawVillage( Graphics g, final SOCVillage v )
     {
         final Color vc = (v.getCloth() > 0) ? Color.YELLOW : Color.LIGHT_GRAY;
-        final int[] nodexy = nodeToXY(v.getCoordinates());
+        final int[] nodexy = nodeToXY( v.getCoordinates() );
 
-        drawMarker(g, nodexy[0], nodexy[1], vc, v.diceNum);
-   }
+        drawMarker( g, nodexy[0], nodexy[1], vc, v.diceNum );
+    }
 
     /**
      * Draw a marker diamond (village/"special" symbol) centered at a final (x,y) coordinate.
@@ -4259,26 +4279,26 @@ import javax.swing.JComponent;
      * @param val  Value to show on the marker, or -1 for none
      * @since 2.0.00
      */
-    private void drawMarker(Graphics g, final int x, final int y, final Color color, final int val)
+    private void drawMarker( Graphics g, final int x, final int y, final Color color, final int val )
     {
-        g.translate(x, y);
+        g.translate( x, y );
 
-        g.setColor(color);
-        g.fillPolygon(scaledDiamondX, scaledDiamondY, 4);
-        g.setColor(Color.black);
-        g.drawPolygon(scaledDiamondX, scaledDiamondY, 5);
+        g.setColor( color );
+        g.fillPolygon( scaledDiamondX, scaledDiamondY, 4 );
+        g.setColor( Color.black );
+        g.drawPolygon( scaledDiamondX, scaledDiamondY, 5 );
 
         // dice # for village
         if (val >= 0)
         {
-            final String numstr = Integer.toString(val);
-            int sx = -diceNumberCircleFM.stringWidth(numstr) / 2;
+            final String numstr = Integer.toString( val );
+            int sx = -diceNumberCircleFM.stringWidth( numstr ) / 2;
             int sy = (diceNumberCircleFM.getAscent() - diceNumberCircleFM.getDescent()) / 2;
-            g.setFont(diceNumberCircleFont);
-            g.drawString(numstr, sx, sy);
+            g.setFont( diceNumberCircleFont );
+            g.drawString( numstr, sx, sy );
         }
 
-        g.translate(-x, -y);
+        g.translate( -x, -y );
     }
 
     /**
@@ -4301,7 +4321,7 @@ import javax.swing.JComponent;
      *                   To show, {@code diceResult} must be at least 2
      *                   and gameState not {@link SOCGame#ROLL_OR_CARD}.
      */
-    private void drawArrow(Graphics g, int pnum, int diceResult)
+    private void drawArrow( Graphics g, int pnum, int diceResult )
     {
         if (pnum < 0)
             return;
@@ -4321,11 +4341,14 @@ import javax.swing.JComponent;
             switch (pnum)
             {
             case 2:  // middle-right
-                pnum = 4;  break;
+                pnum = 4;
+                break;
             case 3:  // lower-right
-                pnum = 2;  break;
+                pnum = 2;
+                break;
             case 4:  // lower-left
-                pnum = 3;  break;
+                pnum = 3;
+                break;
             }
         }
 
@@ -4333,44 +4356,44 @@ import javax.swing.JComponent;
         {
         case 0:
             // top left
-            aY = scaleToActual(5);
+            aY = scaleToActual( 5 );
             arrowLeft = true;
             break;
 
         case 1:
             // top right
-            aY = scaleToActual(5);
+            aY = scaleToActual( 5 );
             arrowLeft = false;
             break;
 
         case 2:
             // bottom right
-            aY = scaledPanelH - scaleToActual(42);
+            aY = scaledPanelH - scaleToActual( 42 );
             arrowLeft = false;
             break;
 
         default:  // 3: (Default prevents compiler var-not-init errors)
             // bottom left
-            aY = scaledPanelH - scaleToActual(42);
+            aY = scaledPanelH - scaleToActual( 42 );
             arrowLeft = true;
             break;
 
         case 4:
             // middle right
-            aY = scaledPanelH / 2 - scaleToActual(12);
+            aY = scaledPanelH / 2 - scaleToActual( 12 );
             arrowLeft = false;
             break;
 
         case 5:
             // middle left
-            aY = scaledPanelH / 2 - scaleToActual(12);
+            aY = scaledPanelH / 2 - scaleToActual( 12 );
             arrowLeft = true;
             break;
         }
 
-        aX = (arrowLeft) ? scaleToActual(3) : scaledPanelW - scaleToActual(40);
-        diceX = (arrowLeft) ? scaleToActual(12) : scaledPanelW - scaleToActual(39);
-        diceY = aY + scaleToActual(6);
+        aX = (arrowLeft) ? scaleToActual( 3 ) : scaledPanelW - scaleToActual( 40 );
+        diceX = (arrowLeft) ? scaleToActual( 12 ) : scaledPanelW - scaleToActual( 39 );
+        diceY = aY + scaleToActual( 6 );
 
         /**
          * Draw Arrow
@@ -4382,40 +4405,40 @@ import javax.swing.JComponent;
         else
             scArrowX = scaledArrowXR;
 
-        g.translate(aX, aY);
+        g.translate( aX, aY );
 
-        if (! (game.isSpecialBuilding() || (gameState == SOCGame.OVER)))
-            g.setColor(ARROW_COLOR);
+        if (!(game.isSpecialBuilding() || (gameState == SOCGame.OVER)))
+            g.setColor( ARROW_COLOR );
         else
-            g.setColor(ARROW_COLOR_PLACING);
-        g.fillPolygon(scArrowX, scaledArrowY, scArrowX.length);
-        g.setColor(Color.BLACK);
-        g.drawPolygon(scArrowX, scaledArrowY, scArrowX.length);
+            g.setColor( ARROW_COLOR_PLACING );
+        g.fillPolygon( scArrowX, scaledArrowY, scArrowX.length );
+        g.setColor( Color.BLACK );
+        g.drawPolygon( scArrowX, scaledArrowY, scArrowX.length );
 
-        g.translate(-aX, -aY);
+        g.translate( -aX, -aY );
 
         /**
          * Draw Dice result number
          */
         if ((diceResult >= 2) && (gameState != SOCGame.ROLL_OR_CARD) && (gameState != SOCGame.SPECIAL_BUILDING))
         {
-            final int boxSize = (isScaled) ? scaleToActual(DICE_SZ) : DICE_SZ;  // bounding box for dice-number digit(s)
+            final int boxSize = (isScaled) ? scaleToActual( DICE_SZ ) : DICE_SZ;  // bounding box for dice-number digit(s)
             final int fontSize = 4 * boxSize / 5;  // 80%
 
             boolean needHeight = false;
             if ((arrowDiceFont == null) || (arrowDiceFont.getSize() != fontSize))
             {
-                arrowDiceFont = new Font("Dialog", Font.BOLD, fontSize);
+                arrowDiceFont = new Font( "Dialog", Font.BOLD, fontSize );
                 needHeight = true;
             }
             final Font prevFont = g.getFont();
-            g.setFont(arrowDiceFont);
+            g.setFont( arrowDiceFont );
             if (needHeight)
             {
                 if (g instanceof Graphics2D)
                 {
                     final TextLayout tl
-                        = new TextLayout("1234567890", arrowDiceFont, ((Graphics2D) g).getFontRenderContext());
+                        = new TextLayout( "1234567890", arrowDiceFont, ((Graphics2D) g).getFontRenderContext() );
                     arrowDiceHeight = (int) tl.getBounds().getHeight();
                 }
                 else
@@ -4426,10 +4449,10 @@ import javax.swing.JComponent;
             final FontMetrics fm = g.getFontMetrics();
             diceY += boxSize;  // text baseline at bottom of box; will move up (-y) to vertically center
 
-            final String dstr = Integer.toString(diceResult);
-            final int diceW = fm.stringWidth(dstr);
-            g.drawString(dstr, diceX + (boxSize - diceW) / 2, diceY - (boxSize - arrowDiceHeight) / 2);
-            g.setFont(prevFont);
+            final String dstr = Integer.toString( diceResult );
+            final int diceW = fm.stringWidth( dstr );
+            g.drawString( dstr, diceX + (boxSize - diceW) / 2, diceY - (boxSize - arrowDiceHeight) / 2 );
+            g.setFont( prevFont );
         }
     }
 
@@ -4439,7 +4462,7 @@ import javax.swing.JComponent;
      * Does not apply to v3 encoding ({@link SOCBoardLarge}).
      * @since 1.1.08
      */
-    private static final int[] ROW_START_HEXNUM = { 0, 4, 9, 15, 22, 28, 33 };
+    private static final int[] ROW_START_HEXNUM = {0, 4, 9, 15, 22, 28, 33};
 
     /**
      * for the 6-player board (if {@link #is6player}), draw the ring of surrounding water/ports.
@@ -4448,7 +4471,7 @@ import javax.swing.JComponent;
      * @since 1.1.08
      * @see #drawPorts_LargeBoard(Graphics)
      */
-    private void drawPortsRing(Graphics g)
+    private void drawPortsRing( Graphics g )
     {
         int hnum, hx, hy, ptype;
 
@@ -4465,7 +4488,7 @@ import javax.swing.JComponent;
             // Water/port to left of hex row:
             hx = hexX[hnum] - deltaX;
             hy = hexY[hnum];
-            drawHex(g, hx, hy, SOCBoard.WATER_HEX, -1, -1);
+            drawHex( g, hx, hy, SOCBoard.WATER_HEX, -1, -1 );
 
             // Water/port to right of hex row:
             --hnum;  // is now rightmost hexnum of previous row
@@ -4473,7 +4496,7 @@ import javax.swing.JComponent;
                 hnum = hexX.length - 1;  // wrap around
             hx = hexX[hnum];  // since the rightmost hexnum isn't within 6pl coord,
             hy = hexY[hnum];  // its (x,y) is right where we want to draw.
-            drawHex(g, hx, hy, SOCBoard.WATER_HEX, -1, -1);
+            drawHex( g, hx, hy, SOCBoard.WATER_HEX, -1, -1 );
         }
 
         hx = hexX[0] - halfdeltaX;
@@ -4484,14 +4507,14 @@ import javax.swing.JComponent;
              c < 4;
              ++c, nodeCoord += 0x22, hx += deltaX)
         {
-            ptype = board.getPortTypeFromNodeCoord(nodeCoord);
+            ptype = board.getPortTypeFromNodeCoord( nodeCoord );
             if (ptype == -1)
-                drawHex(g, hx, hy, SOCBoard.WATER_HEX, -1, -1);
+                drawHex( g, hx, hy, SOCBoard.WATER_HEX, -1, -1 );
 
             // bottom-row coords swap the hex digits of top-row coords.
-            ptype = board.getPortTypeFromNodeCoord((nodeCoord >> 4) | ((nodeCoord & 0x0F) << 4));
+            ptype = board.getPortTypeFromNodeCoord( (nodeCoord >> 4) | ((nodeCoord & 0x0F) << 4) );
             if (ptype == -1)
-                drawHex(g, hx, hy2, SOCBoard.WATER_HEX, -1, -1);
+                drawHex( g, hx, hy2, SOCBoard.WATER_HEX, -1, -1 );
         }
 
         /**
@@ -4504,19 +4527,19 @@ import javax.swing.JComponent;
 
         final int[] portsFacing = board.getPortsFacing();
         final int[] portsEdges = board.getPortsEdges();
-        for (int i = board.getPortsCount()-1; i >= 0; --i)
+        for (int i = board.getPortsCount() - 1; i >= 0; --i)
         {
             // The (x,y) graphic location for this port isn't in hexX/hexY, because
             // the port is just beyond the coordinate system.  Get its facing land hex
             // and base (x,y) off that.
             final int landFacing = portsFacing[i];
-            final int landHexCoord = board.getAdjacentHexToEdge(portsEdges[i], landFacing);
-            hnum = board.getHexNumFromCoord(landHexCoord);
+            final int landHexCoord = board.getAdjacentHexToEdge( portsEdges[i], landFacing );
+            hnum = board.getHexNumFromCoord( landHexCoord );
             // now move 1 hex "backwards" from hnum
             hx = hexX[hnum] - DELTAX_FACING[landFacing];
             hy = hexY[hnum] - DELTAY_FACING[landFacing];
 
-            drawHex(g, hx, hy, portsLayout[i], landFacing, -1);
+            drawHex( g, hx, hy, portsLayout[i], landFacing, -1 );
         }
     }
 
@@ -4526,7 +4549,7 @@ import javax.swing.JComponent;
      * @since 2.0.00
      * @see #drawPortsRing(Graphics)
      */
-    private void drawPorts_LargeBoard(Graphics g)
+    private void drawPorts_LargeBoard( Graphics g )
     {
         int px, py;
 
@@ -4545,7 +4568,7 @@ import javax.swing.JComponent;
 
         final int[] portsFacing = board.getPortsFacing();
         final int[] portsEdges = board.getPortsEdges();
-        for (int i = board.getPortsCount()-1; i >= 0; --i)
+        for (int i = board.getPortsCount() - 1; i >= 0; --i)
         {
             final int edge = portsEdges[i];
             if (edge < 0)
@@ -4557,20 +4580,20 @@ import javax.swing.JComponent;
             // So instead we calculate ports' landHexCoord (which will always be inside the
             // system) and move 1 hex away from the facing direction.
             final int landFacing = portsFacing[i];
-            final int landHexCoord = board.getAdjacentHexToEdge(edge, landFacing);
+            final int landHexCoord = board.getAdjacentHexToEdge( edge, landFacing );
             px = halfdeltaX * ((landHexCoord & 0xFF) - 1);
             py = halfdeltaY * (landHexCoord >> 8);
             // now move 1 hex "backwards" from that hex's upper-left corner
             px -= DELTAX_FACING[landFacing];
             py -= DELTAY_FACING[landFacing];
 
-            drawHex(g, px, py, portsLayout[i], landFacing, -1);
+            drawHex( g, px, py, portsLayout[i], landFacing, -1 );
 
             // portHexCoords wants sea hex, not land hex
             int seaFacing = 3 + landFacing;
             if (seaFacing > 6)
                 seaFacing -= 6;
-            final int seaHex = board.getAdjacentHexToEdge(edge, seaFacing);
+            final int seaHex = board.getAdjacentHexToEdge( edge, seaFacing );
             if (seaHex > 0)
                 portHexCoords.add( seaHex );
         }
@@ -4585,23 +4608,23 @@ import javax.swing.JComponent;
      * @see #drawBoardEmpty(Graphics)
      */
     @SuppressWarnings("fallthrough")
-    private void drawBoard(Graphics g)
+    private void drawBoard( Graphics g )
     {
         Image ebb = emptyBoardBuffer;
-            // Local copy, in case field becomes null in another thread
-            // during drawBoardEmpty or other calls. (this has happened)
+        // Local copy, in case field becomes null in another thread
+        // during drawBoardEmpty or other calls. (this has happened)
 
         if (scaledMissedImage || ebb == null)
         {
             if (ebb == null)
             {
-                ebb = createImage(scaledPanelW, scaledPanelH);
+                ebb = createImage( scaledPanelW, scaledPanelH );
                 emptyBoardBuffer = ebb;
             }
 
             drawnEmptyAt = System.currentTimeMillis();
             scaledMissedImage = false;    // drawBoardEmpty, drawHex will set this flag if missed
-            drawBoardEmpty(ebb.getGraphics());
+            drawBoardEmpty( ebb.getGraphics() );
 
             ebb.flush();
             if (scaledMissedImage && (scaledAt != 0) && (RESCALE_MAX_RETRY_MS < (drawnEmptyAt - scaledAt)))
@@ -4610,25 +4633,25 @@ import javax.swing.JComponent;
 
         // draw ebb from local variable, not emptyBoardBuffer field, to avoid occasional NPE
         g.setPaintMode();
-        g.drawImage(ebb, 0, 0, this);
+        g.drawImage( ebb, 0, 0, this );
 
         // ask for antialiasing if available
         if (g instanceof Graphics2D)
-            ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            ((Graphics2D) g).setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
 
         final boolean xlat = (panelMarginX != 0) || (panelMarginY != 0);
         if (xlat)
-            g.translate(panelMarginX, panelMarginY);
+            g.translate( panelMarginX, panelMarginY );
 
         final int gameState = game.getGameState();
 
         if (board.getRobberHex() != -1)
         {
-            drawRobber(g, board.getRobberHex(), (gameState != SOCGame.PLACING_ROBBER), true);
+            drawRobber( g, board.getRobberHex(), (gameState != SOCGame.PLACING_ROBBER), true );
         }
         if (board.getPreviousRobberHex() != -1)
         {
-            drawRobber(g, board.getPreviousRobberHex(), (gameState != SOCGame.PLACING_ROBBER), false);
+            drawRobber( g, board.getPreviousRobberHex(), (gameState != SOCGame.PLACING_ROBBER), false );
         }
 
         if (isLargeBoard)
@@ -4636,31 +4659,31 @@ import javax.swing.JComponent;
             int hex = ((SOCBoardLarge) board).getPirateHex();
             if (hex > 0)
             {
-                drawRoadOrShip(g, hex, -2, (gameState == SOCGame.PLACING_PIRATE), false, false);
+                drawRoadOrShip( g, hex, -2, (gameState == SOCGame.PLACING_PIRATE), false, false );
             }
 
             hex = ((SOCBoardLarge) board).getPreviousPirateHex();
             if (hex > 0)
             {
-                drawRoadOrShip(g, hex, -3, (gameState == SOCGame.PLACING_PIRATE), false, false);
+                drawRoadOrShip( g, hex, -3, (gameState == SOCGame.PLACING_PIRATE), false, false );
             }
         }
 
         /**
          * draw the roads and ships
          */
-        if (! game.isGameOptionSet(SOCGameOptionSet.K_SC_PIRI))
+        if (!game.isGameOptionSet( SOCGameOptionSet.K_SC_PIRI ))
         {
             for (SOCRoutePiece rs : board.getRoadsAndShips())
             {
-                drawRoadOrShip(g, rs.getCoordinates(), rs.getPlayerNumber(), false, ! (rs instanceof SOCShip), false);
+                drawRoadOrShip( g, rs.getCoordinates(), rs.getPlayerNumber(), false, !(rs instanceof SOCShip), false );
             }
         }
         else
         {
             for (int pn = 0; pn < game.maxPlayers; ++pn)
             {
-                final SOCPlayer pl = game.getPlayer(pn);
+                final SOCPlayer pl = game.getPlayer( pn );
 
                 // count warships here, for efficiency, instead of calling SOCGame.isShipWarship for each one
                 int numWarships = pl.getNumWarships();
@@ -4668,7 +4691,7 @@ import javax.swing.JComponent;
                 {
                     final boolean isShip = (rs instanceof SOCShip);
                     final boolean isWarship = isShip && (numWarships > 0);
-                    drawRoadOrShip(g, rs.getCoordinates(), pn, false, ! isShip, isWarship);
+                    drawRoadOrShip( g, rs.getCoordinates(), pn, false, !isShip, isWarship );
                     if (isWarship)
                         --numWarships;  // this works since warships begin with player's 1st-placed ship in getRoads()
                 }
@@ -4678,7 +4701,7 @@ import javax.swing.JComponent;
                  */
                 SOCFortress fo = pl.getFortress();
                 if (fo != null)
-                    drawFortress(g, fo, pn, false, false);
+                    drawFortress( g, fo, pn, false, false );
             }
         }
 
@@ -4687,7 +4710,7 @@ import javax.swing.JComponent;
          */
         for (SOCSettlement s : board.getSettlements())
         {
-            drawSettlement(g, s.getCoordinates(), s.getPlayerNumber(), false, false);
+            drawSettlement( g, s.getCoordinates(), s.getPlayerNumber(), false, false );
         }
 
         /**
@@ -4695,11 +4718,11 @@ import javax.swing.JComponent;
          */
         for (SOCCity c : board.getCities())
         {
-            drawCity(g, c.getCoordinates(), c.getPlayerNumber(), false);
+            drawCity( g, c.getCoordinates(), c.getPlayerNumber(), false );
         }
 
         if (xlat)
-            g.translate(-panelMarginX, -panelMarginY);
+            g.translate( -panelMarginX, -panelMarginY );
 
         /**
          * draw the current-player arrow after ("above") pieces,
@@ -4716,130 +4739,130 @@ import javax.swing.JComponent;
                 if (wp != null)
                     cpn = wp.getPlayerNumber();
             }
-            drawArrow(g, cpn, game.getCurrentDice());
+            drawArrow( g, cpn, game.getCurrentDice() );
         }
 
         if (player != null)
         {
-        if (xlat)
-            g.translate(panelMarginX, panelMarginY);
+            if (xlat)
+                g.translate( panelMarginX, panelMarginY );
 
-        /**
-         * Draw the hilight when in interactive mode;
-         * No hilight when null player (before game started).
-         * The "hovering" road/settlement/city are separately painted
-         * in {@link soc.client.SOCBoardPanel.BoardToolTip#paint()}.
-         */
-        switch (mode)
-        {
-        case MOVE_SHIP:
-            if (moveShip_fromEdge != 0)
-                drawRoadOrShip(g, moveShip_fromEdge, -1, false, false, moveShip_isWarship);
-            // fall through to road modes, to draw new location (hilight)
-
-        case PLACE_ROAD:
-        case PLACE_INIT_ROAD:
-        case PLACE_FREE_ROAD_OR_SHIP:
-
-            if (hilight != 0)
+            /**
+             * Draw the hilight when in interactive mode;
+             * No hilight when null player (before game started).
+             * The "hovering" road/settlement/city are separately painted
+             * in {@link soc.client.SOCBoardPanel.BoardToolTip#paint()}.
+             */
+            switch (mode)
             {
-                drawRoadOrShip
-                    (g, hilight, playerNumber, true, ! hilightIsShip, (moveShip_isWarship && (moveShip_fromEdge != 0)));
-            }
-            break;
+            case MOVE_SHIP:
+                if (moveShip_fromEdge != 0)
+                    drawRoadOrShip( g, moveShip_fromEdge, -1, false, false, moveShip_isWarship );
+                // fall through to road modes, to draw new location (hilight)
 
-        case PLACE_SETTLEMENT:
-        case PLACE_INIT_SETTLEMENT:
+            case PLACE_ROAD:
+            case PLACE_INIT_ROAD:
+            case PLACE_FREE_ROAD_OR_SHIP:
 
-            if (hilight > 0)
-            {
-                drawSettlement(g, hilight, playerNumber, true, false);
-            }
-            break;
+                if (hilight != 0)
+                {
+                    drawRoadOrShip
+                        ( g, hilight, playerNumber, true, !hilightIsShip, (moveShip_isWarship && (moveShip_fromEdge != 0)) );
+                }
+                break;
 
-        case PLACE_CITY:
+            case PLACE_SETTLEMENT:
+            case PLACE_INIT_SETTLEMENT:
 
-            if (hilight > 0)
-            {
-                drawCity(g, hilight, playerNumber, true);
-            }
-            break;
+                if (hilight > 0)
+                {
+                    drawSettlement( g, hilight, playerNumber, true, false );
+                }
+                break;
 
-        case PLACE_SHIP:
+            case PLACE_CITY:
 
-            if (hilight > 0)
-            {
-                drawRoadOrShip(g, hilight, playerNumber, true, false, false);
-            }
-            break;
+                if (hilight > 0)
+                {
+                    drawCity( g, hilight, playerNumber, true );
+                }
+                break;
 
-        case CONSIDER_LM_SETTLEMENT:
-        case CONSIDER_LT_SETTLEMENT:
+            case PLACE_SHIP:
 
-            if (hilight > 0)
-            {
-                drawSettlement(g, hilight, otherPlayer.getPlayerNumber(), true, false);
-            }
-            break;
+                if (hilight > 0)
+                {
+                    drawRoadOrShip( g, hilight, playerNumber, true, false, false );
+                }
+                break;
 
-        case CONSIDER_LM_ROAD:
-        case CONSIDER_LT_ROAD:
+            case CONSIDER_LM_SETTLEMENT:
+            case CONSIDER_LT_SETTLEMENT:
 
-            if (hilight != 0)
-            {
-                drawRoadOrShip(g, hilight, otherPlayer.getPlayerNumber(), false, true, false);
-            }
-            break;
+                if (hilight > 0)
+                {
+                    drawSettlement( g, hilight, otherPlayer.getPlayerNumber(), true, false );
+                }
+                break;
 
-        case CONSIDER_LM_SHIP:
-        case CONSIDER_LT_SHIP:
+            case CONSIDER_LM_ROAD:
+            case CONSIDER_LT_ROAD:
 
-            if (hilight != 0)
-                drawRoadOrShip(g, hilight, otherPlayer.getPlayerNumber(), false, false, false);
-            break;
+                if (hilight != 0)
+                {
+                    drawRoadOrShip( g, hilight, otherPlayer.getPlayerNumber(), false, true, false );
+                }
+                break;
 
-        case CONSIDER_LM_CITY:
-        case CONSIDER_LT_CITY:
+            case CONSIDER_LM_SHIP:
+            case CONSIDER_LT_SHIP:
 
-            if (hilight > 0)
-            {
-                drawCity(g, hilight, otherPlayer.getPlayerNumber(), true);
-            }
-            break;
+                if (hilight != 0)
+                    drawRoadOrShip( g, hilight, otherPlayer.getPlayerNumber(), false, false, false );
+                break;
 
-        case PLACE_ROBBER:
+            case CONSIDER_LM_CITY:
+            case CONSIDER_LT_CITY:
 
-            if (hilight > 0)
-            {
-                drawRobber(g, hilight, true, true);
-            }
-            break;
+                if (hilight > 0)
+                {
+                    drawCity( g, hilight, otherPlayer.getPlayerNumber(), true );
+                }
+                break;
 
-        case PLACE_PIRATE:
-            if (hilight > 0)
-            {
-                drawRoadOrShip(g, hilight, -2, false, false, false);
-            }
-            break;
+            case PLACE_ROBBER:
 
-        case SC_FTRI_PLACE_PORT:
-            drawBoard_SC_FTRI_placePort(g);
-            break;
+                if (hilight > 0)
+                {
+                    drawRobber( g, hilight, true, true );
+                }
+                break;
 
-        }  // switch
+            case PLACE_PIRATE:
+                if (hilight > 0)
+                {
+                    drawRoadOrShip( g, hilight, -2, false, false, false );
+                }
+                break;
 
-        if (xlat)
-            g.translate(-panelMarginX, -panelMarginY);
+            case SC_FTRI_PLACE_PORT:
+                drawBoard_SC_FTRI_placePort( g );
+                break;
+
+            }  // switch
+
+            if (xlat)
+                g.translate( -panelMarginX, -panelMarginY );
 
         }  // if (player != null)
 
         if (superText1 != null)
         {
-            drawSuperText(g);
+            drawSuperText( g );
         }
         if (superTextTop != null)
         {
-            drawSuperTextTop(g);
+            drawSuperTextTop( g );
         }
     }
 
@@ -4849,9 +4872,9 @@ import javax.swing.JComponent;
      * such an edge, draw the port semi-transparently and a solid hilight line at the edge.
      * @since 2.0.00
      */
-    private void drawBoard_SC_FTRI_placePort(Graphics g)
+    private void drawBoard_SC_FTRI_placePort( Graphics g )
     {
-        drawSeaEdgeLines(g, Color.WHITE, player.getPortMovePotentialLocations(true));
+        drawSeaEdgeLines( g, Color.WHITE, player.getPortMovePotentialLocations( true ) );
 
         if (hilight == 0)
             return;
@@ -4868,8 +4891,8 @@ import javax.swing.JComponent;
         {
             // draw the port; similar code to drawPorts_largeBoard
 
-            final int landFacing = ((SOCBoardLarge) board).getPortFacingFromEdge(edge);
-            final int landHexCoord = board.getAdjacentHexToEdge(edge, landFacing);
+            final int landFacing = ((SOCBoardLarge) board).getPortFacingFromEdge( edge );
+            final int landHexCoord = board.getAdjacentHexToEdge( edge, landFacing );
             int px = halfdeltaX * ((landHexCoord & 0xFF) - 1);
             int py = halfdeltaY * (landHexCoord >> 8);
             // now move 1 hex "backwards" from that hex's upper-left corner
@@ -4880,33 +4903,33 @@ import javax.swing.JComponent;
             if (g instanceof Graphics2D)
             {
                 prevComposite = ((Graphics2D) g).getComposite();
-                ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f));
+                ((Graphics2D) g).setComposite( AlphaComposite.getInstance( AlphaComposite.SRC_OVER, 0.6f ) );
             }
             else
             {
                 prevComposite = null;
             }
-            drawHex(g, px, py, -portItem.itype, landFacing, -1);
+            drawHex( g, px, py, -portItem.itype, landFacing, -1 );
             if (prevComposite != null)
-                ((Graphics2D) g).setComposite(prevComposite);
+                ((Graphics2D) g).setComposite( prevComposite );
         }
 
         final Stroke prevStroke;
         if (g instanceof Graphics2D)
         {
             prevStroke = ((Graphics2D) g).getStroke();
-            ((Graphics2D) g).setStroke(new BasicStroke(2.5f));
+            ((Graphics2D) g).setStroke( new BasicStroke( 2.5f ) );
         }
         else
         {
             prevStroke = null;
         }
 
-        g.setColor(Color.WHITE);
-        drawSeaEdgeLine(g, edge);
+        g.setColor( Color.WHITE );
+        drawSeaEdgeLine( g, edge );
 
         if (prevStroke != null)
-            ((Graphics2D) g).setStroke(prevStroke);
+            ((Graphics2D) g).setStroke( prevStroke );
     }
 
     /**
@@ -4926,17 +4949,17 @@ import javax.swing.JComponent;
      * @since 1.1.08
      * @see SOCPlayerInterface#updateAtNewBoard()
      */
-    private void drawBoardEmpty(Graphics g)
+    private void drawBoardEmpty( Graphics g )
     {
         if (g instanceof Graphics2D)
-            ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            ((Graphics2D) g).setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
 
         Set<Integer> landHexShow;
         final int SC_6;
         if (debugShowPotentials[8] && isLargeBoard)
         {
             landHexShow = ((SOCBoardLarge) board).getLandHexCoordsSet();
-            SC_6 = scaleToActual(6);
+            SC_6 = scaleToActual( 6 );
         }
         else
         {
@@ -4946,8 +4969,8 @@ import javax.swing.JComponent;
 
         g.setPaintMode();
 
-        g.setColor(getBackground());
-        g.fillRect(0, 0, scaledPanelW, scaledPanelH);
+        g.setColor( getBackground() );
+        g.fillRect( 0, 0, scaledPanelW, scaledPanelH );
 
         if (scaledPorts[0] == null)
         {
@@ -4958,11 +4981,11 @@ import javax.swing.JComponent;
 
         final boolean xlat = (panelMarginX != 0) || (panelMarginY != 0);
         if (xlat)
-            g.translate(panelMarginX, panelMarginY);
+            g.translate( panelMarginX, panelMarginY );
 
         // Draw hexes:
         // drawHex will set scaledMissedImage if missed.
-        if (! isLargeBoard)
+        if (!isLargeBoard)
         {
             // Draw water hexes to all edges of the panel;
             // these are outside the board coordinate system.
@@ -4977,51 +5000,51 @@ import javax.swing.JComponent;
                 // Nonzero panelMarginX can cause blank areas visually to left of board
                 // ("below" in board coordinates).
                 hxMin =
-                    (panelMarginY <= 0) ? 0 : deltaX * (int) Math.floor(-scaleFromActual(panelMarginY) / (float) deltaX);
-                hxMax = scaleFromActual(getHeight());
+                    (panelMarginY <= 0) ? 0 : deltaX * (int) Math.floor( -scaleFromActual( panelMarginY ) / (float) deltaX );
+                hxMax = scaleFromActual( getHeight() );
                 final int nTopRows =  // at top in board coords; at right in screen coords
                     (scaledBoardW == scaledPanelW)
-                    ? 1
-                    : 1 + (scaleFromActual(scaledPanelW + HEXY_OFF_SLOPE_HEIGHT - scaledBoardW) / deltaY);
+                        ? 1
+                        : 1 + (scaleFromActual( scaledPanelW + HEXY_OFF_SLOPE_HEIGHT - scaledBoardW ) / deltaY);
                 hyMin = -deltaY * nTopRows;
                 hyMax = panelMinBH +
-                    ((panelMarginX <= 0) ? 0 : scaleFromActual(panelMarginX));
+                    ((panelMarginX <= 0) ? 0 : scaleFromActual( panelMarginX ));
                 isRowOffset = (1 == (nTopRows % 2));
             }
             else
             {
                 hxMin =
-                    (panelMarginX <= 0) ? 0 : deltaX * (int) Math.floor(-scaleFromActual(panelMarginX) / (float) deltaX);
+                    (panelMarginX <= 0) ? 0 : deltaX * (int) Math.floor( -scaleFromActual( panelMarginX ) / (float) deltaX );
                 hxMax =
-                    (scaledBoardW == scaledPanelW) ? panelMinBW : scaleFromActual(scaledPanelW - panelMarginX);
+                    (scaledBoardW == scaledPanelW) ? panelMinBW : scaleFromActual( scaledPanelW - panelMarginX );
                 final int nTopRows =
                     (panelMarginY <= 0)
-                    ? 1
-                    : 1 + (int) Math.ceil(panelMarginY / (float) deltaY);
+                        ? 1
+                        : 1 + (int) Math.ceil( panelMarginY / (float) deltaY );
                 hyMin = -deltaY * nTopRows;
-                hyMax = scaleFromActual(scaledPanelH);  // often same as panelMinBH
+                hyMax = scaleFromActual( scaledPanelH );  // often same as panelMinBH
                 isRowOffset = (0 == (nTopRows % 2));
             }
 
-            for (int hy = hyMin; hy < hyMax; hy += deltaY, isRowOffset = ! isRowOffset)
+            for (int hy = hyMin; hy < hyMax; hy += deltaY, isRowOffset = !isRowOffset)
             {
                 int hx = hxMin;
                 if (isRowOffset)
                     hx -= halfdeltaX;
                 for (; hx < hxMax; hx += deltaX)
-                    if ((hx < 0) || (hx >= panelMinBW) || (hy >= panelMinBH) || (0 == findHex(hx, hy)))
-                        drawHex(g, hx, hy, SOCBoard.WATER_HEX, -1, -1);
+                    if ((hx < 0) || (hx >= panelMinBW) || (hy >= panelMinBH) || (0 == findHex( hx, hy )))
+                        drawHex( g, hx, hy, SOCBoard.WATER_HEX, -1, -1 );
             }
 
             // Normal board draws all 37 hexes.
             // The 6-player board skips the rightmost row (hexes 7D-DD-D7).
 
             if (is6player)
-                drawPortsRing(g);
+                drawPortsRing( g );
 
             for (int i = 0; i < hexX.length; i++)
-                if ((inactiveHexNums == null) || ! inactiveHexNums[i])
-                    drawHex(g, i);
+                if ((inactiveHexNums == null) || !inactiveHexNums[i])
+                    drawHex( g, i );
 
         }
         else
@@ -5031,13 +5054,13 @@ import javax.swing.JComponent;
             // (x,y) are unscaled board-pixel coordinates.
 
             /** Panel width in board coordinates; because of panelMarginX, might be > unscaledBoardW */
-            final int unscaledPanelW = scaleFromActual(scaledPanelW);
+            final int unscaledPanelW = scaleFromActual( scaledPanelW );
 
             // Top margin rows:
 
-            final int bMarginX = scaleFromActual(panelMarginX),
-                      bMarginYAndHex = scaleFromActual(panelMarginY) + HEXHEIGHT,
-                      marginXNumHex = (bMarginX + deltaX - 1) / deltaX;
+            final int bMarginX = scaleFromActual( panelMarginX ),
+                bMarginYAndHex = scaleFromActual( panelMarginY ) + HEXHEIGHT,
+                marginXNumHex = (bMarginX + deltaX - 1) / deltaX;
 
             // Top margin ("row -1"): Easier to draw it separately than deal with row coord -1 in main loop.
             // The initial x-coord formula aligns just enough water hexes to cover -bMarginX.
@@ -5050,7 +5073,7 @@ import javax.swing.JComponent;
                 for (int x = -(deltaX * marginXNumHex) - (halfdeltaX * xOffsetFlag);
                      x < unscaledPanelW;
                      x += deltaX)
-                    drawHex(g, x, y, SOCBoard.WATER_HEX, -1, -1);
+                    drawHex( g, x, y, SOCBoard.WATER_HEX, -1, -1 );
 
             // In-bounds board hexes and bottom margin:
             final int bw = board.getBoardWidth(), bh = board.getBoardHeight();
@@ -5060,7 +5083,7 @@ import javax.swing.JComponent;
             {
                 final int rshift = (r << 8);
                 int c, x;
-                if (((r/2) % 2) == 1)
+                if (((r / 2) % 2) == 1)
                 {
                     c = 1;  // odd hex rows start at 1
                     x = 0;
@@ -5076,22 +5099,22 @@ import javax.swing.JComponent;
                     // If board is narrow or row doesn't start at left side of panel, fill margin with water.
                     // xleft drawn at >= 0 after g.translate for panelMarginX
                     for (int xleft = x; xleft > -(panelMarginX + deltaX); xleft -= deltaX)
-                        drawHex(g, xleft, y, SOCBoard.WATER_HEX, -1, -1);
+                        drawHex( g, xleft, y, SOCBoard.WATER_HEX, -1, -1 );
                 }
 
                 for (; c < bw; c += 2, x += deltaX)
                 {
                     final int hexCoord = rshift | c;
-                    final int hexType = (r < bh) ? board.getHexTypeFromCoord(hexCoord) : SOCBoard.WATER_HEX;
-                    drawHex(g, x, y, hexType, -1, hexCoord);
+                    final int hexType = (r < bh) ? board.getHexTypeFromCoord( hexCoord ) : SOCBoard.WATER_HEX;
+                    drawHex( g, x, y, hexType, -1, hexCoord );
                     if ((landHexShow != null) && landHexShow.contains( hexCoord ))
                     {
-                       g.setColor(Color.RED);
-                       g.drawRoundRect
-                           (scaleToActual(x + (halfdeltaX / 2)),
-                            scaleToActual(y + ((halfdeltaY + HEXY_OFF_SLOPE_HEIGHT) / 2) + 1),
-                            scaleToActual(halfdeltaX), scaleToActual(halfdeltaY + 1),
-                            SC_6, SC_6);
+                        g.setColor( Color.RED );
+                        g.drawRoundRect
+                            ( scaleToActual( x + (halfdeltaX / 2) ),
+                                scaleToActual( y + ((halfdeltaY + HEXY_OFF_SLOPE_HEIGHT) / 2) + 1 ),
+                                scaleToActual( halfdeltaX ), scaleToActual( halfdeltaY + 1 ),
+                                SC_6, SC_6 );
                     }
                 }
 
@@ -5102,39 +5125,39 @@ import javax.swing.JComponent;
                 while (x < xmax)
                 {
                     final int hexCoord = rshift | c;
-                    drawHex(g, x, y, SOCBoard.WATER_HEX, -1, hexCoord);
+                    drawHex( g, x, y, SOCBoard.WATER_HEX, -1, hexCoord );
                     c += 2;
                     x += deltaX;
                 }
             }
 
             // All ports
-            drawPorts_LargeBoard(g);
+            drawPorts_LargeBoard( g );
 
             // For scenario _SC_PIRI, check for the Pirate Path and Lone Settlement locations.
             // Draw path only if the pirate fleet is still on the board
             // Draw our player's permitted sea edges for ships, if restricted
             {
-                final int[] ppath = ((SOCBoardLarge) board).getAddedLayoutPart("PP");
+                final int[] ppath = ((SOCBoardLarge) board).getAddedLayoutPart( "PP" );
                 if ((ppath != null) && (0 != ((SOCBoardLarge) board).getPirateHex()))
-                    drawBoardEmpty_drawPiratePath(g, ppath);
+                    drawBoardEmpty_drawPiratePath( g, ppath );
 
-                final int[] ls = ((SOCBoardLarge) board).getAddedLayoutPart("LS");
+                final int[] ls = ((SOCBoardLarge) board).getAddedLayoutPart( "LS" );
                 if (ls != null)
                 {
                     for (int pn = 0; pn < ls.length; ++pn)
                         if (ls[pn] != 0)
-                            drawSettlement(g, ls[pn], pn, false, true);
+                            drawSettlement( g, ls[pn], pn, false, true );
                 }
 
                 final HashSet<Integer> lse = (player != null) ? player.getRestrictedLegalShips() : null;
                 if (lse != null)
-                    drawSeaEdgeLines(g, null, lse);
+                    drawSeaEdgeLines( g, null, lse );
             }
 
             // For scenario _SC_FTRI, draw markers at the SVP edges and dev card edges (added layout parts "CE", "VE")
             if (((SOCBoardLarge) board).hasSpecialEdges())
-                drawBoardEmpty_specialEdges(g);
+                drawBoardEmpty_specialEdges( g );
 
             // For scenario _SC_CLVI, draw the cloth villages
             HashMap<Integer, SOCVillage> villages = ((SOCBoardLarge) board).getVillages();
@@ -5145,19 +5168,19 @@ import javax.swing.JComponent;
             }
 
             // For scenario _SC_WOND, draw special nodes (layout parts N1, N2, N3)
-            if (game.isGameOptionSet(SOCGameOptionSet.K_SC_WOND))
+            if (game.isGameOptionSet( SOCGameOptionSet.K_SC_WOND ))
             {
-                drawBoardEmpty_specialNodes(g, "N1", new Color(180, 90, 40));   // brown
-                drawBoardEmpty_specialNodes(g, "N2", new Color(120, 40, 120));  // violet
-                drawBoardEmpty_specialNodes(g, "N3", Color.RED);
+                drawBoardEmpty_specialNodes( g, "N1", new Color( 180, 90, 40 ) );   // brown
+                drawBoardEmpty_specialNodes( g, "N2", new Color( 120, 40, 120 ) );  // violet
+                drawBoardEmpty_specialNodes( g, "N3", Color.RED );
             }
 
             // check debugShowPotentials[0 - 9]
-            drawBoardEmpty_drawDebugShowPotentials(g);
+            drawBoardEmpty_drawDebugShowPotentials( g );
         }
 
         if (xlat)
-            g.translate(-panelMarginX, -panelMarginY);
+            g.translate( -panelMarginX, -panelMarginY );
 
         if (scaledMissedImage)
         {
@@ -5167,7 +5190,7 @@ import javax.swing.JComponent;
             // (The delay gives time for the new scaling to complete.)
             scaledAt = System.currentTimeMillis();
             repaint();
-            new DelayedRepaint(this).start();
+            new DelayedRepaint( this ).start();
         }
     }
 
@@ -5176,29 +5199,29 @@ import javax.swing.JComponent;
      * draw the path that the pirate fleet takes around the board.
      * @param ppath  Path of hex coordinates
      */
-    private void drawBoardEmpty_drawPiratePath(Graphics g, final int[] ppath)
+    private void drawBoardEmpty_drawPiratePath( Graphics g, final int[] ppath )
     {
         int hc = ppath[ppath.length - 1];
         int r = hc >> 8, c = hc & 0xFF;
-        int yprev = scaleToActual(r * halfdeltaY + HALF_HEXHEIGHT),  // HALF_HEXHEIGHT == halfdeltaY + 9
-            xprev = scaleToActual(c * halfdeltaX);
+        int yprev = scaleToActual( r * halfdeltaY + HALF_HEXHEIGHT ),  // HALF_HEXHEIGHT == halfdeltaY + 9
+            xprev = scaleToActual( c * halfdeltaX );
 
         Stroke prevStroke;
         if (g instanceof Graphics2D)
         {
             // Draw as a dotted line with some thickness
             prevStroke = ((Graphics2D) g).getStroke();
-            final int hexPartWidth = scaleToActual(halfdeltaX);
-            final float[] dash = { hexPartWidth * 0.2f, hexPartWidth * 0.3f };  // length of dash/break
+            final int hexPartWidth = scaleToActual( halfdeltaX );
+            final float[] dash = {hexPartWidth * 0.2f, hexPartWidth * 0.3f};  // length of dash/break
             ((Graphics2D) g).setStroke
-                (new BasicStroke(2.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 2.5f, dash, 0.8f));
+                ( new BasicStroke( 2.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 2.5f, dash, 0.8f ) );
         }
         else
         {
             prevStroke = null;
         }
 
-        g.setColor(HEX_GRAPHICS_SET_SC_PIRI_PATH_COLORS[hexesGraphicsSetIndex]);
+        g.setColor( HEX_GRAPHICS_SET_SC_PIRI_PATH_COLORS[hexesGraphicsSetIndex] );
         for (int value : ppath)
         {
             hc = value;
@@ -5212,7 +5235,7 @@ import javax.swing.JComponent;
         }
 
         if (g instanceof Graphics2D)
-            ((Graphics2D) g).setStroke(prevStroke);
+            ((Graphics2D) g).setStroke( prevStroke );
     }
 
     /**
@@ -5223,7 +5246,7 @@ import javax.swing.JComponent;
      * Unknown types will be drawn gray.
      * @since 2.0.00
      */
-    private void drawBoardEmpty_specialEdges(final Graphics g)
+    private void drawBoardEmpty_specialEdges( final Graphics g )
     {
         Iterator<Map.Entry<Integer, Integer>> seIter = ((SOCBoardLarge) board).getSpecialEdges();
         while (seIter.hasNext())
@@ -5255,10 +5278,10 @@ import javax.swing.JComponent;
             if (edgeNotVertical)
                 x += (halfdeltaX / 2);
 
-            x = scaleToActual(x);
-            y = scaleToActual(y);
+            x = scaleToActual( x );
+            y = scaleToActual( y );
 
-            drawMarker(g, x, y, mc, -1);
+            drawMarker( g, x, y, mc, -1 );
         }
     }
 
@@ -5270,16 +5293,16 @@ import javax.swing.JComponent;
      * @param color  Color to fill the markers
      * @since 2.0.00
      */
-    private void drawBoardEmpty_specialNodes(final Graphics g, final String partKey, final Color color)
+    private void drawBoardEmpty_specialNodes( final Graphics g, final String partKey, final Color color )
     {
-        final int[] nodes = ((SOCBoardLarge) board).getAddedLayoutPart(partKey);
+        final int[] nodes = ((SOCBoardLarge) board).getAddedLayoutPart( partKey );
         if (nodes == null)
             return;
 
         for (final int node : nodes)
         {
-            final int[] nodexy = nodeToXY(node);
-            drawMarker(g, nodexy[0], nodexy[1], color, -1);
+            final int[] nodexy = nodeToXY( node );
+            drawMarker( g, nodexy[0], nodexy[1], color, -1 );
         }
     }
 
@@ -5294,24 +5317,24 @@ import javax.swing.JComponent;
      * @since 2.0.00
      * @throws IllegalStateException if ! isLargeBoard; temporary restriction
      */
-    private void drawBoardEmpty_drawDebugShowPotentials(Graphics g)
+    private void drawBoardEmpty_drawDebugShowPotentials( Graphics g )
         throws IllegalStateException
     {
-        if (! isLargeBoard)
-            throw new IllegalStateException("not supported yet");
+        if (!isLargeBoard)
+            throw new IllegalStateException( "not supported yet" );
 
-        final SOCPlayer pl = (player != null) ? player : game.getPlayer(0);
+        final SOCPlayer pl = (player != null) ? player : game.getPlayer( 0 );
         final int bw = board.getBoardWidth();
 
         if (debugShowPotentials[2])
         {
             final int bh = board.getBoardHeight();
-            int w = scaleToActual(halfdeltaX * bw),
-                h = scaleToActual(halfdeltaY * bh + HEXY_OFF_SLOPE_HEIGHT);
-            int y = scaleToActual(halfdeltaY);
-            g.setColor(Color.YELLOW);
-            g.drawRect(0, y, w, h);
-            g.drawRect(1, y + 1, w - 2, h - 2);
+            int w = scaleToActual( halfdeltaX * bw ),
+                h = scaleToActual( halfdeltaY * bh + HEXY_OFF_SLOPE_HEIGHT );
+            int y = scaleToActual( halfdeltaY );
+            g.setColor( Color.YELLOW );
+            g.drawRect( 0, y, w, h );
+            g.drawRect( 1, y + 1, w - 2, h - 2 );
         }
 
         // Iterate over all nodes for:
@@ -5319,43 +5342,43 @@ import javax.swing.JComponent;
         // 2,6: cities: larger squares (potential green; there is no legal set)
         // 9: nodes on land: red round rects
 
-        final int SC_3  = scaleToActual(3),  SC_10 = scaleToActual(10), SC_12 = scaleToActual(12),
-                  SC_14 = scaleToActual(14), SC_18 = scaleToActual(18);
+        final int SC_3 = scaleToActual( 3 ), SC_10 = scaleToActual( 10 ), SC_12 = scaleToActual( 12 ),
+            SC_14 = scaleToActual( 14 ), SC_18 = scaleToActual( 18 );
 
         for (int r = 0, y = halfdeltaY + (HEXY_OFF_SLOPE_HEIGHT / 2);
              r <= board.getBoardHeight();
              ++r, y += halfdeltaY)
         {
             final int rshift = (r << 8);
-            for (int c=0, x=0; c <= bw; ++c, x += halfdeltaX)
+            for (int c = 0, x = 0; c <= bw; ++c, x += halfdeltaX)
             {
                 final int nodeCoord = rshift | c;
                 // TODO each node, adjust y by +- HEXY_OFF_SLOPE_HEIGHT
 
-                    // 1,5: settlements
-                if (debugShowPotentials[1] && pl.isLegalSettlement(nodeCoord))
+                // 1,5: settlements
+                if (debugShowPotentials[1] && pl.isLegalSettlement( nodeCoord ))
                 {
-                    g.setColor(Color.YELLOW);
-                    g.drawRect(scaleToActual(x - 6), scaleToActual(y - 6), SC_12, SC_12);
+                    g.setColor( Color.YELLOW );
+                    g.drawRect( scaleToActual( x - 6 ), scaleToActual( y - 6 ), SC_12, SC_12 );
                 }
-                if (debugShowPotentials[5] && pl.isPotentialSettlement(nodeCoord))
+                if (debugShowPotentials[5] && pl.isPotentialSettlement( nodeCoord ))
                 {
-                    g.setColor(Color.GREEN);
-                    g.drawRect(scaleToActual(x - 7), scaleToActual(y - 7), SC_14, SC_14);
-                }
-
-                    // 6: cities (potential only)
-                if (debugShowPotentials[6] && pl.isPotentialCity(nodeCoord))
-                {
-                    g.setColor(Color.GREEN);
-                    g.drawRect(scaleToActual(x - 9), scaleToActual(y - 9), SC_18, SC_18);
+                    g.setColor( Color.GREEN );
+                    g.drawRect( scaleToActual( x - 7 ), scaleToActual( y - 7 ), SC_14, SC_14 );
                 }
 
-                    // 9: nodes on land
-                if (debugShowPotentials[9] && board.isNodeOnLand(nodeCoord))
+                // 6: cities (potential only)
+                if (debugShowPotentials[6] && pl.isPotentialCity( nodeCoord ))
                 {
-                    g.setColor(Color.RED);
-                    g.drawRoundRect(scaleToActual(x - 5), scaleToActual(y - 5), SC_10, SC_10, SC_3, SC_3);
+                    g.setColor( Color.GREEN );
+                    g.drawRect( scaleToActual( x - 9 ), scaleToActual( y - 9 ), SC_18, SC_18 );
+                }
+
+                // 9: nodes on land
+                if (debugShowPotentials[9] && board.isNodeOnLand( nodeCoord ))
+                {
+                    g.setColor( Color.RED );
+                    g.drawRoundRect( scaleToActual( x - 5 ), scaleToActual( y - 5 ), SC_10, SC_10, SC_3, SC_3 );
                 }
             }
         }
@@ -5372,37 +5395,37 @@ import javax.swing.JComponent;
             final boolean edgeIsVert = ((r % 2) == 1);
             int x = (edgeIsVert) ? 0 : (halfdeltaX / 2);
 
-            for (int c=0; c <= bw; ++c, x += halfdeltaX)
+            for (int c = 0; c <= bw; ++c, x += halfdeltaX)
             {
                 final int edgeCoord = rshift | c;
 
-                    // 3,7: ships - diamonds
-                if (debugShowPotentials[3] && pl.isLegalShip(edgeCoord))
+                // 3,7: ships - diamonds
+                if (debugShowPotentials[3] && pl.isLegalShip( edgeCoord ))
                 {
-                    g.setColor(Color.YELLOW);
-                    g.drawLine(scaleToActual(x-4), scaleToActual(y),   scaleToActual(x),   scaleToActual(y-4));
-                    g.drawLine(scaleToActual(x),   scaleToActual(y-4), scaleToActual(x+4), scaleToActual(y));
-                    g.drawLine(scaleToActual(x+4), scaleToActual(y),   scaleToActual(x),   scaleToActual(y+4));
-                    g.drawLine(scaleToActual(x),   scaleToActual(y+4), scaleToActual(x-4), scaleToActual(y));
+                    g.setColor( Color.YELLOW );
+                    g.drawLine( scaleToActual( x - 4 ), scaleToActual( y ), scaleToActual( x ), scaleToActual( y - 4 ) );
+                    g.drawLine( scaleToActual( x ), scaleToActual( y - 4 ), scaleToActual( x + 4 ), scaleToActual( y ) );
+                    g.drawLine( scaleToActual( x + 4 ), scaleToActual( y ), scaleToActual( x ), scaleToActual( y + 4 ) );
+                    g.drawLine( scaleToActual( x ), scaleToActual( y + 4 ), scaleToActual( x - 4 ), scaleToActual( y ) );
                 }
-                if (debugShowPotentials[7] && pl.isPotentialShip(edgeCoord))
+                if (debugShowPotentials[7] && pl.isPotentialShip( edgeCoord ))
                 {
-                    g.setColor(Color.GREEN);
-                    g.drawLine(scaleToActual(x-6), scaleToActual(y),   scaleToActual(x),   scaleToActual(y-6));
-                    g.drawLine(scaleToActual(x),   scaleToActual(y-6), scaleToActual(x+6), scaleToActual(y));
-                    g.drawLine(scaleToActual(x+6), scaleToActual(y),   scaleToActual(x),   scaleToActual(y+6));
-                    g.drawLine(scaleToActual(x),   scaleToActual(y+6), scaleToActual(x-6), scaleToActual(y));
+                    g.setColor( Color.GREEN );
+                    g.drawLine( scaleToActual( x - 6 ), scaleToActual( y ), scaleToActual( x ), scaleToActual( y - 6 ) );
+                    g.drawLine( scaleToActual( x ), scaleToActual( y - 6 ), scaleToActual( x + 6 ), scaleToActual( y ) );
+                    g.drawLine( scaleToActual( x + 6 ), scaleToActual( y ), scaleToActual( x ), scaleToActual( y + 6 ) );
+                    g.drawLine( scaleToActual( x ), scaleToActual( y + 6 ), scaleToActual( x - 6 ), scaleToActual( y ) );
                 }
 
-                    // 0,4: roads - parallel lines
-                if (debugShowPotentials[0] && pl.isLegalRoad(edgeCoord))
+                // 0,4: roads - parallel lines
+                if (debugShowPotentials[0] && pl.isLegalRoad( edgeCoord ))
                 {
                     drawBoardEmpty_drawDebugShowPotentialRoad
-                        (g, x, y, r, c, edgeIsVert, Color.YELLOW, 4);
+                        ( g, x, y, r, c, edgeIsVert, Color.YELLOW, 4 );
                 }
-                if (debugShowPotentials[4] && pl.isPotentialRoad(edgeCoord))
+                if (debugShowPotentials[4] && pl.isPotentialRoad( edgeCoord ))
                     drawBoardEmpty_drawDebugShowPotentialRoad
-                        (g, x, y, r, c, edgeIsVert, Color.GREEN, 6);
+                        ( g, x, y, r, c, edgeIsVert, Color.GREEN, 6 );
             }
         }
     }
@@ -5426,17 +5449,17 @@ import javax.swing.JComponent;
      * @param offset  Approx unscaled internal-coordinate offset, outwards parallel to road
      */
     private void drawBoardEmpty_drawDebugShowPotentialRoad
-        (Graphics g, final int x, final int y, final int r, final int c,
-         final boolean isVert, final Color co, final int offset)
+    ( Graphics g, final int x, final int y, final int r, final int c,
+        final boolean isVert, final Color co, final int offset )
     {
-        g.setColor(co);
+        g.setColor( co );
 
         if (isVert)
         {
-            g.drawLine(scaleToActual(x - offset), scaleToActual(y - 10),
-                       scaleToActual(x - offset), scaleToActual(y + 10));
-            g.drawLine(scaleToActual(x + offset), scaleToActual(y - 10),
-                       scaleToActual(x + offset), scaleToActual(y + 10));
+            g.drawLine( scaleToActual( x - offset ), scaleToActual( y - 10 ),
+                scaleToActual( x - offset ), scaleToActual( y + 10 ) );
+            g.drawLine( scaleToActual( x + offset ), scaleToActual( y - 10 ),
+                scaleToActual( x + offset ), scaleToActual( y + 10 ) );
             return;
         }
 
@@ -5447,21 +5470,21 @@ import javax.swing.JComponent;
         //   "\" if (s,c) is odd,odd or even,even
 
         final int off2 = offset / 2;
-        if ((c % 2) != ((r/2) % 2))
+        if ((c % 2) != ((r / 2) % 2))
         {
             // road is "/"
-            g.drawLine(scaleToActual(x - 10 - off2), scaleToActual(y + 6 - offset),
-                       scaleToActual(x + 10 - off2), scaleToActual(y - 6 - offset));
-            g.drawLine(scaleToActual(x - 10 + off2), scaleToActual(y + 6 + offset),
-                       scaleToActual(x + 10 + off2), scaleToActual(y - 6 + offset));
+            g.drawLine( scaleToActual( x - 10 - off2 ), scaleToActual( y + 6 - offset ),
+                scaleToActual( x + 10 - off2 ), scaleToActual( y - 6 - offset ) );
+            g.drawLine( scaleToActual( x - 10 + off2 ), scaleToActual( y + 6 + offset ),
+                scaleToActual( x + 10 + off2 ), scaleToActual( y - 6 + offset ) );
         }
         else
         {
             // road is "\"
-            g.drawLine(scaleToActual(x + 10 + off2), scaleToActual(y + 6 - offset),
-                       scaleToActual(x - 10 + off2), scaleToActual(y - 6 - offset));
-            g.drawLine(scaleToActual(x + 10 - off2), scaleToActual(y + 6 + offset),
-                       scaleToActual(x - 10 - off2), scaleToActual(y - 6 + offset));
+            g.drawLine( scaleToActual( x + 10 + off2 ), scaleToActual( y + 6 - offset ),
+                scaleToActual( x - 10 + off2 ), scaleToActual( y - 6 - offset ) );
+            g.drawLine( scaleToActual( x + 10 - off2 ), scaleToActual( y + 6 + offset ),
+                scaleToActual( x - 10 - off2 ), scaleToActual( y - 6 + offset ) );
         }
     }
 
@@ -5469,7 +5492,7 @@ import javax.swing.JComponent;
      * Draw {@link #superText1}, {@link #superText2}; if necessary, calculate {@link #superText1_w} and other fields.
      * @since 1.1.07
      */
-    private void drawSuperText(Graphics g)
+    private void drawSuperText( Graphics g )
     {
         // Do we need to calculate the metrics?
 
@@ -5482,7 +5505,7 @@ import javax.swing.JComponent;
                 return;
             }
 
-            final FontMetrics fm = getFontMetrics(bpf);
+            final FontMetrics fm = getFontMetrics( bpf );
             if (fm == null)
             {
                 repaint();
@@ -5493,13 +5516,13 @@ import javax.swing.JComponent;
             {
                 if (superText1 == null)
                     return;  // avoid NPE from multi-threading
-                superText1_w = fm.stringWidth(superText1);
+                superText1_w = fm.stringWidth( superText1 );
                 superText_h = fm.getHeight();
                 superText_des = fm.getDescent();
             }
             if ((superText2 != null) && (superText2_w == 0))
             {
-                superText2_w = fm.stringWidth(superText2);
+                superText2_w = fm.stringWidth( superText2 );
             }
             // box size
             if (superText2_w > superText1_w)
@@ -5519,24 +5542,24 @@ import javax.swing.JComponent;
         }
 
         // adj from center
-        g.setColor(Color.black);
-        g.fillRoundRect(superTextBox_x, superTextBox_y, superTextBox_w, superTextBox_h, SUPERTEXT_INSET, SUPERTEXT_INSET);
-        g.setColor(Color.white);
-        g.fillRoundRect(superTextBox_x + SUPERTEXT_INSET, superTextBox_y + SUPERTEXT_INSET,
-             superTextBox_w - 2 * SUPERTEXT_INSET, superTextBox_h - 2 * SUPERTEXT_INSET, SUPERTEXT_INSET, SUPERTEXT_INSET);
-        g.setColor(Color.black);
+        g.setColor( Color.black );
+        g.fillRoundRect( superTextBox_x, superTextBox_y, superTextBox_w, superTextBox_h, SUPERTEXT_INSET, SUPERTEXT_INSET );
+        g.setColor( Color.white );
+        g.fillRoundRect( superTextBox_x + SUPERTEXT_INSET, superTextBox_y + SUPERTEXT_INSET,
+            superTextBox_w - 2 * SUPERTEXT_INSET, superTextBox_h - 2 * SUPERTEXT_INSET, SUPERTEXT_INSET, SUPERTEXT_INSET );
+        g.setColor( Color.black );
 
         // draw text at center
         int tx = (scaledPanelW - superText1_w) / 2;
         int ty = superTextBox_y + SUPERTEXT_INSET + superText_h - superText_des;
         if (superText1 == null)
             return;  // avoid NPE from multi-threading
-        g.drawString(superText1, tx, ty);
+        g.drawString( superText1, tx, ty );
         if (superText2 != null)
         {
             tx -= (superText2_w - superText1_w) / 2;
             ty += superText_h;
-            g.drawString(superText2, tx, ty);
+            g.drawString( superText2, tx, ty );
         }
     }
 
@@ -5544,16 +5567,16 @@ import javax.swing.JComponent;
      * Draw {@link #superTextTop}; if necessary, calculate {@link #superTextTop_w} and other fields.
      * @since 1.1.08
      */
-    private void drawSuperTextTop(Graphics g)
+    private void drawSuperTextTop( Graphics g )
     {
         // Force the font, so we know its metrics.
         // This avoids an OSX fm.stringWidth bug.
-        final Font bpf = new Font("Dialog", Font.PLAIN, 10 * playerInterface.displayScale);
+        final Font bpf = new Font( "Dialog", Font.PLAIN, 10 * playerInterface.displayScale );
 
         // Do we need to calculate the metrics?
         if (superTextTop_w == 0)
         {
-            final FontMetrics fm = g.getFontMetrics(bpf);
+            final FontMetrics fm = g.getFontMetrics( bpf );
             if (fm == null)
             {
                 repaint();
@@ -5563,7 +5586,7 @@ import javax.swing.JComponent;
             {
                 if (superTextTop == null)
                     return;  // avoid NPE from multi-threading
-                superTextTop_w = fm.stringWidth(superTextTop);
+                superTextTop_w = fm.stringWidth( superTextTop );
                 superTextTop_h = fm.getHeight() - fm.getDescent();
             }
 
@@ -5577,53 +5600,53 @@ import javax.swing.JComponent;
 
         // draw box
         superTextTopBox_x = (scaledPanelW - superTextTopBox_w) / 2;
-        g.setColor(Color.black);
-        g.fillRoundRect(superTextTopBox_x, SUPERTEXT_INSET, superTextTopBox_w, superTextTopBox_h, SUPERTEXT_INSET, SUPERTEXT_INSET);
-        g.setColor(Color.white);
-        g.fillRoundRect(superTextTopBox_x + SUPERTEXT_INSET, 2 * SUPERTEXT_INSET,
-             superTextTopBox_w - 2 * SUPERTEXT_INSET, superTextTopBox_h - 2 * SUPERTEXT_INSET, SUPERTEXT_INSET, SUPERTEXT_INSET);
-        g.setColor(Color.black);
+        g.setColor( Color.black );
+        g.fillRoundRect( superTextTopBox_x, SUPERTEXT_INSET, superTextTopBox_w, superTextTopBox_h, SUPERTEXT_INSET, SUPERTEXT_INSET );
+        g.setColor( Color.white );
+        g.fillRoundRect( superTextTopBox_x + SUPERTEXT_INSET, 2 * SUPERTEXT_INSET,
+            superTextTopBox_w - 2 * SUPERTEXT_INSET, superTextTopBox_h - 2 * SUPERTEXT_INSET, SUPERTEXT_INSET, SUPERTEXT_INSET );
+        g.setColor( Color.black );
 
         // draw centered text
         int tx = (scaledPanelW - superTextTop_w) / 2;
         int ty = 2 * SUPERTEXT_INSET + superTextTop_h;
-        g.setFont(bpf);
+        g.setFont( bpf );
         if (superTextTop == null)
             return;  // avoid NPE from multi-threading
-        g.drawString(superTextTop, tx, ty);
+        g.drawString( superTextTop, tx, ty );
 
         /**
          * To debug OSX stringwidth... temp/in progress (20091129)
          *
-        // green == box
-        g.setColor(Color.green);
-        g.drawLine(superTextTopBox_x, 0, superTextTopBox_x, 20);
-        g.drawLine(superTextTopBox_x + superTextTopBox_w, 0, superTextTopBox_x + superTextTopBox_w, 20);
-        // red == text
-        g.setColor(Color.red);
-        g.drawLine(tx, 0, tx, 20);
-        g.drawLine(tx+superTextTop_w, 0, tx+superTextTop_w, 20);
-        */
+         // green == box
+         g.setColor(Color.green);
+         g.drawLine(superTextTopBox_x, 0, superTextTopBox_x, 20);
+         g.drawLine(superTextTopBox_x + superTextTopBox_w, 0, superTextTopBox_x + superTextTopBox_w, 20);
+         // red == text
+         g.setColor(Color.red);
+         g.drawLine(tx, 0, tx, 20);
+         g.drawLine(tx+superTextTop_w, 0, tx+superTextTop_w, 20);
+         */
     }
 
     /**
      * Calculate the on-screen coordinates of a node.
      * @param nodeNum  Node coordinate
-     * @return  Array with screen {x, y} for this node, already scaled and/or rotated
+     * @return Array with screen {x, y} for this node, already scaled and/or rotated
      * @since 2.0.00
      */
-    private int[] nodeToXY(final int nodeNum)
+    private int[] nodeToXY( final int nodeNum )
     {
         int hx, hy;
 
-        if (! isLargeBoard)
+        if (!isLargeBoard)
         {
             final int hexNum;
 
             if (((nodeNum >> 4) % 2) == 0)
             { // If first digit is even,
-              // then it is a 'Y' node
-              // in the northwest corner of a hex.
+                // then it is a 'Y' node
+                // in the northwest corner of a hex.
                 if ((nodeNum >= 0x81) && (0 == ((nodeNum - 0x81) % 0x22)))
                 {
                     // this node's hex would be off the southern edge of the board.
@@ -5641,7 +5664,7 @@ import javax.swing.JComponent;
             }
             else
             { // otherwise it is an 'A' node
-              // in the northern corner of a hex.
+                // in the northern corner of a hex.
                 if ((nodeNum >= 0x70) && (0 == ((nodeNum - 0x70) % 0x22)))
                 {
                     // this node's hex would be off the southern edge of the board.
@@ -5671,9 +5694,9 @@ import javax.swing.JComponent;
             // isLargeBoard
 
             final int r = (nodeNum >> 8),
-                      c = (nodeNum & 0xFF);
+                c = (nodeNum & 0xFF);
             hx = halfdeltaX * c;
-            hy = halfdeltaY * (r+1);
+            hy = halfdeltaY * (r + 1);
 
             // If the node isn't at the top center of a hex,
             // it will need to move up or down a bit vertically.
@@ -5693,11 +5716,11 @@ import javax.swing.JComponent;
         }
         if (isScaled)
         {
-            hx = scaleToActual(hx);
-            hy = scaleToActual(hy);
+            hx = scaleToActual( hx );
+            hy = scaleToActual( hy );
         }
 
-        return new int[]{ hx, hy };
+        return new int[]{hx, hy};
     }
 
     /**
@@ -5715,9 +5738,9 @@ import javax.swing.JComponent;
      * @see #scaleCopyToActual(int[])
      * @since 1.1.00
      */
-    public void scaleToActual(int[] xa)
+    public void scaleToActual( int[] xa )
     {
-        if (! isScaled)
+        if (!isScaled)
             return;
         for (int i = xa.length - 1; i >= 0; --i)
             xa[i] = (int) ((xa[i] * (long) scaledBoardW) / unscaledBoardW);
@@ -5737,9 +5760,9 @@ import javax.swing.JComponent;
      * @see #scaleToActual(int[])
      * @since 1.1.00
      */
-    public final int scaleToActual(int x)
+    public final int scaleToActual( int x )
     {
-        if (! isScaled)
+        if (!isScaled)
             return x;
         else
             return (int) ((x * (long) scaledBoardW) / unscaledBoardW);
@@ -5759,9 +5782,9 @@ import javax.swing.JComponent;
      * @see #scaleToActual(int)
      * @since 1.1.00
      */
-    public final int scaleFromActual(int x)
+    public final int scaleFromActual( int x )
     {
-        if (! isScaled)
+        if (!isScaled)
             return x;
         else
             return (int) ((x * (long) unscaledBoardW) / scaledBoardW);
@@ -5833,7 +5856,7 @@ import javax.swing.JComponent;
 
                 if (game.getGameState() == SOCGame.PLACING_INV_ITEM)
                 {
-                    if (game.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI))
+                    if (game.isGameOptionSet( SOCGameOptionSet.K_SC_FTRI ))
                     {
                         mode = SC_FTRI_PLACE_PORT;
                         repaint();
@@ -5845,7 +5868,7 @@ import javax.swing.JComponent;
                 }
                 else
                 {
-                    switch(player.getPieces().size())
+                    switch (player.getPieces().size())
                     {
                     case 1:
                     case 3:
@@ -5911,7 +5934,7 @@ import javax.swing.JComponent;
                     break;
 
                 case SOCGame.PLACING_INV_ITEM:
-                    if (game.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI))
+                    if (game.isGameOptionSet( SOCGameOptionSet.K_SC_FTRI ))
                     {
                         mode = SC_FTRI_PLACE_PORT;
                         repaint();
@@ -5933,35 +5956,35 @@ import javax.swing.JComponent;
 
                 case SOCGame.ROLL_OR_CARD:
                     mode = TURN_STARTING;
-                    if (game.isGameOptionSet("N7"))
+                    if (game.isGameOptionSet( "N7" ))
                     {
                         // N7: Roll no 7s during first # rounds.
                         // Show if we can roll a 7 yet.  (1.1.09)
 
-                        final int no7roundsleft = game.getGameOptionIntValue("N7") - game.getRoundCount();
+                        final int no7roundsleft = game.getGameOptionIntValue( "N7" ) - game.getRoundCount();
                         if (no7roundsleft == 0)
                         {
-                            topText = strings.get("board.msg.n7.last.round");  // "Last round for "No 7s""
+                            topText = strings.get( "board.msg.n7.last.round" );  // "Last round for "No 7s""
                         }
                         else if (no7roundsleft > 0)
                         {
                             if (playerInterface.clientIsCurrentPlayer()
-                              && playerInterface.getClientHand().isClientAndCurrentlyCanRoll())
-                                topText = strings.get("board.msg.n7.rounds.left", (1 + no7roundsleft));
-                                    // "{0} rounds left for "No 7s""
+                                && playerInterface.getClientHand().isClientAndCurrentlyCanRoll())
+                                topText = strings.get( "board.msg.n7.rounds.left", (1 + no7roundsleft) );
+                            // "{0} rounds left for "No 7s""
                         }
                     }
-                    if ((topText == null) && (! game.hasBuiltCity())
+                    if ((topText == null) && (!game.hasBuiltCity())
                         && playerInterface.getClientHand().isClientAndCurrentlyCanRoll()  // prevent end-of-turn flicker
-                        && game.isGameOptionSet("N7C"))
+                        && game.isGameOptionSet( "N7C" ))
                     {
-                        topText = strings.get("board.msg.n7c.until_city");  // "No 7s rolled until a city is built"
+                        topText = strings.get( "board.msg.n7c.until_city" );  // "No 7s rolled until a city is built"
                     }
                     break;
 
                 case SOCGame.SPECIAL_BUILDING:
                     mode = NONE;
-                    topText = strings.get("board.msg.special.building", player.getName());  // "Special Building: {0}"
+                    topText = strings.get( "board.msg.special.building", player.getName() );  // "Special Building: {0}"
                     break;
 
                 default:
@@ -5976,16 +5999,16 @@ import javax.swing.JComponent;
 
                 if (game.isSpecialBuilding())
                 {
-                    topText = strings.get("board.msg.special.building", game.getPlayer(cpn).getName());
-                        // "Special Building: {0}"
+                    topText = strings.get( "board.msg.special.building", game.getPlayer( cpn ).getName() );
+                    // "Special Building: {0}"
                 }
-                else if (game.isGameOptionSet("N7"))
+                else if (game.isGameOptionSet( "N7" ))
                 {
                     // N7: Roll no 7s during first # rounds.
                     // Show if we're about to be able to roll a 7.  (1.1.09)
-                    final int no7roundsleft = game.getGameOptionIntValue("N7") - game.getRoundCount();
+                    final int no7roundsleft = game.getGameOptionIntValue( "N7" ) - game.getRoundCount();
                     if (no7roundsleft == 0)
-                        topText = strings.get("board.msg.n7.last.round");  // "Last round for "No 7s""
+                        topText = strings.get( "board.msg.n7.last.round" );  // "Last round for "No 7s""
                 }
             }
         }
@@ -5996,7 +6019,7 @@ import javax.swing.JComponent;
 
         moveShip_fromEdge = 0;
 
-        setSuperimposedTopText(topText);  // usually null
+        setSuperimposedTopText( topText );  // usually null
         updateHoverTipToMode();
     }
 
@@ -6009,19 +6032,19 @@ import javax.swing.JComponent;
     protected void updateHoverTipToMode()
     {
         if ((mode == NONE) || (mode == TURN_STARTING) || (mode == GAME_OVER))
-            hoverTip.setOffsetX(0);
+            hoverTip.setOffsetX( 0 );
         else if ((mode == PLACE_ROBBER) || (mode == PLACE_PIRATE))
-            hoverTip.setOffsetX(HOVER_OFFSET_X_FOR_ROBBER);
+            hoverTip.setOffsetX( HOVER_OFFSET_X_FOR_ROBBER );
         else if ((mode == PLACE_INIT_SETTLEMENT) || (mode == PLACE_INIT_ROAD))
         {
             hoverTip.setHoverText_modeChangedOrMouseMoved = true;
-            hoverTip.setHoverText(null, 0);
-            hoverTip.setOffsetX(HOVER_OFFSET_X_FOR_INIT_PLACE);
+            hoverTip.setHoverText( null, 0 );
+            hoverTip.setOffsetX( HOVER_OFFSET_X_FOR_INIT_PLACE );
         }
         else
         {
             hoverTip.setHoverText_modeChangedOrMouseMoved = true;
-            hoverTip.setHoverText(null, 0);
+            hoverTip.setHoverText( null, 0 );
         }
     }
 
@@ -6037,7 +6060,7 @@ import javax.swing.JComponent;
      *              board's mode is not changed to NONE.
      * @since 1.1.00
      */
-    protected void clearModeAndHilight(final int ptype)
+    protected void clearModeAndHilight( final int ptype )
     {
         int expectedPtype;  // based on current mode
 
@@ -6081,8 +6104,8 @@ import javax.swing.JComponent;
         }
 
         if ((ptype == expectedPtype)
-            || (  ((mode == PLACE_INIT_ROAD) || (mode == PLACE_FREE_ROAD_OR_SHIP))
-                  && (ptype == SOCPlayingPiece.SHIP)  ))
+            || (((mode == PLACE_INIT_ROAD) || (mode == PLACE_FREE_ROAD_OR_SHIP))
+            && (ptype == SOCPlayingPiece.SHIP)))
         {
             mode = NONE;
             hilight = 0;
@@ -6103,7 +6126,7 @@ import javax.swing.JComponent;
      */
     public void setPlayer()
     {
-        setPlayer(null);
+        setPlayer( null );
     }
 
     /**
@@ -6120,7 +6143,7 @@ import javax.swing.JComponent;
      * @see #setPlayer()
      * @since 1.1.12
      */
-    void setPlayer(SOCPlayer pl)
+    void setPlayer( SOCPlayer pl )
     {
         if (pl == null)
             pl = playerInterface.getClientPlayer();
@@ -6160,7 +6183,7 @@ import javax.swing.JComponent;
      * Almost always the client's player number.
      * During {@link SOCGame#debugFreePlacement}, the temporary
      * player set by {@link #setPlayer(SOCPlayer)}.
-     * @return  Our player number, or -1 if observing the game and haven't sat down yet
+     * @return Our player number, or -1 if observing the game and haven't sat down yet
      * @since 1.1.12
      */
     int getPlayerNumber()
@@ -6177,7 +6200,7 @@ import javax.swing.JComponent;
      *     This keeps the current otherPlayer in case {@code null} comes from
      *     a player name being unrecognized by {@link SOCGame#getPlayer(String)}.
      */
-    public void setOtherPlayer(final SOCPlayer op)
+    public void setOtherPlayer( final SOCPlayer op )
     {
         if (op != null)
             otherPlayer = op;
@@ -6186,7 +6209,7 @@ import javax.swing.JComponent;
     /*********************************
      * Handle Events
      *********************************/
-    public void mouseEntered(MouseEvent e)
+    public void mouseEntered( MouseEvent e )
     {
     }
 
@@ -6195,10 +6218,10 @@ import javax.swing.JComponent;
      *
      * @param e DOCUMENT ME!
      */
-    public void mousePressed(MouseEvent e)
+    public void mousePressed( MouseEvent e )
     {
         // JM: was mouseClicked (moved to avoid conflict with e.isPopupTrigger)
-        mouseReleased(e);  // JM 2008-01-01 testing for MacOSX popup-trigger
+        mouseReleased( e );  // JM 2008-01-01 testing for MacOSX popup-trigger
     }
 
     /**
@@ -6206,7 +6229,7 @@ import javax.swing.JComponent;
      *
      * @param e DOCUMENT ME!
      */
-    public void mouseReleased(MouseEvent e)
+    public void mouseReleased( MouseEvent e )
     {
         try
         {
@@ -6215,12 +6238,12 @@ import javax.swing.JComponent;
             {
                 popupMenuSystime = e.getWhen();
                 e.consume();
-                doBoardMenuPopup(e.getX(), e.getY());
+                doBoardMenuPopup( e.getX(), e.getY() );
             }
         }
-        catch (Throwable th)
+        catch( Throwable th )
         {
-            playerInterface.chatPrintStackTrace(th);
+            playerInterface.chatPrintStackTrace( th );
         }
     }
 
@@ -6229,7 +6252,7 @@ import javax.swing.JComponent;
      *
      * @param e DOCUMENT ME!
      */
-    public void mouseDragged(MouseEvent e)
+    public void mouseDragged( MouseEvent e )
     {
     }
 
@@ -6238,7 +6261,7 @@ import javax.swing.JComponent;
      *
      * @param e MouseEvent
      */
-    public void mouseExited(MouseEvent e)
+    public void mouseExited( MouseEvent e )
     {
         boolean wantsRepaint = false;
         if (hoverTip.isVisible())
@@ -6260,7 +6283,7 @@ import javax.swing.JComponent;
      * Based on the board's current {@link #mode}, update the hovering 'hilight' piece ({@link #hilight}).
      * Trigger a {@link #repaint()} if the mouse moved or the hilight changes.
      */
-    public void mouseMoved(MouseEvent e)
+    public void mouseMoved( MouseEvent e )
     {
         try
         {
@@ -6271,8 +6294,8 @@ import javax.swing.JComponent;
             // get (xb, yb) internal board-pixel coordinates from (x, y):
             if (isScaled)
             {
-                xb = scaleFromActual(x - panelMarginX);
-                yb = scaleFromActual(y - panelMarginY);
+                xb = scaleFromActual( x - panelMarginX );
+                yb = scaleFromActual( y - panelMarginY );
             }
             else
             {
@@ -6303,28 +6326,28 @@ import javax.swing.JComponent;
                     ptrOldX = x;
                     ptrOldY = y;
                     boolean isShip = false;
-                    edgeNum = findEdge(xb, yb, true);
+                    edgeNum = findEdge( xb, yb, true );
                     if ((edgeNum < 0) && isLargeBoard)
                     {
                         edgeNum = -edgeNum;
-                        if ((player != null) && game.canPlaceShip(player, edgeNum))
+                        if ((player != null) && game.canPlaceShip( player, edgeNum ))
                             isShip = true;
                     }
                     else
                     {
                         // check potential roads, not ships, to keep it false if coastal edge
-                        isShip = ((player != null) && ! player.isPotentialRoad(edgeNum));
+                        isShip = ((player != null) && !player.isPotentialRoad( edgeNum ));
                     }
 
                     // Figure out if this is a legal road/ship;
                     // It must be attached to the last settlement
                     if ((player == null)
-                        || (! (player.isPotentialRoad(edgeNum)
-                               || game.canPlaceShip(player, edgeNum) ))
-                        || (! (game.isDebugFreePlacement()
-                               || board.isEdgeAdjacentToNode
-                                  (initSettlementNode,
-                                   (edgeNum != -1) ? edgeNum : 0))))
+                        || (!(player.isPotentialRoad( edgeNum )
+                        || game.canPlaceShip( player, edgeNum )))
+                        || (!(game.isDebugFreePlacement()
+                        || board.isEdgeAdjacentToNode
+                        ( initSettlementNode,
+                            (edgeNum != -1) ? edgeNum : 0 ))))
                     {
                         edgeNum = 0;
                     }
@@ -6336,7 +6359,7 @@ import javax.swing.JComponent;
                         if (debugShowCoordsTooltip)
                         {
                             String blank = (edgeNum != 0) ? "" : null;    // "" shows tip, null hides it.
-                            hoverTip.setHoverText(blank, edgeNum, x, y);  // also repaints
+                            hoverTip.setHoverText( blank, edgeNum, x, y );  // also repaints
                         }
                         else
                         {
@@ -6358,13 +6381,13 @@ import javax.swing.JComponent;
                 {
                     ptrOldX = x;
                     ptrOldY = y;
-                    edgeNum = findEdge(xb, yb, true);
-                    final boolean hasShips = (player != null) && (player.getNumPieces(SOCPlayingPiece.SHIP) > 0);
+                    edgeNum = findEdge( xb, yb, true );
+                    final boolean hasShips = (player != null) && (player.getNumPieces( SOCPlayingPiece.SHIP ) > 0);
                     final boolean canPlaceShip =
-                        hasShips && game.canPlaceShip(player, Math.abs(edgeNum));
+                        hasShips && game.canPlaceShip( player, Math.abs( edgeNum ) );
 
                     if ((mode == PLACE_FREE_ROAD_OR_SHIP) && canPlaceShip
-                        && (edgeNum > 0) && (player.getNumPieces(SOCPlayingPiece.ROAD) == 0))
+                        && (edgeNum > 0) && (player.getNumPieces( SOCPlayingPiece.ROAD ) == 0))
                     {
                         // If this edge is coastal, force ship (not road) if we
                         // have no roads remaining to freely place
@@ -6376,7 +6399,7 @@ import javax.swing.JComponent;
                     {
                         edgeNum = -edgeNum;
                         isShip = canPlaceShip
-                            || ((mode == PLACE_FREE_ROAD_OR_SHIP) && hasShips && player.isPotentialShip(edgeNum));
+                            || ((mode == PLACE_FREE_ROAD_OR_SHIP) && hasShips && player.isPotentialShip( edgeNum ));
                     }
                     else
                     {
@@ -6394,7 +6417,7 @@ import javax.swing.JComponent;
                             // the moveShip_fromEdge location, which SOCBoardPanel did
                             // before changing its mode to MOVE_SHIP.
 
-                            if (! player.isPotentialShipMoveTo(edgeNum, moveShip_fromEdge))
+                            if (!player.isPotentialShipMoveTo( edgeNum, moveShip_fromEdge ))
                             {
                                 edgeNum = 0;
                             }
@@ -6403,21 +6426,22 @@ import javax.swing.JComponent;
                                 // Check edgeNum vs pirate hex:
                                 final SOCBoardLarge bL = (SOCBoardLarge) board;
                                 final int ph = bL.getPirateHex();
-                                if ((ph != 0) && bL.isEdgeAdjacentToHex(edgeNum, ph))
+                                if ((ph != 0) && bL.isEdgeAdjacentToHex( edgeNum, ph ))
                                     edgeNum = 0;
                             }
                         }
-                        else {
-                            if ((player.isPotentialRoad(edgeNum) && (player.getNumPieces(SOCPlayingPiece.ROAD) > 0))
+                        else
+                        {
+                            if ((player.isPotentialRoad( edgeNum ) && (player.getNumPieces( SOCPlayingPiece.ROAD ) > 0))
                                 || ((mode == PLACE_FREE_ROAD_OR_SHIP) && canPlaceShip))
                             {
                                 // edgeNum is OK.
 
-                                if (! isShip)
+                                if (!isShip)
                                 {
                                     // check potential roads, not ships, to keep it false if coastal edge
                                     isShip = (player != null) && canPlaceShip
-                                        && ! player.isPotentialRoad(edgeNum);
+                                        && !player.isPotentialRoad( edgeNum );
                                 }
                             }
                             else
@@ -6434,7 +6458,7 @@ import javax.swing.JComponent;
                         if (debugShowCoordsTooltip)
                         {
                             String blank = (edgeNum != 0) ? "" : null;    // "" shows tip, null hides it.
-                            hoverTip.setHoverText(blank, edgeNum, x, y);  // also repaints
+                            hoverTip.setHoverText( blank, edgeNum, x, y );  // also repaints
                         }
                         else
                         {
@@ -6455,9 +6479,9 @@ import javax.swing.JComponent;
                 {
                     ptrOldX = x;
                     ptrOldY = y;
-                    nodeNum = findNode(xb, yb);
+                    nodeNum = findNode( xb, yb );
 
-                    if ((player == null) || ! player.canPlaceSettlement(nodeNum))
+                    if ((player == null) || !player.canPlaceSettlement( nodeNum ))
                     {
                         nodeNum = 0;
                     }
@@ -6466,20 +6490,20 @@ import javax.swing.JComponent;
                     {
                         hilight = nodeNum;
                         hilightIsShip = false;
-                        if ((mode == PLACE_INIT_SETTLEMENT) && ! debugShowCoordsTooltip)
-                            hoverTip.handleHover(x, y, xb, yb);
+                        if ((mode == PLACE_INIT_SETTLEMENT) && !debugShowCoordsTooltip)
+                            hoverTip.handleHover( x, y, xb, yb );
                         else if (debugShowCoordsTooltip)
                             hoverTip.setHoverText
-                                (((nodeNum != 0) ? "" : null), nodeNum, x, y);
+                                ( ((nodeNum != 0) ? "" : null), nodeNum, x, y );
                         else
                             repaint();
                     }
                     else if (mode == PLACE_INIT_SETTLEMENT)
                     {
                         if (debugShowCoordsTooltip && (nodeNum != 0))
-                            hoverTip.setHoverText("", nodeNum, x, y);
+                            hoverTip.setHoverText( "", nodeNum, x, y );
                         else
-                            hoverTip.handleHover(x, y, xb, yb);  // Will call repaint() if needed
+                            hoverTip.handleHover( x, y, xb, yb );  // Will call repaint() if needed
                     }
                 }
 
@@ -6494,9 +6518,9 @@ import javax.swing.JComponent;
                 {
                     ptrOldX = x;
                     ptrOldY = y;
-                    nodeNum = findNode(xb, yb);
+                    nodeNum = findNode( xb, yb );
 
-                    if ((player == null) || !player.isPotentialCity(nodeNum))
+                    if ((player == null) || !player.isPotentialCity( nodeNum ))
                     {
                         nodeNum = 0;
                     }
@@ -6508,7 +6532,7 @@ import javax.swing.JComponent;
                         if (debugShowCoordsTooltip)
                         {
                             String blank = (nodeNum != 0) ? "" : null;    // "" shows tip, null hides it.
-                            hoverTip.setHoverText(blank, nodeNum, x, y);  // also repaints
+                            hoverTip.setHoverText( blank, nodeNum, x, y );  // also repaints
                         }
                         else
                         {
@@ -6528,12 +6552,12 @@ import javax.swing.JComponent;
                 {
                     ptrOldX = x;
                     ptrOldY = y;
-                    edgeNum = findEdge(xb, yb, false);
+                    edgeNum = findEdge( xb, yb, false );
 
                     if (edgeNum != 0)
                     {
-                        if ((player == null) || (player.getNumPieces(SOCPlayingPiece.SHIP) < 1)
-                            || ! game.canPlaceShip(player, edgeNum))
+                        if ((player == null) || (player.getNumPieces( SOCPlayingPiece.SHIP ) < 1)
+                            || !game.canPlaceShip( player, edgeNum ))
                             edgeNum = 0;
                     }
 
@@ -6544,7 +6568,7 @@ import javax.swing.JComponent;
                         if (debugShowCoordsTooltip)
                         {
                             String blank = (edgeNum != 0) ? "" : null;    // "" shows tip, null hides it.
-                            hoverTip.setHoverText(blank, edgeNum, x, y);  // also repaints
+                            hoverTip.setHoverText( blank, edgeNum, x, y );  // also repaints
                         }
                         else
                         {
@@ -6565,27 +6589,27 @@ import javax.swing.JComponent;
                 {
                     ptrOldX = x;
                     ptrOldY = y;
-                    hexNum = findHex(xb, yb);
+                    hexNum = findHex( xb, yb );
                     final boolean canMove =
                         (mode == PLACE_ROBBER)
-                        ? game.canMoveRobber(playerNumber, hexNum)
-                        : game.canMovePirate(playerNumber, hexNum);
+                            ? game.canMoveRobber( playerNumber, hexNum )
+                            : game.canMovePirate( playerNumber, hexNum );
 
-                    if (! canMove)
+                    if (!canMove)
                     {
                         // Not a hex, or can't move to this hex (water, etc)
                         if (hexNum != 0)
                         {
                             if ((board instanceof SOCBoardLarge)
                                 && ((SOCBoardLarge) board).isHexInLandAreas
-                                    (hexNum, ((SOCBoardLarge) board).getRobberExcludedLandAreas()))
+                                ( hexNum, ((SOCBoardLarge) board).getRobberExcludedLandAreas() ))
                             {
-                                hoverTip.setHoverText(strings.get("board.robber.not.here"), hexNum);
-                                    // "Cannot move the robber here."
+                                hoverTip.setHoverText( strings.get( "board.robber.not.here" ), hexNum );
+                                // "Cannot move the robber here."
                             }
                             else
                             {
-                                hoverTip.setHoverText(null, 0);  // clear any previous
+                                hoverTip.setHoverText( null, 0 );  // clear any previous
                             }
 
                             hexNum = 0;
@@ -6596,12 +6620,12 @@ import javax.swing.JComponent;
                     {
                         hilight = hexNum;
                         hilightIsShip = false;
-                        hoverTip.handleHover(x, y, xb, yb);
+                        hoverTip.handleHover( x, y, xb, yb );
                         repaint();
                     }
                     else
                     {
-                        hoverTip.positionToMouse(x, y); // calls repaint
+                        hoverTip.positionToMouse( x, y ); // calls repaint
                     }
                 }
 
@@ -6615,9 +6639,9 @@ import javax.swing.JComponent;
                 {
                     ptrOldX = x;
                     ptrOldY = y;
-                    edgeNum = findEdge(xb, yb, false);
+                    edgeNum = findEdge( xb, yb, false );
 
-                    if ((edgeNum > 0) && ! game.canPlacePort(player, edgeNum))
+                    if ((edgeNum > 0) && !game.canPlacePort( player, edgeNum ))
                         edgeNum = 0;  // not valid for placement
 
                     final boolean changed = (hilight != edgeNum);
@@ -6626,7 +6650,7 @@ import javax.swing.JComponent;
                     if (debugShowCoordsTooltip)
                     {
                         String blank = (edgeNum != 0) ? "" : null;    // "" shows tip, null hides it.
-                        hoverTip.setHoverText(blank, edgeNum, x, y);  // also repaints
+                        hoverTip.setHoverText( blank, edgeNum, x, y );  // also repaints
                     }
                     else if (changed)
                     {
@@ -6645,7 +6669,7 @@ import javax.swing.JComponent;
                 {
                     ptrOldX = x;
                     ptrOldY = y;
-                    nodeNum = findNode(xb, yb);
+                    nodeNum = findNode( xb, yb );
 
                     //if (!otherPlayer.isPotentialSettlement(nodeNum))
                     //  nodeNum = 0;
@@ -6669,9 +6693,9 @@ import javax.swing.JComponent;
                 {
                     ptrOldX = x;
                     ptrOldY = y;
-                    edgeNum = findEdge(xb, yb, false);
+                    edgeNum = findEdge( xb, yb, false );
 
-                    if (!otherPlayer.isPotentialRoad(edgeNum))
+                    if (!otherPlayer.isPotentialRoad( edgeNum ))
                     {
                         edgeNum = 0;
                     }
@@ -6696,9 +6720,9 @@ import javax.swing.JComponent;
                 {
                     ptrOldX = x;
                     ptrOldY = y;
-                    edgeNum = findEdge(xb, yb, false);
+                    edgeNum = findEdge( xb, yb, false );
 
-                    if (! otherPlayer.isPotentialShip(edgeNum))
+                    if (!otherPlayer.isPotentialShip( edgeNum ))
                     {
                         edgeNum = 0;
                     }
@@ -6723,9 +6747,9 @@ import javax.swing.JComponent;
                 {
                     ptrOldX = x;
                     ptrOldY = y;
-                    nodeNum = findNode(xb, yb);
+                    nodeNum = findNode( xb, yb );
 
-                    if (!otherPlayer.isPotentialCity(nodeNum))
+                    if (!otherPlayer.isPotentialCity( nodeNum ))
                     {
                         nodeNum = 0;
                     }
@@ -6748,7 +6772,7 @@ import javax.swing.JComponent;
                 {
                     ptrOldX = x;
                     ptrOldY = y;
-                    hoverTip.handleHover(x, y, xb, yb);
+                    hoverTip.handleHover( x, y, xb, yb );
                 }
                 break;
 
@@ -6758,9 +6782,9 @@ import javax.swing.JComponent;
 
             }
         }
-        catch (Throwable th)
+        catch( Throwable th )
         {
-            playerInterface.chatPrintStackTrace(th);
+            playerInterface.chatPrintStackTrace( th );
         }
     }
 
@@ -6770,7 +6794,7 @@ import javax.swing.JComponent;
      * @param evt DOCUMENT ME!
      */
     @SuppressWarnings("fallthrough")
-    public void mouseClicked(MouseEvent evt)
+    public void mouseClicked( MouseEvent evt )
     {
         try
         {
@@ -6781,7 +6805,7 @@ import javax.swing.JComponent;
             {
                 popupMenuSystime = evt.getWhen();
                 evt.consume();
-                doBoardMenuPopup(x, y);
+                doBoardMenuPopup( x, y );
                 return;  // <--- Pop up menu, nothing else to do ---
             }
 
@@ -6845,13 +6869,13 @@ import javax.swing.JComponent;
                     ++hintShownCount_RightClickToBuild;
                     final String prompt =
                         (SOCPlayerClient.IS_PLATFORM_MAC_OSX)
-                        ? "board.popup.hint_build_click.osx"
+                            ? "board.popup.hint_build_click.osx"
                             // "To build pieces, hold Control while clicking the build location."
-                        : "board.popup.hint_build_click";  // "To build pieces, right-click the build location."
+                            : "board.popup.hint_build_click";  // "To build pieces, right-click the build location."
                     NotifyDialog.createAndShow
-                        (playerInterface.getMainDisplay(), playerInterface,
-                         "\n" + strings.get(prompt), null, true);
-                        // start prompt with \n to prevent it being a lengthy popup-dialog title
+                        ( playerInterface.getMainDisplay(), playerInterface,
+                            "\n" + strings.get( prompt ), null, true );
+                    // start prompt with \n to prevent it being a lengthy popup-dialog title
                 }
             }
 
@@ -6873,28 +6897,28 @@ import javax.swing.JComponent;
 
                     if (hilight == -1)
                         hilight = 0;  // Road on edge 0x00
-                    if (player.isPotentialRoad(hilight) && ! hilightIsShip)
+                    if (player.isPotentialRoad( hilight ) && !hilightIsShip)
                     {
-                        messageSender.putPiece(game, new SOCRoad(player, hilight, board));
+                        messageSender.putPiece( game, new SOCRoad( player, hilight, board ) );
 
                         // Now that we've placed, clear the mode and the hilight.
-                        clearModeAndHilight(SOCPlayingPiece.ROAD);
+                        clearModeAndHilight( SOCPlayingPiece.ROAD );
                         if (tempChangedMode)
                             hoverTip.hideHoverAndPieces();
                     }
-                    else if (game.canPlaceShip(player, hilight))  // checks isPotentialShip, pirate ship
+                    else if (game.canPlaceShip( player, hilight ))  // checks isPotentialShip, pirate ship
                     {
-                        if (game.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI)
-                            && ((SOCBoardLarge) board).canRemovePort(hilight))
+                        if (game.isGameOptionSet( SOCGameOptionSet.K_SC_FTRI )
+                            && ((SOCBoardLarge) board).canRemovePort( hilight ))
                         {
-                            java.awt.EventQueue.invokeLater(new ConfirmPlaceShipDialog(hilight, false, -1));
+                            java.awt.EventQueue.invokeLater( new ConfirmPlaceShipDialog( hilight, false, -1 ) );
                         }
                         else
                         {
-                            messageSender.putPiece(game, new SOCShip(player, hilight, board));
+                            messageSender.putPiece( game, new SOCShip( player, hilight, board ) );
 
                             // Now that we've placed, clear the mode and the hilight.
-                            clearModeAndHilight(SOCPlayingPiece.SHIP);
+                            clearModeAndHilight( SOCPlayingPiece.SHIP );
                         }
 
                         if (tempChangedMode)
@@ -6919,10 +6943,10 @@ import javax.swing.JComponent;
 
                 case PLACE_SETTLEMENT:
 
-                    if (player.canPlaceSettlement(hilight))
+                    if (player.canPlaceSettlement( hilight ))
                     {
-                        messageSender.putPiece(game, new SOCSettlement(player, hilight, board));
-                        clearModeAndHilight(SOCPlayingPiece.SETTLEMENT);
+                        messageSender.putPiece( game, new SOCSettlement( player, hilight, board ) );
+                        clearModeAndHilight( SOCPlayingPiece.SETTLEMENT );
                         if (tempChangedMode)
                             hoverTip.hideHoverAndPieces();
                     }
@@ -6931,10 +6955,10 @@ import javax.swing.JComponent;
 
                 case PLACE_CITY:
 
-                    if (player.isPotentialCity(hilight))
+                    if (player.isPotentialCity( hilight ))
                     {
-                        messageSender.putPiece(game, new SOCCity(player, hilight, board));
-                        clearModeAndHilight(SOCPlayingPiece.CITY);
+                        messageSender.putPiece( game, new SOCCity( player, hilight, board ) );
+                        clearModeAndHilight( SOCPlayingPiece.CITY );
                         if (tempChangedMode)
                             hoverTip.hideHoverAndPieces();
                     }
@@ -6942,17 +6966,17 @@ import javax.swing.JComponent;
                     break;
 
                 case PLACE_SHIP:
-                    if (game.canPlaceShip(player, hilight))  // checks isPotentialShip, pirate ship
+                    if (game.canPlaceShip( player, hilight ))  // checks isPotentialShip, pirate ship
                     {
-                        if (game.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI)
-                            && ((SOCBoardLarge) board).canRemovePort(hilight))
+                        if (game.isGameOptionSet( SOCGameOptionSet.K_SC_FTRI )
+                            && ((SOCBoardLarge) board).canRemovePort( hilight ))
                         {
-                            java.awt.EventQueue.invokeLater(new ConfirmPlaceShipDialog(hilight, false, -1));
+                            java.awt.EventQueue.invokeLater( new ConfirmPlaceShipDialog( hilight, false, -1 ) );
                         }
                         else
                         {
-                            messageSender.putPiece(game, new SOCShip(player, hilight, board));
-                            clearModeAndHilight(SOCPlayingPiece.SHIP);
+                            messageSender.putPiece( game, new SOCShip( player, hilight, board ) );
+                            clearModeAndHilight( SOCPlayingPiece.SHIP );
                         }
                         if (tempChangedMode)
                             hoverTip.hideHoverAndPieces();
@@ -6966,7 +6990,7 @@ import javax.swing.JComponent;
                         // do we have an adjacent settlement/city?
                         boolean cliAdjacent = false;
                         {
-                            for (SOCPlayer pl : game.getPlayersOnHex(hilight, null))
+                            for (SOCPlayer pl : game.getPlayersOnHex( hilight, null ))
                             {
                                 if (pl.getPlayerNumber() == playerNumber)
                                 {
@@ -6979,13 +7003,13 @@ import javax.swing.JComponent;
                         if (cliAdjacent)
                         {
                             // ask player to confirm first
-                            java.awt.EventQueue.invokeLater(new MoveRobberConfirmDialog(player, hilight));
+                            java.awt.EventQueue.invokeLater( new MoveRobberConfirmDialog( player, hilight ) );
                         }
                         else
                         {
                             // ask server to move it
-                            messageSender.moveRobber(game, player, hilight);
-                            clearModeAndHilight(-1);
+                            messageSender.moveRobber( game, player, hilight );
+                            clearModeAndHilight( -1 );
                         }
                     }
 
@@ -6998,7 +7022,7 @@ import javax.swing.JComponent;
                         // do we have an adjacent ship?
                         boolean cliAdjacent = false;
                         {
-                            for (SOCPlayer pl : game.getPlayersShipsOnHex(hilight))
+                            for (SOCPlayer pl : game.getPlayersShipsOnHex( hilight ))
                             {
                                 if (pl.getPlayerNumber() == playerNumber)
                                 {
@@ -7011,13 +7035,13 @@ import javax.swing.JComponent;
                         if (cliAdjacent)
                         {
                             // ask player to confirm first
-                            java.awt.EventQueue.invokeLater(new MoveRobberConfirmDialog(player, -hilight));
+                            java.awt.EventQueue.invokeLater( new MoveRobberConfirmDialog( player, -hilight ) );
                         }
                         else
                         {
                             // ask server to move it
-                            messageSender.moveRobber(game, player, -hilight);
-                            clearModeAndHilight(-1);
+                            messageSender.moveRobber( game, player, -hilight );
+                            clearModeAndHilight( -1 );
                         }
                     }
 
@@ -7029,92 +7053,92 @@ import javax.swing.JComponent;
                         int edge = hilight;
                         if (edge == -1)
                             edge = 0;
-                        if (game.canPlacePort(player, edge))
+                        if (game.canPlacePort( player, edge ))
                         {
                             // Ask server to place here.
                             messageSender.sendSimpleRequest
-                                (player, SOCSimpleRequest.TRADE_PORT_PLACE, hilight, 0);
+                                ( player, SOCSimpleRequest.TRADE_PORT_PLACE, hilight, 0 );
                             hilight = 0;
                         }
                     }
                     break;
 
                 case CONSIDER_LM_SETTLEMENT:
-                    if (otherPlayer.canPlaceSettlement(hilight))
+                    if (otherPlayer.canPlaceSettlement( hilight ))
                     {
                         messageSender.considerMove
-                            (game, otherPlayer, new SOCSettlement(otherPlayer, hilight, board));
-                        clearModeAndHilight(SOCPlayingPiece.SETTLEMENT);
+                            ( game, otherPlayer, new SOCSettlement( otherPlayer, hilight, board ) );
+                        clearModeAndHilight( SOCPlayingPiece.SETTLEMENT );
                     }
                     break;
 
                 case CONSIDER_LM_ROAD:
-                    if (otherPlayer.isPotentialRoad(hilight))
+                    if (otherPlayer.isPotentialRoad( hilight ))
                     {
                         messageSender.considerMove
-                            (game, otherPlayer, new SOCRoad(otherPlayer, hilight, board));
-                        clearModeAndHilight(SOCPlayingPiece.ROAD);
+                            ( game, otherPlayer, new SOCRoad( otherPlayer, hilight, board ) );
+                        clearModeAndHilight( SOCPlayingPiece.ROAD );
                     }
                     break;
 
                 case CONSIDER_LM_SHIP:
-                    if (otherPlayer.isPotentialShip(hilight))
+                    if (otherPlayer.isPotentialShip( hilight ))
                     {
                         messageSender.considerMove
-                            (game, otherPlayer, new SOCShip(otherPlayer, hilight, board));
-                        clearModeAndHilight(SOCPlayingPiece.SHIP);
+                            ( game, otherPlayer, new SOCShip( otherPlayer, hilight, board ) );
+                        clearModeAndHilight( SOCPlayingPiece.SHIP );
                     }
                     break;
 
                 case CONSIDER_LM_CITY:
-                    if (otherPlayer.isPotentialCity(hilight))
+                    if (otherPlayer.isPotentialCity( hilight ))
                     {
                         messageSender.considerMove
-                            (game, otherPlayer, new SOCCity(otherPlayer, hilight, board));
-                        clearModeAndHilight(SOCPlayingPiece.CITY);
+                            ( game, otherPlayer, new SOCCity( otherPlayer, hilight, board ) );
+                        clearModeAndHilight( SOCPlayingPiece.CITY );
                     }
                     break;
 
                 case CONSIDER_LT_SETTLEMENT:
-                    if (otherPlayer.canPlaceSettlement(hilight))
+                    if (otherPlayer.canPlaceSettlement( hilight ))
                     {
                         messageSender.considerTarget
-                            (game, otherPlayer, new SOCSettlement(otherPlayer, hilight, board));
-                        clearModeAndHilight(SOCPlayingPiece.SETTLEMENT);
+                            ( game, otherPlayer, new SOCSettlement( otherPlayer, hilight, board ) );
+                        clearModeAndHilight( SOCPlayingPiece.SETTLEMENT );
                     }
                     break;
 
                 case CONSIDER_LT_ROAD:
-                    if (otherPlayer.isPotentialRoad(hilight))
+                    if (otherPlayer.isPotentialRoad( hilight ))
                     {
                         messageSender.considerTarget
-                            (game, otherPlayer, new SOCRoad(otherPlayer, hilight, board));
-                        clearModeAndHilight(SOCPlayingPiece.ROAD);
+                            ( game, otherPlayer, new SOCRoad( otherPlayer, hilight, board ) );
+                        clearModeAndHilight( SOCPlayingPiece.ROAD );
                     }
                     break;
 
                 case CONSIDER_LT_SHIP:
-                    if (otherPlayer.isPotentialShip(hilight))
+                    if (otherPlayer.isPotentialShip( hilight ))
                     {
                         messageSender.considerTarget
-                            (game, otherPlayer, new SOCShip(otherPlayer, hilight, board));
-                        clearModeAndHilight(SOCPlayingPiece.SHIP);
+                            ( game, otherPlayer, new SOCShip( otherPlayer, hilight, board ) );
+                        clearModeAndHilight( SOCPlayingPiece.SHIP );
                     }
                     break;
 
                 case CONSIDER_LT_CITY:
-                    if (otherPlayer.isPotentialCity(hilight))
+                    if (otherPlayer.isPotentialCity( hilight ))
                     {
                         messageSender.considerTarget
-                            (game, otherPlayer, new SOCCity(otherPlayer, hilight, board));
-                        clearModeAndHilight(SOCPlayingPiece.CITY);
+                            ( game, otherPlayer, new SOCCity( otherPlayer, hilight, board ) );
+                        clearModeAndHilight( SOCPlayingPiece.CITY );
                     }
                     break;
                 }
             }
             else if ((player != null)
-                     && ((game.getCurrentPlayerNumber() == playerNumber)
-                         || game.isDebugFreePlacement()))
+                && ((game.getCurrentPlayerNumber() == playerNumber)
+                || game.isDebugFreePlacement()))
             {
                 // No hilight. But, they clicked the board, expecting something.
                 // It's possible the mode is incorrect.
@@ -7122,7 +7146,7 @@ import javax.swing.JComponent;
                 updateMode();
                 ptrOldX = 0;
                 ptrOldY = 0;
-                mouseMoved(evt);  // mouseMoved will establish hilight using click's x,y
+                mouseMoved( evt );  // mouseMoved will establish hilight using click's x,y
             }
 
             evt.consume();
@@ -7130,9 +7154,9 @@ import javax.swing.JComponent;
                 mode = NONE;
 
         }
-        catch (Throwable th)
+        catch( Throwable th )
         {
-            playerInterface.chatPrintStackTrace(th);
+            playerInterface.chatPrintStackTrace( th );
         }
     }
 
@@ -7143,50 +7167,50 @@ import javax.swing.JComponent;
      * @param y y-coordinate of click, actual screen pixels (not unscaled internal)
      * @since 1.1.00
      */
-    protected void doBoardMenuPopup (final int x, final int y)
+    protected void doBoardMenuPopup( final int x, final int y )
     {
         // Determine mode, to see if we're building or cancelling.
         switch (mode)
         {
         case PLACE_ROAD:
-            popupMenu.showCancelBuild(SOCPlayingPiece.ROAD, x, y, hilight);
+            popupMenu.showCancelBuild( SOCPlayingPiece.ROAD, x, y, hilight );
             break;
 
         case PLACE_SETTLEMENT:
-            popupMenu.showCancelBuild(SOCPlayingPiece.SETTLEMENT, x, y, hilight);
+            popupMenu.showCancelBuild( SOCPlayingPiece.SETTLEMENT, x, y, hilight );
             break;
 
         case PLACE_CITY:
-            popupMenu.showCancelBuild(SOCPlayingPiece.CITY, x, y, hilight);
+            popupMenu.showCancelBuild( SOCPlayingPiece.CITY, x, y, hilight );
             break;
 
         case PLACE_SHIP:
         case MOVE_SHIP:
-            popupMenu.showCancelBuild(SOCPlayingPiece.SHIP, x, y, hilight);
+            popupMenu.showCancelBuild( SOCPlayingPiece.SHIP, x, y, hilight );
             break;
 
         case PLACE_INIT_ROAD:
         case PLACE_FREE_ROAD_OR_SHIP:
             // might be road or ship
-            {
-                final int hilightRoad =
-                    ((! game.hasSeaBoard) || player.isLegalRoad(hilight)) ? hilight : 0;
-                int hilightShip =
-                    (game.hasSeaBoard && player.isLegalShip(hilight)) ? hilight : 0;
-                popupMenu.showBuild
-                    (x, y, hilightRoad, 0, 0, hilightShip);
-            }
-            break;
+        {
+            final int hilightRoad =
+                ((!game.hasSeaBoard) || player.isLegalRoad( hilight )) ? hilight : 0;
+            int hilightShip =
+                (game.hasSeaBoard && player.isLegalShip( hilight )) ? hilight : 0;
+            popupMenu.showBuild
+                ( x, y, hilightRoad, 0, 0, hilightShip );
+        }
+        break;
 
         case PLACE_INIT_SETTLEMENT:
-            popupMenu.showBuild(x, y, 0, hilight, 0, 0);
+            popupMenu.showBuild( x, y, 0, hilight, 0, 0 );
             break;
 
         default:  // NONE, GAME_FORMING, PLACE_ROBBER, etc
 
-            if ( hoverTip.hoverPiece instanceof SOCFortress)
+            if (hoverTip.hoverPiece instanceof SOCFortress)
             {
-                popupMenu.showAtPirateFortress(x, y, (SOCFortress) (hoverTip.hoverPiece));
+                popupMenu.showAtPirateFortress( x, y, (SOCFortress) (hoverTip.hoverPiece) );
                 return;  // <--- early return: special case: fortress (_SC_PIRI) ---
             }
 
@@ -7199,12 +7223,12 @@ import javax.swing.JComponent;
                 if (edge == 0)
                     edge = hoverTip.hoverShipID;
                 hilightRoad =
-                    (player.isLegalRoad(edge)) ? edge : 0;
+                    (player.isLegalRoad( edge )) ? edge : 0;
                 if (hoverTip.hoverIsShipMovable)
                     hilightShip = -hoverTip.hoverShipID;
                 else
                     hilightShip =
-                      (player.isLegalShip(edge)) ? edge : 0;
+                        (player.isLegalShip( edge )) ? edge : 0;
             }
             else
             {
@@ -7212,7 +7236,7 @@ import javax.swing.JComponent;
                 hilightShip = 0;
             }
 
-            popupMenu.showBuild(x, y, hilightRoad, hoverTip.hoverSettlementID, hoverTip.hoverCityID, hilightShip);
+            popupMenu.showBuild( x, y, hilightRoad, hoverTip.hoverSettlementID, hoverTip.hoverCityID, hilightShip );
         }
     }
 
@@ -7224,7 +7248,7 @@ import javax.swing.JComponent;
     {
         if (buildReqTimerTask == null)
             return false;
-        return ! buildReqTimerTask.wasItSentAlready();
+        return !buildReqTimerTask.wasItSentAlready();
     }
 
     /**
@@ -7246,7 +7270,7 @@ import javax.swing.JComponent;
      * @see #popupExpectingBuildRequest()
      * @since 1.1.00
      */
-    public void popupSetBuildRequest(int coord, int ptype)
+    public void popupSetBuildRequest( int coord, int ptype )
     {
         if (coord == -1)
             coord = 0;  // road on edge 0x00
@@ -7259,11 +7283,11 @@ import javax.swing.JComponent;
                 buildReqTimerTask.doNotSend();
                 buildReqTimerTask.cancel();  // cancel any previous
             }
-            buildReqTimerTask = new BoardPanelSendBuildTask(coord, ptype);
+            buildReqTimerTask = new BoardPanelSendBuildTask( coord, ptype );
             // Run once, at maximum permissable delay;
             // hopefully the network is responsive and
             // we've heard back by then.
-            piTimer.schedule(buildReqTimerTask, 1000 * BUILD_REQUEST_MAX_DELAY_SEC );
+            piTimer.schedule( buildReqTimerTask, 1000 * BUILD_REQUEST_MAX_DELAY_SEC );
         }
     }
 
@@ -7324,19 +7348,19 @@ import javax.swing.JComponent;
 
         if (moveShip_fromEdge != 0)
         {
-            if (game.canMoveShip(playerNumber, moveShip_fromEdge, moveShip_toEdge) != null)
+            if (game.canMoveShip( playerNumber, moveShip_fromEdge, moveShip_toEdge ) != null)
             {
                 if (game.isGameOptionSet
-                    (SOCGameOptionSet.K_SC_FTRI) && ((SOCBoardLarge) board).canRemovePort(moveShip_toEdge))
+                    ( SOCGameOptionSet.K_SC_FTRI ) && ((SOCBoardLarge) board).canRemovePort( moveShip_toEdge ))
                 {
                     java.awt.EventQueue.invokeLater
-                        (new ConfirmPlaceShipDialog(moveShip_toEdge, false, moveShip_fromEdge));
+                        ( new ConfirmPlaceShipDialog( moveShip_toEdge, false, moveShip_fromEdge ) );
                     clearMode = false;
                 }
                 else
                 {
                     playerInterface.getClient().getGameMessageSender().movePieceRequest
-                        (game, playerNumber, SOCPlayingPiece.SHIP, moveShip_fromEdge, moveShip_toEdge);
+                        ( game, playerNumber, SOCPlayingPiece.SHIP, moveShip_fromEdge, moveShip_toEdge );
                 }
             }
 
@@ -7345,7 +7369,7 @@ import javax.swing.JComponent;
         }
 
         if (clearMode)
-            clearModeAndHilight(SOCPlayingPiece.SHIP);  // exit the mode
+            clearModeAndHilight( SOCPlayingPiece.SHIP );  // exit the mode
     }
 
     /**
@@ -7360,7 +7384,7 @@ import javax.swing.JComponent;
      * @since 1.1.07
      * @see #setSuperimposedTopText(String)
      */
-    public void setSuperimposedText(String text1, String text2)
+    public void setSuperimposedText( String text1, String text2 )
         throws IllegalArgumentException
     {
         if ((superText1 == text1) && (superText2 == text2))
@@ -7372,7 +7396,7 @@ import javax.swing.JComponent;
             // needed to check vs null and then String.equals.
         }
         if ((superText1 == null) && (superText2 != null))
-            throw new IllegalArgumentException("text2 not null, text1 null");
+            throw new IllegalArgumentException( "text2 not null, text1 null" );
 
         superText1 = text1;
         superText2 = text2;
@@ -7392,7 +7416,7 @@ import javax.swing.JComponent;
      * @since 1.1.08
      * @see #setSuperimposedText(String, String)
      */
-    public void setSuperimposedTopText(String text)
+    public void setSuperimposedTopText( String text )
     {
         superTextTop = text;
         superTextTop_w = 0;
@@ -7422,14 +7446,14 @@ import javax.swing.JComponent;
      *     board's valid edge 0x00; -edge for the sea side of a coastal edge on the large board
      *     if {@code checkCoastal}.
      */
-    private int findEdge(int x, int y, final boolean checkCoastal)
+    private int findEdge( int x, int y, final boolean checkCoastal )
     {
         // find which grid section the pointer is in
         int secX, secY;
 
         if (isLargeBoard)
         {
-            secY = ((y - ((22*3)/2)) / (deltaY / 3));
+            secY = ((y - ((22 * 3) / 2)) / (deltaY / 3));
             if ((secY % 3) == 1)
                 x += 12;  // middle part of hex: adjust sector x-boundary
             secY = ((y - 22) / halfdeltaY);
@@ -7439,11 +7463,11 @@ import javax.swing.JComponent;
                 || (secX > board.getBoardWidth())
                 || (secY > board.getBoardHeight()))
                 return 0;
-                // TODO consider local fields for width,height
+            // TODO consider local fields for width,height
 
             int edge = (secY << 8) | secX;
-            if (! (checkCoastal
-                   && ((SOCBoardLarge) board).isEdgeCoastline(edge)))
+            if (!(checkCoastal
+                && ((SOCBoardLarge) board).isEdgeCoastline( edge )))
                 return edge;
 
             /**
@@ -7464,14 +7488,14 @@ import javax.swing.JComponent;
                 // edge is "|".
                 // middle is w / 2
                 edgeX = halfdeltaX / 2;
-                hexLeft = board.getAdjacentHexToEdge(edge, SOCBoard.FACING_W);
-                hexRight = board.getAdjacentHexToEdge(edge, SOCBoard.FACING_E);
+                hexLeft = board.getAdjacentHexToEdge( edge, SOCBoard.FACING_W );
+                hexRight = board.getAdjacentHexToEdge( edge, SOCBoard.FACING_E );
             }
             else
             {
                 // y, relative to sector's upper-left corner
                 final int yrel = ((y - 22) % halfdeltaY);
-                if ((secX % 2) == ((secY/2) % 2))
+                if ((secX % 2) == ((secY / 2) % 2))
                 {
                     // edge is "\".
                     // at y=0 (relative to sector), check x=0
@@ -7479,8 +7503,8 @@ import javax.swing.JComponent;
                     // in middle, check x=(y/h)*w
                     //             which is (y*w) / h
                     edgeX = (yrel * halfdeltaX) / halfdeltaY;
-                    hexLeft = board.getAdjacentHexToEdge(edge, SOCBoard.FACING_SW);
-                    hexRight = board.getAdjacentHexToEdge(edge, SOCBoard.FACING_NE);
+                    hexLeft = board.getAdjacentHexToEdge( edge, SOCBoard.FACING_SW );
+                    hexRight = board.getAdjacentHexToEdge( edge, SOCBoard.FACING_NE );
                 }
                 else
                 {
@@ -7488,8 +7512,8 @@ import javax.swing.JComponent;
                     // check x=((h-y)/h)*w
                     //  which is ((h-y)*w) / h
                     edgeX = ((halfdeltaY - yrel) * halfdeltaX) / halfdeltaY;
-                    hexLeft = board.getAdjacentHexToEdge(edge, SOCBoard.FACING_NW);
-                    hexRight = board.getAdjacentHexToEdge(edge, SOCBoard.FACING_SE);
+                    hexLeft = board.getAdjacentHexToEdge( edge, SOCBoard.FACING_NW );
+                    hexRight = board.getAdjacentHexToEdge( edge, SOCBoard.FACING_SE );
                 }
             }
 
@@ -7500,7 +7524,7 @@ import javax.swing.JComponent;
             else
                 hex = hexRight;
 
-            if (board.isHexOnLand(hex))
+            if (board.isHexOnLand( hex ))
                 return edge;
             else
                 return -edge;
@@ -7543,7 +7567,7 @@ import javax.swing.JComponent;
      * @param y  y coordinate, in unscaled board, not actual pixels
      * @return the coordinates of the node, or 0 if none
      */
-    private int findNode(int x, int y)
+    private int findNode( int x, int y )
     {
         // find which grid section the pointer is in
         int secX, secY;
@@ -7590,7 +7614,7 @@ import javax.swing.JComponent;
      * @param y  y coordinate, in unscaled board, not actual pixels
      * @return the coordinates of the hex, or 0 if none
      */
-    private int findHex(int x, int y)
+    private int findHex( int x, int y )
     {
         // find which grid section the pointer is in
         int secX, secY;
@@ -7600,7 +7624,7 @@ import javax.swing.JComponent;
             secX = ((x + 13) / halfdeltaX);
             secY = ((y - 20) / halfdeltaY);
             final int hex = (secY << 8) | secX;
-            if (-1 != board.getHexTypeFromCoord(hex))
+            if (-1 != board.getHexTypeFromCoord( hex ))
                 return hex;
             return 0;
         }
@@ -7641,7 +7665,7 @@ import javax.swing.JComponent;
      * @see #setModeMoveShip(int)
      * @see SOCPlayerInterface#doLocalCommand(String)
      */
-    public void setMode(int m)
+    public void setMode( int m )
     {
         if ((m >= CONSIDER_LM_SETTLEMENT) && (m <= CONSIDER_LT_CITY))
         {
@@ -7662,7 +7686,7 @@ import javax.swing.JComponent;
      * @see #tryMoveShipToEdge()
      * @since 2.0.00
      */
-    public void setModeMoveShip(final int edge)
+    public void setModeMoveShip( final int edge )
     {
         if (mode != NONE)
             throw new IllegalStateException();
@@ -7683,7 +7707,8 @@ import javax.swing.JComponent;
      *     to load image resource files with getToolkit and getResource
      * @since 2.0.00
      */
-    /* package */ static synchronized void reloadBoardGraphics(final Component c)
+    /* package */
+    static synchronized void reloadBoardGraphics( final Component c )
     {
         final boolean hadAnyRotated = (rotatHexes != null);
         if (hexes == null)
@@ -7691,7 +7716,7 @@ import javax.swing.JComponent;
 
         hexes = null;
         rotatHexes = null;
-        loadImages(c, hadAnyRotated);
+        loadImages( c, hadAnyRotated );
     }
 
     /**
@@ -7709,15 +7734,15 @@ import javax.swing.JComponent;
      *          The large board (v3 encoding)'s fog-hex and gold-hex images have no rotated version,
      *          because that board layout is never rotated.
      */
-    private static synchronized void loadImages(final Component c, final boolean wantsRotated)
+    private static synchronized void loadImages( final Component c, final boolean wantsRotated )
     {
-        if ((hexes != null) && ((rotatHexes != null) || ! wantsRotated))
+        if ((hexes != null) && ((rotatHexes != null) || !wantsRotated))
             return;
 
         Toolkit tk = c.getToolkit();
         Class<?> clazz = c.getClass();
 
-        int setIdx = UserPreferences.getPref(SOCPlayerClient.PREF_HEX_GRAPHICS_SET, 0);
+        int setIdx = UserPreferences.getPref( SOCPlayerClient.PREF_HEX_GRAPHICS_SET, 0 );
         if ((setIdx < 0) || (setIdx >= HEX_GRAPHICS_SET_SUBDIRS.length))
             setIdx = 0;
         final String hexSetDirBase = IMAGEDIR + "/" + HEX_GRAPHICS_SET_SUBDIRS[setIdx];
@@ -7726,45 +7751,49 @@ import javax.swing.JComponent;
         {
             hexesGraphicsSetIndex = setIdx;
 
-            MediaTracker tracker = new MediaTracker(c);
+            MediaTracker tracker = new MediaTracker( c );
 
             hexes = new Image[10];  // water, desert, 5 resources, gold, fog, 3:1 port
 
-            loadHexesAndImages(hexes, hexSetDirBase, tracker, tk, clazz, false);
+            loadHexesAndImages( hexes, hexSetDirBase, tracker, tk, clazz, false );
 
             try
             {
-                tracker.waitForID(0);
+                tracker.waitForID( 0 );
             }
-            catch (InterruptedException e) {}
-
-            if (tracker.isErrorID(0))
+            catch( InterruptedException e )
             {
-                System.out.println("Error loading board images");
             }
 
-            hexesMustAlwaysScale = checkNonstandardHexesSize(hexes, false);
+            if (tracker.isErrorID( 0 ))
+            {
+                System.out.println( "Error loading board images" );
+            }
+
+            hexesMustAlwaysScale = checkNonstandardHexesSize( hexes, false );
         }
 
         if (wantsRotated && (rotatHexes == null))
         {
-            MediaTracker tracker = new MediaTracker(c);
+            MediaTracker tracker = new MediaTracker( c );
 
             rotatHexes = new Image[8];  // only 8, not 10: large board (gold,fog) is not rotated
-            loadHexesAndImages(rotatHexes, hexSetDirBase + "/rotat", tracker, tk, clazz, true);
+            loadHexesAndImages( rotatHexes, hexSetDirBase + "/rotat", tracker, tk, clazz, true );
 
             try
             {
-                tracker.waitForID(0);
+                tracker.waitForID( 0 );
             }
-            catch (InterruptedException e) {}
-
-            if (tracker.isErrorID(0))
+            catch( InterruptedException e )
             {
-                System.out.println("Error loading rotated board images");
             }
 
-            rotatHexesMustAlwaysScale = checkNonstandardHexesSize(rotatHexes, true);
+            if (tracker.isErrorID( 0 ))
+            {
+                System.out.println( "Error loading rotated board images" );
+            }
+
+            rotatHexesMustAlwaysScale = checkNonstandardHexesSize( rotatHexes, true );
         }
     }
 
@@ -7788,19 +7817,19 @@ import javax.swing.JComponent;
      * @since 1.1.08
      */
     private static void loadHexesAndImages
-        (Image[] newHexes, String imageDir,
-         MediaTracker tracker, Toolkit tk, Class<?> clazz,
-         final boolean wantsRotated)
+    ( Image[] newHexes, String imageDir,
+        MediaTracker tracker, Toolkit tk, Class<?> clazz,
+        final boolean wantsRotated )
     {
         final int numHexImage;
 
-        newHexes[0] = tk.getImage(clazz.getResource(imageDir + "/waterHex.gif"));
-        newHexes[1] = tk.getImage(clazz.getResource(imageDir + "/clayHex.gif"));
-        newHexes[2] = tk.getImage(clazz.getResource(imageDir + "/oreHex.gif"));
-        newHexes[3] = tk.getImage(clazz.getResource(imageDir + "/sheepHex.gif"));
-        newHexes[4] = tk.getImage(clazz.getResource(imageDir + "/wheatHex.gif"));
-        newHexes[5] = tk.getImage(clazz.getResource(imageDir + "/woodHex.gif"));
-        newHexes[6] = tk.getImage(clazz.getResource(imageDir + "/desertHex.gif"));
+        newHexes[0] = tk.getImage( clazz.getResource( imageDir + "/waterHex.gif" ) );
+        newHexes[1] = tk.getImage( clazz.getResource( imageDir + "/clayHex.gif" ) );
+        newHexes[2] = tk.getImage( clazz.getResource( imageDir + "/oreHex.gif" ) );
+        newHexes[3] = tk.getImage( clazz.getResource( imageDir + "/sheepHex.gif" ) );
+        newHexes[4] = tk.getImage( clazz.getResource( imageDir + "/wheatHex.gif" ) );
+        newHexes[5] = tk.getImage( clazz.getResource( imageDir + "/woodHex.gif" ) );
+        newHexes[6] = tk.getImage( clazz.getResource( imageDir + "/desertHex.gif" ) );
         if (wantsRotated)
         {
             numHexImage = 8;
@@ -7808,13 +7837,13 @@ import javax.swing.JComponent;
         else
         {
             numHexImage = 10;
-            newHexes[7] = tk.getImage(clazz.getResource(imageDir + "/goldHex.gif"));
-            newHexes[8] = tk.getImage(clazz.getResource(imageDir + "/fogHex.gif"));
+            newHexes[7] = tk.getImage( clazz.getResource( imageDir + "/goldHex.gif" ) );
+            newHexes[8] = tk.getImage( clazz.getResource( imageDir + "/fogHex.gif" ) );
         }
-        newHexes[numHexImage - 1] = tk.getImage(clazz.getResource(imageDir + "/miscPort.gif"));
+        newHexes[numHexImage - 1] = tk.getImage( clazz.getResource( imageDir + "/miscPort.gif" ) );
 
         for (int i = 0; i < numHexImage; i++)
-            tracker.addImage(newHexes[i], 0);
+            tracker.addImage( newHexes[i], 0 );
     }
 
     /**
@@ -7827,18 +7856,18 @@ import javax.swing.JComponent;
      *     with same indexes as {@link #hexes} or {@link #rotatHexes}
      * @param isRotated  True if these images are rotated, and should be checked against
      *     size {@code HEXHEIGHT} x {@code HEXWIDTH}
-     * @return  True if any are nonstandard, false if all hexes are standard size.
+     * @return True if any are nonstandard, false if all hexes are standard size.
      * @since 2.0.00
      */
     private static boolean checkNonstandardHexesSize
-        (final Image[] loaded, final boolean isRotated)
+    ( final Image[] loaded, final boolean isRotated )
     {
         final int wantW = (isRotated) ? HEXHEIGHT : HEXWIDTH,
-                  wantH = (isRotated) ? HEXWIDTH : HEXHEIGHT;
+            wantH = (isRotated) ? HEXWIDTH : HEXHEIGHT;
 
         for (final Image hexi : loaded)
         {
-            if ((hexi.getWidth(null) != wantW) || (hexi.getHeight(null) != wantH))
+            if ((hexi.getWidth( null ) != wantW) || (hexi.getHeight( null ) != wantH))
                 return true;
         }
 
@@ -7857,7 +7886,7 @@ import javax.swing.JComponent;
      * @return The corresponding color from ColorSquare, or {@link ColorSquare#WATER} if hexType not recognized.
      * @since 1.1.07
      */
-    public final Color hexColor(int hexType)
+    public final Color hexColor( int hexType )
     {
         Color hexColor;
         switch (hexType)
@@ -7919,9 +7948,9 @@ import javax.swing.JComponent;
         private static boolean alreadyActive = false;
         private SOCBoardPanel bp;
 
-        public DelayedRepaint (SOCBoardPanel bp)
+        public DelayedRepaint( SOCBoardPanel bp )
         {
-            setDaemon(true);
+            setDaemon( true );
             this.bp = bp;
         }
 
@@ -7934,15 +7963,19 @@ import javax.swing.JComponent;
             alreadyActive = true;
             try
             {
-                setName("delayedRepaint");
+                setName( "delayedRepaint" );
             }
-            catch (Throwable th) {}
+            catch( Throwable th )
+            {
+            }
 
             try
             {
-                Thread.sleep(RESCALE_RETRY_DELAY_MS);
+                Thread.sleep( RESCALE_RETRY_DELAY_MS );
             }
-            catch (InterruptedException e) {}
+            catch( InterruptedException e )
+            {
+            }
             finally
             {
                 alreadyActive = false;
@@ -7950,7 +7983,6 @@ import javax.swing.JComponent;
             }
         }
     }  // static class DelayedRepaint
-
 
 
     /**
@@ -8048,7 +8080,7 @@ import javax.swing.JComponent;
         private final int TEXT_INSET = 3;
         private final int PADDING_HORIZ = 2 * TEXT_INSET + 2;
 
-        BoardToolTip(SOCBoardPanel ourBoardPanel)
+        BoardToolTip( SOCBoardPanel ourBoardPanel )
         {
             bpanel = ourBoardPanel;
             hoverText = null;
@@ -8083,8 +8115,8 @@ import javax.swing.JComponent;
         public boolean isVisible()
         {
             return ((hoverText != null) || (hoverRoadID != 0)
-                    || (hoverSettlementID != 0) || (hoverCityID != 0)
-                    || (hoverShipID != 0));
+                || (hoverSettlementID != 0) || (hoverCityID != 0)
+                || (hoverShipID != 0));
         }
 
         /**
@@ -8096,7 +8128,7 @@ import javax.swing.JComponent;
          * @see #setHoverText(String, int)
          * @see #setHoverText(String, int, int, int)
          */
-        public void positionToMouse(final int x, int y)
+        public void positionToMouse( final int x, int y )
         {
             mouseX = x;
             mouseY = y;
@@ -8106,7 +8138,7 @@ import javax.swing.JComponent;
             if (offsetX < 5)
                 boxY += 12;
 
-            if (panelMinBW < ( boxX + boxW ))
+            if (panelMinBW < (boxX + boxW))
             {
                 // Try to float it to left of mouse pointer
                 boxX = mouseX - boxW - offsetX;
@@ -8132,7 +8164,7 @@ import javax.swing.JComponent;
          * Used in robber placement.
          * @param ofsX  New offset
          */
-        public void setOffsetX(int ofsX)
+        public void setOffsetX( int ofsX )
         {
             offsetX = ofsX;
         }
@@ -8152,21 +8184,21 @@ import javax.swing.JComponent;
          * @see #hideHoverAndPieces()
          * @see SOCBoardPanel#setDebugShowCoordsFlag(boolean)
          */
-        public void setHoverText(String t, final int coord)
+        public void setHoverText( String t, final int coord )
         {
             if ((t != null) && (coord >= 0) && debugShowCoordsTooltip)
             {
                 if (t.length() > 0)
-                    t += " - 0x" + Integer.toHexString(coord);
+                    t += " - 0x" + Integer.toHexString( coord );
                 else
-                    t = "0x" + Integer.toHexString(coord);
+                    t = "0x" + Integer.toHexString( coord );
             }
 
             // If text unchanged, and mouse hasn't moved, do nothing:
-            if ( (t == hoverText)  // (also covers both == null)
-                 || ((t != null) && t.equals(hoverText)) )
+            if ((t == hoverText)  // (also covers both == null)
+                || ((t != null) && t.equals( hoverText )))
             {
-                if (! setHoverText_modeChangedOrMouseMoved)
+                if (!setHoverText_modeChangedOrMouseMoved)
                     return;
             }
 
@@ -8179,7 +8211,7 @@ import javax.swing.JComponent;
             }
 
             boxW = 0;  // Paint method will calculate it
-            positionToMouse(mouseX, mouseY);  // Also calls repaint, clears setHoverText_modeChangedOrMouseMoved
+            positionToMouse( mouseX, mouseY );  // Also calls repaint, clears setHoverText_modeChangedOrMouseMoved
         }
 
         /**
@@ -8197,11 +8229,11 @@ import javax.swing.JComponent;
          * @param y y-coordinate of mouse, actual screen pixels (not unscaled internal)
          * @since 2.0.00
          */
-        public void setHoverText(final String t, final int coord, final int x, final int y)
+        public void setHoverText( final String t, final int coord, final int x, final int y )
         {
             // TODO don't repaint twice
-            positionToMouse(x, y);
-            setHoverText(t, coord);
+            positionToMouse( x, y );
+            setHoverText( t, coord );
         }
 
         /**
@@ -8225,36 +8257,36 @@ import javax.swing.JComponent;
         }
 
         /** Draw; Graphics should be the boardpanel's gc, as seen in its paint method. */
-        public void paint(Graphics g)
+        public void paint( Graphics g )
         {
             if (playerNumber != -1)
             {
                 final boolean xlat = (panelMarginX != 0) || (panelMarginY != 0);
                 if (xlat)
-                    g.translate(panelMarginX, panelMarginY);
+                    g.translate( panelMarginX, panelMarginY );
 
                 if (hoverRoadID != 0)
                 {
-                    if (! hoverIsShipMovable)
-                        drawRoadOrShip(g, hoverRoadID, playerNumber, true, true, false);
+                    if (!hoverIsShipMovable)
+                        drawRoadOrShip( g, hoverRoadID, playerNumber, true, true, false );
                     else
-                        drawRoadOrShip(g, hoverRoadID, -1, true, true, false);
+                        drawRoadOrShip( g, hoverRoadID, -1, true, true, false );
                 }
                 if (hoverShipID != 0)
                 {
-                    drawRoadOrShip(g, hoverShipID, playerNumber, true, false, hoverIsWarship);
+                    drawRoadOrShip( g, hoverShipID, playerNumber, true, false, hoverIsWarship );
                 }
                 if (hoverSettlementID != 0)
                 {
-                    drawSettlement(g, hoverSettlementID, playerNumber, true, false);
+                    drawSettlement( g, hoverSettlementID, playerNumber, true, false );
                 }
                 if (hoverCityID != 0)
                 {
-                    drawCity(g, hoverCityID, playerNumber, true);
+                    drawCity( g, hoverCityID, playerNumber, true );
                 }
 
                 if (xlat)
-                    g.translate(-panelMarginX, -panelMarginY);
+                    g.translate( -panelMarginX, -panelMarginY );
             }
 
             String ht = hoverText;  // cache against last-minute change in another thread
@@ -8268,10 +8300,10 @@ import javax.swing.JComponent;
                 final Font bpf = bpanel.getFont();
                 if (bpf == null)
                     return;
-                final FontMetrics fm = g.getFontMetrics(bpf);
+                final FontMetrics fm = g.getFontMetrics( bpf );
                 if (fm == null)
                     return;
-                boxW = fm.stringWidth(ht.replace(' ', '-')) + PADDING_HORIZ;
+                boxW = fm.stringWidth( ht.replace( ' ', '-' ) ) + PADDING_HORIZ;
                 boxH = fm.getHeight();
 
                 // Check if we'd be past the bottom or right edge
@@ -8283,12 +8315,12 @@ import javax.swing.JComponent;
                     boxY = bpheight - boxH - 2;
             }
 
-            g.setColor(Color.WHITE);
-            g.fillRect(boxX, boxY, boxW, boxH - 1);
-            g.setColor(Color.BLACK);
-            g.drawRect(boxX, boxY, boxW, boxH - 1);
-            g.setFont(bpanel.getFont());
-            g.drawString(ht, boxX + TEXT_INSET, boxY + boxH - TEXT_INSET);
+            g.setColor( Color.WHITE );
+            g.fillRect( boxX, boxY, boxW, boxH - 1 );
+            g.setColor( Color.BLACK );
+            g.drawRect( boxX, boxY, boxW, boxH - 1 );
+            g.setFont( bpanel.getFont() );
+            g.drawString( ht, boxX + TEXT_INSET, boxY + boxH - TEXT_INSET );
         }
 
         /**
@@ -8317,7 +8349,7 @@ import javax.swing.JComponent;
          * @param xb  Internal board-pixel position calculated from x
          * @param yb  Internal board-pixel position calculated from y
          */
-        private void handleHover(final int x, int y, final int xb, final int yb)
+        private void handleHover( final int x, int y, final int xb, final int yb )
         {
             if ((x != mouseX) || (y != mouseY))
             {
@@ -8349,7 +8381,7 @@ import javax.swing.JComponent;
             /** Node port type, from board.getPortTypeFromNodeCoord, for hoverText if nothing more important nearby */
             int nodePortType = -1;
 
-            if (! modeAllowsHoverPieces)
+            if (!modeAllowsHoverPieces)
             {
                 hoverRoadID = 0;
                 hoverSettlementID = 0;
@@ -8364,509 +8396,516 @@ import javax.swing.JComponent;
             try
             {
 
-            // Look first for settlements/cities or ports
-            id = findNode(xb, yb);
-            if (id > 0)
-            {
-                // Are we already looking at it?
-                if ((hoverMode == PLACE_SETTLEMENT) && (hoverID == id))
+                // Look first for settlements/cities or ports
+                id = findNode( xb, yb );
+                if (id > 0)
                 {
-                    positionToMouse(x, y);
-                    return;  // <--- Early ret: No work needed ---
-                }
-
-                // Is anything there?
-                // Check for settlements, cities, ports, fortresses:
-                SOCPlayingPiece p = board.settlementAtNode(id);
-                if (p == null)
-                    p = game.getFortress(id);  // pirate fortress (scenario option _SC_PIRI) or null
-
-                if (p != null)
-                {
-                    hoverMode = PLACE_SETTLEMENT;
-                    hoverPiece = p;
-                    hoverID = id;
-
-                    StringBuilder sb = new StringBuilder();
-                    String pieceExtraDesc = null;  // {2} in localized string for SC_PIRI fortress, otherwise unused
-                    String portDesc = portDescAtNode(id);
-                    if (portDesc != null)
+                    // Are we already looking at it?
+                    if ((hoverMode == PLACE_SETTLEMENT) && (hoverID == id))
                     {
-                        sb.append(portDesc);  // "game.port.three", "game.port.wood"
-                        if (p.getType() == SOCPlayingPiece.CITY)
-                            sb.append(".city");
-                        else
-                            sb.append(".stlmt");  // port, not port city
-                        hoverIsPort = true;
+                        positionToMouse( x, y );
+                        return;  // <--- Early ret: No work needed ---
                     }
-                    else
+
+                    // Is anything there?
+                    // Check for settlements, cities, ports, fortresses:
+                    SOCPlayingPiece p = board.settlementAtNode( id );
+                    if (p == null)
+                        p = game.getFortress( id );  // pirate fortress (scenario option _SC_PIRI) or null
+
+                    if (p != null)
                     {
-                        if (p.getType() == SOCPlayingPiece.CITY)
-                            sb.append("board.city");
-                        else
-                            sb.append("board.stlmt");
-                    }
-                    String plName = p.getPlayer().getName();
-                    if (plName == null)
-                        plName = strings.get("board.unowned");  // "unowned"
-                    if (p instanceof SOCFortress)
-                    {
-                        // fortress is never a port or city
-                        sb.setLength(0);
-                        sb.append("board.sc_piri.piratefortress");
-                        if ((player != null) && (player == p.getPlayer()))
+                        hoverMode = PLACE_SETTLEMENT;
+                        hoverPiece = p;
+                        hoverID = id;
+
+                        StringBuilder sb = new StringBuilder();
+                        String pieceExtraDesc = null;  // {2} in localized string for SC_PIRI fortress, otherwise unused
+                        String portDesc = portDescAtNode( id );
+                        if (portDesc != null)
                         {
-                            // Can client player attack now, or need to build ships there first?
-                            if (game.canAttackPirateFortress(player, true) != null)
-                            {
-                                pieceExtraDesc = (SOCPlayerClient.IS_PLATFORM_MAC_OSX)
-                                    ? "board.sc_piri.pf_extra.attack.osx"  // ". Control-click to attack this fortress."
-                                    : "board.sc_piri.pf_extra.attack";     // ". Right-click to attack this fortress."
-                            }
+                            sb.append( portDesc );  // "game.port.three", "game.port.wood"
+                            if (p.getType() == SOCPlayingPiece.CITY)
+                                sb.append( ".city" );
                             else
-                            {
-                                pieceExtraDesc = "board.sc_piri.pf_extra.build";
-                                    // ". To attack this fortress, build ships to it."
-                            }
-                            pieceExtraDesc = strings.get(pieceExtraDesc);
+                                sb.append( ".stlmt" );  // port, not port city
+                            hoverIsPort = true;
                         }
-                    }
+                        else
+                        {
+                            if (p.getType() == SOCPlayingPiece.CITY)
+                                sb.append( "board.city" );
+                            else
+                                sb.append( "board.stlmt" );
+                        }
+                        String plName = p.getPlayer().getName();
+                        if (plName == null)
+                            plName = strings.get( "board.unowned" );  // "unowned"
+                        if (p instanceof SOCFortress)
+                        {
+                            // fortress is never a port or city
+                            sb.setLength( 0 );
+                            sb.append( "board.sc_piri.piratefortress" );
+                            if ((player != null) && (player == p.getPlayer()))
+                            {
+                                // Can client player attack now, or need to build ships there first?
+                                if (game.canAttackPirateFortress( player, true ) != null)
+                                {
+                                    pieceExtraDesc = (SOCPlayerClient.IS_PLATFORM_MAC_OSX)
+                                        ? "board.sc_piri.pf_extra.attack.osx"  // ". Control-click to attack this fortress."
+                                        : "board.sc_piri.pf_extra.attack";     // ". Right-click to attack this fortress."
+                                }
+                                else
+                                {
+                                    pieceExtraDesc = "board.sc_piri.pf_extra.build";
+                                    // ". To attack this fortress, build ships to it."
+                                }
+                                pieceExtraDesc = strings.get( pieceExtraDesc );
+                            }
+                        }
 
-                    if (pieceExtraDesc == null)
-                        pieceExtraDesc = "";
-                    setHoverText
-                        (strings.get(sb.toString(), plName, board.getPortTypeFromNodeCoord(id), pieceExtraDesc), id);
-                    hoverTextSet = true;
+                        if (pieceExtraDesc == null)
+                            pieceExtraDesc = "";
+                        setHoverText
+                            ( strings.get( sb.toString(), plName, board.getPortTypeFromNodeCoord( id ), pieceExtraDesc ), id );
+                        hoverTextSet = true;
 
-                    // If we're at the player's settlement, ready to upgrade to city
-                    if (modeAllowsHoverPieces && playerIsCurrent
-                         && (p.getPlayer() == player)
-                         && (p.getType() == SOCPlayingPiece.SETTLEMENT)
-                         && (player.isPotentialCity(id))
-                         && (player.getNumPieces(SOCPlayingPiece.CITY) > 0)
-                         && (debugPP || player.getResources().contains(SOCCity.COST)))
-                    {
-                        hoverCityID = id;
+                        // If we're at the player's settlement, ready to upgrade to city
+                        if (modeAllowsHoverPieces && playerIsCurrent
+                            && (p.getPlayer() == player)
+                            && (p.getType() == SOCPlayingPiece.SETTLEMENT)
+                            && (player.isPotentialCity( id ))
+                            && (player.getNumPieces( SOCPlayingPiece.CITY ) > 0)
+                            && (debugPP || player.getResources().contains( SOCCity.COST )))
+                        {
+                            hoverCityID = id;
+                        }
+                        else
+                        {
+                            hoverCityID = 0;
+                        }
+                        hoverSettlementID = 0;
                     }
                     else
                     {
-                        hoverCityID = 0;
-                    }
-                    hoverSettlementID = 0;
-                }
-                else
-                {
-                    // Nothing currently here.
-                    // Look for potential pieces.
+                        // Nothing currently here.
+                        // Look for potential pieces.
 
-                    hoverSettlementID = 0;
+                        hoverSettlementID = 0;
 
-                    // Villages for Cloth trade scenario
-                    if (game.isGameOptionSet(SOCGameOptionSet.K_SC_CLVI))
-                    {
-                        SOCVillage vi = ((SOCBoardLarge) board).getVillageAtNode(id);
-                        if (vi != null)
+                        // Villages for Cloth trade scenario
+                        if (game.isGameOptionSet( SOCGameOptionSet.K_SC_CLVI ))
                         {
-                            hoverMode = PLACE_ROBBER;  // const used for hovering-at-node
-                            hoverID = id;
-                            hoverIsPort = false;
-                            hoverTextSet = true;
-                            hoverCityID = 0;
-                            setHoverText
-                                (strings.get("board.sc_clvi.village", vi.diceNum, vi.getCloth()), id);
+                            SOCVillage vi = ((SOCBoardLarge) board).getVillageAtNode( id );
+                            if (vi != null)
+                            {
+                                hoverMode = PLACE_ROBBER;  // const used for hovering-at-node
+                                hoverID = id;
+                                hoverIsPort = false;
+                                hoverTextSet = true;
+                                hoverCityID = 0;
+                                setHoverText
+                                    ( strings.get( "board.sc_clvi.village", vi.diceNum, vi.getCloth() ), id );
                                 // "Village for cloth trade on {0} ({1} cloth)"
-                        }
-                    }
-
-                    if (playerIsCurrent && ! hoverTextSet)
-                    {
-                        // Can we place here?
-                        hoverCityID = 0;
-                        if (modeAllowsHoverPieces
-                            && (player.getNumPieces(SOCPlayingPiece.SETTLEMENT) > 0)
-                            && (debugPP || player.getResources().contains(SOCSettlement.COST)))
-                        {
-                            if (player.canPlaceSettlement(id))
-                            {
-                                hoverSettlementID = id;
                             }
-                            else if (player.isPotentialSettlement(id))
+                        }
+
+                        if (playerIsCurrent && !hoverTextSet)
+                        {
+                            // Can we place here?
+                            hoverCityID = 0;
+                            if (modeAllowsHoverPieces
+                                && (player.getNumPieces( SOCPlayingPiece.SETTLEMENT ) > 0)
+                                && (debugPP || player.getResources().contains( SOCSettlement.COST )))
                             {
-                                setHoverText(strings.get("board.settle.not.here"), id);  // "Not allowed to settle here"
+                                if (player.canPlaceSettlement( id ))
+                                {
+                                    hoverSettlementID = id;
+                                }
+                                else if (player.isPotentialSettlement( id ))
+                                {
+                                    setHoverText( strings.get( "board.settle.not.here" ), id );  // "Not allowed to settle here"
+                                    hoverMode = PLACE_ROBBER;  // const used for hovering-at-node
+                                    hoverID = id;
+                                    hoverIsPort = false;
+                                    hoverTextSet = true;
+                                }
+                            }
+                        }
+
+                        // Initial Placement on large board: Check for
+                        // a restricted starting land area.
+                        // For _SC_PIRI, check for hovering at "LS" lone settlement node.
+                        if (playerIsCurrent && game.hasSeaBoard && !hoverTextSet)
+                        {
+                            String htext = null;
+
+                            final int[] ls = ((SOCBoardLarge) board).getAddedLayoutPart( "LS" );
+                            if (ls != null)
+                            {
+                                for (int i = ls.length - 1; i >= 0; --i)
+                                {
+                                    if (id == ls[i])
+                                    {
+                                        if (game.isInitialPlacement())
+                                            htext = "board.sc_piri.lone.stlmt.after";  // "Lone Settlement location allowed on pirate island after initial placement"
+                                        else
+                                            htext = "board.sc_piri.lone.stlmt";  // "Lone Settlement location allowed on pirate island"
+
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if ((htext == null)
+                                && game.isInitialPlacement()
+                                && player.isLegalSettlement( id )
+                                && !player.isPotentialSettlement( id ))
+                            {
+                                htext = "board.initial.not.here";  // "Initial placement not allowed here"
+                            }
+
+                            if (htext != null)
+                            {
+                                setHoverText( strings.get( htext ), id );
                                 hoverMode = PLACE_ROBBER;  // const used for hovering-at-node
                                 hoverID = id;
                                 hoverIsPort = false;
                                 hoverTextSet = true;
                             }
                         }
-                    }
 
-                    // Initial Placement on large board: Check for
-                    // a restricted starting land area.
-                    // For _SC_PIRI, check for hovering at "LS" lone settlement node.
-                    if (playerIsCurrent && game.hasSeaBoard && ! hoverTextSet)
-                    {
-                        String htext = null;
-
-                        final int[] ls = ((SOCBoardLarge) board).getAddedLayoutPart("LS");
-                        if (ls != null)
+                        if (!hoverTextSet)
                         {
-                            for (int i = ls.length - 1; i >= 0; --i)
-                            {
-                                if (id == ls[i])
-                                {
-                                    if (game.isInitialPlacement())
-                                        htext = "board.sc_piri.lone.stlmt.after";  // "Lone Settlement location allowed on pirate island after initial placement"
-                                    else
-                                        htext = "board.sc_piri.lone.stlmt";  // "Lone Settlement location allowed on pirate island"
+                            // Check for ports. Will show only if nothing else is nearby.
 
-                                    break;
-                                }
+                            nodePortType = board.getPortTypeFromNodeCoord( id );
+                            if (nodePortType != -1)
+                            {
+                                // Make note of port info, will show it only if nothing more important is
+                                // found nearby. This prevents the port from "covering up" pieces on adjacent
+                                // edges that the user may want to click on.
+
+                                nodePortCoord = id;
                             }
                         }
 
-                        if ((htext == null)
-                            && game.isInitialPlacement()
-                            && player.isLegalSettlement(id)
-                            && ! player.isPotentialSettlement(id))
+                        // Check special nodes in sea board scenarios.
+                        //     Currently hardcoded to _SC_WOND only; if other scenarios use node lists, code
+                        //     here must be generalized to check for added layout part "N1" and game option "SC".
+                        if ((!hoverTextSet) && game.hasSeaBoard && game.isGameOptionSet( SOCGameOptionSet.K_SC_WOND ))
                         {
-                            htext = "board.initial.not.here";  // "Initial placement not allowed here"
-                        }
-
-                        if (htext != null)
-                        {
-                            setHoverText(strings.get(htext), id);
-                            hoverMode = PLACE_ROBBER;  // const used for hovering-at-node
-                            hoverID = id;
-                            hoverIsPort = false;
-                            hoverTextSet = true;
-                        }
-                    }
-
-                    if (! hoverTextSet)
-                    {
-                        // Check for ports. Will show only if nothing else is nearby.
-
-                        nodePortType = board.getPortTypeFromNodeCoord(id);
-                        if (nodePortType != -1)
-                        {
-                            // Make note of port info, will show it only if nothing more important is
-                            // found nearby. This prevents the port from "covering up" pieces on adjacent
-                            // edges that the user may want to click on.
-
-                            nodePortCoord = id;
-                        }
-                    }
-
-                    // Check special nodes in sea board scenarios.
-                    //     Currently hardcoded to _SC_WOND only; if other scenarios use node lists, code
-                    //     here must be generalized to check for added layout part "N1" and game option "SC".
-                    if ((! hoverTextSet) && game.hasSeaBoard && game.isGameOptionSet(SOCGameOptionSet.K_SC_WOND))
-                    {
-                        // Check node lists "N1"-"N3" for this node coordinate. If found, use node list's name string
-                        int i;
-                        int[] nlist;
-                        for (i = 1, nlist = ((SOCBoardLarge) board).getAddedLayoutPart("N1");
-                             (nlist != null) && ! hoverTextSet;
-                             ++i, nlist = ((SOCBoardLarge) board).getAddedLayoutPart("N" + i))
-                        {
-                            for (int value : nlist)
+                            // Check node lists "N1"-"N3" for this node coordinate. If found, use node list's name string
+                            int i;
+                            int[] nlist;
+                            for (i = 1, nlist = ((SOCBoardLarge) board).getAddedLayoutPart( "N1" );
+                                 (nlist != null) && !hoverTextSet;
+                                 ++i, nlist = ((SOCBoardLarge) board).getAddedLayoutPart( "N" + i ))
                             {
-                                if (value == id)
+                                for (int value : nlist)
                                 {
-                                    String nlDesc = null;
+                                    if (value == id)
+                                    {
+                                        String nlDesc = null;
 
-                                    try
-                                    {
-                                        nlDesc = strings.get( "board.nodelist._SC_WOND.N" + i );
-                                    }
-                                    catch( MissingResourceException e )
-                                    {
-                                    }
-
-                                    if (nlDesc == null)
-                                    {
                                         try
                                         {
-                                            nlDesc = strings.get( "board.nodelist.no_desc", i );
+                                            nlDesc = strings.get( "board.nodelist._SC_WOND.N" + i );
                                         }
                                         catch( MissingResourceException e )
                                         {
                                         }
-                                    }
 
-                                    if (nlDesc != null)
-                                    {
-                                        setHoverText( nlDesc, id );
-                                        hoverMode = PLACE_ROBBER;  // const used for hovering-at-node
-                                        hoverID = id;
-                                        hoverIsPort = false;
-                                        hoverTextSet = true;
-                                        break;
+                                        if (nlDesc == null)
+                                        {
+                                            try
+                                            {
+                                                nlDesc = strings.get( "board.nodelist.no_desc", i );
+                                            }
+                                            catch( MissingResourceException e )
+                                            {
+                                            }
+                                        }
+
+                                        if (nlDesc != null)
+                                        {
+                                            setHoverText( nlDesc, id );
+                                            hoverMode = PLACE_ROBBER;  // const used for hovering-at-node
+                                            hoverID = id;
+                                            hoverIsPort = false;
+                                            hoverTextSet = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                }  // end if-node-has-settlement
-            }
-            else
-            {
-                hoverSettlementID = 0;
-                hoverCityID = 0;
-            }
-
-            // If not over a node (settlement), look for an edge (road or ship)
-            id = findEdge(xb, yb, false);
-            if (id != 0)
-            {
-                // Are we already looking at it?
-                if ((hoverID == id) && ((hoverMode == PLACE_ROAD) || (hoverMode == PLACE_SHIP)))
+                    }  // end if-node-has-settlement
+                }
+                else
                 {
-                    positionToMouse(x, y);
-                    return;  // <--- Early ret: No work needed ---
+                    hoverSettlementID = 0;
+                    hoverCityID = 0;
                 }
 
-                hoverRoadID = 0;
-                hoverShipID = 0;
-                hoverIsShipMovable = false;
-                hoverIsWarship = false;
-
-                // Is a road or ship there?
-                final SOCRoutePiece rs = board.roadOrShipAtEdge(id);
-                if (rs != null)
+                // If not over a node (settlement), look for an edge (road or ship)
+                id = findEdge( xb, yb, false );
+                if (id != 0)
                 {
-                    if (! hoverTextSet)
+                    // Are we already looking at it?
+                    if ((hoverID == id) && ((hoverMode == PLACE_ROAD) || (hoverMode == PLACE_SHIP)))
                     {
-                        final boolean isRoad = rs.isRoadNotShip();
-                        if (isRoad)
-                            hoverMode = PLACE_ROAD;
-                        else
-                            hoverMode = PLACE_SHIP;
-                        hoverPiece = rs;
-                        hoverID = id;
-                        String plName = rs.getPlayer().getName();
-                        if (plName == null)
-                            plName = strings.get("board.unowned");  // "unowned"
+                        positionToMouse( x, y );
+                        return;  // <--- Early ret: No work needed ---
+                    }
 
-                        if (isRoad)
+                    hoverRoadID = 0;
+                    hoverShipID = 0;
+                    hoverIsShipMovable = false;
+                    hoverIsWarship = false;
+
+                    // Is a road or ship there?
+                    final SOCRoutePiece rs = board.roadOrShipAtEdge( id );
+                    if (rs != null)
+                    {
+                        if (!hoverTextSet)
                         {
-                            setHoverText(strings.get("board.road", plName), id);  // "Road: " + plName
-                        }
-                        else
-                        {
-                            // Scenario _SC_PIRI has warships; check class just in case.
-                            hoverIsWarship = (rs instanceof SOCShip) && game.isShipWarship((SOCShip) rs);
-                            if (hoverIsWarship)
-                                setHoverText(strings.get("board.warship", plName), id);  // "Warship: " + plName
+                            final boolean isRoad = rs.isRoadNotShip();
+                            if (isRoad)
+                                hoverMode = PLACE_ROAD;
                             else
-                                setHoverText(strings.get("board.ship", plName), id);     // "Ship: " + plName
-                        }
+                                hoverMode = PLACE_SHIP;
+                            hoverPiece = rs;
+                            hoverID = id;
+                            String plName = rs.getPlayer().getName();
+                            if (plName == null)
+                                plName = strings.get( "board.unowned" );  // "unowned"
 
-                        // Can the player move their ship?
-                        if (modeAllowsHoverPieces && playerIsCurrent
-                             && (! isRoad)
-                             && (rs.getPlayer() == player)
-                             && (game.canMoveShip(playerNumber, hoverID) != null))
-                        {
-                            hoverIsShipMovable = true;
-                            hoverShipID = id;
-                        }
-                    }
-
-                    return;  // <--- Early return: Found road ---
-                }
-                else if (playerIsCurrent)
-                {
-                    // No piece there
-                    if (modeAllowsHoverPieces)
-                    {
-                        // If this edge is coastal, do we show a road or a ship?
-                        // Have findEdge determine if we're on the land or sea side.
-                        final boolean canPlaceShip = game.canPlaceShip(player, id);
-                        boolean isShip = false;
-                        if (isLargeBoard)
-                        {
-                            if (player.isPotentialRoad(id)
-                                && ((SOCBoardLarge) board).isEdgeCoastline(id))
+                            if (isRoad)
                             {
-                                id = findEdge(xb, yb, true);
-                                if (id < 0)
+                                setHoverText( strings.get( "board.road", plName ), id );  // "Road: " + plName
+                            }
+                            else
+                            {
+                                // Scenario _SC_PIRI has warships; check class just in case.
+                                hoverIsWarship = (rs instanceof SOCShip) && game.isShipWarship( (SOCShip) rs );
+                                if (hoverIsWarship)
+                                    setHoverText( strings.get( "board.warship", plName ), id );  // "Warship: " + plName
+                                else
+                                    setHoverText( strings.get( "board.ship", plName ), id );     // "Ship: " + plName
+                            }
+
+                            // Can the player move their ship?
+                            if (modeAllowsHoverPieces && playerIsCurrent
+                                && (!isRoad)
+                                && (rs.getPlayer() == player)
+                                && (game.canMoveShip( playerNumber, hoverID ) != null))
+                            {
+                                hoverIsShipMovable = true;
+                                hoverShipID = id;
+                            }
+                        }
+
+                        return;  // <--- Early return: Found road ---
+                    }
+                    else if (playerIsCurrent)
+                    {
+                        // No piece there
+                        if (modeAllowsHoverPieces)
+                        {
+                            // If this edge is coastal, do we show a road or a ship?
+                            // Have findEdge determine if we're on the land or sea side.
+                            final boolean canPlaceShip = game.canPlaceShip( player, id );
+                            boolean isShip = false;
+                            if (isLargeBoard)
+                            {
+                                if (player.isPotentialRoad( id )
+                                    && ((SOCBoardLarge) board).isEdgeCoastline( id ))
                                 {
-                                    id = -id;
+                                    id = findEdge( xb, yb, true );
+                                    if (id < 0)
+                                    {
+                                        id = -id;
+                                        isShip = canPlaceShip;
+                                    }
+                                }
+                                else
+                                {
                                     isShip = canPlaceShip;
                                 }
                             }
-                            else
+
+                            if ((!isShip)
+                                && player.isPotentialRoad( id )
+                                && (player.getNumPieces( SOCPlayingPiece.ROAD ) > 0)
+                                && (debugPP || player.getResources().contains( SOCRoad.COST )))
                             {
-                                isShip = canPlaceShip;
+                                hoverRoadID = id;
+                            }
+                            else if (canPlaceShip  // checks isPotentialShip, pirate ship
+                                && (player.getNumPieces( SOCPlayingPiece.SHIP ) > 0)
+                                && (debugPP || player.getResources().contains( SOCShip.COST )))
+                            {
+                                hoverShipID = id;
                             }
                         }
+                    }
 
-                        if ((! isShip)
-                            && player.isPotentialRoad(id)
-                            && (player.getNumPieces(SOCPlayingPiece.ROAD) > 0)
-                            && (debugPP || player.getResources().contains(SOCRoad.COST)))
+                    // If nothing else at this edge, look for a Special Edge (usually none)
+                    if ((!hoverTextSet) && isLargeBoard && (hoverRoadID == 0) && (hoverShipID == 0))
+                    {
+                        final String hoverTextKey;
+                        switch (((SOCBoardLarge) board).getSpecialEdgeType( id ))
                         {
-                            hoverRoadID = id;
+                        case SOCBoardLarge.SPECIAL_EDGE_DEV_CARD:
+                            hoverTextKey = "board.edge.devcard";  // "Receive Dev card for placing a ship here"
+                            break;
+
+                        case SOCBoardLarge.SPECIAL_EDGE_SVP:
+                            hoverTextKey = "board.edge.svp";  // "Receive 1 SVP for placing a ship here"
+                            break;
+
+                        default:
+                            // not special or not a recognized type
+                            hoverTextKey = null;
                         }
-                        else if (canPlaceShip  // checks isPotentialShip, pirate ship
-                            && (player.getNumPieces(SOCPlayingPiece.SHIP) > 0)
-                            && (debugPP || player.getResources().contains(SOCShip.COST)))
+
+                        if (hoverTextKey != null)
                         {
-                            hoverShipID = id;
+                            setHoverText( strings.get( hoverTextKey ), id );
+                            hoverTextSet = true;
                         }
                     }
                 }
 
-                // If nothing else at this edge, look for a Special Edge (usually none)
-                if ((! hoverTextSet) && isLargeBoard && (hoverRoadID == 0) && (hoverShipID == 0))
+                // By now we've set hoverRoadID, hoverShipID, hoverCityID, hoverSettlementID.
+                // If debugShowCoordsTooltip their coordinates aren't shown yet with hoverText,
+                // that's done below only if nothing else sets hoverText and returns.
+
+                if (hoverTextSet)
                 {
-                    final String hoverTextKey;
-                    switch (((SOCBoardLarge) board).getSpecialEdgeType(id))
+                    return;  // <--- Early return: Text and hover-pieces set ---
+                }
+
+                // If nothing more important was found nearby, show port info
+                if (nodePortCoord != -1)
+                {
+                    if ((hoverMode == PLACE_INIT_SETTLEMENT) && (hoverID == nodePortCoord) && hoverIsPort)
                     {
-                    case SOCBoardLarge.SPECIAL_EDGE_DEV_CARD:
-                        hoverTextKey = "board.edge.devcard";  // "Receive Dev card for placing a ship here"
-                        break;
-
-                    case SOCBoardLarge.SPECIAL_EDGE_SVP:
-                        hoverTextKey = "board.edge.svp";  // "Receive 1 SVP for placing a ship here"
-                        break;
-
-                    default:
-                        // not special or not a recognized type
-                        hoverTextKey = null;
+                        // Already looking at a port at this coordinate.
+                        positionToMouse( x, y );
                     }
-
-                    if (hoverTextKey != null)
+                    else
                     {
-                        setHoverText(strings.get(hoverTextKey), id);
-                        hoverTextSet = true;
-                    }
-                }
-            }
+                        String portText = strings.get( portDescAtNode( nodePortCoord ), nodePortType );
 
-            // By now we've set hoverRoadID, hoverShipID, hoverCityID, hoverSettlementID.
-            // If debugShowCoordsTooltip their coordinates aren't shown yet with hoverText,
-            // that's done below only if nothing else sets hoverText and returns.
-
-            if (hoverTextSet)
-            {
-                return;  // <--- Early return: Text and hover-pieces set ---
-            }
-
-            // If nothing more important was found nearby, show port info
-            if (nodePortCoord != -1)
-            {
-                if ((hoverMode == PLACE_INIT_SETTLEMENT) && (hoverID == nodePortCoord) && hoverIsPort)
-                {
-                    // Already looking at a port at this coordinate.
-                    positionToMouse(x, y);
-                }
-                else
-                {
-                    String portText = strings.get(portDescAtNode(nodePortCoord), nodePortType);
-
-                    if (isLargeBoard && game.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI))
-                    {
-                        // Scenario _SC_FTRI: If this port can be reached and moved
-                        // ("gift from the forgotten tribe"), mention that in portText.
-
-                        final SOCBoardLarge bl = (SOCBoardLarge) board;
-                        int portEdge = bl.getPortEdgeFromNode(nodePortCoord);
-                        if ((portEdge != -9) && bl.canRemovePort(portEdge))
-                            portText = strings.get("board.edge.ship_receive_this", portText);
-                                // "Place a ship here to receive this " + portText
-                    }
-
-                    setHoverText(portText, nodePortCoord);
-                    hoverMode = PLACE_INIT_SETTLEMENT;  // const used for hovering-at-port
-                    hoverID = nodePortCoord;
-                    hoverIsPort = true;
-                }
-
-                return;  // <--- Early return: Text and hover-pieces set ---
-            }
-
-            // If nothing found yet, look for a hex
-            //  - reminder: socboard.getHexTypeFromCoord, getNumberOnHexFromCoord, socgame.getPlayersOnHex
-            id = findHex(xb, yb);
-            if ((id > 0) && ! (debugShowCoordsTooltip && (hoverRoadID != 0 || hoverShipID != 0) ))
-            {
-                // Are we already looking at it?
-                if (((hoverMode == PLACE_ROBBER) || (hoverMode == PLACE_PIRATE)) && (hoverID == id))
-                {
-                    positionToMouse(x, y);
-                    return;  // <--- Early ret: No work needed ---
-                }
-
-                if (game.getGameState() == SOCGame.PLACING_PIRATE)
-                    hoverMode = PLACE_PIRATE;
-                else
-                    hoverMode = PLACE_ROBBER;  // const used for hovering-at-hex
-
-                hoverPiece = null;
-                hoverID = id;
-
-                {
-                    final int htype = board.getHexTypeFromCoord(id);
-                    final int dicenum = board.getNumberOnHexFromCoord(id);
-
-                    StringBuilder key = new StringBuilder("game.hex.hoverformat");
-                    String hname = "";
-                    String addinfo = "";
-                    int hid = htype;
-                    boolean showDice = false;
-
-                    switch (htype)
-                    {
-                    case SOCBoard.DESERT_HEX:
-                        hname = "board.hex.desert";  break;
-                    case SOCBoard.CLAY_HEX:
-                        hname = "resources.clay";    break;
-                    case SOCBoard.ORE_HEX:
-                        hname = "resources.ore";     break;
-                    case SOCBoard.SHEEP_HEX:
-                        hname = "resources.sheep";   break;
-                    case SOCBoard.WHEAT_HEX:
-                        hname = "resources.wheat";   break;
-                    case SOCBoard.WOOD_HEX:
-                        hname = "resources.wood";    break;
-                    case SOCBoard.WATER_HEX:
-                        hname = "board.hex.water";   break;
-
-                    case SOCBoardLarge.GOLD_HEX:
-                        if (isLargeBoard)
+                        if (isLargeBoard && game.isGameOptionSet( SOCGameOptionSet.K_SC_FTRI ))
                         {
-                            hname = "board.hex.gold";
+                            // Scenario _SC_FTRI: If this port can be reached and moved
+                            // ("gift from the forgotten tribe"), mention that in portText.
+
+                            final SOCBoardLarge bl = (SOCBoardLarge) board;
+                            int portEdge = bl.getPortEdgeFromNode( nodePortCoord );
+                            if ((portEdge != -9) && bl.canRemovePort( portEdge ))
+                                portText = strings.get( "board.edge.ship_receive_this", portText );
+                            // "Place a ship here to receive this " + portText
                         }
-                        else
-                        {
-                            // GOLD_HEX is also MISC_PORT_HEX
-                            hid = SOCBoard.MISC_PORT;
-                            hname = SOCBoard.getPortDescForType(hid, false);
-                        }
-                        break;
 
-                    case SOCBoardLarge.FOG_HEX:
-                        if (isLargeBoard)
+                        setHoverText( portText, nodePortCoord );
+                        hoverMode = PLACE_INIT_SETTLEMENT;  // const used for hovering-at-port
+                        hoverID = nodePortCoord;
+                        hoverIsPort = true;
+                    }
+
+                    return;  // <--- Early return: Text and hover-pieces set ---
+                }
+
+                // If nothing found yet, look for a hex
+                //  - reminder: socboard.getHexTypeFromCoord, getNumberOnHexFromCoord, socgame.getPlayersOnHex
+                id = findHex( xb, yb );
+                if ((id > 0) && !(debugShowCoordsTooltip && (hoverRoadID != 0 || hoverShipID != 0)))
+                {
+                    // Are we already looking at it?
+                    if (((hoverMode == PLACE_ROBBER) || (hoverMode == PLACE_PIRATE)) && (hoverID == id))
+                    {
+                        positionToMouse( x, y );
+                        return;  // <--- Early ret: No work needed ---
+                    }
+
+                    if (game.getGameState() == SOCGame.PLACING_PIRATE)
+                        hoverMode = PLACE_PIRATE;
+                    else
+                        hoverMode = PLACE_ROBBER;  // const used for hovering-at-hex
+
+                    hoverPiece = null;
+                    hoverID = id;
+
+                    {
+                        final int htype = board.getHexTypeFromCoord( id );
+                        final int dicenum = board.getNumberOnHexFromCoord( id );
+
+                        StringBuilder key = new StringBuilder( "game.hex.hoverformat" );
+                        String hname = "";
+                        String addinfo = "";
+                        int hid = htype;
+                        boolean showDice = false;
+
+                        switch (htype)
                         {
-                            if (game.isInitialPlacement() && (player != null)
-                                && player.hasPotentialSettlementsInitialInFog())
-                                hname = "board.hex.fog.s";  // "Fog (place ships or settlements to reveal)"
+                        case SOCBoard.DESERT_HEX:
+                            hname = "board.hex.desert";
+                            break;
+                        case SOCBoard.CLAY_HEX:
+                            hname = "resources.clay";
+                            break;
+                        case SOCBoard.ORE_HEX:
+                            hname = "resources.ore";
+                            break;
+                        case SOCBoard.SHEEP_HEX:
+                            hname = "resources.sheep";
+                            break;
+                        case SOCBoard.WHEAT_HEX:
+                            hname = "resources.wheat";
+                            break;
+                        case SOCBoard.WOOD_HEX:
+                            hname = "resources.wood";
+                            break;
+                        case SOCBoard.WATER_HEX:
+                            hname = "board.hex.water";
+                            break;
+
+                        case SOCBoardLarge.GOLD_HEX:
+                            if (isLargeBoard)
+                            {
+                                hname = "board.hex.gold";
+                            }
                             else
-                                hname = "board.hex.fog.r";  // "Fog (place ships or roads to reveal)"
-                        }
-                        else
-                        {
-                            // FOG_HEX is also CLAY_PORT_HEX
-                            hid = SOCBoard.CLAY_PORT;
-                            hname = SOCBoard.getPortDescForType(hid, false);
-                        }
-                        break;
+                            {
+                                // GOLD_HEX is also MISC_PORT_HEX
+                                hid = SOCBoard.MISC_PORT;
+                                hname = SOCBoard.getPortDescForType( hid, false );
+                            }
+                            break;
 
-                    default:
+                        case SOCBoardLarge.FOG_HEX:
+                            if (isLargeBoard)
+                            {
+                                if (game.isInitialPlacement() && (player != null)
+                                    && player.hasPotentialSettlementsInitialInFog())
+                                    hname = "board.hex.fog.s";  // "Fog (place ships or settlements to reveal)"
+                                else
+                                    hname = "board.hex.fog.r";  // "Fog (place ships or roads to reveal)"
+                            }
+                            else
+                            {
+                                // FOG_HEX is also CLAY_PORT_HEX
+                                hid = SOCBoard.CLAY_PORT;
+                                hname = SOCBoard.getPortDescForType( hid, false );
+                            }
+                            break;
+
+                        default:
                         {
                             // Check for a port at this hex.
                             // (May already have checked above for the node, using portDescAtNode;
@@ -8875,7 +8914,7 @@ import javax.swing.JComponent;
                             if ((htype >= SOCBoard.MISC_PORT_HEX) && (htype <= SOCBoard.WOOD_PORT_HEX))
                             {
                                 hid = htype - (SOCBoard.MISC_PORT_HEX - SOCBoard.MISC_PORT);
-                                portDesc = SOCBoard.getPortDescForType(hid, false);
+                                portDesc = SOCBoard.getPortDescForType( hid, false );
                             }
                             if (portDesc != null)
                             {
@@ -8887,55 +8926,57 @@ import javax.swing.JComponent;
                                 hname = "board.hex.generic";
                             }
                         }
-                    }
-                    if (board.getRobberHex() == id)
-                    {
-                        showDice = (dicenum > 0);
-                        addinfo = "game.hex.addinfo.robber";
-                    }
-                    else if (board.getPreviousRobberHex() == id)
-                    {
-                        showDice = (dicenum > 0);
-                        addinfo = "game.hex.addinfo.past.robber";
-                    }
-                    else if (isLargeBoard)
-                    {
-                        final SOCBoardLarge bl = (SOCBoardLarge) board;
-                        if (bl.getPirateHex() == id)
+                        }
+                        if (board.getRobberHex() == id)
                         {
                             showDice = (dicenum > 0);
-                            addinfo = "game.hex.addinfo.pirate";
+                            addinfo = "game.hex.addinfo.robber";
                         }
-                        else if (bl.getPreviousPirateHex() == id)
+                        else if (board.getPreviousRobberHex() == id)
                         {
                             showDice = (dicenum > 0);
-                            addinfo = "game.hex.addinfo.past.pirate";
+                            addinfo = "game.hex.addinfo.past.robber";
                         }
-                        else if (bl.isHexInLandAreas(id, bl.getPlayerExcludedLandAreas()))
+                        else if (isLargeBoard)
                         {
-                            // Give the player an early warning, even if roads/ships aren't near this hex
-                            addinfo = "game.hex.addinfo.cantsettle";
+                            final SOCBoardLarge bl = (SOCBoardLarge) board;
+                            if (bl.getPirateHex() == id)
+                            {
+                                showDice = (dicenum > 0);
+                                addinfo = "game.hex.addinfo.pirate";
+                            }
+                            else if (bl.getPreviousPirateHex() == id)
+                            {
+                                showDice = (dicenum > 0);
+                                addinfo = "game.hex.addinfo.past.pirate";
+                            }
+                            else if (bl.isHexInLandAreas( id, bl.getPlayerExcludedLandAreas() ))
+                            {
+                                // Give the player an early warning, even if roads/ships aren't near this hex
+                                addinfo = "game.hex.addinfo.cantsettle";
+                            }
                         }
+
+                        hname = strings.get( hname, hid );
+                        if (showDice)
+                        {
+                            key.append( ".dice" );
+                        }
+                        if (addinfo.length() != 0)
+                        {
+                            key.append( ".addi" );
+                            addinfo = strings.get( addinfo );
+                        }
+                        setHoverText( strings.get( key.toString(), hname, dicenum, addinfo ), id );
                     }
 
-                    hname = strings.get(hname, hid);
-                    if(showDice){
-                        key.append(".dice");
-                    }
-                    if(addinfo.length() != 0){
-                        key.append(".addi");
-                        addinfo = strings.get(addinfo);
-                    }
-                    setHoverText(strings.get(key.toString(), hname, dicenum, addinfo), id);
+                    return;  // <--- Early return: Found hex ---
                 }
 
-                return;  // <--- Early return: Found hex ---
             }
-
-            }
-            catch (ConcurrentModificationException e)
+            catch( ConcurrentModificationException e )
             {
-                handleHover(x, y, xb, yb);  // try again now
+                handleHover( x, y, xb, yb );  // try again now
                 return;
             }
 
@@ -8946,7 +8987,7 @@ import javax.swing.JComponent;
 
             if ((hoverSettlementID != 0) && debugShowCoordsTooltip)
             {
-                setHoverText("", hoverSettlementID);
+                setHoverText( "", hoverSettlementID );
                 return;
             }
             else if ((hoverRoadID != 0) || (hoverShipID != 0))
@@ -8954,9 +8995,9 @@ import javax.swing.JComponent;
                 // hoverMode == PLACE_ROAD or PLACE_SHIP
 
                 if (debugShowCoordsTooltip)
-                    setHoverText("", (hoverRoadID != 0) ? hoverRoadID : hoverShipID);
+                    setHoverText( "", (hoverRoadID != 0) ? hoverRoadID : hoverShipID );
                 else
-                    setHoverText(null, 0);
+                    setHoverText( null, 0 );
 
                 bpanel.repaint();
                 return;
@@ -8968,7 +9009,7 @@ import javax.swing.JComponent;
                 setHoverText_modeChangedOrMouseMoved = true;
                 hoverMode = NONE;
             }
-            setHoverText(null, 0);
+            setHoverText( null, 0 );
         }
 
         /**
@@ -8981,13 +9022,12 @@ import javax.swing.JComponent;
          *    or {@code null} if no port at that node id.
          *    Text format of string key's value is "3:1 Port" or "2:1 Wood port".
          */
-        public String portDescAtNode(int id)
+        public String portDescAtNode( int id )
         {
-            return SOCBoard.getPortDescForType(board.getPortTypeFromNodeCoord(id), false);
+            return SOCBoard.getPortDescForType( board.getPortTypeFromNodeCoord( id ), false );
         }
 
     }  // inner class BoardToolTip
-
 
 
     /**
@@ -9002,676 +9042,676 @@ import javax.swing.JComponent;
     private class BoardPopupMenu extends PopupMenu
         implements java.awt.event.ActionListener
     {
-      /** our parent boardpanel */
-      final SOCBoardPanel bp;
+        /** our parent boardpanel */
+        final SOCBoardPanel bp;
 
-      final MenuItem buildRoadItem, buildSettleItem, upgradeCityItem;
+        final MenuItem buildRoadItem, buildSettleItem, upgradeCityItem;
 
-      /**
-       * Menu item to build or move a ship if {@link SOCGame#hasSeaBoard}, or null.
-       * @since 2.0.00
-       */
-      final MenuItem buildShipItem;
+        /**
+         * Menu item to build or move a ship if {@link SOCGame#hasSeaBoard}, or null.
+         * @since 2.0.00
+         */
+        final MenuItem buildShipItem;
 
-      /**
-       * Menu item to cancel a build as we're placing it,
-       * or to cancel moving a ship.
-       * Piece type to cancel is {@link #cancelBuildType}.
-       */
-      final MenuItem cancelBuildItem;
+        /**
+         * Menu item to cancel a build as we're placing it,
+         * or to cancel moving a ship.
+         * Piece type to cancel is {@link #cancelBuildType}.
+         */
+        final MenuItem cancelBuildItem;
 
-      /** determined at menu-show time, only over a useable port. Added then, and removed at next menu-show */
-      SOCHandPanel.ResourceTradePopupMenu portTradeSubmenu;
+        /** determined at menu-show time, only over a useable port. Added then, and removed at next menu-show */
+        SOCHandPanel.ResourceTradePopupMenu portTradeSubmenu;
 
-      /** determined at menu-show time */
-      private boolean menuPlayerIsCurrent;
+        /** determined at menu-show time */
+        private boolean menuPlayerIsCurrent;
 
-      /** determined at menu-show time */
-      private boolean wantsCancel;
+        /** determined at menu-show time */
+        private boolean wantsCancel;
 
-      /** If allow cancel, type of building piece ({@link SOCPlayingPiece#ROAD}, SETTLEMENT, ...) to cancel */
-      private int cancelBuildType;
+        /** If allow cancel, type of building piece ({@link SOCPlayingPiece#ROAD}, SETTLEMENT, ...) to cancel */
+        private int cancelBuildType;
 
-      /** hover road edge ID, or 0, at menu-show time; can be -1 for edge 0x00 on classic 6-player board */
-      private int hoverRoadID;
+        /** hover road edge ID, or 0, at menu-show time; can be -1 for edge 0x00 on classic 6-player board */
+        private int hoverRoadID;
 
-      /**
-       * hover settlement node ID, or 0, at menu-show time.
-       * As a special case in the _SC_PIRI scenario, hoverSettlementID == -1 indicates any pirate Fortress;
-       * {@link #buildSettleItem}'s text will be "Attack Fortress" instead of "Build Settlement";
-       * menu item will be disabled unless it's player's own fortress and {@link SOCGame#canAttackPirateFortress()}.
-       */
-      private int hoverSettlementID;
+        /**
+         * hover settlement node ID, or 0, at menu-show time.
+         * As a special case in the _SC_PIRI scenario, hoverSettlementID == -1 indicates any pirate Fortress;
+         * {@link #buildSettleItem}'s text will be "Attack Fortress" instead of "Build Settlement";
+         * menu item will be disabled unless it's player's own fortress and {@link SOCGame#canAttackPirateFortress()}.
+         */
+        private int hoverSettlementID;
 
-      /** hover city node ID, or 0, at menu-show time */
-      private int hoverCityID;
+        /** hover city node ID, or 0, at menu-show time */
+        private int hoverCityID;
 
-      /**
-       * hover ship edge ID, or 0, at menu-show time.
-       * @since 2.0.00
-       */
-      private int hoverShipID;
+        /**
+         * hover ship edge ID, or 0, at menu-show time.
+         * @since 2.0.00
+         */
+        private int hoverShipID;
 
-      /**
-       * True if we can move a ship, at menu-show time.
-       * {@link #hoverShipID} must be != 0.
-       * @since 2.0.00
-       */
-      private boolean isShipMovable;
+        /**
+         * True if we can move a ship, at menu-show time.
+         * {@link #hoverShipID} must be != 0.
+         * @since 2.0.00
+         */
+        private boolean isShipMovable;
 
-      /** Will this be for initial placement (send putpiece right away),
-       *  or for placement during game (send build, receive gamestate, send putpiece)?
-       */
-      protected boolean isInitialPlacement;
+        /** Will this be for initial placement (send putpiece right away),
+         *  or for placement during game (send build, receive gamestate, send putpiece)?
+         */
+        protected boolean isInitialPlacement;
 
-      /** create a new BoardPopupMenu on this board */
-      public BoardPopupMenu(SOCBoardPanel bpanel)
-      {
-        super ("JSettlers");
-        bp = bpanel;
+        /** create a new BoardPopupMenu on this board */
+        public BoardPopupMenu( SOCBoardPanel bpanel )
+        {
+            super( "JSettlers" );
+            bp = bpanel;
 
-        buildRoadItem = new MenuItem(strings.get("board.build.road"));  // "Build Road"
-        buildSettleItem = new MenuItem(strings.get("board.build.stlmt"));  // "Build Settlement"
-        upgradeCityItem = new MenuItem(strings.get("board.build.upgrade.city"));  // "Upgrade to City"
-        if (game.hasSeaBoard)
-            buildShipItem = new MenuItem(strings.get("board.build.ship"));  // "Build Ship"
-        else
-            buildShipItem = null;
-        cancelBuildItem = new MenuItem(strings.get("board.cancel.build"));  // "Cancel build"
-        portTradeSubmenu = null;
+            buildRoadItem = new MenuItem( strings.get( "board.build.road" ) );  // "Build Road"
+            buildSettleItem = new MenuItem( strings.get( "board.build.stlmt" ) );  // "Build Settlement"
+            upgradeCityItem = new MenuItem( strings.get( "board.build.upgrade.city" ) );  // "Upgrade to City"
+            if (game.hasSeaBoard)
+                buildShipItem = new MenuItem( strings.get( "board.build.ship" ) );  // "Build Ship"
+            else
+                buildShipItem = null;
+            cancelBuildItem = new MenuItem( strings.get( "board.cancel.build" ) );  // "Cancel build"
+            portTradeSubmenu = null;
 
-        add(buildRoadItem);
-        add(buildSettleItem);
-        add(upgradeCityItem);
-        if (buildShipItem != null)
-            add(buildShipItem);
-        addSeparator();
-        add(cancelBuildItem);
+            add( buildRoadItem );
+            add( buildSettleItem );
+            add( upgradeCityItem );
+            if (buildShipItem != null)
+                add( buildShipItem );
+            addSeparator();
+            add( cancelBuildItem );
 
-        buildRoadItem.addActionListener(this);
-        buildSettleItem.addActionListener(this);
-        upgradeCityItem.addActionListener(this);
-        if (buildShipItem != null)
-            buildShipItem.addActionListener(this);
-        cancelBuildItem.addActionListener(this);
-      }
+            buildRoadItem.addActionListener( this );
+            buildSettleItem.addActionListener( this );
+            upgradeCityItem.addActionListener( this );
+            if (buildShipItem != null)
+                buildShipItem.addActionListener( this );
+            cancelBuildItem.addActionListener( this );
+        }
 
-      /** Custom 'cancel' show method for when placing a road/settlement/city,
-       *  giving the build/cancel options for that type of piece.
-       *
-       * @param buildType piece type (SOCPlayingPiece.ROAD, CITY, SETTLEMENT)
-       * @param x   Mouse x-position
-       * @param y   Mouse y-position
-       * @param hilightAt Current hover/hilight coordinates of piece being cancelled/placed
-       */
-      public void showCancelBuild(int buildType, int x, int y, int hilightAt)
-      {
-          menuPlayerIsCurrent = (player != null) && playerInterface.clientIsCurrentPlayer();
-          wantsCancel = true;
-          cancelBuildType = buildType;
-          hoverRoadID = 0;
-          if (hoverSettlementID == -1)
-          {
-              // restore label after previous popup's "Attack Fortress" label for _SC_PIRI
-              buildSettleItem.setLabel(strings.get("board.build.stlmt"));  // "Build Settlement"
-          }
-          hoverSettlementID = 0;
-          hoverCityID = 0;
-          hoverShipID = 0;
+        /** Custom 'cancel' show method for when placing a road/settlement/city,
+         *  giving the build/cancel options for that type of piece.
+         *
+         * @param buildType piece type (SOCPlayingPiece.ROAD, CITY, SETTLEMENT)
+         * @param x   Mouse x-position
+         * @param y   Mouse y-position
+         * @param hilightAt Current hover/hilight coordinates of piece being cancelled/placed
+         */
+        public void showCancelBuild( int buildType, int x, int y, int hilightAt )
+        {
+            menuPlayerIsCurrent = (player != null) && playerInterface.clientIsCurrentPlayer();
+            wantsCancel = true;
+            cancelBuildType = buildType;
+            hoverRoadID = 0;
+            if (hoverSettlementID == -1)
+            {
+                // restore label after previous popup's "Attack Fortress" label for _SC_PIRI
+                buildSettleItem.setLabel( strings.get( "board.build.stlmt" ) );  // "Build Settlement"
+            }
+            hoverSettlementID = 0;
+            hoverCityID = 0;
+            hoverShipID = 0;
 
-          buildRoadItem.setEnabled(false);
-          buildSettleItem.setEnabled(false);
-          upgradeCityItem.setEnabled(false);
-          if (buildShipItem != null)
-          {
-              if (mode == MOVE_SHIP)
-              {
-                  final boolean enable = (hilightAt != 0) && (hilightAt != moveShip_fromEdge);
-                  buildShipItem.setEnabled(enable);
-                  buildShipItem.setLabel(strings.get("board.build.move.ship"));  // "Move Ship"
-                  if (enable)
-                      moveShip_toEdge = hilightAt;
-              }
-              else
-              {
-                  buildShipItem.setEnabled(false);
-                  buildShipItem.setLabel(strings.get("board.build.ship"));  // "Build Ship"
-              }
-          }
-          cancelBuildItem.setEnabled(menuPlayerIsCurrent && game.canCancelBuildPiece(buildType));
+            buildRoadItem.setEnabled( false );
+            buildSettleItem.setEnabled( false );
+            upgradeCityItem.setEnabled( false );
+            if (buildShipItem != null)
+            {
+                if (mode == MOVE_SHIP)
+                {
+                    final boolean enable = (hilightAt != 0) && (hilightAt != moveShip_fromEdge);
+                    buildShipItem.setEnabled( enable );
+                    buildShipItem.setLabel( strings.get( "board.build.move.ship" ) );  // "Move Ship"
+                    if (enable)
+                        moveShip_toEdge = hilightAt;
+                }
+                else
+                {
+                    buildShipItem.setEnabled( false );
+                    buildShipItem.setLabel( strings.get( "board.build.ship" ) );  // "Build Ship"
+                }
+            }
+            cancelBuildItem.setEnabled( menuPlayerIsCurrent && game.canCancelBuildPiece( buildType ) );
 
-          // Check for initial placement (for different cancel message)
-          isInitialPlacement = game.isInitialPlacement();
+            // Check for initial placement (for different cancel message)
+            isInitialPlacement = game.isInitialPlacement();
 
-          switch (buildType)
-          {
-          case SOCPlayingPiece.ROAD:
-              cancelBuildItem.setLabel(strings.get("board.cancel.road"));  // "Cancel road"
-              buildRoadItem.setEnabled(menuPlayerIsCurrent);
-              hoverRoadID = hilightAt;
-              break;
+            switch (buildType)
+            {
+            case SOCPlayingPiece.ROAD:
+                cancelBuildItem.setLabel( strings.get( "board.cancel.road" ) );  // "Cancel road"
+                buildRoadItem.setEnabled( menuPlayerIsCurrent );
+                hoverRoadID = hilightAt;
+                break;
 
-          case SOCPlayingPiece.SETTLEMENT:
-              cancelBuildItem.setLabel(strings.get("board.cancel.stlmt"));  // "Cancel settlement"
-              buildSettleItem.setEnabled(menuPlayerIsCurrent);
-              hoverSettlementID = hilightAt;
-              break;
+            case SOCPlayingPiece.SETTLEMENT:
+                cancelBuildItem.setLabel( strings.get( "board.cancel.stlmt" ) );  // "Cancel settlement"
+                buildSettleItem.setEnabled( menuPlayerIsCurrent );
+                hoverSettlementID = hilightAt;
+                break;
 
-          case SOCPlayingPiece.CITY:
-              cancelBuildItem.setLabel(strings.get("board.cancel.city.upgrade"));  // "Cancel city upgrade"
-              upgradeCityItem.setEnabled(menuPlayerIsCurrent);
-              hoverCityID = hilightAt;
-              break;
+            case SOCPlayingPiece.CITY:
+                cancelBuildItem.setLabel( strings.get( "board.cancel.city.upgrade" ) );  // "Cancel city upgrade"
+                upgradeCityItem.setEnabled( menuPlayerIsCurrent );
+                hoverCityID = hilightAt;
+                break;
 
-          case SOCPlayingPiece.SHIP:
-              if (mode == MOVE_SHIP)
-              {
-                  cancelBuildItem.setLabel(strings.get("board.cancel.ship.move"));  // "Cancel ship move"
-                  cancelBuildItem.setEnabled(true);
-              }
-              else
-              {
-                  cancelBuildItem.setLabel(strings.get("board.cancel.ship"));  // "Cancel ship"
-              }
-              hoverShipID = hilightAt;
-              break;
+            case SOCPlayingPiece.SHIP:
+                if (mode == MOVE_SHIP)
+                {
+                    cancelBuildItem.setLabel( strings.get( "board.cancel.ship.move" ) );  // "Cancel ship move"
+                    cancelBuildItem.setEnabled( true );
+                }
+                else
+                {
+                    cancelBuildItem.setLabel( strings.get( "board.cancel.ship" ) );  // "Cancel ship"
+                }
+                hoverShipID = hilightAt;
+                break;
 
-          default:
-              throw new IllegalArgumentException ("bad buildtype: " + buildType);
-          }
+            default:
+                throw new IllegalArgumentException( "bad buildtype: " + buildType );
+            }
 
-          super.show(bp, x, y);
-      }
+            super.show( bp, x, y );
+        }
 
-      /**
-       * Custom show method that finds current game status and player status.
-       * Also checks for hovering-over-port for port-trade submenu.
-       *
-       * @param x   Mouse x-position
-       * @param y   Mouse y-position
-       * @param hR  Hover road ID, or 0
-       * @param hSe  Hover settle ID, or 0
-       * @param hC  Hover city ID, or 0
-       * @param hSh  Hover ship ID, or 0; use negative if can move this currently placed ship.
-       *             <tt>hSh &lt; 0</tt> is the only time this method trusts the caller's
-       *             game state checks, instead of doing its own checking.
-       */
-      @SuppressWarnings("fallthrough")
-      public void showBuild(int x, int y, int hR, int hSe, int hC, int hSh)
-      {
-          wantsCancel = false;
-          isInitialPlacement = false;
-          isShipMovable = false;
-          cancelBuildItem.setEnabled(false);
-          cancelBuildItem.setLabel(strings.get("board.cancel.build"));  // "Cancel build"
-          if (portTradeSubmenu != null)
-          {
-              // Cleanup from last time
-              remove(portTradeSubmenu);
-              portTradeSubmenu.destroy();
-              portTradeSubmenu = null;
-          }
-          if (hoverSettlementID == -1)
-          {
-              // Restore label after previous popup's "Attack Fortress" label for _SC_PIRI
-              buildSettleItem.setLabel(strings.get("board.build.stlmt"));  // "Build Settlement"
-          }
+        /**
+         * Custom show method that finds current game status and player status.
+         * Also checks for hovering-over-port for port-trade submenu.
+         *
+         * @param x   Mouse x-position
+         * @param y   Mouse y-position
+         * @param hR  Hover road ID, or 0
+         * @param hSe  Hover settle ID, or 0
+         * @param hC  Hover city ID, or 0
+         * @param hSh  Hover ship ID, or 0; use negative if can move this currently placed ship.
+         *             <tt>hSh &lt; 0</tt> is the only time this method trusts the caller's
+         *             game state checks, instead of doing its own checking.
+         */
+        @SuppressWarnings("fallthrough")
+        public void showBuild( int x, int y, int hR, int hSe, int hC, int hSh )
+        {
+            wantsCancel = false;
+            isInitialPlacement = false;
+            isShipMovable = false;
+            cancelBuildItem.setEnabled( false );
+            cancelBuildItem.setLabel( strings.get( "board.cancel.build" ) );  // "Cancel build"
+            if (portTradeSubmenu != null)
+            {
+                // Cleanup from last time
+                remove( portTradeSubmenu );
+                portTradeSubmenu.destroy();
+                portTradeSubmenu = null;
+            }
+            if (hoverSettlementID == -1)
+            {
+                // Restore label after previous popup's "Attack Fortress" label for _SC_PIRI
+                buildSettleItem.setLabel( strings.get( "board.build.stlmt" ) );  // "Build Settlement"
+            }
 
-          boolean didEnableDisable = true;  // don't go through both sets of menu item enable/disable statements
+            boolean didEnableDisable = true;  // don't go through both sets of menu item enable/disable statements
 
-          menuPlayerIsCurrent = (player != null) && playerInterface.clientIsCurrentPlayer();
+            menuPlayerIsCurrent = (player != null) && playerInterface.clientIsCurrentPlayer();
 
-          if (menuPlayerIsCurrent)
-          {
-              int gs = game.getGameState();
-              if (game.isDebugFreePlacement() && game.isInitialPlacement())
-              {
-                  switch (player.getPieces().size())
-                  {
-                  case 0:
-                  case 2:
-                      gs = SOCGame.START1A;  // Settlement
-                      break;
-                  case 1:
-                  case 3:
-                      gs = SOCGame.START1B;  // Road
-                      break;
-                  default:
-                      gs = SOCGame.PLAY1;  // any piece is okay
-                  }
-              }
+            if (menuPlayerIsCurrent)
+            {
+                int gs = game.getGameState();
+                if (game.isDebugFreePlacement() && game.isInitialPlacement())
+                {
+                    switch (player.getPieces().size())
+                    {
+                    case 0:
+                    case 2:
+                        gs = SOCGame.START1A;  // Settlement
+                        break;
+                    case 1:
+                    case 3:
+                        gs = SOCGame.START1B;  // Road
+                        break;
+                    default:
+                        gs = SOCGame.PLAY1;  // any piece is okay
+                    }
+                }
 
-              switch (gs)
-              {
-              case SOCGame.START1A:
-              case SOCGame.START2A:
-              case SOCGame.START3A:
-                  isInitialPlacement = true;  // Settlement
-                  buildRoadItem.setEnabled(false);
-                  buildSettleItem.setEnabled(hSe != 0);
-                  upgradeCityItem.setEnabled(false);
-                  if (buildShipItem != null)
-                      buildShipItem.setEnabled(false);
-                  break;
+                switch (gs)
+                {
+                case SOCGame.START1A:
+                case SOCGame.START2A:
+                case SOCGame.START3A:
+                    isInitialPlacement = true;  // Settlement
+                    buildRoadItem.setEnabled( false );
+                    buildSettleItem.setEnabled( hSe != 0 );
+                    upgradeCityItem.setEnabled( false );
+                    if (buildShipItem != null)
+                        buildShipItem.setEnabled( false );
+                    break;
 
-              case SOCGame.START1B:
-              case SOCGame.START2B:
-              case SOCGame.START3B:
-                  isInitialPlacement = true;  // Road
-                  buildRoadItem.setEnabled(hR != 0);
-                  buildSettleItem.setEnabled(false);
-                  upgradeCityItem.setEnabled(false);
-                  if (buildShipItem != null)
-                      buildShipItem.setEnabled(hSh != 0);
-                  if (! game.isDebugFreePlacement())
-                  {
-                      cancelBuildItem.setLabel(strings.get("board.cancel.stlmt"));  // "Cancel settlement" -- Initial settlement
-                      cancelBuildItem.setEnabled(true);
-                      cancelBuildType = SOCPlayingPiece.SETTLEMENT;
-                  }
-                  break;
+                case SOCGame.START1B:
+                case SOCGame.START2B:
+                case SOCGame.START3B:
+                    isInitialPlacement = true;  // Road
+                    buildRoadItem.setEnabled( hR != 0 );
+                    buildSettleItem.setEnabled( false );
+                    upgradeCityItem.setEnabled( false );
+                    if (buildShipItem != null)
+                        buildShipItem.setEnabled( hSh != 0 );
+                    if (!game.isDebugFreePlacement())
+                    {
+                        cancelBuildItem.setLabel( strings.get( "board.cancel.stlmt" ) );  // "Cancel settlement" -- Initial settlement
+                        cancelBuildItem.setEnabled( true );
+                        cancelBuildType = SOCPlayingPiece.SETTLEMENT;
+                    }
+                    break;
 
-              case SOCGame.PLACING_FREE_ROAD2:
+                case SOCGame.PLACING_FREE_ROAD2:
                   if (game.isPractice
                       || (playerInterface.getClient().getConnection().getRemoteVersion() >= SOCGame.VERSION_FOR_CANCEL_FREE_ROAD2))
-                  {
-                      cancelBuildItem.setEnabled(true);
-                      cancelBuildItem.setLabel(strings.get("board.build.skip.road.ship"));  // "Skip road or ship"
-                  }
-                  // Fall through to enable/disable building menu items
+                    {
+                        cancelBuildItem.setEnabled( true );
+                        cancelBuildItem.setLabel( strings.get( "board.build.skip.road.ship" ) );  // "Skip road or ship"
+                    }
+                    // Fall through to enable/disable building menu items
 
-              case SOCGame.PLACING_FREE_ROAD1:
-                  buildRoadItem.setEnabled(hR != 0);
-                  buildSettleItem.setEnabled(false);
-                  upgradeCityItem.setEnabled(false);
-                  if (buildShipItem != null)
-                      buildShipItem.setEnabled(hSh != 0);
-                  break;
+                case SOCGame.PLACING_FREE_ROAD1:
+                    buildRoadItem.setEnabled( hR != 0 );
+                    buildSettleItem.setEnabled( false );
+                    upgradeCityItem.setEnabled( false );
+                    if (buildShipItem != null)
+                        buildShipItem.setEnabled( hSh != 0 );
+                    break;
 
-              default:
-                  didEnableDisable = false;  // must still check enable/disable
-                  if (gs < SOCGame.PLAY1)
-                      menuPlayerIsCurrent = false;  // Not in a state to place items
-              }
-          }
+                default:
+                    didEnableDisable = false;  // must still check enable/disable
+                    if (gs < SOCGame.PLAY1)
+                        menuPlayerIsCurrent = false;  // Not in a state to place items
+                }
+            }
 
-          if (! menuPlayerIsCurrent)
-          {
-              buildRoadItem.setEnabled(false);
-              buildSettleItem.setEnabled(false);
-              upgradeCityItem.setEnabled(false);
-              if (buildShipItem != null)
-              {
-                  buildShipItem.setEnabled(false);
-                  buildShipItem.setLabel(strings.get("board.build.ship"));
-              }
-              hoverRoadID = 0;
-              if (hoverSettlementID == -1)
-              {
-                  // restore label after previous popup's "Attack Fortress" label for _SC_PIRI
-                  buildSettleItem.setLabel(strings.get("board.build.stlmt"));
-              }
-              hoverSettlementID = 0;
-              hoverCityID = 0;
-              hoverShipID = 0;
-          }
-          else
-          {
-              final int cpn = game.getCurrentPlayerNumber();
+            if (!menuPlayerIsCurrent)
+            {
+                buildRoadItem.setEnabled( false );
+                buildSettleItem.setEnabled( false );
+                upgradeCityItem.setEnabled( false );
+                if (buildShipItem != null)
+                {
+                    buildShipItem.setEnabled( false );
+                    buildShipItem.setLabel( strings.get( "board.build.ship" ) );
+                }
+                hoverRoadID = 0;
+                if (hoverSettlementID == -1)
+                {
+                    // restore label after previous popup's "Attack Fortress" label for _SC_PIRI
+                    buildSettleItem.setLabel( strings.get( "board.build.stlmt" ) );
+                }
+                hoverSettlementID = 0;
+                hoverCityID = 0;
+                hoverShipID = 0;
+            }
+            else
+            {
+                final int cpn = game.getCurrentPlayerNumber();
                 // note: if debugPP, cpn might not == player.playerNumber
 
-              if (! isInitialPlacement)
-              {
-                  final boolean debugPP = game.isDebugFreePlacement();
-                  if (debugPP || ! didEnableDisable)
-                  {
-                      buildRoadItem.setEnabled
-                          ( player.isPotentialRoad(hR) &&
-                            (debugPP ? (player.getNumPieces(SOCPlayingPiece.ROAD) > 0)
-                                     : game.couldBuildRoad(cpn)) );
-                      buildSettleItem.setEnabled
-                          ( player.canPlaceSettlement(hSe) &&
-                            (debugPP ? (player.getNumPieces(SOCPlayingPiece.SETTLEMENT) > 0)
-                                     : game.couldBuildSettlement(cpn)) );
-                      upgradeCityItem.setEnabled
-                          ( player.isPotentialCity(hC) &&
-                            (debugPP ? (player.getNumPieces(SOCPlayingPiece.CITY) > 0)
-                                     : game.couldBuildCity(cpn)) );
-                      if (buildShipItem != null)
-                      {
-                        isShipMovable = (hSh < 0);
-                        if (isShipMovable)
+                if (!isInitialPlacement)
+                {
+                    final boolean debugPP = game.isDebugFreePlacement();
+                    if (debugPP || !didEnableDisable)
+                    {
+                        buildRoadItem.setEnabled
+                            ( player.isPotentialRoad( hR ) &&
+                                (debugPP ? (player.getNumPieces( SOCPlayingPiece.ROAD ) > 0)
+                                    : game.couldBuildRoad( cpn )) );
+                        buildSettleItem.setEnabled
+                            ( player.canPlaceSettlement( hSe ) &&
+                                (debugPP ? (player.getNumPieces( SOCPlayingPiece.SETTLEMENT ) > 0)
+                                    : game.couldBuildSettlement( cpn )) );
+                        upgradeCityItem.setEnabled
+                            ( player.isPotentialCity( hC ) &&
+                                (debugPP ? (player.getNumPieces( SOCPlayingPiece.CITY ) > 0)
+                                    : game.couldBuildCity( cpn )) );
+                        if (buildShipItem != null)
                         {
-                            hSh = -hSh;
-                            buildShipItem.setLabel(strings.get("board.build.move.ship"));
-                            buildShipItem.setEnabled(true);  // trust the caller's game checks
+                            isShipMovable = (hSh < 0);
+                            if (isShipMovable)
+                            {
+                                hSh = -hSh;
+                                buildShipItem.setLabel( strings.get( "board.build.move.ship" ) );
+                                buildShipItem.setEnabled( true );  // trust the caller's game checks
+                            }
+                            else
+                            {
+                                buildShipItem.setLabel( strings.get( "board.build.ship" ) );
+                                buildShipItem.setEnabled
+                                    ( game.canPlaceShip( player, hSh ) &&
+                                        (debugPP ? (player.getNumPieces( SOCPlayingPiece.SHIP ) > 0)
+                                            : game.couldBuildShip( cpn )) );
+                            }
                         }
-                        else
-                        {
-                            buildShipItem.setLabel(strings.get("board.build.ship"));
-                            buildShipItem.setEnabled
-                                ( game.canPlaceShip(player, hSh) &&
-                                  (debugPP ? (player.getNumPieces(SOCPlayingPiece.SHIP) > 0)
-                                           : game.couldBuildShip(cpn)) );
-                        }
-                      }
-                  }
-              }
-              hoverRoadID = hR;
-              hoverSettlementID = hSe;
-              hoverCityID = hC;
-              hoverShipID = hSh;
+                    }
+                }
+                hoverRoadID = hR;
+                hoverSettlementID = hSe;
+                hoverCityID = hC;
+                hoverShipID = hSh;
 
-              // Is it a port?
-              int portType = -1;
-              int portId = 0;
-              if (hSe != 0)
-                  portId = hSe;
-              else if (hC != 0)
-                  portId = hC;
-              else if (bp.hoverTip.hoverIsPort)
-                  portId = bp.hoverTip.hoverID;
+                // Is it a port?
+                int portType = -1;
+                int portId = 0;
+                if (hSe != 0)
+                    portId = hSe;
+                else if (hC != 0)
+                    portId = hC;
+                else if (bp.hoverTip.hoverIsPort)
+                    portId = bp.hoverTip.hoverID;
 
-              if (portId != 0)
-                  portType = board.getPortTypeFromNodeCoord(portId);
+                if (portId != 0)
+                    portType = board.getPortTypeFromNodeCoord( portId );
 
-              // Menu differs based on port
-              if (portType != -1)
-              {
-                  if (portType == SOCBoard.MISC_PORT)
-                      portTradeSubmenu = new ResourceTradeAllMenu
-                          (bp, playerInterface.getPlayerHandPanel(cpn));
-                  else
-                      portTradeSubmenu = new SOCHandPanel.ResourceTradeTypeMenu
-                          (playerInterface.getPlayerHandPanel(cpn), portType, false);
-                  add(portTradeSubmenu);
-                  portTradeSubmenu.setEnabledIfCanTrade(true);
-              }
-          }
+                // Menu differs based on port
+                if (portType != -1)
+                {
+                    if (portType == SOCBoard.MISC_PORT)
+                        portTradeSubmenu = new ResourceTradeAllMenu
+                            ( bp, playerInterface.getPlayerHandPanel( cpn ) );
+                    else
+                        portTradeSubmenu = new SOCHandPanel.ResourceTradeTypeMenu
+                            ( playerInterface.getPlayerHandPanel( cpn ), portType, false );
+                    add( portTradeSubmenu );
+                    portTradeSubmenu.setEnabledIfCanTrade( true );
+                }
+            }
 
-          super.show(bp, x, y);
-      }
+            super.show( bp, x, y );
+        }
 
-      /** Custom show method for hovering at a pirate fortress ({@link SOCFortress}),
-       *  giving the options to attack if it's our player's;
-       *  for scenario option {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI}.
-       *
-       * @param x   Mouse x-position
-       * @param y   Mouse y-position
-       * @param ft  Fortress being hovered at (our player's or otherwise), or null
-       * @since 2.0.00
-       */
-      public void showAtPirateFortress(final int x, final int y, SOCFortress ft)
-      {
-          final boolean settleItemWasFortress = (hoverSettlementID == -1);
-          menuPlayerIsCurrent = (player != null) && playerInterface.clientIsCurrentPlayer();
-          wantsCancel = false;
-          cancelBuildType = 0;
-          hoverRoadID = 0;
-          hoverSettlementID = (ft != null) ? -1 : 0;
-          hoverCityID = 0;
-          hoverShipID = 0;
+        /** Custom show method for hovering at a pirate fortress ({@link SOCFortress}),
+         *  giving the options to attack if it's our player's;
+         *  for scenario option {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI}.
+         *
+         * @param x   Mouse x-position
+         * @param y   Mouse y-position
+         * @param ft  Fortress being hovered at (our player's or otherwise), or null
+         * @since 2.0.00
+         */
+        public void showAtPirateFortress( final int x, final int y, SOCFortress ft )
+        {
+            final boolean settleItemWasFortress = (hoverSettlementID == -1);
+            menuPlayerIsCurrent = (player != null) && playerInterface.clientIsCurrentPlayer();
+            wantsCancel = false;
+            cancelBuildType = 0;
+            hoverRoadID = 0;
+            hoverSettlementID = (ft != null) ? -1 : 0;
+            hoverCityID = 0;
+            hoverShipID = 0;
 
-          buildRoadItem.setEnabled(false);
-          if (hoverSettlementID == -1)
-          {
-              buildSettleItem.setLabel(strings.get("board.build.sc_piri.attack.fortress"));  // "Attack Fortress"
-              buildSettleItem.setEnabled
-                  (menuPlayerIsCurrent && (ft.getPlayerNumber() == playerNumber)
-                   && (game.canAttackPirateFortress() != null));
-          }
-          else if (settleItemWasFortress)
-          {
-              // Restore label after previous popup's "Attack Fortress" label for _SC_PIRI
-              buildSettleItem.setLabel(strings.get("board.build.stlmt"));  // "Build Settlement"
-              buildSettleItem.setEnabled(false);
-          }
-          upgradeCityItem.setEnabled(false);
-          buildShipItem.setEnabled(false);
-          cancelBuildItem.setEnabled(false);
-          isInitialPlacement = false;
+            buildRoadItem.setEnabled( false );
+            if (hoverSettlementID == -1)
+            {
+                buildSettleItem.setLabel( strings.get( "board.build.sc_piri.attack.fortress" ) );  // "Attack Fortress"
+                buildSettleItem.setEnabled
+                    ( menuPlayerIsCurrent && (ft.getPlayerNumber() == playerNumber)
+                        && (game.canAttackPirateFortress() != null) );
+            }
+            else if (settleItemWasFortress)
+            {
+                // Restore label after previous popup's "Attack Fortress" label for _SC_PIRI
+                buildSettleItem.setLabel( strings.get( "board.build.stlmt" ) );  // "Build Settlement"
+                buildSettleItem.setEnabled( false );
+            }
+            upgradeCityItem.setEnabled( false );
+            buildShipItem.setEnabled( false );
+            cancelBuildItem.setEnabled( false );
+            isInitialPlacement = false;
 
-          super.show(bp, x, y);
-      }
+            super.show( bp, x, y );
+        }
 
-      /** Handling the menu items **/
-      public void actionPerformed(ActionEvent e)
-      {
-          if (! playerInterface.clientIsCurrentPlayer())
-              return;
-          if (! menuPlayerIsCurrent)
-              return;
+        /** Handling the menu items **/
+        public void actionPerformed( ActionEvent e )
+        {
+            if (!playerInterface.clientIsCurrentPlayer())
+                return;
+            if (!menuPlayerIsCurrent)
+                return;
 
-          Object target = e.getSource();
-          if (target == buildRoadItem)
-          {
-              tryBuild(SOCPlayingPiece.ROAD);
-          }
-          else if (target == buildSettleItem)
-          {
-              if (hoverSettlementID != -1)
-                  tryBuild(SOCPlayingPiece.SETTLEMENT);
-              else
-                  confirmAttackPirateFortress();
-          }
-          else if (target == upgradeCityItem)
-          {
-              tryBuild(SOCPlayingPiece.CITY);
-          }
-          else if ((target == buildShipItem) && (target != null))
-          {
-              if (mode == MOVE_SHIP)
-                  tryMoveShipToEdge();
-              else if (isShipMovable)
-                  tryMoveShipFromHere();
-              else if (game.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI)
-                       && ((SOCBoardLarge) board).canRemovePort(hoverShipID))
-                  java.awt.EventQueue.invokeLater(new ConfirmPlaceShipDialog(hoverShipID, true, -1));
-              else
-                  tryBuild(SOCPlayingPiece.SHIP);
-          }
-          else if (target == cancelBuildItem)
-          {
-              tryCancel();
-          }
-      }
+            Object target = e.getSource();
+            if (target == buildRoadItem)
+            {
+                tryBuild( SOCPlayingPiece.ROAD );
+            }
+            else if (target == buildSettleItem)
+            {
+                if (hoverSettlementID != -1)
+                    tryBuild( SOCPlayingPiece.SETTLEMENT );
+                else
+                    confirmAttackPirateFortress();
+            }
+            else if (target == upgradeCityItem)
+            {
+                tryBuild( SOCPlayingPiece.CITY );
+            }
+            else if ((target == buildShipItem) && (target != null))
+            {
+                if (mode == MOVE_SHIP)
+                    tryMoveShipToEdge();
+                else if (isShipMovable)
+                    tryMoveShipFromHere();
+                else if (game.isGameOptionSet( SOCGameOptionSet.K_SC_FTRI )
+                    && ((SOCBoardLarge) board).canRemovePort( hoverShipID ))
+                    java.awt.EventQueue.invokeLater( new ConfirmPlaceShipDialog( hoverShipID, true, -1 ) );
+                else
+                    tryBuild( SOCPlayingPiece.SHIP );
+            }
+            else if (target == cancelBuildItem)
+            {
+                tryCancel();
+            }
+        }
 
-      /**
-       * Send message to server to request placing this piece, if allowable.
-       * If not initial placement or free placement, also sets up a reaction to send the 2nd message (putpiece)
-       * when server says it's OK to build, using value of {@link #hoverSettlementID}, {@link #hoverShipID}, etc
-       * when {@code tryBuild} is called.
-       *<P>
-       * Assumes player is current, and non-null, when called.
-       *
-       * @param ptype Piece type, like {@link SOCPlayingPiece#ROAD}
-       */
-      void tryBuild(int ptype)
-      {
-          final boolean debugPP = game.isDebugFreePlacement();
-          final int cpn = (debugPP)
-              ? playerNumber   // boardpanel's temporary player number
-              : playerInterface.getClientPlayerNumber();
-          int buildLoc;      // location
-          boolean canBuild;  // checks resources, rules
-          String btarget;    // button name on buildpanel
+        /**
+         * Send message to server to request placing this piece, if allowable.
+         * If not initial placement or free placement, also sets up a reaction to send the 2nd message (putpiece)
+         * when server says it's OK to build, using value of {@link #hoverSettlementID}, {@link #hoverShipID}, etc
+         * when {@code tryBuild} is called.
+         *<P>
+         * Assumes player is current, and non-null, when called.
+         *
+         * @param ptype Piece type, like {@link SOCPlayingPiece#ROAD}
+         */
+        void tryBuild( int ptype )
+        {
+            final boolean debugPP = game.isDebugFreePlacement();
+            final int cpn = (debugPP)
+                ? playerNumber   // boardpanel's temporary player number
+                : playerInterface.getClientPlayerNumber();
+            int buildLoc;      // location
+            boolean canBuild;  // checks resources, rules
+            String btarget;    // button name on buildpanel
 
-          // If possible, send putpiece request right now.
-          // Otherwise, multi-phase send (build request, receive gamestate, putpiece request).
-          final int gstate = game.getGameState();
-          final boolean sendNow = isInitialPlacement || wantsCancel || debugPP
-              || (gstate == SOCGame.PLACING_FREE_ROAD1) || (gstate == SOCGame.PLACING_FREE_ROAD2)
-              || (((gstate == SOCGame.PLAY1) || (gstate == SOCGame.SPECIAL_BUILDING))
+            // If possible, send putpiece request right now.
+            // Otherwise, multi-phase send (build request, receive gamestate, putpiece request).
+            final int gstate = game.getGameState();
+            final boolean sendNow = isInitialPlacement || wantsCancel || debugPP
+                || (gstate == SOCGame.PLACING_FREE_ROAD1) || (gstate == SOCGame.PLACING_FREE_ROAD2)
+                || (((gstate == SOCGame.PLAY1) || (gstate == SOCGame.SPECIAL_BUILDING))
                   && (game.isPractice || playerInterface.client.getConnection().getRemoteVersion() >= 2000));
-          final GameMessageSender messageSender = (sendNow)
-              ? playerInterface.getClient().getGameMessageSender()
-              : null;
+            final GameMessageSender messageSender = (sendNow)
+                ? playerInterface.getClient().getGameMessageSender()
+                : null;
 
-          // Note that if we're in gameplay have clicked the "buy road" button
-          // and trying to place it, game.couldBuildRoad will be false because
-          // we've already spent the resources.  So, wantsCancel won't check it.
+            // Note that if we're in gameplay have clicked the "buy road" button
+            // and trying to place it, game.couldBuildRoad will be false because
+            // we've already spent the resources.  So, wantsCancel won't check it.
 
-          switch (ptype)
-          {
-          case SOCPlayingPiece.ROAD:
-              buildLoc = hoverRoadID;
-              if (buildLoc == -1)
-                  buildLoc = 0;
-              canBuild = player.isPotentialRoad(buildLoc);
-              if (! sendNow)
-                  canBuild = canBuild && game.couldBuildRoad(cpn);
-              if (canBuild && sendNow)
-                  messageSender.putPiece(game, new SOCRoad(player, buildLoc, board));
-              btarget = SOCBuildingPanel.ROAD;
-              break;
+            switch (ptype)
+            {
+            case SOCPlayingPiece.ROAD:
+                buildLoc = hoverRoadID;
+                if (buildLoc == -1)
+                    buildLoc = 0;
+                canBuild = player.isPotentialRoad( buildLoc );
+                if (!sendNow)
+                    canBuild = canBuild && game.couldBuildRoad( cpn );
+                if (canBuild && sendNow)
+                    messageSender.putPiece( game, new SOCRoad( player, buildLoc, board ) );
+                btarget = SOCBuildingPanel.ROAD;
+                break;
 
-          case SOCPlayingPiece.SETTLEMENT:
-              buildLoc = hoverSettlementID;
-              canBuild = player.canPlaceSettlement(buildLoc);
-              if (! sendNow)
-                  canBuild = canBuild && game.couldBuildSettlement(cpn);
-              if (canBuild && sendNow)
-              {
-                  messageSender.putPiece(game, new SOCSettlement(player, buildLoc, board));
-                  if (isInitialPlacement)
-                      initSettlementNode = buildLoc;  // track for initial road mouseover hilight
-              }
-              btarget = SOCBuildingPanel.STLMT;
-              break;
+            case SOCPlayingPiece.SETTLEMENT:
+                buildLoc = hoverSettlementID;
+                canBuild = player.canPlaceSettlement( buildLoc );
+                if (!sendNow)
+                    canBuild = canBuild && game.couldBuildSettlement( cpn );
+                if (canBuild && sendNow)
+                {
+                    messageSender.putPiece( game, new SOCSettlement( player, buildLoc, board ) );
+                    if (isInitialPlacement)
+                        initSettlementNode = buildLoc;  // track for initial road mouseover hilight
+                }
+                btarget = SOCBuildingPanel.STLMT;
+                break;
 
-          case SOCPlayingPiece.CITY:
-              buildLoc = hoverCityID;
-              canBuild = player.isPotentialCity(buildLoc);
-              if (! sendNow)
-                  canBuild = canBuild && game.couldBuildCity(cpn);
-              if (canBuild && sendNow)
-                  messageSender.putPiece(game, new SOCCity(player, buildLoc, board));
-              btarget = SOCBuildingPanel.CITY;
-              break;
+            case SOCPlayingPiece.CITY:
+                buildLoc = hoverCityID;
+                canBuild = player.isPotentialCity( buildLoc );
+                if (!sendNow)
+                    canBuild = canBuild && game.couldBuildCity( cpn );
+                if (canBuild && sendNow)
+                    messageSender.putPiece( game, new SOCCity( player, buildLoc, board ) );
+                btarget = SOCBuildingPanel.CITY;
+                break;
 
-          case SOCPlayingPiece.SHIP:
-              buildLoc = hoverShipID;
-              canBuild = game.canPlaceShip(player, buildLoc);  // checks isPotentialShip, pirate ship
-              if (! sendNow)
-                  canBuild = canBuild && game.couldBuildShip(cpn);
-              if (canBuild && sendNow)
-                  messageSender.putPiece(game, new SOCShip(player, buildLoc, board));
-              btarget = SOCBuildingPanel.SHIP;
-              break;
+            case SOCPlayingPiece.SHIP:
+                buildLoc = hoverShipID;
+                canBuild = game.canPlaceShip( player, buildLoc );  // checks isPotentialShip, pirate ship
+                if (!sendNow)
+                    canBuild = canBuild && game.couldBuildShip( cpn );
+                if (canBuild && sendNow)
+                    messageSender.putPiece( game, new SOCShip( player, buildLoc, board ) );
+                btarget = SOCBuildingPanel.SHIP;
+                break;
 
-          default:
-              throw new IllegalArgumentException ("Bad build type: " + ptype);
-          }
+            default:
+                throw new IllegalArgumentException( "Bad build type: " + ptype );
+            }
 
-          if (! canBuild)
-          {
-              playerInterface.printKeyed("board.msg.cannot.build.there");  // * "Sorry, you cannot build there."
-              return;
-          }
+            if (!canBuild)
+            {
+                playerInterface.printKeyed( "board.msg.cannot.build.there" );  // * "Sorry, you cannot build there."
+                return;
+            }
 
-          if (sendNow)
-          {
-              // - Easy, we've sent it right away.  Done with placing this piece.
-              clearModeAndHilight(ptype);
-              return;
-          }
+            if (sendNow)
+            {
+                // - Easy, we've sent it right away.  Done with placing this piece.
+                clearModeAndHilight( ptype );
+                return;
+            }
 
-          // - During gameplay: Send, wait to receive gameState, send.
+            // - During gameplay: Send, wait to receive gameState, send.
 
-          // Set up timer to expect first-reply (and then send the second message)
-          popupSetBuildRequest(buildLoc, ptype);
+            // Set up timer to expect first-reply (and then send the second message)
+            popupSetBuildRequest( buildLoc, ptype );
 
-          // Now that we're expecting that, use buttons to send the first message
-          playerInterface.getBuildingPanel().clickBuildingButton
-              (game, btarget, true);
-      }
+            // Now that we're expecting that, use buttons to send the first message
+            playerInterface.getBuildingPanel().clickBuildingButton
+                ( game, btarget, true );
+        }
 
-      /**
-       * Confirm with the user that they want to atack the pirate fortress and end their turn,
-       * in scenario {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI}.  If confirmed, will call
-       * {@link #tryAttackPirateFortress()}.
-       * @since 2.0.00
-       */
-      public void confirmAttackPirateFortress()
-      {
-          // Clear the hovering tooltip at fortress, since dialog will change our mouse focus
-          hoverTip.setHoverText_modeChangedOrMouseMoved = true;
-          hoverTip.setHoverText(null, 0);
+        /**
+         * Confirm with the user that they want to atack the pirate fortress and end their turn,
+         * in scenario {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI}.  If confirmed, will call
+         * {@link #tryAttackPirateFortress()}.
+         * @since 2.0.00
+         */
+        public void confirmAttackPirateFortress()
+        {
+            // Clear the hovering tooltip at fortress, since dialog will change our mouse focus
+            hoverTip.setHoverText_modeChangedOrMouseMoved = true;
+            hoverTip.setHoverText( null, 0 );
 
-          java.awt.EventQueue.invokeLater(new ConfirmAttackPirateFortressDialog());
-      }
+            java.awt.EventQueue.invokeLater( new ConfirmAttackPirateFortressDialog() );
+        }
 
-      /**
-       * Send request to server to attack our player's pirate fortress,
-       * in scenario {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI}.
-       * @since 2.0.00
-       */
-      public void tryAttackPirateFortress()
-      {
-          // Validate and make the request
-          if (game.canAttackPirateFortress() != null)
-              playerInterface.getClient().getGameMessageSender()
-                  .sendSimpleRequest(player, SOCSimpleRequest.SC_PIRI_FORT_ATTACK);
-          else
-              // can't attack, cancel the request
-              playerInterface.getClientListener().scen_SC_PIRI_pirateFortressAttackResult(true, 0, 0);
-      }
+        /**
+         * Send request to server to attack our player's pirate fortress,
+         * in scenario {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI}.
+         * @since 2.0.00
+         */
+        public void tryAttackPirateFortress()
+        {
+            // Validate and make the request
+            if (game.canAttackPirateFortress() != null)
+                playerInterface.getClient().getGameMessageSender()
+                    .sendSimpleRequest( player, SOCSimpleRequest.SC_PIRI_FORT_ATTACK );
+            else
+                // can't attack, cancel the request
+                playerInterface.getClientListener().scen_SC_PIRI_pirateFortressAttackResult( true, 0, 0 );
+        }
 
-      /**
-       * Cancel placing a building piece, or cancel moving a ship.
-       * Calls {@link SOCBuildingPanel#clickBuildingButton(SOCGame, String, boolean)}.
-       */
-      void tryCancel()
-      {
-          if (mode == MOVE_SHIP)
-          {
-              // No building-panel or server request necessary
-              clearModeAndHilight(SOCPlayingPiece.SHIP);
-              playerInterface.printKeyed("board.msg.canceled.move.ship");  // * "Canceled moving the ship."
-              return;
-          }
+        /**
+         * Cancel placing a building piece, or cancel moving a ship.
+         * Calls {@link SOCBuildingPanel#clickBuildingButton(SOCGame, String, boolean)}.
+         */
+        void tryCancel()
+        {
+            if (mode == MOVE_SHIP)
+            {
+                // No building-panel or server request necessary
+                clearModeAndHilight( SOCPlayingPiece.SHIP );
+                playerInterface.printKeyed( "board.msg.canceled.move.ship" );  // * "Canceled moving the ship."
+                return;
+            }
 
-          String btarget = null;
-          switch (cancelBuildType)
-          {
-          case SOCPlayingPiece.ROAD:
-              btarget = SOCBuildingPanel.ROAD;
-              break;
-          case SOCPlayingPiece.SETTLEMENT:
-              btarget = SOCBuildingPanel.STLMT;
-              break;
-          case SOCPlayingPiece.CITY:
-              btarget = SOCBuildingPanel.CITY;
-              break;
-          case SOCPlayingPiece.SHIP:
-              btarget = SOCBuildingPanel.SHIP;
-              break;
-          }
-          // Use buttons to cancel the build request
-          playerInterface.getBuildingPanel().clickBuildingButton
-              (game, btarget, false);
-      }
+            String btarget = null;
+            switch (cancelBuildType)
+            {
+            case SOCPlayingPiece.ROAD:
+                btarget = SOCBuildingPanel.ROAD;
+                break;
+            case SOCPlayingPiece.SETTLEMENT:
+                btarget = SOCBuildingPanel.STLMT;
+                break;
+            case SOCPlayingPiece.CITY:
+                btarget = SOCBuildingPanel.CITY;
+                break;
+            case SOCPlayingPiece.SHIP:
+                btarget = SOCBuildingPanel.SHIP;
+                break;
+            }
+            // Use buttons to cancel the build request
+            playerInterface.getBuildingPanel().clickBuildingButton
+                ( game, btarget, false );
+        }
 
-      /**
-       * Set up the board so the player can click where they want the ship moved.
-       * Change mode to {@link #MOVE_SHIP} and set {@link SOCBoardPanel#moveShip_fromEdge}.
-       * Assumes player is current, and the ship at {@link #hoverShipID} is movable, when called.
-       * Repaints the board.
-       *
-       * @since 2.0.00
-       * @see SOCBoardPanel#tryMoveShipToEdge()
-       * @see SOCBoardPanel#setModeMoveShip(int)
-       */
-      private void tryMoveShipFromHere()
-      {
-          playerInterface.printKeyed("board.msg.click.ship.new.loc");  // * "Click the ship's new location."
-          moveShip_fromEdge = hoverShipID;
-          moveShip_toEdge = 0;
-          moveShip_isWarship = hoverTip.hoverIsWarship;
-          mode = MOVE_SHIP;
-          hilight = 0;
-          hoverTip.hideHoverAndPieces();  // calls repaint
-      }
+        /**
+         * Set up the board so the player can click where they want the ship moved.
+         * Change mode to {@link #MOVE_SHIP} and set {@link SOCBoardPanel#moveShip_fromEdge}.
+         * Assumes player is current, and the ship at {@link #hoverShipID} is movable, when called.
+         * Repaints the board.
+         *
+         * @since 2.0.00
+         * @see SOCBoardPanel#tryMoveShipToEdge()
+         * @see SOCBoardPanel#setModeMoveShip(int)
+         */
+        private void tryMoveShipFromHere()
+        {
+            playerInterface.printKeyed( "board.msg.click.ship.new.loc" );  // * "Click the ship's new location."
+            moveShip_fromEdge = hoverShipID;
+            moveShip_toEdge = 0;
+            moveShip_isWarship = hoverTip.hoverIsWarship;
+            mode = MOVE_SHIP;
+            hilight = 0;
+            hoverTip.hideHoverAndPieces();  // calls repaint
+        }
 
     }  // inner class BoardPopupMenu
 
@@ -9693,21 +9733,21 @@ import javax.swing.JComponent;
          *
          * @throws IllegalStateException If client not current player
          */
-        public ResourceTradeAllMenu(SOCBoardPanel bp, SOCHandPanel hp)
+        public ResourceTradeAllMenu( SOCBoardPanel bp, SOCHandPanel hp )
             throws IllegalStateException
         {
-            super(hp, strings.get("board.trade.trade.port"));  // "Trade Port"
+            super( hp, strings.get( "board.trade.trade.port" ) );  // "Trade Port"
             bpanel = bp;
             SOCPlayerInterface pi = hp.getPlayerInterface();
-            if (! pi.clientIsCurrentPlayer())
-                throw new IllegalStateException("Not current player");
+            if (!pi.clientIsCurrentPlayer())
+                throw new IllegalStateException( "Not current player" );
 
-          tradeFromTypes = new SOCHandPanel.ResourceTradeTypeMenu[5];
-          for (int i = 0; i < 5; ++i)
-          {
-              tradeFromTypes[i] = new SOCHandPanel.ResourceTradeTypeMenu(hp, i+1, true);
-              add(tradeFromTypes[i]);
-          }
+            tradeFromTypes = new SOCHandPanel.ResourceTradeTypeMenu[5];
+            for (int i = 0; i < 5; ++i)
+            {
+                tradeFromTypes[i] = new SOCHandPanel.ResourceTradeTypeMenu( hp, i + 1, true );
+                add( tradeFromTypes[i] );
+            }
         }
 
         /**
@@ -9718,10 +9758,10 @@ import javax.swing.JComponent;
          * @param y   Mouse y-position relative to colorsquare
          */
         @Override
-        public void show(int x, int y)
+        public void show( int x, int y )
         {
-            setEnabledIfCanTrade(false);
-            super.show(bpanel, x, y);
+            setEnabledIfCanTrade( false );
+            super.show( bpanel, x, y );
         }
 
         /**
@@ -9732,16 +9772,16 @@ import javax.swing.JComponent;
          *                  Items within submenus are also items.
          */
         @Override
-        public void setEnabledIfCanTrade(boolean itemsOnly)
+        public void setEnabledIfCanTrade( boolean itemsOnly )
         {
             int gs = hpan.getGame().getGameState();
             for (int i = 0; i < 5; ++i)
             {
                 int numNeeded = tradeFromTypes[i].getResourceCost();
-                tradeFromTypes[i].setEnabledIfCanTrade(itemsOnly);
+                tradeFromTypes[i].setEnabledIfCanTrade( itemsOnly );
                 tradeFromTypes[i].setEnabledIfCanTrade
-                    ((gs == SOCGame.PLAY1)
-                     && (numNeeded <= hpan.getPlayer().getResources().getAmount(i+1)));
+                    ( (gs == SOCGame.PLAY1)
+                        && (numNeeded <= hpan.getPlayer().getResources().getAmount( i + 1 )) );
             }
         }
 
@@ -9787,7 +9827,7 @@ import javax.swing.JComponent;
          * @param coord Board coordinates, as used in SOCPutPiece message. Does not accept -1 for road edge 0x00.
          * @param ptype Piece type, as used in SOCPlayingPiece / SOCPutPiece
          */
-        protected BoardPanelSendBuildTask (int coord, int ptype)
+        protected BoardPanelSendBuildTask( int coord, int ptype )
         {
             buildLoc = coord;
             pieceType = ptype;
@@ -9814,12 +9854,15 @@ import javax.swing.JComponent;
         public void run()
         {
             // for debugging
-            if (Thread.currentThread().getName().startsWith("Thread-"))
+            if (Thread.currentThread().getName().startsWith( "Thread-" ))
             {
-                try {
-                    Thread.currentThread().setName("timertask-boardpanel");
+                try
+                {
+                    Thread.currentThread().setName( "timertask-boardpanel" );
                 }
-                catch (Throwable e) {}
+                catch( Throwable e )
+                {
+                }
             }
 
             // Time is up.
@@ -9850,7 +9893,7 @@ import javax.swing.JComponent;
             }
 
             // Should only get here once, in one thread.
-            if (! playerInterface.clientIsCurrentPlayer())
+            if (!playerInterface.clientIsCurrentPlayer())
                 return;  // Stale request, player's already changed
 
             final GameMessageSender messageSender = playerInterface.getClient().getGameMessageSender();
@@ -9858,27 +9901,27 @@ import javax.swing.JComponent;
             switch (pieceType)
             {
             case SOCPlayingPiece.ROAD:
-                if (player.isPotentialRoad(buildLoc))
-                    messageSender.putPiece(game, new SOCRoad(player, buildLoc, board));
+                if (player.isPotentialRoad( buildLoc ))
+                    messageSender.putPiece( game, new SOCRoad( player, buildLoc, board ) );
                 break;
 
             case SOCPlayingPiece.SETTLEMENT:
-                if (player.canPlaceSettlement(buildLoc))
-                    messageSender.putPiece(game, new SOCSettlement(player, buildLoc, board));
+                if (player.canPlaceSettlement( buildLoc ))
+                    messageSender.putPiece( game, new SOCSettlement( player, buildLoc, board ) );
                 break;
 
             case SOCPlayingPiece.CITY:
-                if (player.isPotentialCity(buildLoc))
-                    messageSender.putPiece(game, new SOCCity(player, buildLoc, board));
+                if (player.isPotentialCity( buildLoc ))
+                    messageSender.putPiece( game, new SOCCity( player, buildLoc, board ) );
                 break;
 
             case SOCPlayingPiece.SHIP:
-                if (game.canPlaceShip(player, buildLoc))  // checks isPotentialShip, pirate ship
-                    messageSender.putPiece(game, new SOCShip(player, buildLoc, board));
+                if (game.canPlaceShip( player, buildLoc ))  // checks isPotentialShip, pirate ship
+                    messageSender.putPiece( game, new SOCShip( player, buildLoc, board ) );
                 break;
             }
 
-            clearModeAndHilight(pieceType);
+            clearModeAndHilight( pieceType );
         }
 
     }  // inner class BoardPanelSendBuildTask
@@ -9908,18 +9951,18 @@ import javax.swing.JComponent;
          * @param newRobHex  The new robber hex, if confirmed; not validated.
          *          Use a negative value if moving the pirate.
          */
-        private MoveRobberConfirmDialog(SOCPlayer player, final int newRobHex)
+        private MoveRobberConfirmDialog( SOCPlayer player, final int newRobHex )
         {
-            super(playerInterface.getMainDisplay(), playerInterface,
-                strings.get((newRobHex > 0) ? "dialog.moverobber.to.hex" : "dialog.moverobber.to.hex.pirate"),
-                    // "Move robber to your hex?" / "Move pirate to your hex?"
-                strings.get((newRobHex > 0) ? "dialog.moverobber.are.you.sure" : "dialog.moverobber.are.you.sure.pirate"),
-                    // "Are you sure you want to move the robber to your own hex?"
-                    // / "Are you sure you want to move the pirate to your own hex?"
-                strings.get((newRobHex > 0) ? "dialog.base.move.robber" : "dialog.base.move.pirate"),
-                    // "Move Robber" / "Move Pirate"
-                strings.get("dialog.moverobber.dont"),  // "Don't move there"
-                null, 2);
+            super( playerInterface.getMainDisplay(), playerInterface,
+                strings.get( (newRobHex > 0) ? "dialog.moverobber.to.hex" : "dialog.moverobber.to.hex.pirate" ),
+                // "Move robber to your hex?" / "Move pirate to your hex?"
+                strings.get( (newRobHex > 0) ? "dialog.moverobber.are.you.sure" : "dialog.moverobber.are.you.sure.pirate" ),
+                // "Are you sure you want to move the robber to your own hex?"
+                // / "Are you sure you want to move the pirate to your own hex?"
+                strings.get( (newRobHex > 0) ? "dialog.base.move.robber" : "dialog.base.move.pirate" ),
+                // "Move Robber" / "Move Pirate"
+                strings.get( "dialog.moverobber.dont" ),  // "Don't move there"
+                null, 2 );
 
             pl = player;
             robHex = newRobHex;
@@ -9932,21 +9975,25 @@ import javax.swing.JComponent;
         public void button1Chosen()
         {
             // ask server to move it
-            md.getGameMessageSender().moveRobber(game, pl, robHex);
-            clearModeAndHilight(-1);
+            md.getGameMessageSender().moveRobber( game, pl, robHex );
+            clearModeAndHilight( -1 );
         }
 
         /**
          * React to the Don't Move button.
          */
         @Override
-        public void button2Chosen() {}
+        public void button2Chosen()
+        {
+        }
 
         /**
          * React to the dialog window closed by user. (Don't move the robber)
          */
         @Override
-        public void windowCloseChosen() {}
+        public void windowCloseChosen()
+        {
+        }
 
     }  // nested class MoveRobberConfirmDialog
 
@@ -9969,12 +10016,12 @@ import javax.swing.JComponent;
          */
         protected ConfirmAttackPirateFortressDialog()
         {
-            super(playerInterface.getMainDisplay(), playerInterface,
-                strings.get("game.sc_piri.attfort.and.endturn"),      // "Attack and end turn?"
-                strings.get("game.sc_piri.attfort.confirm.endturn"),  // "Attacking the fortress will end your turn. Are you sure?"
-                strings.get("game.sc_piri.attfort.confirm"),          // "Confirm Attack"
-                strings.get("base.cancel"),
-                null, 2);
+            super( playerInterface.getMainDisplay(), playerInterface,
+                strings.get( "game.sc_piri.attfort.and.endturn" ),      // "Attack and end turn?"
+                strings.get( "game.sc_piri.attfort.confirm.endturn" ),  // "Attacking the fortress will end your turn. Are you sure?"
+                strings.get( "game.sc_piri.attfort.confirm" ),          // "Confirm Attack"
+                strings.get( "base.cancel" ),
+                null, 2 );
         }
 
         /**
@@ -9991,13 +10038,18 @@ import javax.swing.JComponent;
          * React to the Cancel button, do nothing.
          */
         @Override
-        public void button2Chosen() {}
+        public void button2Chosen()
+        {
+        }
 
         /**
          * React to the dialog window closed by user. (Default is Cancel)
          */
         @Override
-        public void windowCloseChosen() { button2Chosen(); }
+        public void windowCloseChosen()
+        {
+            button2Chosen();
+        }
 
     }  // nested class ConfirmAttackPirateFortressDialog
 
@@ -10038,18 +10090,18 @@ import javax.swing.JComponent;
          * @param isMove_fromEdge  Edge to move ship from, or -1 if a placement from player's available pieces;
          *            if moving a ship, {@code sendBuildReqFirst} must be {@code false}.
          */
-        private ConfirmPlaceShipDialog(final int edge, final boolean sendBuildReqFirst, final int isMove_fromEdge)
+        private ConfirmPlaceShipDialog( final int edge, final boolean sendBuildReqFirst, final int isMove_fromEdge )
         {
-            super(playerInterface.getMainDisplay(), playerInterface,
-                strings.get("dialog.base.place.ship.title"),  // "Place Ship Here?"
-                strings.get( (player.getPortMovePotentialLocations(false) != null)
+            super( playerInterface.getMainDisplay(), playerInterface,
+                strings.get( "dialog.base.place.ship.title" ),  // "Place Ship Here?"
+                strings.get( (player.getPortMovePotentialLocations( false ) != null)
                     ? "game.invitem.sc_ftri.pickup.ask.immed"
-                        // "If you place a ship here, this port must be placed now at your coastal settlement or city."
+                    // "If you place a ship here, this port must be placed now at your coastal settlement or city."
                     : "game.invitem.sc_ftri.pickup.ask.later" ),
-                        // "If you place a ship here, you will be given this port to be placed later at your coastal settlement or city."
-                strings.get("dialog.base.place.ship"),  // "Place Ship"
-                strings.get("dialog.base.place.dont"),  // "Don't Place Here"
-                null, 1);
+                // "If you place a ship here, you will be given this port to be placed later at your coastal settlement or city."
+                strings.get( "dialog.base.place.ship" ),  // "Place Ship"
+                strings.get( "dialog.base.place.dont" ),  // "Don't Place Here"
+                null, 1 );
 
             this.edge = edge;
             this.sendBuildReqFirst = sendBuildReqFirst;
@@ -10067,18 +10119,18 @@ import javax.swing.JComponent;
             {
                 final int currentHover = hoverTip.hoverShipID;
                 hoverTip.hoverShipID = edge;  // set field that tryBuild reads to send PutPiece message after BuildRequest
-                popupMenu.tryBuild(SOCPlayingPiece.SHIP);
+                popupMenu.tryBuild( SOCPlayingPiece.SHIP );
                 hoverTip.hoverShipID = currentHover;
             }
             else
             {
                 final GameMessageSender gms = md.getGameMessageSender();
                 if (isMove_fromEdge == -1)
-                    gms.putPiece(game, new SOCShip(player, edge, board));
+                    gms.putPiece( game, new SOCShip( player, edge, board ) );
                 else
                     gms.movePieceRequest
-                        (game, playerNumber, SOCPlayingPiece.SHIP, isMove_fromEdge, edge);
-                clearModeAndHilight(SOCPlayingPiece.SHIP);
+                        ( game, playerNumber, SOCPlayingPiece.SHIP, isMove_fromEdge, edge );
+                clearModeAndHilight( SOCPlayingPiece.SHIP );
             }
         }
 
@@ -10086,7 +10138,7 @@ import javax.swing.JComponent;
         @Override
         public void button2Chosen()
         {
-            if (! sendBuildReqFirst)
+            if (!sendBuildReqFirst)
             {
                 // clear hilight but not mode
                 hilight = 0;
@@ -10096,7 +10148,10 @@ import javax.swing.JComponent;
 
         /** React to the dialog window closed by user. (Don't place the ship) */
         @Override
-        public void windowCloseChosen() { button2Chosen(); }
+        public void windowCloseChosen()
+        {
+            button2Chosen();
+        }
 
     }  // nested class ConfirmPlaceShipDialog
 

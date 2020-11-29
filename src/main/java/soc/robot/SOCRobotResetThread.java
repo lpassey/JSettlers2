@@ -51,7 +51,6 @@ package soc.robot;
     {
         while (alive)
         {
-            //
             //  start by sleeping so another
             //  thread has a chance to put it to sleep
             //
@@ -63,10 +62,7 @@ package soc.robot;
                 {
                     sleep(300000);
                 }
-                catch (InterruptedException exc)
-                {
-                    ;
-                }
+                catch (InterruptedException ignored) {}
             }
 
             client.disconnectReconnect();

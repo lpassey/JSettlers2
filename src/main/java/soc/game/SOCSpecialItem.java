@@ -1,20 +1,20 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2014-2017,2019-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.game;
@@ -133,7 +133,7 @@ public class SOCSpecialItem
      * Parsing each of these is tested in {@link soctest.game.TestSpecialItem#testRequirementParseGood()};
      * if you change the contents here, also update the test cases in that method.
      */
-    private static final String[] REQ_SC_WOND = { null, "2C", "S@N2", "C@P,5L", "S@N1", "C,6V", "2C", "S@N2" };
+    private static final String[] REQ_SC_WOND = {null, "2C", "S@N2", "C@P,5L", "S@N1", "C,6V", "2C", "S@N2"};
 
     /**
      * Costs for the Wonders in the {@link SOCGameOptionSet#K_SC_WOND _SC_WOND} scenario.
@@ -141,17 +141,17 @@ public class SOCSpecialItem
      * Each 5-element array is { clay, ore, sheep, wheat, wood }. Used by {@link #makeKnownItem(String, int)}.
      */
     private static final int[][] COST_SC_WOND =
-    {
-        null,
-        // clay, ore, sheep, wheat, wood
-        { 1, 0, 3, 0, 1 },  // theater
-        { 0, 0, 1, 1, 3 },  // great bridge
-        { 0, 2, 0, 3, 0 },  // monument
-        { 3, 0, 0, 1, 1 },  // great wall
-        { 1, 3, 0, 1, 0 },  // cathedral
-        { 1, 0, 3, 0, 1 },  // theater
-        { 0, 0, 1, 1, 3 }   // great bridge
-    };
+        {
+            null,
+            // clay, ore, sheep, wheat, wood
+            {1, 0, 3, 0, 1},  // theater
+            {0, 0, 1, 1, 3},  // great bridge
+            {0, 2, 0, 3, 0},  // monument
+            {3, 0, 0, 1, 1},  // great wall
+            {1, 3, 0, 1, 0},  // cathedral
+            {1, 0, 3, 0, 1},  // theater
+            {0, 0, 1, 1, 3}   // great bridge
+        };
 
     /**
      * {@link #sv} string keys for the Wonders in the {@link SOCGameOptionSet#K_SC_WOND _SC_WOND} scenario.
@@ -159,7 +159,7 @@ public class SOCSpecialItem
      * Index 0 unused.  The 6-player game includes another copy of the first two wonders.
      * Used by {@link #makeKnownItem(String, int)}.
      */
-    private static final String[] SV_SC_WOND = { null, "w1", "w2", "w3", "w4", "w5", "w1", "w2" };
+    private static final String[] SV_SC_WOND = {null, "w1", "w2", "w3", "w4", "w5", "w1", "w2"};
 
     // End of per-scenario static data
 
@@ -227,7 +227,7 @@ public class SOCSpecialItem
      * @return A Special Item at no coordinate (-1) and unowned by any player, with cost/requirements if known,
      *     or {@code null} cost and requirements otherwise.
      */
-    public static SOCSpecialItem makeKnownItem(final String typeKey, final int idx)
+    public static SOCSpecialItem makeKnownItem( final String typeKey, final int idx )
     {
         // If you update this method or add a scenario here, update soctest.game.TestSpecialItem method testMakeKnownItem.
 
@@ -236,18 +236,18 @@ public class SOCSpecialItem
         final int itemLevel;    // initial level
         final int startingCostPiecetype;  // piece type required for level 1, or -1
 
-        if (typeKey.equals(SOCGameOptionSet.K_SC_WOND))
+        if (typeKey.equals( SOCGameOptionSet.K_SC_WOND ))
         {
             typeReqs = REQ_SC_WOND;
             typeSV = SV_SC_WOND;
             typeCosts = COST_SC_WOND;
             itemLevel = 0;
             startingCostPiecetype = SOCPlayingPiece.SHIP;
-                // note: client SOCSpecialItemDialog assumes all items have same startingCostPiecetype; true for SC_WOND
+            // note: client SOCSpecialItemDialog assumes all items have same startingCostPiecetype; true for SC_WOND
         }
         else
         {
-            return new SOCSpecialItem(null, -1, null, null);  // <--- Early return: Unknown typeKey ---
+            return new SOCSpecialItem( null, -1, null, null );  // <--- Early return: Unknown typeKey ---
         }
 
         final SOCResourceSet costRS;
@@ -258,21 +258,21 @@ public class SOCSpecialItem
         else
         {
             final int[] cost = typeCosts[idx];
-            costRS = (cost == null) ? null : new SOCResourceSet(cost);
+            costRS = (cost == null) ? null : new SOCResourceSet( cost );
         }
 
         final String req =
             (typeReqs != null)
-            ? (((idx < 0) || (idx >= typeReqs.length)) ? null : typeReqs[idx])
-            : null;
+                ? (((idx < 0) || (idx >= typeReqs.length)) ? null : typeReqs[idx])
+                : null;
         final String sv =
             (typeSV != null)
-            ? (((idx < 0) || (idx >= typeSV.length)) ? null : typeSV[idx])
-            : null;
+                ? (((idx < 0) || (idx >= typeSV.length)) ? null : typeSV[idx])
+                : null;
 
-        final SOCSpecialItem si = new SOCSpecialItem(null, -1, itemLevel, sv, costRS, req);
+        final SOCSpecialItem si = new SOCSpecialItem( null, -1, itemLevel, sv, costRS, req );
         si.startingCostPiecetype = startingCostPiecetype;
-        si.setGameIndex(idx);
+        si.setGameIndex( idx );
 
         return si;
     }
@@ -306,7 +306,7 @@ public class SOCSpecialItem
      * @param pl  Requesting player; never {@code null}
      * @param gi  Pick this index within game's Special Item list, or -1
      * @param pi  Pick this index within {@code pl}'s Special Item list, or -1
-     * @return  true if the item's cost was deducted from {@code pl}'s resources,
+     * @return true if the item's cost was deducted from {@code pl}'s resources,
      *     false if no cost ({@link #getCost()} is null)
      * @throws IllegalStateException if {@code pl} cannot set or clear this item right now (due to
      *     cost, requirements, game state, missing a "starting cost" piece, is not their turn, or anything else),
@@ -318,57 +318,57 @@ public class SOCSpecialItem
      * @see #checkStartingCostPiecetype(SOCPlayer, boolean)
      */
     public static boolean playerPickItem
-        (final String typeKey, final SOCGame ga, final SOCPlayer pl, final int gi, final int pi)
+    ( final String typeKey, final SOCGame ga, final SOCPlayer pl, final int gi, final int pi )
         throws IllegalStateException
     {
         if ((pl.getPlayerNumber() != ga.getCurrentPlayerNumber())
             || ((ga.getGameState() != SOCGame.PLAY1) && (ga.getGameState() != SOCGame.SPECIAL_BUILDING)))
             throw new IllegalStateException();
 
-        if (! SOCGameOptionSet.K_SC_WOND.equals(typeKey))
-            throw new IllegalStateException("unknown typeKey: " + typeKey);
+        if (!SOCGameOptionSet.K_SC_WOND.equals( typeKey ))
+            throw new IllegalStateException( "unknown typeKey: " + typeKey );
 
         // _SC_WOND
 
         if ((gi < 1) || (pi != 0))
             throw new IllegalStateException();
 
-        SOCSpecialItem itm = ga.getSpecialItem(typeKey, gi);
-            // same logic for _SC_WOND as getSpecialItem(typeKey,gi,pi)
-            // because that method checks gi before pi, and for this
-            // scenario the item at valid gi will never be null.
+        SOCSpecialItem itm = ga.getSpecialItem( typeKey, gi );
+        // same logic for _SC_WOND as getSpecialItem(typeKey,gi,pi)
+        // because that method checks gi before pi, and for this
+        // scenario the item at valid gi will never be null.
 
         if ((itm == null) || ((itm.player != null) && (itm.player != pl)))
             throw new IllegalStateException();  // another player owns it, or item not found
 
-        SOCSpecialItem plWonder = pl.getSpecialItem(typeKey, 0);
+        SOCSpecialItem plWonder = pl.getSpecialItem( typeKey, 0 );
         if ((plWonder != null) && (plWonder != itm))
             throw new IllegalStateException();  // player already has a different wonder
 
         // check costs at each level
         SOCResourceSet cost = itm.cost;
-        if ((cost != null) && ! pl.getResources().contains(cost))
-            throw new IllegalStateException("cost");
+        if ((cost != null) && !pl.getResources().contains( cost ))
+            throw new IllegalStateException( "cost" );
 
         // if unowned (first level), check requirements and then acquire item if met
         if (itm.player == null)
         {
-            if (! itm.checkRequirements(pl, false))
-                throw new IllegalStateException("requirements");
+            if (!itm.checkRequirements( pl, false ))
+                throw new IllegalStateException( "requirements" );
 
             final int startCostPT = itm.getStartingCostPiecetype();
             if (startCostPT != -1)
             {
-                itm.checkStartingCostPiecetype(pl, true);  // if player out of pieces, throws IllegalStateException
-                pl.setNumPieces(startCostPT, pl.getNumPieces(startCostPT) - 1);
+                itm.checkStartingCostPiecetype( pl, true );  // if player out of pieces, throws IllegalStateException
+                pl.setNumPieces( startCostPT, pl.getNumPieces( startCostPT ) - 1 );
             }
 
-            itm.setPlayer(pl);
-            pl.setSpecialItem(typeKey, 0, itm);
+            itm.setPlayer( pl );
+            pl.setSpecialItem( typeKey, 0, itm );
         }
 
         if (cost != null)
-            pl.getResources().subtract(cost);
+            pl.getResources().subtract( cost );
 
         itm.level++;
 
@@ -399,17 +399,17 @@ public class SOCSpecialItem
      * @param gi  Set or clear this index within game's Special Item list, or -1
      * @param pi  Set or clear this index within {@code pl}'s Special Item list, or -1
      * @param isSet  True if player wants to set, false if player wants to clear, this item index
-     * @return  true if the item's cost was deducted from {@code pl}'s resources
+     * @return true if the item's cost was deducted from {@code pl}'s resources
      * @throws IllegalStateException if {@code pl} cannot set or clear this item right now
      *     (due to cost, requirements, game state, or anything else), or if {@code typeKey} is unknown here,
      *     or if this {@code typeKey} doesn't use {@code SET} or {@code CLEAR} requests from client players.
      * @see #playerPickItem(String, SOCGame, SOCPlayer, int, int)
      */
     public static boolean playerSetItem
-        (final String typeKey, final SOCGame ga, final SOCPlayer pl, final int gi, final int pi, final boolean isSet)
+    ( final String typeKey, final SOCGame ga, final SOCPlayer pl, final int gi, final int pi, final boolean isSet )
         throws IllegalStateException
     {
-        throw new IllegalStateException("SET/CLEAR requests not used with this typeKey: " + typeKey);
+        throw new IllegalStateException( "SET/CLEAR requests not used with this typeKey: " + typeKey );
     }
 
     /**
@@ -424,10 +424,10 @@ public class SOCSpecialItem
      *      parsed by {@link SOCSpecialItem.Requirement#parse(String)}.
      * @throws IllegalArgumentException  if {@code req != null} but isn't a syntactically valid specification
      */
-    public SOCSpecialItem(SOCPlayer pl, final int co, SOCResourceSet cost, final String req)
+    public SOCSpecialItem( SOCPlayer pl, final int co, SOCResourceSet cost, final String req )
         throws IllegalArgumentException
     {
-        this(pl, co, 0, null, cost, req);
+        this( pl, co, 0, null, cost, req );
     }
 
     /**
@@ -447,7 +447,7 @@ public class SOCSpecialItem
      *      or if {@code sv} fails {@link SOCMessage#isSingleLineAndSafe(String)}
      */
     public SOCSpecialItem
-        (SOCPlayer pl, final int co, final int lv, final String sv, SOCResourceSet cost, final String req)
+    ( SOCPlayer pl, final int co, final int lv, final String sv, SOCResourceSet cost, final String req )
         throws IllegalArgumentException
     {
         player = pl;
@@ -455,10 +455,10 @@ public class SOCSpecialItem
         level = lv;
         this.sv = sv;
         this.cost = cost;
-        this.req = (req != null) ? Requirement.parse(req) : null;
+        this.req = (req != null) ? Requirement.parse( req ) : null;
 
-        if ((sv != null) && ! SOCMessage.isSingleLineAndSafe(sv))
-            throw new IllegalArgumentException("sv");
+        if ((sv != null) && !SOCMessage.isSingleLineAndSafe( sv ))
+            throw new IllegalArgumentException( "sv" );
     }
 
     /**
@@ -472,7 +472,7 @@ public class SOCSpecialItem
     }
 
     /** Set this item's {@link #getGameIndex()}. Use -1 to clear to "none". */
-    public void setGameIndex(final int gi)
+    public void setGameIndex( final int gi )
     {
         gameItemIndex = gi;
     }
@@ -491,7 +491,7 @@ public class SOCSpecialItem
      * Set or clear the player who owns this item.
      * @param pl  the owner of this item, or {@code null}
      */
-    public void setPlayer(SOCPlayer pl)
+    public void setPlayer( SOCPlayer pl )
     {
         player = pl;
     }
@@ -507,14 +507,14 @@ public class SOCSpecialItem
     /**
      * @param co the node or edge coordinate for this item, or -1 if none
      */
-    public void setCoordinates(final int co)
+    public void setCoordinates( final int co )
     {
         coord = co;
     }
 
     /**
      * Get the current construction level or strength of this item.
-     * @return  Current level
+     * @return Current level
      */
     public int getLevel()
     {
@@ -525,7 +525,7 @@ public class SOCSpecialItem
      * Set the current level of this special item.
      * @param lv  New level
      */
-    public void setLevel(final int lv)
+    public void setLevel( final int lv )
     {
         level = lv;
     }
@@ -538,7 +538,7 @@ public class SOCSpecialItem
      *     At client, localized i18n string key is {@code "game.specitem.sc_wond." + item.getStringValue()}
      *</UL>
      *
-     * @return  Current string value, or {@code null}
+     * @return Current string value, or {@code null}
      */
     public String getStringValue()
     {
@@ -549,7 +549,7 @@ public class SOCSpecialItem
      * Set or clear the current string value of this special item.
      * @param sv  New value, or {@code null} to clear
      */
-    public void setStringValue(final String sv)
+    public void setStringValue( final String sv )
     {
         this.sv = sv;
     }
@@ -557,7 +557,7 @@ public class SOCSpecialItem
     /**
      * Get the optional constant cost to buy, use, or build the next level.
      * Not sent over the network; see {@link SOCSpecialItem class javadoc}.
-     * @return  Cost, or {@code null} if none
+     * @return Cost, or {@code null} if none
      * @see #checkCost(SOCPlayer)
      * @see #getStartingCostPiecetype()
      */
@@ -571,7 +571,7 @@ public class SOCSpecialItem
      * Not sent over the network; see {@link SOCSpecialItem class javadoc}.
      * @param co  New cost, or {@code null} to clear
      */
-    public void setCost(SOCResourceSet co)
+    public void setCost( SOCResourceSet co )
     {
         cost = co;
     }
@@ -579,14 +579,14 @@ public class SOCSpecialItem
     /**
      * Does this player have resources for this special item's {@link #getCost()}, if any?
      * @param pl  Player to check
-     * @return  True if cost is {@code null} or {@link SOCPlayer#getResources() pl.getResources()} contains the cost.
+     * @return True if cost is {@code null} or {@link SOCPlayer#getResources() pl.getResources()} contains the cost.
      *     Always false if {@code pl} is {@code null}.
      * @see #checkRequirements(SOCPlayer, boolean)
      * @see #checkStartingCostPiecetype(SOCPlayer, boolean)
      */
-    public final boolean checkCost(final SOCPlayer pl)
+    public final boolean checkCost( final SOCPlayer pl )
     {
-        return (pl != null) && ((cost == null) || pl.getResources().contains(cost));
+        return (pl != null) && ((cost == null) || pl.getResources().contains( cost ));
     }
 
     /**
@@ -621,20 +621,20 @@ public class SOCSpecialItem
      * @throws ArrayIndexOutOfBoundsException if piece type is invalid:
      *     This is an internal error, should not occur unless bug in {@link #makeKnownItem(String, int)}
      */
-    public final boolean checkStartingCostPiecetype(final SOCPlayer pl, final boolean throwIfUnmet)
+    public final boolean checkStartingCostPiecetype( final SOCPlayer pl, final boolean throwIfUnmet )
         throws IllegalStateException, ArrayIndexOutOfBoundsException
     {
         if (startingCostPiecetype == -1)
             return true;
 
-        if (pl.getNumPieces(startingCostPiecetype) >= 1)
+        if (pl.getNumPieces( startingCostPiecetype ) >= 1)
         {
             return true;
         }
         else
         {
             if (throwIfUnmet)
-                throw new IllegalStateException("Must pay starting piece type: " + startingCostPiecetype);
+                throw new IllegalStateException( "Must pay starting piece type: " + startingCostPiecetype );
 
             return false;
         }
@@ -644,7 +644,7 @@ public class SOCSpecialItem
      * Does this player meet this special item's {@link #req} requirements?
      * @param pl  Player to check
      * @param checkCost  If true, also check the cost against player's current resources
-     * @return  True if player meets the requirements, false otherwise; true if {@link #req} is null or empty.
+     * @return True if player meets the requirements, false otherwise; true if {@link #req} is null or empty.
      *     If {@code checkCost} and {@link #getCost()} != null, false unless player's resources contain {@code cost}.
      *     Always false if player is {@code null}.
      * @throws IllegalArgumentException if {@link #req} has an unknown requirement type,
@@ -655,13 +655,13 @@ public class SOCSpecialItem
      * @see #checkCost(SOCPlayer)
      * @see #checkStartingCostPiecetype(SOCPlayer, boolean)
      */
-    public final boolean checkRequirements(final SOCPlayer pl, final boolean checkCost)
+    public final boolean checkRequirements( final SOCPlayer pl, final boolean checkCost )
         throws IllegalArgumentException, UnsupportedOperationException
     {
-        if (checkCost && ! checkCost(pl))
+        if (checkCost && !checkCost( pl ))
             return false;
 
-        return checkRequirements(pl, req);
+        return checkRequirements( pl, req );
     }
 
     /**
@@ -669,7 +669,7 @@ public class SOCSpecialItem
      *
      * @param pl  Player to check
      * @param reqsList  Requirements list; to parse from a string, use {@link SOCSpecialItem.Requirement#parse(String)}
-     * @return  True if player meets the requirements, false otherwise; true if {@code reqsList} is null or empty.
+     * @return True if player meets the requirements, false otherwise; true if {@code reqsList} is null or empty.
      *     Always false if player is null.
      * @throws IllegalArgumentException if {@code reqsList} has an unknown requirement type,
      *     or refers to an Added Layout Part {@code "N1"} through {@code "N9"} that isn't defined in the board layout
@@ -677,7 +677,7 @@ public class SOCSpecialItem
      *     this is not implemented
      * @see #checkRequirements(SOCPlayer, boolean)
      */
-    public static boolean checkRequirements(final SOCPlayer pl, final List<SOCSpecialItem.Requirement> reqsList)
+    public static boolean checkRequirements( final SOCPlayer pl, final List<SOCSpecialItem.Requirement> reqsList )
         throws IllegalArgumentException, UnsupportedOperationException
     {
         if (pl == null)
@@ -715,7 +715,7 @@ public class SOCSpecialItem
                 break;
 
             default:
-                throw new IllegalArgumentException("Unknown requirement type " + req.reqType);
+                throw new IllegalArgumentException( "Unknown requirement type " + req.reqType );
             }
 
             if (pieces != null)
@@ -723,15 +723,15 @@ public class SOCSpecialItem
                 // check for location requirement:
 
                 if (req.atPort && (req.reqType != 'C'))
-                    throw new UnsupportedOperationException("atPort reqType " + req.reqType + " not implemented");
+                    throw new UnsupportedOperationException( "atPort reqType " + req.reqType + " not implemented" );
 
                 if (req.atCoordList != null)
                 {
                     boolean foundAtNode = false;
-                    final int[] nodes = ((SOCBoardLarge) pl.getGame().getBoard()).getAddedLayoutPart(req.atCoordList);
+                    final int[] nodes = ((SOCBoardLarge) pl.getGame().getBoard()).getAddedLayoutPart( req.atCoordList );
                     if (nodes == null)
                         throw new IllegalArgumentException
-                            ("Requirement uses undefined Added Layout Part " + req.atCoordList);
+                            ( "Requirement uses undefined Added Layout Part " + req.atCoordList );
 
                     for (SOCPlayingPiece pp : pieces)
                     {
@@ -749,7 +749,7 @@ public class SOCSpecialItem
                             break;
                     }
 
-                    if (! foundAtNode)
+                    if (!foundAtNode)
                         return false;  // no matching piece found
                 }
                 else if (req.atPort)
@@ -759,14 +759,14 @@ public class SOCSpecialItem
 
                     for (SOCPlayingPiece pp : pieces)
                     {
-                        if (board.getPortTypeFromNodeCoord(pp.getCoordinates()) != -1)
+                        if (board.getPortTypeFromNodeCoord( pp.getCoordinates() ) != -1)
                         {
                             foundAtNode = true;
                             break;
                         }
                     }
 
-                    if (! foundAtNode)
+                    if (!foundAtNode)
                         return false;  // no matching piece found
                 }
             }
@@ -781,7 +781,7 @@ public class SOCSpecialItem
     @Override
     public String toString()
     {
-        return "SOCSpecialItem:player=" + player + "|coord=" + Integer.toHexString(coord) + "|level=" + level
+        return "SOCSpecialItem:player=" + player + "|coord=" + Integer.toHexString( coord ) + "|level=" + level
             + "|cost=[" + cost + "]|req=" + req;
     }
 
@@ -797,14 +797,14 @@ public class SOCSpecialItem
      * @param other The object to compare with, or null
      */
     @Override
-    public boolean equals(Object other)
+    public boolean equals( Object other )
     {
-        if ( ! (other instanceof SOCSpecialItem))
+        if (!(other instanceof SOCSpecialItem))
             return false;
 
         return ((coord == ((SOCSpecialItem) other).coord)
-            &&  (player == ((SOCSpecialItem) other).player)
-            &&  (level == ((SOCSpecialItem) other).level));
+            && (player == ((SOCSpecialItem) other).player)
+            && (level == ((SOCSpecialItem) other).level));
     }
 
     /**
@@ -898,7 +898,7 @@ public class SOCSpecialItem
          * @throws IllegalArgumentException  if {@code req} isn't a syntactically valid specification
          */
         @SuppressWarnings("fallthrough")
-        public static List<Requirement> parse(final String req)
+        public static List<Requirement> parse( final String req )
             throws IllegalArgumentException
         {
             final int L = req.length();
@@ -913,26 +913,26 @@ public class SOCSpecialItem
             // Loop for each comma-separated requirement
             while (i < L)
             {
-                c = req.charAt(i);
+                c = req.charAt( i );
 
                 // first: optional digit(s), then item-type letter
                 int itemCount;
-                if (Character.isDigit(c))
+                if (Character.isDigit( c ))
                 {
                     int j = i + 1;
                     while (j < req.length())
                     {
-                        c = req.charAt(j);
-                        if (! Character.isDigit(c))
+                        c = req.charAt( j );
+                        if (!Character.isDigit( c ))
                             break;
 
                         ++j;
                     }
                     if (j == req.length())
-                        throw new IllegalArgumentException("Must follow item count with item type in " + req);
+                        throw new IllegalArgumentException( "Must follow item count with item type in " + req );
                     // postcondition: j is 1 char past end of digits
 
-                    itemCount = Integer.parseInt(req.substring(i, j));
+                    itemCount = Integer.parseInt( req.substring( i, j ) );
                     i = j;
                     // c was req.charAt(j) already
                 }
@@ -943,70 +943,70 @@ public class SOCSpecialItem
 
                 final char reqType = c;  // 'S', 'C', 'V', 'L'
                 if ((c < 'A') || (c > 'Z'))
-                    throw new IllegalArgumentException("Expected item-type letter at position " + i + " in " + req);
+                    throw new IllegalArgumentException( "Expected item-type letter at position " + i + " in " + req );
 
                 ++i;
                 if (i >= L)
                 {
                     // This req is done, comma separates it from next req
-                    ret.add(new Requirement(reqType, itemCount, false, null));
+                    ret.add( new Requirement( reqType, itemCount, false, null ) );
 
                     break;  // <--- Finished last req ---
                 }
 
-                c = req.charAt(i);
+                c = req.charAt( i );
 
                 if (c == ',')
                 {
                     // This req is done: comma separates it from next req
-                    ret.add(new Requirement(reqType, itemCount, false, null));
+                    ret.add( new Requirement( reqType, itemCount, false, null ) );
 
                     ++i;
                     if (i >= L)
-                        throw new IllegalArgumentException("ends with ',': " + req);
+                        throw new IllegalArgumentException( "ends with ',': " + req );
 
                     continue;  // <--- completed this req ---
                 }
 
                 if (c != '@')
-                    throw new IllegalArgumentException("Expected @ or , at position " + i + " in " + req);
+                    throw new IllegalArgumentException( "Expected @ or , at position " + i + " in " + req );
 
                 ++i;
                 if (i >= L)
-                    throw new IllegalArgumentException("Must follow @ with P or N# in " + req);
+                    throw new IllegalArgumentException( "Must follow @ with P or N# in " + req );
 
-                c = req.charAt(i);
+                c = req.charAt( i );
 
                 // Currently valid after '@': N#, or P for Port
                 switch (c)
                 {
                 case 'P':
-                    ret.add(new Requirement(reqType, itemCount, true, null));
+                    ret.add( new Requirement( reqType, itemCount, true, null ) );
                     ++i;
                     break;
 
                 case 'N':
                     ++i;
                     if (i < L)
-                        c = req.charAt(i);
-                    if ((i < L) && Character.isDigit(c))
+                        c = req.charAt( i );
+                    if ((i < L) && Character.isDigit( c ))
                     {
-                        ret.add(new Requirement(reqType, itemCount, false, "N" + c));
+                        ret.add( new Requirement( reqType, itemCount, false, "N" + c ) );
                         ++i;
                         break;
                     }
                     // else, will fall through to default and throw exception
 
                 default:
-                    throw new IllegalArgumentException("Must follow @ with P or N# in " + req);
+                    throw new IllegalArgumentException( "Must follow @ with P or N# in " + req );
                 }
 
                 // If we got here, we've parsed the req and i should be at end or comma
                 if (i < L)
                 {
-                    if (req.charAt(i) != ',')
+                    if (req.charAt( i ) != ',')
                         throw new IllegalArgumentException
-                            ("Extra characters in spec: Expected , or end of string at position " + i + " in " + req);
+                            ( "Extra characters in spec: Expected , or end of string at position " + i + " in " + req );
 
                     ++i;
                     // top of main loop will parse the requirement that follows the comma
@@ -1027,15 +1027,15 @@ public class SOCSpecialItem
          * @throws IllegalArgumentException if {@code atPort} and either {@code reqType != 'C'}
          *     or {@code atCoordList != null}
          */
-        public Requirement(final char reqType, final int count, final boolean atPort, final String atCoordList)
+        public Requirement( final char reqType, final int count, final boolean atPort, final String atCoordList )
             throws IllegalArgumentException
         {
             if (atPort)
             {
                 if (reqType != 'C')
-                    throw new IllegalArgumentException("atPort not implemented for reqType " + reqType);
+                    throw new IllegalArgumentException( "atPort not implemented for reqType " + reqType );
                 if (atCoordList != null)
-                    throw new IllegalArgumentException("can't have atPort and atCoordList");
+                    throw new IllegalArgumentException( "can't have atPort and atCoordList" );
             }
 
             this.reqType = reqType;
@@ -1048,17 +1048,17 @@ public class SOCSpecialItem
          * Equality test, mostly for testing/debugging.
          * @return true if {@code other} is a {@link Requirement} with same field contents
          */
-        public final boolean equals(final Object other)
+        public final boolean equals( final Object other )
         {
-            if (! (other instanceof Requirement))
+            if (!(other instanceof Requirement))
                 return false;
             final Requirement oth = (Requirement) other;
             return (reqType == oth.reqType)
                 && (count == oth.count)
                 && (atPort == oth.atPort)
                 && ((atCoordList == null)
-                    ? (oth.atCoordList == null)
-                    : atCoordList.equals(oth.atCoordList));
+                ? (oth.atCoordList == null)
+                : atCoordList.equals( oth.atCoordList ));
         }
 
         /** String representation for debugging; same format as {@link #parse(String)}. */
@@ -1066,15 +1066,15 @@ public class SOCSpecialItem
         {
             StringBuilder sb = new StringBuilder();
             if (count != 1)
-                sb.append(count);
-            sb.append(reqType);
+                sb.append( count );
+            sb.append( reqType );
             if (atPort || (atCoordList != null))
             {
-                sb.append('@');
+                sb.append( '@' );
                 if (atPort)
-                    sb.append('P');
+                    sb.append( 'P' );
                 else
-                    sb.append(atCoordList);
+                    sb.append( atCoordList );
             }
 
             return sb.toString();

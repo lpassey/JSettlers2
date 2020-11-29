@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * This file copyright (C) 2007,2013,2016-2017,2019-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -62,7 +62,7 @@ import soc.game.SOCGame;
  * @since 1.1.00
  */
 @SuppressWarnings("serial")
-/*package*/ class FaceChooserFrame
+    /*package*/ class FaceChooserFrame
     extends JFrame implements ActionListener, WindowListener, KeyListener
 {
     /** Face button that launched us. Passed to constructor, not null. */
@@ -114,19 +114,19 @@ import soc.game.SOCGame;
      *    or pnum is negative or more than SOCGame.MAXPLAYERS.
      * @throws NullPointerException if cli or gamePI is null
      */
-    public FaceChooserFrame(SOCFaceButton fbutton, SOCPlayerClient cli,
-            SOCPlayerInterface gamePI, int pnum, int faceID, int faceWidth)
+    public FaceChooserFrame( SOCFaceButton fbutton, SOCPlayerClient cli,
+        SOCPlayerInterface gamePI, int pnum, int faceID, int faceWidth )
         throws IllegalArgumentException
     {
-        super(strings.get("facechooser.title", gamePI.getGame().getName(), gamePI.getClientNickname()));
-            // "Choose Face Icon: {0} [{1}]"
+        super( strings.get( "facechooser.title", gamePI.getGame().getName(), gamePI.getClientNickname() ) );
+        // "Choose Face Icon: {0} [{1}]"
 
         if (fbutton == null)
-            throw new IllegalArgumentException("fbutton cannot be null");
+            throw new IllegalArgumentException( "fbutton cannot be null" );
         if ((pnum < 0) || (pnum >= SOCGame.MAXPLAYERS))
-            throw new IllegalArgumentException("pnum out of range: " + pnum);
+            throw new IllegalArgumentException( "pnum out of range: " + pnum );
         if (faceWidth <= 0)
-            throw new IllegalArgumentException("faceWidth must be positive, not " + faceWidth);
+            throw new IllegalArgumentException( "faceWidth must be positive, not " + faceWidth );
 
         fb = fbutton;
         pcli = cli;
@@ -137,67 +137,67 @@ import soc.game.SOCGame;
         final int displayScale = pi.displayScale;
 
         final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
-        if (! isOSHighContrast)
+        if (!isOSHighContrast)
         {
-            final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors(true, false);
+            final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors( true, false );
 
-            setBackground(colors[2]);  // SwingMainDisplay.DIALOG_BG_GOLDENROD; face-icon backgrounds will match player
-            setForeground(colors[0]);  // Color.BLACK
+            setBackground( colors[2] );  // SwingMainDisplay.DIALOG_BG_GOLDENROD; face-icon backgrounds will match player
+            setForeground( colors[0] );  // Color.BLACK
 
-            getRootPane().setBackground(null);  // inherit
-            getContentPane().setBackground(null);
+            getRootPane().setBackground( null );  // inherit
+            getContentPane().setBackground( null );
         }
-        setFont(new Font("Dialog", Font.PLAIN, 12 * displayScale));
+        setFont( new Font( "Dialog", Font.PLAIN, 12 * displayScale ) );
 
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
 
-        changeFaceBut = new JButton(strings.get("base.change"));
-        cancelBut = new JButton(strings.get("base.cancel"));
-        if (SOCPlayerClient.IS_PLATFORM_WINDOWS && ! isOSHighContrast)
+        changeFaceBut = new JButton( strings.get( "base.change" ) );
+        cancelBut = new JButton( strings.get( "base.cancel" ) );
+        if (SOCPlayerClient.IS_PLATFORM_WINDOWS && !isOSHighContrast)
         {
             // avoid gray corners on win32 JButtons
-            changeFaceBut.setBackground(null);
-            cancelBut.setBackground(null);
+            changeFaceBut.setBackground( null );
+            cancelBut.setBackground( null );
         }
-        setLayout (new BorderLayout());
+        setLayout( new BorderLayout() );
 
         final int bsize = 4 * displayScale;
-        promptLbl = new JLabel(strings.get("facechooser.prompt"), SwingConstants.LEFT);  // "Choose your face icon."
-        promptLbl.setBorder(new EmptyBorder(bsize, bsize, bsize, bsize));
-        add(promptLbl, BorderLayout.NORTH);
+        promptLbl = new JLabel( strings.get( "facechooser.prompt" ), SwingConstants.LEFT );  // "Choose your face icon."
+        promptLbl.setBorder( new EmptyBorder( bsize, bsize, bsize, bsize ) );
+        add( promptLbl, BorderLayout.NORTH );
 
-        fcl = new FaceChooserList(this, faceID);
-        add(fcl, BorderLayout.CENTER);
+        fcl = new FaceChooserList( this, faceID );
+        add( fcl, BorderLayout.CENTER );
 
         try
         {
             Point mloc = MouseInfo.getPointerInfo().getLocation();
-            setLocation(mloc.x + 20 * displayScale, mloc.y + 10 * displayScale);
+            setLocation( mloc.x + 20 * displayScale, mloc.y + 10 * displayScale );
         }
-        catch (RuntimeException e)
+        catch( RuntimeException e )
         {
             // in case of SecurityException, etc
-            setLocationRelativeTo(gamePI);
+            setLocationRelativeTo( gamePI );
         }
 
         JPanel pBtns = new JPanel();
-        pBtns.setLayout(new FlowLayout(FlowLayout.CENTER));
-        pBtns.setBackground(null);
+        pBtns.setLayout( new FlowLayout( FlowLayout.CENTER ) );
+        pBtns.setBackground( null );
 
-        pBtns.add(changeFaceBut);
-        changeFaceBut.addActionListener(this);
+        pBtns.add( changeFaceBut );
+        changeFaceBut.addActionListener( this );
 
-        pBtns.add(cancelBut);
-        cancelBut.addActionListener(this);
+        pBtns.add( cancelBut );
+        cancelBut.addActionListener( this );
 
-        add(pBtns, BorderLayout.SOUTH);
+        add( pBtns, BorderLayout.SOUTH );
 
-        getRootPane().setDefaultButton(changeFaceBut);
+        getRootPane().setDefaultButton( changeFaceBut );
 
-        addWindowListener(this);  // To handle close-button
-        addKeyListener(this);     // To handle Enter, Esc keys.
-        changeFaceBut.addKeyListener(this);
-        cancelBut.addKeyListener(this);
+        addWindowListener( this );  // To handle close-button
+        addKeyListener( this );     // To handle Enter, Esc keys.
+        changeFaceBut.addKeyListener( this );
+        cancelBut.addKeyListener( this );
     }
 
     /**
@@ -208,9 +208,9 @@ import soc.game.SOCGame;
      * @since 1.2.00
      */
     @Override
-    public void setVisible(boolean vis)
+    public void setVisible( boolean vis )
     {
-        super.setVisible(vis);
+        super.setVisible( vis );
         if (vis)
             fcl.requestFocusInWindow();
     }
@@ -222,10 +222,10 @@ import soc.game.SOCGame;
      * @param id  face ID
      * @param alreadySelected  Was the face currently selected, when clicked?
      */
-    public void selectFace(int id, boolean alreadySelected)
+    public void selectFace( int id, boolean alreadySelected )
     {
-        if (! alreadySelected)
-            fcl.selectFace(id);
+        if (!alreadySelected)
+            fcl.selectFace( id );
         else if (id != fcl.initialFaceId)
         {
             dispose();
@@ -238,7 +238,7 @@ import soc.game.SOCGame;
      */
     public Color getPlayerColor()
     {
-        return pi.getPlayerColor(pNumber);
+        return pi.getPlayerColor( pNumber );
     }
 
     /**
@@ -273,7 +273,7 @@ import soc.game.SOCGame;
      * @param listSizeKnown if true, the list knows what size it wants to be;
      *    adjust our size if needed.
      */
-    protected void checkSizeAndFocus(boolean listSizeKnown)
+    protected void checkSizeAndFocus( boolean listSizeKnown )
     {
         if (listSizeKnown)
             doLayout();
@@ -284,7 +284,7 @@ import soc.game.SOCGame;
      * Change or Cancel button has been chosen by the user.
      * Call changeButtonChosen or cancelButtonChosen, and dispose of this dialog.
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed( ActionEvent e )
     {
         try
         {
@@ -301,9 +301,9 @@ import soc.game.SOCGame;
                 cancelButtonChosen();  // <--- Callback for button 2 ---
             }
         }
-        catch (Throwable th)
+        catch( Throwable th )
         {
-            pi.chatPrintStackTrace(th);
+            pi.chatPrintStackTrace( th );
         }
     }
 
@@ -313,7 +313,7 @@ import soc.game.SOCGame;
      */
     public void changeButtonChosen()
     {
-        pcli.getGameMessageSender().changeFace(pi.getGame(), fcl.currentFaceId);
+        pcli.getGameMessageSender().changeFace( pi.getGame(), fcl.currentFaceId );
     }
 
     /**
@@ -321,7 +321,9 @@ import soc.game.SOCGame;
      * Also called if user closes window or hits Escape key.
      * actionPerformed has already called dialog.dispose().
      */
-    public void cancelButtonChosen() { }
+    public void cancelButtonChosen()
+    {
+    }
 
     /**
      * Move the cursor choosing the current face.
@@ -333,43 +335,53 @@ import soc.game.SOCGame;
      * @param dc Delta column: -2 jumps to far-left, -1 is one to left, +1 is one to right, +2 jumps to far-right.
      * @param e  KeyEvent to be consumed, or null.
      */
-    public void moveCursor(int dr, int dc, KeyEvent e)
+    public void moveCursor( int dr, int dc, KeyEvent e )
     {
-        fcl.moveCursor(dr, dc, e);
+        fcl.moveCursor( dr, dc, e );
     }
 
     /**
      * Dialog close requested by user. Dispose and call windowCloseChosen.
      */
-    public void windowClosing(WindowEvent e)
+    public void windowClosing( WindowEvent e )
     {
         dispose();
         cancelButtonChosen();  // <--- Callback for close/ESC ---
     }
 
     /** Window is appearing - check the size and the default button keyboard focus */
-    public void windowOpened(WindowEvent e)
+    public void windowOpened( WindowEvent e )
     {
-        checkSizeAndFocus(false);
+        checkSizeAndFocus( false );
     }
 
     /** Stub required by WindowListener */
-    public void windowActivated(WindowEvent e) { }
+    public void windowActivated( WindowEvent e )
+    {
+    }
 
     /** Stub required by WindowListener */
-    public void windowClosed(WindowEvent e) { }
+    public void windowClosed( WindowEvent e )
+    {
+    }
 
     /** Stub required by WindowListener */
-    public void windowDeactivated(WindowEvent e) { }
+    public void windowDeactivated( WindowEvent e )
+    {
+    }
 
     /** Stub required by WindowListener */
-    public void windowDeiconified(WindowEvent e) { }
+    public void windowDeiconified( WindowEvent e )
+    {
+    }
 
     /** Stub required by WindowListener */
-    public void windowIconified(WindowEvent e) { }
+    public void windowIconified( WindowEvent e )
+    {
+    }
 
     /** Handle Enter or Esc key, arrow keys, home/end, ctrl-home/ctrl-end */
-    public void keyPressed(KeyEvent e)
+    public void keyPressed( KeyEvent e )
     {
         if (e.isConsumed())
             return;
@@ -390,50 +402,54 @@ import soc.game.SOCGame;
             break;
 
         case KeyEvent.VK_UP:
-            fcl.moveCursor (-1, 0, e);
+            fcl.moveCursor( -1, 0, e );
             break;
 
         case KeyEvent.VK_DOWN:
-            fcl.moveCursor (+1, 0, e);
+            fcl.moveCursor( +1, 0, e );
             break;
 
         case KeyEvent.VK_LEFT:
-            fcl.moveCursor (0, -1, e);
+            fcl.moveCursor( 0, -1, e );
             break;
 
         case KeyEvent.VK_RIGHT:
-            fcl.moveCursor (0, +1, e);
+            fcl.moveCursor( 0, +1, e );
             break;
 
         case KeyEvent.VK_PAGE_UP:
-            fcl.moveCursor (-2, 0, e);
+            fcl.moveCursor( -2, 0, e );
             break;
 
         case KeyEvent.VK_PAGE_DOWN:
-            fcl.moveCursor (+2, 0, e);
+            fcl.moveCursor( +2, 0, e );
             break;
 
         case KeyEvent.VK_HOME:
             if (0 != (e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK))
-                fcl.moveCursor (-3, -2, e);
+                fcl.moveCursor( -3, -2, e );
             else
-                fcl.moveCursor (0, -2, e);
+                fcl.moveCursor( 0, -2, e );
             break;
 
         case KeyEvent.VK_END:
             if (0 != (e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK))
-                fcl.moveCursor (+3, +2, e);
+                fcl.moveCursor( +3, +2, e );
             else
-                fcl.moveCursor (0, +2, e);
+                fcl.moveCursor( 0, +2, e );
             break;
         }
     }
 
     /** Stub required by KeyListener */
-    public void keyReleased(KeyEvent arg0) { }
+    public void keyReleased( KeyEvent arg0 )
+    {
+    }
 
     /** Stub required by KeyListener */
-    public void keyTyped(KeyEvent arg0) { }
+    public void keyTyped( KeyEvent arg0 )
+    {
+    }
 
     /**
      * FaceChooserList holds face icons (in rows and columns) and an optional scrollbar.
@@ -498,7 +514,7 @@ import soc.game.SOCGame;
         /**
          * Create facechooserlist for this frame, with selected face ID.
          */
-        protected FaceChooserList(FaceChooserFrame fcf, int selectedFaceId)
+        protected FaceChooserList( FaceChooserFrame fcf, int selectedFaceId )
         {
             this.fcf = fcf;
             initialFaceId = selectedFaceId;
@@ -508,7 +524,7 @@ import soc.game.SOCGame;
             // the padding is internal to SOCFaceButton's component size.
 
             rowCount = (int) Math.ceil
-                ((SOCFaceButton.NUM_FACES - 1) / (float) rowFacesWidth);
+                ( (SOCFaceButton.NUM_FACES - 1) / (float) rowFacesWidth );
             if (rowCount < faceRowsHeight)
                 faceRowsHeight = rowCount;  // Reduce if number of "visible rows" would be too many.
 
@@ -532,39 +548,40 @@ import soc.game.SOCGame;
             faceGrid = new FaceChooserRow[rowCount];
             visibleFaceGrid = new FaceChooserRow[faceRowsHeight];
 
-            setLayout(null);  // Custom due to visibleFaceGrid; see doLayout()
+            setLayout( null );  // Custom due to visibleFaceGrid; see doLayout()
 
             int nextId = currentOffset;
             for (int r = currentRow, visR = 0; visR < faceRowsHeight; ++r, ++visR)
             {
-                FaceChooserRow fcr = new FaceChooserRow(nextId);
-                    // FaceChooserRow constructor will also set the
-                    // hilight if current face is within its row.
+                FaceChooserRow fcr = new FaceChooserRow( nextId );
+                // FaceChooserRow constructor will also set the
+                // hilight if current face is within its row.
                 faceGrid[r] = fcr;
                 visibleFaceGrid[visR] = fcr;
-                add(fcr);
+                add( fcr );
                 nextId += rowFacesWidth;
             }
             if (needsScroll)
             {
                 faceSB = new JScrollBar
-                       (JScrollBar.VERTICAL, currentRow,
+                    ( JScrollBar.VERTICAL, currentRow,
                         /* number-rows-visible */ faceRowsHeight,
                         0, rowCount );
-                    // Range 0 to rowCount per API note: "actual maximum value is
-                    // max minus visible".  Scrollbar value is thus row number for
-                    // top of visible window.
-                add(faceSB);
-                faceSB.addAdjustmentListener(this);
-                faceSB.addKeyListener(fcf);  // Handle Enter, Esc keys on window's behalf
+                // Range 0 to rowCount per API note: "actual maximum value is
+                // max minus visible".  Scrollbar value is thus row number for
+                // top of visible window.
+                add( faceSB );
+                faceSB.addAdjustmentListener( this );
+                faceSB.addKeyListener( fcf );  // Handle Enter, Esc keys on window's behalf
             }
 
             final int displayScale = fcf.pi.displayScale;
             wantW = rowFacesWidth * SOCFaceButton.FACE_WIDTH_BORDERED_PX * displayScale;
             wantH = faceRowsHeight * SOCFaceButton.FACE_WIDTH_BORDERED_PX * displayScale;
             scrollW = 0;  // unknown before is visible
-            padW = 10 * displayScale;  padH = 30 * displayScale;  // assumed; will get actual at doLayout.
-            wantSize = new Dimension (wantW + padW, wantH + padH);
+            padW = 10 * displayScale;
+            padH = 30 * displayScale;  // assumed; will get actual at doLayout.
+            wantSize = new Dimension( wantW + padW, wantH + padH );
         }
 
         /**
@@ -578,22 +595,22 @@ import soc.game.SOCGame;
          *
          * @see #moveCursor(int, int, KeyEvent)
          */
-        public void selectFace(int id)
+        public void selectFace( int id )
         {
             if ((id <= 0) || (id >= SOCFaceButton.NUM_FACES))
-                throw new IllegalArgumentException("id not within range: " + id);
+                throw new IllegalArgumentException( "id not within range: " + id );
 
             int prevFaceId = currentFaceId;
             int r;
 
             // Clear hilight of prev face-id
             r = (prevFaceId - 1) / rowFacesWidth;
-            faceGrid[r].setFaceHilightBorder(prevFaceId, false);
+            faceGrid[r].setFaceHilightBorder( prevFaceId, false );
 
             // Set hilight of new face-id
             r = (id - 1) / rowFacesWidth;
-            scrollToRow(r);
-            faceGrid[r].setFaceHilightBorder(id, true);
+            scrollToRow( r );
+            faceGrid[r].setFaceHilightBorder( id, true );
 
             currentFaceId = id;
         }
@@ -608,11 +625,11 @@ import soc.game.SOCGame;
          *
          * @throws IllegalArgumentException if newRow < 0 or newRow >= rowCount
          */
-        public void scrollToRow(int newRow)
+        public void scrollToRow( int newRow )
         {
             if ((newRow < 0) || (newRow >= rowCount))
                 throw new IllegalArgumentException
-                    ("newRow not in range (0 to " + (rowCount-1) + "): " + newRow);
+                    ( "newRow not in range (0 to " + (rowCount - 1) + "): " + newRow );
             if ((newRow >= currentRow) && (newRow < (currentRow + faceRowsHeight)))
             {
                 return;  // <--- Early return: Already showing ---
@@ -646,7 +663,7 @@ import soc.game.SOCGame;
                     // Completely replace current visible face grid.
                     for (r = faceRowsHeight - 1; r >= 0; --r)
                     {
-                        visibleFaceGrid[r].setVisible(false);
+                        visibleFaceGrid[r].setVisible( false );
                         visibleFaceGrid[r] = null;
                     }
                 }
@@ -656,7 +673,7 @@ import soc.game.SOCGame;
                     // Remove current bottom, scroll up
                     for (r = faceRowsHeight - numNewRows; r < faceRowsHeight; ++r)
                     {
-                        visibleFaceGrid[r].setVisible(false);
+                        visibleFaceGrid[r].setVisible( false );
                         visibleFaceGrid[r] = null;
                     }
                     for (r = faceRowsHeight - numNewRows - 1; r >= 0; --r)
@@ -671,12 +688,12 @@ import soc.game.SOCGame;
                 {
                     if (faceGrid[r] == null)
                     {
-                        faceGrid[r] = new FaceChooserRow(nextId);
-                        add(faceGrid[r]);
+                        faceGrid[r] = new FaceChooserRow( nextId );
+                        add( faceGrid[r] );
                         createdRows = true;
                     }
                     visibleFaceGrid[visR] = faceGrid[r];
-                    visibleFaceGrid[visR].setVisible(true);
+                    visibleFaceGrid[visR].setVisible( true );
                     nextId += rowFacesWidth;
                 }
             }
@@ -685,7 +702,7 @@ import soc.game.SOCGame;
                 // Remove current top, scroll down
                 for (r = 0; r < numNewRows; ++r)
                 {
-                    visibleFaceGrid[r].setVisible(false);
+                    visibleFaceGrid[r].setVisible( false );
                     visibleFaceGrid[r] = null;
                 }
                 for (r = 0; r < faceRowsHeight - numNewRows; ++r)
@@ -695,16 +712,16 @@ import soc.game.SOCGame;
                 int visR = faceRowsHeight - numNewRows;   // Visual row number to add
                 int nextId = newCurOffset + (visR * rowFacesWidth);  // face ID to add
                 r = newCurRow + visR;   // Row number in faceGrid to add
-                for ( ; visR < faceRowsHeight ; ++r, ++visR )
+                for (; visR < faceRowsHeight; ++r, ++visR)
                 {
                     if (faceGrid[r] == null)
                     {
-                        faceGrid[r] = new FaceChooserRow(nextId);
-                        add(faceGrid[r]);
+                        faceGrid[r] = new FaceChooserRow( nextId );
+                        add( faceGrid[r] );
                         createdRows = true;
                     }
                     visibleFaceGrid[visR] = faceGrid[r];
-                    visibleFaceGrid[visR].setVisible(true);
+                    visibleFaceGrid[visR].setVisible( true );
                     nextId += rowFacesWidth;
                 }
             }
@@ -715,7 +732,7 @@ import soc.game.SOCGame;
             doLayout();  // for setLocation, setSize of visibleFaceGrid members
             repaint();
             if (faceSB != null)
-                faceSB.setValue(newCurRow);  // Update scrollbar if needed (we don't know our caller)
+                faceSB.setValue( newCurRow );  // Update scrollbar if needed (we don't know our caller)
         }
 
         /**
@@ -735,12 +752,12 @@ import soc.game.SOCGame;
          * @see #selectFace(int)
          * @see #scrollToRow(int)
          */
-        public void moveCursor(int dr, int dc, KeyEvent e) throws IllegalArgumentException
+        public void moveCursor( int dr, int dc, KeyEvent e ) throws IllegalArgumentException
         {
             if ((dr < -3) || (dr > +3))
-                throw new IllegalArgumentException("dr outside range +-3: " + dr);
+                throw new IllegalArgumentException( "dr outside range +-3: " + dr );
             if ((dc < -2) || (dc > +2))
-                throw new IllegalArgumentException("dc outside range +-2: " + dc);
+                throw new IllegalArgumentException( "dc outside range +-2: " + dc );
             if (e != null)
                 e.consume();
             if ((dr == 0) && (dc == 0))
@@ -844,20 +861,20 @@ import soc.game.SOCGame;
                     newId = SOCFaceButton.NUM_FACES - 1;
                 else if (newId < 1)
                     newId = 1;
-                selectFace(newId);
+                selectFace( newId );
             }
         }
 
         /**
          * Update displayed rows when scrollbar changes
          */
-        public void adjustmentValueChanged(AdjustmentEvent e)
+        public void adjustmentValueChanged( AdjustmentEvent e )
         {
             if (e.getSource() != faceSB)
                 return;
             int r = e.getValue();
-            scrollToRow(r);  // Top of window: make visible
-            scrollToRow(r + faceRowsHeight - 1);  // Bottom of window visible
+            scrollToRow( r );  // Top of window: make visible
+            scrollToRow( r + faceRowsHeight - 1 );  // Bottom of window visible
         }
 
         /**
@@ -867,7 +884,7 @@ import soc.game.SOCGame;
          * @param  i  Insets
          * @return True if dimensions were updated and setSize was called.
          */
-        protected boolean checkInsetsPadding(Insets i)
+        protected boolean checkInsetsPadding( Insets i )
         {
             int iw = (i.left + i.right);
             int ih = (i.top + i.bottom);
@@ -891,8 +908,8 @@ import soc.game.SOCGame;
                 padW = iw;
                 padH = ih;
                 scrollW = sw;
-                wantSize = new Dimension (wantW + scrollW + padW, wantH + padH);
-                setSize (wantSize);
+                wantSize = new Dimension( wantW + scrollW + padW, wantH + padH );
+                setSize( wantSize );
                 changedWantSize = true;
             }
             // Now that we know insets, check if our window is too narrow or short
@@ -916,7 +933,7 @@ import soc.game.SOCGame;
             if (changedWantSize || tooSmall)
             {
                 fcf.pack();
-                fcf.checkSizeAndFocus(true);  // noting our new size
+                fcf.checkSizeAndFocus( true );  // noting our new size
                 return true;
             }
             return false;
@@ -934,7 +951,7 @@ import soc.game.SOCGame;
             int width = getSize().width - i.left - i.right;
             int height = getSize().height - i.top - i.bottom;
 
-            if (checkInsetsPadding(i))
+            if (checkInsetsPadding( i ))
             {
                 width = getSize().width - padW;
                 height = getSize().height - padH;
@@ -944,33 +961,39 @@ import soc.game.SOCGame;
             {
                 if (scrollW == 0)
                 {
-                    IllegalStateException e = new IllegalStateException("scrollW==0");
-                    fcf.pi.chatPrintStackTrace(e);
+                    IllegalStateException e = new IllegalStateException( "scrollW==0" );
+                    fcf.pi.chatPrintStackTrace( e );
                     scrollW = faceSB.getPreferredSize().width;
                     if (scrollW == 0)
                         scrollW = 12;
-                    wantSize = new Dimension (wantW + scrollW + padW, wantH + padH);
-                    setSize (wantSize);
+                    wantSize = new Dimension( wantW + scrollW + padW, wantH + padH );
+                    setSize( wantSize );
                     fcf.pack();
                     width = getSize().width - padW;
                     height = getSize().height - padH;
                 }
-                faceSB.setLocation(x + width - scrollW, y);
-                faceSB.setSize(scrollW, height);
+                faceSB.setLocation( x + width - scrollW, y );
+                faceSB.setSize( scrollW, height );
             }
 
             final int rowHeightPx = SOCFaceButton.FACE_WIDTH_BORDERED_PX * fcf.pi.displayScale;
             for (int r = 0; r < faceRowsHeight; ++r)
             {
-                visibleFaceGrid[r].setLocation(x, y);
-                visibleFaceGrid[r].setSize(wantW, rowHeightPx);
+                visibleFaceGrid[r].setLocation( x, y );
+                visibleFaceGrid[r].setSize( wantW, rowHeightPx );
                 y += rowHeightPx;
             }
         }
 
-        public Dimension getMinimumSize() { return wantSize; }
+        public Dimension getMinimumSize()
+        {
+            return wantSize;
+        }
 
-        public Dimension getPreferredSize() { return wantSize; }
+        public Dimension getPreferredSize()
+        {
+            return wantSize;
+        }
 
         /**
          * Within FaceChooserList, one row of faces.
@@ -991,11 +1014,11 @@ import soc.game.SOCGame;
              * @param startId  Starting face ID (ID of first face in row)
              * @throws IllegalArgumentException if startId<=0 or startId >= SOCFaceButton.NUM_FACES
              */
-            public FaceChooserRow (final int startId)
+            public FaceChooserRow( final int startId )
                 throws IllegalArgumentException
             {
                 if ((startId <= 0) || (startId >= SOCFaceButton.NUM_FACES))
-                    throw new IllegalArgumentException("startId not within range: " + startId);
+                    throw new IllegalArgumentException( "startId not within range: " + startId );
 
                 startFaceId = startId;
 
@@ -1005,17 +1028,17 @@ import soc.game.SOCGame;
 
                 faces = new SOCFaceButton[numFaces];  // At least 1 due to startId check above
 
-                GridLayout glay = new GridLayout(1, FaceChooserList.rowFacesWidth, 0, 0);
-                setLayout(glay);
+                GridLayout glay = new GridLayout( 1, FaceChooserList.rowFacesWidth, 0, 0 );
+                setLayout( glay );
 
                 for (int i = 0; i < numFaces; ++i)
                 {
-                    SOCFaceButton fb = new SOCFaceButton(fcf.pi, fcf, startId + i);
+                    SOCFaceButton fb = new SOCFaceButton( fcf.pi, fcf, startId + i );
                     faces[i] = fb;
                     if (startId + i == currentFaceId)
-                        fb.setHilightBorder(true);
-                    fb.addKeyListener(fcf);
-                    add (fb);
+                        fb.setHilightBorder( true );
+                    fb.addKeyListener( fcf );
+                    add( fb );
                 }
 
                 if (numFaces < FaceChooserList.rowFacesWidth)
@@ -1026,9 +1049,9 @@ import soc.game.SOCGame;
                     for (int i = numFaces; i < FaceChooserList.rowFacesWidth; ++i)
                     {
                         JLabel la = new JLabel();
-                        la.setBackground(bg);
-                        la.setOpaque(true);
-                        add (la);
+                        la.setBackground( bg );
+                        la.setOpaque( true );
+                        add( la );
                     }
                 }
             }
@@ -1041,12 +1064,12 @@ import soc.game.SOCGame;
              *
              * @see soc.client.SOCFaceButton#setHilightBorder(boolean)
              */
-            public void setFaceHilightBorder (int faceId, boolean borderSet)
+            public void setFaceHilightBorder( int faceId, boolean borderSet )
             {
                 faceId = faceId - startFaceId;
                 if ((faceId < 0) || (faceId >= faces.length))
                     return;
-                faces[faceId].setHilightBorder(borderSet);
+                faces[faceId].setHilightBorder( borderSet );
             }
 
             /**
@@ -1054,11 +1077,11 @@ import soc.game.SOCGame;
              *
              * @param vis  Make visible?
              */
-            public void setVisible (boolean vis)
+            public void setVisible( boolean vis )
             {
                 for (int i = faces.length - 1; i >= 0; --i)
-                    faces[i].setVisible(vis);
-                super.setVisible(vis);
+                    faces[i].setVisible( vis );
+                super.setVisible( vis );
             }
 
         }  /* inner class FaceChooserRow */

@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * This file Copyright (C) 2008-2012,2014-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
@@ -83,7 +83,7 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
      *     This constructor does not convert {@link SOCMessage#EMPTYSTR} field values to "";
      *     see {@link #parseData_FindEmptyStrs(List)}.
      */
-    protected SOCMessageTemplateMs(final int id, final List<String> pal)
+    protected SOCMessageTemplateMs( final int id, final List<String> pal )
     {
         messageType = id;
         pa = pal;
@@ -104,7 +104,7 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
      */
     public String toCmd()
     {
-        return toCmd(messageType, pa);
+        return toCmd( messageType, pa );
     }
 
     /**
@@ -115,21 +115,21 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
      * @param pal  The parameter list, or null if no additional parameters.
      *     Blank or null values in this list are automatically sent as the {@link SOCMessage#EMPTYSTR} token
      *     and must be converted back on the receiving end: See {@link #parseData_FindEmptyStrs(List)}.
-     * @return    the command string
+     * @return the command string
      */
-    protected static String toCmd(final int messageType, final List<String> pal)
+    protected static String toCmd( final int messageType, final List<String> pal )
     {
-        StringBuilder sb = new StringBuilder(Integer.toString(messageType));
+        StringBuilder sb = new StringBuilder( Integer.toString( messageType ) );
 
         if (pal != null)
         {
             for (final String p : pal)
             {
-                sb.append(sep);
+                sb.append( sep );
                 if ((p != null) && (p.length() > 0))
-                    sb.append(p);
+                    sb.append( p );
                 else
-                    sb.append(EMPTYSTR);
+                    sb.append( EMPTYSTR );
             }
         }
 
@@ -142,24 +142,24 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
      * see its javadoc for parameter details.
      *
      * @param s   the String parameters
-     * @return    a DiceResultResources message, or null if parsing errors
+     * @return a DiceResultResources message, or null if parsing errors
     public static SOCDiceResultResources parseDataStr(List<String> s)
     {
-        String gaName;  // the game name
-        String[] pa;    // the parameters
+    String gaName;  // the game name
+    String[] pa;    // the parameters
 
-        if ((s == null) || (s.size() < 2))
-            return null;  // must have at least game name + 1 more param
+    if ((s == null) || (s.size() < 2))
+    return null;  // must have at least game name + 1 more param
 
-        parseData_FindEmptyStrs(s);  // EMPTYSTR -> ""
-        gaName = s.get(0);
-        pa = new String[s.size() - 1];
-        for (int i = 0; i < pa.length; ++i)
-            pa[i] = s.get(i + 1);
+    parseData_FindEmptyStrs(s);  // EMPTYSTR -> ""
+    gaName = s.get(0);
+    pa = new String[s.size() - 1];
+    for (int i = 0; i < pa.length; ++i)
+    pa[i] = s.get(i + 1);
 
-        return new SOCDiceResultResources(gaName, pa);
+    return new SOCDiceResultResources(gaName, pa);
     }
-    */
+     */
 
     /**
      * Parse helper method: Iterate over the received parameter list
@@ -170,15 +170,15 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
      * @return {@code slist}, for convenience during constructor calls to {@code super(..)}
      * @since 2.0.00
      */
-    public static List<String> parseData_FindEmptyStrs(final List<String> slist)
+    public static List<String> parseData_FindEmptyStrs( final List<String> slist )
     {
         if (slist == null)
             return null;  // unlikely to occur
 
         final ListIterator<String> li = slist.listIterator();
         while (li.hasNext())
-            if (EMPTYSTR.equals(li.next()))
-                li.set("");
+            if (EMPTYSTR.equals( li.next() ))
+                li.set( "" );
 
         return slist;
     }
@@ -197,7 +197,7 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
      */
     public String toString()
     {
-        return toString(pa, null);
+        return toString( pa, null );
     }
 
     /**
@@ -210,33 +210,37 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
      * @return a human readable form of the message and parameters
      * @since 2.4.50
      */
-    protected String toString(final List<String> params, final String[] fieldNames)
+    protected String toString( final List<String> params, final String[] fieldNames )
     {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(':');
+        StringBuilder sb = new StringBuilder( getClass().getSimpleName() );
+        sb.append( ':' );
 
         if (params != null)
         {
             if (params.isEmpty())
             {
-                sb.append("(pa empty)");
-            } else {
+                sb.append( "(pa empty)" );
+            }
+            else
+            {
                 int S = params.size();
                 for (int i = 0; i < S; ++i)
                 {
                     if (i > 0)
-                        sb.append('|');
+                        sb.append( '|' );
 
-                    String p = params.get(i);
+                    String p = params.get( i );
                     String name = ((fieldNames != null) && (i < fieldNames.length)) ? fieldNames[i] : "p";
                     if (p != null)
-                        sb.append(name).append('=').append(p);
+                        sb.append( name ).append( '=' ).append( p );
                     else
-                        sb.append('(').append(name).append(" null)");
+                        sb.append( '(' ).append( name ).append( " null)" );
                 }
             }
-        } else {
-            sb.append("(pa null)");
+        }
+        else
+        {
+            sb.append( "(pa null)" );
         }
 
         return sb.toString();

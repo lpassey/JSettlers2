@@ -670,13 +670,13 @@ public class TestActionsMessages
                 {"all:SOCMoveRobber:", "|playerNumber=3|coord=-d0a"},
                 {
                     (observabilityMode != 2) ? "p3:SOCReportRobbery:" : "all:SOCReportRobbery:",
-                    "|perp=3|victim=1|resType=" + resType + "|isGainLose=true|amount=1"
+                    "|perp=3|victim=1|resType=" + resType + "|amount=1|isGainLose=true"
                 },
                 (observabilityMode != 2)
-                    ? new String[]{"p1:SOCReportRobbery:", "|perp=3|victim=1|resType=" + resType + "|isGainLose=true|amount=1"}
+                    ? new String[]{"p1:SOCReportRobbery:", "|perp=3|victim=1|resType=" + resType + "|amount=1|isGainLose=true"}
                     : null,
                 (observabilityMode != 2)
-                    ? new String[]{"!p[3, 1]:SOCReportRobbery:", "|perp=3|victim=1|resType=6|isGainLose=true|amount=1"}
+                    ? new String[]{"!p[3, 1]:SOCReportRobbery:", "|perp=3|victim=1|resType=6|amount=1|isGainLose=true"}
                     : null,
                 {"all:SOCGameState:", "|state=20"},
             });
@@ -757,13 +757,13 @@ public class TestActionsMessages
                 {"all:SOCMoveRobber:", "|playerNumber=3|coord=703"},
                 {
                     (observabilityMode != 2) ? "p3:SOCReportRobbery:" : "all:SOCReportRobbery:",
-                    "|perp=3|victim=2|resType=" + resType + "|isGainLose=true|amount=1"
+                    "|perp=3|victim=2|resType=" + resType + "|amount=1|isGainLose=true"
                 },
                 (observabilityMode != 2)
-                    ? new String[]{"p2:SOCReportRobbery:", "|perp=3|victim=2|resType=" + resType + "|isGainLose=true|amount=1"}
+                    ? new String[]{"p2:SOCReportRobbery:", "|perp=3|victim=2|resType=" + resType + "|amount=1|isGainLose=true"}
                     : null,
                 (observabilityMode != 2)
-                    ? new String[]{"!p[3, 2]:SOCReportRobbery:", "|perp=3|victim=2|resType=6|isGainLose=true|amount=1"}
+                    ? new String[]{"!p[3, 2]:SOCReportRobbery:", "|perp=3|victim=2|resType=6|amount=1|isGainLose=true"}
                     : null,
                 {"all:SOCGameState:", "|state=20"}
             });
@@ -961,31 +961,30 @@ public class TestActionsMessages
                                 continue;
 
                             SOCResourceSet rsPlayer = pl.getResources();
-                            playerNums.add(Integer.valueOf(pn));
+                            playerNums.add( pn );
                             StringBuilder rsStrAdd = new StringBuilder("|playerNum=" + pn + "|actionType=SET|");
                             for (int rtype = SOCResourceConstants.CLAY; rtype <= SOCResourceConstants.WOOD; ++rtype)
                             {
                                 if (rtype > SOCResourceConstants.CLAY)
                                     rsStrAdd.append(',');
-                                rsStrAdd.append("e" + rtype + "=" + rsPlayer.getAmount(rtype));
+                                rsStrAdd.append( "e" ).append( rtype ).append( "=" ).append( rsPlayer.getAmount( rtype ) );
                             }
                             playerRsrcElems.add(rsStrAdd);
 
                             if (diceResRsrc.length() == 0)
-                                diceResRsrc.append
-                                    ("game=" + ga.getName() + "|p=" + nGainingPlayers);  // first data fields of message
+                                diceResRsrc.append( "game=" ).append( ga.getName() ).append( "|p=" ).append( nGainingPlayers );  // first data fields of message
                             else
                                 diceResRsrc.append("|p=0");  // separator from previous player
 
-                            diceResRsrc.append("|p=" + pn);
-                            diceResRsrc.append("|p=" + rsPlayer.getTotal());
+                            diceResRsrc.append( "|p=" ).append( pn );
+                            diceResRsrc.append( "|p=" ).append( rsPlayer.getTotal() );
                             for (int rtype = SOCResourceConstants.CLAY; rtype <= SOCResourceConstants.WOOD; ++rtype)
                             {
                                 int n = rsGained.getAmount(rtype);
                                 if (n == 0)
                                     continue;
-                                diceResRsrc.append("|p=" + n);
-                                diceResRsrc.append("|p=" + rtype);
+                                diceResRsrc.append( "|p=" ).append( n );
+                                diceResRsrc.append( "|p=" ).append( rtype );
                             }
                         }
 
@@ -1596,7 +1595,7 @@ public class TestActionsMessages
 
         if (compares != null)
         {
-            compares.append("testTradeCounterAccept(" + nameSuffix + "): Message mismatch: ");
+            compares.append( "testTradeCounterAccept(" ).append( nameSuffix ).append( "): Message mismatch: " );
             compares.append(compares);
 
             System.err.println(compares);
@@ -1672,7 +1671,7 @@ public class TestActionsMessages
 
         if (compares != null)
         {
-            compares.append("testEndTurn(" + nameSuffix + "): Message mismatch: ");
+            compares.append( "testEndTurn(" ).append( nameSuffix ).append( "): Message mismatch: " );
             compares.append(compares);
 
             System.err.println(compares);
@@ -1804,7 +1803,7 @@ public class TestActionsMessages
 
         if (compares != null)
         {
-            compares.append("testAskSBP(" + nameSuffix + "): Message mismatch: ");
+            compares.append( "testAskSBP(" ).append( nameSuffix ).append( "): Message mismatch: " );
             compares.append(compares);
 
             System.err.println(compares);
@@ -1813,7 +1812,7 @@ public class TestActionsMessages
     }
 
     /**
-     * Test Win Game: With cient player win, another player win.
+     * Test Win Game: With client player win, another player win.
      */
     @Test
     public void testWinGame()
@@ -1926,7 +1925,7 @@ public class TestActionsMessages
 
         if (compares != null)
         {
-            compares.append("testWinGame(" + nameSuffix + "): Message mismatch: ");
+            compares.append( "testWinGame(" ).append( nameSuffix ).append( "): Message mismatch: " );
             compares.append(compares);
 
             System.err.println(compares);

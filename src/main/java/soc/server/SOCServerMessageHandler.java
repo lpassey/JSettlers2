@@ -6,20 +6,20 @@
  * Portions of this file Copyright (C) 2007-2016 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
  * Portions of this file Copyright (C) 2017-2018 Strategic Conversation (STAC Project) https://www.irit.fr/STAC/
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.server;
@@ -88,7 +88,7 @@ public class SOCServerMessageHandler
      * @since 2.3.00
      */
     private static final Pattern DEBUG_COMMAND_SAVEGAME_FILENAME_REGEX
-        = Pattern.compile("^[\\p{IsLetter}\\p{IsDigit}_-]+$");
+        = Pattern.compile( "^[\\p{IsLetter}\\p{IsDigit}_-]+$" );
 
     private final SOCServer server;
 
@@ -103,7 +103,7 @@ public class SOCServerMessageHandler
     private final SOCChannelList channelList;
 
     public SOCServerMessageHandler
-        (SOCServer srv, final SOCGameListAtServer gameList, final SOCChannelList channelList)
+        ( SOCServer srv, final SOCGameListAtServer gameList, final SOCChannelList channelList )
     {
         this.server = srv;
         this.gameList = gameList;
@@ -132,7 +132,7 @@ public class SOCServerMessageHandler
      * @throws Exception  Caller must catch any exceptions thrown because of
      *     conditions or bugs in any server methods called from here.
      */
-    final void dispatch(final SOCMessage mes, final Connection c)
+    final void dispatch( final SOCMessage mes, final Connection c )
         throws NullPointerException
     {
         switch (mes.getType())
@@ -146,14 +146,14 @@ public class SOCServerMessageHandler
          * client's echo of a server ping
          */
         case SOCMessage.SERVERPING:
-            handleSERVERPING(c, (SOCServerPing) mes);
+            handleSERVERPING( c, (SOCServerPing) mes );
             break;
 
         /**
          * client's "version" message
          */
         case SOCMessage.VERSION:
-            handleVERSION(c, (SOCVersion) mes);
+            handleVERSION( c, (SOCVersion) mes );
             break;
 
         /**
@@ -161,21 +161,21 @@ public class SOCServerMessageHandler
          * or when connecting using {@code SOCAccountClient} (v1.1.19+).
          */
         case SOCMessage.AUTHREQUEST:
-            handleAUTHREQUEST(c, (SOCAuthRequest) mes);
+            handleAUTHREQUEST( c, (SOCAuthRequest) mes );
             break;
 
         /**
          * "join a chat channel" message
          */
         case SOCMessage.JOINCHANNEL:
-            handleJOINCHANNEL(c, (SOCJoinChannel) mes);
+            handleJOINCHANNEL( c, (SOCJoinChannel) mes );
             break;
 
         /**
          * "leave a chat channel" message
          */
         case SOCMessage.LEAVECHANNEL:
-            handleLEAVECHANNEL(c, (SOCLeaveChannel) mes);
+            handleLEAVECHANNEL( c, (SOCLeaveChannel) mes );
             break;
 
         /**
@@ -189,21 +189,21 @@ public class SOCServerMessageHandler
          * text message to a channel (includes channel debug commands)
          */
         case SOCMessage.CHANNELTEXTMSG:
-            handleCHANNELTEXTMSG(c, (SOCChannelTextMsg) mes);
+            handleCHANNELTEXTMSG( c, (SOCChannelTextMsg) mes );
             break;
 
         /**
          * a robot has connected to this server
          */
         case SOCMessage.IMAROBOT:
-            handleIMAROBOT(c, (SOCImARobot) mes);
+            handleIMAROBOT( c, (SOCImARobot) mes );
             break;
 
         /**
          * text message from a game (includes debug commands)
          */
         case SOCMessage.GAMETEXTMSG:
-            handleGAMETEXTMSG(c, (SOCGameTextMsg) mes);
+            handleGAMETEXTMSG( c, (SOCGameTextMsg) mes );
             break;
 
         /**
@@ -213,7 +213,7 @@ public class SOCServerMessageHandler
 
             //createNewGameEventRecord();
             //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
-            handleJOINGAME(c, (SOCJoinGame) mes);
+            handleJOINGAME( c, (SOCJoinGame) mes );
 
             //ga = (SOCGame)gamesData.get(((SOCJoinGame)mes).getGame());
             //if (ga != null) {
@@ -229,7 +229,7 @@ public class SOCServerMessageHandler
 
             //createNewGameEventRecord();
             //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
-            handleLEAVEGAME(c, (SOCLeaveGame) mes);
+            handleLEAVEGAME( c, (SOCLeaveGame) mes );
 
             //ga = (SOCGame)gamesData.get(((SOCLeaveGame)mes).getGame());
             //if (ga != null) {
@@ -245,7 +245,7 @@ public class SOCServerMessageHandler
 
             //createNewGameEventRecord();
             //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
-            handleSITDOWN(c, (SOCSitDown) mes);
+            handleSITDOWN( c, (SOCSitDown) mes );
 
             //ga = (SOCGame)gamesData.get(((SOCSitDown)mes).getGame());
             //currentGameEventRecord.setSnapshot(ga);
@@ -259,7 +259,7 @@ public class SOCServerMessageHandler
 
             //createNewGameEventRecord();
             //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
-            handleSTARTGAME(c, (SOCStartGame) mes, 0);
+            handleSTARTGAME( c, (SOCStartGame) mes, 0 );
 
             //ga = (SOCGame)gamesData.get(((SOCStartGame)mes).getGame());
             //currentGameEventRecord.setSnapshot(ga);
@@ -267,34 +267,34 @@ public class SOCServerMessageHandler
             break;
 
         case SOCMessage.CHANGEFACE:
-            handleCHANGEFACE(c, (SOCChangeFace) mes);
+            handleCHANGEFACE( c, (SOCChangeFace) mes );
             break;
 
         case SOCMessage.SETSEATLOCK:
-            handleSETSEATLOCK(c, (SOCSetSeatLock) mes);
+            handleSETSEATLOCK( c, (SOCSetSeatLock) mes );
             break;
 
         case SOCMessage.RESETBOARDREQUEST:
-            handleRESETBOARDREQUEST(c, (SOCResetBoardRequest) mes);
+            handleRESETBOARDREQUEST( c, (SOCResetBoardRequest) mes );
             break;
 
         case SOCMessage.RESETBOARDVOTE:
-            handleRESETBOARDVOTE(c, (SOCResetBoardVote) mes);
+            handleRESETBOARDVOTE( c, (SOCResetBoardVote) mes );
             break;
 
         case SOCMessage.CREATEACCOUNT:
-            {
-                final SOCCreateAccount m = (SOCCreateAccount) mes;
+        {
+            final SOCCreateAccount m = (SOCCreateAccount) mes;
                 server.createAccount(m.getNickname(), m.getPassword(), m.getEmail(), c);
-            }
-            break;
+        }
+        break;
 
         /**
          * Handle client request for localized i18n strings for game items.
          * Added 2015-01-14 for v2.0.00.
          */
         case SOCMessage.LOCALIZEDSTRINGS:
-            handleLOCALIZEDSTRINGS(c, (SOCLocalizedStrings) mes);
+            handleLOCALIZEDSTRINGS( c, (SOCLocalizedStrings) mes );
             break;
 
         /**
@@ -304,15 +304,15 @@ public class SOCServerMessageHandler
          */
 
         case SOCMessage.GAMEOPTIONGETDEFAULTS:
-            handleGAMEOPTIONGETDEFAULTS(c, (SOCGameOptionGetDefaults) mes);
+            handleGAMEOPTIONGETDEFAULTS( c, (SOCGameOptionGetDefaults) mes );
             break;
 
         case SOCMessage.GAMEOPTIONGETINFOS:
-            handleGAMEOPTIONGETINFOS(c, (SOCGameOptionGetInfos) mes);
+            handleGAMEOPTIONGETINFOS( c, (SOCGameOptionGetInfos) mes );
             break;
 
         case SOCMessage.NEWGAMEWITHOPTIONSREQUEST:
-            handleNEWGAMEWITHOPTIONSREQUEST(c, (SOCNewGameWithOptionsRequest) mes);
+            handleNEWGAMEWITHOPTIONSREQUEST( c, (SOCNewGameWithOptionsRequest) mes );
             break;
 
         /**
@@ -320,7 +320,7 @@ public class SOCServerMessageHandler
          * Added 2015-09-21 for v2.0.00.
          */
         case SOCMessage.SCENARIOINFO:
-            handleSCENARIOINFO(c, (SOCScenarioInfo) mes);
+            handleSCENARIOINFO( c, (SOCScenarioInfo) mes );
             break;
 
         }  // switch (mes.getType)
@@ -344,7 +344,7 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.1.00
      */
-    void handleVERSION(Connection c, SOCVersion mes)
+    void handleVERSION( Connection c, SOCVersion mes )
     {
         if (c == null)
             return;
@@ -364,19 +364,19 @@ public class SOCServerMessageHandler
      * @see SOCServer#isUserDBUserAdmin(String)
      * @since 1.1.19
      */
-    private void handleAUTHREQUEST(Connection c, final SOCAuthRequest mes)
+    private void handleAUTHREQUEST( Connection c, final SOCAuthRequest mes )
     {
         if (c == null)
             return;
 
         final String mesUser = mes.nickname.trim();  // trim before db query calls
         final String mesRole = mes.role;
-        final boolean isPlayerRole = mesRole.equals(SOCAuthRequest.ROLE_GAME_PLAYER);
+        final boolean isPlayerRole = mesRole.equals( SOCAuthRequest.ROLE_GAME_PLAYER );
         final int cliVersion = c.getRemoteVersion();
 
         if (c.getData() != null)
         {
-            handleAUTHREQUEST_postAuth(c, mesUser, mesRole, isPlayerRole, cliVersion, SOCServer.AUTH_OR_REJECT__OK);
+            handleAUTHREQUEST_postAuth( c, mesUser, mesRole, isPlayerRole, cliVersion, SOCServer.AUTH_OR_REJECT__OK );
         }
         else
         {
@@ -384,29 +384,29 @@ public class SOCServerMessageHandler
             {
                 // unlikely: AUTHREQUEST was added in 1.1.19, version message timing was stable years earlier
                 c.send(new SOCStatusMessage
-                        (SOCStatusMessage.SV_NOT_OK_GENERIC, "AUTHREQUEST: Send version first"));  // I18N OK: rare error
+                    ( SOCStatusMessage.SV_NOT_OK_GENERIC, "AUTHREQUEST: Send version first" ) );  // I18N OK: rare error
                 return;
             }
 
             if (mes.authScheme != SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT)
             {
                 c.send(new SOCStatusMessage
-                        (SOCStatusMessage.SV_NOT_OK_GENERIC, "AUTHREQUEST: Auth scheme unknown: " + mes.authScheme));
-                        // I18N OK: rare error
+                    ( SOCStatusMessage.SV_NOT_OK_GENERIC, "AUTHREQUEST: Auth scheme unknown: " + mes.authScheme ) );
+                // I18N OK: rare error
                 return;
             }
 
             // Check user authentication.  Don't call setData or nameConnection yet if there
             // are role-specific things to check and reject during this initial connection.
             server.authOrRejectClientUser
-                (c, mesUser, mes.password, cliVersion, isPlayerRole, false,
-                 new SOCServer.AuthSuccessRunnable()
-                 {
-                    public void success(final Connection conn, final int authResult)
+                ( c, mesUser, mes.password, cliVersion, isPlayerRole, false,
+                    new SOCServer.AuthSuccessRunnable()
                     {
-                        handleAUTHREQUEST_postAuth(conn, mesUser, mesRole, isPlayerRole, cliVersion, authResult);
-                    }
-                 });
+                        public void success( final Connection conn, final int authResult )
+                        {
+                            handleAUTHREQUEST_postAuth( conn, mesUser, mesRole, isPlayerRole, cliVersion, authResult );
+                        }
+                    } );
         }
     }
 
@@ -416,25 +416,25 @@ public class SOCServerMessageHandler
      * @since 1.2.00
      */
     private void handleAUTHREQUEST_postAuth
-        (final Connection c, final String mesUser, final String mesRole, final boolean isPlayerRole,
-         final int cliVersion, int authResult)
+    ( final Connection c, final String mesUser, final String mesRole, final boolean isPlayerRole,
+        final int cliVersion, int authResult )
     {
         if (c.getData() == null)
         {
-            if (! isPlayerRole)
+            if (!isPlayerRole)
             {
-                if (mesRole.equals(SOCAuthRequest.ROLE_USER_ADMIN))
+                if (mesRole.equals( SOCAuthRequest.ROLE_USER_ADMIN ))
                 {
                     if (! server.isUserDBUserAdmin(mesUser))
                     {
                         c.send(SOCStatusMessage.buildForVersion
-                                (SOCStatusMessage.SV_ACCT_NOT_CREATED_DENIED, cliVersion,
-                                 c.getLocalized("account.create.not_auth")));
-                                    // "Your account is not authorized to create accounts."
+                            ( SOCStatusMessage.SV_ACCT_NOT_CREATED_DENIED, cliVersion,
+                                c.getLocalized( "account.create.not_auth" ) ) );
+                        // "Your account is not authorized to create accounts."
 
                         server.printAuditMessage
-                            (mesUser,
-                             "Requested jsettlers account creation, this requester not on account admins list",
+                            ( mesUser,
+                                "Requested jsettlers account creation, this requester not on account admins list",
                              null, null, c.getHost());
 
                         return;
@@ -452,7 +452,7 @@ public class SOCServerMessageHandler
                     // unlikely, we've just queried db in authOrRejectClientUser
                     c.send(SOCStatusMessage.buildForVersion
                             (SOCStatusMessage.SV_PROBLEM_WITH_DB, c.getRemoteVersion(),
-                            "Problem connecting to database, please try again later."));
+                            "Problem connecting to database, please try again later." ) );
                     return;
                 }
             }
@@ -462,10 +462,10 @@ public class SOCServerMessageHandler
         final String txt = server.getClientWelcomeMessage(c);  // "Welcome to Java Settlers of Catan!"
         if (0 == (authResult & SOCServer.AUTH_OR_REJECT__SET_USERNAME))
             c.send(new SOCStatusMessage
-                (SOCStatusMessage.SV_OK, txt));
+                ( SOCStatusMessage.SV_OK, txt ) );
         else
             c.send(new SOCStatusMessage
-                (SOCStatusMessage.SV_OK_SET_NICKNAME, c.getData() + SOCMessage.sep2_char + txt));
+                ( SOCStatusMessage.SV_OK_SET_NICKNAME, c.getData() + SOCMessage.sep2_char + txt ) );
 
         final SOCClientData scd = (SOCClientData) c.getAppData();
         if (scd != null)  // very unlikely to be null; checks here anyway to be extra-careful during auth
@@ -495,18 +495,18 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.0.0
      */
-    private void handleIMAROBOT(final Connection c, final SOCImARobot mes)
+    private void handleIMAROBOT( final Connection c, final SOCImARobot mes )
     {
         if (c == null)
             return;
 
         final String botName = mes.getNickname();
         final String rejectReason = server.authOrRejectClientRobot
-            (c, botName, mes.getCookie(), mes.getRBClass());
+            ( c, botName, mes.getCookie(), mes.getRBClass() );
 
         if (rejectReason != null)
         {
-            if (rejectReason.equals(SOCServer.MSG_NICKNAME_ALREADY_IN_USE))
+            if (rejectReason.equals( SOCServer.MSG_NICKNAME_ALREADY_IN_USE ))
                 c.send(SOCStatusMessage.buildForVersion
                         (SOCStatusMessage.SV_NAME_IN_USE, c.getRemoteVersion(), rejectReason));
             c.send(new SOCRejectConnection(rejectReason));
@@ -519,7 +519,7 @@ public class SOCServerMessageHandler
                 {
                     server.removeConnection(c, true);
                 }
-            }, 300);
+            }, 300 );
 
             return;  // <--- Early return: rejected ---
         }
@@ -540,7 +540,7 @@ public class SOCServerMessageHandler
      * to indicate client is actively responsive to server.
      * @since 1.1.08
      */
-    private void handleSERVERPING(Connection c, SOCServerPing mes)
+    private void handleSERVERPING( Connection c, SOCServerPing mes )
     {
         SOCClientData cd = (SOCClientData) c.getAppData();
         if (cd == null)
@@ -554,20 +554,20 @@ public class SOCServerMessageHandler
      * Handle client request for localized i18n strings for game items.
      * Added 2015-01-14 for v2.0.00.
      */
-    private void handleLOCALIZEDSTRINGS(final Connection c, final SOCLocalizedStrings mes)
+    private void handleLOCALIZEDSTRINGS( final Connection c, final SOCLocalizedStrings mes )
     {
         final List<String> strs = mes.getParams();
-        final String type = strs.get(0);
+        final String type = strs.get( 0 );
         List<String> rets = null;  // for reply to client; built in localizeGameScenarios or other type-specific method
         int flags = 0;
 
-        if (type.equals(SOCLocalizedStrings.TYPE_GAMEOPT))
+        if (type.equals( SOCLocalizedStrings.TYPE_GAMEOPT ))
         {
             // Already handled when client connects
             // and sends GAMEOPTIONGETINFOS
             flags = SOCLocalizedStrings.FLAG_SENT_ALL;
         }
-        else if (type.equals(SOCLocalizedStrings.TYPE_SCENARIO))
+        else if (type.equals( SOCLocalizedStrings.TYPE_SCENARIO ))
         {
             // Handle individual scenario keys for any client version,
             // or FLAG_REQ_ALL from same version as server.
@@ -575,16 +575,16 @@ public class SOCServerMessageHandler
             //  are instead sent in response to client's SOCScenarioInfo message.)
 
             final SOCClientData scd = (SOCClientData) c.getAppData();
-            if (scd.localeHasGameScenarios(c))
+            if (scd.localeHasGameScenarios( c ))
             {
-                boolean wantsAll = mes.isFlagSet(SOCLocalizedStrings.FLAG_REQ_ALL) || (strs.size() == 1);
-                    // if list is empty after first element (string type), is requesting all
+                boolean wantsAll = mes.isFlagSet( SOCLocalizedStrings.FLAG_REQ_ALL ) || (strs.size() == 1);
+                // if list is empty after first element (string type), is requesting all
                 if (wantsAll)
                 {
                     flags = SOCLocalizedStrings.FLAG_SENT_ALL;
                     scd.sentAllScenarioStrings = true;
                 }
-                rets = SOCServer.localizeGameScenarios(scd.locale, strs, wantsAll, true, scd);
+                rets = SOCServer.localizeGameScenarios( scd.locale, strs, wantsAll, true, scd );
             }
             else
             {
@@ -619,7 +619,7 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.1.07
      */
-    private void handleGAMEOPTIONGETDEFAULTS(Connection c, SOCGameOptionGetDefaults mes)
+    private void handleGAMEOPTIONGETDEFAULTS( Connection c, SOCGameOptionGetDefaults mes )
     {
         if (c == null)
             return;
@@ -655,7 +655,7 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.1.07
      */
-    private void handleGAMEOPTIONGETINFOS(Connection c, SOCGameOptionGetInfos mes)
+    private void handleGAMEOPTIONGETINFOS( Connection c, SOCGameOptionGetInfos mes )
     {
         if (c == null)
             return;
@@ -674,7 +674,7 @@ public class SOCServerMessageHandler
             scd.wantsI18N = true;
         final boolean wantsLocalDescs =
             scd.wantsI18N
-            && ! SOCServer.i18n_gameopt_PL_desc.equals(c.getLocalized("gameopt.PL"));
+                && !SOCServer.i18n_gameopt_PL_desc.equals( c.getLocalized( "gameopt.PL" ) );
 
         if (wantsLocalDescs)
         {
@@ -682,7 +682,7 @@ public class SOCServerMessageHandler
             // this list will be narrowed down soon
             optsToLocal = new HashMap<>();
             for (final SOCGameOption opt : server.knownOpts.optionsForVersion(clientVersion))
-                optsToLocal.put(opt.key, opt);
+                optsToLocal.put( opt.key, opt );
         }
         else
         {
@@ -698,21 +698,21 @@ public class SOCServerMessageHandler
                 SOCGameOption opt = server.knownOpts.getKnownOption(okey, false);
 
                 if ((opt == null) || (opt.minVersion > clientVersion))  // don't use dynamic opt.getMinVersion(Map) here
-                    opt = new SOCGameOption(okey);  // OTYPE_UNKNOWN
+                    opt = new SOCGameOption( okey );  // OTYPE_UNKNOWN
 
-                opts.put(okey, opt);
+                opts.put( okey, opt );
             }
         }
 
         if (mes.hasTokenGetAnyChanges
-            || ((mes.optionKeys == null) && ! mes.hasOnlyTokenI18n))
+            || ((mes.optionKeys == null) && !mes.hasOnlyTokenI18n))
         {
             // received "-" or "?CHANGES", so look for newer options (cli is older than us).
 
             List<SOCGameOption> newerOpts = server.knownOpts.optionsNewerThanVersion(clientVersion, false, true);
             if (newerOpts != null)
                 for (SOCGameOption opt : newerOpts)
-                    opts.put(opt.key, opt);
+                    opts.put( opt.key, opt );
 
             if (mes.optionKeys == null)
                 alreadyTrimmedEnums = true;
@@ -724,7 +724,7 @@ public class SOCServerMessageHandler
                 while (opi.hasNext())
                 {
                     final String okey = opi.next();
-                    if ((okey.length() > 3) || okey.contains("_"))
+                    if ((okey.length() > 3) || okey.contains( "_" ))
                         opi.remove();
                 }
             }
@@ -745,12 +745,12 @@ public class SOCServerMessageHandler
             (limitedCliFeats != null) ? server.knownOpts.optionsNotSupported(limitedCliFeats) : null;
         if (unsupportedOpts != null)
             for (SOCGameOption opt : unsupportedOpts.values())
-                opts.put(opt.key, new SOCGameOption(opt.key));  // OTYPE_UNKNOWN
+                opts.put( opt.key, new SOCGameOption( opt.key ) );  // OTYPE_UNKNOWN
 
         final Map<String, SOCGameOption> trimmedOpts =
             (limitedCliFeats != null) ? server.knownOpts.optionsTrimmedForSupport(limitedCliFeats) : null;
         if (trimmedOpts != null)
-            opts.putAll(trimmedOpts);
+            opts.putAll( trimmedOpts );
 
         final SOCGameOptionSet opts3p = server.knownOpts.optionsWithFlag(SOCGameOption.FLAG_3RD_PARTY, 0);
         if (opts3p != null)
@@ -764,19 +764,19 @@ public class SOCServerMessageHandler
                 if (ofeat == null)
                     continue;
 
-                if ((cliFeats == null) || ! cliFeats.isActive(ofeat))
+                if ((cliFeats == null) || !cliFeats.isActive( ofeat ))
                 {
                     final String okey = opt.key;
 
-                    if ((requestedKeys != null) && requestedKeys.contains(okey))
+                    if ((requestedKeys != null) && requestedKeys.contains( okey ))
                     {
-                        opts.put(okey, new SOCGameOption(okey));  // OTYPE_UNKNOWN
+                        opts.put( okey, new SOCGameOption( okey ) );  // OTYPE_UNKNOWN
                     }
                     else
                     {
-                        opts.remove(okey);
+                        opts.remove( okey );
                         if (wantsLocalDescs)
-                            optsToLocal.remove(okey);
+                            optsToLocal.remove( okey );
                     }
                 }
             }
@@ -797,8 +797,8 @@ public class SOCServerMessageHandler
             if (opt.optType != SOCGameOption.OTYPE_UNKNOWN)
             {
                 if ((opt.minVersion > clientVersion)
-                    || (hasLimitedFeats && unsupportedOpts.containsKey(okey)))
-                    opt = new SOCGameOption(okey);  // OTYPE_UNKNOWN
+                    || (hasLimitedFeats && unsupportedOpts.containsKey( okey )))
+                    opt = new SOCGameOption( okey );  // OTYPE_UNKNOWN
                 else if (wantsLocalDescs)
                 {
                     try
@@ -812,15 +812,15 @@ public class SOCServerMessageHandler
             if (wantsLocalDescs)
             {
                 // don't send opt's localization info again after GAMEOPTIONINFOs
-                optsToLocal.remove(okey);
+                optsToLocal.remove( okey );
 
-                if (opt.getDesc().equals(localDesc))
+                if (opt.getDesc().equals( localDesc ))
                     // don't send desc if not localized, client already has unlocalized desc string
                     localDesc = null;
             }
 
             // Enum-type options may have their values restricted by version.
-            if ( (! alreadyTrimmedEnums)
+            if ((!alreadyTrimmedEnums)
                 && (opt.enumVals != null)
                 && (opt.optType != SOCGameOption.OTYPE_UNKNOWN)
                 && (opt.lastModVersion > clientVersion))
@@ -834,26 +834,26 @@ public class SOCServerMessageHandler
         // send any opts which are localized but otherwise unchanged between server's/client's version
         if (optsToLocal != null)  // empty is OK
         {
-            List<String> strs = new ArrayList<>(2 * optsToLocal.size());
+            List<String> strs = new ArrayList<>( 2 * optsToLocal.size() );
             for (final SOCGameOption opt : optsToLocal.values())
             {
-                if (opt.hasFlag(SOCGameOption.FLAG_ACTIVATED))
+                if (opt.hasFlag( SOCGameOption.FLAG_ACTIVATED ))
                     continue;  // already sent localized during SOCServer.setClientVersSendGamesOrReject
 
                 try
                 {
-                    String localDesc = c.getLocalized("gameopt." + opt.key);
-                    if (! opt.getDesc().equals(localDesc))
+                    String localDesc = c.getLocalized( "gameopt." + opt.key );
+                    if (!opt.getDesc().equals( localDesc ))
                     {
-                        strs.add(opt.key);
-                        strs.add(localDesc);
+                        strs.add( opt.key );
+                        strs.add( localDesc );
                     }
                 }
                 catch (MissingResourceException ignored) {}
             }
 
             c.send(new SOCLocalizedStrings
-                (SOCLocalizedStrings.TYPE_GAMEOPT, SOCLocalizedStrings.FLAG_SENT_ALL, strs));
+                ( SOCLocalizedStrings.TYPE_GAMEOPT, SOCLocalizedStrings.FLAG_SENT_ALL, strs ) );
         }
 
         // mark end of list, even if list was empty
@@ -864,7 +864,7 @@ public class SOCServerMessageHandler
      * Process client request for updated {@link SOCScenario} info.
      * Added 2015-09-21 for v2.0.00.
      */
-    private void handleSCENARIOINFO(final Connection c, final SOCScenarioInfo mes)
+    private void handleSCENARIOINFO( final Connection c, final SOCScenarioInfo mes )
     {
         if (c == null)
             return;
@@ -874,10 +874,10 @@ public class SOCServerMessageHandler
         if (L == 0)
             return;  // malformed
 
-        final boolean hasAnyChangedMarker = params.get(L - 1).equals(SOCScenarioInfo.MARKER_ANY_CHANGED);
+        final boolean hasAnyChangedMarker = params.get( L - 1 ).equals( SOCScenarioInfo.MARKER_ANY_CHANGED );
         if (hasAnyChangedMarker)
         {
-            params.remove(L - 1);
+            params.remove( L - 1 );
             --L;
         }
         else if (L == 1)
@@ -899,7 +899,7 @@ public class SOCServerMessageHandler
         {
             knownScens = SOCScenario.getAllKnownScenarios();
             changes = SOCVersionedItem.itemsNewerThanVersion
-                (cliVers, false, knownScens);
+                ( cliVers, false, knownScens );
         }
 
         if (L > 0)
@@ -909,13 +909,13 @@ public class SOCServerMessageHandler
 
             for (String scKey : params)
             {
-                SOCScenario sc = SOCScenario.getScenario(scKey);
+                SOCScenario sc = SOCScenario.getScenario( scKey );
                 if ((sc == null) || (sc.minVersion > cliVers))
                     // unknown scenario, or too new; send too-new ones in case client encounters one as a listed game's
                     // scenario (server also sends too-new SOCGameOptions as unknowns, with the same intention)
                     c.send(new SOCScenarioInfo(scKey, true));
-                else if (! changes.contains(sc))
-                    changes.add(sc);
+                else if (!changes.contains( sc ))
+                    changes.add( sc );
             }
         }
 
@@ -926,13 +926,13 @@ public class SOCServerMessageHandler
                 else
                     c.send(new SOCScenarioInfo(sc.key, true));
 
-        if (hasAnyChangedMarker && scd.wantsI18N && ! scd.sentAllScenarioStrings)
+        if (hasAnyChangedMarker && scd.wantsI18N && !scd.sentAllScenarioStrings)
         {
             // if available send each scenario's localized strings, unless we've already sent its full info
 
-            if (! scd.checkedLocaleScenStrings)
+            if (!scd.checkedLocaleScenStrings)
             {
-                scd.localeHasScenStrings = scd.localeHasGameScenarios(c);
+                scd.localeHasScenStrings = scd.localeHasGameScenarios( c );
                 scd.checkedLocaleScenStrings = true;
             }
 
@@ -942,18 +942,18 @@ public class SOCServerMessageHandler
                     knownScens = SOCScenario.getAllKnownScenarios();
 
                 ArrayList<String> scKeys = new ArrayList<>();
-                for (final SOCScenario sc : SOCVersionedItem.itemsForVersion(cliVers, knownScens))
-                    if ((changes == null) || ! changes.contains(sc))
-                        scKeys.add(sc.key);
+                for (final SOCScenario sc : SOCVersionedItem.itemsForVersion( cliVers, knownScens ))
+                    if ((changes == null) || !changes.contains( sc ))
+                        scKeys.add( sc.key );
 
                 List<String> scenStrs;
-                if (! scKeys.isEmpty())
-                    scenStrs = SOCServer.localizeGameScenarios(scd.locale, scKeys, false, false, scd);
+                if (!scKeys.isEmpty())
+                    scenStrs = SOCServer.localizeGameScenarios( scd.locale, scKeys, false, false, scd );
                 else
                     scenStrs = scKeys;  // re-use the empty list object
 
                 c.send(new SOCLocalizedStrings
-                        (SOCLocalizedStrings.TYPE_SCENARIO, SOCLocalizedStrings.FLAG_SENT_ALL, scenStrs));
+                    ( SOCLocalizedStrings.TYPE_SCENARIO, SOCLocalizedStrings.FLAG_SENT_ALL, scenStrs ) );
             }
 
             scd.sentAllScenarioStrings = true;
@@ -979,24 +979,24 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.0.0
      */
-    private void handleCHANGEFACE(Connection c, final SOCChangeFace mes)
+    private void handleCHANGEFACE( Connection c, final SOCChangeFace mes )
     {
         final String gaName = mes.getGame();
-        final SOCGame ga = gameList.getGameData(gaName);
+        final SOCGame ga = gameList.getGameData( gaName );
         if (ga == null)
             return;
-        SOCPlayer player = ga.getPlayer(c.getData());
+        SOCPlayer player = ga.getPlayer( c.getData() );
         if (player == null)
             return;
         final int id = mes.getFaceId();
-        if ((id <= 0) && ! player.isRobot())
+        if ((id <= 0) && !player.isRobot())
             return;  // only bots should use bot icons
 
-        player.setFaceId(id);
+        player.setFaceId( id );
         server.messageToGame(gaName, true, new SOCChangeFace(gaName, player.getPlayerNumber(), id));
 
         final SOCClientData scd = (SOCClientData) c.getAppData();
-        if ((scd != null) && ! scd.isRobot)
+        if ((scd != null) && !scd.isRobot)
             scd.faceId = id;
     }
 
@@ -1007,21 +1007,21 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.0.0
      */
-    private void handleSETSEATLOCK(Connection c, final SOCSetSeatLock mes)
+    private void handleSETSEATLOCK( Connection c, final SOCSetSeatLock mes )
     {
         final SOCGame.SeatLockState sl = mes.getLockState();
         final String gaName = mes.getGame();
-        SOCGame ga = gameList.getGameData(gaName);
+        SOCGame ga = gameList.getGameData( gaName );
         if (ga == null)
             return;
-        SOCPlayer player = ga.getPlayer(c.getData());
+        SOCPlayer player = ga.getPlayer( c.getData() );
         if (player == null)
             return;
 
         try
         {
             final int pn = mes.getPlayerNumber();
-            ga.setSeatLock(pn, sl);
+            ga.setSeatLock( pn, sl );
             if ((sl != SOCGame.SeatLockState.CLEAR_ON_RESET) || (ga.clientVersionLowest >= 2000))
             {
                 server.messageToGame(gaName, true, mes);
@@ -1030,16 +1030,17 @@ public class SOCServerMessageHandler
             {
                 // older clients won't recognize that lock state
                 server.messageToGameForVersions
-                    (ga, 2000, Integer.MAX_VALUE, mes, true);
+                    ( ga, 2000, Integer.MAX_VALUE, mes, true );
                 server.messageToGameForVersions
-                    (ga, -1, 1999, new SOCSetSeatLock(gaName, pn, SOCGame.SeatLockState.UNLOCKED), true);
+                    ( ga, -1, 1999, new SOCSetSeatLock( gaName, pn, SOCGame.SeatLockState.UNLOCKED ), true );
 
                 server.recordGameEvent(gaName, mes);
             }
         }
-        catch (IllegalStateException e) {
+        catch (IllegalStateException e)
+        {
             server.messageToPlayerKeyed
-                (c, gaName, player.getPlayerNumber(), "reply.lock.cannot");  // "Cannot set that lock right now."
+                ( c, gaName, player.getPlayerNumber(), "reply.lock.cannot" );  // "Cannot set that lock right now."
         }
     }
 
@@ -1053,26 +1054,26 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.2.00
      */
-    void handleCHANNELTEXTMSG(final Connection c, final SOCChannelTextMsg mes)
+    void handleCHANNELTEXTMSG( final Connection c, final SOCChannelTextMsg mes )
     {
         final String chName = mes.getChannel(), mName = c.getData(), txt = mes.getText();
 
         if (server.isDebugUserEnabled() && mName.equals("debug"))
         {
-            if (txt.startsWith("*KILLCHANNEL*"))
+            if (txt.startsWith( "*KILLCHANNEL*" ))
             {
                 server.messageToChannel(chName, new SOCChannelTextMsg
-                    (chName, SOCServer.SERVERNAME,
-                     "********** " + mName + " KILLED THE CHANNEL **********"));
+                    ( chName, SOCServer.SERVERNAME,
+                        "********** " + mName + " KILLED THE CHANNEL **********" ) );
 
                 channelList.takeMonitor();
                 try
                 {
                     server.destroyChannel(chName);
                 }
-                catch (Exception e)
+                catch( Exception e )
                 {
-                    D.ebugPrintStackTrace(e, "Exception in KILLCHANNEL");
+                    D.ebugPrintStackTrace( e, "Exception in KILLCHANNEL" );
                 }
                 finally
                 {
@@ -1094,9 +1095,9 @@ public class SOCServerMessageHandler
             server.messageToChannel(chName, new SOCChannelTextMsg(chName, mName, txt));
 
             final SOCChatRecentBuffer buf = server.channelList.getChatBuffer(chName);
-            synchronized(buf)
+            synchronized (buf)
             {
-                buf.add(mName, txt);
+                buf.add( mName, txt );
             }
         }
     }
@@ -1125,13 +1126,13 @@ public class SOCServerMessageHandler
      * @param gameTextMsgMes  Text message/command to process
      * @since 1.1.07
      */
-    void handleGAMETEXTMSG(Connection c, SOCGameTextMsg gameTextMsgMes)
+    void handleGAMETEXTMSG( Connection c, SOCGameTextMsg gameTextMsgMes )
     {
         //createNewGameEventRecord();
         //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
         final String gaName = gameTextMsgMes.getGame();
 
-        SOCGame ga = gameList.getGameData(gaName);
+        SOCGame ga = gameList.getGameData( gaName );
         if (ga == null)
             return;  // <---- early return: no game by that name ----
 
@@ -1140,11 +1141,11 @@ public class SOCServerMessageHandler
         final boolean userIsDebug =
             (   (server.isDebugUserEnabled() && plName.equals("debug"))
              || (c instanceof MemConnection));
-            // 1.1.07: all practice games are debug mode, for ease of debugging;
-            //         not much use for a chat window in a practice game anyway.
+        // 1.1.07: all practice games are debug mode, for ease of debugging;
+        //         not much use for a chat window in a practice game anyway.
 
         boolean canChat = userIsDebug || (null != ga.getPlayer(plName)) || server.isUserDBUserAdmin(plName);
-        if ((! canChat) && gameList.isMember(c, gaName))
+        if ((!canChat) && gameList.isMember( c, gaName ))
         {
             // To avoid disruptions by game observers, only players can chat after initial placement.
             // To help form the game, non-seated members can also participate in the chat until then.
@@ -1158,12 +1159,12 @@ public class SOCServerMessageHandler
         final String cmdText = gameTextMsgMes.getText();
         String cmdTxtUC = null;
 
-        if (canChat && (cmdText.charAt(0) == '*'))
+        if (canChat && (cmdText.charAt( 0 ) == '*'))
         {
-            cmdTxtUC = cmdText.toUpperCase(Locale.US);
+            cmdTxtUC = cmdText.toUpperCase( Locale.US );
             boolean matchedHere = true;
 
-            if (cmdTxtUC.startsWith("*ADDTIME*") || cmdTxtUC.startsWith("ADDTIME"))
+            if (cmdTxtUC.startsWith( "*ADDTIME*" ) || cmdTxtUC.startsWith( "ADDTIME" ))
             {
                 // Unless this is a practice game, if reasonable
                 // add 30 minutes to the expiration time.  If this
@@ -1176,12 +1177,12 @@ public class SOCServerMessageHandler
                 if (ga.isPractice)
                 {
                     server.messageToPlayerKeyed(c, gaName, SOCServer.PN_NON_EVENT, "reply.addtime.practice.never");
-                        // ">>> Practice games never expire."
+                    // ">>> Practice games never expire."
                 }
                 else if (ga.getGameState() >= SOCGame.OVER)
                 {
                     server.messageToPlayerKeyed(c, gaName, SOCServer.PN_NON_EVENT, "reply.addtime.game_over");
-                        // "This game is over, cannot extend its time."
+                    // "This game is over, cannot extend its time."
                 }
                 else
                 {
@@ -1198,7 +1199,7 @@ public class SOCServerMessageHandler
                     {
                         server.messageToPlayerKeyed(c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
                             "reply.addtime.not_expire_soon", minRemain );
-                            // "Ask again later: This game does not expire soon, it has {0} minutes remaining."
+                        // "Ask again later: This game does not expire soon, it has {0} minutes remaining."
                         // This check time subtracts 4 minutes to keep too-frequent addtime requests
                         // from spamming all game members with announcements
                     }
@@ -1216,36 +1217,36 @@ public class SOCServerMessageHandler
                             exp = now + (minRemain * 60 * 1000);
                         }
 
-                        ga.setExpiration(exp);
+                        ga.setExpiration( exp );
                         server.messageToGameKeyed(ga, true, true, "reply.addtime.extended");  // ">>> Game time has been extended."
                         server.messageToGameKeyed(ga, true, true, "stats.game.willexpire.urgent",
                             minRemain );
-                            // ">>> This game will expire in 45 minutes."
+                        // ">>> This game will expire in 45 minutes."
                     }
                 }
             }
-            else if (cmdTxtUC.startsWith("*CHECKTIME*"))
+            else if (cmdTxtUC.startsWith( "*CHECKTIME*" ))
             {
                 /// Check the time remaining for this game
-                processDebugCommand_gameStats(c, ga, true);
+                processDebugCommand_gameStats( c, ga, true );
             }
-            else if (cmdTxtUC.startsWith("*VERSION*"))
+            else if (cmdTxtUC.startsWith( "*VERSION*" ))
             {
                 server.messageToPlayer(c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
-                    "Java Settlers Server " +Version.versionNumber()
-                    + " (" + Version.version() + ") build " + Version.buildnum());
+                    "Java Settlers Server " + Version.versionNumber()
+                        + " (" + Version.version() + ") build " + Version.buildnum() );
             }
-            else if (cmdTxtUC.startsWith("*STATS*"))
+            else if (cmdTxtUC.startsWith( "*STATS*" ))
             {
-                processDebugCommand_serverStats(c, ga);
+                processDebugCommand_serverStats( c, ga );
             }
-            else if (cmdTxtUC.startsWith("*WHO*"))
+            else if (cmdTxtUC.startsWith( "*WHO*" ))
             {
-                processDebugCommand_who(c, ga, cmdText);
+                processDebugCommand_who( c, ga, cmdText );
             }
             else if (userIsDebug || server.isUserDBUserAdmin(plName))
             {
-                matchedHere = processAdminCommand(c, ga, cmdText, cmdTxtUC);
+                matchedHere = processAdminCommand( c, ga, cmdText, cmdTxtUC );
             }
             else
             {
@@ -1260,18 +1261,18 @@ public class SOCServerMessageHandler
         // check for admin/debugging commands; if not a command,
         // send chat message text to game members
         //
-        if (! canChat)
+        if (!canChat)
         {
             server.messageToPlayerKeyed(c, gaName, SOCServer.PN_OBSERVER, "member.chat.not_observers");
-                // "Observers can't chat during the game."
+            // "Observers can't chat during the game."
 
             return;  // <---- early return: not a player in that game ----
         }
 
         if (cmdTxtUC == null)
-            cmdTxtUC = cmdText.toUpperCase(Locale.US);
+            cmdTxtUC = cmdText.toUpperCase( Locale.US );
 
-        if (cmdTxtUC.startsWith("*HELP"))
+        if (cmdTxtUC.startsWith( "*HELP" ))
         {
             for (int i = 0; i < SOCServer.GENERAL_COMMANDS_HELP.length; ++i)
                 server.messageToPlayer(c, gaName, SOCServer.PN_NON_EVENT, SOCServer.GENERAL_COMMANDS_HELP[i]);
@@ -1281,16 +1282,16 @@ public class SOCServerMessageHandler
                 server.messageToPlayer(c, gaName, SOCServer.PN_NON_EVENT, SOCServer.ADMIN_COMMANDS_HEADING);
                 for (int i = 0; i < SOCServer.ADMIN_USER_COMMANDS_HELP.length; ++i)
                     server.messageToPlayer(c, gaName, SOCServer.PN_NON_EVENT,
-                        SOCServer.ADMIN_USER_COMMANDS_HELP[i]);
+                        SOCServer.ADMIN_USER_COMMANDS_HELP[i] );
             }
 
             if (userIsDebug)
             {
                 for (int i = 0; i < SOCServer.DEBUG_COMMANDS_HELP.length; ++i)
                     server.messageToPlayer(c, gaName, SOCServer.PN_NON_EVENT,
-                        SOCServer.DEBUG_COMMANDS_HELP[i]);
+                        SOCServer.DEBUG_COMMANDS_HELP[i] );
 
-                GameHandler hand = gameList.getGameTypeHandler(gaName);
+                GameHandler hand = gameList.getGameTypeHandler( gaName );
                 if (hand != null)
                 {
                     final String[] GAMETYPE_DEBUG_HELP = hand.getDebugCommandsHelp();
@@ -1310,11 +1311,11 @@ public class SOCServerMessageHandler
                 //
                 server.messageToGame(gaName, true, new SOCGameTextMsg(gaName, plName, cmdText));
 
-                final SOCChatRecentBuffer buf = gameList.getChatBuffer(gaName);
+                final SOCChatRecentBuffer buf = gameList.getChatBuffer( gaName );
                 if (buf != null)
-                    synchronized(buf)
+                    synchronized (buf)
                     {
-                        buf.add(plName, cmdText);
+                        buf.add( plName, cmdText );
                     }
             }
         }
@@ -1337,34 +1338,34 @@ public class SOCServerMessageHandler
      * @since 2.3.00
      */
     boolean processAdminCommand
-        (final Connection c, final SOCGame ga, final String cmdText, final String cmdTextUC)
+    ( final Connection c, final SOCGame ga, final String cmdText, final String cmdTextUC )
     {
         final String gaName = ga.getName();
         boolean matchedHere = true;
 
-        if (cmdTextUC.startsWith("*GC*"))
+        if (cmdTextUC.startsWith( "*GC*" ))
         {
             Runtime rt = Runtime.getRuntime();
             rt.gc();
             server.messageToGame(gaName, true, "> GARBAGE COLLECTING DONE");
             server.messageToGame
-                (gaName, true, "> Free Memory: "
-                 + getSettingsFormatted_freeMemory(rt.freeMemory(), rt.totalMemory()));  // as MB, % total
+                ( gaName, true, "> Free Memory: "
+                    + getSettingsFormatted_freeMemory( rt.freeMemory(), rt.totalMemory() ) );  // as MB, % total
         }
-        else if (cmdTextUC.startsWith("*BCAST* "))
+        else if (cmdTextUC.startsWith( "*BCAST* " ))
         {
             server.broadcast(new SOCBCastTextMsg(c.getData() + ": " + cmdText.substring(8).trim()));
         }
-        else if (cmdTextUC.startsWith("*BOTLIST*"))
+        else if (cmdTextUC.startsWith( "*BOTLIST*" ))
         {
-            StringBuilder sb = new StringBuilder("Currently connected bots: ");
+            StringBuilder sb = new StringBuilder( "Currently connected bots: " );
             if (! server.getConnectedRobotNames(sb))
-                sb.append("(None)");
+                sb.append( "(None)" );
             server.messageToPlayer(c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED, sb.toString());
         }
-        else if (cmdTextUC.startsWith("*RESETBOT* "))
+        else if (cmdTextUC.startsWith( "*RESETBOT* " ))
         {
-            String botName = cmdText.substring(11).trim();
+            String botName = cmdText.substring( 11 ).trim();
             server.messageToGame(gaName, true, "> Admin: RESETBOT " + botName);
 
             final Connection robotConn = server.getRobotConnection(botName);
@@ -1378,9 +1379,9 @@ public class SOCServerMessageHandler
                 server.messageToPlayer(c, gaName, SOCServer.PN_NON_EVENT, "Bot not found to reset: " + botName);
             }
         }
-        else if (cmdTextUC.startsWith("*KILLBOT* "))
+        else if (cmdTextUC.startsWith( "*KILLBOT* " ))
         {
-            final String botName = cmdText.substring(10).trim();
+            final String botName = cmdText.substring( 10 ).trim();
             server.messageToGame(gaName, true, "> Admin: KILLBOT " + botName);
 
             final Connection robotConn = server.getRobotConnection(botName);
@@ -1394,21 +1395,21 @@ public class SOCServerMessageHandler
                 server.messageToPlayer(c, gaName, SOCServer.PN_NON_EVENT, "Bot not found to disconnect: " + botName);
             }
         }
-        else if (cmdTextUC.startsWith("*LOADGAME*"))
+        else if (cmdTextUC.startsWith( "*LOADGAME*" ))
         {
-            processDebugCommand_loadGame(c, gaName, cmdText.substring(10).trim());
+            processDebugCommand_loadGame( c, gaName, cmdText.substring( 10 ).trim() );
         }
-        else if (cmdTextUC.startsWith("*RESUMEGAME*"))
+        else if (cmdTextUC.startsWith( "*RESUMEGAME*" ))
         {
-            processDebugCommand_resumeGame(c, ga, cmdText.substring(12).trim());
+            processDebugCommand_resumeGame( c, ga, cmdText.substring( 12 ).trim() );
         }
-        else if (cmdTextUC.startsWith("*SAVEGAME*"))
+        else if (cmdTextUC.startsWith( "*SAVEGAME*" ))
         {
-            processDebugCommand_saveGame(c, ga, cmdText.substring(10).trim());
+            processDebugCommand_saveGame( c, ga, cmdText.substring( 10 ).trim() );
         }
-        else if (cmdTextUC.startsWith("*DBSETTINGS*"))
+        else if (cmdTextUC.startsWith( "*DBSETTINGS*" ))
         {
-            processDebugCommand_dbSettings(c, ga);
+            processDebugCommand_dbSettings( c, ga );
         }
         else
         {
@@ -1431,7 +1432,7 @@ public class SOCServerMessageHandler
      * @since 1.2.00
      * @see #processDebugCommand_serverStats(Connection, SOCGame)
      */
-    private void processDebugCommand_dbSettings(final Connection c, final SOCGame ga)
+    private void processDebugCommand_dbSettings( final Connection c, final SOCGame ga )
     {
         final String gaName = ga.getName();
 
@@ -1457,7 +1458,7 @@ public class SOCServerMessageHandler
      * @see #processDebugCommand_gameStats(Connection, SOCGame, boolean)
      */
     final void processDebugCommand_connStats
-        (final Connection c, final SOCGame ga, final boolean skipWinLossBefore2)
+    ( final Connection c, final SOCGame ga, final boolean skipWinLossBefore2 )
     {
         final String gaName = ga.getName();
 
@@ -1480,15 +1481,15 @@ public class SOCServerMessageHandler
         {
             if (losses == 0)
                 server.messageToPlayerKeyed(c, gaName, SOCServer.PN_NON_EVENT,  "stats.cli.winloss.won", wins);
-                    // "You have won {0,choice, 1#1 game|1<{0,number} games} since connecting."
+                // "You have won {0,choice, 1#1 game|1<{0,number} games} since connecting."
             else
                 server.messageToPlayerKeyed(c, gaName, SOCServer.PN_NON_EVENT, "stats.cli.winloss.wonlost", wins, losses);
-                    // "You have won {0,choice, 1#1 game|1<{0,number} games} and lost {1,choice, 1#1 game|1<{1,number} games} since connecting."
+            // "You have won {0,choice, 1#1 game|1<{0,number} games} and lost {1,choice, 1#1 game|1<{1,number} games} since connecting."
         }
         else
         {
             server.messageToPlayerKeyed(c, gaName, SOCServer.PN_NON_EVENT, "stats.cli.winloss.lost", losses);
-                // "You have lost {0,choice, 1#1 game|1<{0,number} games} since connecting."
+            // "You have lost {0,choice, 1#1 game|1<{0,number} games} since connecting."
         }
     }
 
@@ -1507,7 +1508,7 @@ public class SOCServerMessageHandler
      * @since 1.1.07
      */
     void processDebugCommand_gameStats
-        (final Connection c, final SOCGame gameData, final boolean isCheckTime)
+    ( final Connection c, final SOCGame gameData, final boolean isCheckTime )
     {
         if (gameData == null)
             return;
@@ -1515,17 +1516,17 @@ public class SOCServerMessageHandler
         final String gaName = gameData.getName();
 
         server.messageToPlayerKeyed(c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
-            "stats.game.title");  // "-- Game statistics: --"
+            "stats.game.title" );  // "-- Game statistics: --"
         server.messageToPlayerKeyed(c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
-            "stats.game.rounds", gameData.getRoundCount());  // Rounds played: 20
+            "stats.game.rounds", gameData.getRoundCount() );  // Rounds played: 20
 
         // player's stats
         if (c.getRemoteVersion() >= SOCPlayerStats.VERSION_FOR_RES_ROLL)
         {
-            SOCPlayer cp = gameData.getPlayer(c.getData());
+            SOCPlayer cp = gameData.getPlayer( c.getData() );
             if (cp != null)
                 server.messageToPlayer(c, gaName, cp.getPlayerNumber(),
-                    new SOCPlayerStats(cp, SOCPlayerStats.STYPE_RES_ROLL));
+                    new SOCPlayerStats( cp, SOCPlayerStats.STYPE_RES_ROLL ) );
         }
 
         // time
@@ -1534,22 +1535,22 @@ public class SOCServerMessageHandler
         gameSeconds = gameSeconds % 60;
         if (gameData.getGameState() < SOCGame.OVER)
             server.messageToPlayerKeyed
-                (c, gaName,  SOCServer.PN_REPLY_TO_UNDETERMINED,
-                 "stats.game.startedago", gameMinutes);
-                 // "This game started 5 minutes ago."
+                ( c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
+                    "stats.game.startedago", gameMinutes );
+            // "This game started 5 minutes ago."
         else if (gameSeconds == 0)
             server.messageToPlayerKeyed
-                (c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
-                 "stats.game.was.minutes", gameMinutes);
-                 // "This game took # minutes."
+                ( c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
+                    "stats.game.was.minutes", gameMinutes );
+            // "This game took # minutes."
         else
             server.messageToPlayerKeyed
-                (c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
-                 "stats.game.was.minutessec", gameMinutes, gameSeconds);
-                 // "This game took # minutes # seconds." [or 1 second.]
+                ( c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
+                    "stats.game.was.minutessec", gameMinutes, gameSeconds );
+        // "This game took # minutes # seconds." [or 1 second.]
         // Ignore possible "1 minutes"; that game is too short to worry about.
 
-        if (! gameData.isPractice)   // practice games don't expire
+        if (!gameData.isPractice)   // practice games don't expire
         {
             // If isCheckTime, use ">>>" in message text to mark as urgent:
             // ">>> This game will expire in 15 minutes."
@@ -1569,10 +1570,10 @@ public class SOCServerMessageHandler
      * @see #getSettingsFormatted(SOCStringManager)
      * @since 2.3.00
      */
-    private void listAddStat(final List<String> li, final String name, final String val)
+    private void listAddStat( final List<String> li, final String name, final String val )
     {
-        li.add(name);
-        li.add(val);
+        li.add( name );
+        li.add( val );
     }
 
     /**
@@ -1585,10 +1586,10 @@ public class SOCServerMessageHandler
      * @see #getSettingsFormatted(SOCStringManager)
      * @since 2.3.00
      */
-    private void listAddStat(final List<String> li, final String name, final int val)
+    private void listAddStat( final List<String> li, final String name, final int val )
     {
-        li.add(name);
-        li.add(Integer.toString(val));
+        li.add( name );
+        li.add( Integer.toString( val ) );
     }
 
     /**
@@ -1601,7 +1602,7 @@ public class SOCServerMessageHandler
      * @see SOCDBHelper#getSettingsFormatted(SOCServer)
      * @since 2.3.00
      */
-    final List<String> getSettingsFormatted(SOCStringManager strings)
+    final List<String> getSettingsFormatted( SOCStringManager strings )
     {
         if (strings == null)
             strings = SOCStringManager.getFallbackServerManagerForClient();
@@ -1611,7 +1612,7 @@ public class SOCServerMessageHandler
 
         ArrayList<String> li = new ArrayList<>();
 
-        listAddStat(li, "Uptime", I18n.durationToDaysHoursMinutesSeconds
+        listAddStat( li, "Uptime", I18n.durationToDaysHoursMinutesSeconds
             (System.currentTimeMillis() - server.startTime, strings));
         listAddStat(li, "Connections since startup", server.getRunConnectionCount());
         listAddStat(li, "Current named connections", server.getNamedConnectionCount());
@@ -1623,24 +1624,24 @@ public class SOCServerMessageHandler
         listAddStat(li, "Number of bots in finished games", server.numberOfBotsInFinishedGames);
         final long totalMem = rt.totalMemory(), freeMem = rt.freeMemory();
         listAddStat
-            (li, "Total Memory", totalMem + " (" + I18n.bytesToHumanUnits(totalMem) + ')');
+            ( li, "Total Memory", totalMem + " (" + I18n.bytesToHumanUnits( totalMem ) + ')' );
         listAddStat
-            (li, "Free Memory", getSettingsFormatted_freeMemory(freeMem, totalMem));  // as MB, % total
+            ( li, "Free Memory", getSettingsFormatted_freeMemory( freeMem, totalMem ) );  // as MB, % total
         listAddStat
-            (li, "Version", Version.versionNumber() + " (" + Version.version() + ") build " + Version.buildnum());
+            ( li, "Version", Version.versionNumber() + " (" + Version.version() + ") build " + Version.buildnum() );
 
         if (! server.clientPastVersionStats.isEmpty())
         {
             if (server.clientPastVersionStats.size() == 1)
             {
                 listAddStat
-                    (li, "Client versions since startup",
+                    ( li, "Client versions since startup",
                      "all " + Version.version(server.clientPastVersionStats.keySet().iterator().next()));
             }
             else
             {
                 // TODO sort it
-                listAddStat(li, "Client versions since startup", "(includes bots)");
+                listAddStat( li, "Client versions since startup", "(includes bots)" );
                 for (Integer v : server.clientPastVersionStats.keySet())
                     listAddStat
                         (li, "  ", Version.version(v) + ": " + server.clientPastVersionStats.get(v));
@@ -1658,9 +1659,9 @@ public class SOCServerMessageHandler
      * @return Formatted display string for free memory
      * @since 2.3.00
      */
-    private String getSettingsFormatted_freeMemory(final long freeMem, final long totalMem)
+    private String getSettingsFormatted_freeMemory( final long freeMem, final long totalMem )
     {
-        return freeMem + " (" + I18n.bytesToHumanUnits(freeMem) + ": "
+        return freeMem + " (" + I18n.bytesToHumanUnits( freeMem ) + ": "
             + ((100 * freeMem) / totalMem) + "%)";
     }
 
@@ -1677,24 +1678,24 @@ public class SOCServerMessageHandler
      * @see #processDebugCommand_dbSettings(Connection, SOCGame)
      * @see #processDebugCommand_connStats(Connection, SOCGame, boolean)
      */
-    final void processDebugCommand_serverStats(final Connection c, final SOCGame ga)
+    final void processDebugCommand_serverStats( final Connection c, final SOCGame ga )
     {
         final String gaName = ga.getName();
 
-        Iterator<String> it = getSettingsFormatted(c.getI18NStringManager()).iterator();
+        Iterator<String> it = getSettingsFormatted( c.getI18NStringManager() ).iterator();
         while (it.hasNext())
             server.messageToPlayer(c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
-                "> " + it.next() + ": " + it.next());
+                "> " + it.next() + ": " + it.next() );
 
         // show range of current game's member client versions if not server version (added to *STATS* in 1.1.19)
         if ((ga.clientVersionLowest != Version.versionNumber())
             || (ga.clientVersionLowest != ga.clientVersionHighest))
             server.messageToPlayer(c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
                 "> This game's client versions: "
-                + Version.version(ga.clientVersionLowest) + " - " + Version.version(ga.clientVersionHighest));
+                    + Version.version( ga.clientVersionLowest ) + " - " + Version.version( ga.clientVersionHighest ) );
 
-        processDebugCommand_gameStats(c, ga, false);
-        processDebugCommand_connStats(c, ga, false);
+        processDebugCommand_gameStats( c, ga, false );
+        processDebugCommand_connStats( c, ga, false );
     }
 
     /**
@@ -1705,25 +1706,25 @@ public class SOCServerMessageHandler
      * @param argsStr  Args for command (trimmed), or ""
      * @since 2.3.00
      */
-    /* package */ void processDebugCommand_loadGame(final Connection c, final String connGaName, final String argsStr)
+    /* package */ void processDebugCommand_loadGame( final Connection c, final String connGaName, final String argsStr )
     {
-        if (argsStr.isEmpty() || argsStr.indexOf(' ') != -1)
+        if (argsStr.isEmpty() || argsStr.indexOf( ' ' ) != -1)
         {
             server.messageToPlayerKeyed
-                (c, connGaName, SOCServer.PN_NON_EVENT, "admin.loadgame.resp.usage");
-                // "Usage: *LOADGAME* gamename"
+                ( c, connGaName, SOCServer.PN_NON_EVENT, "admin.loadgame.resp.usage" );
+            // "Usage: *LOADGAME* gamename"
             return;
         }
 
-        if (! DEBUG_COMMAND_SAVEGAME_FILENAME_REGEX.matcher(argsStr).matches())
+        if (!DEBUG_COMMAND_SAVEGAME_FILENAME_REGEX.matcher( argsStr ).matches())
         {
             server.messageToPlayerKeyed
-                (c, connGaName, SOCServer.PN_NON_EVENT, "admin.loadsavegame.resp.gamename.chars");
-                // "gamename can only include letters, numbers, dashes, underscores."
+                ( c, connGaName, SOCServer.PN_NON_EVENT, "admin.loadsavegame.resp.gamename.chars" );
+            // "gamename can only include letters, numbers, dashes, underscores."
             return;
         }
 
-        if (! processDebugCommand_loadSaveGame_checkDir("LOADGAME", c, connGaName))
+        if (!processDebugCommand_loadSaveGame_checkDir( "LOADGAME", c, connGaName ))
             return;
 
         SavedGameModel sgm = null;
@@ -1735,44 +1736,44 @@ public class SOCServerMessageHandler
         }
         catch (SOCGameOptionVersionException e)
         {
-            errText = c.getLocalized("admin.loadgame.err.too_new.vers", argsStr, e.gameOptsVersion);
-                // "Problem loading {0}: Too new: gameMinVersion is {1}"
+            errText = c.getLocalized( "admin.loadgame.err.too_new.vers", argsStr, e.gameOptsVersion );
+            // "Problem loading {0}: Too new: gameMinVersion is {1}"
         }
-        catch (NoSuchElementException e)
+        catch( NoSuchElementException e )
         {
-            errText = c.getLocalized("admin.loadgame.err.too_new", argsStr, e.getMessage());
-                // "Problem loading {0}: Too new: {1}"
+            errText = c.getLocalized( "admin.loadgame.err.too_new", argsStr, e.getMessage() );
+            // "Problem loading {0}: Too new: {1}"
         }
-        catch (SavedGameModel.UnsupportedSGMOperationException e)
+        catch( SavedGameModel.UnsupportedSGMOperationException e )
         {
             String hasWhat = e.getMessage();
             try
             {
                 // "admin.savegame.cannot_save.scen" -> "a scenario", etc
-                hasWhat = c.getLocalized(hasWhat, e.param1, e.param2);
+                hasWhat = c.getLocalized( hasWhat, e.param1, e.param2 );
             }
             catch (MissingResourceException ignored) {}
-            errText = c.getLocalized("admin.loadgame.err.too_new", argsStr, hasWhat);
+            errText = c.getLocalized( "admin.loadgame.err.too_new", argsStr, hasWhat );
         }
-        catch (IOException|StringIndexOutOfBoundsException e)
+        catch( IOException | StringIndexOutOfBoundsException e )
         {
-            errText = c.getLocalized("admin.loadgame.err.problem_loading", argsStr, e.getMessage());
-                // "Problem loading {0}: {1}"
+            errText = c.getLocalized( "admin.loadgame.err.problem_loading", argsStr, e.getMessage() );
+            // "Problem loading {0}: {1}"
         }
-        catch (IllegalArgumentException e)
+        catch( IllegalArgumentException e )
         {
-            errText = c.getLocalized("admin.loadgame.err.cant_create", argsStr, e.getCause());
-                // "Problem loading {0}: Can't create game: {1}"
+            errText = c.getLocalized( "admin.loadgame.err.cant_create", argsStr, e.getCause() );
+            // "Problem loading {0}: Can't create game: {1}"
         }
-        catch (Throwable th)
+        catch( Throwable th )
         {
-            errText = c.getLocalized("admin.loadgame.err.problem_loading", argsStr, th);
-                // "Problem loading {0}: {1}"
-            if ("debug".equals(c.getData()))
+            errText = c.getLocalized( "admin.loadgame.err.problem_loading", argsStr, th );
+            // "Problem loading {0}: {1}"
+            if ("debug".equals( c.getData() ))
             {
-                soc.debug.D.ebugPrintStackTrace(th, errText);
-                errText += c.getLocalized("admin.loadgame.err.append__see_console");
-                    // ": See server console"
+                soc.debug.D.ebugPrintStackTrace( th, errText );
+                errText += c.getLocalized( "admin.loadgame.err.append__see_console" );
+                // ": See server console"
             }
         }
         if (errText != null)
@@ -1796,17 +1797,17 @@ public class SOCServerMessageHandler
      * @param argsStr  Args for command (trimmed), or ""
      * @since 2.3.00
      */
-    /* package */ void processDebugCommand_resumeGame(final Connection c, final SOCGame ga, final String argsStr)
+    /* package */ void processDebugCommand_resumeGame( final Connection c, final SOCGame ga, final String argsStr )
     {
         final String gaName = ga.getName();
 
-        if (! argsStr.isEmpty())
+        if (!argsStr.isEmpty())
         {
             // TODO once constraints are implemented: have an arg to override them
 
             server.messageToPlayerKeyed
-                (c, gaName, SOCServer.PN_NON_EVENT, "admin.resumegame.resp.usage");
-                // "Usage: *RESUMEGAME* with no arguments"
+                ( c, gaName, SOCServer.PN_NON_EVENT, "admin.resumegame.resp.usage" );
+            // "Usage: *RESUMEGAME* with no arguments"
             return;
         }
 
@@ -1815,8 +1816,8 @@ public class SOCServerMessageHandler
             || (sgm == null))
         {
             server.messageToPlayerKeyed
-                (c, gaName, SOCServer.PN_NON_EVENT, "admin.resumegame.resp.not_waiting");
-                // "This game is not waiting to be resumed."
+                ( c, gaName, SOCServer.PN_NON_EVENT, "admin.resumegame.resp.not_waiting" );
+            // "This game is not waiting to be resumed."
             return;
         }
 
@@ -1830,7 +1831,7 @@ public class SOCServerMessageHandler
      * @param argsStr  Args for command (trimmed), or ""
      * @since 2.3.00
      */
-    /* package */ void processDebugCommand_saveGame(final Connection c, final SOCGame ga, String argsStr)
+    /* package */ void processDebugCommand_saveGame( final Connection c, final SOCGame ga, String argsStr )
     {
         final String gaName = ga.getName();
         boolean askedForce = false;
@@ -1879,29 +1880,29 @@ public class SOCServerMessageHandler
             }
             catch( SecurityException ignored ) { }
         }
-                // ignore until actual save; that code covers this & other situations
+        // ignore until actual save; that code covers this & other situations
 
         final int gstate = ga.getGameState();
         if (gstate < SOCGame.ROLL_OR_CARD)
         {
             server.messageToPlayerKeyed
-                (c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED, "admin.savegame.resp.must_initial_placement");
-                // "Must finish initial placement before saving."
+                ( c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED, "admin.savegame.resp.must_initial_placement" );
+            // "Must finish initial placement before saving."
             return;
         }
         else if ((gstate == SOCGame.LOADING) || (gstate == SOCGame.LOADING_RESUMING))
         {
             server.messageToPlayerKeyed
-                (c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED, "admin.savegame.resp.must_resume");
-                // "Must resume loaded game before saving again."
+                ( c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED, "admin.savegame.resp.must_resume" );
+            // "Must resume loaded game before saving again."
             return;
         }
 
-        if (! DEBUG_COMMAND_SAVEGAME_FILENAME_REGEX.matcher(argsStr).matches())
+        if (!DEBUG_COMMAND_SAVEGAME_FILENAME_REGEX.matcher( argsStr ).matches())
         {
             server.messageToPlayerKeyed
-                (c, gaName, SOCServer.PN_NON_EVENT, "admin.loadsavegame.resp.gamename.chars");
-                // "gamename can only include letters, numbers, dashes, underscores."
+                ( c, gaName, SOCServer.PN_NON_EVENT, "admin.loadsavegame.resp.gamename.chars" );
+            // "gamename can only include letters, numbers, dashes, underscores."
             return;
         }
 
@@ -1910,30 +1911,30 @@ public class SOCServerMessageHandler
             GameSaverJSON.saveGame( ga, server.savegameDir, fname, server );
 
             server.messageToPlayerKeyed
-                (c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
-                 "admin.savegame.ok.saved_to", fname);
-                 // "Saved game to {0}"
+                ( c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
+                    "admin.savegame.ok.saved_to", fname );
+            // "Saved game to {0}"
         }
-        catch (SavedGameModel.UnsupportedSGMOperationException e)
+        catch( SavedGameModel.UnsupportedSGMOperationException e )
         {
             String hasWhat = e.getMessage();
             try
             {
                 // "admin.savegame.cannot_save.scen" -> "a scenario", etc
-                hasWhat = c.getLocalized(hasWhat, e.param1, e.param2);
+                hasWhat = c.getLocalized( hasWhat, e.param1, e.param2 );
             }
             catch (MissingResourceException ignored) {}
             server.messageToPlayerKeyed
-                (c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
-                 "admin.savegame.err.cannot_save_has", hasWhat);
-                 // "Cannot save this game, because it has {0}"
+                ( c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
+                    "admin.savegame.err.cannot_save_has", hasWhat );
+            // "Cannot save this game, because it has {0}"
         }
-        catch (IllegalArgumentException|IllegalStateException|IOException e)
+        catch (IllegalArgumentException | IllegalStateException | IOException e)
         {
             server.messageToPlayerKeyed
-                (c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
-                 "admin.savegame.err.problem_saving", e);
-                  // "Problem saving game: {0}"
+                ( c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
+                    "admin.savegame.err.problem_saving", e );
+            // "Problem saving game: {0}"
         }
     }
 
@@ -1949,7 +1950,7 @@ public class SOCServerMessageHandler
      * @since 2.3.00
      */
     private boolean processDebugCommand_loadSaveGame_checkDir
-        (final String cmdName, final Connection c, final String connGaName)
+    ( final String cmdName, final Connection c, final String connGaName )
     {
         final File dir = server.savegameDir;
 
@@ -1959,13 +1960,13 @@ public class SOCServerMessageHandler
         if (server.savegameInitFailed)
         {
             errMsgKey = "admin.loadsavegame.resp.disabled_init";
-                // "{0} is disabled: Initialization failed. Check startup messages on server console."
+            // "{0} is disabled: Initialization failed. Check startup messages on server console."
             errMsgObj = cmdName;
         }
         else if (dir == null)
         {
             errMsgKey = "admin.loadsavegame.resp.disabled_prop";
-                // "{0} is disabled: Must set {1} property"
+            // "{0} is disabled: Must set {1} property"
             errMsgObj = cmdName;
             errMsgO1 = SOCServer.PROP_JSETTLERS_SAVEGAME_DIR;
         }
@@ -1975,21 +1976,21 @@ public class SOCServerMessageHandler
 
             try
             {
-                if (! dir.exists())
+                if (!dir.exists())
                 {
                     errMsgKey = "admin.loadsavegame.err.dir_not_found";
-                        // "savegame.dir not found: {0}"
+                    // "savegame.dir not found: {0}"
                 }
-                else if (! dir.isDirectory())
+                else if (!dir.isDirectory())
                 {
                     errMsgKey = "admin.loadsavegame.err.dir_not_dir";
-                        // "savegame.dir file exists but isn't a directory: {0}"
+                    // "savegame.dir file exists but isn't a directory: {0}"
                 }
             }
-            catch (SecurityException e)
+            catch( SecurityException e )
             {
                 errMsgKey = "admin.loadsavegame.err.dir_no_access";
-                    // "Warning: Can't access savegame.dir {0}: {1}"
+                // "Warning: Can't access savegame.dir {0}: {1}"
                 errMsgO1 = e;
             }
         }
@@ -2016,17 +2017,17 @@ public class SOCServerMessageHandler
      * @since 1.1.20
      */
     private void processDebugCommand_who
-        (final Connection c, final SOCGame ga, final String cmdText)
+    ( final Connection c, final SOCGame ga, final String cmdText )
     {
         final String gaName = ga.getName();  // name of game where c is connected and sent *WHO* command
         String gaNameWho = gaName;  // name of game to find members; if sendToCli, not equal to gaName
         boolean sendToCli = false;  // if true, send member list only to c instead of whole game
 
-        int i = cmdText.indexOf(' ');
+        int i = cmdText.indexOf( ' ' );
         if (i != -1)
         {
             // look for a game name or */all
-            String gname = cmdText.substring(i+1).trim();
+            String gname = cmdText.substring( i + 1 ).trim();
 
             if (gname.length() > 0)
             {
@@ -2037,32 +2038,32 @@ public class SOCServerMessageHandler
                        (c instanceof MemConnection)  // practice game; or maybe not...
                     || server.isUserDBUserAdmin(uname)
                     || (server.isDebugUserEnabled() && uname.equals("debug"));
-                if (! isAdmin)
+                if (!isAdmin)
                 {
                     server.messageToPlayerKeyed(c, gaName, SOCServer.PN_NON_EVENT, "reply.must_be_admin.view");
-                        // "Must be an administrator to view that."
+                    // "Must be an administrator to view that."
                     return;
                 }
 
                 sendToCli = true;
 
-                if (gname.equals("*") || gname.toUpperCase(Locale.US).equals("ALL"))
+                if (gname.equals( "*" ) || gname.toUpperCase( Locale.US ).equals( "ALL" ))
                 {
                     // Instead of listing the game's members, list all connected clients.
                     // Build list of StringBuilder not String to do as little as possible
                     // inside synchronization block.
 
                     final ArrayList<StringBuilder> sbs = new ArrayList<>();
-                    sbs.add(new StringBuilder(c.getLocalized("reply.who.conn_to_srv")));
-                        // "Currently connected to server:"
+                    sbs.add( new StringBuilder( c.getLocalized( "reply.who.conn_to_srv" ) ) );
+                    // "Currently connected to server:"
 
                     final Integer nUnnamed = server.getConnectedClientNames(sbs);
                     if (nUnnamed != 0)
                     {
-                        StringBuilder sb = new StringBuilder("- ");
-                        sb.append(c.getLocalized("reply.who.and_unnamed", nUnnamed));
-                            // "and {0} unnamed connections"
-                        sbs.add(sb);
+                        StringBuilder sb = new StringBuilder( "- " );
+                        sb.append( c.getLocalized( "reply.who.and_unnamed", nUnnamed ) );
+                        // "and {0} unnamed connections"
+                        sbs.add( sb );
                     }
 
                     for (StringBuilder sbb : sbs)
@@ -2071,14 +2072,14 @@ public class SOCServerMessageHandler
                     return;  // <--- Early return; Not listing a game's members ---
                 }
 
-                if (gameList.isGame(gname))
+                if (gameList.isGame( gname ))
                 {
                     gaNameWho = gname;
                 }
                 else
                 {
                     server.messageToPlayerKeyed
-                        (c, gaName, SOCServer.PN_NON_EVENT, "reply.game.not.found");  // "Game not found."
+                        ( c, gaName, SOCServer.PN_NON_EVENT, "reply.game.not.found" );  // "Game not found."
                     return;
                 }
             }
@@ -2086,18 +2087,20 @@ public class SOCServerMessageHandler
 
         Vector<Connection> gameMembers = null;
 
-        gameList.takeMonitorForGame(gaNameWho);
+        gameList.takeMonitorForGame( gaNameWho );
         try
         {
-            gameMembers = gameList.getMembers(gaNameWho);
-            if (! sendToCli)
+            gameMembers = gameList.getMembers( gaNameWho );
+            if (!sendToCli)
                 server.messageToGameKeyed(ga, false, false, "reply.game_members.this");  // "This game's members:"
         }
-        catch (Exception e)
+        catch( Exception e )
         {
-            D.ebugPrintStackTrace(e, "Exception in *WHO* (gameMembers)");
-        } finally {
-            gameList.releaseMonitorForGame(gaNameWho);
+            D.ebugPrintStackTrace( e, "Exception in *WHO* (gameMembers)" );
+        }
+        finally
+        {
+            gameList.releaseMonitorForGame( gaNameWho );
         }
 
         if (gameMembers == null)
@@ -2137,13 +2140,13 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.0.0
      */
-    private void handleJOINCHANNEL(Connection c, SOCJoinChannel mes)
+    private void handleJOINCHANNEL( Connection c, SOCJoinChannel mes )
     {
         if (c == null)
             return;
 
         if (D.ebugIsEnabled())
-            D.ebugPrintlnINFO("handleJOINCHANNEL: " + mes);
+            D.ebugPrintlnINFO( "handleJOINCHANNEL: " + mes );
 
         int cliVers = c.getRemoteVersion();
 
@@ -2161,7 +2164,7 @@ public class SOCServerMessageHandler
         final String chName = mes.getChannel().trim();
         if (c.getData() != null)
         {
-            handleJOINCHANNEL_postAuth(c, chName, cliVers, SOCServer.AUTH_OR_REJECT__OK);
+            handleJOINCHANNEL_postAuth( c, chName, cliVers, SOCServer.AUTH_OR_REJECT__OK );
         }
         else
         {
@@ -2173,14 +2176,14 @@ public class SOCServerMessageHandler
 
             final int cv = cliVers;
             server.authOrRejectClientUser
-                (c, msgUser, msgPass, cliVers, true, false,
-                 new SOCServer.AuthSuccessRunnable()
-                 {
-                    public void success(final Connection conn, final int authResult)
+                ( c, msgUser, msgPass, cliVers, true, false,
+                    new SOCServer.AuthSuccessRunnable()
                     {
-                        handleJOINCHANNEL_postAuth(conn, chName, cv, authResult);
-                    }
-                 });
+                        public void success( final Connection conn, final int authResult )
+                        {
+                            handleJOINCHANNEL_postAuth( conn, chName, cv, authResult );
+                        }
+                    } );
         }
     }
 
@@ -2190,12 +2193,12 @@ public class SOCServerMessageHandler
      * @since 1.2.00
      */
     private void handleJOINCHANNEL_postAuth
-        (final Connection c, final String ch, final int cliVers, final int authResult)
+    ( final Connection c, final String ch, final int cliVers, final int authResult )
     {
         final SOCClientData scd = (SOCClientData) c.getAppData();
         final boolean mustSetUsername = (0 != (authResult & SOCServer.AUTH_OR_REJECT__SET_USERNAME));
         final String msgUser = c.getData();
-            // if mustSetUsername, will tell client to set nickname to original case from db case-insensitive search
+        // if mustSetUsername, will tell client to set nickname to original case from db case-insensitive search
 
         /**
          * Check that the channel name is ok
@@ -2206,12 +2209,12 @@ public class SOCServerMessageHandler
            return;
            }
          */
-        if ( (! SOCMessage.isSingleLineAndSafe(ch))
-             || "*".equals(ch))
+        if ((!SOCMessage.isSingleLineAndSafe( ch ))
+            || "*".equals( ch ))
         {
             c.send(SOCStatusMessage.buildForVersion
-                   (SOCStatusMessage.SV_NEWGAME_NAME_REJECTED, cliVers,
-                    c.getLocalized("netmsg.status.common.newgame_name_rejected")));
+                ( SOCStatusMessage.SV_NEWGAME_NAME_REJECTED, cliVers,
+                    c.getLocalized( "netmsg.status.common.newgame_name_rejected" ) ) );
             // "This name is not permitted, please choose a different name."
 
             return;  // <---- Early return ----
@@ -2220,13 +2223,13 @@ public class SOCServerMessageHandler
         /**
          * If creating a new channel, ensure they are below their max channel count.
          */
-        if ((! channelList.isChannel(ch))
+        if ((!channelList.isChannel( ch ))
             && (SOCServer.CLIENT_MAX_CREATE_CHANNELS >= 0)
             && (SOCServer.CLIENT_MAX_CREATE_CHANNELS <= scd.getcurrentCreatedChannels()))
         {
             c.send(SOCStatusMessage.buildForVersion
-                   (SOCStatusMessage.SV_NEWCHANNEL_TOO_MANY_CREATED, cliVers,
-                    c.getLocalized("netmsg.status.newchannel_too_many_created", SOCServer.CLIENT_MAX_CREATE_CHANNELS)));
+                ( SOCStatusMessage.SV_NEWCHANNEL_TOO_MANY_CREATED, cliVers,
+                    c.getLocalized( "netmsg.status.newchannel_too_many_created", SOCServer.CLIENT_MAX_CREATE_CHANNELS ) ) );
             // "Too many of your chat channels still active; maximum: 2"
 
             return;  // <---- Early return ----
@@ -2236,19 +2239,19 @@ public class SOCServerMessageHandler
          * Tell the client that everything is good to go
          */
         final String txt = server.getClientWelcomeMessage(c);  // "Welcome to Java Settlers of Catan!"
-        if (! mustSetUsername)
+        if (!mustSetUsername)
         {
             if ((! scd.sentPostAuthWelcome) || (c.getRemoteVersion() < SOCStringManager.VERSION_FOR_I18N))
             {
                 c.send(new SOCStatusMessage
-                    (SOCStatusMessage.SV_OK, txt));
+                    ( SOCStatusMessage.SV_OK, txt ) );
                 scd.sentPostAuthWelcome = true;
             }
         }
         else
         {
-            c.send(new SOCStatusMessage
-                (SOCStatusMessage.SV_OK_SET_NICKNAME, msgUser + SOCMessage.sep2_char + txt));
+            c.send( new SOCStatusMessage
+                ( SOCStatusMessage.SV_OK_SET_NICKNAME, msgUser + SOCMessage.sep2_char + txt ) );
         }
         c.send(new SOCJoinChannelAuth(msgUser, ch));
 
@@ -2256,18 +2259,18 @@ public class SOCServerMessageHandler
          * Add the Connection to the channel
          */
 
-        if (channelList.takeMonitorForChannel(ch))
+        if (channelList.takeMonitorForChannel( ch ))
         {
             try
             {
                 server.connectToChannel(c, ch);
             }
-            catch (Exception e)
+            catch( Exception e )
             {
-                D.ebugPrintStackTrace(e, "Exception in handleJOIN (connectToChannel)");
+                D.ebugPrintStackTrace( e, "Exception in handleJOIN (connectToChannel)" );
             }
 
-            channelList.releaseMonitorForChannel(ch);
+            channelList.releaseMonitorForChannel( ch );
         }
         else
         {
@@ -2278,32 +2281,32 @@ public class SOCServerMessageHandler
 
             try
             {
-                channelList.createChannel(ch, msgUser);
+                channelList.createChannel( ch, msgUser );
                 scd.createdChannel();
             }
-            catch (Exception e)
+            catch( Exception e )
             {
-                D.ebugPrintStackTrace(e, "Exception in handleJOIN (createChannel)");
+                D.ebugPrintStackTrace( e, "Exception in handleJOIN (createChannel)" );
             }
 
             channelList.releaseMonitor();
             server.broadcast(new SOCNewChannel(ch));
             c.send(new SOCChannelMembers(ch, channelList.getMembers(ch)));
             if (D.ebugOn)
-                D.ebugPrintlnINFO("*** " + msgUser + " joined new channel " + ch + " at "
-                    + DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date()));
-            channelList.takeMonitorForChannel(ch);
+                D.ebugPrintlnINFO( "*** " + msgUser + " joined new channel " + ch + " at "
+                    + DateFormat.getTimeInstance( DateFormat.SHORT ).format( new Date() ) );
+            channelList.takeMonitorForChannel( ch );
 
             try
             {
-                channelList.addMember(c, ch);
+                channelList.addMember( c, ch );
             }
-            catch (Exception e)
+            catch( Exception e )
             {
-                D.ebugPrintStackTrace(e, "Exception in handleJOIN (addMember)");
+                D.ebugPrintStackTrace( e, "Exception in handleJOIN (addMember)" );
             }
 
-            channelList.releaseMonitorForChannel(ch);
+            channelList.releaseMonitorForChannel( ch );
         }
 
         /**
@@ -2314,21 +2317,21 @@ public class SOCServerMessageHandler
         /**
          * Send recap; same sequence is in SOCGameHandler.joinGame with different message type
          */
-        final SOCChatRecentBuffer buf = channelList.getChatBuffer(ch);
+        final SOCChatRecentBuffer buf = channelList.getChatBuffer( ch );
         {
             List<SOCChatRecentBuffer.Entry> recents;
-            synchronized(buf)
+            synchronized (buf)
             {
                 recents = buf.getAll();
             }
-            if (! recents.isEmpty())
+            if (!recents.isEmpty())
             {
                 c.send(new SOCChannelTextMsg(ch, SOCGameTextMsg.SERVER_FOR_CHAT,
-                        c.getLocalized("member.join.recap_begin")));  // [:: ]"Recap of recent chat ::"
+                    c.getLocalized( "member.join.recap_begin" ) ) );  // [:: ]"Recap of recent chat ::"
                 for (SOCChatRecentBuffer.Entry e : recents)
                     c.send(new SOCChannelTextMsg(ch, e.nickname, e.text));
                 c.send(new SOCChannelTextMsg(ch, SOCGameTextMsg.SERVER_FOR_CHAT,
-                        c.getLocalized("member.join.recap_end")));    // [:: ]"Recap ends ::"
+                    c.getLocalized( "member.join.recap_end" ) ) );    // [:: ]"Recap ends ::"
             }
         }
     }
@@ -2340,10 +2343,10 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.0.0
      */
-    private void handleLEAVECHANNEL(Connection c, SOCLeaveChannel mes)
+    private void handleLEAVECHANNEL( Connection c, SOCLeaveChannel mes )
     {
         if (D.ebugIsEnabled())
-            D.ebugPrintlnINFO("handleLEAVECHANNEL: " + mes);
+            D.ebugPrintlnINFO( "handleLEAVECHANNEL: " + mes );
 
         if (c == null)
             return;
@@ -2351,19 +2354,19 @@ public class SOCServerMessageHandler
         final String chName = mes.getChannel();
 
         boolean destroyedChannel = false;
-        channelList.takeMonitorForChannel(chName);
+        channelList.takeMonitorForChannel( chName );
 
         try
         {
             destroyedChannel = server.leaveChannel(c, chName, true, false);
         }
-        catch (Exception e)
+        catch( Exception e )
         {
-            D.ebugPrintStackTrace(e, "Exception in handleLEAVECHANNEL");
+            D.ebugPrintStackTrace( e, "Exception in handleLEAVECHANNEL" );
         }
         finally
         {
-            channelList.releaseMonitorForChannel(chName);
+            channelList.releaseMonitorForChannel( chName );
         }
 
         if (destroyedChannel)
@@ -2388,15 +2391,15 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.1.07
      */
-    private void handleNEWGAMEWITHOPTIONSREQUEST(Connection c, SOCNewGameWithOptionsRequest mes)
+    private void handleNEWGAMEWITHOPTIONSREQUEST( Connection c, SOCNewGameWithOptionsRequest mes )
     {
         if (c == null)
             return;
 
         final Map<String, SOCGameOption> optsMap = mes.getOptions(server.knownOpts);
         server.createOrJoinGameIfUserOK
-            (c, mes.getNickname(), mes.getPassword(), mes.getGame(),
-             (optsMap != null) ? new SOCGameOptionSet(optsMap) : null);
+            ( c, mes.getNickname(), mes.getPassword(), mes.getGame(),
+                (optsMap != null) ? new SOCGameOptionSet( optsMap ) : null );
     }
 
     /**
@@ -2412,7 +2415,7 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.0.0
      */
-    private void handleJOINGAME(Connection c, SOCJoinGame mes)
+    private void handleJOINGAME( Connection c, SOCJoinGame mes )
     {
         if (c == null)
             return;
@@ -2429,7 +2432,7 @@ public class SOCServerMessageHandler
         }
 
         server.createOrJoinGameIfUserOK
-            (c, mes.getNickname(), mes.getPassword(), mes.getGame(), null);
+            ( c, mes.getNickname(), mes.getPassword(), mes.getGame(), null );
     }
 
     /**
@@ -2439,29 +2442,29 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.0.0
      */
-    private void handleLEAVEGAME(Connection c, SOCLeaveGame mes)
+    private void handleLEAVEGAME( Connection c, SOCLeaveGame mes )
     {
         if (c == null)
             return;
 
         boolean isMember = false;
         final String gaName = mes.getGame();
-        if (! gameList.takeMonitorForGame(gaName))
+        if (!gameList.takeMonitorForGame( gaName ))
         {
             return;  // <--- Early return: game not in gamelist ---
         }
 
         try
         {
-            isMember = gameList.isMember(c, gaName);
+            isMember = gameList.isMember( c, gaName );
         }
-        catch (Exception e)
+        catch( Exception e )
         {
-            D.ebugPrintStackTrace(e, "Exception in handleLEAVEGAME (isMember)");
+            D.ebugPrintStackTrace( e, "Exception in handleLEAVEGAME (isMember)" );
         }
         finally
         {
-            gameList.releaseMonitorForGame(gaName);
+            gameList.releaseMonitorForGame( gaName );
         }
 
         if (isMember)
@@ -2470,7 +2473,7 @@ public class SOCServerMessageHandler
         }
         else if (((SOCClientData) c.getAppData()).isRobot)
         {
-            handleLEAVEGAME_maybeGameReset_oldRobot(gaName);
+            handleLEAVEGAME_maybeGameReset_oldRobot( gaName );
 
             // During a game reset, this robot player
             // will not be found among cg's players
@@ -2489,9 +2492,9 @@ public class SOCServerMessageHandler
      *
      * @since 1.1.07
      */
-    private void handleLEAVEGAME_maybeGameReset_oldRobot(final String gaName)
+    private void handleLEAVEGAME_maybeGameReset_oldRobot( final String gaName )
     {
-        SOCGame cg = gameList.getGameData(gaName);
+        SOCGame cg = gameList.getGameData( gaName );
         if ((cg == null) || (cg.getGameState() != SOCGame.READY_RESET_WAIT_ROBOT_DISMISS))
             return;
 
@@ -2517,19 +2520,19 @@ public class SOCServerMessageHandler
      * @param mes  the message
      * @since 1.0.0
      */
-    private void handleSITDOWN(Connection c, SOCSitDown mes)
+    private void handleSITDOWN( Connection c, SOCSitDown mes )
     {
         if (c == null)
             return;
 
         final String gaName = mes.getGame();
-        SOCGame ga = gameList.getGameData(gaName);
+        SOCGame ga = gameList.getGameData( gaName );
         if (ga == null)
         {
             // Out of date client info, or may be observing a deleted game.
             // Already authenticated (dispatcher enforces c.getData != null); replying won't reveal too much
             server.messageToPlayerKeyed
-                (c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED, "reply.game.not.found");  // "Game not found."
+                ( c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED, "reply.game.not.found" );  // "Game not found."
 
             return;  // <--- Early return: No active game found ---
         }
@@ -2557,7 +2560,7 @@ public class SOCServerMessageHandler
         {
             Hashtable<Connection, Object> joinRequests = server.robotJoinRequests.get(gaName);
             if (joinRequests != null)
-                isBotJoinRequest = (null != joinRequests.remove(c));
+                isBotJoinRequest = (null != joinRequests.remove( c ));
         }
 
         /**
@@ -2585,19 +2588,19 @@ public class SOCServerMessageHandler
 
         try
         {
-            if (ga.isSeatVacant(pn))
+            if (ga.isSeatVacant( pn ))
             {
                 gameAlreadyStarted = (gameState >= SOCGame.START2A);
-                if (! gameAlreadyStarted)
+                if (!gameAlreadyStarted)
                     gameIsFull = (1 > ga.getAvailableSeatCount());
 
-                if (gameIsFull || (gameAlreadyStarted && ! isBotJoinRequest))
+                if (gameIsFull || (gameAlreadyStarted && !isBotJoinRequest))
                     canSit = false;
             }
             else
             {
                 canSit = false;
-                final SOCPlayer seatedPlayer = ga.getPlayer(pn);
+                final SOCPlayer seatedPlayer = ga.getPlayer( pn );
                 final String seatedName = seatedPlayer.getName();
 
                 /**
@@ -2610,9 +2613,9 @@ public class SOCServerMessageHandler
                     isLoadingState && ((SOCClientData) c.getAppData()).isRobot;
                 final boolean canTakeOverPlayer =
                     seatedPlayer.isRobot()
-                    || (isLoadingState && (isloadingBot || ! gameList.isMember(seatedName, gaName)));
+                        || (isLoadingState && (isloadingBot || !gameList.isMember( seatedName, gaName )));
 
-                if (isloadingBot && c.getData().equals(seatedName))
+                if (isloadingBot && c.getData().equals( seatedName ))
                 {
                     canSit = true;
 
@@ -2625,36 +2628,36 @@ public class SOCServerMessageHandler
                     // a corner case, not worth complicating the code that much.
                 }
                 else if (canTakeOverPlayer
-                    && (((ga.getSeatLock(pn) != SOCGame.SeatLockState.LOCKED) && (ga.getCurrentPlayerNumber() != pn))
-                        || isLoadingState))
+                    && (((ga.getSeatLock( pn ) != SOCGame.SeatLockState.LOCKED) && (ga.getCurrentPlayerNumber() != pn))
+                    || isLoadingState))
                 {
                     /**
                      * boot the robot out of the game
                      */
                     final Connection robotCon = server.getConnection(seatedName);
 
-                    if ((robotCon != null) && gameList.isMember(robotCon, gaName))
+                    if ((robotCon != null) && gameList.isMember( robotCon, gaName ))
                     {
                         sentBotDismiss = true;
                         server.messageToPlayer(robotCon, gaName, pn,
-                            new SOCRobotDismiss(gaName));
+                            new SOCRobotDismiss( gaName ) );
 
                         /**
                          * this connection has to wait for the robot to leave,
                          * will then be told they've sat down
                          */
                         Vector<SOCReplaceRequest> disRequests = server.robotDismissRequests.get(gaName);
-                        SOCReplaceRequest req = new SOCReplaceRequest(c, robotCon, mes);
+                        SOCReplaceRequest req = new SOCReplaceRequest( c, robotCon, mes );
 
                         if (disRequests == null)
                         {
                             disRequests = new Vector<>();
-                            disRequests.addElement(req);
+                            disRequests.addElement( req );
                             server.robotDismissRequests.put(gaName, disRequests);
                         }
                         else
                         {
-                            disRequests.addElement(req);
+                            disRequests.addElement( req );
                         }
                     }
                     else
@@ -2675,10 +2678,12 @@ public class SOCServerMessageHandler
                 }
             }
         }
-        catch (Exception e)
+        catch( Exception e )
         {
-            D.ebugPrintStackTrace(e, "Exception caught at handleSITDOWN");
-        } finally {
+            D.ebugPrintStackTrace( e, "Exception caught at handleSITDOWN" );
+        }
+        finally
+        {
             ga.releaseMonitor();
         }
 
@@ -2696,11 +2701,11 @@ public class SOCServerMessageHandler
                 final SOCClientData scd = (SOCClientData) c.getAppData();
                 if ((scd != null) && scd.isRobot)
                 {
-                    SOCGame.SeatLockState gaLock = ga.getSeatLock(pn),
+                    SOCGame.SeatLockState gaLock = ga.getSeatLock( pn ),
                         modelLock = ((SavedGameModel) ga.savedGameModel).playerSeatLocks[pn];
                     if ((gaLock != modelLock) && (modelLock != null))
                     {
-                        ga.setSeatLock(pn, modelLock);
+                        ga.setSeatLock( pn, modelLock );
                         server.messageToGame(gaName, true, new SOCSetSeatLock(gaName, pn, modelLock));
                     }
                 }
@@ -2718,20 +2723,20 @@ public class SOCServerMessageHandler
             }
             else if (gameAlreadyStarted)
             {
-                server.messageToPlayerKeyed(c, gaName, SOCServer.PN_OBSERVER, "member.sit.game.started");
-                    // "This game has already started; to play you must take over a robot."
+                server.messageToPlayerKeyed( c, gaName, SOCServer.PN_OBSERVER, "member.sit.game.started" );
+                // "This game has already started; to play you must take over a robot."
             }
             else if (gameIsFull)
             {
-                server.messageToPlayerKeyed(c, gaName, SOCServer.PN_OBSERVER, "member.sit.game.full");
-                    // "This game is full; you cannot sit down."
+                server.messageToPlayerKeyed( c, gaName, SOCServer.PN_OBSERVER, "member.sit.game.full" );
+                // "This game is full; you cannot sit down."
             }
             else if (! sentBotDismiss)
             {
                 server.messageToPlayer
-                    (c, gaName, SOCServer.PN_NON_EVENT,
-                     "This seat is claimed by another game member, choose another.");
-                         // I18N OK: client shouldn't ask to take that seat
+                    ( c, gaName, SOCServer.PN_NON_EVENT,
+                        "This seat is claimed by another game member, choose another." );
+                // I18N OK: client shouldn't ask to take that seat
             }
         }
     }
@@ -2758,10 +2763,10 @@ public class SOCServerMessageHandler
      * @since 1.0.0
      */
     void handleSTARTGAME
-        (Connection c, final SOCStartGame mes, final int botsOnly_maxBots)
+    ( Connection c, final SOCStartGame mes, final int botsOnly_maxBots )
     {
         final String gn = mes.getGame();
-        SOCGame ga = gameList.getGameData(gn);
+        SOCGame ga = gameList.getGameData( gn );
         if (ga == null)
             return;
 
@@ -2782,9 +2787,9 @@ public class SOCServerMessageHandler
                 //
                 for (int i = 0; i < ga.maxPlayers; i++)
                 {
-                    if (ga.isSeatVacant(i))
+                    if (ga.isSeatVacant( i ))
                     {
-                        if (ga.getSeatLock(i) == SOCGame.SeatLockState.UNLOCKED)
+                        if (ga.getSeatLock( i ) == SOCGame.SeatLockState.UNLOCKED)
                         {
                             seatsFull = false;
                             ++numEmpty;
@@ -2823,7 +2828,7 @@ public class SOCServerMessageHandler
                     {
                         allowStart = false;
                         server.messageToGameKeyed(ga, true, true, "start.player.must.sit");
-                            // "To start the game, at least one player must sit down."
+                        // "To start the game, at least one player must sit down."
                     }
                     else
                     {
@@ -2839,9 +2844,9 @@ public class SOCServerMessageHandler
                     allowStart = false;
                     numEmpty = 3;
                     server.messageToGameKeyed(ga, true, true, "start.only.cannot.lock.all");
-                        // "The only player cannot lock all seats. To start the game, other players or robots must join."
+                    // "The only player cannot lock all seats. To start the game, other players or robots must join."
                 }
-                else if (allowStart && ! seatsFull)
+                else if (allowStart && !seatsFull)
                 {
                     // Look for some bots
 
@@ -2850,7 +2855,7 @@ public class SOCServerMessageHandler
                     {
                         if (numPlayers < SOCGame.MINPLAYERS)
                             server.messageToGameKeyed(ga, true, true, "start.no.robots.on.server", SOCGame.MINPLAYERS);
-                                // "No robots on this server, please fill at least {0} seats before starting."
+                            // "No robots on this server, please fill at least {0} seats before starting."
                         else
                             seatsFull = true;  // Enough players to start game.
                     }
@@ -2865,15 +2870,15 @@ public class SOCServerMessageHandler
                             final String m;
                             if (anyLocked)
                                 m = "start.not.enough.robots";
-                                    // "Not enough robots to fill all the seats. Only {0} robots are available."
+                                // "Not enough robots to fill all the seats. Only {0} robots are available."
                             else
                                 m = "start.not.enough.robots.lock";
-                                    // "Not enough robots to fill all the seats. Lock some seats. Only {0} robots are available."
+                            // "Not enough robots to fill all the seats. Lock some seats. Only {0} robots are available."
                             server.messageToGameKeyed(ga, true, true, m, numBots);
                         }
                         else
                         {
-                            ga.setGameState(SOCGame.READY);
+                            ga.setGameState( SOCGame.READY );
 
                             /**
                              * Fill all the unlocked empty seats with robots.
@@ -2884,33 +2889,33 @@ public class SOCServerMessageHandler
                             IllegalStateException e = null;
                             try
                             {
-                                invitedBots = server.readyGameAskRobotsJoin(ga, null, null, numEmpty);
+                                invitedBots = server.readyGameAskRobotsJoin( ga, null, null, numEmpty );
                             }
                             catch (IllegalStateException ex)
                             {
                                 e = ex;
                             }
 
-                            if (! invitedBots)
+                            if (!invitedBots)
                             {
                                 System.err.println
-                                    ("Robot-join problem in game " + gn + ": "
-                                     + ((e != null) ? e : " no matching bots available"));
+                                    ( "Robot-join problem in game " + gn + ": "
+                                        + ((e != null) ? e : " no matching bots available") );
 
                                 // recover, so that human players can still start a game
-                                ga.setGameState(SOCGame.NEW);
+                                ga.setGameState( SOCGame.NEW );
                                 allowStart = false;
 
-                                gameList.takeMonitorForGame(gn);
+                                gameList.takeMonitorForGame( gn );
                                 if (e != null)
                                     server.messageToGameKeyed(ga, true, false, "start.robots.cannot.join.problem", e.getMessage());
-                                        // "Sorry, robots cannot join this game: {0}"
+                                    // "Sorry, robots cannot join this game: {0}"
                                 else
                                     server.messageToGameKeyed(ga, true, false, "start.robots.cannot.join.options");
-                                        // "Sorry, robots cannot join this game because of its options."
+                                // "Sorry, robots cannot join this game because of its options."
                                 server.messageToGameKeyed(ga, true, false, "start.to.start.without.robots");
-                                    // "To start the game without robots, lock all empty seats."
-                                gameList.releaseMonitorForGame(gn);
+                                // "To start the game without robots, lock all empty seats."
+                                gameList.releaseMonitorForGame( gn );
                             }
                         }
                     }
@@ -2922,15 +2927,15 @@ public class SOCServerMessageHandler
                  */
                 if (seatsFull && allowStart)
                 {
-                    GameHandler hand = gameList.getGameTypeHandler(gn);
+                    GameHandler hand = gameList.getGameTypeHandler( gn );
                     if (hand != null)
-                        hand.startGame(ga);
+                        hand.startGame( ga );
                 }
             }
         }
-        catch (Throwable e)
+        catch( Throwable e )
         {
-            D.ebugPrintStackTrace(e, "Exception caught");
+            D.ebugPrintStackTrace( e, "Exception caught" );
         }
         finally
         {
@@ -2959,13 +2964,13 @@ public class SOCServerMessageHandler
      * @see #handleRESETBOARDVOTE(Connection, SOCResetBoardVote)
      * @since 1.1.00
      */
-    private void handleRESETBOARDREQUEST(Connection c, final SOCResetBoardRequest mes)
+    private void handleRESETBOARDREQUEST( Connection c, final SOCResetBoardRequest mes )
     {
         final String gaName = mes.getGame();
-        SOCGame ga = gameList.getGameData(gaName);
+        SOCGame ga = gameList.getGameData( gaName );
         if (ga == null)
             return;
-        SOCPlayer reqPlayer = ga.getPlayer(c.getData());
+        SOCPlayer reqPlayer = ga.getPlayer( c.getData() );
         if (reqPlayer == null)
         {
             return;  // Not playing in that game (Security)
@@ -2989,19 +2994,19 @@ public class SOCServerMessageHandler
         Connection[] humanConns = new Connection[ga.maxPlayers];
         Connection[] robotConns = new Connection[ga.maxPlayers];
         final int numHuman = SOCGameBoardReset.sortPlayerConnections
-            (ga, null, gameList.getMembers(gaName), humanConns, robotConns);
+            ( ga, null, gameList.getMembers( gaName ), humanConns, robotConns );
 
         final int reqPN = reqPlayer.getPlayerNumber();
         if (numHuman < 2)
         {
             // Are there robots? Go ahead and reset if so.
             boolean hadRobot = false, hadUnlockedRobot = false;
-            for (int i = robotConns.length-1; i>=0; --i)
+            for (int i = robotConns.length - 1; i >= 0; --i)
             {
                 if (robotConns[i] != null)
                 {
                     hadRobot = true;
-                    if (ga.getSeatLock(i) == SOCGame.SeatLockState.UNLOCKED)
+                    if (ga.getSeatLock( i ) == SOCGame.SeatLockState.UNLOCKED)
                     {
                         hadUnlockedRobot = true;
                         break;
@@ -3014,13 +3019,13 @@ public class SOCServerMessageHandler
             }
             else if (hadRobot)
             {
-                server.messageToPlayerKeyed(c, gaName, reqPN, "resetboard.request.unlock.bot");
-                    // "Please unlock at least one bot, so you will have an opponent."
+                server.messageToPlayerKeyed( c, gaName, reqPN, "resetboard.request.unlock.bot" );
+                // "Please unlock at least one bot, so you will have an opponent."
             }
             else
             {
-                server.messageToGameKeyed(ga, true, true, "resetboard.request.everyone.left");
-                    // "Everyone has left this game. Please start a new game with players or bots."
+                server.messageToGameKeyed( ga, true, true, "resetboard.request.everyone.left" );
+                // "Everyone has left this game. Please start a new game with players or bots."
             }
         }
         else
@@ -3028,23 +3033,23 @@ public class SOCServerMessageHandler
             // Probably put it to a vote.
 
             // First, Count number of other players who can vote (connected, version chk)
-            gameList.takeMonitorForGame(gaName);
+            gameList.takeMonitorForGame( gaName );
             int votingPlayers = 0;
             try
             {
-                for (int i = ga.maxPlayers - 1; i>=0; --i)
+                for (int i = ga.maxPlayers - 1; i >= 0; --i)
                 {
-                    if ((i != reqPN) && ! ga.isSeatVacant(i))
+                    if ((i != reqPN) && !ga.isSeatVacant( i ))
                     {
                         Connection pc = server.getConnection(ga.getPlayer(i).getName());
                         if ((pc != null) && pc.isConnected() && (pc.getRemoteVersion() >= 1100))
-                             ++votingPlayers;
+                            ++votingPlayers;
                     }
                 }
             }
             finally
             {
-                gameList.releaseMonitorForGame(gaName);
+                gameList.releaseMonitorForGame( gaName );
             }
 
             if (votingPlayers == 0)
@@ -3052,7 +3057,7 @@ public class SOCServerMessageHandler
                 // No one else is capable of voting.
                 // Reset the game immediately.
                 server.messageToGameKeyed(ga, true, false, "resetboard.vote.request.alloldcli", c.getData());
-                    // ">>> {0} is resetting the game - other connected players are unable to vote (client too old)."
+                // ">>> {0} is resetting the game - other connected players are unable to vote (client too old)."
 
                 server.resetBoardAndNotify(gaName, reqPN);
             }
@@ -3060,10 +3065,10 @@ public class SOCServerMessageHandler
             {
                 // Put it to a vote
                 server.messageToGameKeyed(ga, true, false, "resetboard.vote.request", c.getData());
-                    // "requests a board reset - other players please vote."
-                final SOCMessage vr = new SOCResetBoardVoteRequest(gaName, reqPN);
+                // "requests a board reset - other players please vote."
+                final SOCMessage vr = new SOCResetBoardVoteRequest( gaName, reqPN );
 
-                ga.resetVoteBegin(reqPN);
+                ga.resetVoteBegin( reqPN );
 
                 for (int i = 0; i < ga.maxPlayers; ++i)
                     if (humanConns[i] != null)
@@ -3071,7 +3076,7 @@ public class SOCServerMessageHandler
                             server.messageToPlayer(humanConns[i], gaName, i, vr);
                         else
                             ga.resetVoteRegister
-                                (ga.getPlayer(humanConns[i].getData()).getPlayerNumber(), true);
+                                ( ga.getPlayer( humanConns[i].getData() ).getPlayerNumber(), true );
             }
         }
     }
@@ -3088,14 +3093,14 @@ public class SOCServerMessageHandler
      * @see SOCServer#resetBoardAndNotify(String, int)
      * @since 1.1.00
      */
-    private void handleRESETBOARDVOTE(Connection c, final SOCResetBoardVote mes)
+    private void handleRESETBOARDVOTE( Connection c, final SOCResetBoardVote mes )
     {
         final String gaName = mes.getGame();
-        SOCGame ga = gameList.getGameData(gaName);
+        SOCGame ga = gameList.getGameData( gaName );
         if (ga == null)
             return;
         final String plName = c.getData();
-        SOCPlayer reqPlayer = ga.getPlayer(plName);
+        SOCPlayer reqPlayer = ga.getPlayer( plName );
         if (reqPlayer == null)
         {
             return;  // Not playing in that game (security)

@@ -1,20 +1,20 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2014-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -76,7 +76,7 @@ import javax.swing.border.EmptyBorder;
  * @since 2.0.00
  */
 @SuppressWarnings("serial")
-/*package*/ class SOCSpecialItemDialog
+    /*package*/ class SOCSpecialItemDialog
     extends JDialog implements ActionListener
 {
     /** i18n text strings; will use same locale as SOCPlayerClient's string manager. */
@@ -123,20 +123,20 @@ import javax.swing.border.EmptyBorder;
      * @throws IllegalArgumentException if the {@code typeKey} is unknown here
      */
     public SOCSpecialItemDialog
-        (SOCPlayerInterface pi, final String typeKey)
+    ( SOCPlayerInterface pi, final String typeKey )
         throws IllegalArgumentException
     {
-        super(pi, "Special Items", true);  // default title text here, in case typeKey has no string
+        super( pi, "Special Items", true );  // default title text here, in case typeKey has no string
 
         try
         {
-            setTitle(strings.get("dialog.specitem." + typeKey + ".title"));
-                // "dialog.specitem._SC_WOND.title" -> "Wonders"
+            setTitle( strings.get( "dialog.specitem." + typeKey + ".title" ) );
+            // "dialog.specitem._SC_WOND.title" -> "Wonders"
         }
         catch(MissingResourceException ignored) {}
 
-        if (! SOCGameOptionSet.K_SC_WOND.equals(typeKey))
-            throw new IllegalArgumentException(typeKey);
+        if (!SOCGameOptionSet.K_SC_WOND.equals( typeKey ))
+            throw new IllegalArgumentException( typeKey );
 
         this.pi = pi;
         this.typeKey = typeKey;
@@ -144,22 +144,22 @@ import javax.swing.border.EmptyBorder;
         final int px3 = 3 * pi.displayScale;  // for spacing
 
         Container cpane = getContentPane();
-        if (! (cpane instanceof JPanel))
+        if (!(cpane instanceof JPanel))
         {
             cpane = new JPanel();
-            setContentPane(cpane);
+            setContentPane( cpane );
         }
-        ((JPanel) cpane).setBorder(new EmptyBorder(2 * px3, 2 * px3, px3, 2 * px3));
+        ((JPanel) cpane).setBorder( new EmptyBorder( 2 * px3, 2 * px3, px3, 2 * px3 ) );
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.LINE_START;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        setLayout(gbl);
+        setLayout( gbl );
 
         // most components pad to avoid text against adjacent component
-        final Insets insPadLR = new Insets(0, px3, 0, px3),
-            insPadL = new Insets(0, px3, 0, 0),
-            insPadBottom = new Insets(0, 0, 5 * px3, 0),    // wide bottom insets, as gap between wonders
+        final Insets insPadLR = new Insets( 0, px3, 0, px3 ),
+            insPadL = new Insets( 0, px3, 0, 0 ),
+            insPadBottom = new Insets( 0, 0, 5 * px3, 0 ),    // wide bottom insets, as gap between wonders
             insNone = gbc.insets;
 
         ga = pi.getGame();
@@ -169,44 +169,44 @@ import javax.swing.border.EmptyBorder;
         didSetLocation = false;
 
         final JLabel subtitle_prompt = new JLabel
-            (strings.get("dialog.specitem._SC_WOND.subtitle"));  // "The Wonders and their Builders:"
-            // If client player doesn't have a Wonder yet, text will change below to prompt them:
-            // "dialog.specitem._SC_WOND.prompt" -- "Choose the Wonder you will build."
-        subtitle_prompt.setHorizontalAlignment(SwingConstants.CENTER);
+            ( strings.get( "dialog.specitem._SC_WOND.subtitle" ) );  // "The Wonders and their Builders:"
+        // If client player doesn't have a Wonder yet, text will change below to prompt them:
+        // "dialog.specitem._SC_WOND.prompt" -- "Choose the Wonder you will build."
+        subtitle_prompt.setHorizontalAlignment( SwingConstants.CENTER );
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(subtitle_prompt, gbc);
-        cpane.add(subtitle_prompt);
+        gbl.setConstraints( subtitle_prompt, gbc );
+        cpane.add( subtitle_prompt );
 
         JLabel L;
 
         // blank row below prompt
 
-        L = new JLabel(" ");
+        L = new JLabel( " " );
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(L, gbc);
-        cpane.add(L);
+        gbl.setConstraints( L, gbc );
+        cpane.add( L );
 
         // Header row for wonders table:
 
-        L = new JLabel(strings.get("dialog.specitem._SC_WOND.wonder"));  // "Wonder:"
+        L = new JLabel( strings.get( "dialog.specitem._SC_WOND.wonder" ) );  // "Wonder:"
         gbc.gridx = 1;
         gbc.gridwidth = 1;
-        gbl.setConstraints(L, gbc);
-        cpane.add(L);
+        gbl.setConstraints( L, gbc );
+        cpane.add( L );
 
-        L = new JLabel(strings.get("dialog.specitem.cost"));  // "Cost:"
+        L = new JLabel( strings.get( "dialog.specitem.cost" ) );  // "Cost:"
         gbc.gridx = GridBagConstraints.RELATIVE;
         gbc.gridwidth = 5;  // span 5 ColorSquares for the 5 resource types
-        gbl.setConstraints(L, gbc);
-        cpane.add(L);
+        gbl.setConstraints( L, gbc );
+        cpane.add( L );
 
-        L = new JLabel(strings.get("dialog.specitem._SC_WOND.requires"));  // "Requires:"
+        L = new JLabel( strings.get( "dialog.specitem._SC_WOND.requires" ) );  // "Requires:"
         // match border and insets of buildRequirementsText labels
-        L.setBorder(new EmptyBorder(0, 3, 0, 3));
+        L.setBorder( new EmptyBorder( 0, 3, 0, 3 ) );
         gbc.insets = insPadLR;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(L, gbc);
-        cpane.add(L);
+        gbl.setConstraints( L, gbc );
+        cpane.add( L );
 
         // Wonders laid out vertically, two rows for each Wonder:
         // Shows button, name, cost, requirements, current builder and level.
@@ -214,28 +214,30 @@ import javax.swing.border.EmptyBorder;
         buttons = new JButton[numWonders];
 
         final boolean playerOwnsWonder =
-            (cliPlayer != null) && (cliPlayer.getSpecialItem(SOCGameOptionSet.K_SC_WOND, 0) != null);
+            (cliPlayer != null) && (cliPlayer.getSpecialItem( SOCGameOptionSet.K_SC_WOND, 0 ) != null);
         boolean hasStartingCostShip = false;  // true only if player has available ship && ! playerOwnsWonder
         try
         {
-            if ((cliPlayer != null) && ! playerOwnsWonder)
-                hasStartingCostShip = ga.getSpecialItem(typeKey, 1).checkStartingCostPiecetype(cliPlayer, false);
-                // assumes all special items have same startingCostPiecetype, which is true for SC_WOND
+            if ((cliPlayer != null) && !playerOwnsWonder)
+                hasStartingCostShip = ga.getSpecialItem( typeKey, 1 ).checkStartingCostPiecetype( cliPlayer, false );
+            // assumes all special items have same startingCostPiecetype, which is true for SC_WOND
         }
-        catch (Throwable th) {}  // null item, etc
+        catch( Throwable th )
+        {
+        }  // null item, etc
 
-        final String buildStr = strings.get("base.build");
+        final String buildStr = strings.get( "base.build" );
         if (ga.getGameState() < SOCGame.START1A)
-            subtitle_prompt.setText(strings.get("dialog.specitem.start_game"));  // "Must start the game to see this info."
-        else if ((cliPlayer != null) && ! playerOwnsWonder)
-            subtitle_prompt.setText(strings.get
-                ((hasStartingCostShip)
-                 ? "dialog.specitem._SC_WOND.prompt"             // "Choose the Wonder you will build."
-                 : "dialog.specitem._SC_WOND.starting_cost" ));  // "Starting cost: Resources shown, and 1 ship used for ownership marker"
+            subtitle_prompt.setText( strings.get( "dialog.specitem.start_game" ) );  // "Must start the game to see this info."
+        else if ((cliPlayer != null) && !playerOwnsWonder)
+            subtitle_prompt.setText( strings.get
+                ( (hasStartingCostShip)
+                    ? "dialog.specitem._SC_WOND.prompt"             // "Choose the Wonder you will build."
+                    : "dialog.specitem._SC_WOND.starting_cost" ) );  // "Starting cost: Resources shown, and 1 ship used for ownership marker"
 
         for (int i = 0; i < numWonders; ++i)
         {
-            SOCSpecialItem itm = ga.getSpecialItem(typeKey, i+1);
+            SOCSpecialItem itm = ga.getSpecialItem( typeKey, i + 1 );
             if (itm == null)
                 continue;  // shouldn't happen once game starts, unless SOCSpecialItem.makeKnownItem has failed
 
@@ -252,21 +254,21 @@ import javax.swing.border.EmptyBorder;
             final boolean playerOwnsThis = playerOwnsWonder && (owner == cliPlayer);
             final boolean playerCanBuildThis =
                 (ga.getGameState() >= SOCGame.PLAY1)
-                && (ga.getGameState() < SOCGame.OVER)
-                && (playerOwnsWonder)
-                    ? (playerOwnsThis && itm.checkCost(cliPlayer))
-                    : ((owner == null) && hasStartingCostShip && itm.checkRequirements(cliPlayer, true));
-            if (playerOwnsThis || ! playerOwnsWonder)
+                    && (ga.getGameState() < SOCGame.OVER)
+                    && (playerOwnsWonder)
+                    ? (playerOwnsThis && itm.checkCost( cliPlayer ))
+                    : ((owner == null) && hasStartingCostShip && itm.checkRequirements( cliPlayer, true ));
+            if (playerOwnsThis || !playerOwnsWonder)
             {
-                final JButton b = new JButton(buildStr);
+                final JButton b = new JButton( buildStr );
                 if (playerCanBuildThis)
-                    b.addActionListener(this);
+                    b.addActionListener( this );
                 else
-                    b.setEnabled(false);
+                    b.setEnabled( false );
 
                 gbc.insets = insPadL;
-                gbl.setConstraints(b, gbc);
-                cpane.add(b);
+                gbl.setConstraints( b, gbc );
+                cpane.add( b );
                 buttons[i] = b;
             }
 /*
@@ -284,17 +286,17 @@ import javax.swing.border.EmptyBorder;
                 String wname;
                 try
                 {
-                    wname = strings.get("game.specitem.sc_wond." + itm.getStringValue());
-                        // game.specitem.sc_wond.w1 -> "Theater", etc
+                    wname = strings.get( "game.specitem.sc_wond." + itm.getStringValue() );
+                    // game.specitem.sc_wond.w1 -> "Theater", etc
                 }
-                catch (MissingResourceException e)
+                catch( MissingResourceException e )
                 {
-                    wname = "WONDERNAME_" + (i+1);  // fallback, should not occur
+                    wname = "WONDERNAME_" + (i + 1);  // fallback, should not occur
                 }
 
-                L = new JLabel(wname);
-                gbl.setConstraints(L, gbc);
-                cpane.add(L);
+                L = new JLabel( wname );
+                gbl.setConstraints( L, gbc );
+                cpane.add( L );
                 labelFont = L.getFont();
             }
             gbc.gridx = GridBagConstraints.RELATIVE;
@@ -304,20 +306,20 @@ import javax.swing.border.EmptyBorder;
             final SOCResourceSet cost = itm.getCost();  // or null
             for (int j = 0; j < 5; ++j)
             {
-                ColorSquareLarger sq = new ColorSquareLarger(ColorSquare.NUMBER, false, ColorSquare.RESOURCE_COLORS[j]);
-                sq.setIntValue((cost != null) ? cost.getAmount(j + 1) : 0);
-                gbl.setConstraints(sq, gbc);
-                cpane.add(sq);
+                ColorSquareLarger sq = new ColorSquareLarger( ColorSquare.NUMBER, false, ColorSquare.RESOURCE_COLORS[j] );
+                sq.setIntValue( (cost != null) ? cost.getAmount( j + 1 ) : 0 );
+                gbl.setConstraints( sq, gbc );
+                cpane.add( sq );
             }
             gbc.insets = insPadLR;
 
             // Requirements
-            final JComponent itmDesc = buildRequirementsText(itm.req);  // returns JLabel or JTextArea
+            final JComponent itmDesc = buildRequirementsText( itm.req );  // returns JLabel or JTextArea
             if (itmDesc instanceof JTextArea)
-                itmDesc.setFont(labelFont);  // override default font (monospaced on win32)
+                itmDesc.setFont( labelFont );  // override default font (monospaced on win32)
             gbc.gridwidth = GridBagConstraints.REMAINDER;
-            gbl.setConstraints(itmDesc, gbc);
-            cpane.add(itmDesc);
+            gbl.setConstraints( itmDesc, gbc );
+            cpane.add( itmDesc );
 
             // Second row:
 
@@ -329,93 +331,99 @@ import javax.swing.border.EmptyBorder;
             L = new JLabel();
             gbc.gridx = 1;
             gbc.gridwidth = 1;
-            gbl.setConstraints(L, gbc);
-            cpane.add(L);
+            gbl.setConstraints( L, gbc );
+            cpane.add( L );
 
             // Builder name; current level (if build in progress)
             final StringBuilder sb = new StringBuilder();  // builder if any, current level
 
             if (owner != null)
             {
-                sb.append(strings.get("dialog.specitem._SC_WOND.builder", owner.getName()));  // "Builder: {0}"
+                sb.append( strings.get( "dialog.specitem._SC_WOND.builder", owner.getName() ) );  // "Builder: {0}"
             }
 
             if (itm.getLevel() > 0)
             {
                 if (owner != null)
-                    sb.append(" - ");
+                    sb.append( " - " );
 
-                sb.append(strings.get
-                    ("dialog.specitem._SC_WOND.current_level", itm.getLevel(), SOCSpecialItem.SC_WOND_WIN_LEVEL));  // "Current Level: {0} of {1}"
+                sb.append( strings.get
+                    ( "dialog.specitem._SC_WOND.current_level", itm.getLevel(), SOCSpecialItem.SC_WOND_WIN_LEVEL ) );  // "Current Level: {0} of {1}"
             }
 
-            L = new JLabel(sb.toString());
+            L = new JLabel( sb.toString() );
             gbc.gridx = GridBagConstraints.RELATIVE;
             gbc.gridwidth = GridBagConstraints.REMAINDER;
-            gbl.setConstraints(L, gbc);
-            cpane.add(L);
+            gbl.setConstraints( L, gbc );
+            cpane.add( L );
         }
 
         if (hasStartingCostShip)
         {
             // footer row with reminder
 
-            L = new JLabel(strings.get("dialog.specitem._SC_WOND.starting_cost"));
-                // "Starting cost: Resources shown, and 1 ship used for ownership marker"
+            L = new JLabel( strings.get( "dialog.specitem._SC_WOND.starting_cost" ) );
+            // "Starting cost: Resources shown, and 1 ship used for ownership marker"
             gbc.insets = insPadLR;
             gbc.gridwidth = GridBagConstraints.REMAINDER;
-            gbl.setConstraints(L, gbc);
-            cpane.add(L);
+            gbl.setConstraints( L, gbc );
+            cpane.add( L );
         }
 
         // Close button at bottom
-        bClose = new JButton(strings.get("base.close"));
-        bClose.addActionListener(this);
-        JPanel bPan = new JPanel(new FlowLayout(FlowLayout.CENTER));  // easy way to center and not stretch width
-        bPan.add(bClose);
+        bClose = new JButton( strings.get( "base.close" ) );
+        bClose.addActionListener( this );
+        JPanel bPan = new JPanel( new FlowLayout( FlowLayout.CENTER ) );  // easy way to center and not stretch width
+        bPan.add( bClose );
 
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(bPan, gbc);
-        cpane.add(bPan);
+        gbl.setConstraints( bPan, gbc );
+        cpane.add( bPan );
 
         // Finish dialog setup
 
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        addWindowListener(new WindowAdapter()
+        setDefaultCloseOperation( DISPOSE_ON_CLOSE );
+        addWindowListener( new WindowAdapter()
         {
             /** React to Closed, not Closing, to ensure dialog was already dispose()d. */
-            public void windowClosed(WindowEvent e)
+            public void windowClosed( WindowEvent e )
             {
-                if ((nbddListener != null) && ! nbddListenerCalled)
+                if ((nbddListener != null) && !nbddListenerCalled)
                 {
                     nbddListenerCalled = true;
-                    EventQueue.invokeLater(new Runnable()
+                    EventQueue.invokeLater( new Runnable()
                     {
-                        public void run() { nbddListener.dialogDismissed(SOCSpecialItemDialog.this, true); }
-                    });
-               }
-            }
-        });
-        getRootPane().setDefaultButton(bClose);
-        getRootPane().registerKeyboardAction
-            (new ActionListener()
-            {
-                public void actionPerformed(ActionEvent arg0)
-                {
-                    nbddListenerCalled = true;
-                    dispose();
-                    if (nbddListener != null)
-                        EventQueue.invokeLater(new Runnable()
+                        public void run()
                         {
-                            public void run() { nbddListener.dialogDismissed(SOCSpecialItemDialog.this, true); }
-                        });
+                            nbddListener.dialogDismissed( SOCSpecialItemDialog.this, true );
+                        }
+                    } );
                 }
-            },
-            KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+            }
+        } );
+        getRootPane().setDefaultButton( bClose );
+        getRootPane().registerKeyboardAction
+            ( new ActionListener()
+              {
+                  public void actionPerformed( ActionEvent arg0 )
+                  {
+                      nbddListenerCalled = true;
+                      dispose();
+                      if (nbddListener != null)
+                          EventQueue.invokeLater( new Runnable()
+                          {
+                              public void run()
+                              {
+                                  nbddListener.dialogDismissed( SOCSpecialItemDialog.this, true );
+                              }
+                          } );
+                  }
+              },
+                KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0 ), JComponent.WHEN_IN_FOCUSED_WINDOW );
 
         // Ensure dialog is validated; otherwise the top and bottom are sometimes clipped
         super.pack();
-        setSize(400, 400);  // set a nonzero minimum before validate
+        setSize( 400, 400 );  // set a nonzero minimum before validate
         validate();
     }
 
@@ -427,21 +435,21 @@ import javax.swing.border.EmptyBorder;
      *
      * @param reqs  Special item requirements to build text for using i18n string keys
      *     (see {@link SOCSpecialItemDialog class javadoc}). If null or empty, returns new {@link JLabel}("").
-     * @return  The requirements text in a new {@link JLabel} (single requirement)
+     * @return The requirements text in a new {@link JLabel} (single requirement)
      *     or {@link JTextArea} (multiple requirements, shown one per line).
      *     The component will have a plain font and an empty border 3px wide on the left and right,
      *     0px top and bottom.
      */
-    private JComponent buildRequirementsText(final List<SOCSpecialItem.Requirement> reqs)
+    private JComponent buildRequirementsText( final List<SOCSpecialItem.Requirement> reqs )
     {
         if ((reqs == null) || reqs.isEmpty())
-            return new JLabel("");
+            return new JLabel( "" );
 
         final int n = reqs.size();
         final String[] descStrings = new String[n];
         for (int i = 0; i < n; ++i)
         {
-            final SOCSpecialItem.Requirement req = reqs.get(i);
+            final SOCSpecialItem.Requirement req = reqs.get( i );
             final String reqStr;
             switch (req.reqType)
             {
@@ -452,16 +460,16 @@ import javax.swing.border.EmptyBorder;
                 final String sKey;
                 if (req.atPort)
                 {
-                    sLoc = strings.get("game.aport");
+                    sLoc = strings.get( "game.aport" );
                 }
                 else if (req.atCoordList != null)
                 {
                     try
                     {
-                        sLoc = strings.get("board.nodelist._SC_WOND." + req.atCoordList);
-                            // board.nodelist._SC_WOND.N1 -> "The Wasteland", etc
+                        sLoc = strings.get( "board.nodelist._SC_WOND." + req.atCoordList );
+                        // board.nodelist._SC_WOND.N1 -> "The Wasteland", etc
                     }
-                    catch (MissingResourceException e)
+                    catch( MissingResourceException e )
                     {
                         sLoc = req.atCoordList;  // lookup failed
                     }
@@ -474,15 +482,15 @@ import javax.swing.border.EmptyBorder;
                     sKey = (sLoc != null) ? "specitem.req.c.at" : "specitem.req.c";
                 else
                     sKey = (sLoc != null) ? "specitem.req.s.at" : "specitem.req.s";
-                reqStr = strings.get(sKey, req.count, sLoc);
+                reqStr = strings.get( sKey, req.count, sLoc );
                 break;
 
             case 'L':
-                reqStr = strings.get("specitem.req.rl", req.count);
+                reqStr = strings.get( "specitem.req.rl", req.count );
                 break;
 
             default:  // case 'V'; default is required for compiler: final reqStr
-                reqStr = strings.get("specitem.req.vp", req.count);
+                reqStr = strings.get( "specitem.req.vp", req.count );
             }
             descStrings[i] = reqStr;
         }
@@ -491,27 +499,27 @@ import javax.swing.border.EmptyBorder;
 
         if (n == 1)
         {
-            ret = new JLabel(descStrings[0]);
+            ret = new JLabel( descStrings[0] );
         }
         else
         {
             // wrap one per line
-            StringBuilder sb = new StringBuilder(descStrings[0]);
+            StringBuilder sb = new StringBuilder( descStrings[0] );
             for (int i = 1; i < n; ++i)
             {
-                sb.append("\n");
-                sb.append(descStrings[i]);
+                sb.append( "\n" );
+                sb.append( descStrings[i] );
             }
-            JTextArea pmsg = new JTextArea(sb.toString());
-            pmsg.setEditable(false);
-            pmsg.setLineWrap(true);
-            pmsg.setWrapStyleWord(true);
+            JTextArea pmsg = new JTextArea( sb.toString() );
+            pmsg.setEditable( false );
+            pmsg.setLineWrap( true );
+            pmsg.setWrapStyleWord( true );
             ret = pmsg;
         }
 
-        ret.setBorder(new EmptyBorder(0, 3, 0, 3));
-        ret.setBackground(null);  // will inherit from panel
-        ret.setForeground(null);
+        ret.setBorder( new EmptyBorder( 0, 3, 0, 3 ) );
+        ret.setBackground( null );  // will inherit from panel
+        ret.setForeground( null );
 
         return ret;
     }
@@ -526,19 +534,21 @@ import javax.swing.border.EmptyBorder;
 
         try
         {
-            if (! didSetLocation)
+            if (!didSetLocation)
             {
                 int piX = pi.getInsets().left;
                 int piY = pi.getInsets().top;
                 final int piWidth = pi.getSize().width - piX - pi.getInsets().right;
                 piX += pi.getLocation().x;
                 piY += pi.getLocation().y;
-                setLocation(piX + ((piWidth - getWidth()) / 2), piY + 50);
+                setLocation( piX + ((piWidth - getWidth()) / 2), piY + 50 );
 
                 didSetLocation = true;
             }
         }
-        catch (NullPointerException e) {}
+        catch( NullPointerException e )
+        {
+        }
     }
 
     /**
@@ -547,9 +557,10 @@ import javax.swing.border.EmptyBorder;
      *
      * @param e AWT event, from a button source
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed( ActionEvent e )
     {
-        try {
+        try
+        {
             final Object src = e.getSource();
             if (src == null)
                 return;
@@ -559,10 +570,13 @@ import javax.swing.border.EmptyBorder;
                 nbddListenerCalled = true;
                 dispose();
                 if (nbddListener != null)
-                    EventQueue.invokeLater(new Runnable()
+                    EventQueue.invokeLater( new Runnable()
                     {
-                        public void run() { nbddListener.dialogDismissed(SOCSpecialItemDialog.this, true); }
-                    });
+                        public void run()
+                        {
+                            nbddListener.dialogDismissed( SOCSpecialItemDialog.this, true );
+                        }
+                    } );
 
                 return;
             }
@@ -584,15 +598,15 @@ import javax.swing.border.EmptyBorder;
 
                 final GameMessageSender messageSender = pi.getClient().getGameMessageSender();
                 boolean askedSBP = false;
-                if (! pi.clientIsCurrentPlayer())
+                if (!pi.clientIsCurrentPlayer())
                 {
                     final int cpn = pi.getClientPlayerNumber();
-                    if ((cpn != -1) && ga.canAskSpecialBuild(cpn, false))
+                    if ((cpn != -1) && ga.canAskSpecialBuild( cpn, false ))
                     {
                         // Can't build on other players' turns, but can request SBP.
                         // Consistent with what happens when clicking Buy for a road,
                         // city, etc on another player's turn in 6-player game.
-                        messageSender.buildRequest(ga, -1);
+                        messageSender.buildRequest( ga, -1 );
                         askedSBP = true;
                     }
                     // else: Fall through, send PICK request, server will
@@ -600,22 +614,25 @@ import javax.swing.border.EmptyBorder;
                     // this dialog's feedback is consistently delivered.
                 }
 
-                if (! askedSBP)
-                    messageSender.pickSpecialItem(ga, typeKey, 1 + i, 0);
+                if (!askedSBP)
+                    messageSender.pickSpecialItem( ga, typeKey, 1 + i, 0 );
 
                 nbddListenerCalled = true;
                 dispose();
                 if (nbddListener != null)
-                    EventQueue.invokeLater(new Runnable()
+                    EventQueue.invokeLater( new Runnable()
                     {
-                        public void run() { nbddListener.dialogDismissed(SOCSpecialItemDialog.this, false); }
-                    });
+                        public void run()
+                        {
+                            nbddListener.dialogDismissed( SOCSpecialItemDialog.this, false );
+                        }
+                    } );
             }
 
         }
-        catch (Exception ex)
+        catch( Exception ex )
         {
-            pi.chatPrintStackTrace(ex);
+            pi.chatPrintStackTrace( ex );
         }
     }
 
@@ -625,7 +642,7 @@ import javax.swing.border.EmptyBorder;
      * @param li  Listener, or {@code null} to clear
      */
     public void setNonBlockingDialogDismissListener
-        (PlayerClientListener.NonBlockingDialogDismissListener li)
+    ( PlayerClientListener.NonBlockingDialogDismissListener li )
     {
         nbddListener = li;
     }

@@ -1209,49 +1209,49 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         if (bef == SOCBoard.BOARD_ENCODING_LARGE)
         {
             // v3
-            ((SOCBoardLarge) bd).setLandHexLayout(mes.getIntArrayPart("LH"));
+            ((SOCBoardLarge) bd).setLandHexLayout( mes.getIntArrayPart( "LH" ) );
             ga.setPlayersLandHexCoordinates();
-            int hex = mes.getIntPart("RH");
+            int hex = mes.getIntPart( "RH" );
             if (hex != 0)
-                bd.setRobberHex(hex, false);
-            hex = mes.getIntPart("PH");
+                bd.setRobberHex( hex, false );
+            hex = mes.getIntPart( "PH" );
             if (hex != 0)
-                ((SOCBoardLarge) bd).setPirateHex(hex, false);
-            int[] portLayout = mes.getIntArrayPart("PL");
+                ((SOCBoardLarge) bd).setPirateHex( hex, false );
+            int[] portLayout = mes.getIntArrayPart( "PL" );
             if (portLayout != null)
-                bd.setPortsLayout(portLayout);
-            int[] x = mes.getIntArrayPart("PX");
+                bd.setPortsLayout( portLayout );
+            int[] x = mes.getIntArrayPart( "PX" );
             if (x != null)
-                ((SOCBoardLarge) bd).setPlayerExcludedLandAreas(x);
-            x = mes.getIntArrayPart("RX");
+                ((SOCBoardLarge) bd).setPlayerExcludedLandAreas( x );
+            x = mes.getIntArrayPart( "RX" );
             if (x != null)
-                ((SOCBoardLarge) bd).setRobberExcludedLandAreas(x);
-            x = mes.getIntArrayPart("CV");
+                ((SOCBoardLarge) bd).setRobberExcludedLandAreas( x );
+            x = mes.getIntArrayPart( "CV" );
             if (x != null)
-                ((SOCBoardLarge) bd).setVillageAndClothLayout(x);
-            x = mes.getIntArrayPart("LS");
+                ((SOCBoardLarge) bd).setVillageAndClothLayout( x );
+            x = mes.getIntArrayPart( "LS" );
             if (x != null)
-                ((SOCBoardLarge) bd).addLoneLegalSettlements(ga, x);
+                ((SOCBoardLarge) bd).addLoneLegalSettlements( ga, x );
 
             HashMap<String, int[]> others = mes.getAddedParts();
             if (others != null)
-                ((SOCBoardLarge) bd).setAddedLayoutParts(others);
+                ((SOCBoardLarge) bd).setAddedLayoutParts( others );
         }
         else if (bef <= SOCBoard.BOARD_ENCODING_6PLAYER)
         {
             // v1 or v2
-            bd.setHexLayout(mes.getIntArrayPart("HL"));
-            bd.setNumberLayout(mes.getIntArrayPart("NL"));
-            bd.setRobberHex(mes.getIntPart("RH"), false);
-            int[] portLayout = mes.getIntArrayPart("PL");
+            bd.setHexLayout( mes.getIntArrayPart( "HL" ) );
+            bd.setNumberLayout( mes.getIntArrayPart( "NL" ) );
+            bd.setRobberHex( mes.getIntPart( "RH" ), false );
+            int[] portLayout = mes.getIntArrayPart( "PL" );
             if (portLayout != null)
-                bd.setPortsLayout(portLayout);
+                bd.setPortsLayout( portLayout );
         }
         else
         {
             // Should not occur: Server has sent an unrecognized format
             System.err.println
-                ("Cannot recognize game encoding v" + bef + " for game " + ga.getName());
+                ( "Cannot recognize game encoding v" + bef + " for game " + ga.getName() );
             return false;
         }
 
@@ -1520,19 +1520,20 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         case ASK_SPECIAL_BUILD:
             if (0 != val)
             {
-                try {
-                    ga.askSpecialBuild(pn, false);  // set per-player, per-game flags
+                try
+                {
+                    ga.askSpecialBuild( pn, false );  // set per-player, per-game flags
                 }
-                catch (RuntimeException e) {}
+                catch (RuntimeException ignored) {}
             }
             else
             {
-                pl.setAskedSpecialBuild(false);
+                pl.setAskedSpecialBuild( false );
             }
             break;
 
         case HAS_SPECIAL_BUILT:
-            pl.setSpecialBuilt((0 != val));
+            pl.setSpecialBuilt( (0 != val) );
             break;
 
         case RESOURCE_COUNT:
@@ -1540,39 +1541,40 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             {
                 SOCResourceSet rsrcs = pl.getResources();
 
-//                if (D.ebugOn)
-//                {
-//                    //pi.print(">>> RESOURCE COUNT ERROR: "+mes.getCount()+ " != "+rsrcs.getTotal());
-//                }
-
+/*
+                if (D.ebugOn)
+                {
+                    //pi.print(">>> RESOURCE COUNT ERROR: "+mes.getCount()+ " != "+rsrcs.getTotal());
+                }
+*/
                 //
                 //  fix it if possible
                 //
-                if ((nickname != null) && ! pl.getName().equals(nickname))
+                if ((nickname != null) && !pl.getName().equals( nickname ))
                 {
                     rsrcs.clear();
-                    rsrcs.setAmount(val, SOCResourceConstants.UNKNOWN);
+                    rsrcs.setAmount( val, SOCResourceConstants.UNKNOWN );
                 }
             }
             break;
 
         case LAST_SETTLEMENT_NODE:
-            pl.setLastSettlementCoord(val);
+            pl.setLastSettlementCoord( val );
             break;
 
         case PLAYED_DEV_CARD_FLAG:
-            {
-                final boolean changeTo = (val != 0);
-                if (pn != -1)
-                    pl.setPlayedDevCard(changeTo);
-                else
-                    for (int p = 0; p < ga.maxPlayers; ++p)
-                        ga.getPlayer(p).setPlayedDevCard(changeTo);
-            }
-            break;
+        {
+            final boolean changeTo = (val != 0);
+            if (pn != -1)
+                pl.setPlayedDevCard( changeTo );
+            else
+                for (int p = 0; p < ga.maxPlayers; ++p)
+                    ga.getPlayer( p ).setPlayedDevCard( changeTo );
+        }
+        break;
 
         case DISCARD_FLAG:
-            pl.setNeedToDiscard(val != 0);
+            pl.setNeedToDiscard( val != 0 );
             break;
 
         case NUM_PLAYED_DEV_CARD_DISC:
@@ -1588,47 +1590,46 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             break;
 
         case NUM_PICK_GOLD_HEX_RESOURCES:
-            pl.setNeedToPickGoldHexResources(val);
+            pl.setNeedToPickGoldHexResources( val );
             break;
 
         case SCENARIO_SVP:
-            pl.setSpecialVP(val);
+            pl.setSpecialVP( val );
             break;
 
         case PLAYEREVENTS_BITMASK:
-            pl.setPlayerEvents(val);
+            pl.setPlayerEvents( val );
             break;
 
         case SCENARIO_SVP_LANDAREAS_BITMASK:
-            pl.setScenarioSVPLandAreas(val);
+            pl.setScenarioSVPLandAreas( val );
             break;
 
         case STARTING_LANDAREAS:
-            pl.setStartingLandAreasEncoded(val);
+            pl.setStartingLandAreasEncoded( val );
             break;
 
         case SCENARIO_CLOTH_COUNT:
             if (pn != -1)
-                pl.setCloth(val);
+                pl.setCloth( val );
             else
-                ((SOCBoardLarge) (ga.getBoard())).setCloth(val);
+                ((SOCBoardLarge) (ga.getBoard())).setCloth( val );
             break;
 
         case SCENARIO_WARSHIP_COUNT:
             switch (action)
             {
             case SOCPlayerElement.SET:
-                pl.setNumWarships(val);
+                pl.setNumWarships( val );
                 break;
 
             case SOCPlayerElement.GAIN:
-                pl.setNumWarships(pl.getNumWarships() + val);
+                pl.setNumWarships( pl.getNumWarships() + val );
                 break;
             }
             break;
 
-        default:
-            break;  // no action needed, default is only to avoid compiler warning
+//        default:     // no action needed, default is only to avoid compiler warning
         }
     }
 
@@ -1837,7 +1838,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             break;
 
         case UNKNOWN_TYPE:
-            break;  // no action needed, UNKNOWN_TYPE is mentioned only to avoid compiler warning
+            break;      // no action needed, UNKNOWN_TYPE is mentioned only to avoid compiler warning
         }
     }
 
@@ -2028,6 +2029,8 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * Handle the "report robbery" message.
      * Updates game data by calling {@link #handlePLAYERELEMENT_numRsrc(SOCPlayer, int, int, int)}
      * or {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, PEType, int, String)}.
+     * Does nothing if {@link SOCReportRobbery#isGainLose mes.isGainLose} but
+     * {@link SOCReportRobbery#amount mes.amount} == 0 and {@link SOCReportRobbery#resSet} is null.
      *<P>
      * This method is public static for access by {@code SOCPlayerClient} and robot client classes.
      *
@@ -2041,8 +2044,12 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             return;
 
         final int perpPN = mes.perpPN, victimPN = mes.victimPN;
-        final SOCPlayer perp = (perpPN >= 0) ? ga.getPlayer(perpPN) : null,
-            victim = (victimPN >= 0) ? ga.getPlayer(victimPN) : null;
+        final SOCResourceSet resSet = mes.resSet;
+        if (mes.isGainLose && (amount == 0) && (resSet == null))
+            return;
+
+        final SOCPlayer perp = (perpPN >= 0) ? ga.getPlayer( perpPN ) : null,
+            victim = (victimPN >= 0) ? ga.getPlayer( victimPN ) : null;
 
         final PEType peType = mes.peType;
         if (peType != null)
@@ -2050,16 +2057,31 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             if (mes.isGainLose)
             {
                 if (perp != null)
-                    handlePLAYERELEMENT(ga, perp, perpPN, SOCPlayerElement.GAIN, peType, mes.amount, null);
+                    handlePLAYERELEMENT( ga, perp, perpPN, SOCPlayerElement.GAIN, peType, mes.amount, null );
                 if (victim != null)
                     handlePLAYERELEMENT(ga, victim, victimPN, SOCPlayerElement.LOSE, peType, mes.amount, null);
             }
             else
             {
                 if (perp != null)
-                    handlePLAYERELEMENT(ga, perp, perpPN, SOCPlayerElement.SET, peType, mes.amount, null);
+                    handlePLAYERELEMENT( ga, perp, perpPN, SOCPlayerElement.SET, peType, mes.amount, null );
                 if (victim != null)
-                    handlePLAYERELEMENT(ga, victim, victimPN, SOCPlayerElement.SET, peType, mes.victimAmount, null);
+                    handlePLAYERELEMENT( ga, victim, victimPN, SOCPlayerElement.SET, peType, mes.victimAmount, null );
+            }
+        }
+        else if (resSet != null)
+        {
+            // note: when using resSet, isGainLose is always true
+            for (int rtype = SOCResourceConstants.MIN; rtype <= SOCResourceConstants.WOOD; ++rtype)
+            {
+                final int amt = resSet.getAmount( rtype );
+                if (amt == 0)
+                    continue;
+
+                if (perp != null)
+                    handlePLAYERELEMENT_numRsrc( perp, SOCPlayerElement.GAIN, rtype, amt );
+                if (victim != null)
+                    handlePLAYERELEMENT_numRsrc( victim, SOCPlayerElement.LOSE, rtype, amt );
             }
         }
         else
@@ -2069,16 +2091,17 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             if (mes.isGainLose)
             {
                 if (perp != null)
-                    handlePLAYERELEMENT_numRsrc(perp, SOCPlayerElement.GAIN, resType, mes.amount);
+                    handlePLAYERELEMENT_numRsrc( perp, SOCPlayerElement.GAIN, resType, mes.amount );
                 if (victim != null)
-                    handlePLAYERELEMENT_numRsrc(victim, SOCPlayerElement.LOSE, resType, mes.amount);
+                    handlePLAYERELEMENT_numRsrc( victim, SOCPlayerElement.LOSE, resType, mes.amount );
             }
+
             else
             {
                 if (perp != null)
-                    handlePLAYERELEMENT_numRsrc(perp, SOCPlayerElement.SET, resType, mes.amount);
+                    handlePLAYERELEMENT_numRsrc( perp, SOCPlayerElement.SET, resType, mes.amount );
                 if (victim != null)
-                    handlePLAYERELEMENT_numRsrc(victim, SOCPlayerElement.SET, resType, mes.victimAmount);
+                    handlePLAYERELEMENT_numRsrc( victim, SOCPlayerElement.SET, resType, mes.victimAmount );
             }
         }
     }
@@ -2106,19 +2129,19 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleCLEAROFFER(SOCClearOffer mes)
     {
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get( mes.getGame() );
         if (ga == null)
             return;
 
         final int pn = mes.getPlayerNumber();
         if (pn != -1)
         {
-            ga.getPlayer(pn).setCurrentOffer(null);
+            ga.getPlayer( pn ).setCurrentOffer( null );
         }
         else
         {
             for (int i = 0; i < ga.maxPlayers; ++i)
-                ga.getPlayer(i).setCurrentOffer(null);
+                ga.getPlayer( i ).setCurrentOffer( null );
         }
     }
 
@@ -2296,7 +2319,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
                   (ps, mes.startingLandArea, lan);  // throws IllegalStateException if board layout
                                                     // has malformed Added Layout Part "AL"
             loneSettles = bl.getAddedLayoutPart("LS");  // usually null, except in _SC_PIRI
-        }
+         }
         else
         {
             loneSettles = null;
@@ -2316,7 +2339,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
                 pl.addLegalSettlement(loneSettles[pn], false);
             if (legalSeaEdges != null)
                 pl.setRestrictedLegalShips(legalSeaEdges[0]);
-        }
+         }
         else
         {
             for (pn = ga.maxPlayers - 1; pn >= 0; --pn)
@@ -2429,7 +2452,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     {
         final SOCGameOption opt = optInfo.getOptionInfo();
 
-        if ((opt.key.equals("-")) && (opt.optType == SOCGameOption.OTYPE_UNKNOWN))
+        if ((opt.key.equals( "-" )) && (opt.optType == SOCGameOption.OTYPE_UNKNOWN))
         {
             allOptsReceived = true;
         }
@@ -2438,7 +2461,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             if (allOptsReceived)
                 allOptsReceived = false;
 
-            knownOpts.addKnownOption(opt);
+            knownOpts.addKnownOption( opt );
         }
     }
 
@@ -2654,7 +2677,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     public static void handleSETSPECIALITEM(final Map<String, SOCGame> games, SOCSetSpecialItem mes)
     {
-        final SOCGame ga = games.get(mes.getGame());
+        final SOCGame ga = games.get( mes.getGame() );
         if (ga == null)
             return;
 
@@ -2666,53 +2689,53 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         case SOCSetSpecialItem.OP_CLEAR:
             // fall through
         case SOCSetSpecialItem.OP_CLEAR_PICK:
-            {
-                if (gi != -1)
-                    ga.setSpecialItem(typeKey, gi, null);
+        {
+            if (gi != -1)
+                ga.setSpecialItem( typeKey, gi, null );
 
-                if ((pn != -1) && (pi != -1))
-                {
-                    SOCPlayer pl = ga.getPlayer(pn);
-                    if (pl != null)
-                        pl.setSpecialItem(typeKey, pi, null);
-                }
+            if ((pn != -1) && (pi != -1))
+            {
+                SOCPlayer pl = ga.getPlayer( pn );
+                if (pl != null)
+                    pl.setSpecialItem( typeKey, pi, null );
             }
-            break;
+        }
+        break;
 
         case SOCSetSpecialItem.OP_SET:
             // fall through
         case SOCSetSpecialItem.OP_SET_PICK:
+        {
+            if ((gi == -1) && ((pi == -1) || (pn == -1)))
             {
-                if ((gi == -1) && ((pi == -1) || (pn == -1)))
-                {
-                    return;  // malformed message
-                }
-
-                SOCSpecialItem item = ga.getSpecialItem(typeKey, gi, pi, pn);
-                final SOCPlayer pl = (pn != -1) ? ga.getPlayer(pn) : null;
-
-                if (item != null)
-                {
-                    item.setPlayer(pl);
-                    item.setCoordinates(mes.coord);
-                    item.setLevel(mes.level);
-                    item.setStringValue(mes.sv);
-                }
-                else
-                {
-                    item = new SOCSpecialItem(pl, mes.coord, mes.level, mes.sv, null, null);
-                }
-
-                if (gi != -1)
-                {
-                    item.setGameIndex(gi);
-                    ga.setSpecialItem(typeKey, gi, item);
-                }
-
-                if ((pi != -1) && (pl != null))
-                    pl.setSpecialItem(typeKey, pi, item);
+                return;  // malformed message
             }
-            break;
+
+            SOCSpecialItem item = ga.getSpecialItem( typeKey, gi, pi, pn );
+            final SOCPlayer pl = (pn != -1) ? ga.getPlayer( pn ) : null;
+
+            if (item != null)
+            {
+                item.setPlayer( pl );
+                item.setCoordinates( mes.coord );
+                item.setLevel( mes.level );
+                item.setStringValue( mes.sv );
+            }
+            else
+            {
+                item = new SOCSpecialItem( pl, mes.coord, mes.level, mes.sv, null, null );
+            }
+
+            if (gi != -1)
+            {
+                item.setGameIndex( gi );
+                ga.setSpecialItem( typeKey, gi, item );
+            }
+
+            if ((pi != -1) && (pl != null))
+                pl.setSpecialItem( typeKey, pi, item );
+        }
+        break;
         }
     }
 

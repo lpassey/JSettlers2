@@ -633,10 +633,7 @@ public class SOCScenario
             {
                 scens2.put(sc.key, (SOCScenario) sc.clone());
             }
-            catch (CloneNotSupportedException ignored)
-            {
-                // required, but not expected to happen
-            }
+            catch (CloneNotSupportedException ignored) {} // required, but not expected to happen
         }
         return scens2;
     }

@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2009,2011-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.game;
@@ -394,10 +394,10 @@ public class SOCGameOption
     private String clientFeat;
 
     private boolean boolValue;
-    private int     intValue;
+    private int intValue;
 
     /** no default value field; "" if unset, stored as null */
-    private String  strValue;
+    private String strValue;
 
     /**
      * The option's ChangeListener, or null.
@@ -429,10 +429,10 @@ public class SOCGameOption
      * @throws IllegalArgumentException if key is not alphanumeric or length is > 8;
      *        {@link Throwable#getMessage()} will have details
      */
-    public SOCGameOption(final String key)
+    public SOCGameOption( final String key )
         throws IllegalArgumentException
     {
-        this(OTYPE_UNKNOWN, key, Integer.MAX_VALUE, Integer.MAX_VALUE, false, 0, 0, 0, null, 0, key);
+        this( OTYPE_UNKNOWN, key, Integer.MAX_VALUE, Integer.MAX_VALUE, false, 0, 0, 0, null, 0, key );
     }
 
     /**
@@ -454,11 +454,11 @@ public class SOCGameOption
      *        or if flags {@link #FLAG_INACTIVE_HIDDEN} and {@link #FLAG_ACTIVATED} are both set;
      *        {@link Throwable#getMessage()} will have details
      */
-    public SOCGameOption(final String key, final int minVers, final int lastModVers,
-        final boolean defaultValue, final int flags, final String desc)
+    public SOCGameOption( final String key, final int minVers, final int lastModVers,
+        final boolean defaultValue, final int flags, final String desc )
         throws IllegalArgumentException
     {
-        this(OTYPE_BOOL, key, minVers, lastModVers, defaultValue, 0, 0, 0, null, flags, desc);
+        this( OTYPE_BOOL, key, minVers, lastModVers, defaultValue, 0, 0, 0, null, flags, desc );
     }
 
     /**
@@ -490,13 +490,13 @@ public class SOCGameOption
      *        or if flags {@link #FLAG_INACTIVE_HIDDEN} and {@link #FLAG_ACTIVATED} are both set;
      *        {@link Throwable#getMessage()} will have details
      */
-    public SOCGameOption(final String key, final int minVers, final int lastModVers,
+    public SOCGameOption( final String key, final int minVers, final int lastModVers,
         final int defaultValue, final int minValue, final int maxValue,
-        final int flags, final String desc)
+        final int flags, final String desc )
         throws IllegalArgumentException
     {
-        this(OTYPE_INT, key, minVers, lastModVers, false, defaultValue,
-             minValue, maxValue, null, flags, desc);
+        this( OTYPE_INT, key, minVers, lastModVers, false, defaultValue,
+            minValue, maxValue, null, flags, desc );
     }
 
     /**
@@ -523,13 +523,13 @@ public class SOCGameOption
      *        or if flags {@link #FLAG_INACTIVE_HIDDEN} and {@link #FLAG_ACTIVATED} are both set;
      *        {@link Throwable#getMessage()} will have details
      */
-    public SOCGameOption(final String key, final int minVers, final int lastModVers,
+    public SOCGameOption( final String key, final int minVers, final int lastModVers,
         final boolean defaultBoolValue, final int defaultIntValue,
-        final int minValue, final int maxValue, final int flags, final String desc)
+        final int minValue, final int maxValue, final int flags, final String desc )
         throws IllegalArgumentException
     {
-        this(OTYPE_INTBOOL, key, minVers, lastModVers, defaultBoolValue, defaultIntValue,
-             minValue, maxValue, null, flags, desc);
+        this( OTYPE_INTBOOL, key, minVers, lastModVers, defaultBoolValue, defaultIntValue,
+            minValue, maxValue, null, flags, desc );
     }
 
     /**
@@ -562,12 +562,12 @@ public class SOCGameOption
      *        or if flags {@link #FLAG_INACTIVE_HIDDEN} and {@link #FLAG_ACTIVATED} are both set;
      *        {@link Throwable#getMessage()} will have details
      */
-    public SOCGameOption(final String key, final int minVers, final int lastModVers,
-        final int defaultValue, final String[] enumVals, final int flags, final String desc)
+    public SOCGameOption( final String key, final int minVers, final int lastModVers,
+        final int defaultValue, final String[] enumVals, final int flags, final String desc )
         throws IllegalArgumentException
     {
-        this(OTYPE_ENUM, key, minVers, lastModVers, false, defaultValue,
-             1, enumVals.length, enumVals, flags, desc);
+        this( OTYPE_ENUM, key, minVers, lastModVers, false, defaultValue,
+            1, enumVals.length, enumVals, flags, desc );
     }
 
     /**
@@ -596,13 +596,13 @@ public class SOCGameOption
      *        or if flags {@link #FLAG_INACTIVE_HIDDEN} and {@link #FLAG_ACTIVATED} are both set;
      *        {@link Throwable#getMessage()} will have details
      */
-    public SOCGameOption(final String key, final int minVers, final int lastModVers, final boolean defaultBoolValue,
-        final int defaultIntValue, final String[] enumVals, final int flags, final String desc)
+    public SOCGameOption( final String key, final int minVers, final int lastModVers, final boolean defaultBoolValue,
+        final int defaultIntValue, final String[] enumVals, final int flags, final String desc )
         throws IllegalArgumentException
     {
-        this(OTYPE_ENUMBOOL, key, minVers, lastModVers,
-             defaultBoolValue, defaultIntValue,
-             1, enumVals.length, enumVals, flags, desc);
+        this( OTYPE_ENUMBOOL, key, minVers, lastModVers,
+            defaultBoolValue, defaultIntValue,
+            1, enumVals.length, enumVals, flags, desc );
     }
 
     /**
@@ -630,15 +630,15 @@ public class SOCGameOption
      *        or if flags {@link #FLAG_INACTIVE_HIDDEN} and {@link #FLAG_ACTIVATED} are both set;
      *        {@link Throwable#getMessage()} will have details
      */
-    public SOCGameOption(final String key, final int minVers, final int lastModVers,
-        final int maxLength, final boolean hideTyping, final int flags, final String desc)
+    public SOCGameOption( final String key, final int minVers, final int lastModVers,
+        final int maxLength, final boolean hideTyping, final int flags, final String desc )
         throws IllegalArgumentException
     {
         this( (hideTyping ? OTYPE_STRHIDE : OTYPE_STR),
-             key, minVers, lastModVers, false, 0,
-             0, maxLength, null, flags, desc);
+            key, minVers, lastModVers, false, 0,
+            0, maxLength, null, flags, desc );
         if ((maxLength < 1) || (maxLength > TEXT_OPTION_MAX_LENGTH))
-            throw new IllegalArgumentException("maxLength");
+            throw new IllegalArgumentException( "maxLength" );
     }
 
     /**
@@ -679,32 +679,32 @@ public class SOCGameOption
      *        or if flags {@link #FLAG_INACTIVE_HIDDEN} and {@link #FLAG_ACTIVATED} are both set;
      *        {@link Throwable#getMessage()} will have details
      */
-    protected SOCGameOption(int otype, final String key, int minVers, int lastModVers,
+    protected SOCGameOption( int otype, final String key, int minVers, int lastModVers,
         boolean defaultBoolValue, int defaultIntValue,
         final int minValue, final int maxValue,
-        final String[] enumVals, final int flags, final String desc)
+        final String[] enumVals, final int flags, final String desc )
         throws IllegalArgumentException
     {
-        super(key, minVers, lastModVers, (otype != OTYPE_UNKNOWN), desc);
-            // super checks against these:
-            // (! SOCVersionedItem.isAlphanumericUpcaseAscii(key)) || key.equals("-")
-            // (minVers < 1000) && (minVers != -1)
-            // (lastModVers < 1000) && (lastModVers != -1)
-            // ! SOCMessage.isSingleLineAndSafe(desc)
+        super( key, minVers, lastModVers, (otype != OTYPE_UNKNOWN), desc );
+        // super checks against these:
+        // (! SOCVersionedItem.isAlphanumericUpcaseAscii(key)) || key.equals("-")
+        // (minVers < 1000) && (minVers != -1)
+        // (lastModVers < 1000) && (lastModVers != -1)
+        // ! SOCMessage.isSingleLineAndSafe(desc)
 
         // validate & set option properties:
         final int L = key.length();
-        if ((L > 3) && ! key.startsWith("DEBUG"))
+        if ((L > 3) && !key.startsWith( "DEBUG" ))
         {
             if (L > 8)
-                throw new IllegalArgumentException("Key length > 8: " + key);
+                throw new IllegalArgumentException( "Key length > 8: " + key );
             else if (minVers < VERSION_FOR_LONGER_OPTNAMES)
-                throw new IllegalArgumentException("Key length > 3 needs minVers 2000 or newer: " + key);
+                throw new IllegalArgumentException( "Key length > 3 needs minVers 2000 or newer: " + key );
         }
-        if ((minVers < VERSION_FOR_LONGER_OPTNAMES) && key.contains("_"))
-            throw new IllegalArgumentException("Key with '_' needs minVers 2000 or newer: " + key);
+        if ((minVers < VERSION_FOR_LONGER_OPTNAMES) && key.contains( "_" ))
+            throw new IllegalArgumentException( "Key with '_' needs minVers 2000 or newer: " + key );
         if ((flags & (FLAG_ACTIVATED | FLAG_INACTIVE_HIDDEN)) == (FLAG_ACTIVATED | FLAG_INACTIVE_HIDDEN))
-            throw new IllegalArgumentException("Can't set both FLAG_ACTIVATED and FLAG_INACTIVE_HIDDEN");
+            throw new IllegalArgumentException( "Can't set both FLAG_ACTIVATED and FLAG_INACTIVE_HIDDEN" );
 
         optType = otype;
         this.defaultBoolValue = defaultBoolValue;
@@ -716,9 +716,9 @@ public class SOCGameOption
 
         if (enumVals != null)
         {
-            for (int i = enumVals.length - 1; i>=0; --i)
-                if (! SOCMessage.isSingleLineAndSafe(enumVals[i]))
-                    throw new IllegalArgumentException("enumVal fails isSingleLineAndSafe");
+            for (int i = enumVals.length - 1; i >= 0; --i)
+                if (!SOCMessage.isSingleLineAndSafe( enumVals[i] ))
+                    throw new IllegalArgumentException( "enumVal fails isSingleLineAndSafe" );
         }
 
         // starting values (= defaults)
@@ -726,9 +726,9 @@ public class SOCGameOption
         intValue = defaultIntValue;
         strValue = null;
         if ((intValue < minIntValue) || (intValue > maxIntValue))
-            throw new IllegalArgumentException("defaultIntValue");
+            throw new IllegalArgumentException( "defaultIntValue" );
 
-        if (key.startsWith("_SC_"))
+        if (key.startsWith( "_SC_" ))
             clientFeat = SOCFeatureSet.CLIENT_SCENARIO_VERSION;
     }
 
@@ -738,13 +738,13 @@ public class SOCGameOption
      * @param newDesc  Localized option description, or {@code null} to use {@link SOCVersionedItem#getDesc() getDesc()}
      * @since 2.0.00
      */
-    public SOCGameOption(final SOCGameOption opt, final String newDesc)
+    public SOCGameOption( final SOCGameOption opt, final String newDesc )
     {
-        this(opt.optType, opt.key, opt.minVersion, opt.lastModVersion,
-             opt.defaultBoolValue, opt.defaultIntValue, opt.minIntValue, opt.maxIntValue,
-             opt.enumVals, opt.optFlags,
-             (newDesc != null) ? newDesc : opt.desc);
-        copyMiscFields(opt);
+        this( opt.optType, opt.key, opt.minVersion, opt.lastModVersion,
+            opt.defaultBoolValue, opt.defaultIntValue, opt.minIntValue, opt.maxIntValue,
+            opt.enumVals, opt.optFlags,
+            (newDesc != null) ? newDesc : opt.desc );
+        copyMiscFields( opt );
     }
 
     /**
@@ -754,13 +754,13 @@ public class SOCGameOption
      * @since 2.4.50
      * @throws IllegalArgumentException if flags {@link #FLAG_INACTIVE_HIDDEN} and {@link #FLAG_ACTIVATED} are both set
      */
-    /*package*/ SOCGameOption(final int newFlags, final SOCGameOption opt)
+    /*package*/ SOCGameOption( final int newFlags, final SOCGameOption opt )
         throws IllegalArgumentException
     {
-        this(opt.optType, opt.key, opt.minVersion, opt.lastModVersion,
+        this( opt.optType, opt.key, opt.minVersion, opt.lastModVersion,
             opt.defaultBoolValue, opt.defaultIntValue, opt.minIntValue, opt.maxIntValue,
-            opt.enumVals, newFlags, opt.desc);
-        copyMiscFields(opt);
+            opt.enumVals, newFlags, opt.desc );
+        copyMiscFields( opt );
     }
 
     /**
@@ -774,15 +774,15 @@ public class SOCGameOption
      * @see SOCGameOptionSet#optionsNewerThanVersion(int, boolean, boolean)
      * @throws NullPointerException  if keptEnumVals is null
      */
-    protected SOCGameOption(final SOCGameOption enumOpt, final String[] keptEnumVals)
+    protected SOCGameOption( final SOCGameOption enumOpt, final String[] keptEnumVals )
         throws NullPointerException
     {
         // OTYPE_* - If enum-valued, add to javadoc.
-        this(enumOpt.optType, enumOpt.key, enumOpt.minVersion, enumOpt.lastModVersion,
-             enumOpt.defaultBoolValue,
-             enumOpt.defaultIntValue <= keptEnumVals.length ? enumOpt.defaultIntValue : keptEnumVals.length,
-             1, keptEnumVals.length, keptEnumVals, enumOpt.optFlags, enumOpt.desc);
-        copyMiscFields(enumOpt);
+        this( enumOpt.optType, enumOpt.key, enumOpt.minVersion, enumOpt.lastModVersion,
+            enumOpt.defaultBoolValue,
+            enumOpt.defaultIntValue <= keptEnumVals.length ? enumOpt.defaultIntValue : keptEnumVals.length,
+            1, keptEnumVals.length, keptEnumVals, enumOpt.optFlags, enumOpt.desc );
+        copyMiscFields( enumOpt );
     }
 
     /**
@@ -795,15 +795,15 @@ public class SOCGameOption
      * @see SOCGameOptionSet#optionsNewerThanVersion(int, boolean, boolean)
      * @since 1.1.08
      */
-    protected SOCGameOption(final SOCGameOption intOpt, final int maxIntValue)
+    protected SOCGameOption( final SOCGameOption intOpt, final int maxIntValue )
     {
         // OTYPE_* - If int-valued, add to javadoc.
-        this(intOpt.optType, intOpt.key, intOpt.minVersion, intOpt.lastModVersion,
-             intOpt.defaultBoolValue,
-             intOpt.defaultIntValue <= maxIntValue ? intOpt.defaultIntValue : maxIntValue,
-             intOpt.minIntValue, maxIntValue,
-             null, intOpt.optFlags, intOpt.desc);
-        copyMiscFields(intOpt);
+        this( intOpt.optType, intOpt.key, intOpt.minVersion, intOpt.lastModVersion,
+            intOpt.defaultBoolValue,
+            intOpt.defaultIntValue <= maxIntValue ? intOpt.defaultIntValue : maxIntValue,
+            intOpt.minIntValue, maxIntValue,
+            null, intOpt.optFlags, intOpt.desc );
+        copyMiscFields( intOpt );
     }
 
     /**
@@ -812,7 +812,7 @@ public class SOCGameOption
      * @param copyFrom  Option object to copy fields from
      * @since 2.4.50
      */
-    private void copyMiscFields(final SOCGameOption copyFrom)
+    private void copyMiscFields( final SOCGameOption copyFrom )
     {
         clientFeat = copyFrom.clientFeat;
     }
@@ -831,7 +831,7 @@ public class SOCGameOption
      */
     public boolean hasValue()
     {
-        return (boolValue || (intValue != 0) || ((strValue != null) && ! strValue.isEmpty()));
+        return (boolValue || (intValue != 0) || ((strValue != null) && !strValue.isEmpty()));
     }
 
     /**
@@ -841,9 +841,15 @@ public class SOCGameOption
      * @see SOCGame#isGameOptionSet(String)
      * @see SOCGameOptionSet#isOptionSet(String)
      */
-    public boolean getBoolValue() { return boolValue; }
+    public boolean getBoolValue()
+    {
+        return boolValue;
+    }
 
-    public void setBoolValue(boolean v) { boolValue = v; }
+    public void setBoolValue( boolean v )
+    {
+        boolValue = v;
+    }
 
     /**
      * This option's integer value, if this option's type has an integer component.
@@ -854,13 +860,16 @@ public class SOCGameOption
      * @see SOCGameOptionSet#getOptionIntValue(String)
      * @see SOCGameOptionSet#getOptionIntValue(String, int, boolean)
      */
-    public int getIntValue() { return intValue; }
+    public int getIntValue()
+    {
+        return intValue;
+    }
 
     /**
      * Set this option's integer value to new value v, or clip to min/max allowed values.
      * @param v set to this value, if it's within min/max for this option
      */
-    public void setIntValue(int v)
+    public void setIntValue( int v )
     {
         if (v < minIntValue)
             intValue = minIntValue;
@@ -896,7 +905,7 @@ public class SOCGameOption
      *          {@link SOCMessage#sep2} ('|' or ','), or is
      *          multi-line or otherwise fails {@link SOCMessage#isSingleLineAndSafe(String)}.
      */
-    public void setStringValue(String v)
+    public void setStringValue( String v )
         throws IllegalArgumentException
     {
         if (v != null)
@@ -909,9 +918,9 @@ public class SOCGameOption
             else
             {
                 if (vl > maxIntValue)
-                    v = v.substring(0, maxIntValue);
-                if (! SOCMessage.isSingleLineAndSafe(v))
-                    throw new IllegalArgumentException("new value fails isSingleLineAndSafe");
+                    v = v.substring( 0, maxIntValue );
+                if (! SOCMessage.isSingleLineAndSafe( v ))
+                    throw new IllegalArgumentException( "new value fails isSingleLineAndSafe" );
             }
         }
         strValue = v;
@@ -944,7 +953,7 @@ public class SOCGameOption
      * @see #getClientFeature()
      * @since 2.4.00
      */
-    public void setClientFeature(final String clientFeat)
+    public void setClientFeature( final String clientFeat )
     {
         this.clientFeat = clientFeat;
     }
@@ -979,7 +988,7 @@ public class SOCGameOption
      * @see #getMaxIntValueForVersion(String, int)
      */
     @Override
-    public int getMinVersion(final Map<?, ? extends SOCVersionedItem> opts)
+    public int getMinVersion( final Map<?, ? extends SOCVersionedItem> opts )
     {
         // Check for unset/droppable options
         switch (optType)
@@ -987,19 +996,19 @@ public class SOCGameOption
         case OTYPE_BOOL:      // OTYPE_*: check here if boolean-valued
         case OTYPE_INTBOOL:
         case OTYPE_ENUMBOOL:
-            if (! boolValue)
+            if (!boolValue)
                 return -1;  // Option not set: any client version is OK
             break;
 
         case OTYPE_INT:
         case OTYPE_ENUM:
-            if (hasFlag(FLAG_DROP_IF_UNUSED) && (intValue == defaultIntValue))
+            if (hasFlag( FLAG_DROP_IF_UNUSED ) && (intValue == defaultIntValue))
                 return -1;  // Option not set: any client version is OK
             break;
 
         case OTYPE_STR:
         case OTYPE_STRHIDE:
-            if (hasFlag(FLAG_DROP_IF_UNUSED) && ((strValue == null) || (strValue.length() == 0)))
+            if (hasFlag( FLAG_DROP_IF_UNUSED ) && ((strValue == null) || (strValue.length() == 0)))
                 return -1;  // Option not set: any client version is OK
             break;
         }
@@ -1008,9 +1017,9 @@ public class SOCGameOption
 
         // Any option value checking for minVers is done here.
 
-        if (key.equals("SC"))
+        if (key.equals( "SC" ))
         {
-            SOCScenario sc = SOCScenario.getScenario(getStringValue());
+            SOCScenario sc = SOCScenario.getScenario( getStringValue() );
             if ((sc != null) && (sc.minVersion > minVers))
                 minVers = sc.minVersion;
         }
@@ -1042,16 +1051,16 @@ public class SOCGameOption
 
         // Gameopt "PL" has an ADDITIONAL CHECK, this can be used as sample code for a new option:
 
-        if (key.equals("PL"))
+        if (key.equals( "PL" ))
         {
-            if ((opts != null) && (intValue <= 4) && opts.containsKey("PLB"))
+            if ((opts != null) && (intValue <= 4) && opts.containsKey( "PLB" ))
             {
                 // For clients below 1.1.13, if PLB is set,
                 // PL must be changed to 5 or 6 to force use of the 6-player board.
                 // For clients 1.1.13 and newer, PLB is recognized at the client,
                 // so PL can be less than 5 and still use the 6-player board.
 
-                SOCVersionedItem plb = opts.get("PLB");
+                SOCVersionedItem plb = opts.get( "PLB" );
                 if ((plb instanceof SOCGameOption) && ((SOCGameOption) plb).boolValue)
                     return 1113;
             }
@@ -1072,11 +1081,11 @@ public class SOCGameOption
      * @param optKey Option's keyname
      * @param vers   Version of client, same format as {@link soc.message.SOCVersion#getVersionNumber()}
      *               and {@link Version#versionNumber()}
-     * @return  Maximum permitted value for this version, or {@link Integer#MAX_VALUE}
+     * @return Maximum permitted value for this version, or {@link Integer#MAX_VALUE}
      *          if this option has no restriction.
      *          Enum values range from 1 to n, not from 0 to n-1.
      */
-    public static int getMaxEnumValueForVersion(final String optKey, final int vers)
+    public static int getMaxEnumValueForVersion( final String optKey, final int vers )
     {
         // SAMPLE CODE:
         /*
@@ -1102,14 +1111,14 @@ public class SOCGameOption
      * @param optKey Option's keyname
      * @param vers   Version of client, same format as {@link soc.message.SOCVersion#getVersionNumber()}
      *               and {@link Version#versionNumber()}
-     * @return  Maximum permitted value for this version, or {@link Integer#MAX_VALUE}
+     * @return Maximum permitted value for this version, or {@link Integer#MAX_VALUE}
      *          if this option has no restriction.
      * @since 1.1.08
      * @see SOCGameOptionSet#optionsTrimmedForSupport(SOCFeatureSet)
      */
-    public static int getMaxIntValueForVersion(final String optKey, final int vers)
+    public static int getMaxIntValueForVersion( final String optKey, final int vers )
     {
-        if (optKey.equals("PL"))  // Max players
+        if (optKey.equals( "PL" ))  // Max players
         {
             if (vers >= 1108)
                 return Integer.MAX_VALUE;
@@ -1136,9 +1145,9 @@ public class SOCGameOption
      * @see #parseOptionsToSet(String, SOCGameOptionSet)
      */
     public static String packKnownOptionsToString
-        (final SOCGameOptionSet knownOpts, final boolean hideEmptyStringOpts, final boolean hideLongNameOpts)
+    ( final SOCGameOptionSet knownOpts, final boolean hideEmptyStringOpts, final boolean hideLongNameOpts )
     {
-        return packOptionsToString(knownOpts.getAll(), hideEmptyStringOpts, false, (hideLongNameOpts) ? -3 : -2);
+        return packOptionsToString( knownOpts.getAll(), hideEmptyStringOpts, false, (hideLongNameOpts) ? -3 : -2 );
     }
 
     /**
@@ -1173,9 +1182,9 @@ public class SOCGameOption
      * @see #packValue(StringBuilder)
      */
     public static String packOptionsToString
-        (final Map<String, SOCGameOption> omap, boolean hideEmptyStringOpts, final boolean sortByKey)
+    ( final Map<String, SOCGameOption> omap, boolean hideEmptyStringOpts, final boolean sortByKey )
     {
-        return packOptionsToString(omap, hideEmptyStringOpts, sortByKey, -2);
+        return packOptionsToString( omap, hideEmptyStringOpts, sortByKey, -2 );
     }
 
     /**
@@ -1200,15 +1209,15 @@ public class SOCGameOption
      * @see #packValue(StringBuilder)
      */
     public static String packOptionsToString
-        (final Map<String, SOCGameOption> omap, boolean hideEmptyStringOpts, final boolean sortByKey, final int cliVers)
+    ( final Map<String, SOCGameOption> omap, boolean hideEmptyStringOpts, final boolean sortByKey, final int cliVers )
     {
         if ((omap == null) || omap.size() == 0)
             return "-";
 
         // If the "PLB" option is set, old client versions
         //  may need adjustment of the "PL" option.
-        final boolean hasOptPLB = (cliVers > -2) && omap.containsKey("PLB")
-            && omap.get("PLB").boolValue;
+        final boolean hasOptPLB = (cliVers > -2) && omap.containsKey( "PLB" )
+            && omap.get( "PLB" ).boolValue;
 
         // Pack all non-unknown options:
         StringBuilder sb = new StringBuilder();
@@ -1216,14 +1225,14 @@ public class SOCGameOption
         Collection<SOCGameOption> opts = omap.values();
         if (sortByKey)
         {
-            ArrayList<SOCGameOption> olist = new ArrayList<>(opts);
-            Collections.sort(olist, new Comparator<SOCGameOption>()
+            ArrayList<SOCGameOption> olist = new ArrayList<>( opts );
+            Collections.sort( olist, new Comparator<SOCGameOption>()
             {
-                public int compare(SOCGameOption a, SOCGameOption b)
+                public int compare( SOCGameOption a, SOCGameOption b )
                 {
-                    return a.key.compareTo(b.key);
+                    return a.key.compareTo( b.key );
                 }
-            });
+            } );
             opts = olist;
         }
         for (SOCGameOption op : opts)
@@ -1233,23 +1242,23 @@ public class SOCGameOption
             if (hideEmptyStringOpts
                 && ((op.optType == OTYPE_STR) || (op.optType == OTYPE_STRHIDE))  // OTYPE_* - add here if string-valued
                 && op.getStringValue().length() == 0)
-                    continue;  // <-- Skip this one --
-            if ((cliVers == -3) && ((op.key.length() > 3) || op.key.contains("_")))
+                continue;  // <-- Skip this one --
+            if ((cliVers == -3) && ((op.key.length() > 3) || op.key.contains( "_" )))
                 continue;  // <-- Skip this one -- (VERSION_FOR_LONGER_OPTNAMES)
-            if (op.hasFlag(FLAG_INACTIVE_HIDDEN))
+            if (op.hasFlag( FLAG_INACTIVE_HIDDEN ))
                 continue;
 
             if (hadAny)
-                sb.append(SOCMessage.sep2_char);
+                sb.append( SOCMessage.sep2_char );
             else
                 hadAny = true;
-            sb.append(op.key);
-            sb.append('=');
+            sb.append( op.key );
+            sb.append( '=' );
 
             boolean wroteValueAlready = false;
             if (cliVers > -2)
             {
-                if (hasOptPLB && op.key.equals("PL")
+                if (hasOptPLB && op.key.equals( "PL" )
                     && (cliVers < 1113) && (op.intValue < 5))
                 {
                     // When "PLB" is used (Use 6-player board)
@@ -1257,15 +1266,15 @@ public class SOCGameOption
                     // make sure "PL" is large enough to make the
                     // client use that board.
 
-                    sb.append('5');  // big enough for 6-player
+                    sb.append( '5' );  // big enough for 6-player
                     wroteValueAlready = true;
                 }
 
                 // NEW_OPTION - Check your option vs old clients here.
             }
 
-            if (! wroteValueAlready)
-                op.packValue(sb);
+            if (!wroteValueAlready)
+                op.packValue( sb );
         }
 
         return sb.toString();
@@ -1282,33 +1291,33 @@ public class SOCGameOption
      * @eee #getPackedValue()
      * @see #toString()
      */
-    public void packValue(StringBuilder sb)
+    public void packValue( StringBuilder sb )
     {
         switch (optType)  // OTYPE_* - update this switch, and javadoc of packOptionsToString and of parseOptionNameValue.
         {                 //           The format produced must match that expected in parseOptionNameValue.
         case OTYPE_BOOL:
-            sb.append(boolValue ? 't' : 'f');
+            sb.append( boolValue ? 't' : 'f' );
             break;
 
         case OTYPE_INT:
         case OTYPE_ENUM:
-            sb.append(intValue);
+            sb.append( intValue );
             break;
 
         case OTYPE_INTBOOL:
         case OTYPE_ENUMBOOL:
-            sb.append(boolValue ? 't' : 'f');
-            sb.append(intValue);
+            sb.append( boolValue ? 't' : 'f' );
+            sb.append( intValue );
             break;
 
         case OTYPE_STR:
         case OTYPE_STRHIDE:
             if (strValue != null)
-                sb.append(strValue);  // value is checked in setter vs SEP, SEP2
+                sb.append( strValue );  // value is checked in setter vs SEP, SEP2
             break;
 
         default:
-            sb.append ('?');  // Shouldn't happen
+            sb.append( '?' );  // Shouldn't happen
         }
     }
 
@@ -1335,22 +1344,22 @@ public class SOCGameOption
      * @throws IllegalArgumentException if any game option keyname in {@code ostr} is unknown
      *     and not a valid alphanumeric keyname by the rules listed at {@link #SOCGameOption(String)}
      */
-    public static Map<String,SOCGameOption> parseOptionsToMap(final String ostr, final SOCGameOptionSet knownOpts)
+    public static Map<String, SOCGameOption> parseOptionsToMap( final String ostr, final SOCGameOptionSet knownOpts )
     {
-        if ((ostr == null) || ostr.equals("-"))
+        if ((ostr == null) || ostr.equals( "-" ))
             return null;
 
         HashMap<String, SOCGameOption> ohash = new HashMap<>();
 
-        StringTokenizer st = new StringTokenizer(ostr, SOCMessage.sep2);
+        StringTokenizer st = new StringTokenizer( ostr, SOCMessage.sep2 );
         String nvpair;
         while (st.hasMoreTokens())
         {
             nvpair = st.nextToken();  // skips any leading commas or doubled commas
-            SOCGameOption copyOpt = parseOptionNameValue(nvpair, false, knownOpts);
+            SOCGameOption copyOpt = parseOptionNameValue( nvpair, false, knownOpts );
             if (copyOpt == null)
                 return null;  // parse error
-            ohash.put(copyOpt.key, copyOpt);
+            ohash.put( copyOpt.key, copyOpt );
         }  // while (moreTokens)
 
         return ohash;
@@ -1375,13 +1384,13 @@ public class SOCGameOption
      *     and not a valid alphanumeric keyname by the rules listed at {@link #SOCGameOption(String)}
      * @since 2.4.50
      */
-    public static SOCGameOptionSet parseOptionsToSet(final String ostr, final SOCGameOptionSet knownOpts)
+    public static SOCGameOptionSet parseOptionsToSet( final String ostr, final SOCGameOptionSet knownOpts )
     {
-        final Map<String, SOCGameOption> omap = parseOptionsToMap(ostr, knownOpts);
+        final Map<String, SOCGameOption> omap = parseOptionsToMap( ostr, knownOpts );
         if (omap == null)
             return null;
 
-        return new SOCGameOptionSet(omap);
+        return new SOCGameOptionSet( omap );
     }
 
     /**
@@ -1409,16 +1418,16 @@ public class SOCGameOption
      * @see #packValue(StringBuilder)
      */
     public static SOCGameOption parseOptionNameValue
-        (final String nvpair, final boolean forceNameUpcase, final SOCGameOptionSet knownOpts)
+    ( final String nvpair, final boolean forceNameUpcase, final SOCGameOptionSet knownOpts )
         throws IllegalArgumentException
     {
-        int i = nvpair.indexOf('=');  // don't just tokenize for this (efficiency, and param value may contain a "=")
+        int i = nvpair.indexOf( '=' );  // don't just tokenize for this (efficiency, and param value may contain a "=")
         if (i < 1)
             return null;  // malformed
 
-        String optkey = nvpair.substring(0, i);
-        String optval = nvpair.substring(i+1);
-        return parseOptionNameValue(optkey, optval, forceNameUpcase, knownOpts);
+        String optkey = nvpair.substring( 0, i );
+        String optval = nvpair.substring( i + 1 );
+        return parseOptionNameValue( optkey, optval, forceNameUpcase, knownOpts );
     }
 
     /**
@@ -1447,23 +1456,23 @@ public class SOCGameOption
      * @since 2.0.00
      */
     public static SOCGameOption parseOptionNameValue
-        (String optkey, final String optval, final boolean forceNameUpcase, final SOCGameOptionSet knownOpts)
+    ( String optkey, final String optval, final boolean forceNameUpcase, final SOCGameOptionSet knownOpts )
         throws IllegalArgumentException
     {
         if (forceNameUpcase)
             optkey = optkey.toUpperCase();
 
-        SOCGameOption knownOpt = knownOpts.get(optkey);
+        SOCGameOption knownOpt = knownOpts.get( optkey );
         SOCGameOption copyOpt;
         if (knownOpt == null)
         {
-            copyOpt = new SOCGameOption(optkey);  // OTYPE_UNKNOWN; may throw IllegalArgumentException
+            copyOpt = new SOCGameOption( optkey );  // OTYPE_UNKNOWN; may throw IllegalArgumentException
         }
         else
         {
             if ((optval.length() == 0)
-                    && (knownOpt.optType != OTYPE_STR)  // OTYPE_* - if string-type, add here
-                    && (knownOpt.optType != OTYPE_STRHIDE))
+                && (knownOpt.optType != OTYPE_STR)  // OTYPE_* - if string-type, add here
+                && (knownOpt.optType != OTYPE_STRHIDE))
             {
                 return null;  // malformed: no value
             }
@@ -1471,7 +1480,7 @@ public class SOCGameOption
             {
                 copyOpt = (SOCGameOption) knownOpt.clone();
             }
-            catch (CloneNotSupportedException ce)
+            catch( CloneNotSupportedException ce )
             {
                 return null;
             }
@@ -1482,7 +1491,7 @@ public class SOCGameOption
                 if (optval.length() == 1)
                 {
                     final boolean bv;
-                    switch (optval.charAt(0))
+                    switch (optval.charAt( 0 ))
                     {
                     case 't':  // fall through
                     case 'T':
@@ -1501,7 +1510,7 @@ public class SOCGameOption
                     default:
                         return null;  // malformed
                     }
-                    copyOpt.setBoolValue(bv);
+                    copyOpt.setBoolValue( bv );
                 }
                 else
                 {
@@ -1513,9 +1522,9 @@ public class SOCGameOption
             case OTYPE_ENUM:
                 try
                 {
-                    copyOpt.setIntValue(Integer.parseInt(optval));
+                    copyOpt.setIntValue( Integer.parseInt( optval ) );
                 }
-                catch (NumberFormatException e)
+                catch( NumberFormatException e )
                 {
                     return null;  // malformed
                 }
@@ -1526,7 +1535,7 @@ public class SOCGameOption
                 try
                 {
                     final boolean bv;
-                    switch (optval.charAt(0))
+                    switch (optval.charAt( 0 ))
                     {
                     case 't':  // fall through
                     case 'T':
@@ -1545,10 +1554,10 @@ public class SOCGameOption
                     default:
                         return null;  // malformed
                     }
-                    copyOpt.setBoolValue(bv);
-                    copyOpt.setIntValue(Integer.parseInt(optval.substring(1)));
+                    copyOpt.setBoolValue( bv );
+                    copyOpt.setIntValue( Integer.parseInt( optval.substring( 1 ) ) );
                 }
-                catch (NumberFormatException e)
+                catch( NumberFormatException e )
                 {
                     return null;  // malformed
                 }
@@ -1556,11 +1565,11 @@ public class SOCGameOption
 
             case OTYPE_STR:
             case OTYPE_STRHIDE:
-                copyOpt.setStringValue(optval);
+                copyOpt.setStringValue( optval );
                 break;
 
             default:
-                copyOpt = new SOCGameOption(optkey);  // OTYPE_UNKNOWN
+                copyOpt = new SOCGameOption( optkey );  // OTYPE_UNKNOWN
             }
         }
 
@@ -1573,18 +1582,18 @@ public class SOCGameOption
      * Assumes {@link #getMaxEnumValueForVersion(String, int)} indicates this is needed.
      * @param opt Option to restrict
      * @param vers Version to restrict to
-     * @return   A copy of the option, containing only the enum
+     * @return A copy of the option, containing only the enum
      *       values permitted at <tt>vers</tt>.
      *       If no restriction is needed, return <tt>opt</tt>.
      */
-    public static SOCGameOption trimEnumForVersion(final SOCGameOption opt, final int vers)
+    public static SOCGameOption trimEnumForVersion( final SOCGameOption opt, final int vers )
     {
-        final int ev = getMaxEnumValueForVersion(opt.key, vers);
+        final int ev = getMaxEnumValueForVersion( opt.key, vers );
         if ((ev == Integer.MAX_VALUE) || (ev == opt.enumVals.length))
             return opt;
         String[] evkeep = new String[ev];
-        System.arraycopy(opt.enumVals, 0, evkeep, 0, ev);
-        return new SOCGameOption(opt, evkeep);  // Copy option and restrict enum values
+        System.arraycopy( opt.enumVals, 0, evkeep, 0, ev );
+        return new SOCGameOption( opt, evkeep );  // Copy option and restrict enum values
     }
 
     /**
@@ -1594,34 +1603,42 @@ public class SOCGameOption
      * @return String for this otype constant, such as "INTBOOL" or "UNKNOWN",
      *         or null if optType is outside the known type value range.
      */
-    public static String optionTypeName(final int optType)
+    public static String optionTypeName( final int optType )
     {
         String otname;
         switch (optType)  // OTYPE_*
         {
         case OTYPE_UNKNOWN:
-            otname = "UNKNOWN";  break;
+            otname = "UNKNOWN";
+            break;
 
         case OTYPE_BOOL:
-            otname = "BOOL";  break;
+            otname = "BOOL";
+            break;
 
         case OTYPE_INT:
-            otname = "INT";  break;
+            otname = "INT";
+            break;
 
         case OTYPE_INTBOOL:
-            otname = "INTBOOL";  break;
+            otname = "INTBOOL";
+            break;
 
         case OTYPE_ENUM:
-            otname = "ENUM";  break;
+            otname = "ENUM";
+            break;
 
         case OTYPE_ENUMBOOL:
-            otname = "ENUMBOOL";  break;
+            otname = "ENUMBOOL";
+            break;
 
         case OTYPE_STR:
-            otname = "STR";  break;
+            otname = "STR";
+            break;
 
         case OTYPE_STRHIDE:
-            otname = "STRHIDE"; break;
+            otname = "STRHIDE";
+            break;
 
         default:
             otname = null;
@@ -1659,19 +1676,19 @@ public class SOCGameOption
     {
         if (refreshList == null)
             refreshList = new ArrayList<>();
-        else if (refreshList.contains(this))
+        else if (refreshList.contains( this ))
             return;
 
-        refreshList.add(this);
+        refreshList.add( this );
     }
 
     /**
      * Does this game option have these specified flag(s)?
      * @param flagMask  Option flag such as {@link #FLAG_DROP_IF_UNUSED}, or multiple flags or'd together
-     * @return  True if {@link #optFlags} contains all flags in {@code flagMask}
+     * @return True if {@link #optFlags} contains all flags in {@code flagMask}
      * @since 2.0.00
      */
-    public final boolean hasFlag(final int flagMask)
+    public final boolean hasFlag( final int flagMask )
     {
         return ((optFlags & flagMask) == flagMask);
     }
@@ -1684,7 +1701,7 @@ public class SOCGameOption
      * @see #hasChangeListener()
      * @since 1.1.13
      */
-    public void addChangeListener(ChangeListener cl)
+    public void addChangeListener( ChangeListener cl )
     {
         optCL = cl;
     }
@@ -1721,9 +1738,9 @@ public class SOCGameOption
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(key);
-        sb.append('=');
-        packValue(sb);
+        StringBuilder sb = new StringBuilder( key );
+        sb.append( '=' );
+        packValue( sb );
         return sb.toString();
     }
 
@@ -1738,7 +1755,7 @@ public class SOCGameOption
     public final StringBuilder getPackedValue()
     {
         StringBuilder sb = new StringBuilder();
-        packValue(sb);
+        packValue( sb );
         return sb;
     }
 
@@ -1751,14 +1768,14 @@ public class SOCGameOption
      *              gameoption, the {@link #hashCode()}s are compared.
      * @see #equals(Object)
      */
-    public int compareTo(Object other)
+    public int compareTo( Object other )
     {
         if (other instanceof SOCGameOption)
         {
             SOCGameOption oopt = (SOCGameOption) other;
-            if (key.equals(oopt.key))
+            if (key.equals( oopt.key ))
                 return 0;
-            return desc.toLowerCase().compareTo(oopt.desc.toLowerCase());
+            return desc.toLowerCase().compareTo( oopt.desc.toLowerCase() );
         }
         else
         {
@@ -1776,17 +1793,17 @@ public class SOCGameOption
      * @see #compareTo(Object)
      * @since 2.4.50
      */
-    public boolean equals(final Object other)
+    public boolean equals( final Object other )
     {
-        if (! (other instanceof SOCGameOption))
+        if (!(other instanceof SOCGameOption))
             return false;
 
         final SOCGameOption oopt = (SOCGameOption) other;
-        return (optType == oopt.optType) && (optFlags == oopt.optFlags) && key.equals(oopt.key)
+        return (optType == oopt.optType) && (optFlags == oopt.optFlags) && key.equals( oopt.key )
             && (boolValue == oopt.boolValue) && (intValue == oopt.intValue)
             && ((strValue == null)
-                ? (oopt.strValue == null)
-                : strValue.equals(oopt.strValue));
+            ? (oopt.strValue == null)
+            : strValue.equals( oopt.strValue ));
     }
 
     /**
@@ -1856,8 +1873,8 @@ public class SOCGameOption
          * @param knownOpts  All of server's Known Options
          */
         void valueChanged
-            (final SOCGameOption opt, final Object oldValue, final Object newValue,
-             final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts);
+        ( final SOCGameOption opt, final Object oldValue, final Object newValue,
+            final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts );
     }
 
 }

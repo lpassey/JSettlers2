@@ -2,17 +2,17 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2010,2014-2015,2017-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2003  Robert S. Thomas
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
@@ -87,10 +87,10 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
      * @throws NullPointerException if {@code et} null or {@code amt} null, or {@code et} contains null values
      * @since 2.3.00
      */
-    public SOCPlayerElements(String ga, int pn, int ac, final PEType[] et, final int[] amt)
+    public SOCPlayerElements( String ga, int pn, int ac, final PEType[] et, final int[] amt )
         throws NullPointerException
     {
-        this(ga, pn, ac, PEType.getValues(et), amt);
+        this( ga, pn, ac, PEType.getValues( et ), amt );
     }
 
     /**
@@ -107,10 +107,10 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
      * @throws NullPointerException if {@code et} null or {@code amt} null
      * @see #SOCPlayerElements(String, int, int, PEType[], int[])
      */
-    private SOCPlayerElements(String ga, int pn, int ac, final int[] et, final int[] amt)
+    private SOCPlayerElements( String ga, int pn, int ac, final int[] et, final int[] amt )
         throws NullPointerException
     {
-        super(PLAYERELEMENTS, ga, new int[2 + (2 * et.length)]);
+        super( PLAYERELEMENTS, ga, new int[2 + (2 * et.length)] );
         if (amt == null)
             throw new NullPointerException();
 
@@ -122,8 +122,10 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
         pa[1] = ac;
         for (int pai = 2, eti = 0; eti < et.length; ++eti)
         {
-            pa[pai] = et[eti];   ++pai;
-            pa[pai] = amt[eti];  ++pai;
+            pa[pai] = et[eti];
+            ++pai;
+            pa[pai] = amt[eti];
+            ++pai;
         }
     }
 
@@ -140,10 +142,10 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
      * @throws NullPointerException if {@code rs} null
      * @since 2.0.00
      */
-    public SOCPlayerElements(String ga, int pn, int ac, final SOCResourceSet rs)
+    public SOCPlayerElements( String ga, int pn, int ac, final SOCResourceSet rs )
         throws NullPointerException
     {
-        super(PLAYERELEMENTS, ga, null);
+        super( PLAYERELEMENTS, ga, null );
 
         playerNumber = pn;
         actionType = ac;
@@ -160,11 +162,13 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
 
         for (int pai = 2, eti = 0, r = SOCResourceConstants.CLAY; r <= SOCResourceConstants.WOOD; ++r)
         {
-            int amt = rs.getAmount(r);
+            int amt = rs.getAmount( r );
             if (amt > 0)
             {
-                pa[pai] = r;    ++pai;
-                pa[pai] = amt;  ++pai;
+                pa[pai] = r;
+                ++pai;
+                pa[pai] = amt;
+                ++pai;
 
                 elementTypes[eti] = r;
                 amounts[eti] = amt;
@@ -180,7 +184,10 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
      * @return Version number, 2000 for JSettlers 2.0.00.
      */
     @Override
-    public int getMinimumVersion() { return MIN_VERSION; }
+    public int getMinimumVersion()
+    {
+        return MIN_VERSION;
+    }
 
     /**
      * @return the player number; some elements allow -1 to apply to all players
@@ -236,9 +243,9 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
      * pa[5] = elementType[1]
      * pa[6] = amount[1]
      * ...</pre>
-     * @return    a SOCPlayerElements message, or null if parsing errors
+     * @return a SOCPlayerElements message, or null if parsing errors
      */
-    public static SOCPlayerElements parseDataStr(List<String> pa)
+    public static SOCPlayerElements parseDataStr( List<String> pa )
     {
         if (pa == null)
             return null;
@@ -248,21 +255,25 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
 
         try
         {
-            final String gaName = pa.get(0);
-            final int playerNumber = Integer.parseInt(pa.get(1));
-            final int actionType = Integer.parseInt(pa.get(2));
+            final String gaName = pa.get( 0 );
+            final int playerNumber = Integer.parseInt( pa.get( 1 ) );
+            final int actionType = Integer.parseInt( pa.get( 2 ) );
 
             final int n = (L - 3) / 2;
             int[] elementTypes = new int[n];
             int[] amounts = new int[n];
             for (int i = 0, pai = 3; i < n; ++i)
             {
-                elementTypes[i] = Integer.parseInt(pa.get(pai));  ++pai;
-                amounts[i]      = Integer.parseInt(pa.get(pai));  ++pai;
+                elementTypes[i] = Integer.parseInt( pa.get( pai ) );
+                ++pai;
+                amounts[i] = Integer.parseInt( pa.get( pai ) );
+                ++pai;
             }
 
-            return new SOCPlayerElements(gaName, playerNumber, actionType, elementTypes, amounts);
-        } catch (Exception e) {
+            return new SOCPlayerElements( gaName, playerNumber, actionType, elementTypes, amounts );
+        }
+        catch( Exception e )
+        {
             return null;
         }
     }
@@ -275,11 +286,11 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
      * @return Message parameters to finish parsing into a SOCMessage, or {@code null} if malformed
      * @since 2.4.50
      */
-    public static List<String> stripAttribsToList(String messageStrParams)
+    public static List<String> stripAttribsToList( String messageStrParams )
     {
         // don't call SOCMessage.stripAttribsToList, we need the e# names in elemNum=value pairs
 
-        String[] pieces = messageStrParams.split(sepRE);
+        String[] pieces = messageStrParams.split( sepRE );
         // [0] game=...
         // [1] playerNum=...
         // [2] actionType=...
@@ -290,35 +301,35 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
 
         List<String> ret = new ArrayList<>();
 
-        if (pieces[0].startsWith("game="))
-            ret.add(pieces[0].substring(5));
+        if (pieces[0].startsWith( "game=" ))
+            ret.add( pieces[0].substring( 5 ) );
         else
             return null;
 
-        if (pieces[1].startsWith("playerNum="))
-            ret.add(pieces[1].substring(10));
+        if (pieces[1].startsWith( "playerNum=" ))
+            ret.add( pieces[1].substring( 10 ) );
         else
             return null;
 
         String act = pieces[2];
-        if (! act.startsWith("actionType="))
+        if (!act.startsWith( "actionType=" ))
             return null;
-        act = act.substring(11);
-        if (! Character.isDigit(act.charAt(0)))
+        act = act.substring( 11 );
+        if (!Character.isDigit( act.charAt( 0 ) ))
         {
             for (int ac = 0; ac < SOCPlayerElement.ACTION_STRINGS.length; ++ac)
             {
-                if (SOCPlayerElement.ACTION_STRINGS[ac].equals(act))
+                if (SOCPlayerElement.ACTION_STRINGS[ac].equals( act ))
                 {
-                    act = Integer.toString(ac + 100);
+                    act = Integer.toString( ac + 100 );
                     break;
                 }
             }
         }
-        ret.add(act);
+        ret.add( act );
 
         // "e5=9,e7=12" -> "5", "9, "7", "12"
-        pieces = pieces[3].split(",");
+        pieces = pieces[3].split( "," );
         for (String piece : pieces)
         {
             if (piece.charAt( 0 ) != 'e')
@@ -345,18 +356,20 @@ public class SOCPlayerElements extends SOCMessageTemplateMi
         if ((actionType >= 100) && ((actionType - 100) < SOCPlayerElement.ACTION_STRINGS.length))
             act = SOCPlayerElement.ACTION_STRINGS[actionType - 100];
         else
-            act = Integer.toString(actionType);
+            act = Integer.toString( actionType );
 
         StringBuilder sb = new StringBuilder
-            ("SOCPlayerElements:game=" + game + "|playerNum=" + playerNumber + "|actionType=" + act + '|');
+            ( "SOCPlayerElements:game=" + game + "|playerNum=" + playerNumber + "|actionType=" + act + '|' );
         for (int i = 2; i < pa.length; )
         {
             if (i > 2)
-                sb.append(',');
-            sb.append('e');
-            sb.append(pa[i]);  ++i;
-            sb.append('=');
-            sb.append(pa[i]);  ++i;
+                sb.append( ',' );
+            sb.append( 'e' );
+            sb.append( pa[i] );
+            ++i;
+            sb.append( '=' );
+            sb.append( pa[i] );
+            ++i;
         }
 
         return sb.toString();

@@ -548,7 +548,8 @@ import soc.util.Version;
     private int parsePortNumberOrDefault(final JTextField tf)
     {
         int srport;
-        try {
+        try
+        {
             final String ptext = tf.getText().trim();
             if (ptext.length() > 0)
                 srport = Integer.parseInt(ptext);
@@ -570,84 +571,84 @@ import soc.util.Version;
     /** React to button clicks */
     public void actionPerformed(ActionEvent ae)
     {
-        try {
-
-        Object src = ae.getSource();
-        if (src == prac)
+        try
         {
-            // Ask client to set up and start a practice game
-            md.clickPracticeButton();
-            return;
-        }
 
-        if (src == connserv)
-        {
-            // Show fields to get details to connect to server later
-            panel_conn.setVisible(true);
-            if ((panel_run != null) && panel_run.isVisible())
+            Object src = ae.getSource();
+            if (src == prac)
             {
-                panel_run.setVisible(false);
-                runserv.setVisible(true);
+                // Ask client to set up and start a practice game
+                md.clickPracticeButton();
+                return;
             }
-            connserv.setVisible(false);
-            conn_servhost.requestFocus();
-            validate();
-            return;
-        }
 
-        if (src == conn_connect)
-        {
-            // After clicking connserv, actually connect to server
-            clickConnConnect();
-            return;
-        }
-
-        if (src == conn_cancel)
-        {
-            // Hide fields used to connect to server
-            clickConnCancel();
-            return;
-        }
-
-        if (src == runserv)
-        {
-            // Show fields to get details to start a TCP server
-            panel_run.setVisible(true);
-            if ((panel_conn != null) && panel_conn.isVisible())
+            if (src == connserv)
             {
-                panel_conn.setVisible(false);
-                connserv.setVisible(true);
-            }
-            runserv.setVisible(false);
-            run_servport.requestFocus();
-            {
-                // Convenience: type-to-replace port value
-                String svpText = run_servport.getText();
-                if ((svpText != null) && (svpText.trim().length() > 0))
+                // Show fields to get details to connect to server later
+                panel_conn.setVisible( true );
+                if ((panel_run != null) && panel_run.isVisible())
                 {
-                    run_servport.setSelectionStart(0);
-                    run_servport.setSelectionEnd(svpText.length());
+                    panel_run.setVisible( false );
+                    runserv.setVisible( true );
                 }
+                connserv.setVisible( false );
+                conn_servhost.requestFocus();
+                validate();
+                return;
             }
-            validate();
-            return;
-        }
 
-        if (src == run_startserv)
-        {
-            // After clicking runserv, actually start a server
-            clickRunStartserv();
-            return;
-        }
+            if (src == conn_connect)
+            {
+                // After clicking connserv, actually connect to server
+                clickConnConnect();
+                return;
+            }
 
-        if (src == run_cancel)
-        {
-            // Hide fields used to start a server
-            clickRunCancel();
-        }
+            if (src == conn_cancel)
+            {
+                // Hide fields used to connect to server
+                clickConnCancel();
+                return;
+            }
 
+            if (src == runserv)
+            {
+                // Show fields to get details to start a TCP server
+                panel_run.setVisible( true );
+                if ((panel_conn != null) && panel_conn.isVisible())
+                {
+                    panel_conn.setVisible( false );
+                    connserv.setVisible( true );
+                }
+                runserv.setVisible( false );
+                run_servport.requestFocus();
+                {
+                    // Convenience: type-to-replace port value
+                    String svpText = run_servport.getText();
+                    if ((svpText != null) && (svpText.trim().length() > 0))
+                    {
+                        run_servport.setSelectionStart( 0 );
+                        run_servport.setSelectionEnd( svpText.length() );
+                    }
+                }
+                validate();
+                return;
+            }
+
+            if (src == run_startserv)
+            {
+                // After clicking runserv, actually start a server
+                clickRunStartserv();
+                return;
+            }
+
+            if (src == run_cancel)
+            {
+                // Hide fields used to start a server
+                clickRunCancel();
+            }
         }  // try
-        catch(Throwable thr)
+        catch( Throwable thr )
         {
             System.err.println("-- Error caught in AWT event thread: " + thr + " --");
             thr.printStackTrace();
@@ -660,7 +661,6 @@ import soc.util.Version;
             System.err.println("-- Error stack trace end --");
             System.err.println();
         }
-
     }
 
     /** "Connect..." from connect setup; check fields, set WAIT_CURSOR, ask cli to connect  */
@@ -713,29 +713,28 @@ import soc.util.Version;
         if (e.isConsumed())
             return;
 
-        try {
-
-        boolean panelConnShowing = (panel_conn != null) && (panel_conn.isVisible());
-        boolean panelRunShowing  = (panel_run != null)  && (panel_run.isVisible());
-
-        switch (e.getKeyCode())
+        try
         {
-        case KeyEvent.VK_ENTER:
-            if (panelConnShowing)
-                clickConnConnect();
-            else if (panelRunShowing)
-                clickRunStartserv();
-            break;
+            boolean panelConnShowing = (panel_conn != null) && (panel_conn.isVisible());
+            boolean panelRunShowing = (panel_run != null) && (panel_run.isVisible());
 
-        case KeyEvent.VK_CANCEL:
-        case KeyEvent.VK_ESCAPE:
-            if (panelConnShowing)
-                clickConnCancel();
-            else if (panelRunShowing)
-                clickRunCancel();
-            break;
-        }  // switch(e)
+            switch (e.getKeyCode())
+            {
+            case KeyEvent.VK_ENTER:
+                if (panelConnShowing)
+                    clickConnConnect();
+                else if (panelRunShowing)
+                    clickRunStartserv();
+                break;
 
+            case KeyEvent.VK_CANCEL:
+            case KeyEvent.VK_ESCAPE:
+                if (panelConnShowing)
+                    clickConnCancel();
+                else if (panelRunShowing)
+                    clickRunCancel();
+                break;
+            }  // switch(e)
         }  // try
         catch(Throwable thr)
         {

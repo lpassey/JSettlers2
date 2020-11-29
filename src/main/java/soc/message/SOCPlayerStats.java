@@ -1,17 +1,17 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2010,2012,2014-2017,2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
@@ -98,25 +98,25 @@ public class SOCPlayerStats extends SOCMessageTemplateMi
      *           or > {@link #STYPE_MAX}
      * @throws NullPointerException if <tt>pl</tt> null
      */
-    public SOCPlayerStats(SOCPlayer pl, final int stype)
+    public SOCPlayerStats( SOCPlayer pl, final int stype )
         throws IllegalArgumentException, NullPointerException
     {
-        super(PLAYERSTATS, pl.getGame().getName(), new int[len(pl, stype)]);  // len is almost always 6
+        super( PLAYERSTATS, pl.getGame().getName(), new int[len( pl, stype )] );  // len is almost always 6
 
         pa[0] = stype;
 
-        switch (stype)
+        // (stype < STYPE_MIN) || (stype > STYPE_MAX)
+        if (stype == STYPE_RES_ROLL)
         {
-        case STYPE_RES_ROLL:
             final int[] rstats = pl.getResourceRollStats();  // rstats[0] is unused
             for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD; ++i)
                 pa[i] = rstats[i];
             if (pa.length > SOCResourceConstants.GOLD_LOCAL)
                 pa[SOCResourceConstants.GOLD_LOCAL] = rstats[SOCResourceConstants.GOLD_LOCAL];
-            break;
-
-        default:  // (stype < STYPE_MIN) || (stype > STYPE_MAX)
-            throw new IllegalArgumentException("stype out of range: " + stype);
+        }
+        else
+        {
+            throw new IllegalArgumentException( "stype out of range: " + stype );
         }
     }
 
@@ -134,10 +134,10 @@ public class SOCPlayerStats extends SOCMessageTemplateMi
      *         see stats-type constant javadocs.
      *     </UL>
      */
-    protected SOCPlayerStats(final String gameName, int[] pa)
+    protected SOCPlayerStats( final String gameName, int[] pa )
         throws IllegalArgumentException
     {
-        super(PLAYERSTATS, gameName, pa);
+        super( PLAYERSTATS, gameName, pa );
     }
 
     /**
@@ -145,27 +145,23 @@ public class SOCPlayerStats extends SOCMessageTemplateMi
      * to send that player's stats of that type.
      * @param pl  Player for these stats
      * @param stype  Stats type, such as {@link #STYPE_RES_ROLL}; see class javadoc or constructors
-     * @return  Stat array length, including {@code stype} at index 0; always 6 before v2.0.00
+     * @return Stat array length, including {@code stype} at index 0; always 6 before v2.0.00
      * @throws IllegalArgumentException if {@code stype} &lt; {@link #STYPE_MIN}
      *           or > {@link #STYPE_MAX}
      * @throws NullPointerException if {@code pl} null
      */
-    private static int len(final SOCPlayer pl, final int stype)
+    private static int len( final SOCPlayer pl, final int stype )
         throws IllegalArgumentException, NullPointerException
     {
-        switch (stype)
+        // (stype < STYPE_MIN) || (stype > STYPE_MAX)
+        if (stype == STYPE_RES_ROLL)
         {
-        case STYPE_RES_ROLL:
-            {
-                final boolean hasGold =
-                    (pl.getResourceRollStats()[SOCResourceConstants.GOLD_LOCAL] != 0);
+            final boolean hasGold =
+                (pl.getResourceRollStats()[SOCResourceConstants.GOLD_LOCAL] != 0);
 
-                return 1 + 5 + ((hasGold) ? 1 : 0);
-            }
-
-        default:  // (stype < STYPE_MIN) || (stype > STYPE_MAX)
-            throw new IllegalArgumentException("stype out of range: " + stype);
+            return 1 + 5 + ((hasGold) ? 1 : 0);
         }
+        throw new IllegalArgumentException( "stype out of range: " + stype );
     }
 
     /**
@@ -173,7 +169,10 @@ public class SOCPlayerStats extends SOCMessageTemplateMi
      * PLAYERSTATS introduced in 1.1.09 for game-options feature.
      * @return Version number, 1109 for JSettlers 1.1.09.
      */
-    public int getMinimumVersion() { return 1109; }
+    public int getMinimumVersion()
+    {
+        return 1109;
+    }
 
     /**
      * Get the stat type.<P>
@@ -194,9 +193,9 @@ public class SOCPlayerStats extends SOCMessageTemplateMi
      * see its javadoc for parameter details.
      *
      * @param pa   the parameters; length 2 or more required.
-     * @return    a SOCPlayerStats message, or null if parsing errors
+     * @return a SOCPlayerStats message, or null if parsing errors
      */
-    public static SOCPlayerStats parseDataStr(List<String> pa)
+    public static SOCPlayerStats parseDataStr( List<String> pa )
     {
         if (pa == null)
             return null;
@@ -206,13 +205,15 @@ public class SOCPlayerStats extends SOCMessageTemplateMi
 
         try
         {
-            final String gaName = pa.get(0);
+            final String gaName = pa.get( 0 );
             int[] ipa = new int[L - 1];
             for (int i = 0; i < ipa.length; ++i)
-                ipa[i] = Integer.parseInt(pa.get(i + 1));
+                ipa[i] = Integer.parseInt( pa.get( i + 1 ) );
 
-            return new SOCPlayerStats(gaName, ipa);
-        } catch (Exception e) {
+            return new SOCPlayerStats( gaName, ipa );
+        }
+        catch( Exception e )
+        {
             return null;
         }
     }

@@ -1,20 +1,20 @@
 /**
  * JSettlers stats summary file writer.
  * This file Copyright (C) 2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.server;
@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -49,7 +50,7 @@ class StatsFileWriterTask
     public static final int INITIAL_RUN_DELAY_MINUTES = 60;
 
     /** Date format for timestamp: {@code "2020-04-02 00:01 EDT"} */
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm z");
+    private static final SimpleDateFormat SDF = new SimpleDateFormat( "yyyy-MM-dd HH:mm z" );
 
     private final SOCServerMessageHandler ssmh;
 
@@ -73,7 +74,7 @@ class StatsFileWriterTask
      * @param timer  Timer on which to schedule
      */
     public StatsFileWriterTask
-        (SOCServerMessageHandler ssmh, File statsFile, String filename, Timer timer)
+    ( SOCServerMessageHandler ssmh, File statsFile, String filename, Timer timer )
     {
         this.ssmh = ssmh;
         this.statsFile = statsFile;
@@ -82,7 +83,7 @@ class StatsFileWriterTask
 
         checkIfWritable();
 
-        timer.schedule(new FirstRun(), INITIAL_RUN_DELAY_MINUTES * 60 * 1000);
+        timer.schedule( new FirstRun(), INITIAL_RUN_DELAY_MINUTES * 60 * 1000 );
     }
 
     /**
@@ -99,43 +100,55 @@ class StatsFileWriterTask
         {
             final File statsDir = statsFile.getParentFile();
             final String statsDirName = statsDir.getPath();
-            if (! statsDir.exists())
+            if (!statsDir.exists())
             {
-                System.err.println("Warning: Directory not found for stats.file: " + statsFilename);
-            } else if (! statsDir.isDirectory()) {
+                System.err.println( "Warning: Directory not found for stats.file: " + statsFilename );
+            }
+            else if (!statsDir.isDirectory())
+            {
                 System.err.println
-                    ("Warning: stats.file parent exists but isn't a directory: " + statsDirName);
-            } else {
+                    ( "Warning: stats.file parent exists but isn't a directory: " + statsDirName );
+            }
+            else
+            {
                 if (statsFile.exists())
                 {
                     if (statsFile.isDirectory())
                     {
                         System.err.println
-                            ("Warning: stats.file exists but is a directory: " + statsFilename);
+                            ( "Warning: stats.file exists but is a directory: " + statsFilename );
                         return false;  // <---- Early return: file is dir ----
-                    } else if (statsFile.canWrite()) {
+                    }
+                    else if (statsFile.canWrite())
+                    {
                         allOK = true;
-                    } else {
+                    }
+                    else
+                    {
                         System.err.println
-                            ("Warning: stats.file exists but is read-only: " + statsFilename);
+                            ( "Warning: stats.file exists but is read-only: " + statsFilename );
                     }
                 }
 
                 boolean canWriteDir = false;
                 try
                 {
-                    canWriteDir = Files.isWritable(statsDir.toPath());
-                    if (! canWriteDir)
-                        System.err.println("Warning: Directory for stats.file is read-only: " + statsDirName);
-                } catch (SecurityException e) {
-                    System.err.println("Warning: Can't access stats.file's directory " + statsDirName + ": " + e);
+                    canWriteDir = Files.isWritable( statsDir.toPath() );
+                    if (!canWriteDir)
+                        System.err.println( "Warning: Directory for stats.file is read-only: " + statsDirName );
+                }
+                catch( SecurityException e )
+                {
+                    System.err.println( "Warning: Can't access stats.file's directory " + statsDirName + ": " + e );
                 }
 
-                if (! allOK)
+                if (!allOK)
                     allOK = canWriteDir;
             }
-        } catch (SecurityException | IllegalArgumentException e) {
-            System.err.println("Warning: Can't access stats.file " + statsFilename + ": " + e);
+        }
+        catch( SecurityException | IllegalArgumentException e )
+        {
+            System.err.println( "Warning: Can't access stats.file " + statsFilename + ": " + e );
         }
 
         return allOK;
@@ -155,22 +168,24 @@ class StatsFileWriterTask
         if (checkIfWritable())
         {
             StringBuilder sb = new StringBuilder();
-            sb.append("Server stats at ");
-            sb.append(SDF.format(localCal.getTime()));
-            sb.append("\n\n");
-            Iterator<String> it = ssmh.getSettingsFormatted(null).iterator();
+            sb.append( "Server stats at " );
+            sb.append( SDF.format( localCal.getTime() ) );
+            sb.append( "\n\n" );
+            Iterator<String> it = ssmh.getSettingsFormatted( null ).iterator();
             while (it.hasNext())
-                sb.append(it.next() + ": " + it.next() + "\n");
-            sb.append("\n\n");
+                sb.append( it.next() ).append( ": " ).append( it.next() ).append( "\n" );
+            sb.append( "\n\n" );
 
-            try(OutputStreamWriter writer = new OutputStreamWriter
-                (new FileOutputStream(statsFile, true), "UTF-8"))
+            try( OutputStreamWriter writer = new OutputStreamWriter(
+                new FileOutputStream( statsFile, true ), StandardCharsets.UTF_8 ) )
             {
-                writer.append(sb);  // to append all at once if possible
+                writer.append( sb );  // to append all at once if possible
                 writer.flush();
-                System.err.println("\nStats file: Updated " + statsFile.getPath() + "\n");
-            } catch (IOException | SecurityException e) {
-                System.err.println("\n* Can't write to stats.file " + statsFilename + ": " + e + "\n");
+                System.err.println( "\nStats file: Updated " + statsFile.getPath() + "\n" );
+            }
+            catch( IOException | SecurityException e )
+            {
+                System.err.println( "\n* Can't write to stats.file " + statsFilename + ": " + e + "\n" );
             }
         }
 
@@ -191,12 +206,12 @@ class StatsFileWriterTask
 
             // Schedule daily just after midnight: 00:01 local time
             final long nowUTC = localCal.getTimeInMillis();
-            localCal.add(Calendar.DAY_OF_MONTH, 1);  // tomorrow
-            localCal.set(Calendar.HOUR_OF_DAY, 0);
-            localCal.set(Calendar.MINUTE, 1);
-            localCal.set(Calendar.SECOND, 30);  // remain 00:01 in case of slight drift, not 00:00 or 00:02
+            localCal.add( Calendar.DAY_OF_MONTH, 1 );  // tomorrow
+            localCal.set( Calendar.HOUR_OF_DAY, 0 );
+            localCal.set( Calendar.MINUTE, 1 );
+            localCal.set( Calendar.SECOND, 30 );  // remain 00:01 in case of slight drift, not 00:00 or 00:02
             timer.scheduleAtFixedRate
-                (new DailyRun(), localCal.getTimeInMillis() - nowUTC, 24 * 60 * 60 * 1000);
+                ( new DailyRun(), localCal.getTimeInMillis() - nowUTC, 24 * 60 * 60 * 1000 );
         }
     }
 

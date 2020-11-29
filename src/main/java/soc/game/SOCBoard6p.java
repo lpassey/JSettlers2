@@ -100,7 +100,7 @@ public class SOCBoard6p extends SOCBoard
      * Same order as {@link #PORTS_FACING_V2}. {@link #MISC_PORT} is 0.
      * @since 1.1.08
      */
-    public final static int PORTS_TYPE_V2[] =
+    public final static int[] PORTS_TYPE_V2 =
         { 0, 0, 0, 0, CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT, MISC_PORT, SHEEP_PORT };
 
     /**

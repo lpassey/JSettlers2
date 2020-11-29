@@ -61,12 +61,14 @@ public class Version {
     versionInfo.put(COPYRIGHT, "-error-");
     versionInfo.put(BUILDNUM, "-unknown-");
     // JRE_MIN_VERSION default is built later
-    try {
+    try
+    {
       InputStream in = Version.class.getResourceAsStream ("/resources/version.info");
       versionInfo.load (in);
       in.close ();
-
-    } catch (Exception io) {
+    }
+    catch( Exception io )
+    {
       System.err.println ("Unable to load version information.");
       io.printStackTrace ();
     }
@@ -118,7 +120,8 @@ public class Version {
    */
   public static int versionNumber() {
     int vnum;
-    try {
+    try
+    {
         vnum = Integer.parseInt(versionInfo.getProperty(VERSNUM));
     }
     catch (Throwable e) {
@@ -144,10 +147,12 @@ public class Version {
    */
   public static int versionNumberMaximumNoWarn() {
     int vnum;
-    try {
+    try
+    {
         vnum = Integer.parseInt(versionInfo.getProperty(VERSNUM_NOWARN_MAXIMUM));
     }
-    catch (Throwable e) {
+    catch (Throwable e)
+    {
         vnum = -1;
     }
     return vnum;
@@ -171,7 +176,8 @@ public class Version {
   public static String minJREVersion() {
     String jreMinVersion = versionInfo.getProperty(JRE_MIN_VERSION);
     if (jreMinVersion == null) {
-      try {
+      try
+      {
         String major = versionInfo.getProperty(JRE_MIN_MAJOR, ""+jreMinMajor);
         String minor = versionInfo.getProperty(JRE_MIN_MINOR, ""+jreMinMinor);
         String edit  = versionInfo.getProperty(JRE_MIN_EDIT,  ""+jreMinEdit);
@@ -179,7 +185,9 @@ public class Version {
         jreMinMinor = Integer.parseInt(minor);
         jreMinEdit  = Integer.parseInt(edit);
 
-      } catch(Exception x) { // NPE or NumberFormat uses default values
+      }
+      catch( Exception x )
+      { // NPE or NumberFormat uses default values
         System.err.println("Error retrieving Version info: ");
         x.printStackTrace();
       }
@@ -195,7 +203,7 @@ public class Version {
     String v = System.getProperty("java.vm.version");
     int major = Integer.parseInt (v.substring (0,1));
     int minor = Integer.parseInt (v.substring (2,3));
-    int edit = Integer.parseInt (v.substring (4,5));;
+    int edit = Integer.parseInt (v.substring (4,5));
     // String build = v.substring (6);
 
     if (versionInfo.getProperty(JRE_MIN_VERSION) == null)

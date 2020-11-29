@@ -3,17 +3,17 @@
  * Copyright (C) 2003  Robert S. Thomas
  * This file copyright (C) 2009-2015,2017-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012-2013 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
@@ -115,7 +115,7 @@ import soc.util.Version;
  * @since 1.1.07
  */
 @SuppressWarnings("serial")
-/*package*/ class NewGameOptionsFrame extends JDialog
+    /*package*/ class NewGameOptionsFrame extends JDialog
     implements ActionListener, DocumentListener, KeyListener, ItemListener, MouseListener
 {
     // See initInterfaceElements() for most of the UI setup.
@@ -210,9 +210,9 @@ import soc.util.Version;
     private Map<String, Component> optsControls;
 
     /** Key = {@link SOCVersionedItem#key SOCGameOption.key}; value = {@link JCheckbox} if bool/intbool option.
-      * Empty if none, null if readOnly.
-      * Used to quickly find an option's associated checkbox.
-      */
+     * Empty if none, null if readOnly.
+     * Used to quickly find an option's associated checkbox.
+     */
     private Map<String, JCheckBox> boolOptCheckboxes;
 
     /**
@@ -248,7 +248,7 @@ import soc.util.Version;
     private JTextField msgText;
 
     // // TODO refactor; these are from connectorprac panel
-    private static final Color HEADER_LABEL_BG = new Color(220,255,220);
+    private static final Color HEADER_LABEL_BG = new Color( 220, 255, 220 );
     private static final Color HEADER_LABEL_FG = Color.BLACK;
 
     /**
@@ -284,15 +284,15 @@ import soc.util.Version;
      *     from {@link ServerGametypeInfo#knownOpts}, which should be copied before use for a new game's options
      */
     public NewGameOptionsFrame
-        (final SOCPlayerInterface pi, final MainDisplay md, String gaName,
-         final SOCGameOptionSet opts, final boolean forPractice, final boolean readOnly)
+    ( final SOCPlayerInterface pi, final MainDisplay md, String gaName,
+        final SOCGameOptionSet opts, final boolean forPractice, final boolean readOnly )
         throws IllegalArgumentException
     {
         super( pi, readOnly
-                ? (strings.get("game.options.title", gaName))
-                : (forPractice
-                    ? strings.get("game.options.title.newpractice")
-                    : strings.get("game.options.title.new")));
+            ? (strings.get( "game.options.title", gaName ))
+            : (forPractice
+            ? strings.get( "game.options.title.newpractice" )
+            : strings.get( "game.options.title.new" )) );
 
         // Uses default BorderLayout, for simple stretching when window is resized
 
@@ -306,10 +306,10 @@ import soc.util.Version;
         this.forPractice = forPractice;
         this.readOnly = readOnly;
         if ((opts != null) && (opts == knownOpts))
-            throw new IllegalArgumentException("opts == knownOpts");
+            throw new IllegalArgumentException( "opts == knownOpts" );
 
         controlsOpts = new HashMap<>();
-        if (! readOnly)
+        if (!readOnly)
         {
             optsControls = new HashMap<>();
             boolOptCheckboxes = new HashMap<>();
@@ -323,30 +323,34 @@ import soc.util.Version;
         }
 
         // same Frame/Window setup as in SOCPlayerClient.main
-        if (! SwingMainDisplay.isOSColorHighContrast())
+        if (!SwingMainDisplay.isOSColorHighContrast())
         {
-            setBackground(SwingMainDisplay.JSETTLERS_BG_GREEN);
-            setForeground(Color.black);
-            getRootPane().setBackground(null);  // inherit from overall window
-            getContentPane().setBackground(null);
+            setBackground( SwingMainDisplay.JSETTLERS_BG_GREEN );
+            setForeground( Color.black );
+            getRootPane().setBackground( null );  // inherit from overall window
+            getContentPane().setBackground( null );
         }
-        setLocationByPlatform(true);
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setLocationByPlatform( true );
+        setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
 
-        addKeyListener(this);
+        addKeyListener( this );
 
-        initInterfaceElements(gaName);
+        initInterfaceElements( gaName );
 
-        addWindowListener(new WindowAdapter() {
+        addWindowListener( new WindowAdapter()
+        {
             @Override
-            public void windowClosing(WindowEvent e) { clickCancel(false); }
-            });
+            public void windowClosing( WindowEvent e )
+            {
+                clickCancel( false );
+            }
+        } );
 
         /**
          * setup is complete; reset mouse cursor from hourglass to normal
          * (was set to hourglass before calling this constructor)
          */
-        md.clearWaitingStatus(true);
+        md.clearWaitingStatus( true );
     }
 
     /**
@@ -362,14 +366,14 @@ import soc.util.Version;
      *     from {@link ServerGametypeInfo#knownOpts}, which should be copied before use for a new game's options
      */
     public static NewGameOptionsFrame createAndShow
-        (SOCPlayerInterface pi, MainDisplay md, String gaName,
-         SOCGameOptionSet opts, boolean forPractice, boolean readOnly)
+    ( SOCPlayerInterface pi, MainDisplay md, String gaName,
+        SOCGameOptionSet opts, boolean forPractice, boolean readOnly )
         throws IllegalArgumentException
     {
         final NewGameOptionsFrame ngof =
-            new NewGameOptionsFrame(pi, md, gaName, opts, forPractice, readOnly);
+            new NewGameOptionsFrame( pi, md, gaName, opts, forPractice, readOnly );
         ngof.pack();
-        ngof.setVisible(true);
+        ngof.setVisible( true );
 
         return ngof;
     }
@@ -379,37 +383,37 @@ import soc.util.Version;
      * Most elements are part of a sub-panel occupying most of this dialog, and using GridBagLayout.
      * Fills {@link #localPrefs}.
      */
-    private void initInterfaceElements(final String gaName)
+    private void initInterfaceElements( final String gaName )
     {
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
         final int displayScale = mainDisplay.getDisplayScaleFactor();
         final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
-        final boolean shouldClearButtonBGs = (! isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
+        final boolean shouldClearButtonBGs = (!isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
 
-        final JPanel bp = new JPanel(gbl);  // Actual button panel
+        final JPanel bp = new JPanel( gbl );  // Actual button panel
         int n = 4 * displayScale;
-        bp.setBorder(new EmptyBorder(n, n, n, n));  // need padding around edges, because panel fills the window
-        if (! isOSHighContrast)
+        bp.setBorder( new EmptyBorder( n, n, n, n ) );  // need padding around edges, because panel fills the window
+        if (!isOSHighContrast)
         {
-            bp.setForeground(getForeground());
-            bp.setBackground(SwingMainDisplay.JSETTLERS_BG_GREEN);  // If this is omitted, firefox 3.5+ applet uses themed bg-color (seen OS X)
+            bp.setForeground( getForeground() );
+            bp.setBackground( SwingMainDisplay.JSETTLERS_BG_GREEN );  // If this is omitted, firefox 3.5+ applet uses themed bg-color (seen OS X)
         }
 
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1;  // stretch with dialog resize
 
-        if ((! readOnly) && (opts != null))
+        if ((!readOnly) && (opts != null))
         {
-            msgText = new JTextField(strings.get("game.options.prompt"));  // "Choose options for the new game."
-            msgText.setEditable(false);
-            if (! isOSHighContrast)
+            msgText = new JTextField( strings.get( "game.options.prompt" ) );  // "Choose options for the new game."
+            msgText.setEditable( false );
+            if (!isOSHighContrast)
             {
-                msgText.setForeground(SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE);
-                msgText.setBackground(getBackground());
+                msgText.setForeground( SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE );
+                msgText.setBackground( getBackground() );
             }
-            add(msgText, BorderLayout.NORTH);
+            add( msgText, BorderLayout.NORTH );
         }
 
         /**
@@ -417,43 +421,43 @@ import soc.util.Version;
          */
         JLabel L;
 
-        L = new JLabel(strings.get("game.options.name"), SwingConstants.LEFT);  // "Game name"
-        if (! isOSHighContrast)
+        L = new JLabel( strings.get( "game.options.name" ), SwingConstants.LEFT );  // "Game name"
+        if (!isOSHighContrast)
         {
-            L.setBackground(HEADER_LABEL_BG);
-            L.setForeground(HEADER_LABEL_FG);
-            L.setOpaque(true);
+            L.setBackground( HEADER_LABEL_BG );
+            L.setForeground( HEADER_LABEL_FG );
+            L.setOpaque( true );
         }
         gbc.gridwidth = 2;
         gbc.weightx = 0;
         gbc.ipadx = 2 * displayScale;
-        gbl.setConstraints(L, gbc);
+        gbl.setConstraints( L, gbc );
         gbc.ipadx = 0;
-        bp.add(L);
+        bp.add( L );
 
-        gameName = new JTextField(20);
+        gameName = new JTextField( 20 );
         if (gaName != null)
-            gameName.setText(gaName);
+            gameName.setText( gaName );
         if (readOnly)
         {
-            gameName.setEnabled(false);
+            gameName.setEnabled( false );
         }
         else
         {
-            gameName.addKeyListener(this);     // for ESC/ENTER
+            gameName.addKeyListener( this );     // for ESC/ENTER
             Document tfDoc = gameName.getDocument();
-            tfDoc.putProperty("owner", gameName);
-            tfDoc.addDocumentListener(this);    // Will enable buttons when field is not empty
+            tfDoc.putProperty( "owner", gameName );
+            tfDoc.addDocumentListener( this );    // Will enable buttons when field is not empty
         }
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1;
-        gbl.setConstraints(gameName, gbc);
-        bp.add(gameName);
+        gbl.setConstraints( gameName, gbc );
+        bp.add( gameName );
 
         /**
          * Interface setup: Game Options, user's client preferences, per-game local preferences
          */
-        initInterface_Options(bp, gbl, gbc);
+        initInterface_Options( bp, gbl, gbc );
 
         /**
          * Interface setup: Buttons
@@ -462,63 +466,66 @@ import soc.util.Version;
          * was green in all 1.1.xx, default-gray in 1.2.xx, back to green for all 2.x.xx
          */
         JPanel btnPan = new JPanel();
-        if (! isOSHighContrast)
+        if (!isOSHighContrast)
         {
-            btnPan.setBackground(null);
-            btnPan.setForeground(null);
+            btnPan.setBackground( null );
+            btnPan.setForeground( null );
         }
-        btnPan.setBorder(new EmptyBorder(4 * displayScale, 2 * displayScale, 0, 2 * displayScale));
-            // padding between option rows, buttons
+        btnPan.setBorder( new EmptyBorder( 4 * displayScale, 2 * displayScale, 0, 2 * displayScale ) );
+        // padding between option rows, buttons
 
         if (readOnly)
         {
-            cancel = new JButton(strings.get("base.ok"));
-            cancel.setEnabled(true);
+            cancel = new JButton( strings.get( "base.ok" ) );
+            cancel.setEnabled( true );
         }
         else
         {
-            cancel = new JButton(strings.get("base.cancel"));
-            cancel.addKeyListener(this);  // for win32 keyboard-focus
+            cancel = new JButton( strings.get( "base.cancel" ) );
+            cancel.addKeyListener( this );  // for win32 keyboard-focus
         }
-        cancel.addActionListener(this);
+        cancel.addActionListener( this );
         if (shouldClearButtonBGs)
-            cancel.setBackground(null);  // needed on win32 to avoid gray corners
-        btnPan.add(cancel);
+            cancel.setBackground( null );  // needed on win32 to avoid gray corners
+        btnPan.add( cancel );
 
-        if (! readOnly)
+        if (!readOnly)
         {
-            create = new JButton(strings.get("game.options.oknew"));  // "Create Game"
+            create = new JButton( strings.get( "game.options.oknew" ) );  // "Create Game"
             if (shouldClearButtonBGs)
-                create.setBackground(null);
-            create.addActionListener(this);
-            create.addKeyListener(this);
-            create.setEnabled(! readOnly);
+                create.setBackground( null );
+            create.addActionListener( this );
+            create.addKeyListener( this );
+            create.setEnabled( true );
             if ((gaName == null) || (gaName.length() == 0))
-                create.setEnabled(false);  // Will enable when gameName not empty
-            btnPan.add(create);
+                create.setEnabled( false );  // Will enable when gameName not empty
+            btnPan.add( create );
         }
 
-        getRootPane().setDefaultButton(readOnly ? cancel : create);
+        getRootPane().setDefaultButton( readOnly ? cancel : create );
 
-        add(btnPan, BorderLayout.SOUTH);
+        add( btnPan, BorderLayout.SOUTH );
 
         // Keyboard shortcut setup
         {
             final JRootPane rp = getRootPane();
-            final InputMap im = rp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+            final InputMap im = rp.getInputMap( JComponent.WHEN_IN_FOCUSED_WINDOW );
             final ActionMap am = rp.getActionMap();
 
             // ESC to cancel/close dialog, even if nothing has keyboard focus (as seen on MacOSX)
-            im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
-            am.put("cancel", new AbstractAction()
+            im.put( KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0 ), "cancel" );
+            am.put( "cancel", new AbstractAction()
             {
-                public void actionPerformed(ActionEvent ae) { clickCancel(false); }
-            });
+                public void actionPerformed( ActionEvent ae )
+                {
+                    clickCancel( false );
+                }
+            } );
         }
 
         // Final assembly setup
         bp.validate();
-        add(bp, BorderLayout.CENTER);
+        add( bp, BorderLayout.CENTER );
     }
 
     /**
@@ -545,36 +552,36 @@ import soc.util.Version;
      * Sets up local preferences for the client by calling
      * {@link #initInterface_UserPrefs(JPanel, GridBagLayout, GridBagConstraints)}.
      */
-    private void initInterface_Options(JPanel bp, GridBagLayout gbl, GridBagConstraints gbc)
+    private void initInterface_Options( JPanel bp, GridBagLayout gbl, GridBagConstraints gbc )
     {
         final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
-        final boolean hideUnderscoreOpts = ! readOnly;
+        final boolean hideUnderscoreOpts = !readOnly;
 
         JLabel L;
 
         if (opts == null)
         {
-            L = new JLabel(strings.get
-                    ((knownOpts != null)
-                     ? "game.options.none"     // "This game does not use options."
-                     : "game.options.not" ));  // "This server version does not support game options."
-            if (! isOSHighContrast)
-                L.setForeground(SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE);
+            L = new JLabel( strings.get
+                ( (knownOpts != null)
+                    ? "game.options.none"     // "This game does not use options."
+                    : "game.options.not" ) );  // "This server version does not support game options."
+            if (!isOSHighContrast)
+                L.setForeground( SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE );
             gbc.gridwidth = GridBagConstraints.REMAINDER;
-            gbl.setConstraints(L, gbc);
-            bp.add(L);
+            gbl.setConstraints( L, gbc );
+            bp.add( L );
 
-            initInterface_UserPrefs(bp, gbl, gbc);
+            initInterface_UserPrefs( bp, gbl, gbc );
 
             return;  // <---- Early return: no options ----
         }
-        else if (! readOnly)
+        else if (!readOnly)
         {
             for (SOCGameOption opt : opts)
                 opt.userChanged = false;  // clear flag from any previously shown NGOF
         }
 
-        if (opts.containsKey("SC"))
+        if (opts.containsKey( "SC" ))
             allSc = SOCScenario.getAllKnownScenarios();
 
         gbc.anchor = GridBagConstraints.WEST;
@@ -582,37 +589,37 @@ import soc.util.Version;
         // Look for options that should be grouped together and indented
         // under another option (based on key length and common prefix)
         // instead of aligned to the start of a line.
-        HashMap<String,String> sameGroupOpts = new HashMap<>();  // key=in-same-group opt, value=opt which heads that group
+        HashMap<String, String> sameGroupOpts = new HashMap<>();  // key=in-same-group opt, value=opt which heads that group
         for (final SOCGameOption opt : opts)
         {
             final String okey = opt.key;
             final int kL = okey.length();
             if ((kL <= 2) || (opt.optType == SOCGameOption.OTYPE_UNKNOWN)
-                || opt.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN))
+                || opt.hasFlag( SOCGameOption.FLAG_INACTIVE_HIDDEN ))
                 continue;
 
             final String kf2;
             if (kL == 3)
             {
-                kf2 = okey.substring(0, 2);
+                kf2 = okey.substring( 0, 2 );
             }
             else
             {
-                int i = okey.indexOf('_');
+                int i = okey.indexOf( '_' );
                 if (i < 1)
                     continue;
-                kf2 = okey.substring(0, i);
+                kf2 = okey.substring( 0, i );
             }
-            SOCGameOption op2 = opts.get(kf2);
+            SOCGameOption op2 = opts.get( kf2 );
             if ((op2 != null) && (op2.optType != SOCGameOption.OTYPE_UNKNOWN))
-                sameGroupOpts.put(okey, kf2);
+                sameGroupOpts.put( okey, kf2 );
         }
 
         // Sort and lay out options; remove unknowns and internal-onlys from opts.
 
         // TreeSet sorts game options by description, using gameopt.compareTo.
         // The array lets us remove from opts without disrupting an iterator.
-        SOCGameOption[] optArr = new TreeSet<>( opts.values() ).toArray(new SOCGameOption[0]);
+        SOCGameOption[] optArr = new TreeSet<>( opts.values() ).toArray( new SOCGameOption[0] );
 
         // Some game options from sameGroupOpts, sorted by key.
         // Declared up here for occasional reuse within the loop.
@@ -680,14 +687,14 @@ import soc.util.Version;
 
         }  // for(opts)
 
-        initInterface_UserPrefs(bp, gbl, gbc);
+        initInterface_UserPrefs( bp, gbl, gbc );
 
         // Check if there's a default/current scenario; if so, set other options' values from it (VP, etc)
-        if (! readOnly)
+        if (!readOnly)
         {
-            final SOCGameOption optSC = opts.get("SC");
-            if ((optSC != null) && ! optSC.getStringValue().isEmpty())
-                fireUserChangedOptListeners(optSC, scenDropdown, true, false);
+            final SOCGameOption optSC = opts.get( "SC" );
+            if ((optSC != null) && !optSC.getStringValue().isEmpty())
+                fireUserChangedOptListeners( optSC, scenDropdown, true, false );
         }
     }
 
@@ -705,9 +712,9 @@ import soc.util.Version;
      * @param gbc Use these constraints
      */
     private void initInterface_OptLine
-        (SOCGameOption op, JPanel bp, GridBagLayout gbl, GridBagConstraints gbc)
+    ( SOCGameOption op, JPanel bp, GridBagLayout gbl, GridBagConstraints gbc )
     {
-        if (op.key.equals("SC"))
+        if (op.key.equals( "SC" ))
         {
             // special handling: Scenario
             if ((allSc == null) || allSc.isEmpty())
@@ -716,24 +723,25 @@ import soc.util.Version;
             int i = 0, sel = 0;
 
             JComboBox<Object> jcb = new JComboBox<>();  // for scenDropdown: holds SOCScenarios and a String
-            jcb.addItem(strings.get("base.none.parens"));  // "(none)" is item 0 in dropdown
+            jcb.addItem( strings.get( "base.none.parens" ) );  // "(none)" is item 0 in dropdown
 
             Collection<SOCScenario> scens = allSc.values();
-            if (! readOnly)
+            if (!readOnly)
             {
                 // Sort by description.
                 // Don't sort if readOnly and thus dropdown not enabled, probably not browsable.
 
                 ArrayList<SOCScenario> sl = new ArrayList<>( scens );
-                Collections.sort(sl, new Comparator<SOCScenario>() {
+                Collections.sort( sl, new Comparator<SOCScenario>()
+                {
                     // This method isn't part of SOCScenario because that class already has
                     // equals and compareTo methods comparing keys, not descriptions
 
-                    public int compare(SOCScenario a, SOCScenario b)
+                    public int compare( SOCScenario a, SOCScenario b )
                     {
-                        return a.getDesc().compareTo(b.getDesc());
+                        return a.getDesc().compareTo( b.getDesc() );
                     }
-                });
+                } );
                 scens = sl;
             }
 
@@ -741,43 +749,43 @@ import soc.util.Version;
             for (final SOCScenario sc : scens)
             {
                 ++i;
-                jcb.addItem(sc);  // sc.toString() == sc.desc
-                if (sc.key.equals(currScen))
+                jcb.addItem( sc );  // sc.toString() == sc.desc
+                if (sc.key.equals( currScen ))
                     sel = i;
             }
             if (sel != 0)
             {
-                jcb.setSelectedIndex(sel);
-                op.setBoolValue(true);
+                jcb.setSelectedIndex( sel );
+                op.setBoolValue( true );
             }
 
             scenDropdown = jcb;
-            initInterface_Opt1(op, jcb, true, true, false, bp, gbl, gbc);
-                // adds jcb, and a checkbox which will toggle this OTYPE_STR's op.boolValue
-            jcb.addActionListener(this);  // when item selected, enable/disable Scenario Info button
+            initInterface_Opt1( op, jcb, true, true, false, bp, gbl, gbc );
+            // adds jcb, and a checkbox which will toggle this OTYPE_STR's op.boolValue
+            jcb.addActionListener( this );  // when item selected, enable/disable Scenario Info button
 
-            if ((! readOnly) || opts.containsKey("SC"))
+            if ((!readOnly) || opts.containsKey( "SC" ))
             {
                 // 2nd line: right-justified "Scenario Info..." button
 
                 JLabel blank = new JLabel();
                 gbc.gridwidth = 1;
                 gbc.weightx = 0;
-                gbl.setConstraints(blank, gbc);
-                bp.add(blank);
-                scenInfo = new JButton(strings.get("game.options.scenario.info_btn"));  // "Scenario Info..."
-                if (SOCPlayerClient.IS_PLATFORM_WINDOWS && ! SwingMainDisplay.isOSColorHighContrast())
-                    scenInfo.setBackground(null);  // inherit from parent; needed on win32 to avoid gray corners
-                scenInfo.addActionListener(this);
-                scenInfo.addKeyListener(this);
-                scenInfo.setEnabled(sel != 0);  // disable if "(none)" is selected scenario option
+                gbl.setConstraints( blank, gbc );
+                bp.add( blank );
+                scenInfo = new JButton( strings.get( "game.options.scenario.info_btn" ) );  // "Scenario Info..."
+                if (SOCPlayerClient.IS_PLATFORM_WINDOWS && !SwingMainDisplay.isOSColorHighContrast())
+                    scenInfo.setBackground( null );  // inherit from parent; needed on win32 to avoid gray corners
+                scenInfo.addActionListener( this );
+                scenInfo.addKeyListener( this );
+                scenInfo.setEnabled( sel != 0 );  // disable if "(none)" is selected scenario option
 
                 gbc.gridwidth = GridBagConstraints.REMAINDER;
                 final int oldAnchor = gbc.anchor, oldFill = gbc.fill;
                 gbc.fill = GridBagConstraints.NONE;
                 gbc.anchor = GridBagConstraints.EAST;
-                gbl.setConstraints(scenInfo, gbc);
-                bp.add(scenInfo);
+                gbl.setConstraints( scenInfo, gbc );
+                bp.add( scenInfo );
                 gbc.fill = oldFill;
                 gbc.anchor = oldAnchor;
             }
@@ -788,52 +796,52 @@ import soc.util.Version;
         switch (op.optType)  // OTYPE_*
         {
         case SOCGameOption.OTYPE_BOOL:
-            {
-                JCheckBox cb = new JCheckBox();
-                initInterface_Opt1(op, cb, true, false, false, bp, gbl, gbc);
-                cb.addItemListener(this);
-            }
-            break;
+        {
+            JCheckBox cb = new JCheckBox();
+            initInterface_Opt1( op, cb, true, false, false, bp, gbl, gbc );
+            cb.addItemListener( this );
+        }
+        break;
 
         case SOCGameOption.OTYPE_INT:
         case SOCGameOption.OTYPE_INTBOOL:
-            {
-                final boolean hasCheckbox = (op.optType == SOCGameOption.OTYPE_INTBOOL);
-                initInterface_Opt1(op, initOption_int(op), hasCheckbox, true, true, bp, gbl, gbc);
-            }
-            break;
+        {
+            final boolean hasCheckbox = (op.optType == SOCGameOption.OTYPE_INTBOOL);
+            initInterface_Opt1( op, initOption_int( op ), hasCheckbox, true, true, bp, gbl, gbc );
+        }
+        break;
 
         case SOCGameOption.OTYPE_ENUM:
         case SOCGameOption.OTYPE_ENUMBOOL:
             // JComboBox (popup menu)
-            {
-                final boolean hasCheckbox = (op.optType == SOCGameOption.OTYPE_ENUMBOOL);
-                initInterface_Opt1(op, initOption_enum(op), hasCheckbox, true, true, bp, gbl, gbc);
-            }
-            break;
+        {
+            final boolean hasCheckbox = (op.optType == SOCGameOption.OTYPE_ENUMBOOL);
+            initInterface_Opt1( op, initOption_enum( op ), hasCheckbox, true, true, bp, gbl, gbc );
+        }
+        break;
 
         case SOCGameOption.OTYPE_STR:
         case SOCGameOption.OTYPE_STRHIDE:
+        {
+            int txtwid = op.maxIntValue;  // used as max length
+            if (txtwid > 20)
+                txtwid = 20;
+            final boolean doHide = (op.optType == SOCGameOption.OTYPE_STRHIDE);
+            JTextField txtc = (doHide)
+                ? new JPasswordField( txtwid )
+                : new JTextField( op.getStringValue(), txtwid );
+            if (!readOnly)
             {
-                int txtwid = op.maxIntValue;  // used as max length
-                if (txtwid > 20)
-                    txtwid = 20;
-                final boolean doHide = (op.optType == SOCGameOption.OTYPE_STRHIDE);
-                JTextField txtc = (doHide)
-                    ? new JPasswordField(txtwid)
-                    : new JTextField(op.getStringValue(), txtwid);
-                if (! readOnly)
-                {
-                    txtc.addKeyListener(this);  // for ESC/ENTER
-                    Document tfDoc = txtc.getDocument();
-                    tfDoc.putProperty("owner", txtc);
-                    tfDoc.addDocumentListener(this);  // for gameopt.ChangeListener and userChanged
-                }
-                initInterface_Opt1(op, txtc, false, false, false, bp, gbl, gbc);
+                txtc.addKeyListener( this );  // for ESC/ENTER
+                Document tfDoc = txtc.getDocument();
+                tfDoc.putProperty( "owner", txtc );
+                tfDoc.addDocumentListener( this );  // for gameopt.ChangeListener and userChanged
             }
-            break;
+            initInterface_Opt1( op, txtc, false, false, false, bp, gbl, gbc );
+        }
+        break;
 
-            // default: unknown, ignore; see above
+        // default: unknown, ignore; see above
         }
     }
 
@@ -857,9 +865,9 @@ import soc.util.Version;
      * @param gbl Use this layout
      * @param gbc Use these constraints; gridwidth will be set to 1 and then REMAINDER
      */
-    private void initInterface_Opt1(SOCGameOption op, Component oc,
-            final boolean hasCB, final boolean allowPH, final boolean ocHasListener,
-            JPanel bp, GridBagLayout gbl, GridBagConstraints gbc)
+    private void initInterface_Opt1( SOCGameOption op, Component oc,
+        final boolean hasCB, final boolean allowPH, final boolean ocHasListener,
+        JPanel bp, GridBagLayout gbl, GridBagConstraints gbc )
     {
         final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
         JLabel L;
@@ -875,105 +883,107 @@ import soc.util.Version;
                 cb = (JCheckBox) oc;
             else
                 cb = new JCheckBox();
-            controlsOpts.put(cb, op);
-            cb.setSelected(op.getBoolValue());
-            cb.setEnabled(! readOnly);
-            if (! isOSHighContrast)
+            controlsOpts.put( cb, op );
+            cb.setSelected( op.getBoolValue() );
+            cb.setEnabled( !readOnly );
+            if (!isOSHighContrast)
             {
-                cb.setBackground(null);  // needed on win32 to avoid gray border
-                cb.setForeground(null);
+                cb.setBackground( null );  // needed on win32 to avoid gray border
+                cb.setForeground( null );
             }
-            gbl.setConstraints(cb, gbc);
-            bp.add(cb);
-            if (! readOnly)
+            gbl.setConstraints( cb, gbc );
+            bp.add( cb );
+            if (!readOnly)
             {
-                boolOptCheckboxes.put(op.key, cb);
-                cb.addItemListener(this);  // for op's ChangeListener and userChanged
+                boolOptCheckboxes.put( op.key, cb );
+                cb.addItemListener( this );  // for op's ChangeListener and userChanged
             }
         }
         else
         {
             L = new JLabel();  // to fill checkbox's column
-            gbl.setConstraints(L, gbc);
-            bp.add(L);
+            gbl.setConstraints( L, gbc );
+            bp.add( L );
         }
 
         final String opDesc = op.getDesc();
-        final int placeholderIdx = allowPH ? opDesc.indexOf('#') : -1;
+        final int placeholderIdx = allowPH ? opDesc.indexOf( '#' ) : -1;
         JPanel optp = new JPanel();  // with FlowLayout
-        if (! isOSHighContrast)
+        if (!isOSHighContrast)
         {
-            optp.setBackground(null);  // inherit from parent
-            optp.setForeground(null);
+            optp.setBackground( null );  // inherit from parent
+            optp.setForeground( null );
         }
         try
         {
             FlowLayout fl = (FlowLayout) (optp.getLayout());
-            fl.setAlignment(FlowLayout.LEFT);
-            fl.setVgap(0);
-            fl.setHgap(0);
+            fl.setAlignment( FlowLayout.LEFT );
+            fl.setVgap( 0 );
+            fl.setHgap( 0 );
         }
-        catch (Throwable fle) {}
+        catch( Throwable fle )
+        {
+        }
 
         // Any text to the left of placeholder in op.desc?
         if (placeholderIdx > 0)
         {
-            L = new JLabel(opDesc.substring(0, placeholderIdx));
-            if (! isOSHighContrast)
-                L.setForeground(SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE);
-            optp.add(L);
-            if (hasCB && ! readOnly)
+            L = new JLabel( opDesc.substring( 0, placeholderIdx ) );
+            if (!isOSHighContrast)
+                L.setForeground( SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE );
+            optp.add( L );
+            if (hasCB && !readOnly)
             {
-                controlsOpts.put(L, op);
-                L.addMouseListener(this);  // Click label to toggle checkbox
+                controlsOpts.put( L, op );
+                L.addMouseListener( this );  // Click label to toggle checkbox
             }
         }
 
         // JTextField or JComboBox at placeholder position
-        if (! (oc instanceof JCheckBox))
+        if (!(oc instanceof JCheckBox))
         {
-            controlsOpts.put(oc, op);
-            oc.setEnabled(! readOnly);
-            optp.add(oc);
+            controlsOpts.put( oc, op );
+            oc.setEnabled( !readOnly );
+            optp.add( oc );
 
             // add listeners, unless initOption_int or initOption_enum already did so
-            if (hasCB && ! (readOnly || ocHasListener))
+            if (hasCB && !(readOnly || ocHasListener))
             {
                 if (oc instanceof JTextField)
                 {
-                    oc.addKeyListener(this);   // for ESC/ENTER
+                    oc.addKeyListener( this );   // for ESC/ENTER
                     Document tfDoc = ((JTextField) oc).getDocument();
-                    tfDoc.putProperty("owner", oc);
-                    tfDoc.addDocumentListener(this);  // for enable/disable
+                    tfDoc.putProperty( "owner", oc );
+                    tfDoc.addDocumentListener( this );  // for enable/disable
                 }
                 else if (oc instanceof JComboBox)
                 {
-                    ((JComboBox<?>) oc).addItemListener(this);  // for related cb, and op.ChangeListener and userChanged
+                    ((JComboBox<?>) oc).addItemListener( this );  // for related cb, and op.ChangeListener and userChanged
                 }
             }
         }
-        if (! readOnly)
-            optsControls.put(op.key, oc);
+        if (!readOnly)
+            optsControls.put( op.key, oc );
 
         // Any text to the right of placeholder?  Also creates
         // the text label if there is no placeholder (placeholderIdx == -1).
         if (placeholderIdx + 1 < opDesc.length())
         {
-            L = new JLabel(opDesc.substring(placeholderIdx + 1));
-            if (! isOSHighContrast)
-                L.setForeground(SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE);
-            optp.add(L);
-            if (hasCB && ! readOnly)
+            L = new JLabel( opDesc.substring( placeholderIdx + 1 ) );
+            if (!isOSHighContrast)
+                L.setForeground( SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE );
+            optp.add( L );
+            if (hasCB && !readOnly)
             {
-                controlsOpts.put(L, op);
-                L.addMouseListener(this);  // Click label to toggle checkbox
+                controlsOpts.put( L, op );
+                L.addMouseListener( this );  // Click label to toggle checkbox
             }
         }
 
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1;
-        gbl.setConstraints(optp, gbc);
-        bp.add(optp);
+        gbl.setConstraints( optp, gbc );
+        bp.add( optp );
     }
 
     /**
@@ -985,7 +995,7 @@ import soc.util.Version;
      *           or {@link SOCGameOption#OTYPE_INTBOOL OTYPE_INTBOOL}
      * @return an {@link IntTextField} or {@link JComboBox} popup menu
      */
-    private Component initOption_int(SOCGameOption op)
+    private Component initOption_int( SOCGameOption op )
     {
         // OTYPE_* - if a new type is added, update this method's javadoc.
 
@@ -994,34 +1004,34 @@ import soc.util.Version;
         if ((optrange > INTFIELD_POPUP_MAXRANGE) || (optrange < 0))
         {
             // IntTextField with width based on number of digits in min/max .
-            int amaxv = Math.abs(op.maxIntValue);
-            int aminv = Math.abs(op.minIntValue);
+            int amaxv = Math.abs( op.maxIntValue );
+            int aminv = Math.abs( op.minIntValue );
             final int magn;
             if (amaxv > aminv)
                 magn = amaxv;
             else
                 magn = aminv;
-            int twidth = 1 + (int) Math.ceil(Math.log10(magn));
+            int twidth = 1 + (int) Math.ceil( Math.log10( magn ) );
             if (twidth < 3)
                 twidth = 3;
 
-            c = new IntTextField(op.getIntValue(), twidth);
-            c.addKeyListener(this);   // for ESC/ENTER
+            c = new IntTextField( op.getIntValue(), twidth );
+            c.addKeyListener( this );   // for ESC/ENTER
 
             Document tfDoc = ((IntTextField) c).getDocument();
-            tfDoc.putProperty("owner", c);
-            tfDoc.addDocumentListener(this);  // for op.ChangeListener and userChanged
+            tfDoc.putProperty( "owner", c );
+            tfDoc.addDocumentListener( this );  // for op.ChangeListener and userChanged
         }
         else
         {
             JComboBox<String> combo = new JComboBox<>();
             for (int i = op.minIntValue; i <= op.maxIntValue; ++i)
-                combo.addItem(Integer.toString(i));
+                combo.addItem( Integer.toString( i ) );
 
             int defaultIdx = op.getIntValue() - op.minIntValue;
             if (defaultIdx > 0)
-                combo.setSelectedIndex(defaultIdx);
-            combo.addItemListener(this);  // for op.ChangeListener and userChanged
+                combo.setSelectedIndex( defaultIdx );
+            combo.addItemListener( this );  // for op.ChangeListener and userChanged
             c = combo;
         }
 
@@ -1033,7 +1043,7 @@ import soc.util.Version;
      * @param op Game option, of type {@link SOCGameOption#OTYPE_ENUM OTYPE_ENUM}
      *           or {@link SOCGameOption#OTYPE_ENUMBOOL OTYPE_ENUMBOOL}
      */
-    private JComboBox<String> initOption_enum(SOCGameOption op)
+    private JComboBox<String> initOption_enum( SOCGameOption op )
     {
         JComboBox<String> ch = new JComboBox<>();
         final String[] chs = op.enumVals;
@@ -1041,8 +1051,8 @@ import soc.util.Version;
 
         int defaultIdx = op.getIntValue() - 1;  // enum numbering is 1-based
         if (defaultIdx > 0)
-            ch.setSelectedIndex(defaultIdx);
-        ch.addItemListener(this);  // for op.ChangeListener and userChanged
+            ch.setSelectedIndex( defaultIdx );
+        ch.addItemListener( this );  // for op.ChangeListener and userChanged
 
         return ch;
     }
@@ -1058,7 +1068,7 @@ import soc.util.Version;
      * @since 1.2.00
      */
     private void initInterface_UserPrefs
-        (final JPanel bp, final GridBagLayout gbl, final GridBagConstraints gbc)
+    ( final JPanel bp, final GridBagLayout gbl, final GridBagConstraints gbc )
     {
         // For current games we aren't playing in, don't show some prefs
         final boolean withPerGamePrefs = forNewGame || (pi != null);
@@ -1066,21 +1076,21 @@ import soc.util.Version;
         // thin <HR>-type spacer above prefs section
 
         JSeparator spacer = new JSeparator();
-        if (! SwingMainDisplay.isOSColorHighContrast())
-            spacer.setBackground(HEADER_LABEL_BG);
-        gbl.setConstraints(spacer, gbc);
-        bp.add(spacer);
+        if (!SwingMainDisplay.isOSColorHighContrast())
+            spacer.setBackground( HEADER_LABEL_BG );
+        gbl.setConstraints( spacer, gbc );
+        bp.add( spacer );
 
         // reminder: same gbc widths/weights are used in initInterface_Opt1
 
         // PREF_HEX_GRAPHICS_SET is an integer for future expansion,
         // but right now there's only 2 options, so use checkbox for simpler UI
-        boolean bval = (1 == UserPreferences.getPref(SOCPlayerClient.PREF_HEX_GRAPHICS_SET, 0));
-        localPrefs.put(SOCPlayerClient.PREF_HEX_GRAPHICS_SET, bval );
+        boolean bval = (1 == UserPreferences.getPref( SOCPlayerClient.PREF_HEX_GRAPHICS_SET, 0 ));
+        localPrefs.put( SOCPlayerClient.PREF_HEX_GRAPHICS_SET, bval );
         initInterface_Pref1
-            (bp, gbl, gbc, SOCPlayerClient.PREF_HEX_GRAPHICS_SET,
-             strings.get("game.options.hex.classic.all"),  // "Hex graphics: Use Classic theme (All games)"
-             true, false,
+            ( bp, gbl, gbc, SOCPlayerClient.PREF_HEX_GRAPHICS_SET,
+                strings.get( "game.options.hex.classic.all" ),  // "Hex graphics: Use Classic theme (All games)"
+                true, false,
              bval, 0,
                 new PrefCheckboxListener()
                 {
@@ -1091,69 +1101,69 @@ import soc.util.Version;
                 });
 
         initInterface_Pref1
-            (bp, gbl, gbc, null,
-             strings.get("game.options.sound.all"),  // "Sound effects (All games)"
-             true, false,
-             UserPreferences.getPref(SOCPlayerClient.PREF_SOUND_ON, true), 0,
-             new PrefCheckboxListener()
-             {
-                 public void stateChanged(boolean check)
-                 {
-                     UserPreferences.putPref
-                         (SOCPlayerClient.PREF_SOUND_ON, check);
-                 }
-             });
+            ( bp, gbl, gbc, null,
+                strings.get( "game.options.sound.all" ),  // "Sound effects (All games)"
+                true, false,
+                UserPreferences.getPref( SOCPlayerClient.PREF_SOUND_ON, true ), 0,
+                new PrefCheckboxListener()
+                {
+                    public void stateChanged( boolean check )
+                    {
+                        UserPreferences.putPref
+                            ( SOCPlayerClient.PREF_SOUND_ON, check );
+                    }
+                } );
 
         // Per-PI prefs:
         if (withPerGamePrefs)
         {
             bval = (pi != null) ? pi.isSoundMuted() : false;
-            localPrefs.put(SOCPlayerInterface.PREF_SOUND_MUTE, bval );
+            localPrefs.put( SOCPlayerInterface.PREF_SOUND_MUTE, bval );
             initInterface_Pref1
-                (bp, gbl, gbc, null,
-                 strings.get("game.options.sound.mute_this"),  // "Sound: Mute this game"
-                 true, false, bval, 0,
-                 new PrefCheckboxListener()
-                 {
-                     public void stateChanged(boolean check)
-                     {
-                         if (pi != null)
-                             pi.setSoundMuted(check);
-                         else
-                             localPrefs.put(SOCPlayerInterface.PREF_SOUND_MUTE, check );
-                     }
-                 });
+                ( bp, gbl, gbc, null,
+                    strings.get( "game.options.sound.mute_this" ),  // "Sound: Mute this game"
+                    true, false, bval, 0,
+                    new PrefCheckboxListener()
+                    {
+                        public void stateChanged( boolean check )
+                        {
+                            if (pi != null)
+                                pi.setSoundMuted( check );
+                            else
+                                localPrefs.put( SOCPlayerInterface.PREF_SOUND_MUTE, check );
+                        }
+                    } );
 
             int ival = (pi != null)
                 ? pi.getBotTradeRejectSec()
-                : UserPreferences.getPref(SOCPlayerClient.PREF_BOT_TRADE_REJECT_SEC, -8);
-            localPrefs.put(SOCPlayerClient.PREF_BOT_TRADE_REJECT_SEC, ival );
+                : UserPreferences.getPref( SOCPlayerClient.PREF_BOT_TRADE_REJECT_SEC, -8 );
+            localPrefs.put( SOCPlayerClient.PREF_BOT_TRADE_REJECT_SEC, ival );
             bval = (ival > 0);
-            if (! bval)
+            if (!bval)
                 ival = -ival;
             initInterface_Pref1
-                (bp, gbl, gbc, SOCPlayerClient.PREF_BOT_TRADE_REJECT_SEC,
-                 strings.get("game.options.bot.auto_reject"),  // "Auto-reject bot trades after # seconds"
-                 true, true, bval, ival, null);
+                ( bp, gbl, gbc, SOCPlayerClient.PREF_BOT_TRADE_REJECT_SEC,
+                    strings.get( "game.options.bot.auto_reject" ),  // "Auto-reject bot trades after # seconds"
+                    true, true, bval, ival, null );
         }
 
-        bval = (0 < UserPreferences.getPref(SOCPlayerClient.PREF_FACE_ICON, SOCPlayer.FIRST_HUMAN_FACE_ID));
-        localPrefs.put(SOCPlayerClient.PREF_FACE_ICON, bval );
+        bval = (0 < UserPreferences.getPref( SOCPlayerClient.PREF_FACE_ICON, SOCPlayer.FIRST_HUMAN_FACE_ID ));
+        localPrefs.put( SOCPlayerClient.PREF_FACE_ICON, bval );
         initInterface_Pref1
-            (bp, gbl, gbc, SOCPlayerClient.PREF_FACE_ICON,
-             strings.get("game.options.ui.remember_face_icon"),  // "Remember face icon"
-             true, false,
-             bval, 0, null);
+            ( bp, gbl, gbc, SOCPlayerClient.PREF_FACE_ICON,
+                strings.get( "game.options.ui.remember_face_icon" ),  // "Remember face icon"
+                true, false,
+                bval, 0, null );
 
-        int ival = UserPreferences.getPref(SOCPlayerClient.PREF_UI_SCALE_FORCE, 0);
-        localPrefs.put(SOCPlayerClient.PREF_UI_SCALE_FORCE, ival );
+        int ival = UserPreferences.getPref( SOCPlayerClient.PREF_UI_SCALE_FORCE, 0 );
+        localPrefs.put( SOCPlayerClient.PREF_UI_SCALE_FORCE, ival );
         bval = (ival > 0);
-        if (! bval)
+        if (!bval)
             ival = (ival < 0) ? (-ival) : 1;
         initInterface_Pref1
-            (bp, gbl, gbc, SOCPlayerClient.PREF_UI_SCALE_FORCE,
-             strings.get("game.options.ui.scale.force"),  // "Force UI scale to # (requires restart)"
-             true, true, bval, ival, null);
+            ( bp, gbl, gbc, SOCPlayerClient.PREF_UI_SCALE_FORCE,
+                strings.get( "game.options.ui.scale.force" ),  // "Force UI scale to # (requires restart)"
+                true, true, bval, ival, null );
     }
 
     /**
@@ -1178,44 +1188,44 @@ import soc.util.Version;
      * @since 1.2.00
      */
     private void initInterface_Pref1
-        (final JPanel bp, final GridBagLayout gbl, final GridBagConstraints gbc,
-         final String key, final String desc, final boolean hasBool, final boolean hasInt,
-         final boolean initBoolVal, final int initIntVal, final PrefCheckboxListener pcl)
+    ( final JPanel bp, final GridBagLayout gbl, final GridBagConstraints gbc,
+        final String key, final String desc, final boolean hasBool, final boolean hasInt,
+        final boolean initBoolVal, final int initIntVal, final PrefCheckboxListener pcl )
         throws IllegalArgumentException
     {
         if ((key == null) && (pcl == null))
-            throw new IllegalArgumentException("null key & pcl");
+            throw new IllegalArgumentException( "null key & pcl" );
 
         final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
 
         // reminder: same gbc widths/weights are used in initInterface_Opt1
 
         final JCheckBox cb;
-        final IntTextField itf = (hasInt) ? new IntTextField(initIntVal, 3) : null;
+        final IntTextField itf = (hasInt) ? new IntTextField( initIntVal, 3 ) : null;
         final MouseListener ml;
         if (hasBool)
         {
             cb = new JCheckBox();
-            cb.setSelected(initBoolVal);
+            cb.setSelected( initBoolVal );
             gbc.gridwidth = 1;
             gbc.weightx = 0;
-            gbl.setConstraints(cb, gbc);
-            if (! isOSHighContrast)
+            gbl.setConstraints( cb, gbc );
+            if (!isOSHighContrast)
             {
-                cb.setBackground(null);  // needed on win32 to avoid gray border
-                cb.setForeground(null);
+                cb.setBackground( null );  // needed on win32 to avoid gray border
+                cb.setForeground( null );
             }
-            bp.add(cb);
+            bp.add( cb );
 
             ml = new MouseAdapter()
             {
                 @Override
-                public void mouseClicked(MouseEvent e)
+                public void mouseClicked( MouseEvent e )
                 {
-                    final boolean makeChecked = ! cb.isSelected();
-                    cb.setSelected(makeChecked);
+                    final boolean makeChecked = !cb.isSelected();
+                    cb.setSelected( makeChecked );
                     if (pcl != null)
-                        pcl.stateChanged(makeChecked);
+                        pcl.stateChanged( makeChecked );
                     if (key != null)
                     {
                         if (hasInt)
@@ -1223,17 +1233,17 @@ import soc.util.Version;
                             int iv = 0;
                             try
                             {
-                                iv = Integer.parseInt(itf.getText().trim());
-                                if (! makeChecked)
+                                iv = Integer.parseInt( itf.getText().trim() );
+                                if (!makeChecked)
                                     iv = -iv;
                             }
                             catch (NumberFormatException ignored) {}
 
-                            localPrefs.put(key, iv );
+                            localPrefs.put( key, iv );
                         }
                         else
                         {
-                            localPrefs.put(key, (makeChecked) ? Boolean.TRUE : Boolean.FALSE);
+                            localPrefs.put( key, (makeChecked) ? Boolean.TRUE : Boolean.FALSE );
                         }
                     }
                     e.consume();
@@ -1250,24 +1260,26 @@ import soc.util.Version;
         final JPanel prefp;  // null or holds label with start of desc, int input field, label with rest of desc
         if (hasInt)
         {
-            placeholderIdx = desc.indexOf('#');
+            placeholderIdx = desc.indexOf( '#' );
             if (placeholderIdx == -1)
-                throw new IllegalArgumentException("missing '#'");
+                throw new IllegalArgumentException( "missing '#'" );
 
             prefp = new JPanel();  // with FlowLayout
-            if (! isOSHighContrast)
+            if (!isOSHighContrast)
             {
-                prefp.setBackground(null);  // inherit from parent
-                prefp.setForeground(null);
+                prefp.setBackground( null );  // inherit from parent
+                prefp.setForeground( null );
             }
             try
             {
                 FlowLayout fl = (FlowLayout) (prefp.getLayout());
-                fl.setAlignment(FlowLayout.LEFT);
-                fl.setVgap(0);
-                fl.setHgap(0);
+                fl.setAlignment( FlowLayout.LEFT );
+                fl.setVgap( 0 );
+                fl.setHgap( 0 );
             }
-            catch (Exception fle) {}
+            catch( Exception fle )
+            {
+            }
 
         }
         else
@@ -1279,28 +1291,39 @@ import soc.util.Version;
         // Any text to the left of placeholder in desc?
         if (placeholderIdx > 0)
         {
-            JLabel L = new JLabel(desc.substring(0, placeholderIdx));
-            if (! isOSHighContrast)
-                L.setForeground(SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE);
-            prefp.add(L);
-            L.addMouseListener(ml);
+            JLabel L = new JLabel( desc.substring( 0, placeholderIdx ) );
+            if (!isOSHighContrast)
+                L.setForeground( SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE );
+            prefp.add( L );
+            L.addMouseListener( ml );
         }
 
         if (hasInt)
         {
-            prefp.add(itf);
+            prefp.add( itf );
 
-            itf.addKeyListener(this);   // for ESC/ENTER
+            itf.addKeyListener( this );   // for ESC/ENTER
 
             if ((cb != null) || (key != null))
             {
                 Document tfDoc = itf.getDocument();
-                tfDoc.putProperty("owner", itf);
-                tfDoc.addDocumentListener(new DocumentListener()  // for value store or enable/disable
+                tfDoc.putProperty( "owner", itf );
+                tfDoc.addDocumentListener( new DocumentListener()  // for value store or enable/disable
                 {
-                    public void removeUpdate(DocumentEvent e)  { textChanged(); }
-                    public void insertUpdate(DocumentEvent e)  { textChanged(); }
-                    public void changedUpdate(DocumentEvent e) { textChanged(); }
+                    public void removeUpdate( DocumentEvent e )
+                    {
+                        textChanged();
+                    }
+
+                    public void insertUpdate( DocumentEvent e )
+                    {
+                        textChanged();
+                    }
+
+                    public void changedUpdate( DocumentEvent e )
+                    {
+                        textChanged();
+                    }
 
                     public void textChanged()
                     {
@@ -1311,9 +1334,9 @@ import soc.util.Version;
                         {
                             if (notEmpty != cb.isSelected())
                             {
-                                cb.setSelected(notEmpty);
+                                cb.setSelected( notEmpty );
                                 if (pcl != null)
-                                    pcl.stateChanged(notEmpty);
+                                    pcl.stateChanged( notEmpty );
                             }
                         }
 
@@ -1322,16 +1345,16 @@ import soc.util.Version;
                             int iv = 0;
                             try
                             {
-                                iv = Integer.parseInt(newText);
-                                if ((cb != null) && ! cb.isSelected())
+                                iv = Integer.parseInt( newText );
+                                if ((cb != null) && !cb.isSelected())
                                     iv = -iv;
                             }
                             catch (NumberFormatException ignored) {}
 
-                            localPrefs.put(key, iv );
+                            localPrefs.put( key, iv );
                         }
                     }
-                });
+                } );
             }
         }
 
@@ -1339,39 +1362,39 @@ import soc.util.Version;
         // the text label if there is no placeholder.
         if (placeholderIdx + 1 < desc.length())
         {
-            JLabel L = new JLabel(desc.substring(placeholderIdx + 1));
-            if (! isOSHighContrast)
-                L.setForeground(SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE);
+            JLabel L = new JLabel( desc.substring( placeholderIdx + 1 ) );
+            if (!isOSHighContrast)
+                L.setForeground( SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE );
             if (prefp != null)
             {
-                prefp.add(L);
+                prefp.add( L );
             }
             else
             {
                 gbc.gridwidth = GridBagConstraints.REMAINDER;
                 gbc.weightx = 1;
-                gbl.setConstraints(L, gbc);
-                bp.add(L);
+                gbl.setConstraints( L, gbc );
+                bp.add( L );
             }
-            L.addMouseListener(ml);
+            L.addMouseListener( ml );
         }
 
         if (prefp != null)
         {
             gbc.gridwidth = GridBagConstraints.REMAINDER;
             gbc.weightx = 1;
-            gbl.setConstraints(prefp, gbc);
-            bp.add(prefp);
+            gbl.setConstraints( prefp, gbc );
+            bp.add( prefp );
         }
 
         if ((cb != null) && (pcl != null))
-            cb.addItemListener(new ItemListener()
+            cb.addItemListener( new ItemListener()
             {
-                public void itemStateChanged(ItemEvent ie)
+                public void itemStateChanged( ItemEvent ie )
                 {
-                    pcl.stateChanged(ie.getStateChange() == ItemEvent.SELECTED);
+                    pcl.stateChanged( ie.getStateChange() == ItemEvent.SELECTED );
                 }
-            });
+            } );
     }
 
     /**
@@ -1379,19 +1402,19 @@ import soc.util.Version;
      * To make this window topmost, call {@code setVisible(true)} instead of {@link #requestFocus()}.
      */
     @Override
-    public void setVisible(boolean b)
+    public void setVisible( boolean b )
     {
-        super.setVisible(b);
+        super.setVisible( b );
         if (b)
         {
-            EventQueue.invokeLater(new Runnable()
+            EventQueue.invokeLater( new Runnable()
             {
                 public void run()
                 {
                     toFront();  // needed on win32 at least
                     gameName.requestFocus();
                 }
-            });
+            } );
         }
     }
 
@@ -1401,7 +1424,7 @@ import soc.util.Version;
      * Even in read-only mode for a current game, the "OK" button saves (persists)
      * this dialog's local preferences for use in future games.
      */
-    public void actionPerformed(ActionEvent ae)
+    public void actionPerformed( ActionEvent ae )
     {
         try
         {
@@ -1409,11 +1432,11 @@ import soc.util.Version;
             if (src == create)
             {
                 // Check options, ask client to set up and start a practice game
-                clickCreate(true);
+                clickCreate( true );
             }
             else if (src == cancel)
             {
-                clickCancel(true);
+                clickCancel( true );
             }
             else if (src == scenInfo)
             {
@@ -1423,43 +1446,43 @@ import soc.util.Version;
             {
                 if (opts == null)
                     return;
-                SOCGameOption optSC = opts.get("SC");
+                SOCGameOption optSC = opts.get( "SC" );
                 if (optSC == null)
                     return;
 
                 Object scObj = scenDropdown.getSelectedItem();
                 boolean wantsSet = (scObj instanceof SOCScenario);  // item 0 is "(none)" string, not a scenario
-                optSC.setBoolValue(wantsSet);
+                optSC.setBoolValue( wantsSet );
                 if (wantsSet)
-                    optSC.setStringValue(((SOCScenario) scObj).key);
+                    optSC.setStringValue( ((SOCScenario) scObj).key );
                 else
-                    optSC.setStringValue("");
+                    optSC.setStringValue( "" );
 
                 if (scenInfo != null)
-                    scenInfo.setEnabled(wantsSet);
+                    scenInfo.setEnabled( wantsSet );
 
                 boolean choiceSetCB = false;
-                JCheckBox cb = boolOptCheckboxes.get("SC");
+                JCheckBox cb = boolOptCheckboxes.get( "SC" );
                 if ((cb != null) && (wantsSet != cb.isSelected()))
                 {
-                    cb.setSelected(wantsSet);
+                    cb.setSelected( wantsSet );
                     choiceSetCB = true;
                 }
 
-                fireUserChangedOptListeners(optSC, scenDropdown, wantsSet, choiceSetCB);
+                fireUserChangedOptListeners( optSC, scenDropdown, wantsSet, choiceSetCB );
             }
         }
-        catch(Throwable thr)
+        catch( Throwable thr )
         {
-            System.err.println("-- Error caught in AWT event thread: " + thr + " --");
+            System.err.println( "-- Error caught in AWT event thread: " + thr + " --" );
             thr.printStackTrace();
             while (thr.getCause() != null)
             {
                 thr = thr.getCause();
-                System.err.println(" --> Cause: " + thr + " --");
+                System.err.println( " --> Cause: " + thr + " --" );
                 thr.printStackTrace();
             }
-            System.err.println("-- Error stack trace end --");
+            System.err.println( "-- Error stack trace end --" );
             System.err.println();
         }
 
@@ -1469,7 +1492,7 @@ import soc.util.Version;
      * The "Create" button was clicked; check fields, etc.
      * If creating new game, also calls {@link #persistLocalPrefs()}.
      */
-    private void clickCreate(final boolean checkOptionsMinVers)
+    private void clickCreate( final boolean checkOptionsMinVers )
     {
         String gmName = gameName.getText().trim();
         final int L = gmName.length();
@@ -1480,24 +1503,24 @@ import soc.util.Version;
 
         String errMsg = null;
         if (L > SOCGameList.GAME_NAME_MAX_LENGTH)
-            errMsg = strings.get("netmsg.status.common.name_too_long", SOCGameList.GAME_NAME_MAX_LENGTH);
-                // "Please choose a shorter name; maximum length: {0}"
-        else if (-1 != gmName.indexOf(SOCMessage.sep_char))  // '|'
-            errMsg = strings.get("netmsg.status.client.newgame_name_rejected_char", SOCMessage.sep_char);
-                // Name must not contain "|", please choose a different name.
-        else if (-1 != gmName.indexOf(SOCMessage.sep2_char))  // ','
-            errMsg = strings.get("netmsg.status.client.newgame_name_rejected_char", SOCMessage.sep2_char);
-                // Name must not contain ",", please choose a different name.
-        else if ((gmName.charAt(0) == '?') || ! SOCMessage.isSingleLineAndSafe(gmName))
-            errMsg = strings.get("netmsg.status.common.newgame_name_rejected");
-                // "This name is not permitted, please choose a different name."
-        else if (SOCGameList.REGEX_ALL_DIGITS_OR_PUNCT.matcher(gmName).matches())
-            errMsg = strings.get("netmsg.status.common.newgame_name_rejected_digits_or_punct");
-                // "A name with only digits or punctuation is not permitted, please add a letter."
+            errMsg = strings.get( "netmsg.status.common.name_too_long", SOCGameList.GAME_NAME_MAX_LENGTH );
+            // "Please choose a shorter name; maximum length: {0}"
+        else if (-1 != gmName.indexOf( SOCMessage.sep_char ))  // '|'
+            errMsg = strings.get( "netmsg.status.client.newgame_name_rejected_char", SOCMessage.sep_char );
+            // Name must not contain "|", please choose a different name.
+        else if (-1 != gmName.indexOf( SOCMessage.sep2_char ))  // ','
+            errMsg = strings.get( "netmsg.status.client.newgame_name_rejected_char", SOCMessage.sep2_char );
+            // Name must not contain ",", please choose a different name.
+        else if ((gmName.charAt( 0 ) == '?') || !SOCMessage.isSingleLineAndSafe( gmName ))
+            errMsg = strings.get( "netmsg.status.common.newgame_name_rejected" );
+            // "This name is not permitted, please choose a different name."
+        else if (SOCGameList.REGEX_ALL_DIGITS_OR_PUNCT.matcher( gmName ).matches())
+            errMsg = strings.get( "netmsg.status.common.newgame_name_rejected_digits_or_punct" );
+        // "A name with only digits or punctuation is not permitted, please add a letter."
 
         if (errMsg != null)
         {
-            msgText.setText(errMsg);
+            msgText.setText( errMsg );
             gameName.requestFocusInWindow();
             return;  // Not a valid game name
         }
@@ -1509,23 +1532,23 @@ import soc.util.Version;
          * Always check remote server for the requested game name.
          * Check practice game names only if creating another practice game.
          */
-        if (cl.doesGameExist(gmName, forPractice))
+        if (cl.doesGameExist( gmName, forPractice ))
         {
             NotifyDialog.createAndShow
-                (mainDisplay, this, strings.get("netmsg.status.common.newgame_already_exists"), null, true);
-                    // "A game with this name already exists, please choose a different name."
+                ( mainDisplay, this, strings.get( "netmsg.status.common.newgame_already_exists" ), null, true );
+            // "A game with this name already exists, please choose a different name."
             return;
         }
 
         if (mainDisplay.readValidNicknameAndPassword())
         {
-            if (readOptsValuesFromControls(checkOptionsMinVers))
+            if (readOptsValuesFromControls( checkOptionsMinVers ))
             {
                 // All fields OK, ready to create a new game.
-                setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));  // Immediate feedback in this window
+                setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );  // Immediate feedback in this window
                 persistLocalPrefs();
                 mainDisplay.askStartGameWithOptions
-                    (gmName, forPractice, opts, localPrefs);  // sets WAIT_CURSOR in main client frame
+                    ( gmName, forPractice, opts, localPrefs );  // sets WAIT_CURSOR in main client frame
             }
             else
             {
@@ -1538,7 +1561,7 @@ import soc.util.Version;
             // so the user must have gone back and changed it.
             // Can't correct the problem from within this dialog, since the
             // nickname field (and hint message) is in SOCPlayerClient's panel.
-            NotifyDialog.createAndShow(mainDisplay, this, strings.get("game.options.nickerror"), null, true);
+            NotifyDialog.createAndShow( mainDisplay, this, strings.get( "game.options.nickerror" ), null, true );
             return;
         }
 
@@ -1551,19 +1574,19 @@ import soc.util.Version;
      * @param savePrefsIfCurrent  If true, and is {@link #readOnly} for a current game ({@link #pi} != null),
      *     remember local-prefs changes by calling {@link #persistLocalPrefs()}.
      */
-    private void clickCancel(final boolean savePrefsIfCurrent)
+    private void clickCancel( final boolean savePrefsIfCurrent )
     {
         if (savePrefsIfCurrent && readOnly && (pi != null))
             persistLocalPrefs();
 
-        if ((! readOnly) && (opts != null))
+        if ((!readOnly) && (opts != null))
         {
             // If scenario checkbox was manually cleared, clear scenario-name dropdown selection
             // for next time this dialog is shown to create a new game
 
-            final SOCGameOption optSC = opts.get("SC");
-            if ((optSC != null) && ! optSC.getBoolValue())
-                optSC.setStringValue("");
+            final SOCGameOption optSC = opts.get( "SC" );
+            if ((optSC != null) && !optSC.getBoolValue())
+                optSC.setStringValue( "" );
         }
 
         dispose();
@@ -1581,7 +1604,7 @@ import soc.util.Version;
             return;  // should not happen, scenDropdown is created before scenInfo
 
         final Object scObj = scenDropdown.getSelectedItem();
-        if ( ! (scObj instanceof SOCScenario))
+        if (!(scObj instanceof SOCScenario))
             return;  // "(none)" item is a String, not a scenario
 
         final SOCScenario scen = (SOCScenario) scObj;
@@ -1591,22 +1614,22 @@ import soc.util.Version;
         boolean vpKnown = false;
         if (opts != null)
         {
-            SOCGameOption vp = opts.get("VP");
+            SOCGameOption vp = opts.get( "VP" );
             if (vp.getBoolValue())
             {
                 vpWinner = vp.getIntValue();
                 vpKnown = true;
             }
         }
-        if (forNewGame && (! vpKnown) && scen.scOpts.contains("VP="))
+        if (forNewGame && (!vpKnown) && scen.scOpts.contains( "VP=" ))
         {
-            final Map<String, SOCGameOption> scenOpts = SOCGameOption.parseOptionsToMap(scen.scOpts, knownOpts);
-            final SOCGameOption scOptVP = (scenOpts != null) ? scenOpts.get("VP") : null;
+            final Map<String, SOCGameOption> scenOpts = SOCGameOption.parseOptionsToMap( scen.scOpts, knownOpts );
+            final SOCGameOption scOptVP = (scenOpts != null) ? scenOpts.get( "VP" ) : null;
             if (scOptVP != null)
                 vpWinner = scOptVP.getIntValue();
         }
 
-        showScenarioInfoDialog(scen, null, knownOpts, vpWinner, mainDisplay, this);
+        showScenarioInfoDialog( scen, null, knownOpts, vpWinner, mainDisplay, this );
     }
 
     /**
@@ -1616,7 +1639,7 @@ import soc.util.Version;
     @Override
     public void dispose()
     {
-        mainDisplay.dialogClosed(this);
+        mainDisplay.dialogClosed( this );
         super.dispose();
     }
 
@@ -1632,42 +1655,42 @@ import soc.util.Version;
     private void persistLocalPrefs()
     {
         String k = SOCPlayerClient.PREF_BOT_TRADE_REJECT_SEC;
-        Object v = localPrefs.get(k);
-        if ( v instanceof Integer )
+        Object v = localPrefs.get( k );
+        if (v instanceof Integer)
         {
             int iv = (Integer) v;
             if (pi != null)
-                pi.setBotTradeRejectSec(iv);
+                pi.setBotTradeRejectSec( iv );
             if (iv != 0)
-                UserPreferences.putPref(k, iv);
+                UserPreferences.putPref( k, iv );
         }
 
         k = SOCPlayerClient.PREF_UI_SCALE_FORCE;
-        v = localPrefs.get(k);
+        v = localPrefs.get( k );
         if (v instanceof Integer)
         {
             int iv = (Integer) v;
             if (iv > 3)
                 iv = 3;
-            UserPreferences.putPref(k, iv);
+            UserPreferences.putPref( k, iv );
         }
 
         k = SOCPlayerClient.PREF_HEX_GRAPHICS_SET;
-        v = localPrefs.get(k);
-        int setIdx = (Boolean.TRUE.equals(v)) ? 1 : 0;
-        if (setIdx != UserPreferences.getPref(SOCPlayerClient.PREF_HEX_GRAPHICS_SET, 0))
+        v = localPrefs.get( k );
+        int setIdx = (Boolean.TRUE.equals( v )) ? 1 : 0;
+        if (setIdx != UserPreferences.getPref( SOCPlayerClient.PREF_HEX_GRAPHICS_SET, 0 ))
         {
-            UserPreferences.putPref(SOCPlayerClient.PREF_HEX_GRAPHICS_SET, setIdx);
+            UserPreferences.putPref( SOCPlayerClient.PREF_HEX_GRAPHICS_SET, setIdx );
             mainDisplay.getClient().reloadBoardGraphics();  // refresh all current PIs
         }
 
         k = SOCPlayerClient.PREF_FACE_ICON;
         boolean wantsSet = (Boolean) localPrefs.get( k );
-        setIdx = UserPreferences.getPref(SOCPlayerClient.PREF_FACE_ICON, 0);
+        setIdx = UserPreferences.getPref( SOCPlayerClient.PREF_FACE_ICON, 0 );
         if (wantsSet != (0 < setIdx))
         {
             final SOCPlayerClient cli = mainDisplay.getClient();
-            final boolean newAndNoActives = forNewGame && ! mainDisplay.hasAnyActiveGame(false);
+            final boolean newAndNoActives = forNewGame && !mainDisplay.hasAnyActiveGame( false );
 
             if (newAndNoActives && wantsSet && (cli.lastFaceChange == SOCPlayer.FIRST_HUMAN_FACE_ID) && (setIdx != 0))
             {
@@ -1680,18 +1703,18 @@ import soc.util.Version;
                 cli.lastFaceChange = setIdx;
             }
 
-            if (newAndNoActives && ! wantsSet)
+            if (newAndNoActives && !wantsSet)
             {
                 // No active PI showing, so reset PI's icon to default
                 // but don't lose previously-saved value in prefs
 
                 cli.lastFaceChange = SOCPlayer.FIRST_HUMAN_FACE_ID;
-                UserPreferences.putPref(SOCPlayerClient.PREF_FACE_ICON, -setIdx);
+                UserPreferences.putPref( SOCPlayerClient.PREF_FACE_ICON, -setIdx );
             }
             else
             {
-                UserPreferences.putPref(SOCPlayerClient.PREF_FACE_ICON,
-                    (wantsSet) ? cli.lastFaceChange : -(cli.lastFaceChange));
+                UserPreferences.putPref( SOCPlayerClient.PREF_FACE_ICON,
+                    (wantsSet) ? cli.lastFaceChange : -(cli.lastFaceChange) );
             }
 
         }
@@ -1708,7 +1731,7 @@ import soc.util.Version;
      *           &lt;= {@link Version#versionNumberMaximumNoWarn()}.
      * @return true if all were read OK, false if a problem (such as NumberFormatException)
      */
-    private boolean readOptsValuesFromControls(final boolean checkOptionsMinVers)
+    private boolean readOptsValuesFromControls( final boolean checkOptionsMinVers )
     {
         if (readOnly)
             return false;  // shouldn't be called in that case
@@ -1718,13 +1741,13 @@ import soc.util.Version;
         {
             if (ctrl instanceof JLabel)
                 continue;
-            SOCGameOption op = controlsOpts.get(ctrl);
+            SOCGameOption op = controlsOpts.get( ctrl );
 
-            if (op.key.equals("SC"))
+            if (op.key.equals( "SC" ))
             {
                 // Special case: event listeners have already set its value from controls
-                if (! op.getBoolValue())
-                    op.setStringValue("");
+                if (!op.getBoolValue())
+                    op.setStringValue( "" );
                 continue;
             }
 
@@ -1733,7 +1756,7 @@ import soc.util.Version;
 
             if (ctrl instanceof JCheckBox)
             {
-                op.setBoolValue(((JCheckBox)ctrl).isSelected());
+                op.setBoolValue( ((JCheckBox) ctrl).isSelected() );
             }
             else if (ctrl instanceof JTextField)
             {
@@ -1743,12 +1766,12 @@ import soc.util.Version;
                 {
                     try
                     {
-                        op.setStringValue(txt);
+                        op.setStringValue( txt );
                     }
-                    catch (IllegalArgumentException ex)
+                    catch( IllegalArgumentException ex )
                     {
                         allOK = false;
-                        msgText.setText(strings.get("game.options.singleline"));  // only a single line of text allowed
+                        msgText.setText( strings.get( "game.options.singleline" ) );  // only a single line of text allowed
                         ctrl.requestFocusInWindow();
                     }
                 }
@@ -1764,7 +1787,7 @@ import soc.util.Version;
                 // this works with OTYPE_INT, OTYPE_INTBOOL, OTYPE_ENUM, OTYPE_ENUMBOOL
                 int chIdx = ((JComboBox<?>) ctrl).getSelectedIndex();  // 0 to n-1
                 if (chIdx != -1)
-                    op.setIntValue(chIdx + op.minIntValue);
+                    op.setIntValue( chIdx + op.minIntValue );
                 else
                     allOK = false;
             }
@@ -1776,13 +1799,13 @@ import soc.util.Version;
         //   Use 0 if blank (still checks if in range).
         for (Component ctrl : controlsOpts.keySet())
         {
-            if (! (ctrl instanceof JTextField))
+            if (!(ctrl instanceof JTextField))
                 continue;
 
-            SOCGameOption op = controlsOpts.get(ctrl);
+            SOCGameOption op = controlsOpts.get( ctrl );
             if (op.optType == SOCGameOption.OTYPE_INTBOOL)
             {
-                if (! op.getBoolValue())
+                if (!op.getBoolValue())
                     continue;
             }
             else if (op.optType != SOCGameOption.OTYPE_INT)
@@ -1795,35 +1818,35 @@ import soc.util.Version;
             {
                 int iv;
                 if (txt.length() > 0)
-                    iv = Integer.parseInt(txt);
+                    iv = Integer.parseInt( txt );
                 else
                     iv = 0;
 
-                op.setIntValue(iv);
+                op.setIntValue( iv );
                 if (iv != op.getIntValue())
                 {
                     allOK = false;
                     msgText.setText
-                        (strings.get("game.options.outofrange", op.minIntValue, op.maxIntValue));  // "out of range"
+                        ( strings.get( "game.options.outofrange", op.minIntValue, op.maxIntValue ) );  // "out of range"
                     ctrl.requestFocusInWindow();
                 }
             }
-            catch (NumberFormatException ex)
+            catch( NumberFormatException ex )
             {
                 allOK = false;
-                msgText.setText(strings.get("game.options.onlydigits"));  // "please use only digits here"
+                msgText.setText( strings.get( "game.options.onlydigits" ) );  // "please use only digits here"
                 ctrl.requestFocusInWindow();
             }
 
         }  // for(opts)
 
-        if (allOK && checkOptionsMinVers && ! forPractice)
+        if (allOK && checkOptionsMinVers && !forPractice)
         {
-            int optsVers = SOCVersionedItem.itemsMinimumVersion(controlsOpts);
+            int optsVers = SOCVersionedItem.itemsMinimumVersion( controlsOpts );
             if ((optsVers > -1) && (optsVers > Version.versionNumberMaximumNoWarn()))
             {
                 allOK = false;
-                new VersionConfirmDialog(this, optsVers).setVisible(true);
+                new VersionConfirmDialog( this, optsVers ).setVisible( true );
             }
         }
 
@@ -1831,7 +1854,7 @@ import soc.util.Version;
     }
 
     /** Handle Enter or Esc key (KeyListener) */
-    public void keyPressed(KeyEvent e)
+    public void keyPressed( KeyEvent e )
     {
         if (e.isConsumed())
             return;
@@ -1842,42 +1865,57 @@ import soc.util.Version;
             {
             case KeyEvent.VK_ENTER:
                 if (readOnly)
-                    clickCancel(true);
+                    clickCancel( true );
                 else
-                    clickCreate(true);
+                    clickCreate( true );
                 break;
 
             case KeyEvent.VK_CANCEL:
             case KeyEvent.VK_ESCAPE:
-                clickCancel(false);
+                clickCancel( false );
                 break;
             }  // switch(e)
         }  // try
-        catch(Throwable thr)
+        catch( Throwable thr )
         {
-            System.err.println("-- Error caught in AWT event thread: " + thr + " --");
+            System.err.println( "-- Error caught in AWT event thread: " + thr + " --" );
             thr.printStackTrace();
             while (thr.getCause() != null)
             {
                 thr = thr.getCause();
-                System.err.println(" --> Cause: " + thr + " --");
+                System.err.println( " --> Cause: " + thr + " --" );
                 thr.printStackTrace();
             }
-            System.err.println("-- Error stack trace end --");
+            System.err.println( "-- Error stack trace end --" );
             System.err.println();
         }
     }
 
     /** Stub required by KeyListener */
-    public void keyReleased(KeyEvent arg0) { }
+    public void keyReleased( KeyEvent arg0 )
+    {
+    }
 
     /** Stub required by KeyListener */
-    public void keyTyped(KeyEvent arg0) { }
+    public void keyTyped( KeyEvent arg0 )
+    {
+    }
 
     /** Listen for Game name contents change (DocumentListener) and call {@link #textChanged(DocumentEvent)}. */
-        public void removeUpdate(DocumentEvent e)  { textChanged(e); }
-        public void insertUpdate(DocumentEvent e)  { textChanged(e); }
-        public void changedUpdate(DocumentEvent e) { textChanged(e); }
+    public void removeUpdate( DocumentEvent e )
+    {
+        textChanged( e );
+    }
+
+    public void insertUpdate( DocumentEvent e )
+    {
+        textChanged( e );
+    }
+
+    public void changedUpdate( DocumentEvent e )
+    {
+        textChanged( e );
+    }
 
     /**
      * When gamename contents change, enable/disable buttons as appropriate. (DocumentListener)
@@ -1888,26 +1926,26 @@ import soc.util.Version;
      *
      * @param e event from {@link #gameName}, or from a JTextField in {@link #controlsOpts}
      */
-    public void textChanged(DocumentEvent e)
+    public void textChanged( DocumentEvent e )
     {
         if (readOnly)
             return;
-        Object srcObj = e.getDocument().getProperty("owner");
-        if (! (srcObj instanceof JTextField))
+        Object srcObj = e.getDocument().getProperty( "owner" );
+        if (!(srcObj instanceof JTextField))
             return;
         final String newText = ((JTextField) srcObj).getText().trim();
         final boolean notEmpty = (newText.length() > 0);
         if (srcObj == gameName)
         {
             if (notEmpty != create.isEnabled())
-                create.setEnabled(notEmpty);  // enable "create" btn only if game name filled in
+                create.setEnabled( notEmpty );  // enable "create" btn only if game name filled in
         }
         else
         {
             // Check for a ChangeListener for OTYPE_STR and OTYPE_STRHIDE,
             // OTYPE_INT and OTYPE_INTBOOL.
             // if source is OTYPE_INTBOOL, check its checkbox vs notEmpty.
-            SOCGameOption opt = controlsOpts.get(srcObj);
+            SOCGameOption opt = controlsOpts.get( srcObj );
             if (opt == null)
                 return;
 
@@ -1917,41 +1955,43 @@ import soc.util.Version;
             int oldIntValue = 0;
 
             if ((opt.optType == SOCGameOption.OTYPE_STR)
-                 || (opt.optType == SOCGameOption.OTYPE_STRHIDE))
+                || (opt.optType == SOCGameOption.OTYPE_STRHIDE))
             {
                 otypeIsInt = false;
                 try
                 {
-                    opt.setStringValue(newText);
+                    opt.setStringValue( newText );
                     validChange = true;
                 }
-                catch (IllegalArgumentException ex) {}
+                catch( IllegalArgumentException ignored ) {}
             }
             else
             {
                 otypeIsInt = true;
                 try   // OTYPE_INT, OTYPE_INTBOOL
                 {
-                    final int iv = Integer.parseInt(newText);
+                    final int iv = Integer.parseInt( newText );
                     oldIntValue = opt.getIntValue();
-                    opt.setIntValue(iv);  // ignored if outside min,max range
+                    opt.setIntValue( iv );  // ignored if outside min,max range
                     if (iv == opt.getIntValue())
                         validChange = true;
                 }
-                catch (NumberFormatException ex) {}
+                catch( NumberFormatException ex )
+                {
+                }
             }
 
-            if (validChange && ! opt.userChanged)
+            if (validChange && !opt.userChanged)
                 opt.userChanged = true;
 
             // If this string or int option also has a bool checkbox,
             // set or clear that based on string/int not empty.
             boolean cbSet = false;
-            JCheckBox cb = boolOptCheckboxes.get(opt.key);
+            JCheckBox cb = boolOptCheckboxes.get( opt.key );
             if ((cb != null) && (notEmpty != cb.isSelected()))
             {
-                cb.setSelected(notEmpty);
-                opt.setBoolValue(notEmpty);
+                cb.setSelected( notEmpty );
+                opt.setBoolValue( notEmpty );
                 cbSet = true;
             }
 
@@ -1966,15 +2006,15 @@ import soc.util.Version;
                 // ChangeListener for checkbox
                 final Boolean newValue = (notEmpty) ? Boolean.TRUE : Boolean.FALSE;
                 final Boolean oldValue = (notEmpty) ? Boolean.FALSE : Boolean.TRUE;
-                fireOptionChangeListener(cl, opt, oldValue, newValue);
+                fireOptionChangeListener( cl, opt, oldValue, newValue );
             }
             // ChangeListener for text field
             if (validChange)
             {
                 if (otypeIsInt)
-                    fireOptionChangeListener(cl, opt, oldIntValue, opt.getIntValue() );
+                    fireOptionChangeListener( cl, opt, oldIntValue, opt.getIntValue() );
                 else
-                    fireOptionChangeListener(cl, opt, oldText, newText);
+                    fireOptionChangeListener( cl, opt, oldText, newText );
             }
         }
     }
@@ -1997,16 +2037,16 @@ import soc.util.Version;
      *</UL>
      * @param e itemevent from a JComboBox or JCheckbox in {@link #controlsOpts}
      */
-    public void itemStateChanged(ItemEvent e)
+    public void itemStateChanged( ItemEvent e )
     {
         final Object ctrl = e.getSource();
-        SOCGameOption opt = controlsOpts.get(ctrl);
+        SOCGameOption opt = controlsOpts.get( ctrl );
         if (opt == null)
             return;
 
         boolean wasCBEvent = false, choiceSetCB = false;
 
-        JCheckBox cb = boolOptCheckboxes.get(opt.key);
+        JCheckBox cb = boolOptCheckboxes.get( opt.key );
         if ((cb != null) && (cb != ctrl))
         {
             // If the user picked a choice, also set the checkbox
@@ -2014,7 +2054,7 @@ import soc.util.Version;
 
             if (wantsSet != cb.isSelected())
             {
-                cb.setSelected(wantsSet);
+                cb.setSelected( wantsSet );
                 choiceSetCB = true;
             }
         }
@@ -2024,7 +2064,7 @@ import soc.util.Version;
             choiceSetCB = (e.getStateChange() == ItemEvent.SELECTED);
         }
 
-        fireUserChangedOptListeners(opt, ctrl, choiceSetCB, wasCBEvent);
+        fireUserChangedOptListeners( opt, ctrl, choiceSetCB, wasCBEvent );
     }
 
     /**
@@ -2048,9 +2088,9 @@ import soc.util.Version;
      * @since 2.0.00
      */
     private void fireUserChangedOptListeners
-        (final SOCGameOption opt, final Object ctrl, final boolean newBoolValue, final boolean changeBoolValue)
+    ( final SOCGameOption opt, final Object ctrl, final boolean newBoolValue, final boolean changeBoolValue )
     {
-        if (! opt.userChanged)
+        if (!opt.userChanged)
             opt.userChanged = true;
 
         SOCGameOption.ChangeListener cl = opt.getChangeListener();
@@ -2067,7 +2107,7 @@ import soc.util.Version;
             fireBooleanListener = true;
             boolNewValue = (newBoolValue) ? Boolean.TRUE : Boolean.FALSE;
             boolOldValue = (newBoolValue) ? Boolean.FALSE : Boolean.TRUE;
-            opt.setBoolValue(newBoolValue);
+            opt.setBoolValue( newBoolValue );
         }
         else
         {
@@ -2085,14 +2125,14 @@ import soc.util.Version;
                 final int nv = chIdx + opt.minIntValue;
                 Integer newValue = nv;
                 Integer oldValue = opt.getIntValue();
-                opt.setIntValue(nv);
+                opt.setIntValue( nv );
                 if (fireBooleanListener)
-                    fireOptionChangeListener(cl, opt, boolOldValue, boolNewValue);
-                fireOptionChangeListener(cl, opt, oldValue, newValue);
+                    fireOptionChangeListener( cl, opt, boolOldValue, boolNewValue );
+                fireOptionChangeListener( cl, opt, oldValue, newValue );
             }
         }
         else if (fireBooleanListener)
-            fireOptionChangeListener(cl, opt, boolOldValue, boolNewValue);
+            fireOptionChangeListener( cl, opt, boolOldValue, boolNewValue );
     }
 
     /**
@@ -2112,26 +2152,26 @@ import soc.util.Version;
      * @since 1.1.13
      */
     private void fireOptionChangeListener
-        (SOCGameOption.ChangeListener cl, SOCGameOption opt, final Object oldValue, final Object newValue)
+    ( SOCGameOption.ChangeListener cl, SOCGameOption opt, final Object oldValue, final Object newValue )
     {
-        if (oldValue.equals(newValue))
+        if (oldValue.equals( newValue ))
             return;  // <--- Early return: Value didn't change ---
 
         try
         {
-            cl.valueChanged(opt, oldValue, newValue, opts, knownOpts);
+            cl.valueChanged( opt, oldValue, newValue, opts, knownOpts );
         }
-        catch (Throwable thr)
+        catch( Throwable thr )
         {
-            System.err.println("-- Error caught in ChangeListener: " + thr.toString() + " --");
+            System.err.println( "-- Error caught in ChangeListener: " + thr.toString() + " --" );
             thr.printStackTrace();
             while (thr.getCause() != null)
             {
                 thr = thr.getCause();
-                System.err.println(" --> Cause: " + thr + " --");
+                System.err.println( " --> Cause: " + thr + " --" );
                 thr.printStackTrace();
             }
-            System.err.println("-- Error stack trace end --");
+            System.err.println( "-- Error stack trace end --" );
             System.err.println();
         }
 
@@ -2145,8 +2185,8 @@ import soc.util.Version;
 
         for (int i = refresh.size() - 1; i >= 0; --i)
         {
-            final SOCGameOption op = refresh.get(i);
-            final Component opComp = optsControls.get(op.key);
+            final SOCGameOption op = refresh.get( i );
+            final Component opComp = optsControls.get( op.key );
 
             // reminder: Swing widget listeners are added in initInterface_OptLine, initInterface_Opt1, initOption_int,
             // initOption_enum; see those methods to confirm which widget types get which listeners
@@ -2154,99 +2194,99 @@ import soc.util.Version;
             switch (op.optType)  // OTYPE_*
             {
             case SOCGameOption.OTYPE_BOOL:
-                {
-                    final JCheckBox cb = (JCheckBox) opComp;
-                    cb.removeItemListener(this);
-                    cb.setSelected(op.getBoolValue());
-                    cb.addItemListener(this);
-                }
-                break;
+            {
+                final JCheckBox cb = (JCheckBox) opComp;
+                cb.removeItemListener( this );
+                cb.setSelected( op.getBoolValue() );
+                cb.addItemListener( this );
+            }
+            break;
 
             case SOCGameOption.OTYPE_INT:
             case SOCGameOption.OTYPE_INTBOOL:
-                {
-                    if (opComp instanceof JTextField)
-                    {
-                        final JTextField tf = (JTextField) opComp;
-                        final Document doc = tf.getDocument();
-                        doc.removeDocumentListener(this);
-                        tf.setText(Integer.toString(op.getIntValue()));
-                        doc.addDocumentListener(this);
-                    }
-                    else
-                    {
-                        final JComboBox<?> combo = (JComboBox<?>) opComp;
-                        combo.removeItemListener(this);
-                        combo.setSelectedIndex(op.getIntValue() - op.minIntValue);
-                        combo.addItemListener(this);
-                    }
-
-                    final boolean hasCheckbox = (op.optType == SOCGameOption.OTYPE_INTBOOL);
-                    if (hasCheckbox)
-                    {
-                        JCheckBox cb = boolOptCheckboxes.get(op.key);
-                        if (cb != null)
-                        {
-                            cb.removeItemListener(this);
-                            cb.setSelected(op.getBoolValue());
-                            cb.addItemListener(this);
-                        }
-                    }
-                }
-                break;
-
-            case SOCGameOption.OTYPE_ENUM:
-            case SOCGameOption.OTYPE_ENUMBOOL:
-                {
-                    final JComboBox<?> combo = (JComboBox<?>) opComp;
-                    combo.removeItemListener(this);
-                    combo.setSelectedIndex(op.getIntValue() - op.minIntValue);
-                    combo.addItemListener(this);
-
-                    final boolean hasCheckbox = (op.optType == SOCGameOption.OTYPE_ENUMBOOL);
-                    if (hasCheckbox)
-                    {
-                        JCheckBox cb = boolOptCheckboxes.get(op.key);
-                        if (cb != null)
-                        {
-                            cb.removeItemListener(this);
-                            cb.setSelected(op.getBoolValue());
-                            cb.addItemListener(this);
-                        }
-                    }
-                }
-                break;
-
-            case SOCGameOption.OTYPE_STR:
-            case SOCGameOption.OTYPE_STRHIDE:
+            {
+                if (opComp instanceof JTextField)
                 {
                     final JTextField tf = (JTextField) opComp;
                     final Document doc = tf.getDocument();
-                    doc.removeDocumentListener(this);
-                    tf.setText(op.getStringValue());
-                    doc.addDocumentListener(this);
+                    doc.removeDocumentListener( this );
+                    tf.setText( Integer.toString( op.getIntValue() ) );
+                    doc.addDocumentListener( this );
                 }
-                break;
+                else
+                {
+                    final JComboBox<?> combo = (JComboBox<?>) opComp;
+                    combo.removeItemListener( this );
+                    combo.setSelectedIndex( op.getIntValue() - op.minIntValue );
+                    combo.addItemListener( this );
+                }
 
-                // default: unknown, see above
+                final boolean hasCheckbox = (op.optType == SOCGameOption.OTYPE_INTBOOL);
+                if (hasCheckbox)
+                {
+                    JCheckBox cb = boolOptCheckboxes.get( op.key );
+                    if (cb != null)
+                    {
+                        cb.removeItemListener( this );
+                        cb.setSelected( op.getBoolValue() );
+                        cb.addItemListener( this );
+                    }
+                }
+            }
+            break;
+
+            case SOCGameOption.OTYPE_ENUM:
+            case SOCGameOption.OTYPE_ENUMBOOL:
+            {
+                final JComboBox<?> combo = (JComboBox<?>) opComp;
+                combo.removeItemListener( this );
+                combo.setSelectedIndex( op.getIntValue() - op.minIntValue );
+                combo.addItemListener( this );
+
+                final boolean hasCheckbox = (op.optType == SOCGameOption.OTYPE_ENUMBOOL);
+                if (hasCheckbox)
+                {
+                    JCheckBox cb = boolOptCheckboxes.get( op.key );
+                    if (cb != null)
+                    {
+                        cb.removeItemListener( this );
+                        cb.setSelected( op.getBoolValue() );
+                        cb.addItemListener( this );
+                    }
+                }
+            }
+            break;
+
+            case SOCGameOption.OTYPE_STR:
+            case SOCGameOption.OTYPE_STRHIDE:
+            {
+                final JTextField tf = (JTextField) opComp;
+                final Document doc = tf.getDocument();
+                doc.removeDocumentListener( this );
+                tf.setText( op.getStringValue() );
+                doc.addDocumentListener( this );
+            }
+            break;
+
+            // default: unknown, see above
             }
         }
     }
 
     /** when an option with a boolValue's label is clicked, toggle its checkbox */
-    public void mouseClicked(MouseEvent e)
+    public void mouseClicked( MouseEvent e )
     {
-        SOCGameOption opt = controlsOpts.get(e.getSource());
+        SOCGameOption opt = controlsOpts.get( e.getSource() );
         if (opt == null)
             return;
-        JCheckBox cb = boolOptCheckboxes.get(opt.key);
+        JCheckBox cb = boolOptCheckboxes.get( opt.key );
         if (cb == null)
             return;
 
-        final boolean becameChecked = ! cb.isSelected();
-        cb.setSelected(becameChecked);
-        opt.setBoolValue(becameChecked);
-        if (! opt.userChanged)
+        final boolean becameChecked = !cb.isSelected();
+        cb.setSelected( becameChecked );
+        opt.setBoolValue( becameChecked );
+        if (!opt.userChanged)
             opt.userChanged = true;
 
         SOCGameOption.ChangeListener cl = opt.getChangeListener();
@@ -2255,20 +2295,28 @@ import soc.util.Version;
 
         final Boolean newValue = (becameChecked) ? Boolean.TRUE : Boolean.FALSE;
         final Boolean oldValue = (becameChecked) ? Boolean.FALSE : Boolean.TRUE;
-        fireOptionChangeListener(cl, opt, oldValue, newValue);
+        fireOptionChangeListener( cl, opt, oldValue, newValue );
     }
 
     /** required stub for MouseListener */
-    public void mouseEntered(MouseEvent e) {}
+    public void mouseEntered( MouseEvent e )
+    {
+    }
 
     /** required stub for MouseListener */
-    public void mouseExited(MouseEvent e) {}
+    public void mouseExited( MouseEvent e )
+    {
+    }
 
     /** required stub for MouseListener */
-    public void mousePressed(MouseEvent e) {}
+    public void mousePressed( MouseEvent e )
+    {
+    }
 
     /** required stub for MouseListener */
-    public void mouseReleased(MouseEvent e) {}
+    public void mouseReleased( MouseEvent e )
+    {
+    }
 
     /**
      * Show a popup window with this game's scenario's description, special rules, and number of victory points to win.
@@ -2281,17 +2329,17 @@ import soc.util.Version;
      * @since 2.0.00
      */
     public static void showScenarioInfoDialog
-        (final SOCGame ga, final SOCGameOptionSet knownOpts, final MainDisplay md, final Window parent)
+    ( final SOCGame ga, final SOCGameOptionSet knownOpts, final MainDisplay md, final Window parent )
     {
-        final String scKey = ga.getGameOptionStringValue("SC");
+        final String scKey = ga.getGameOptionStringValue( "SC" );
         if (scKey == null)
             return;
 
-        SOCScenario sc = SOCScenario.getScenario(scKey);
+        SOCScenario sc = SOCScenario.getScenario( scKey );
         if (sc == null)
             return;
 
-        showScenarioInfoDialog(sc, ga.getGameOptions(), knownOpts, ga.vp_winner, md, parent);
+        showScenarioInfoDialog( sc, ga.getGameOptions(), knownOpts, ga.vp_winner, md, parent );
     }
 
     /**
@@ -2307,64 +2355,64 @@ import soc.util.Version;
      * @since 2.0.00
      */
     public static void showScenarioInfoDialog
-        (final SOCScenario sc, SOCGameOptionSet gameOpts, SOCGameOptionSet knownOpts, final int vpWinner,
-         final MainDisplay md, final Window parent)
+    ( final SOCScenario sc, SOCGameOptionSet gameOpts, SOCGameOptionSet knownOpts, final int vpWinner,
+        final MainDisplay md, final Window parent )
     {
         if (sc == null)
             return;
 
         StringBuilder sb = new StringBuilder();
-        sb.append(strings.get("game.options.scenario.label"));  // "Game Scenario:"
-        sb.append(' ');
-        sb.append(sc.getDesc());
-        sb.append('\n');
+        sb.append( strings.get( "game.options.scenario.label" ) );  // "Game Scenario:"
+        sb.append( ' ' );
+        sb.append( sc.getDesc() );
+        sb.append( '\n' );
 
         final String scLongDesc = sc.getLongDesc();
         if (scLongDesc != null)
         {
-            sb.append('\n');
-            sb.append(scLongDesc);
-            sb.append('\n');
+            sb.append( '\n' );
+            sb.append( scLongDesc );
+            sb.append( '\n' );
         }
 
         // Check game for any other _SC_ game opts in effect:
 
         final String scenOptName = "_" + sc.key;  // "_SC_CLVI"
-        final String optDescScenPrefix = strings.get("game.options.scenario.optprefix");  // "Scenarios:"
+        final String optDescScenPrefix = strings.get( "game.options.scenario.optprefix" );  // "Scenarios:"
         //      I18N note: showScenarioInfoDialog() assumes scenario game options
         //      all start with the text "Scenarios:". When localizing, be sure to
         //      keep a consistent prefix that showScenarioInfoDialog() knows to look for.
 
         if ((gameOpts == null) && (sc.scOpts != null))
-            gameOpts = SOCGameOption.parseOptionsToSet(sc.scOpts, knownOpts);
+            gameOpts = SOCGameOption.parseOptionsToSet( sc.scOpts, knownOpts );
 
         if (gameOpts != null)
         {
             for (SOCGameOption sgo : gameOpts)
             {
-                if (sgo.key.equals(scenOptName))
+                if (sgo.key.equals( scenOptName ))
                     continue;  // scenario's dedicated game option; we already showed its name from scDesc
-                if (! sgo.key.startsWith("_SC_"))
+                if (!sgo.key.startsWith( "_SC_" ))
                     continue;
 
                 String optDesc = sgo.getDesc();
-                if (optDesc.startsWith(optDescScenPrefix))
-                    optDesc = optDesc.substring(optDescScenPrefix.length()).trim();
-                sb.append("\n\u2022 ");  // bullet point before option text
-                sb.append(optDesc);
+                if (optDesc.startsWith( optDescScenPrefix ))
+                    optDesc = optDesc.substring( optDescScenPrefix.length() ).trim();
+                sb.append( "\n\u2022 " );  // bullet point before option text
+                sb.append( optDesc );
             }
         }
 
         if (vpWinner != SOCGame.VP_WINNER_STANDARD)
         {
-            sb.append("\n\u2022 ");
-            sb.append(strings.get("game.options.scenario.vp"));  // "Victory Points to win:"
-            sb.append(' ');
-            sb.append(vpWinner);
+            sb.append( "\n\u2022 " );
+            sb.append( strings.get( "game.options.scenario.vp" ) );  // "Victory Points to win:"
+            sb.append( ' ' );
+            sb.append( vpWinner );
         }
 
         final String scenStr = sb.toString();
-        NotifyDialog.createAndShow(md, parent, scenStr, null, true);
+        NotifyDialog.createAndShow( md, parent, scenStr, null, true );
     }
 
 
@@ -2374,10 +2422,10 @@ import soc.util.Version;
      */
     public class IntTextField extends JTextField implements KeyListener
     {
-        IntTextField(int initVal, int width)
+        IntTextField( int initVal, int width )
         {
-            super(Integer.toString(initVal), width);
-            addKeyListener(this);
+            super( Integer.toString( initVal ), width );
+            addKeyListener( this );
         }
 
         /**
@@ -2391,22 +2439,26 @@ import soc.util.Version;
                 return 0;
             try
             {
-                return Integer.parseInt(txt);
+                return Integer.parseInt( txt );
             }
-            catch (NumberFormatException e)
+            catch( NumberFormatException e )
             {
                 return 0;
             }
         }
 
         /** stub for KeyListener */
-        public void keyPressed(KeyEvent e) {}
+        public void keyPressed( KeyEvent e )
+        {
+        }
 
         /** stub for KeyListener */
-        public void keyReleased(KeyEvent e) {}
+        public void keyReleased( KeyEvent e )
+        {
+        }
 
         /** reject entered characters which aren't digits */
-        public void keyTyped(KeyEvent e)
+        public void keyTyped( KeyEvent e )
         {
             // TODO this is not always rejecting non-digits
 
@@ -2414,31 +2466,31 @@ import soc.util.Version;
             {
             case KeyEvent.VK_ENTER:
                 if (readOnly)
-                    clickCancel(true);
+                    clickCancel( true );
                 else
-                    clickCreate(true);
+                    clickCreate( true );
                 break;
 
             case KeyEvent.VK_CANCEL:
             case KeyEvent.VK_ESCAPE:
-                clickCancel(false);
+                clickCancel( false );
                 break;
 
             default:
+            {
+                final char c = e.getKeyChar();
+                switch (c)
                 {
-                    final char c = e.getKeyChar();
-                    switch (c)
-                    {
-                    case KeyEvent.CHAR_UNDEFINED:  // ctrl characters, arrows, etc
-                    case (char) 8:    // backspace
-                    case (char) 127:  // delete
-                        return;  // don't consume
+                case KeyEvent.CHAR_UNDEFINED:  // ctrl characters, arrows, etc
+                case (char) 8:    // backspace
+                case (char) 127:  // delete
+                    return;  // don't consume
 
-                    default:
-                        if (! Character.isDigit(c))
-                            e.consume();  // ignore non-digits
-                    }
+                default:
+                    if (!Character.isDigit( c ))
+                        e.consume();  // ignore non-digits
                 }
+            }
             }  // switch(e)
         }
 
@@ -2475,12 +2527,12 @@ import soc.util.Version;
          * @param ngof  Parent options-frame, which contains these options
          * @param minVers  Minimum required version for these options
          */
-        public VersionConfirmDialog(NewGameOptionsFrame ngof, int minVers)
+        public VersionConfirmDialog( NewGameOptionsFrame ngof, int minVers )
         {
-            super(mainDisplay, ngof, strings.get("game.options.verconfirm.title"),
-                strings.get("game.options.verconfirm.prompt", Version.version(minVers)),
-                strings.get("game.options.verconfirm.create"),
-                strings.get("game.options.verconfirm.change"), true, false);
+            super( mainDisplay, ngof, strings.get( "game.options.verconfirm.title" ),
+                strings.get( "game.options.verconfirm.prompt", Version.version( minVers ) ),
+                strings.get( "game.options.verconfirm.create" ),
+                strings.get( "game.options.verconfirm.change" ), true, false );
         }
 
         /**
@@ -2489,7 +2541,7 @@ import soc.util.Version;
         @Override
         public void button1Chosen()
         {
-            clickCreate(false);
+            clickCreate( false );
         }
 
         /**

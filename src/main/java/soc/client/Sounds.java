@@ -3,21 +3,21 @@
  * This file Copyright (C) 2017-2019 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2014 Réal Gagnon <real@rgagnon.com>
  * (genTone method, which has a BSD-like license: "There is no restriction to use
- *  individual How-To in a development (compiled/source) but a mention is appreciated.")
- *
+ * individual How-To in a development (compiled/source) but a mention is appreciated.")
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -78,12 +78,13 @@ public class Sounds
      * Much nicer quality than 8-bit. On OSX, Java 1.7 has lots of extra static for 8-bit playback
      * but 16-bit is fine.
      */
-    private static final AudioFormat AFMT_PCM_16_AT_SAMPLE_RATE = new AudioFormat
-        (SAMPLE_RATE_HZ,
+    private static final AudioFormat AFMT_PCM_16_AT_SAMPLE_RATE = new AudioFormat(
+         SAMPLE_RATE_HZ,
          16,          // sampleSizeInBits
          1,           // channels
          true,        // signed
-         false);      // not bigEndian
+         false        // not bigEndian
+    );
 
     /**
      * To reduce latency in {@link #playPCMBytes(byte[])}, a cached SourceDataLine to try to reopen.
@@ -94,9 +95,9 @@ public class Sounds
      * Calculate the length of a mono 16-bit PCM byte buffer,
      * at {@link #SAMPLE_RATE_HZ}, to store {@code msec} milliseconds.
      * @param msec  Duration in milliseconds
-     * @return  Buffer length required to store {@code msec} milliseconds; is also the number of samples
+     * @return Buffer length required to store {@code msec} milliseconds; is also the number of samples
      */
-    public static int bufferLen(final int msec)
+    public static int bufferLen( final int msec )
     {
         return (2 * msec * (int) SAMPLE_RATE_HZ) / 1000;
     }
@@ -111,7 +112,7 @@ public class Sounds
      * @param i0  Starting position (index) to use within {@code buf}
      * @param overlay  If true, combine amplitude of the new chime with what's in the buffer.
      *     Total volume is additive. Does not clip or check for overflow.
-     * @return  1 past the ending position (index) used within {@code buf};
+     * @return 1 past the ending position (index) used within {@code buf};
      *     the next generate call can use this value for its {@code i0}
      * @throws IllegalArgumentException if {@code buf} isn't long enough,
      *     given {@code msec} and {@code i0}
@@ -119,12 +120,12 @@ public class Sounds
      * @see #genChime(int, int, double)
      */
     public static int genChime
-        (int hz, int msec, double vol, final byte[] buf, final int i0, final boolean overlay)
+    ( int hz, int msec, double vol, final byte[] buf, final int i0, final boolean overlay )
         throws IllegalArgumentException, NullPointerException
     {
-        final int imax = bufferLen(msec) / 2;  // max number of 16-bit samples
+        final int imax = bufferLen( msec ) / 2;  // max number of 16-bit samples
         if (buf.length < i0 + (2 * imax))
-            throw new IllegalArgumentException("buf too short");
+            throw new IllegalArgumentException( "buf too short" );
 
         // 2 parts if >= 40ms: attack for first 10msec (amplitude 0.8 * vol to vol),
         // then release for rest of msec (fading amplitude: vol to 0)
@@ -136,14 +137,14 @@ public class Sounds
         {
             amax = (10 * (int) SAMPLE_RATE_HZ) / 1000;
             final double vol0 = 0.8 * vol,
-                         dVol = vol - vol0;
+                dVol = vol - vol0;
             for (int i = 0; i < amax; ++i, ++iSa)
             {
                 double angle = (iSa / (SAMPLE_RATE_HZ / hz)) * PI_X_2;
-                short val = (short) (Math.sin(angle) * 32767.0 * (vol0 + ((dVol * i) / amax)));
+                short val = (short) (Math.sin( angle ) * 32767.0 * (vol0 + ((dVol * i) / amax)));
                 if (overlay)
                 {
-                    int vWith = (short) ( (buf[ib] & 0xFF) | (buf[ib + 1] << 8) );
+                    int vWith = (short) ((buf[ib] & 0xFF) | (buf[ib + 1] << 8));
                     val += vWith;  // reminder: java shorts are always signed
                 }
                 // little endian
@@ -162,10 +163,10 @@ public class Sounds
         for (int i = rmax; i > 0; --i, ++iSa)
         {
             double angle = (iSa / (SAMPLE_RATE_HZ / hz)) * PI_X_2;
-            short val = (short) (Math.sin(angle) * ((32767.0 * vol * i) / rmax));
+            short val = (short) (Math.sin( angle ) * ((32767.0 * vol * i) / rmax));
             if (overlay)
             {
-                int vWith = (short) ( (buf[ib] & 0xFF) | (buf[ib + 1] << 8) );
+                int vWith = (short) ((buf[ib] & 0xFF) | (buf[ib + 1] << 8));
                 val += vWith;  // reminder: java shorts are always signed
             }
             buf[ib] = (byte) (val & 0xFF);
@@ -187,14 +188,14 @@ public class Sounds
      * @throws IllegalArgumentException if {@code msec} > 1000
      * @see #genChime(int, int, double, byte[], int, boolean)
      */
-    public static byte[] genChime(int hz, int msec, double vol)
+    public static byte[] genChime( int hz, int msec, double vol )
         throws IllegalArgumentException
     {
         if (msec > 1000)
-            throw new IllegalArgumentException("msec");
+            throw new IllegalArgumentException( "msec" );
 
-        byte[] buf = new byte[bufferLen(msec)];
-        genChime(hz, msec, vol, buf, 0, false);
+        byte[] buf = new byte[bufferLen( msec )];
+        genChime( hz, msec, vol, buf, 0, false );
         return buf;
     }
 
@@ -206,10 +207,10 @@ public class Sounds
      * @throws IllegalArgumentException if {@code msec} > 1000
      * @throws LineUnavailableException if the line resource can't be opened
      */
-    public static void chime(int hz, int msec, double vol)
+    public static void chime( int hz, int msec, double vol )
         throws IllegalArgumentException, LineUnavailableException
     {
-        playPCMBytes(genChime(hz, msec, vol));
+        playPCMBytes( genChime( hz, msec, vol ) );
     }
 
     /**
@@ -226,19 +227,19 @@ public class Sounds
      * @param buf An existing little-endian mono 16-bit PCM buffer into which to generate the tone.
      *    Use {@link #bufferLen(int)} to calculate the required length.
      * @param i0  Starting position (index) to use within {@code buf}
-     * @return  1 past the ending position (index) used within {@code buf};
+     * @return 1 past the ending position (index) used within {@code buf};
      *     the next generate call can use this value for its {@code i0}
      * @throws IllegalArgumentException if {@code buf} isn't long enough,
      *     given {@code msec} and {@code i0}
      * @throws NullPointerException if {@code buf} is null
      * @see #genTone(int, int, double)
      */
-    public static int genTone(int hz, int msec, double vol, final byte[] buf, final int i0)
+    public static int genTone( int hz, int msec, double vol, final byte[] buf, final int i0 )
         throws IllegalArgumentException, NullPointerException
     {
-        final int imax = bufferLen(msec) / 2;  // max number of 16-bit samples
+        final int imax = bufferLen( msec ) / 2;  // max number of 16-bit samples
         if (buf.length < i0 + (2 * imax))
-            throw new IllegalArgumentException("buf too short");
+            throw new IllegalArgumentException( "buf too short" );
 
         final double vol_x_32767 = 32767.0 * vol;
         int ib = i0;  // byte position
@@ -246,7 +247,7 @@ public class Sounds
         for (int i = 0; i < imax; ++i, ++iSa)
         {
             double angle = (iSa / (SAMPLE_RATE_HZ / hz)) * PI_X_2;
-            short val = (short) (Math.sin(angle) * vol_x_32767);
+            short val = (short) (Math.sin( angle ) * vol_x_32767);
             buf[ib] = (byte) (val & 0xFF);
             ++ib;
             buf[ib] = (byte) ((val >> 8) & 0xFF);
@@ -263,18 +264,18 @@ public class Sounds
      * @param hz  Tone in Hertz (recommended max is half of {@link #SAMPLE_RATE_HZ})
      * @param msec  Duration in milliseconds (max is 1000)
      * @param vol  Volume (max is 1.0)
-     * @return  A sound byte buffer, suitable for {@link #playPCMBytes(byte[])}
+     * @return A sound byte buffer, suitable for {@link #playPCMBytes(byte[])}
      * @throws IllegalArgumentException if {@code msec} > 1000
      * @see #genTone(int, int, double, byte[], int)
      */
-    public static byte[] genTone(int hz, int msec, double vol)
+    public static byte[] genTone( int hz, int msec, double vol )
         throws IllegalArgumentException
     {
         if (msec > 1000)
-            throw new IllegalArgumentException("msec");
+            throw new IllegalArgumentException( "msec" );
 
-        byte[] buf = new byte[bufferLen(msec)];
-        genTone(hz, msec, vol, buf, 0);
+        byte[] buf = new byte[bufferLen( msec )];
+        genTone( hz, msec, vol, buf, 0 );
         return buf;
     }
 
@@ -286,10 +287,10 @@ public class Sounds
      * @throws IllegalArgumentException if {@code msec} > 1000
      * @throws LineUnavailableException if the line resource can't be opened
      */
-    public static void tone(int hz, int msec, double vol)
+    public static void tone( int hz, int msec, double vol )
         throws IllegalArgumentException, LineUnavailableException
     {
-        playPCMBytes(genTone(hz, msec, vol));
+        playPCMBytes( genTone( hz, msec, vol ) );
     }
 
     /**
@@ -298,7 +299,7 @@ public class Sounds
      * @param buf  Buffer to play; PCM little-endian mono 16-bit signed, at {@link #SAMPLE_RATE_HZ}
      * @throws LineUnavailableException if the line resource can't be opened
      */
-    public static void playPCMBytes(final byte[] buf)
+    public static void playPCMBytes( final byte[] buf )
         throws LineUnavailableException
     {
         SourceDataLine sdl = playPCM_sdl;
@@ -306,9 +307,9 @@ public class Sounds
         {
             try
             {
-                sdl.open(AFMT_PCM_16_AT_SAMPLE_RATE);
+                sdl.open( AFMT_PCM_16_AT_SAMPLE_RATE );
             }
-            catch (Exception e)
+            catch( Exception e )
             {
                 // LineUnavailableException, IllegalStateException, etc
                 sdl = null;
@@ -316,45 +317,45 @@ public class Sounds
         }
         if (sdl == null)
         {
-            sdl = AudioSystem.getSourceDataLine(AFMT_PCM_16_AT_SAMPLE_RATE);
+            sdl = AudioSystem.getSourceDataLine( AFMT_PCM_16_AT_SAMPLE_RATE );
             playPCM_sdl = sdl;
-            sdl.open(AFMT_PCM_16_AT_SAMPLE_RATE);
+            sdl.open( AFMT_PCM_16_AT_SAMPLE_RATE );
         }
         sdl.start();
-        sdl.write(buf, 0, buf.length);
+        sdl.write( buf, 0, buf.length );
         sdl.drain();
         sdl.stop();
         sdl.close();
     }
 
     /** Main, for testing */
-    public static void main(final String[] args)
+    public static void main( final String[] args )
     {
         try
         {
-            tone(NOTE_A5_HZ, 180, .9);
-            Thread.sleep(60);
-            chime(NOTE_A5_HZ, 180, .9);
-            Thread.sleep(60);
-            chime(NOTE_A5_HZ / 2, 180 + 90, .9);
-            Thread.sleep(60);
+            tone( NOTE_A5_HZ, 180, .9 );
+            Thread.sleep( 60 );
+            chime( NOTE_A5_HZ, 180, .9 );
+            Thread.sleep( 60 );
+            chime( NOTE_A5_HZ / 2, 180 + 90, .9 );
+            Thread.sleep( 60 );
 
-            byte[] buf = new byte[bufferLen(600)];
-            genChime(NOTE_A5_HZ, 600, .5, buf, 0, false);
-            genChime(NOTE_E4_HZ, 600, .5, buf, 0, true);
-            playPCMBytes(buf);
-            Thread.sleep(90);
+            byte[] buf = new byte[bufferLen( 600 )];
+            genChime( NOTE_A5_HZ, 600, .5, buf, 0, false );
+            genChime( NOTE_E4_HZ, 600, .5, buf, 0, true );
+            playPCMBytes( buf );
+            Thread.sleep( 90 );
 
-            buf = new byte[bufferLen(120 + 90)];
-            int i = genChime(NOTE_E4_HZ, 120, .9, buf, 0, false);
-            genChime(NOTE_C4_HZ, 90, .9, buf, i, false);
-            playPCMBytes(buf);
+            buf = new byte[bufferLen( 120 + 90 )];
+            int i = genChime( NOTE_E4_HZ, 120, .9, buf, 0, false );
+            genChime( NOTE_C4_HZ, 90, .9, buf, i, false );
+            playPCMBytes( buf );
 
         }
-        catch (Exception e)
+        catch( Exception e )
         {
             // LineUnavailableException, InterruptedException
-            System.err.println("Exception: " + e);
+            System.err.println( "Exception: " + e );
             e.printStackTrace();
         }
     }

@@ -3,20 +3,20 @@
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file copyright (C) 2007-2011,2016-2017,2019-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -57,7 +57,7 @@ import java.net.URL;
  * @author Robert S. Thomas
  */
 @SuppressWarnings("serial")
-/*package*/ class SOCFaceButton extends Canvas
+    /*package*/ class SOCFaceButton extends Canvas
 {
     public static final int DEFAULT_FACE = 1;  // Human face # 1 (face1.gif)
 
@@ -194,11 +194,11 @@ import java.net.URL;
      */
     protected Dimension ourSize;
 
-    private static synchronized void loadImages(Component c)
+    private static synchronized void loadImages( Component c )
     {
         if (images == null)
         {
-            tracker = new MediaTracker(c);
+            tracker = new MediaTracker( c );
             Toolkit tk = c.getToolkit();
             Class<?> clazz = c.getClass();
 
@@ -208,13 +208,13 @@ import java.net.URL;
             /**
              * load the images
              */
-            robotImages[0] = tk.getImage(clazz.getResource(IMAGEDIR + "/robot.gif"));
-            tracker.addImage(robotImages[0], 0);
+            robotImages[0] = tk.getImage( clazz.getResource( IMAGEDIR + "/robot.gif" ) );
+            tracker.addImage( robotImages[0], 0 );
 
             for (int i = 1; i < NUM_FACES; i++)
             {
-                images[i] = tk.getImage(clazz.getResource(IMAGEDIR + "/face" + i + ".gif"));
-                tracker.addImage(images[i], 0);
+                images[i] = tk.getImage( clazz.getResource( IMAGEDIR + "/face" + i + ".gif" ) );
+                tracker.addImage( images[i], 0 );
             }
 
             for (int i = 1; i < NUM_ROBOT_FACES; i++)
@@ -222,23 +222,25 @@ import java.net.URL;
                 // Client possibly only has robot.gif.
                 // Check getResource vs null, and use MediaTracker;
                 // drawFace can check tracker.statusID vs MediaTracker.COMPLETE.
-                URL imgSrc = clazz.getResource(IMAGEDIR + "/robot" + i + ".gif");
+                URL imgSrc = clazz.getResource( IMAGEDIR + "/robot" + i + ".gif" );
                 if (imgSrc != null)
                 {
-                    robotImages[i] = tk.getImage(imgSrc);
-                    tracker.addImage(robotImages[i], i);
+                    robotImages[i] = tk.getImage( imgSrc );
+                    tracker.addImage( robotImages[i], i );
                 }
             }
 
             try
             {
-                tracker.waitForID(0);
+                tracker.waitForID( 0 );
             }
-            catch (InterruptedException e) {}
-
-            if (tracker.isErrorID(0))
+            catch( InterruptedException e )
             {
-                System.out.println("Error loading Face images");
+            }
+
+            if (tracker.isErrorID( 0 ))
+            {
+                System.out.println( "Error loading Face images" );
             }
         }
     }
@@ -251,10 +253,10 @@ import java.net.URL;
      *
      * @throws IllegalArgumentException if pn is &lt; -1 or >= SOCGame.MAXPLAYERS.
      */
-    public SOCFaceButton(SOCPlayerInterface pi, int pn)
+    public SOCFaceButton( SOCPlayerInterface pi, int pn )
         throws IllegalArgumentException
     {
-        this (pi, pn, pi.getPlayerColor(pn), FACE_WIDTH_PX * pi.displayScale);
+        this( pi, pn, pi.getPlayerColor( pn ), FACE_WIDTH_PX * pi.displayScale );
     }
 
     /**
@@ -265,10 +267,10 @@ import java.net.URL;
      * @param faceId Face ID to show; same range as {@link #setFace(int)}
      * @since 1.1.00
      */
-    public SOCFaceButton(SOCPlayerInterface pi, FaceChooserFrame fcf, int faceId)
+    public SOCFaceButton( SOCPlayerInterface pi, FaceChooserFrame fcf, int faceId )
     {
-        this (pi, -1, fcf.getPlayerColor(), FACE_WIDTH_BORDERED_PX * pi.displayScale);
-        setFace(faceId);
+        this( pi, -1, fcf.getPlayerColor(), FACE_WIDTH_BORDERED_PX * pi.displayScale );
+        setFace( faceId );
         faceChooser = fcf;
     }
 
@@ -285,7 +287,7 @@ import java.net.URL;
      *           or if <tt>pi.getGame()</tt> is null.
      * @since 1.1.00
      */
-    private SOCFaceButton(final SOCPlayerInterface pi, final int pn, final Color bgColor, final int width)
+    private SOCFaceButton( final SOCPlayerInterface pi, final int pn, final Color bgColor, final int width )
         throws IllegalArgumentException
     {
         super();
@@ -299,34 +301,34 @@ import java.net.URL;
         {
             game = pi.getGame();
             if (game == null)
-                throw new IllegalArgumentException("null pi.getGgame");
+                throw new IllegalArgumentException( "null pi.getGgame" );
             if ((pn < 0) && (pn <= game.maxPlayers))
-                throw new IllegalArgumentException("Player number out of range: " + pn);
+                throw new IllegalArgumentException( "Player number out of range: " + pn );
         }
         pNumber = pn;
         faceChooser = null;
         hilightBorderShown = false;
         hilightBorderColor = null;
 
-        setBackground(bgColor);
+        setBackground( bgColor );
 
         panelx = width;
         panely = width;
-        ourSize = new Dimension(panelx, panely);
+        ourSize = new Dimension( panelx, panely );
 
         // load the static images
-        loadImages(this);
+        loadImages( this );
 
-        this.addMouseListener(new MyMouseAdapter());
+        this.addMouseListener( new MyMouseAdapter() );
 
         // set initial size to help when in a JPanel
-        setSize(ourSize);
-        setMinimumSize(ourSize);
-        setPreferredSize(ourSize);
+        setSize( ourSize );
+        setMinimumSize( ourSize );
+        setPreferredSize( ourSize );
     }
 
     /**
-     * @return  which image id is shown
+     * @return which image id is shown
      * @since 1.1.00
      */
     public int getFace()
@@ -342,7 +344,7 @@ import java.net.URL;
      *    Human id's out of range (>= NUM_FACES) get id DEFAULT_FACE.
      *    Robot id's out of range (<= -NUM_ROBOT_FACES) get id 0.
      */
-    public void setFace(int id)
+    public void setFace( int id )
     {
         if (id >= NUM_FACES)
             id = DEFAULT_FACE;
@@ -357,7 +359,7 @@ import java.net.URL;
      */
     public void setDefaultFace()
     {
-        setFace(DEFAULT_FACE);
+        setFace( DEFAULT_FACE );
     }
 
     /**
@@ -375,10 +377,10 @@ import java.net.URL;
         if (popupMenu == null)
         {
             if ((game == null) || (pNumber != pi.getClientPlayerNumber()))
-                throw new IllegalStateException("Player must be client");
+                throw new IllegalStateException( "Player must be client" );
 
-            popupMenu = new FaceButtonPopupMenu(this);
-            add(popupMenu);
+            popupMenu = new FaceButtonPopupMenu( this );
+            add( popupMenu );
         }
     }
 
@@ -391,7 +393,7 @@ import java.net.URL;
     {
         if (popupMenu != null)
         {
-            remove(popupMenu);
+            remove( popupMenu );
             popupMenu = null;
         }
     }
@@ -417,11 +419,11 @@ import java.net.URL;
      * @throws IllegalStateException If this FaceButton wasn't created for a face chooser.
      * @since 1.1.00
      */
-    public void setHilightBorder(boolean wantBorder)
+    public void setHilightBorder( boolean wantBorder )
         throws IllegalStateException
     {
         if (faceChooser == null)
-            throw new IllegalStateException("Border only usable in FaceChooser bordered mode");
+            throw new IllegalStateException( "Border only usable in FaceChooser bordered mode" );
         if (hilightBorderShown == wantBorder)
             return;
         hilightBorderWasShown = hilightBorderShown;
@@ -466,22 +468,22 @@ import java.net.URL;
      * {@link Component#repaint()} instead.
      */
     @Override
-    public void paint(Graphics g)
+    public void paint( Graphics g )
     {
         if (buffer == null)
         {
-            buffer = this.createImage(panelx, panely);
+            buffer = this.createImage( panelx, panely );
         }
-        drawFace(buffer.getGraphics());
+        drawFace( buffer.getGraphics() );
         buffer.flush();
-        g.drawImage(buffer, 0, 0, this);
+        g.drawImage( buffer, 0, 0, this );
         if (hilightBorderShown)
         {
-            paintBorder(g, true);
+            paintBorder( g, true );
         }
         else if (hilightBorderWasShown)
         {
-            paintBorder(g, false);
+            paintBorder( g, false );
             hilightBorderWasShown = false;
         }
     }
@@ -491,15 +493,15 @@ import java.net.URL;
      * this directly, use {@link Component#repaint()} instead.
      */
     @Override
-    public void update(Graphics g)
+    public void update( Graphics g )
     {
-        paint(g);
+        paint( g );
     }
 
     /**
      * Draw the face. If {@link SOCPlayerInterface#displayScale} > 1, will scale up without interpolation.
      */
-    private void drawFace(Graphics g)
+    private void drawFace( Graphics g )
     {
         final int displayScale = pi.displayScale;
         Image fimage;
@@ -522,7 +524,7 @@ import java.net.URL;
         {
             findex = -currentImageNum;
             if ((findex >= NUM_ROBOT_FACES) || (null == robotImages[findex])
-                || (0 != (tracker.statusID(findex, false) & (MediaTracker.ABORTED | MediaTracker.ERRORED))))
+                || (0 != (tracker.statusID( findex, false ) & (MediaTracker.ABORTED | MediaTracker.ERRORED))))
             {
                 findex = 0;
                 currentImageNum = -findex;
@@ -538,16 +540,16 @@ import java.net.URL;
 
         if (displayScale == 1)
         {
-            g.drawImage(fimage, offs, offs, getBackground(), this);
+            g.drawImage( fimage, offs, offs, getBackground(), this );
         }
         else
         {
             if (g instanceof Graphics2D)
             {
                 ((Graphics2D) g).setRenderingHint
-                    (RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                    ( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF );
                 ((Graphics2D) g).setRenderingHint
-                    (RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);  // == OFF
+                    ( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR );  // == OFF
             }
             int w = panelx, h = panely;
             if (offs != 0)
@@ -555,8 +557,7 @@ import java.net.URL;
                 w -= (2 * offs);
                 h -= (2 * offs);
             }
-
-            g.drawImage(fimage, offs, offs, w, h, getBackground(), this);
+            g.drawImage( fimage, offs, offs, w, h, getBackground(), this );
         }
     }
 
@@ -564,14 +565,14 @@ import java.net.URL;
      * Paint or clear the highlight border
      * @since 1.1.00
      */
-    private void paintBorder(Graphics g, boolean showNotClear)
+    private void paintBorder( Graphics g, boolean showNotClear )
     {
         Color drawColor;
 
         if (showNotClear)
         {
             if (hilightBorderColor == null)
-                hilightBorderColor = SOCPlayerInterface.makeGhostColor(getBackground());
+                hilightBorderColor = SOCPlayerInterface.makeGhostColor( getBackground() );
             drawColor = hilightBorderColor;
         }
         else
@@ -581,9 +582,9 @@ import java.net.URL;
 
         final int pix1 = pi.displayScale, pix3 = 3 * pix1;
 
-        g.setColor(drawColor);
-        g.drawRect(0, pix1, panelx - pix1, panely - pix3);
-        g.drawRect(pix1, 0, panelx - pix3, panely - pix1);
+        g.setColor( drawColor );
+        g.drawRect( 0, pix1, panelx - pix1, panely - pix3 );
+        g.drawRect( pix1, 0, panelx - pix3, panely - pix1 );
     }
 
     /*********************************
@@ -596,16 +597,16 @@ import java.net.URL;
          * mousePressed has xwindows/OS-X popup trigger.
          */
         @Override
-        public void mousePressed(MouseEvent evt)
+        public void mousePressed( MouseEvent evt )
         {
-            mouseReleased(evt);  // same desired code: react to isPopupTrigger
+            mouseReleased( evt );  // same desired code: react to isPopupTrigger
         }
 
         /**
          * Handle click to change face.
          */
         @Override
-        public void mouseClicked(MouseEvent evt)
+        public void mouseClicked( MouseEvent evt )
         {
             try
             {
@@ -698,7 +699,7 @@ import java.net.URL;
          * mouseReleased has win32 popup trigger.
          */
         @Override
-        public void mouseReleased(MouseEvent evt)
+        public void mouseReleased( MouseEvent evt )
         {
             try
             {
@@ -732,14 +733,14 @@ import java.net.URL;
         MenuItem changeFaceItem;
         FaceChooserFrame fsf;
 
-        public FaceButtonPopupMenu(SOCFaceButton fbutton)
+        public FaceButtonPopupMenu( SOCFaceButton fbutton )
         {
-          super ("JSettlers");
-          fb = fbutton;
+            super( "JSettlers" );
+            fb = fbutton;
 
-          changeFaceItem = new MenuItem(/*I*/"Change face..."/*18N*/);
-          add(changeFaceItem);
-          changeFaceItem.addActionListener(this);
+            changeFaceItem = new MenuItem(/*I*/"Change face..."/*18N*/ );
+            add( changeFaceItem );
+            changeFaceItem.addActionListener( this );
         }
 
         /** Show menu at this position.
@@ -747,13 +748,13 @@ import java.net.URL;
          * @param x   Mouse x-position relative to facebutton
          * @param y   Mouse y-position relative to facebutton
          */
-        public void show(int x, int y)
+        public void show( int x, int y )
         {
-            super.show(fb, x, y);
+            super.show( fb, x, y );
         }
 
         /** Handling the menu item **/
-        public void actionPerformed(ActionEvent e)
+        public void actionPerformed( ActionEvent e )
         {
             try
             {
@@ -761,9 +762,9 @@ import java.net.URL;
                     return;
                 showFaceChooserFrame();
             }
-            catch (Throwable th)
+            catch( Throwable th )
             {
-                fb.pi.chatPrintStackTrace(th);
+                fb.pi.chatPrintStackTrace( th );
             }
         }
 
@@ -773,13 +774,13 @@ import java.net.URL;
          */
         private void showFaceChooserFrame()
         {
-            if ((fsf == null) || ! fsf.isStillAvailable())
+            if ((fsf == null) || !fsf.isStillAvailable())
             {
                 fsf = new FaceChooserFrame
-                    (fb, fb.pi.getClient(), fb.pi, fb.pNumber, fb.getFace(), fb.getSize().width);
+                    ( fb, fb.pi.getClient(), fb.pi, fb.pNumber, fb.getFace(), fb.getSize().width );
                 fsf.pack();
             }
-            fsf.setVisible(true);
+            fsf.setVisible( true );
         }
 
         /**

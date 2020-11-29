@@ -3,20 +3,20 @@
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2007-2014,2016-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012-2013 Paul Bilnoski <paul@bilnoski.net> - GameStatisticsFrame
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -66,7 +66,7 @@ import javax.swing.SwingConstants;
  * @see GameStatisticsFrame
  */
 @SuppressWarnings("serial")
-/*package*/ class SOCBuildingPanel extends JPanel
+    /*package*/ class SOCBuildingPanel extends JPanel
     implements ActionListener, WindowListener
 {
     /** i18n text strings */
@@ -232,18 +232,18 @@ import javax.swing.SwingConstants;
      *
      * @param pi  the player interface that this panel is in
      */
-    public SOCBuildingPanel(final SOCPlayerInterface pi)
+    public SOCBuildingPanel( final SOCPlayerInterface pi )
     {
         super();
-        setLayout(null);
+        setLayout( null );
 
         this.player = null;
         this.pi = pi;
 
-        final Font panelFont = new Font("Dialog", Font.PLAIN, 10 * pi.displayScale);
+        final Font panelFont = new Font( "Dialog", Font.PLAIN, 10 * pi.displayScale );
 
         final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
-        if (! isOSHighContrast)
+        if (!isOSHighContrast)
         {
             final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors( true, false );
             if (null != colors)
@@ -252,7 +252,7 @@ import javax.swing.SwingConstants;
                 setForeground( colors[0] );  // Color.BLACK
             }
         }
-        setFont(panelFont);
+        setFont( panelFont );
 
         /*
            title = new Label("Building Costs:");
@@ -261,115 +261,115 @@ import javax.swing.SwingConstants;
          */
 
         final int costsH = 10 * pi.displayScale - 1, costsW = 7 * pi.displayScale - 1;
-        final String costsTooltip = strings.get("build.cost_to_build");  // "Cost to Build"
+        final String costsTooltip = strings.get( "build.cost_to_build" );  // "Cost to Build"
         final Component arrowColorsFrom = (isOSHighContrast) ? null : this;
 
-        roadT = new JLabel(strings.get("build.road"));  // "Road: "
-        roadT.setToolTipText(strings.get("build.road.vp"));  // "0 VP  (longest road = 2 VP)"
-        add(roadT);
-        roadC = new ArrowheadPanel(costsW, costsH, costsTooltip, arrowColorsFrom);
-        add(roadC);
-        roadSq = makeCostSquares(SOCRoad.COST);
-        roadBut = new JButton("---");
-        roadBut.setEnabled(false);
+        roadT = new JLabel( strings.get( "build.road" ) );  // "Road: "
+        roadT.setToolTipText( strings.get( "build.road.vp" ) );  // "0 VP  (longest road = 2 VP)"
+        add( roadT );
+        roadC = new ArrowheadPanel( costsW, costsH, costsTooltip, arrowColorsFrom );
+        add( roadC );
+        roadSq = makeCostSquares( SOCRoad.COST );
+        roadBut = new JButton( "---" );
+        roadBut.setEnabled( false );
         // note: will each JButton.setBackground(null) at end of constructor if IS_PLATFORM_WINDOWS
-        add(roadBut);
-        roadBut.setActionCommand(ROAD);
-        roadBut.addActionListener(this);
+        add( roadBut );
+        roadBut.setActionCommand( ROAD );
+        roadBut.addActionListener( this );
 
-        settlementT = new JLabel(strings.get("build.settlement"));  // "Settlement: "
-        settlementT.setToolTipText(strings.get("build.1.vp"));  // "1 VP"
-        add(settlementT);
-        settlementC = new ArrowheadPanel(costsW, costsH, costsTooltip, arrowColorsFrom);
-        add(settlementC);
-        settlementSq = makeCostSquares(SOCSettlement.COST);
-        settlementBut = new JButton("---");
-        settlementBut.setEnabled(false);
-        add(settlementBut);
-        settlementBut.setActionCommand(STLMT);
-        settlementBut.addActionListener(this);
+        settlementT = new JLabel( strings.get( "build.settlement" ) );  // "Settlement: "
+        settlementT.setToolTipText( strings.get( "build.1.vp" ) );  // "1 VP"
+        add( settlementT );
+        settlementC = new ArrowheadPanel( costsW, costsH, costsTooltip, arrowColorsFrom );
+        add( settlementC );
+        settlementSq = makeCostSquares( SOCSettlement.COST );
+        settlementBut = new JButton( "---" );
+        settlementBut.setEnabled( false );
+        add( settlementBut );
+        settlementBut.setActionCommand( STLMT );
+        settlementBut.addActionListener( this );
 
-        cityT = new JLabel(strings.get("build.city"));  // "City: "
-        cityT.setToolTipText(strings.get("build.city.vp"));  // "2 VP  (receives 2x rsrc.)"
-        add(cityT);
-        cityC = new ArrowheadPanel(costsW, costsH, costsTooltip, arrowColorsFrom);
-        add(cityC);
-        citySq = makeCostSquares(SOCCity.COST);
-        cityBut = new JButton("---");
-        cityBut.setEnabled(false);
-        add(cityBut);
-        cityBut.setActionCommand(CITY);
-        cityBut.addActionListener(this);
+        cityT = new JLabel( strings.get( "build.city" ) );  // "City: "
+        cityT.setToolTipText( strings.get( "build.city.vp" ) );  // "2 VP  (receives 2x rsrc.)"
+        add( cityT );
+        cityC = new ArrowheadPanel( costsW, costsH, costsTooltip, arrowColorsFrom );
+        add( cityC );
+        citySq = makeCostSquares( SOCCity.COST );
+        cityBut = new JButton( "---" );
+        cityBut.setEnabled( false );
+        add( cityBut );
+        cityBut.setActionCommand( CITY );
+        cityBut.addActionListener( this );
 
-        gameOptsBut = new JButton(strings.get("build.game.options"));  // "Options..." -- show game options
-        add(gameOptsBut);
-        gameOptsBut.addActionListener(this);
+        gameOptsBut = new JButton( strings.get( "build.game.options" ) );  // "Options..." -- show game options
+        add( gameOptsBut );
+        gameOptsBut.addActionListener( this );
 
         //TODO: disable until the game initialization is complete and the first roll is made
-        statsBut = new JButton(strings.get("build.game.stats"));  // "Statistics..."
-        add(statsBut);
-        statsBut.addActionListener(this);
+        statsBut = new JButton( strings.get( "build.game.stats" ) );  // "Statistics..."
+        add( statsBut );
+        statsBut.addActionListener( this );
 
         final int sqHeight = ColorSquare.HEIGHT * pi.displayScale;
 
-        cardT = new JLabel(strings.get("build.dev.card"));  // "Dev Card: "
-        cardT.setToolTipText(/*I*/"? VP  (largest army = 2 VP) "/*18N*/);
-        add(cardT);
-        cardC = new ArrowheadPanel(costsW, costsH, costsTooltip, arrowColorsFrom);
-        add(cardC);
-        cardSq = makeCostSquares(SOCDevCard.COST);
-        cardBut = new JButton("---");
-        cardBut.setEnabled(false);
-        add(cardBut);
-        cardBut.setActionCommand(CARD);
-        cardBut.addActionListener(this);
+        cardT = new JLabel( strings.get( "build.dev.card" ) );  // "Dev Card: "
+        cardT.setToolTipText(/*I*/"? VP  (largest army = 2 VP) "/*18N*/ );
+        add( cardT );
+        cardC = new ArrowheadPanel( costsW, costsH, costsTooltip, arrowColorsFrom );
+        add( cardC );
+        cardSq = makeCostSquares( SOCDevCard.COST );
+        cardBut = new JButton( "---" );
+        cardBut.setEnabled( false );
+        add( cardBut );
+        cardBut.setActionCommand( CARD );
+        cardBut.addActionListener( this );
         // Development Card count. Initial amount will be sent from server soon.
         //TODO i18n: Is 'Available X' better than 'X available' in some languages?
-        cardCountLab = new JLabel(strings.get("build.available"), SwingConstants.LEFT);  // "available"
-        add(cardCountLab);
-        cardCount = new ColorSquare(ColorSquare.GREY, 0, sqHeight, sqHeight);
-        cardCount.setToolTipText(strings.get("build.dev.cards.available"));  // "Development cards available to buy"
-        cardCount.setToolTipLowWarningLevel(strings.get("build.dev.cards.low"), 3);  // "Almost out of development cards to buy"
-        cardCount.setToolTipZeroText(strings.get("build.dev.cards.none"));  // "No more development cards available to buy"
-        add(cardCount);
+        cardCountLab = new JLabel( strings.get( "build.available" ), SwingConstants.LEFT );  // "available"
+        add( cardCountLab );
+        cardCount = new ColorSquare( ColorSquare.GREY, 0, sqHeight, sqHeight );
+        cardCount.setToolTipText( strings.get( "build.dev.cards.available" ) );  // "Development cards available to buy"
+        cardCount.setToolTipLowWarningLevel( strings.get( "build.dev.cards.low" ), 3 );  // "Almost out of development cards to buy"
+        cardCount.setToolTipZeroText( strings.get( "build.dev.cards.none" ) );  // "No more development cards available to buy"
+        add( cardCount );
 
         final SOCGame ga = pi.getGame();
 
         if (ga.hasSeaBoard)
         {
-            shipT = new JLabel(strings.get("build.ship"), SwingConstants.LEFT);  // "Ship: "
-            shipT.setToolTipText(strings.get("build.ship.vp"));  // "0 VP  (longest route = 2 VP)"
-            add(shipT);
-            shipC = new ArrowheadPanel(costsW, costsH, costsTooltip, arrowColorsFrom);
-            add(shipC);
-            shipSq = makeCostSquares(SOCShip.COST);
-            shipBut = new JButton("---");
-            shipBut.setEnabled(false);
-            add(shipBut);
-            shipBut.setActionCommand(SHIP);
-            shipBut.addActionListener(this);
+            shipT = new JLabel( strings.get( "build.ship" ), SwingConstants.LEFT );  // "Ship: "
+            shipT.setToolTipText( strings.get( "build.ship.vp" ) );  // "0 VP  (longest route = 2 VP)"
+            add( shipT );
+            shipC = new ArrowheadPanel( costsW, costsH, costsTooltip, arrowColorsFrom );
+            add( shipC );
+            shipSq = makeCostSquares( SOCShip.COST );
+            shipBut = new JButton( "---" );
+            shipBut.setEnabled( false );
+            add( shipBut );
+            shipBut.setActionCommand( SHIP );
+            shipBut.addActionListener( this );
 
-            if (ga.isGameOptionSet(SOCGameOptionSet.K_SC_CLVI))
+            if (ga.isGameOptionSet( SOCGameOptionSet.K_SC_CLVI ))
             {
                 // General Supply cloth count. Initial amount will be sent from server soon.
                 // (joingame if already started, or startgame as part of board layout)
 
-                final String TTIP_CLOTH_TEXT = strings.get("build.sc_clvi.cloth.tip");
-                    // "General Supply of cloth for any villages shared by multiple players"
+                final String TTIP_CLOTH_TEXT = strings.get( "build.sc_clvi.cloth.tip" );
+                // "General Supply of cloth for any villages shared by multiple players"
 
-                clothLab = new JLabel(strings.get("build.sc_clvi.cloth"));  // "Cloth:"
-                clothLab.setToolTipText(TTIP_CLOTH_TEXT);
-                add(clothLab);
-                cloth = new ColorSquare(ColorSquare.GREY, 0, sqHeight, sqHeight);
-                add(cloth);
-                cloth.setToolTipText(TTIP_CLOTH_TEXT);
+                clothLab = new JLabel( strings.get( "build.sc_clvi.cloth" ) );  // "Cloth:"
+                clothLab.setToolTipText( TTIP_CLOTH_TEXT );
+                add( clothLab );
+                cloth = new ColorSquare( ColorSquare.GREY, 0, sqHeight, sqHeight );
+                add( cloth );
+                cloth.setToolTipText( TTIP_CLOTH_TEXT );
             }
-            else if (ga.isGameOptionSet(SOCGameOptionSet.K_SC_WOND))
+            else if (ga.isGameOptionSet( SOCGameOptionSet.K_SC_WOND ))
             {
-                wondersBut = new JButton(strings.get("build.specitem._SC_WOND"));  // "Wonders..."
-                wondersBut.setToolTipText(strings.get("build.specitem._SC_WOND.tip"));  // "Build or get info about the Wonders"
-                add(wondersBut);
-                wondersBut.addActionListener(this);
+                wondersBut = new JButton( strings.get( "build.specitem._SC_WOND" ) );  // "Wonders..."
+                wondersBut.setToolTipText( strings.get( "build.specitem._SC_WOND.tip" ) );  // "Build or get info about the Wonders"
+                add( wondersBut );
+                wondersBut.addActionListener( this );
             }
         }
         else
@@ -380,16 +380,16 @@ import javax.swing.SwingConstants;
 
         if (ga.hasSeaBoard || (ga.vp_winner != 10))  // 10, not SOCGame.VP_WINNER_STANDARD, in case someone changes that
         {
-            final String TTIP_VP_TEXT = strings.get("build.vp.to.win.tip");  // "Victory Points total needed to win the game"
+            final String TTIP_VP_TEXT = strings.get( "build.vp.to.win.tip" );  // "Victory Points total needed to win the game"
 
             // add vpToWin above its label (z-order) in case of slight overlap
-            vpToWin = new ColorSquare(ColorSquare.GREY, ga.vp_winner, sqHeight, sqHeight);
-            vpToWin.setToolTipText(TTIP_VP_TEXT);
-            add(vpToWin);
+            vpToWin = new ColorSquare( ColorSquare.GREY, ga.vp_winner, sqHeight, sqHeight );
+            vpToWin.setToolTipText( TTIP_VP_TEXT );
+            add( vpToWin );
 
-            vpToWinLab = new JLabel(strings.get("build.vp.to.win"), SwingConstants.RIGHT);  // "VP to win:"
-            vpToWinLab.setToolTipText(TTIP_VP_TEXT);
-            add(vpToWinLab);
+            vpToWinLab = new JLabel( strings.get( "build.vp.to.win" ), SwingConstants.RIGHT );  // "VP to win:"
+            vpToWinLab.setToolTipText( TTIP_VP_TEXT );
+            add( vpToWinLab );
         }
         else
         {
@@ -401,7 +401,7 @@ import javax.swing.SwingConstants;
         {
             // Special Building Phase button for 6-player game
             sbIsHilight = false;
-            sbPanel = new JPanel(null)
+            sbPanel = new JPanel( null )
             {
                 /** Custom layout for this Panel, with button and optional label centered on their own lines.
                  *  Line height is {@link ColorSquare#HEIGHT}, the same used in {@link SOCBuildingPanel#doLayout()}.
@@ -409,7 +409,7 @@ import javax.swing.SwingConstants;
                 public void doLayout()
                 {
                     final Dimension dim = getSize();
-                    final FontMetrics fm = this.getFontMetrics(this.getFont());
+                    final FontMetrics fm = this.getFontMetrics( this.getFont() );
                     if ((dim.height == 0) || (sbBut == null) || (fm == null))
                     {
                         invalidate();
@@ -423,7 +423,7 @@ import javax.swing.SwingConstants;
 
                     int btnW = sbBut.getPreferredSize().width;
                     final int btnTxtW =
-                        (8 * pi.displayScale) + sbBut.getFontMetrics(sbBut.getFont()).stringWidth(sbBut.getText());
+                        (8 * pi.displayScale) + sbBut.getFontMetrics( sbBut.getFont() ).stringWidth( sbBut.getText() );
                     if (btnTxtW > btnW)
                         btnW = btnTxtW;
                     if (btnW > dim.width)
@@ -439,75 +439,75 @@ import javax.swing.SwingConstants;
                             y = 0;
                             lineH = dim.height;
                         }
-                        sbBut.setLocation(x, y);
-                        sbBut.setSize(btnW, lineH);
+                        sbBut.setLocation( x, y );
+                        sbBut.setSize( btnW, lineH );
                     }
                     else
                     {
                         // layout on 2 lines; y == line height == half of panel height, then adjust for padding
                         int y = (dim.height / 2) - 1;
-                        sbLab.setLocation(0, 0);
-                        sbLab.setSize(dim.width, y);  // text is centered within label width
-                        sbBut.setLocation((dim.width - btnW) / 2, y);
-                        sbBut.setSize(btnW, y);
+                        sbLab.setLocation( 0, 0 );
+                        sbLab.setSize( dim.width, y );  // text is centered within label width
+                        sbBut.setLocation( (dim.width - btnW) / 2, y );
+                        sbBut.setSize( btnW, y );
                     }
                 }
             };
-            sbPanel.setBackground(ColorSquare.GREY);
+            sbPanel.setBackground( ColorSquare.GREY );
 
             if (ga.hasSeaBoard)
             {
                 // Large board: 1 line, no room for sbLab
-                sbBut = new JButton(strings.get("build.special.build"));  // "Special Build"
+                sbBut = new JButton( strings.get( "build.special.build" ) );  // "Special Build"
             }
             else
             {
                 // Classic board: 2 lines, label and button
-                sbLab = new JLabel(strings.get("build.special.build.phase"), SwingConstants.CENTER);  // "Special Building Phase"
-                sbLab.setFont(panelFont);
-                sbBut = new JButton(strings.get("build.buybuild"));  // "Buy/Build"
+                sbLab = new JLabel( strings.get( "build.special.build.phase" ), SwingConstants.CENTER );  // "Special Building Phase"
+                sbLab.setFont( panelFont );
+                sbBut = new JButton( strings.get( "build.buybuild" ) );  // "Buy/Build"
             }
-            if (SOCPlayerClient.IS_PLATFORM_WINDOWS && ! isOSHighContrast)
-                sbBut.setBackground(null);
-            sbBut.setFont(panelFont);
-            sbBut.setEnabled(false);
-            sbBut.setActionCommand(SBP);
-            sbBut.addActionListener(this);
+            if (SOCPlayerClient.IS_PLATFORM_WINDOWS && !isOSHighContrast)
+                sbBut.setBackground( null );
+            sbBut.setFont( panelFont );
+            sbBut.setEnabled( false );
+            sbBut.setActionCommand( SBP );
+            sbBut.addActionListener( this );
 
             if (sbLab != null)
-                sbPanel.add(sbLab);
-            sbPanel.add(sbBut);
-            add(sbPanel);
+                sbPanel.add( sbLab );
+            sbPanel.add( sbBut );
+            add( sbPanel );
 
-            final String TTIP_SBP_TEXT = strings.get("build.special.build.tip");
-                // "This phase allows building between player turns."
-            sbPanel.setToolTipText(TTIP_SBP_TEXT);
+            final String TTIP_SBP_TEXT = strings.get( "build.special.build.tip" );
+            // "This phase allows building between player turns."
+            sbPanel.setToolTipText( TTIP_SBP_TEXT );
             if (sbLab != null)
-                sbLab.setToolTipText(TTIP_SBP_TEXT);
+                sbLab.setToolTipText( TTIP_SBP_TEXT );
 
-            sbNeedsMorePlayers = (ga.isGameOptionSet("PLP") && (ga.getPlayerCount() < 5));
+            sbNeedsMorePlayers = (ga.isGameOptionSet( "PLP" ) && (ga.getPlayerCount() < 5));
         }
 
         // make all labels and buttons use panel's font and background color;
         // to not cut off wide button text, remove button margin since we're using custom layout anyway
         final int pix2 = 2 * pi.displayScale;
-        final Insets minMargin = new Insets(pix2, pix2, pix2, pix2);
-        final boolean shouldClearButtonBGs = SOCPlayerClient.IS_PLATFORM_WINDOWS && ! isOSHighContrast;
+        final Insets minMargin = new Insets( pix2, pix2, pix2, pix2 );
+        final boolean shouldClearButtonBGs = SOCPlayerClient.IS_PLATFORM_WINDOWS && !isOSHighContrast;
         for (Component co : getComponents())
         {
-            if (! ((co instanceof JLabel) || (co instanceof JButton)))
+            if (!((co instanceof JLabel) || (co instanceof JButton)))
                 continue;
 
-            co.setFont(panelFont);
+            co.setFont( panelFont );
             if (co instanceof JLabel)
             {
-                ((JLabel) co).setVerticalAlignment(JLabel.TOP);
+                ((JLabel) co).setVerticalAlignment( JLabel.TOP );
             }
             else
             {
-                ((JButton) co).setMargin(minMargin);
+                ((JButton) co).setMargin( minMargin );
                 if (shouldClearButtonBGs)
-                    co.setBackground(null);  // required on win32 to avoid gray corners on JButton
+                    co.setBackground( null );  // required on win32 to avoid gray corners on JButton
             }
         }
     }
@@ -527,7 +527,7 @@ import javax.swing.SwingConstants;
         final Dimension dim = getSize();
         final int maxPlayers = pi.getGame().maxPlayers;
         final boolean hasLargeBoard = pi.getGame().hasSeaBoard;
-        FontMetrics fm = this.getFontMetrics(this.getFont());
+        FontMetrics fm = this.getFontMetrics( this.getFont() );
         final int pix1 = pi.displayScale;  // 1 pixel, scaled
         final int lineH = ColorSquare.HEIGHT * pi.displayScale;  // not including rowSpaceH
         final int rowSpaceH = 4 * pi.displayScale;
@@ -536,13 +536,13 @@ import javax.swing.SwingConstants;
         int curY = margin;
         int curX;
         final int costW = roadC.getWidth() + pix1,  // left arrow for Cost colorsquares
-                  costDY = (lineH - roadC.getHeight()) / 2;  // delta-Y to center Costs within lineH
+            costDY = (lineH - roadC.getHeight()) / 2;  // delta-Y to center Costs within lineH
         final int butW = 62 * pi.displayScale;   // all Build buttons
 
-        final int roadTW = fm.stringWidth(roadT.getText()),
-                  settlementTW = fm.stringWidth(settlementT.getText()),
-                  cityTW = fm.stringWidth(cityT.getText()),
-                  cardTW = fm.stringWidth(cardT.getText());
+        final int roadTW = fm.stringWidth( roadT.getText() ),
+            settlementTW = fm.stringWidth( settlementT.getText() ),
+            cityTW = fm.stringWidth( cityT.getText() ),
+            cardTW = fm.stringWidth( cardT.getText() );
         int buttonMargin = (settlementTW > cityTW) ? settlementTW : cityTW;
         if (roadTW > buttonMargin)
             buttonMargin = roadTW;
@@ -555,44 +555,44 @@ import javax.swing.SwingConstants;
            title.setLocation(0, 0);
            curY += lineH;
          */
-        roadT.setSize(roadTW, lineH);
-        roadT.setLocation(margin, curY);
-        roadBut.setSize(butW, lineH);
-        roadBut.setLocation(buttonMargin, curY);
+        roadT.setSize( roadTW, lineH );
+        roadT.setLocation( margin, curY );
+        roadBut.setSize( butW, lineH );
+        roadBut.setLocation( buttonMargin, curY );
 
         curX = buttonMargin + butW + pix1;
-        roadC.setLocation(curX, curY + costDY);
+        roadC.setLocation( curX, curY + costDY );
         curX += costW + margin;
-        curX = layoutCostSquares(roadSq, curX, curY);  // 2 squares
+        curX = layoutCostSquares( roadSq, curX, curY );  // 2 squares
 
         if (shipBut != null)
         {
             // Ship buying button is top-center of panel
             // (2 squares over from Road)
-            final int shipTW = fm.stringWidth(shipT.getText());
+            final int shipTW = fm.stringWidth( shipT.getText() );
             curX += 2 * (sqWidth + margin);
-            shipT.setSize(shipTW, lineH);
-            shipT.setLocation(curX, curY);
+            shipT.setSize( shipTW, lineH );
+            shipT.setLocation( curX, curY );
             curX += shipTW + margin;
-            shipBut.setSize(butW, lineH);
-            shipBut.setLocation(curX, curY);
+            shipBut.setSize( butW, lineH );
+            shipBut.setLocation( curX, curY );
             curX += butW + pix1;
-            shipC.setLocation(curX, curY + costDY);
+            shipC.setLocation( curX, curY + costDY );
             curX += costW + margin;
-            layoutCostSquares(shipSq, curX, curY);  // 2 squares
+            layoutCostSquares( shipSq, curX, curY );  // 2 squares
         }
 
         curY += (rowSpaceH + lineH);
 
-        settlementT.setSize(settlementTW, lineH);
-        settlementT.setLocation(margin, curY);
-        settlementBut.setSize(butW, lineH);
-        settlementBut.setLocation(buttonMargin, curY);
+        settlementT.setSize( settlementTW, lineH );
+        settlementT.setLocation( margin, curY );
+        settlementBut.setSize( butW, lineH );
+        settlementBut.setLocation( buttonMargin, curY );
 
         curX = buttonMargin + butW + pix1;
-        settlementC.setLocation(curX, curY + costDY);
+        settlementC.setLocation( curX, curY + costDY );
         curX += costW + margin;
-        curX = layoutCostSquares(settlementSq, curX, curY);  // 4 squares
+        curX = layoutCostSquares( settlementSq, curX, curY );  // 4 squares
 
         if (maxPlayers > 4)
         {
@@ -602,68 +602,68 @@ import javax.swing.SwingConstants;
             {
                 // Large Board: 1 line, no label
                 // Leaves room for right-hand column of buttons
-                sbPanel.setSize(dim.width - curX - (2 * (butW + margin)), rowSpaceH + lineH);
-                sbPanel.setLocation(curX, curY - (rowSpaceH / 2));
+                sbPanel.setSize( dim.width - curX - (2 * (butW + margin)), rowSpaceH + lineH );
+                sbPanel.setLocation( curX, curY - (rowSpaceH / 2) );
             }
             else
             {
                 // Classic board: 2 lines, label and button
-                sbPanel.setSize(dim.width - curX - margin, rowSpaceH + 2 * lineH);
+                sbPanel.setSize( dim.width - curX - margin, rowSpaceH + 2 * lineH );
                 // sbBut.setSize(dim.width - curX - margin - 2 * buttonMargin, lineH);
                 // (can't set size, FlowLayout will override it)
-                sbPanel.setLocation(curX, curY);
+                sbPanel.setLocation( curX, curY );
             }
         }
 
         curY += (rowSpaceH + lineH);
 
-        cityT.setSize(cityTW, lineH);
-        cityT.setLocation(margin, curY);
-        cityBut.setSize(butW, lineH);
-        cityBut.setLocation(buttonMargin, curY);
+        cityT.setSize( cityTW, lineH );
+        cityT.setLocation( margin, curY );
+        cityBut.setSize( butW, lineH );
+        cityBut.setLocation( buttonMargin, curY );
 
         curX = buttonMargin + butW + pix1;
-        cityC.setLocation(curX, curY + costDY);
+        cityC.setLocation( curX, curY + costDY );
         curX += costW + margin;
-        curX = layoutCostSquares(citySq, curX, curY);  // 2 squares
+        curX = layoutCostSquares( citySq, curX, curY );  // 2 squares
 
         if (cloth != null)
         {
             // Cloth General Supply count is 3rd row, 2 squares to right of City costs
-            final int clothTW = fm.stringWidth(clothLab.getText());
+            final int clothTW = fm.stringWidth( clothLab.getText() );
             curX += 3 * (sqWidth + margin);
-            clothLab.setSize(clothTW + (2 * margin) - 1, lineH);
-            clothLab.setLocation(curX, curY);
+            clothLab.setSize( clothTW + (2 * margin) - 1, lineH );
+            clothLab.setLocation( curX, curY );
             curX += clothTW + (2 * margin);
-            cloth.setLocation(curX, curY);
+            cloth.setLocation( curX, curY );
         }
 
         if (wondersBut != null)
         {
             // Wonders button takes same place that clothLab would: 3rd row, 2 squares to right of City costs
             curX += 3 * (sqWidth + margin);
-            wondersBut.setSize(dim.width - curX - (2 * butW) - (2 * margin), lineH);
-            wondersBut.setLocation(curX, curY);
+            wondersBut.setSize( dim.width - curX - (2 * butW) - (2 * margin), lineH );
+            wondersBut.setLocation( curX, curY );
         }
 
         curY += (rowSpaceH + lineH);
 
-        cardT.setSize(cardTW, lineH);
-        cardT.setLocation(margin, curY);
-        cardBut.setSize(butW, lineH);
-        cardBut.setLocation(buttonMargin, curY);
+        cardT.setSize( cardTW, lineH );
+        cardT.setLocation( margin, curY );
+        cardBut.setSize( butW, lineH );
+        cardBut.setLocation( buttonMargin, curY );
 
         curX = buttonMargin + butW + pix1;
-        cardC.setLocation(curX, curY + costDY);
+        cardC.setLocation( curX, curY + costDY );
         curX += costW + margin;
-        curX = layoutCostSquares(cardSq, curX, curY);  // 3 squares
+        curX = layoutCostSquares( cardSq, curX, curY );  // 3 squares
 
         curX += 2 * (sqWidth + margin);
-        cardCount.setLocation(curX, curY);
-        final int cardCLabW = fm.stringWidth(cardCountLab.getText());
+        cardCount.setLocation( curX, curY );
+        final int cardCLabW = fm.stringWidth( cardCountLab.getText() );
         curX += (sqWidth + margin + 1);
-        cardCountLab.setLocation(curX, curY);
-        cardCountLab.setSize(cardCLabW + margin, lineH);
+        cardCountLab.setLocation( curX, curY );
+        cardCountLab.setSize( cardCLabW + margin, lineH );
 
         // Make sure building-cost squares don't overlap with right-hand buttons; settlementSq is rightmost of them
         int rightButW = 2 * butW;
@@ -682,36 +682,36 @@ import javax.swing.SwingConstants;
         // Options button is bottom-right of panel.
         // Game Statistics button is just above it on the classic board, top-right for large board.
         // On 4-player classic board, Options button is moved up to make room for the dev card count.
-        if ((maxPlayers <= 4) && ! hasLargeBoard)
+        if ((maxPlayers <= 4) && !hasLargeBoard)
             curY -= (lineH + (5 * pi.displayScale));
 
-        gameOptsBut.setSize(rightButW, lineH);
-        if ((maxPlayers <= 4) && ! hasLargeBoard)
-            gameOptsBut.setLocation(curX, pix1 + (rowSpaceH + lineH)); // move up to row 2; row 3 will have VP to Win
+        gameOptsBut.setSize( rightButW, lineH );
+        if ((maxPlayers <= 4) && !hasLargeBoard)
+            gameOptsBut.setLocation( curX, pix1 + (rowSpaceH + lineH) ); // move up to row 2; row 3 will have VP to Win
         else
-            gameOptsBut.setLocation(curX, curY);
-        statsBut.setSize(rightButW, lineH);
+            gameOptsBut.setLocation( curX, curY );
+        statsBut.setSize( rightButW, lineH );
         if (hasLargeBoard)
-            statsBut.setLocation(curX, pix1 + (2 * (rowSpaceH + lineH)));
+            statsBut.setLocation( curX, pix1 + (2 * (rowSpaceH + lineH)) );
         else
-            statsBut.setLocation(curX, pix1);
+            statsBut.setLocation( curX, pix1 );
 
         // VP to Win label moves to make room for various buttons.
         if (vpToWin != null)
         {
             // #VP total to Win
-            int vpLabW = fm.stringWidth(vpToWinLab.getText());
+            int vpLabW = fm.stringWidth( vpToWinLab.getText() );
 
             if (hasLargeBoard)
             {
                 // right-hand side of panel, above Game Stats
                 curY = rowSpaceH + lineH;
                 curX = dim.width - sqWidth - margin;
-                vpToWin.setLocation(curX, curY);
+                vpToWin.setLocation( curX, curY );
 
-                curX -= (vpLabW + (2*margin));
-                vpToWinLab.setLocation(curX, curY);
-                vpToWinLab.setSize(vpLabW + margin, lineH);
+                curX -= (vpLabW + (2 * margin));
+                vpToWinLab.setLocation( curX, curY );
+                vpToWinLab.setSize( vpLabW + margin, lineH );
             }
             else
             {
@@ -721,10 +721,10 @@ import javax.swing.SwingConstants;
                     // not enough room on row 1 with Game Stats button
                     curY = pix1 + (2 * (rowSpaceH + lineH));
                     curX = dim.width - sqWidth - margin;
-                    vpToWin.setLocation(curX, curY);
+                    vpToWin.setLocation( curX, curY );
 
-                    curX -= (vpLabW + (2*margin));
-                    vpToWinLab.setLocation(curX, curY);
+                    curX -= (vpLabW + (2 * margin));
+                    vpToWinLab.setLocation( curX, curY );
                 }
                 else
                 {
@@ -734,40 +734,40 @@ import javax.swing.SwingConstants;
                     curY = pix1;
                     curX = buttonMargin + butW + margin + (costW + margin) + (4 * (sqWidth + margin));
                     final int statsButX = statsBut.getX();
-                    if (curX + sqWidth + vpLabW + (2*margin) > statsButX)
+                    if (curX + sqWidth + vpLabW + (2 * margin) > statsButX)
                         curX -= (2 * (sqWidth + margin));
-                    vpToWinLab.setLocation(curX, curY);
+                    vpToWinLab.setLocation( curX, curY );
 
-                    curX += (vpLabW + (2*margin));
+                    curX += (vpLabW + (2 * margin));
                     final int xmax = statsButX - sqWidth - margin;
                     if (curX > xmax)
                     {
                         vpLabW = xmax - vpToWinLab.getX() - margin;  // clip to prevent overlap
                         curX = xmax;
                     }
-                    vpToWin.setLocation(curX, curY);
+                    vpToWin.setLocation( curX, curY );
                 }
-                vpToWinLab.setSize(vpLabW + margin, lineH);
+                vpToWinLab.setSize( vpLabW + margin, lineH );
             }
         }
     }
 
     /** For aesthetics use a certain resource-type order, not {@link SOCResourceConstants}' order. */
     private final static int[] makeCostSquares_resMap =
-        { SOCResourceConstants.WOOD, SOCResourceConstants.CLAY, SOCResourceConstants.WHEAT,
-          SOCResourceConstants.SHEEP, SOCResourceConstants.ORE };
+        {SOCResourceConstants.WOOD, SOCResourceConstants.CLAY, SOCResourceConstants.WHEAT,
+            SOCResourceConstants.SHEEP, SOCResourceConstants.ORE};
 
     /**
      * Given an item's resource cost, make an array of {@link ColorSquare}s to show the cost
      * and {@link java.awt.Container#add(Component) add(Component)} them to this panel.
      * Each ColorSquare's tooltip will get a "Cost to Build" prefix, like: "Cost to Build: Sheep"
      * @param cost  Item's cost; not {@code null}
-     * @return  ColorSquares for this item's cost
+     * @return ColorSquares for this item's cost
      * @since 2.0.00
      */
-    private ColorSquare[] makeCostSquares(final SOCResourceSet cost)
+    private ColorSquare[] makeCostSquares( final SOCResourceSet cost )
     {
-        final String costToBuild = strings.get("build.cost_to_build");  // "Cost to Build"
+        final String costToBuild = strings.get( "build.cost_to_build" );  // "Cost to Build"
         final int n = cost.getResourceTypeCount();
         final ColorSquare[] sq = new ColorSquare[n];
         final int sqHeight = ColorSquare.HEIGHT * pi.displayScale;
@@ -775,14 +775,14 @@ import javax.swing.SwingConstants;
         for (int i = 0, mapIdx = 0; i < n && mapIdx < 5; ++mapIdx)
         {
             final int res = makeCostSquares_resMap[mapIdx];  // will be in range 1 to 5
-            final int itemCost = cost.getAmount(res);
+            final int itemCost = cost.getAmount( res );
             if (itemCost == 0)
                 continue;
 
-            final ColorSquare s = new ColorSquare(ColorSquare.RESOURCE_COLORS[res - 1], itemCost, sqHeight, sqHeight);
-            s.setToolTipText(costToBuild + ": " + s.getToolTipText());  // "Cost to Build: Sheep" etc
+            final ColorSquare s = new ColorSquare( ColorSquare.RESOURCE_COLORS[res - 1], itemCost, sqHeight, sqHeight );
+            s.setToolTipText( costToBuild + ": " + s.getToolTipText() );  // "Cost to Build: Sheep" etc
             sq[i] = s;
-            add(s);
+            add( s );
             ++i;
         }
 
@@ -799,13 +799,13 @@ import javax.swing.SwingConstants;
      *    distance from passed-in {@code curX} will be {@code sq.length} * ({@link ColorSquare#WIDTH} + 2).
      * @since 2.0.00
      */
-    private int layoutCostSquares(final ColorSquare[] sq, int curX, final int curY)
+    private int layoutCostSquares( final ColorSquare[] sq, int curX, final int curY )
     {
         final int sqWidth = ColorSquare.WIDTH * pi.displayScale, step = sqWidth + (2 * pi.displayScale);
         for (int i = 0; i < sq.length; ++i, curX += step)
         {
-            sq[i].setSize(sqWidth, sqWidth);
-            sq[i].setLocation(curX, curY);
+            sq[i].setSize( sqWidth, sqWidth );
+            sq[i].setLocation( curX, curY );
         }
 
         return curX;
@@ -816,7 +816,7 @@ import javax.swing.SwingConstants;
      *
      * @param e button click event
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed( ActionEvent e )
     {
         try
         {
@@ -888,22 +888,22 @@ import javax.swing.SwingConstants;
      * @param doNotClearPopup Do not call {@link SOCBoardPanel#popupClearBuildRequest()}
      * @since 1.1.00
      */
-    public void clickBuildingButton(SOCGame game, String target, boolean doNotClearPopup)
+    public void clickBuildingButton( SOCGame game, String target, boolean doNotClearPopup )
     {
         SOCPlayerClient client = pi.getClient();
 
-        if (! doNotClearPopup)
+        if (!doNotClearPopup)
             pi.getBoardPanel().popupClearBuildRequest();  // Just in case
 
         final boolean isCurrent = pi.clientIsCurrentPlayer();
         final int gstate = game.getGameState();
         final boolean canAskSBP =
-            game.canAskSpecialBuild(player.getPlayerNumber(), false)
-            && ! sbIsHilight;
+            game.canAskSpecialBuild( player.getPlayerNumber(), false )
+                && !sbIsHilight;
         final boolean stateBuyOK =        // same as in updateButtonStatus.
             (isCurrent)
-            ? ((gstate == SOCGame.PLAY1) || (gstate == SOCGame.SPECIAL_BUILDING))
-            : canAskSBP;
+                ? ((gstate == SOCGame.PLAY1) || (gstate == SOCGame.SPECIAL_BUILDING))
+                : canAskSBP;
         final GameMessageSender messageSender = client.getGameMessageSender();
 
         int sendBuildRequest = -9;  // will send buildRequest if this changes
@@ -921,7 +921,7 @@ import javax.swing.SwingConstants;
             }
             else if ((pieceButtonsState == SOCGame.PLACING_ROAD) || (pieceButtonsState == SOCGame.PLACING_FREE_ROAD2))
             {
-                messageSender.cancelBuildRequest(game, SOCPlayingPiece.ROAD);
+                messageSender.cancelBuildRequest( game, SOCPlayingPiece.ROAD );
             }
         }
         else if (target == STLMT)
@@ -935,7 +935,7 @@ import javax.swing.SwingConstants;
             }
             else if (pieceButtonsState == SOCGame.PLACING_SETTLEMENT)
             {
-                messageSender.cancelBuildRequest(game, SOCPlayingPiece.SETTLEMENT);
+                messageSender.cancelBuildRequest( game, SOCPlayingPiece.SETTLEMENT );
             }
         }
         else if (target == CITY)
@@ -949,7 +949,7 @@ import javax.swing.SwingConstants;
             }
             else if (pieceButtonsState == SOCGame.PLACING_CITY)
             {
-                messageSender.cancelBuildRequest(game, SOCPlayingPiece.CITY);
+                messageSender.cancelBuildRequest( game, SOCPlayingPiece.CITY );
             }
         }
         else if (target == CARD)
@@ -958,7 +958,7 @@ import javax.swing.SwingConstants;
             {
                 if (stateBuyOK || canAskSBP)
                 {
-                    messageSender.buyDevCard(game);
+                    messageSender.buyDevCard( game );
                     pi.getClientHand().disableBankUndoButton();
                 }
             }
@@ -974,7 +974,7 @@ import javax.swing.SwingConstants;
             }
             else if ((pieceButtonsState == SOCGame.PLACING_SHIP) || (pieceButtonsState == SOCGame.PLACING_FREE_ROAD2))
             {
-                messageSender.cancelBuildRequest(game, SOCPlayingPiece.SHIP);
+                messageSender.cancelBuildRequest( game, SOCPlayingPiece.SHIP );
             }
         }
         else if (target == SBP)
@@ -983,18 +983,18 @@ import javax.swing.SwingConstants;
                 sendBuildRequest = -1;
             else if (sbNeedsMorePlayers)
                 NotifyDialog.createAndShow
-                    (pi.getMainDisplay(), pi,
-                     strings.get("action.build.cannot.special.PLP.common"), null, true);
-                         // "House rule: Special Building phase requires 5 or 6 players."
+                    ( pi.getMainDisplay(), pi,
+                        strings.get( "action.build.cannot.special.PLP.common" ), null, true );
+            // "House rule: Special Building phase requires 5 or 6 players."
         }
 
         if (sendBuildRequest != -9)
         {
             final SOCHandPanel chp = pi.getClientHand();
             if (isCurrent && (sendBuildRequest == -1))
-                chp.setRollPrompt(null, true);  // clear the auto-roll countdown
+                chp.setRollPrompt( null, true );  // clear the auto-roll countdown
 
-            messageSender.buildRequest(game, sendBuildRequest);
+            messageSender.buildRequest( game, sendBuildRequest );
             chp.disableBankUndoButton();
         }
     }
@@ -1010,13 +1010,13 @@ import javax.swing.SwingConstants;
         throws IllegalStateException
     {
         if (wondersBut == null)
-            throw new IllegalStateException("game not SC_WOND");
+            throw new IllegalStateException( "game not SC_WOND" );
 
-        final SOCSpecialItemDialog dia = new SOCSpecialItemDialog(pi, SOCGameOptionSet.K_SC_WOND);
-        dia.setNonBlockingDialogDismissListener(pi);
+        final SOCSpecialItemDialog dia = new SOCSpecialItemDialog( pi, SOCGameOptionSet.K_SC_WOND );
+        dia.setNonBlockingDialogDismissListener( pi );
         pi.nbdForEvent = dia;
         dia.pack();
-        dia.setVisible(true);  // is modal but other players' gameplay can continue (separate threads)
+        dia.setVisible( true );  // is modal but other players' gameplay can continue (separate threads)
     }
 
     /**
@@ -1035,98 +1035,98 @@ import javax.swing.SwingConstants;
         {
             final int pnum = player.getPlayerNumber();
             final boolean isDebugFreePlacement = game.isDebugFreePlacement();
-            final boolean isCurrent = (! isDebugFreePlacement)
+            final boolean isCurrent = (!isDebugFreePlacement)
                 && (game.getCurrentPlayerNumber() == pnum);
             final int gstate = game.getGameState();
-            boolean currentCanBuy = (! isDebugFreePlacement)
-                && game.canBuyOrAskSpecialBuild(pnum);
+            boolean currentCanBuy = (!isDebugFreePlacement)
+                && game.canBuyOrAskSpecialBuild( pnum );
 
             if (isCurrent && ((gstate == SOCGame.PLACING_ROAD)
-                    || ((gstate == SOCGame.PLACING_FREE_ROAD2)
-                        && (   game.isPractice
+                || ((gstate == SOCGame.PLACING_FREE_ROAD2)
+                && (game.isPractice
                             || pi.getClient().getConnection().getRemoteVersion() >= SOCGame.VERSION_FOR_CANCEL_FREE_ROAD2))))
             {
-                roadBut.setEnabled(true);
-                roadBut.setText(strings.get("base.cancel"));  // "Cancel"
+                roadBut.setEnabled( true );
+                roadBut.setText( strings.get( "base.cancel" ) );  // "Cancel"
                 pieceButtonsState = (gstate == SOCGame.PLACING_FREE_ROAD2) ? gstate : SOCGame.PLACING_ROAD;
             }
-            else if (game.couldBuildRoad(pnum))
+            else if (game.couldBuildRoad( pnum ))
             {
-                roadBut.setEnabled(currentCanBuy);
-                roadBut.setText(strings.get("build.buy"));  // "Buy"
+                roadBut.setEnabled( currentCanBuy );
+                roadBut.setText( strings.get( "build.buy" ) );  // "Buy"
             }
             else
             {
-                roadBut.setEnabled(false);
-                roadBut.setText("---");
+                roadBut.setEnabled( false );
+                roadBut.setText( "---" );
             }
 
             if (isCurrent &&
                 ((gstate == SOCGame.PLACING_SETTLEMENT) || (gstate == SOCGame.START1B)
-                 || (gstate == SOCGame.START2B) || (gstate == SOCGame.START3B)) )
+                    || (gstate == SOCGame.START2B) || (gstate == SOCGame.START3B)))
             {
-                settlementBut.setEnabled(true);
-                settlementBut.setText(strings.get("base.cancel"));
+                settlementBut.setEnabled( true );
+                settlementBut.setText( strings.get( "base.cancel" ) );
                 pieceButtonsState = SOCGame.PLACING_SETTLEMENT;
             }
-            else if (game.couldBuildSettlement(pnum))
+            else if (game.couldBuildSettlement( pnum ))
             {
-                settlementBut.setEnabled(currentCanBuy);
-                settlementBut.setText(strings.get("build.buy"));
+                settlementBut.setEnabled( currentCanBuy );
+                settlementBut.setText( strings.get( "build.buy" ) );
             }
             else
             {
-                settlementBut.setEnabled(false);
-                settlementBut.setText("---");
+                settlementBut.setEnabled( false );
+                settlementBut.setText( "---" );
             }
 
             if (isCurrent && (gstate == SOCGame.PLACING_CITY))
             {
-                cityBut.setEnabled(true);
-                cityBut.setText(strings.get("base.cancel"));
+                cityBut.setEnabled( true );
+                cityBut.setText( strings.get( "base.cancel" ) );
                 pieceButtonsState = SOCGame.PLACING_CITY;
             }
-            else if (game.couldBuildCity(pnum))
+            else if (game.couldBuildCity( pnum ))
             {
-                cityBut.setEnabled(currentCanBuy);
-                cityBut.setText(strings.get("build.buy"));
+                cityBut.setEnabled( currentCanBuy );
+                cityBut.setText( strings.get( "build.buy" ) );
             }
             else
             {
-                cityBut.setEnabled(false);
-                cityBut.setText("---");
+                cityBut.setEnabled( false );
+                cityBut.setText( "---" );
             }
 
-            if (game.couldBuyDevCard(pnum))
+            if (game.couldBuyDevCard( pnum ))
             {
-                cardBut.setEnabled(currentCanBuy);
-                cardBut.setText(strings.get("build.buy"));
+                cardBut.setEnabled( currentCanBuy );
+                cardBut.setText( strings.get( "build.buy" ) );
             }
             else
             {
-                cardBut.setEnabled(false);
-                cardBut.setText("---");
+                cardBut.setEnabled( false );
+                cardBut.setText( "---" );
             }
 
             if (shipBut != null)
             {
                 if (isCurrent && ((gstate == SOCGame.PLACING_SHIP) || (gstate == SOCGame.PLACING_FREE_ROAD2)))
                 {
-                    shipBut.setEnabled(true);
-                    shipBut.setText(strings.get("base.cancel"));
+                    shipBut.setEnabled( true );
+                    shipBut.setText( strings.get( "base.cancel" ) );
                     pieceButtonsState = gstate;  // PLACING_SHIP or PLACING_FREE_ROAD2
                     // ships were added after VERSION_FOR_CANCEL_FREE_ROAD2, so no need to check server version
                     // to make sure the server supports canceling.
                 }
-                else if (game.couldBuildShip(pnum))
+                else if (game.couldBuildShip( pnum ))
                 {
-                    shipBut.setEnabled(currentCanBuy);
-                    shipBut.setText(strings.get("build.buy"));
+                    shipBut.setEnabled( currentCanBuy );
+                    shipBut.setText( strings.get( "build.buy" ) );
                 }
                 else
                 {
-                    shipBut.setEnabled(false);
-                    shipBut.setText("---");
+                    shipBut.setEnabled( false );
+                    shipBut.setText( "---" );
                 }
             }
 
@@ -1137,19 +1137,19 @@ import javax.swing.SwingConstants;
                 {
                     final Color want =
                         (askedSB)
-                        ? ColorSquare.WARN_LEVEL_COLOR_BG_FROMGREY
-                        : ColorSquare.GREY;
-                    sbPanel.setBackground(want);
+                            ? ColorSquare.WARN_LEVEL_COLOR_BG_FROMGREY
+                            : ColorSquare.GREY;
+                    sbPanel.setBackground( want );
                     if (sbLab != null)
-                        sbLab.setBackground(want);
+                        sbLab.setBackground( want );
                     sbIsHilight = askedSB;
                 }
 
                 final boolean enable =
                     (sbNeedsMorePlayers)
-                    ? ((! isCurrent) && (gstate >= SOCGame.ROLL_OR_CARD))
-                    : (game.canAskSpecialBuild(pnum, false) && ! askedSB);
-                sbBut.setEnabled(enable);
+                        ? ((!isCurrent) && (gstate >= SOCGame.ROLL_OR_CARD))
+                        : (game.canAskSpecialBuild( pnum, false ) && !askedSB);
+                sbBut.setEnabled( enable );
             }
         }
     }
@@ -1162,7 +1162,7 @@ import javax.swing.SwingConstants;
     public void updateDevCardCount()
     {
         int newCount = pi.getGame().getNumDevCards();
-        cardCount.setIntValue(newCount);
+        cardCount.setIntValue( newCount );
     }
 
     /**
@@ -1187,7 +1187,7 @@ import javax.swing.SwingConstants;
     public void updatePlayerCount()
     {
         final SOCGame game = pi.getGame();
-        if ((game.maxPlayers < 6) || ! game.isGameOptionSet("PLP"))
+        if ((game.maxPlayers < 6) || !game.isGameOptionSet( "PLP" ))
             return;
 
         final boolean newStatus = (game.getPlayerCount() < 5);
@@ -1217,12 +1217,12 @@ import javax.swing.SwingConstants;
         if (cliPl == player)
             return;  // ignore duplicate call from extra SitDown message when loading saved game
 
-        if ((player != null) && ! game.isBoardReset())
-            throw new IllegalStateException("Player data is already set");
+        if ((player != null) && !game.isBoardReset())
+            throw new IllegalStateException( "Player data is already set" );
 
         player = cliPl;
         if (cliPl == null)
-            throw new IllegalStateException("null PI.clientPlayer");
+            throw new IllegalStateException( "null PI.clientPlayer" );
     }
 
     /**
@@ -1230,29 +1230,41 @@ import javax.swing.SwingConstants;
      * drop our reference to it so it can be gc'd.
      * @since 1.1.18
      */
-    public void windowClosed(WindowEvent e)
+    public void windowClosed( WindowEvent e )
     {
         if (e.getWindow() == ngof)
             ngof = null;
     }
 
     /** Required stub for {@link WindowListener} */
-    public void windowClosing(WindowEvent e) {}
+    public void windowClosing( WindowEvent e )
+    {
+    }
 
     /** Required stub for {@link WindowListener} */
-    public void windowOpened(WindowEvent e) {}
+    public void windowOpened( WindowEvent e )
+    {
+    }
 
     /** Required stub for {@link WindowListener} */
-    public void windowIconified(WindowEvent e) {}
+    public void windowIconified( WindowEvent e )
+    {
+    }
 
     /** Required stub for {@link WindowListener} */
-    public void windowDeiconified(WindowEvent e) {}
+    public void windowDeiconified( WindowEvent e )
+    {
+    }
 
     /** Required stub for {@link WindowListener} */
-    public void windowActivated(WindowEvent e) {}
+    public void windowActivated( WindowEvent e )
+    {
+    }
 
     /** Required stub for {@link WindowListener} */
-    public void windowDeactivated(WindowEvent e) {}
+    public void windowDeactivated( WindowEvent e )
+    {
+    }
 
     /**
      * Contains a left-pointing arrowhead (a triangle) that fills its height and width.
@@ -1266,17 +1278,17 @@ import javax.swing.SwingConstants;
          * (or system colors if null).
          */
         public ArrowheadPanel
-            (final int width, final int height, final String tooltipText, final Component colorsFrom)
+        ( final int width, final int height, final String tooltipText, final Component colorsFrom )
         {
-            setOpaque(true);
+            setOpaque( true );
             if (colorsFrom != null)
             {
-                setBackground(colorsFrom.getBackground());
-                setForeground(colorsFrom.getForeground());
+                setBackground( colorsFrom.getBackground() );
+                setForeground( colorsFrom.getForeground() );
             }
             else
             {
-                final Color[] sysColors = SwingMainDisplay.getForegroundBackgroundColors(false, true);
+                final Color[] sysColors = SwingMainDisplay.getForegroundBackgroundColors( false, true );
                 if (null != sysColors)
                 {
                     setForeground( sysColors[0] );
@@ -1285,30 +1297,30 @@ import javax.swing.SwingConstants;
             }
 
             if (tooltipText != null)
-                setToolTipText(tooltipText);
+                setToolTipText( tooltipText );
 
-            final Dimension initSize = new Dimension(width, height);
-            setSize(initSize);
-            setMinimumSize(initSize);
-            setPreferredSize(initSize);
+            final Dimension initSize = new Dimension( width, height );
+            setSize( initSize );
+            setMinimumSize( initSize );
+            setPreferredSize( initSize );
         }
 
         @Override
-        public void paintComponent(Graphics g)
+        public void paintComponent( Graphics g )
         {
             Insets ins = getInsets();
             final int x = ins.left,
-                      y = ins.top,
-                      w = getWidth() - x - ins.right,
-                      h = getHeight() - y - ins.bottom;
-            g.setColor(getBackground());
-            g.fillRect(x, y, w, h);
+                y = ins.top,
+                w = getWidth() - x - ins.right,
+                h = getHeight() - y - ins.bottom;
+            g.setColor( getBackground() );
+            g.fillRect( x, y, w, h );
             if (g instanceof Graphics2D)
-                ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            int[] xp = { x, x + w, x + w };
-            int[] yp = { h/2 + y, y, y + h };
-            g.setColor(getForeground());
-            g.fillPolygon(xp, yp, 3);
+                ((Graphics2D) g).setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
+            int[] xp = {x, x + w, x + w};
+            int[] yp = {h / 2 + y, y, y + h};
+            g.setColor( getForeground() );
+            g.fillPolygon( xp, yp, 3 );
         }
 
     }  // nested class ArrowheadPanel

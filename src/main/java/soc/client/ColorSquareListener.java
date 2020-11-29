@@ -36,5 +36,5 @@ public interface ColorSquareListener
      * @param newValue The new value after clicking; for boolean squares,
      *                 unchecked/no is 0 and checked/yes is 1.
      */
-    public void squareChanged(ColorSquare sq, int oldValue, int newValue);
+    void squareChanged(ColorSquare sq, int oldValue, int newValue);
 }

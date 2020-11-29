@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2007-2010,2012-2015,2019-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -47,10 +47,10 @@ import javax.swing.SwingConstants;
  * For convenience with {@link java.awt.EventQueue#invokeLater(Runnable)},
  * contains a {@link #run()} method which calls {@link #setVisible(boolean) setVisible(true)}.
  *
- * @author  Robert S. Thomas
+ * @author Robert S. Thomas
  */
 @SuppressWarnings("serial")
-/*package*/ class SOCChoosePlayerDialog
+    /*package*/ class SOCChoosePlayerDialog
     extends SOCDialog implements ActionListener, Runnable
 {
     /**
@@ -115,12 +115,12 @@ import javax.swing.SwingConstants;
      *            (used with game scenario {@code SC_PIRI})
      */
     public SOCChoosePlayerDialog
-        (final SOCPlayerInterface pi, final int num, final int[] p, final boolean allowChooseNone)
+    ( final SOCPlayerInterface pi, final int num, final int[] p, final boolean allowChooseNone )
     {
         super
-            (pi, strings.get("dialog.robchoose.choose.player"),  // "Choose Player"
-             strings.get("dialog.robchoose.please.choose"),  // "Please choose a player to steal from:"
-             false);
+            ( pi, strings.get( "dialog.robchoose.choose.player" ),  // "Choose Player"
+                strings.get( "dialog.robchoose.please.choose" ),  // "Please choose a player to steal from:"
+                false );
 
         number = (allowChooseNone) ? (num + 1) : num;
         players = p;
@@ -135,11 +135,11 @@ import javax.swing.SwingConstants;
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.ipady = 3;
-        gbc.insets = new Insets(2, 4, 2, 4);  // horiz. and bit of vertical padding
+        gbc.insets = new Insets( 2, 4, 2, 4 );  // horiz. and bit of vertical padding
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
 
-        btnsPane.setLayout(gbl);
+        btnsPane.setLayout( gbl );
 
         buttons = new JButton[number];
         player_res_lbl = new JLabel[number];
@@ -147,50 +147,50 @@ import javax.swing.SwingConstants;
         final SOCGame ga = pi.getGame();
 
         final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
-        final boolean shouldClearButtonBGs = (! isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
+        final boolean shouldClearButtonBGs = (!isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
         for (int i = 0; i < num; i++)
         {
-            SOCPlayer pl = ga.getPlayer(players[i]);
+            SOCPlayer pl = ga.getPlayer( players[i] );
 
-            buttons[i] = new JButton(pl.getName());
-            buttons[i].addActionListener(this);
+            buttons[i] = new JButton( pl.getName() );
+            buttons[i].addActionListener( this );
             if (shouldClearButtonBGs)
-                buttons[i].setBackground(null);  // inherit from panel: avoid gray corners on win32
+                buttons[i].setBackground( null );  // inherit from panel: avoid gray corners on win32
 
             final int rescount = pl.getResources().getTotal();
             final int vpcount = pl.getPublicVP();
             JLabel pLabel = new JLabel
-                (strings.get("dialog.robchoose.n.res.n.vp", rescount, vpcount), SwingConstants.CENTER);
-                // "{0} res, {1} VP"
-            SOCHandPanel ph = pi.getPlayerHandPanel(players[i]);
-            pLabel.setBackground(ph.getBackground());
-            pLabel.setForeground(ph.getForeground());
-            pLabel.setOpaque(true);
-            pLabel.setFont(panelFont);
-            pLabel.setToolTipText(strings.get("dialog.robchoose.player.has.n.rsrcs", rescount));
-                // "This player has 1 resource.", "This player has {0} resources."
-                // 0 resources is possible if they have cloth. (SC_CLVI)
+                ( strings.get( "dialog.robchoose.n.res.n.vp", rescount, vpcount ), SwingConstants.CENTER );
+            // "{0} res, {1} VP"
+            SOCHandPanel ph = pi.getPlayerHandPanel( players[i] );
+            pLabel.setBackground( ph.getBackground() );
+            pLabel.setForeground( ph.getForeground() );
+            pLabel.setOpaque( true );
+            pLabel.setFont( panelFont );
+            pLabel.setToolTipText( strings.get( "dialog.robchoose.player.has.n.rsrcs", rescount ) );
+            // "This player has 1 resource.", "This player has {0} resources."
+            // 0 resources is possible if they have cloth. (SC_CLVI)
 
             player_res_lbl[i] = pLabel;
         }
 
         if (allowChooseNone)
         {
-            JButton bNone = new JButton(strings.get("base.none"));  // "None"
+            JButton bNone = new JButton( strings.get( "base.none" ) );  // "None"
             if (shouldClearButtonBGs)
-                bNone.setBackground(null);
+                bNone.setBackground( null );
             buttons[num] = bNone;
 
-            bNone.setToolTipText(strings.get("dialog.robchoose.choose.steal.no.player"));
-                // "Choose this to steal from no player"
-            bNone.addActionListener(this);
+            bNone.setToolTipText( strings.get( "dialog.robchoose.choose.steal.no.player" ) );
+            // "Choose this to steal from no player"
+            bNone.addActionListener( this );
 
             players[num] = SOCChoosePlayer.CHOICE_NO_PLAYER;
 
-            JLabel lNone = new JLabel(strings.get("dialog.robchoose.decline"), SwingConstants.CENTER);  // "(decline)"
-            if (! isOSHighContrast)
-                lNone.setForeground(null);
-            lNone.setFont(panelFont);
+            JLabel lNone = new JLabel( strings.get( "dialog.robchoose.decline" ), SwingConstants.CENTER );  // "(decline)"
+            if (!isOSHighContrast)
+                lNone.setForeground( null );
+            lNone.setFont( panelFont );
             player_res_lbl[num] = lNone;
         }
 
@@ -204,20 +204,20 @@ import javax.swing.SwingConstants;
             gbc.gridwidth = 1;
             for (int i = 0; i < n; ++i)
             {
-                if (i == (n-1))
+                if (i == (n - 1))
                     gbc.gridwidth = GridBagConstraints.REMAINDER;
-                gbl.setConstraints(buttons[i], gbc);
-                btnsPane.add(buttons[i]);
+                gbl.setConstraints( buttons[i], gbc );
+                btnsPane.add( buttons[i] );
             }
 
             gbc.gridwidth = 1;
             gbc.ipadx = 32;
             for (int i = 0; i < n; ++i)
             {
-                if (i == (n-1))
+                if (i == (n - 1))
                     gbc.gridwidth = GridBagConstraints.REMAINDER;
-                gbl.setConstraints(player_res_lbl[i], gbc);
-                btnsPane.add(player_res_lbl[i]);
+                gbl.setConstraints( player_res_lbl[i], gbc );
+                btnsPane.add( player_res_lbl[i] );
             }
         }
         else
@@ -228,13 +228,13 @@ import javax.swing.SwingConstants;
             {
                 gbc.gridwidth = 1;
                 gbc.ipadx = 0;
-                gbl.setConstraints(buttons[i], gbc);
-                btnsPane.add(buttons[i]);
+                gbl.setConstraints( buttons[i], gbc );
+                btnsPane.add( buttons[i] );
 
                 gbc.gridwidth = GridBagConstraints.REMAINDER;
                 gbc.ipadx = 32;
-                gbl.setConstraints(player_res_lbl[i], gbc);
-                btnsPane.add(player_res_lbl[i]);
+                gbl.setConstraints( player_res_lbl[i], gbc );
+                btnsPane.add( player_res_lbl[i] );
             }
         }
     }
@@ -247,7 +247,7 @@ import javax.swing.SwingConstants;
      *
      * @param e AWT event, from a button source
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed( ActionEvent e )
     {
         try
         {

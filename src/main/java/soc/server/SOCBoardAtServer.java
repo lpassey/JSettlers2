@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2012-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 
@@ -185,7 +185,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * In {@code _SC_FTRI}, each item is a {@link SOCDevCardConstants} card type.
      */
     private Stack<Integer> drawStack;
-        // if you add a scenario here that uses drawStack, also update the SOCBoardLarge.drawItemFromStack javadoc.
+    // if you add a scenario here that uses drawStack, also update the SOCBoardLarge.drawItemFromStack javadoc.
 
     /**
      * For game scenario option {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI},
@@ -215,14 +215,14 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @throws IllegalArgumentException if <tt>maxPlayers</tt> is not 4 or 6, or <tt>boardHeightWidth</tt> is null
      */
     public SOCBoardAtServer
-        (final SOCGameOptionSet gameOpts, final int maxPlayers, final IntPair boardHeightWidth)
+    ( final SOCGameOptionSet gameOpts, final int maxPlayers, final IntPair boardHeightWidth )
         throws IllegalArgumentException
     {
-        super(gameOpts, maxPlayers, boardHeightWidth);
+        super( gameOpts, maxPlayers, boardHeightWidth );
 
-        int[] boardVS = getBoardShift(gameOpts);
+        int[] boardVS = getBoardShift( gameOpts );
         if (boardVS != null)
-            setAddedLayoutPart("VS", boardVS);
+            setAddedLayoutPart( "VS", boardVS );
     }
 
     /**
@@ -230,7 +230,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * The listener field is static, it will be called for all boards.
      * @param li  Listener to use, or {@code null} to remove the current listener if any.
      */
-    public static void setNewBoardProgressListener(final NewBoardProgressListener li)
+    public static void setNewBoardProgressListener( final NewBoardProgressListener li )
     {
         newBoardProgressListener = li;
     }
@@ -268,7 +268,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @param dice  Rolled dice number
      * @return true if any cloth was distributed
      */
-    public boolean distributeClothFromRoll(SOCGame game, SOCGame.RollResult rollRes, final int dice)
+    public boolean distributeClothFromRoll( SOCGame game, SOCGame.RollResult rollRes, final int dice )
     {
         if ((villages == null) || villages.isEmpty())
             return false;
@@ -293,14 +293,14 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * If the pirate fleet is already defeated (all fortresses recaptured), returns 0.
      *
      * @param numSteps  Number of steps to move along the path
-     * @return  new pirate hex coordinate, or 0
+     * @return new pirate hex coordinate, or 0
      * @throws IllegalStateException if this board doesn't have layout part "PP" for the Pirate Path.
      */
     @Override
-    public int movePirateHexAlongPath(final int numSteps)
+    public int movePirateHexAlongPath( final int numSteps )
         throws IllegalStateException
     {
-        final int[] path = getAddedLayoutPart("PP");
+        final int[] path = getAddedLayoutPart( "PP" );
         if (path == null)
             throw new IllegalStateException();
         if (pirateHex == 0)
@@ -312,7 +312,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         piratePathIndex = i;
         final int ph = path[i];
 
-        setPirateHex(ph, true);
+        setPirateHex( ph, true );
         return ph;
     }
 
@@ -342,16 +342,16 @@ public class SOCBoardAtServer extends SOCBoardLarge
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void makeNewBoard(final SOCGameOptionSet opts)
+    public void makeNewBoard( final SOCGameOptionSet opts )
     {
-        final SOCGameOption opt_breakClumps = (opts != null ? opts.get("BC") : null);
+        final SOCGameOption opt_breakClumps = (opts != null ? opts.get( "BC" ) : null);
 
-        SOCGameOption opt = (opts != null ? opts.get(SOCGameOptionSet.K_SC_FOG) : null);
+        SOCGameOption opt = (opts != null ? opts.get( SOCGameOptionSet.K_SC_FOG ) : null);
         final boolean hasScenarioFog = (opt != null) && opt.getBoolValue();
 
         final String scen;  // scenario key, such as SOCScenario.K_SC_4ISL, or empty string
         {
-            final SOCGameOption optSC = (opts != null ? opts.get("SC") : null);
+            final SOCGameOption optSC = (opts != null ? opts.get( "SC" ) : null);
             if (optSC != null)
             {
                 final String ostr = optSC.getStringValue();
@@ -364,7 +364,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         }
 
         /** _SC_4ISL doesn't require startingLandArea, it remains 0; all other scenarios require it. */
-        final boolean hasScenario4ISL = scen.equals(SOCScenario.K_SC_4ISL);
+        final boolean hasScenario4ISL = scen.equals( SOCScenario.K_SC_4ISL );
 
         // Before reading the "overview" comment paragraphs here, read
         // the class javadoc's "To Add a New Board" section for context.
@@ -379,7 +379,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         }
         else
         {
-            opt = (opts != null ? opts.get("PL") : null);
+            opt = (opts != null ? opts.get( "PL" ) : null);
             if (opt == null)
                 maxPl = 4;
             else if (opt.getIntValue() > 4)
@@ -390,7 +390,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
         // Players must start on Land Area 1 (mainland, or for SC_FOG the two large islands),
         // unless hasScenario4ISL. Set that field now, in case a board-setup method wants it.
-        if (! hasScenario4ISL)
+        if (!hasScenario4ISL)
             startingLandArea = 1;
 
         // Shuffle and place the land hexes, numbers, and robber:
@@ -403,9 +403,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
         final int[] PORTS_TYPES_ISLANDS;
         final int[] PORT_LOC_FACING_MAINLAND;  // port edge locations and facings
         final int[] PORT_LOC_FACING_ISLANDS;
-            // Either PORTS_TYPES_MAINLAND or PORTS_TYPES_ISLANDS can be null.
-            // PORTS_TYPES_MAINLAND will be checked for "clumps" of several adjacent 3-for-1 or 2-for-1
-            // ports in makeNewBoard_shufflePorts. PORTS_TYPES_ISLANDS will not be checked.
+        // Either PORTS_TYPES_MAINLAND or PORTS_TYPES_ISLANDS can be null.
+        // PORTS_TYPES_MAINLAND will be checked for "clumps" of several adjacent 3-for-1 or 2-for-1
+        // ports in makeNewBoard_shufflePorts. PORTS_TYPES_ISLANDS will not be checked.
 
         if (hasScenario4ISL)
         {
@@ -415,22 +415,22 @@ public class SOCBoardAtServer extends SOCBoardLarge
             {
                 landAreasLegalNodes = new HashSet[5];
                 makeNewBoard_placeHexes
-                    (FOUR_ISL_LANDHEX_TYPE_3PL, FOUR_ISL_LANDHEX_COORD_3PL, false, FOUR_ISL_DICENUM_3PL, true, true,
-                     FOUR_ISL_LANDHEX_LANDAREA_RANGES_3PL, false, false, maxPl, opt_breakClumps, scen, opts);
+                    ( FOUR_ISL_LANDHEX_TYPE_3PL, FOUR_ISL_LANDHEX_COORD_3PL, false, FOUR_ISL_DICENUM_3PL, true, true,
+                        FOUR_ISL_LANDHEX_LANDAREA_RANGES_3PL, false, false, maxPl, opt_breakClumps, scen, opts );
                 PORTS_TYPES_MAINLAND = FOUR_ISL_PORT_TYPE_3PL;
                 PORT_LOC_FACING_MAINLAND = FOUR_ISL_PORT_EDGE_FACING_3PL;
-                setRobberHex(FOUR_ISL_ROBBER_HEX[0], false);
+                setRobberHex( FOUR_ISL_ROBBER_HEX[0], false );
                 pirateHex = FOUR_ISL_PIRATE_HEX[0];
             }
             else if (maxPl != 6)
             {
                 landAreasLegalNodes = new HashSet[5];
                 makeNewBoard_placeHexes
-                    (FOUR_ISL_LANDHEX_TYPE_4PL, FOUR_ISL_LANDHEX_COORD_4PL, false, FOUR_ISL_DICENUM_4PL, true, true,
-                     FOUR_ISL_LANDHEX_LANDAREA_RANGES_4PL, false, false, maxPl, opt_breakClumps, scen, opts);
+                    ( FOUR_ISL_LANDHEX_TYPE_4PL, FOUR_ISL_LANDHEX_COORD_4PL, false, FOUR_ISL_DICENUM_4PL, true, true,
+                        FOUR_ISL_LANDHEX_LANDAREA_RANGES_4PL, false, false, maxPl, opt_breakClumps, scen, opts );
                 PORTS_TYPES_MAINLAND = FOUR_ISL_PORT_TYPE_4PL;
                 PORT_LOC_FACING_MAINLAND = FOUR_ISL_PORT_EDGE_FACING_4PL;
-                setRobberHex(FOUR_ISL_ROBBER_HEX[1], false);
+                setRobberHex( FOUR_ISL_ROBBER_HEX[1], false );
                 pirateHex = FOUR_ISL_PIRATE_HEX[1];
             }
             else
@@ -438,8 +438,8 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 // Six Islands
                 landAreasLegalNodes = new HashSet[7];
                 makeNewBoard_placeHexes
-                    (FOUR_ISL_LANDHEX_TYPE_6PL, FOUR_ISL_LANDHEX_COORD_6PL, false, FOUR_ISL_DICENUM_6PL, true, true,
-                     FOUR_ISL_LANDHEX_LANDAREA_RANGES_6PL, false, false, maxPl, opt_breakClumps, scen, opts);
+                    ( FOUR_ISL_LANDHEX_TYPE_6PL, FOUR_ISL_LANDHEX_COORD_6PL, false, FOUR_ISL_DICENUM_6PL, true, true,
+                        FOUR_ISL_LANDHEX_LANDAREA_RANGES_6PL, false, false, maxPl, opt_breakClumps, scen, opts );
                 PORTS_TYPES_MAINLAND = FOUR_ISL_PORT_TYPE_6PL;
                 PORT_LOC_FACING_MAINLAND = FOUR_ISL_PORT_EDGE_FACING_6PL;
                 // robber not initially placed
@@ -449,7 +449,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
             PORT_LOC_FACING_ISLANDS = null;
             PORTS_TYPES_ISLANDS = null;
         }
-        else if (scen.equals(SOCScenario.K_SC_TTD))
+        else if (scen.equals( SOCScenario.K_SC_TTD ))
         {
             // Through The Desert
             final int idx = (maxPl > 4) ? 2 : (maxPl > 3) ? 1 : 0;  // 6-player, 4, or 3-player board
@@ -460,25 +460,25 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
             // - Main island (landarea 1, 2)
             makeNewBoard_placeHexes
-                (TTDESERT_LANDHEX_TYPE_MAIN[idx], TTDESERT_LANDHEX_COORD_MAIN[idx], false, TTDESERT_DICENUM_MAIN[idx],
-                 true, true, TTDESERT_LANDHEX_RANGES_MAIN[idx], false, false, maxPl, opt_breakClumps, scen, opts);
+                ( TTDESERT_LANDHEX_TYPE_MAIN[idx], TTDESERT_LANDHEX_COORD_MAIN[idx], false, TTDESERT_DICENUM_MAIN[idx],
+                    true, true, TTDESERT_LANDHEX_RANGES_MAIN[idx], false, false, maxPl, opt_breakClumps, scen, opts );
 
             // - Desert strip (LA 3; infill)
             {
                 final int[] desertLandHexCoords = TTDESERT_LANDHEX_COORD_DESERT[idx];
                 final int[] desertDiceNum = new int[desertLandHexCoords.length];  // all 0
                 final int[] desertLandhexType = new int[desertLandHexCoords.length];
-                Arrays.fill(desertLandhexType, DESERT_HEX);
+                Arrays.fill( desertLandhexType, DESERT_HEX );
 
                 makeNewBoard_placeHexes
-                    (desertLandhexType, desertLandHexCoords, true, desertDiceNum,
-                     false, false, 3, false, true, maxPl, null, scen, opts);
+                    ( desertLandhexType, desertLandHexCoords, true, desertDiceNum,
+                        false, false, 3, false, true, maxPl, null, scen, opts );
             }
 
             // - Small islands (LA 4 to n)
             makeNewBoard_placeHexes
-                (TTDESERT_LANDHEX_TYPE_SMALL[idx], TTDESERT_LANDHEX_COORD_SMALL[idx], false, TTDESERT_DICENUM_SMALL[idx],
-                 true, true, TTDESERT_LANDHEX_RANGES_SMALL[idx], false, false, maxPl, null, scen, opts);
+                ( TTDESERT_LANDHEX_TYPE_SMALL[idx], TTDESERT_LANDHEX_COORD_SMALL[idx], false, TTDESERT_DICENUM_SMALL[idx],
+                    true, true, TTDESERT_LANDHEX_RANGES_SMALL[idx], false, false, maxPl, null, scen, opts );
 
             pirateHex = TTDESERT_PIRATE_HEX[idx];
 
@@ -487,7 +487,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
             PORT_LOC_FACING_MAINLAND = TTDESERT_PORT_EDGE_FACING[idx];
             PORT_LOC_FACING_ISLANDS = null;
         }
-        else if (scen.equals(SOCScenario.K_SC_PIRI))
+        else if (scen.equals( SOCScenario.K_SC_PIRI ))
         {
             // Pirate Islands
             landAreasLegalNodes = new HashSet[2];
@@ -495,14 +495,14 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
             // - Large starting island
             makeNewBoard_placeHexes
-                (PIR_ISL_LANDHEX_TYPE_MAIN[idx], PIR_ISL_LANDHEX_COORD_MAIN[idx], false, PIR_ISL_DICENUM_MAIN[idx],
-                 false, false, 1, false, false, maxPl, opt_breakClumps, scen, opts);
+                ( PIR_ISL_LANDHEX_TYPE_MAIN[idx], PIR_ISL_LANDHEX_COORD_MAIN[idx], false, PIR_ISL_DICENUM_MAIN[idx],
+                    false, false, 1, false, false, maxPl, opt_breakClumps, scen, opts );
 
             // - Pirate islands
             //  (LA # 0: Player can't place there except at their Lone Settlement coordinate within "LS".)
             makeNewBoard_placeHexes
-                (PIR_ISL_LANDHEX_TYPE_PIRI[idx], PIR_ISL_LANDHEX_COORD_PIRI[idx], false, PIR_ISL_DICENUM_PIRI[idx],
-                 false, false, 0, false, false, maxPl, opt_breakClumps, scen, opts);
+                ( PIR_ISL_LANDHEX_TYPE_PIRI[idx], PIR_ISL_LANDHEX_COORD_PIRI[idx], false, PIR_ISL_DICENUM_PIRI[idx],
+                    false, false, 0, false, false, maxPl, opt_breakClumps, scen, opts );
 
             pirateHex = PIR_ISL_PIRATE_HEX[idx];
 
@@ -511,9 +511,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
             PORT_LOC_FACING_MAINLAND = PIR_ISL_PORT_EDGE_FACING[idx];
             PORT_LOC_FACING_ISLANDS = null;
 
-            setAddedLayoutPart("PP", PIR_ISL_PPATH[idx]);
+            setAddedLayoutPart( "PP", PIR_ISL_PPATH[idx] );
         }
-        else if (scen.equals(SOCScenario.K_SC_FTRI))
+        else if (scen.equals( SOCScenario.K_SC_FTRI ))
         {
             // Forgotten Tribe
             landAreasLegalNodes = new HashSet[2];
@@ -521,19 +521,19 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
             // - Larger main island
             makeNewBoard_placeHexes
-                (FOR_TRI_LANDHEX_TYPE_MAIN[idx], FOR_TRI_LANDHEX_COORD_MAIN[idx], false, FOR_TRI_DICENUM_MAIN[idx],
-                 true, true, 1, false, false, maxPl, opt_breakClumps, scen, opts);
+                ( FOR_TRI_LANDHEX_TYPE_MAIN[idx], FOR_TRI_LANDHEX_COORD_MAIN[idx], false, FOR_TRI_DICENUM_MAIN[idx],
+                    true, true, 1, false, false, maxPl, opt_breakClumps, scen, opts );
 
             // - Small outlying islands for tribe
             //  (LA # 0; Player can't place there)
             makeNewBoard_placeHexes
-                (FOR_TRI_LANDHEX_TYPE_ISL[idx], FOR_TRI_LANDHEX_COORD_ISL[idx], true, null,
-                 false, false, 0, false, false, maxPl, null, scen, opts);
+                ( FOR_TRI_LANDHEX_TYPE_ISL[idx], FOR_TRI_LANDHEX_COORD_ISL[idx], true, null,
+                    false, false, 0, false, false, maxPl, null, scen, opts );
 
             pirateHex = FOR_TRI_PIRATE_HEX[idx];
 
             // in this scenario, robber can't be moved to the LA#0 islands (layout part "RX")
-            setRobberExcludedLandAreas(new int[]{ 0 });
+            setRobberExcludedLandAreas( new int[]{0} );
 
             // Break up ports (opt_breakClumps) for the 6-player board only.
             // The 4-player board doesn't have enough 3-for-1 ports for that to work.
@@ -552,12 +552,12 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 PORT_LOC_FACING_ISLANDS = FOR_TRI_PORT_EDGE_FACING[idx];
             }
 
-            setAddedLayoutPart("CE", FOR_TRI_DEV_CARD_EDGES[idx]);
-            setAddedLayoutPart("VE", FOR_TRI_SVP_EDGES[idx]);
+            setAddedLayoutPart( "CE", FOR_TRI_DEV_CARD_EDGES[idx] );
+            setAddedLayoutPart( "VE", FOR_TRI_SVP_EDGES[idx] );
 
             // startGame_putInitPieces will set aside dev cards for players to reach "CE" special edges.
         }
-        else if (scen.equals(SOCScenario.K_SC_CLVI))
+        else if (scen.equals( SOCScenario.K_SC_CLVI ))
         {
             // Cloth Villages
             landAreasLegalNodes = new HashSet[2];
@@ -565,20 +565,20 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
             // - Larger main islands
             makeNewBoard_placeHexes
-                (CLVI_LANDHEX_TYPE_MAIN[idx], CLVI_LANDHEX_COORD_MAIN[idx], false, CLVI_DICENUM_MAIN[idx],
-                 true, true, 1, false, false, maxPl, opt_breakClumps, scen, opts);
+                ( CLVI_LANDHEX_TYPE_MAIN[idx], CLVI_LANDHEX_COORD_MAIN[idx], false, CLVI_DICENUM_MAIN[idx],
+                    true, true, 1, false, false, maxPl, opt_breakClumps, scen, opts );
 
             // - Small middle islands for villages
             //  (LA # 0; Players can't place there)
             makeNewBoard_placeHexes
-                (CLVI_LANDHEX_TYPE_ISL[idx], CLVI_LANDHEX_COORD_ISL[idx], false, null,
-                 false, false, 0, false, false, maxPl, null, scen, opts);
+                ( CLVI_LANDHEX_TYPE_ISL[idx], CLVI_LANDHEX_COORD_ISL[idx], false, null,
+                    false, false, 0, false, false, maxPl, null, scen, opts );
 
-            setRobberHex(CLVI_ROBBER_HEX[idx], false);
+            setRobberHex( CLVI_ROBBER_HEX[idx], false );
             pirateHex = CLVI_PIRATE_HEX[idx];
 
             // in this scenario, robber can't be moved to the LA#0 islands (layout part "RX")
-            setRobberExcludedLandAreas(new int[]{ 0 });
+            setRobberExcludedLandAreas( new int[]{0} );
 
             // Break up ports (opt_breakClumps) for the 6-player board only.
             // The 4-player board doesn't have enough 3-for-1 ports for that to work.
@@ -598,10 +598,10 @@ public class SOCBoardAtServer extends SOCBoardLarge
             }
 
             final int[] cl = CLVI_CLOTH_VILLAGE_AMOUNTS_NODES_DICE[idx];
-            setVillageAndClothLayout(cl);  // also sets board's "general supply"
-            setAddedLayoutPart("CV", cl);
+            setVillageAndClothLayout( cl );  // also sets board's "general supply"
+            setAddedLayoutPart( "CV", cl );
         }
-        else if (scen.equals(SOCScenario.K_SC_WOND))
+        else if (scen.equals( SOCScenario.K_SC_WOND ))
         {
             // Wonders
             landAreasLegalNodes = new HashSet[3];
@@ -609,20 +609,20 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
             // - Large main island
             makeNewBoard_placeHexes
-                (WOND_LANDHEX_TYPE_MAIN[idx], WOND_LANDHEX_COORD_MAIN[idx], false, WOND_DICENUM_MAIN[idx],
-                 true, true, 1, false, false, maxPl, opt_breakClumps, scen, opts);
+                ( WOND_LANDHEX_TYPE_MAIN[idx], WOND_LANDHEX_COORD_MAIN[idx], false, WOND_DICENUM_MAIN[idx],
+                    true, true, 1, false, false, maxPl, opt_breakClumps, scen, opts );
 
             // - Desert on main island (not shuffled with other hexes)
             int[] desert = new int[WOND_LANDHEX_COORD_DESERT[idx].length];
-            Arrays.fill(desert, DESERT_HEX);
+            Arrays.fill( desert, DESERT_HEX );
             makeNewBoard_placeHexes
-                (desert, WOND_LANDHEX_COORD_DESERT[idx], true, null,
-                 false, false, 1, true, false, maxPl, null, scen, opts);
+                ( desert, WOND_LANDHEX_COORD_DESERT[idx], true, null,
+                    false, false, 1, true, false, maxPl, null, scen, opts );
 
             // - Small outlying islands (LA #2)
             makeNewBoard_placeHexes
-                (WOND_LANDHEX_TYPE_ISL[idx], WOND_LANDHEX_COORD_ISL[idx], false, WOND_DICENUM_ISL[idx],
-                 false, false, 2, false, false, maxPl, null, scen, opts);
+                ( WOND_LANDHEX_TYPE_ISL[idx], WOND_LANDHEX_COORD_ISL[idx], false, WOND_DICENUM_ISL[idx],
+                    false, false, 2, false, false, maxPl, null, scen, opts );
 
             pirateHex = 0;
 
@@ -636,25 +636,25 @@ public class SOCBoardAtServer extends SOCBoardLarge
             // (This adds the node set numbers to Added Layout Part "AL".)
             // Will have to re-add after initial placement, via addLegalNodes from SOCGame.updateAtGameFirstTurn().
             for (int i = 0; i <= 2; ++i)
-                makeNewBoard_removeLegalNodes(WOND_SPECIAL_NODES[idx][i], startingLandArea, i + 1, (i == 2));
+                makeNewBoard_removeLegalNodes( WOND_SPECIAL_NODES[idx][i], startingLandArea, i + 1, (i == 2) );
         }
         else if (hasScenarioFog)  // _SC_FOG
         {
             final int idx;  // for pirate: 3, 4, or 6-player board
 
-            landAreasLegalNodes = new HashSet[( (maxPl == 6) ? 4 : 3 )];
+            landAreasLegalNodes = new HashSet[((maxPl == 6) ? 4 : 3)];
 
             if (maxPl < 4)
             {
                 // - East and West islands:
                 makeNewBoard_placeHexes
-                    (FOG_ISL_LANDHEX_TYPE_MAIN_3PL, FOG_ISL_LANDHEX_COORD_MAIN_3PL, false, FOG_ISL_DICENUM_MAIN_3PL,
-                     true, true, 1, false, false, maxPl, opt_breakClumps, scen, opts);
+                    ( FOG_ISL_LANDHEX_TYPE_MAIN_3PL, FOG_ISL_LANDHEX_COORD_MAIN_3PL, false, FOG_ISL_DICENUM_MAIN_3PL,
+                        true, true, 1, false, false, maxPl, opt_breakClumps, scen, opts );
 
                 // - "Fog Island" in the middle:
                 makeNewBoard_placeHexes
-                    (FOG_ISL_LANDHEX_TYPE_FOG, FOG_ISL_LANDHEX_COORD_FOG_3PL, false, FOG_ISL_DICENUM_FOG_3PL,
-                     true, true, 2, false, false, maxPl, null, scen, opts);
+                    ( FOG_ISL_LANDHEX_TYPE_FOG, FOG_ISL_LANDHEX_COORD_FOG_3PL, false, FOG_ISL_DICENUM_FOG_3PL,
+                        true, true, 2, false, false, maxPl, null, scen, opts );
 
                 PORTS_TYPES_MAINLAND = FOG_ISL_PORT_TYPE_3PL;
                 PORT_LOC_FACING_MAINLAND = FOG_ISL_PORT_EDGE_FACING_3PL;
@@ -664,13 +664,13 @@ public class SOCBoardAtServer extends SOCBoardLarge
             {
                 // - East and West islands:
                 makeNewBoard_placeHexes
-                    (FOG_ISL_LANDHEX_TYPE_MAIN_4PL, FOG_ISL_LANDHEX_COORD_MAIN_4PL, false, FOG_ISL_DICENUM_MAIN_4PL,
-                     true, true, 1, false, false, maxPl, opt_breakClumps, scen, opts);
+                    ( FOG_ISL_LANDHEX_TYPE_MAIN_4PL, FOG_ISL_LANDHEX_COORD_MAIN_4PL, false, FOG_ISL_DICENUM_MAIN_4PL,
+                        true, true, 1, false, false, maxPl, opt_breakClumps, scen, opts );
 
                 // - "Fog Island" in the middle:
                 makeNewBoard_placeHexes
-                    (FOG_ISL_LANDHEX_TYPE_FOG, FOG_ISL_LANDHEX_COORD_FOG_4PL, false, FOG_ISL_DICENUM_FOG_4PL,
-                     true, true, 2, false, false, maxPl, null, scen, opts);
+                    ( FOG_ISL_LANDHEX_TYPE_FOG, FOG_ISL_LANDHEX_COORD_FOG_4PL, false, FOG_ISL_DICENUM_FOG_4PL,
+                        true, true, 2, false, false, maxPl, null, scen, opts );
 
                 PORTS_TYPES_MAINLAND = FOG_ISL_PORT_TYPE_4PL;
                 PORT_LOC_FACING_MAINLAND = FOG_ISL_PORT_EDGE_FACING_4PL;
@@ -680,19 +680,19 @@ public class SOCBoardAtServer extends SOCBoardLarge
             {
                 // - Northern main island:
                 makeNewBoard_placeHexes
-                    (FOG_ISL_LANDHEX_TYPE_MAIN_6PL, FOG_ISL_LANDHEX_COORD_MAIN_6PL, true, FOG_ISL_DICENUM_MAIN_6PL,
-                     true, true, 1, false, false, maxPl, opt_breakClumps, scen, opts);
+                    ( FOG_ISL_LANDHEX_TYPE_MAIN_6PL, FOG_ISL_LANDHEX_COORD_MAIN_6PL, true, FOG_ISL_DICENUM_MAIN_6PL,
+                        true, true, 1, false, false, maxPl, opt_breakClumps, scen, opts );
 
                 // - Gold Corners in southwest, southeast
                 makeNewBoard_placeHexes
-                    (FOG_ISL_LANDHEX_TYPE_GC, FOG_ISL_LANDHEX_COORD_GC, false, FOG_ISL_DICENUM_GC,
-                     false, false, 3, false, false, maxPl, null, scen, opts);
+                    ( FOG_ISL_LANDHEX_TYPE_GC, FOG_ISL_LANDHEX_COORD_GC, false, FOG_ISL_DICENUM_GC,
+                        false, false, 3, false, false, maxPl, null, scen, opts );
 
                 // - "Fog Island" in an arc from southwest to southeast:
                 //   infill where touching Gold Corners
                 makeNewBoard_placeHexes
-                    (FOG_ISL_LANDHEX_TYPE_FOG_6PL, FOG_ISL_LANDHEX_COORD_FOG_6PL, false, FOG_ISL_DICENUM_FOG_6PL,
-                     true, true, 2, false, true, maxPl, opt_breakClumps, scen, opts);
+                    ( FOG_ISL_LANDHEX_TYPE_FOG_6PL, FOG_ISL_LANDHEX_COORD_FOG_6PL, false, FOG_ISL_DICENUM_FOG_6PL,
+                        true, true, 2, false, true, maxPl, opt_breakClumps, scen, opts );
 
                 PORTS_TYPES_MAINLAND = FOG_ISL_PORT_TYPE_6PL;
                 PORT_LOC_FACING_MAINLAND = FOG_ISL_PORT_EDGE_FACING_6PL;
@@ -702,7 +702,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
             PORT_LOC_FACING_ISLANDS = null;
 
             if (idx < 2)
-                setRobberHex(FOG_ISL_ROBBER_HEX[idx], false);  // 6pl (idx==2) uses any desert hex
+                setRobberHex( FOG_ISL_ROBBER_HEX[idx], false );  // 6pl (idx==2) uses any desert hex
             pirateHex = FOG_ISL_PIRATE_HEX[idx];
 
             // Fog hex hiding is done below after some other steps; search for hasScenarioFog
@@ -721,16 +721,16 @@ public class SOCBoardAtServer extends SOCBoardLarge
             //     Robber placement: Only the 4pl layout places the robber on the desert hex;
             //     3pl starts on a certain hex, 6pl apparently starts with none
             makeNewBoard_placeHexes
-                (NSHO_LANDHEX_TYPE_MAIN[idx], NSHO_LANDHEX_COORD_MAIN[idx], (maxPl == 4), NSHO_DICENUM_MAIN[idx],
-                 (maxPl < 4), true, 1, false, false, maxPl, opt_breakClumps, scen, opts);
+                ( NSHO_LANDHEX_TYPE_MAIN[idx], NSHO_LANDHEX_COORD_MAIN[idx], (maxPl == 4), NSHO_DICENUM_MAIN[idx],
+                    (maxPl < 4), true, 1, false, false, maxPl, opt_breakClumps, scen, opts );
 
             // - Outlying islands:
             makeNewBoard_placeHexes
-                (NSHO_LANDHEX_TYPE_ISL[idx], NSHO_LANDHEX_COORD_ISL[idx], false, NSHO_DICENUM_ISL[idx],
-                 true, true, NSHO_LANDHEX_LANDAREA_RANGES[idx], false, false, maxPl, null, scen, opts);
+                ( NSHO_LANDHEX_TYPE_ISL[idx], NSHO_LANDHEX_COORD_ISL[idx], false, NSHO_DICENUM_ISL[idx],
+                    true, true, NSHO_LANDHEX_LANDAREA_RANGES[idx], false, false, maxPl, null, scen, opts );
 
             if (maxPl < 4)
-                setRobberHex(NSHO_ROBBER_HEX_3PL, false);
+                setRobberHex( NSHO_ROBBER_HEX_3PL, false );
             pirateHex = NSHO_PIRATE_HEX[idx];
 
             // ports
@@ -738,7 +738,6 @@ public class SOCBoardAtServer extends SOCBoardLarge
             PORTS_TYPES_ISLANDS = null;
             PORT_LOC_FACING_MAINLAND = NSHO_PORT_EDGE_FACING[idx];
             PORT_LOC_FACING_ISLANDS = null;
-
         }
         else
         {
@@ -751,21 +750,21 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
             // - Mainland:
             makeNewBoard_placeHexes
-                ((maxPl > 4) ? SOCBoard6p.makeNewBoard_landHexTypes_v2 : SOCBoard4p.makeNewBoard_landHexTypes_v1,
-                 (maxPl > 4) ? LANDHEX_DICEPATH_MAINLAND_6PL : LANDHEX_DICEPATH_MAINLAND_4PL,
-                 true,
-                 (maxPl > 4) ? SOCBoard6p.makeNewBoard_diceNums_v2 : SOCBoard4p.makeNewBoard_diceNums_v1,
-                 false, true, 1, false, false, maxPl, opt_breakClumps, scen, opts);
+                ( (maxPl > 4) ? SOCBoard6p.makeNewBoard_landHexTypes_v2 : SOCBoard4p.makeNewBoard_landHexTypes_v1,
+                    (maxPl > 4) ? LANDHEX_DICEPATH_MAINLAND_6PL : LANDHEX_DICEPATH_MAINLAND_4PL,
+                    true,
+                    (maxPl > 4) ? SOCBoard6p.makeNewBoard_diceNums_v2 : SOCBoard4p.makeNewBoard_diceNums_v1,
+                    false, true, 1, false, false, maxPl, opt_breakClumps, scen, opts );
 
             // - Outlying islands:
             makeNewBoard_placeHexes
-                ((maxPl > 4) ? LANDHEX_TYPE_ISLANDS_6PL : LANDHEX_TYPE_ISLANDS_4PL,
-                 (maxPl > 4) ? LANDHEX_COORD_ISLANDS_ALL_6PL : LANDHEX_COORD_ISLANDS_ALL_4PL,
-                 false,
-                 (maxPl > 4) ? LANDHEX_DICENUM_ISLANDS_6PL : LANDHEX_DICENUM_ISLANDS_4PL,
-                 true, true,
-                 (maxPl > 4) ? LANDHEX_LANDAREA_RANGES_ISLANDS_6PL : LANDHEX_LANDAREA_RANGES_ISLANDS_4PL,
-                 false, false, maxPl, null, scen, opts);
+                ( (maxPl > 4) ? LANDHEX_TYPE_ISLANDS_6PL : LANDHEX_TYPE_ISLANDS_4PL,
+                    (maxPl > 4) ? LANDHEX_COORD_ISLANDS_ALL_6PL : LANDHEX_COORD_ISLANDS_ALL_4PL,
+                    false,
+                    (maxPl > 4) ? LANDHEX_DICENUM_ISLANDS_6PL : LANDHEX_DICENUM_ISLANDS_4PL,
+                    true, true,
+                    (maxPl > 4) ? LANDHEX_LANDAREA_RANGES_ISLANDS_6PL : LANDHEX_LANDAREA_RANGES_ISLANDS_4PL,
+                    false, false, maxPl, null, scen, opts );
 
             PORTS_TYPES_MAINLAND = (maxPl > 4) ? SOCBoard6p.PORTS_TYPE_V2 : SOCBoard4p.PORTS_TYPE_V1;
             PORTS_TYPES_ISLANDS = (maxPl > 4) ? PORT_TYPE_ISLANDS_6PL : PORT_TYPE_ISLANDS_4PL;
@@ -784,10 +783,10 @@ public class SOCBoardAtServer extends SOCBoardLarge
         if (landAreasLegalNodes != null)
             for (int i = 1; i < landAreasLegalNodes.length; ++i)
                 if (landAreasLegalNodes[i] == null)
-                    throw new IllegalStateException("inconsistent landAreasLegalNodes: null idx " + i);
+                    throw new IllegalStateException( "inconsistent landAreasLegalNodes: null idx " + i );
 
         if (newBoardProgressListener != null)
-            newBoardProgressListener.boardProgress(this, opts, NewBoardProgressListener.ALL_HEXES_PLACED);
+            newBoardProgressListener.boardProgress( this, opts, NewBoardProgressListener.ALL_HEXES_PLACED );
 
         // Hide some land hexes behind fog, if the scenario does that
         if (hasScenarioFog)
@@ -795,9 +794,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
             final int[] FOGHEXES = (maxPl == 6)
                 ? FOG_ISL_LANDHEX_COORD_FOG_6PL
                 : ((maxPl < 4) ? FOG_ISL_LANDHEX_COORD_FOG_3PL : FOG_ISL_LANDHEX_COORD_FOG_4PL);
-            makeNewBoard_hideHexesInFog(FOGHEXES, (maxPl == 6));
+            makeNewBoard_hideHexesInFog( FOGHEXES, (maxPl == 6) );
         }
-        else if (null != System.getProperty(PROP_JSETTLERS_DEBUG_BOARD_FOG))
+        else if (null != System.getProperty( PROP_JSETTLERS_DEBUG_BOARD_FOG ))
         {
             // Select n random hexes (20% of landHexLayout):
             // Knuth, "The Art of Computer Programming" Vol 2 Seminumerical Algorithms, Algorithm 3.4.2 S
@@ -819,7 +818,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 d -= 1;
             }
 
-            makeNewBoard_hideHexesInFog(hideCoord, false);
+            makeNewBoard_hideHexesInFog( hideCoord, false );
         }
 
         if ((PORTS_TYPES_MAINLAND == null) && (PORTS_TYPES_ISLANDS == null))
@@ -829,9 +828,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
         // Check port locations & facings, make sure no overlap with land hexes
         if (PORTS_TYPES_MAINLAND != null)
-            makeNewBoard_checkPortLocationsConsistent(PORT_LOC_FACING_MAINLAND);
+            makeNewBoard_checkPortLocationsConsistent( PORT_LOC_FACING_MAINLAND );
         if (PORT_LOC_FACING_ISLANDS != null)
-            makeNewBoard_checkPortLocationsConsistent(PORT_LOC_FACING_ISLANDS);
+            makeNewBoard_checkPortLocationsConsistent( PORT_LOC_FACING_ISLANDS );
 
         // Copy and shuffle the ports, and check vs game option BC
         int[] portTypes_main;
@@ -841,13 +840,13 @@ public class SOCBoardAtServer extends SOCBoardLarge
             final int ptL = PORTS_TYPES_MAINLAND.length, plfL = PORT_LOC_FACING_MAINLAND.length;
             if ((2 * ptL) != plfL)
                 throw new IllegalArgumentException
-                    ("Mismatched port-array lengths: PORT_LOC_FACING_MAINLAND (" + plfL
-                     + ") should be 2 x PORTS_TYPES_MAINLAND (" + ptL + ")");
+                    ( "Mismatched port-array lengths: PORT_LOC_FACING_MAINLAND (" + plfL
+                        + ") should be 2 x PORTS_TYPES_MAINLAND (" + ptL + ")" );
 
             portTypes_main = new int[ptL];
-            System.arraycopy(PORTS_TYPES_MAINLAND, 0, portTypes_main, 0, ptL);
-            if ((maxPl == 6) || ! hasScenarioFog)
-                makeNewBoard_shufflePorts(portTypes_main, opt_breakClumps);
+            System.arraycopy( PORTS_TYPES_MAINLAND, 0, portTypes_main, 0, ptL );
+            if ((maxPl == 6) || !hasScenarioFog)
+                makeNewBoard_shufflePorts( portTypes_main, opt_breakClumps );
         }
         else
         {
@@ -858,12 +857,12 @@ public class SOCBoardAtServer extends SOCBoardLarge
             final int ptL = PORTS_TYPES_ISLANDS.length, plfL = PORT_LOC_FACING_ISLANDS.length;
             if ((2 * ptL) != plfL)
                 throw new IllegalArgumentException
-                    ("Mismatched port-array lengths: PORT_LOC_FACING_ISLANDS (" + plfL
-                     + ") should be 2 x PORTS_TYPES_ISLANDS (" + ptL + ")");
+                    ( "Mismatched port-array lengths: PORT_LOC_FACING_ISLANDS (" + plfL
+                        + ") should be 2 x PORTS_TYPES_ISLANDS (" + ptL + ")" );
 
             portTypes_islands = new int[ptL];
-            System.arraycopy(PORTS_TYPES_ISLANDS, 0, portTypes_islands, 0, ptL);
-            makeNewBoard_shufflePorts(portTypes_islands, null);
+            System.arraycopy( PORTS_TYPES_ISLANDS, 0, portTypes_islands, 0, ptL );
+            makeNewBoard_shufflePorts( portTypes_islands, null );
         }
         else
         {
@@ -878,10 +877,10 @@ public class SOCBoardAtServer extends SOCBoardLarge
         if ((portsLayout == null) || (portsLayout.length != (3 * portsCount)))
             portsLayout = new int[3 * portsCount];
         if (PORTS_TYPES_MAINLAND != null)
-            System.arraycopy(portTypes_main, 0, portsLayout, 0, pcountMain);
+            System.arraycopy( portTypes_main, 0, portsLayout, 0, pcountMain );
         if (PORTS_TYPES_ISLANDS != null)
-            System.arraycopy(portTypes_islands, 0,
-                portsLayout, pcountMain, portTypes_islands.length);
+            System.arraycopy( portTypes_islands, 0,
+                portsLayout, pcountMain, portTypes_islands.length );
 
         // Place the ports (hex numbers and facing) within portsLayout[] and nodeIDtoPortType.
         // fill out the ports[] lists with node coordinates where a trade port can be placed.
@@ -900,8 +899,8 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 ++j;
                 final int facing = PORT_LOC_FACING_MAINLAND[j];
                 ++j;
-                final int[] nodes = getAdjacentNodesToEdge_arr(edge);
-                placePort(ptype, -1, facing, nodes[0], nodes[1]);
+                final int[] nodes = getAdjacentNodesToEdge_arr( edge );
+                placePort( ptype, -1, facing, nodes[0], nodes[1] );
                 // portsLayout[i] is set already, from portTypes_main[i]
                 portsLayout[i + portsCount] = edge;
                 portsLayout[i + (2 * portsCount)] = facing;
@@ -920,8 +919,8 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 ++j;
                 final int facing = PORT_LOC_FACING_ISLANDS[j];
                 ++j;
-                final int[] nodes = getAdjacentNodesToEdge_arr(edge);
-                placePort(ptype, -1, facing, nodes[0], nodes[1]);
+                final int[] nodes = getAdjacentNodesToEdge_arr( edge );
+                placePort( ptype, -1, facing, nodes[0], nodes[1] );
                 // portsLayout[L+i] is set already, from portTypes_islands[i]
                 portsLayout[L + i + portsCount] = edge;
                 portsLayout[L + i + (2 * portsCount)] = facing;
@@ -929,7 +928,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         }
 
         if (newBoardProgressListener != null)
-            newBoardProgressListener.boardProgress(this, opts, NewBoardProgressListener.DONE_PORTS_PLACED);
+            newBoardProgressListener.boardProgress( this, opts, NewBoardProgressListener.DONE_PORTS_PLACED );
     }
 
     /**
@@ -1000,16 +999,16 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @see #makeNewBoard_placeHexes(int[], int[], boolean, int[], boolean, boolean, int[], boolean, boolean, int, SOCGameOption, String, SOCGameOptionSet)
      */
     private void makeNewBoard_placeHexes
-        (int[] landHexType, final int[] landPath, final boolean placeRobberDesert,
-         final int[] number, final boolean shuffleDiceNumbers, final boolean shuffleLandHexes,
-         final int landAreaNumber, final boolean addToExistingLA, final boolean nodesAreInfill,
-         final int maxPl, final SOCGameOption optBC, final String scen, final SOCGameOptionSet opts)
+    ( int[] landHexType, final int[] landPath, final boolean placeRobberDesert,
+        final int[] number, final boolean shuffleDiceNumbers, final boolean shuffleLandHexes,
+        final int landAreaNumber, final boolean addToExistingLA, final boolean nodesAreInfill,
+        final int maxPl, final SOCGameOption optBC, final String scen, final SOCGameOptionSet opts )
         throws IllegalStateException, IllegalArgumentException
     {
-        final int[] pathRanges = { landAreaNumber, landPath.length };  // 1 range, uses all of landPath
+        final int[] pathRanges = {landAreaNumber, landPath.length};  // 1 range, uses all of landPath
         makeNewBoard_placeHexes
-            (landHexType, landPath, placeRobberDesert, number, shuffleDiceNumbers, shuffleLandHexes,
-             pathRanges, addToExistingLA, nodesAreInfill, maxPl, optBC, scen, opts);
+            ( landHexType, landPath, placeRobberDesert, number, shuffleDiceNumbers, shuffleLandHexes,
+                pathRanges, addToExistingLA, nodesAreInfill, maxPl, optBC, scen, opts );
     }
 
     /**
@@ -1100,35 +1099,35 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @see #makeNewBoard_placeHexes(int[], int[], boolean, int[], boolean, boolean, int, boolean, boolean, int, SOCGameOption, String, SOCGameOptionSet)
      */
     private void makeNewBoard_placeHexes
-        (final int[] landHexType, final int[] landPath, final boolean placeRobberDesert,
-         int[] number, final boolean shuffleDiceNumbers,
-         final boolean shuffleLandHexes, final int[] landAreaPathRanges,
-         final boolean addToExistingLA, final boolean nodesAreInfill,
-         final int maxPl, final SOCGameOption optBC, final String scen,
-         final SOCGameOptionSet opts)
+    ( final int[] landHexType, final int[] landPath, final boolean placeRobberDesert,
+        int[] number, final boolean shuffleDiceNumbers,
+        final boolean shuffleLandHexes, final int[] landAreaPathRanges,
+        final boolean addToExistingLA, final boolean nodesAreInfill,
+        final int maxPl, final SOCGameOption optBC, final String scen,
+        final SOCGameOptionSet opts )
         throws IllegalStateException, IllegalArgumentException
     {
         final boolean checkClumps = (optBC != null) && optBC.getBoolValue();
         final int clumpSize = checkClumps ? optBC.getIntValue() : 0;
         boolean clumpsNotOK = checkClumps;
-        final boolean placeRobber = placeRobberDesert && ! SOCScenario.K_SC_PIRI.equals(scen);
-            // all other known scenarios have a robber
+        final boolean placeRobber = placeRobberDesert && !SOCScenario.K_SC_PIRI.equals( scen );
+        // all other known scenarios have a robber
 
         // Validate length of landHexType, landPath
         if (landHexType.length != landPath.length)
             throw new IllegalArgumentException
-                ("length mismatch: landHexType " + landHexType.length + ", landPath " + landPath.length);
+                ( "length mismatch: landHexType " + landHexType.length + ", landPath " + landPath.length );
 
         // Validate landAreaPathRanges lengths within landPath
         if ((landAreaPathRanges == null) || ((landAreaPathRanges.length % 2) != 0))
-            throw new IllegalArgumentException("landAreaPathRanges: uneven length");
+            throw new IllegalArgumentException( "landAreaPathRanges: uneven length" );
         if (landAreaPathRanges.length <= 2)
         {
             final int L = landAreaPathRanges[1];
             if (L != landPath.length)
                 throw new IllegalArgumentException
-                    ("landAreaPathRanges: landarea " + landAreaPathRanges[0]
-                     + ": range length " + L + " should be " + landPath.length);
+                    ( "landAreaPathRanges: landarea " + landAreaPathRanges[0]
+                        + ": range length " + L + " should be " + landPath.length );
         }
         else
         {
@@ -1138,13 +1137,13 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 L += landAreaPathRanges[i];
                 if (L > landPath.length)
                     throw new IllegalArgumentException
-                        ("landAreaPathRanges: landarea " + landAreaPathRanges[i-1]
-                          + ": total range length " + L + " should be " + landPath.length);
+                        ( "landAreaPathRanges: landarea " + landAreaPathRanges[i - 1]
+                            + ": total range length " + L + " should be " + landPath.length );
             }
             if (L < landPath.length)
                 throw new IllegalArgumentException
-                    ("landAreaPathRanges: landarea " + landAreaPathRanges[i-3]
-                      + ": total range length " + L + " should be " + landPath.length);
+                    ( "landAreaPathRanges: landarea " + landAreaPathRanges[i - 3]
+                        + ": total range length " + L + " should be " + landPath.length );
         }
 
         // Shuffle, place, then check layout for clumps:
@@ -1160,7 +1159,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     for (int i = 0; i < landHexType.length; i++)
                     {
                         // Swap a random hex below the ith hex with the ith hex
-                        idx = Math.abs(rand.nextInt() % (landHexType.length - i));
+                        idx = Math.abs( rand.nextInt() % (landHexType.length - i) );
                         if (idx == i)
                             continue;
                         tmp = landHexType[idx];
@@ -1178,7 +1177,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     int idx, tmp;
                     for (int i = 0; i < number.length; i++)
                     {
-                        idx = Math.abs(rand.nextInt() % (number.length - i));
+                        idx = Math.abs( rand.nextInt() % (number.length - i) );
                         if (idx == i)
                             continue;
                         tmp = number[idx];
@@ -1196,7 +1195,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
             for (int i = 0; i < landHexType.length; i++)
             {
                 final int r = landPath[i] >> 8,
-                          c = landPath[i] & 0xFF;
+                    c = landPath[i] & 0xFF;
 
                 try
                 {
@@ -1207,7 +1206,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     if (landHexType[i] == DESERT_HEX)
                     {
                         if (placeRobber)
-                            setRobberHex(landPath[i], false);
+                            setRobberHex( landPath[i], false );
 
                         numberLayoutLg[r][c] = 0;
                     }
@@ -1217,7 +1216,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     }
                     else if (landHexType[i] == FOG_HEX)
                     {
-                        throw new IllegalArgumentException("landHexType can't contain FOG_HEX");
+                        throw new IllegalArgumentException( "landHexType can't contain FOG_HEX" );
                     }
                     else if ((number != null) && (cnt < number.length))
                     {
@@ -1225,27 +1224,27 @@ public class SOCBoardAtServer extends SOCBoardLarge
                         final int diceNum = number[cnt];
                         if (diceNum < 0)
                             throw new IllegalArgumentException
-                                ("makeNewBoard_placeHexes: number[" + cnt + "] below 0: " + diceNum);
+                                ( "makeNewBoard_placeHexes: number[" + cnt + "] below 0: " + diceNum );
                         numberLayoutLg[r][c] = diceNum;
                         cnt++;
 
                         if (shuffleDiceNumbers && ((diceNum == 6) || (diceNum == 8)))
-                            redHexes.add(landPath[i]);
+                            redHexes.add( landPath[i] );
                     }
                 }
                 catch (Exception ex)
                 {
                     throw new IllegalArgumentException
-                        ("Problem placing landPath[" + i + "] at 0x"
-                         + Integer.toHexString(landPath[i])
-                         + " [" + r + "][" + c + "]" + ": " + ex.toString(), ex);
+                        ( "Problem placing landPath[" + i + "] at 0x"
+                            + Integer.toHexString( landPath[i] )
+                            + " [" + r + "][" + c + "]" + ": " + ex.toString(), ex );
                 }
 
             }  // for (i in landHex)
 
             if (newBoardProgressListener != null)
                 newBoardProgressListener.hexesProgress
-                    (this, opts, NewBoardProgressListener.HEXES_PLACE, landPath);
+                    ( this, opts, NewBoardProgressListener.HEXES_PLACE, landPath );
 
             if (shuffleLandHexes && checkClumps)
             {
@@ -1255,7 +1254,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 for (int value : landPath)
                     unvisited.add( value );
 
-                clumpsNotOK = makeNewBoard_checkLandHexResourceClumps(unvisited, clumpSize);
+                clumpsNotOK = makeNewBoard_checkLandHexResourceClumps( unvisited, clumpSize );
             }
             else
             {
@@ -1264,26 +1263,26 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
             if (newBoardProgressListener != null)
                 newBoardProgressListener.hexesProgress
-                    (this, opts, NewBoardProgressListener.HEXES_CHECK_CLUMPS, landPath);
+                    ( this, opts, NewBoardProgressListener.HEXES_CHECK_CLUMPS, landPath );
 
-            if (shuffleLandHexes && ! clumpsNotOK)
+            if (shuffleLandHexes && !clumpsNotOK)
             {
                 // Separate adjacent gold hexes.  Does not change landPath or redHexes, only hexLayoutLg.
                 //   In scenario SC_TTD, this also makes sure the main island's only GOLD_HEX is placed
                 //   within landarea 2 (the small strip past the desert).
-                makeNewBoard_placeHexes_arrangeGolds(landPath, landAreaPathRanges, scen);
+                makeNewBoard_placeHexes_arrangeGolds( landPath, landAreaPathRanges, scen );
             }
 
-            if (shuffleDiceNumbers && ! clumpsNotOK)
+            if (shuffleDiceNumbers && !clumpsNotOK)
             {
                 // Separate adjacent "red numbers" (6s, 8s)
                 //   and make sure gold hex dice aren't too frequent
-                makeNewBoard_placeHexes_moveFrequentNumbers(landPath, redHexes, maxPl, scen);
+                makeNewBoard_placeHexes_moveFrequentNumbers( landPath, redHexes, maxPl, scen );
             }
 
-            if ((newBoardProgressListener != null) && ! clumpsNotOK)
+            if ((newBoardProgressListener != null) && !clumpsNotOK)
                 newBoardProgressListener.hexesProgress
-                    (this, opts, NewBoardProgressListener.HEXES_MOVE_FREQ_NUMS, landPath);
+                    ( this, opts, NewBoardProgressListener.HEXES_MOVE_FREQ_NUMS, landPath );
 
             --iterRemain;
         } while (clumpsNotOK && (iterRemain > 0));
@@ -1303,10 +1302,10 @@ public class SOCBoardAtServer extends SOCBoardLarge
         for (int i = 0, hexIdx = 0; i < landAreaPathRanges.length; i += 2)
         {
             final int landAreaNumber = landAreaPathRanges[i],
-                      landAreaLength = landAreaPathRanges[i + 1],
-                      nextHexIdx = hexIdx + landAreaLength;
+                landAreaLength = landAreaPathRanges[i + 1],
+                nextHexIdx = hexIdx + landAreaLength;
             makeNewBoard_fillNodesOnLandFromHexes
-                (landPath, hexIdx, nextHexIdx, landAreaNumber, addToExistingLA, nodesAreInfill);
+                ( landPath, hexIdx, nextHexIdx, landAreaNumber, addToExistingLA, nodesAreInfill );
             hexIdx = nextHexIdx;
         }
 
@@ -1330,7 +1329,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
      *              some scenarios might want special distribution of certain hex types or dice numbers.
      */
     private void makeNewBoard_placeHexes_arrangeGolds
-        (final int[] hexCoords, final int[] landAreaPathRanges, final String scen)
+    ( final int[] hexCoords, final int[] landAreaPathRanges, final String scen )
     {
         // map of gold hex coords to all their adjacent land hexes, if any;
         // golds with no adjacent land are left out of the map.
@@ -1339,24 +1338,24 @@ public class SOCBoardAtServer extends SOCBoardLarge
         // Find each gold hex's adjacent land hexes:
         for (int hex : hexCoords)
         {
-            if (GOLD_HEX != getHexTypeFromCoord(hex))
+            if (GOLD_HEX != getHexTypeFromCoord( hex ))
                 continue;
 
-            List<Integer> adjacLand = getAdjacentHexesToHex(hex, false);
+            List<Integer> adjacLand = getAdjacentHexesToHex( hex, false );
             if (adjacLand == null)
                 continue;  // no adjacents, ignore this GOLD_HEX; getAdjacentHexesToHex never returns an empty list
 
-            goldAdjac.put( hex, adjacLand);
+            goldAdjac.put( hex, adjacLand );
         }
 
         // Scenario SC_TTD: Special handling for the main island's only gold hex:
         // Make sure that gold's in landarea 2 (small strip past the desert).
         // (For the main island, landAreaPathRanges[] contains landarea 1 and landarea 2.)
-        if (scen.equals(SOCScenario.K_SC_TTD)
+        if (scen.equals( SOCScenario.K_SC_TTD )
             && (landAreaPathRanges != null) && (landAreaPathRanges[0] == 1))
         {
             if ((goldAdjac.size() != 1) || (landAreaPathRanges.length != 4))
-                throw new IllegalArgumentException("SC_TTD: Main island should have 1 gold hex, 2 landareas");
+                throw new IllegalArgumentException( "SC_TTD: Main island should have 1 gold hex, 2 landareas" );
 
             final int goldHex = (Integer) (goldAdjac.keySet().toArray()[0]);
 
@@ -1372,17 +1371,17 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 }
             }
 
-            if (! foundInLA2)
+            if (!foundInLA2)
             {
                 // The gold is in landarea 1. Pick a random non-gold hex in landarea 2, and swap hexLayoutLg values.
 
-                final int i = landAreaPathRanges[1] + rand.nextInt(landAreaPathRanges[3]);  // ranges[3] == size of LA2
+                final int i = landAreaPathRanges[1] + rand.nextInt( landAreaPathRanges[3] );  // ranges[3] == size of LA2
                 final int nonGoldHex = hexCoords[i];
 
                 final int gr = goldHex >> 8,
-                          gc = goldHex & 0xFF,
-                          nr = nonGoldHex >> 8,
-                          nc = nonGoldHex & 0xFF;
+                    gc = goldHex & 0xFF,
+                    nr = nonGoldHex >> 8,
+                    nc = nonGoldHex & 0xFF;
                 hexLayoutLg[gr][gc] = hexLayoutLg[nr][nc];
                 hexLayoutLg[nr][nc] = GOLD_HEX;
             }
@@ -1403,18 +1402,18 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
         for (Integer gHex : goldAdjac.keySet())
         {
-            for (Integer adjHex : goldAdjac.get(gHex))
+            for (Integer adjHex : goldAdjac.get( gHex ))
             {
-                if (goldAdjac.containsKey(adjHex))
+                if (goldAdjac.containsKey( adjHex ))
                 {
-                    int n = makeNewBoard_placeHexes_arrGolds_addToAdjacList(goldAdjacGold, gHex, adjHex);
+                    int n = makeNewBoard_placeHexes_arrGolds_addToAdjacList( goldAdjacGold, gHex, adjHex );
                     if (n > maxAdjac)
                     {
                         maxAdjac = n;
                         maxHex = gHex;
                     }
 
-                    n = makeNewBoard_placeHexes_arrGolds_addToAdjacList(goldAdjacGold, adjHex, gHex);
+                    n = makeNewBoard_placeHexes_arrGolds_addToAdjacList( goldAdjacGold, adjHex, gHex );
                     if (n > maxAdjac)
                     {
                         maxAdjac = n;
@@ -1437,7 +1436,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         for (int hex : hexCoords)
         {
             {
-                final int htype = getHexTypeFromCoord(hex);
+                final int htype = getHexTypeFromCoord( hex );
                 if ((htype == GOLD_HEX) || (htype == WATER_HEX))
                     continue;
             }
@@ -1446,15 +1445,15 @@ public class SOCBoardAtServer extends SOCBoardLarge
             boolean adjac = false;
             for (final List<Integer> goldAdjacList : goldAdjac.values())
             {
-                if (goldAdjacList.contains(hexInt))
+                if (goldAdjacList.contains( hexInt ))
                 {
                     adjac = true;
                     break;
                 }
             }
 
-            if (! adjac)
-                nonAdjac.add(hexInt);
+            if (!adjac)
+                nonAdjac.add( hexInt );
         }
 
         if (nonAdjac.isEmpty())
@@ -1464,17 +1463,17 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
         // pick a random nonAdjac, and swap with "middle" gold hex
         makeNewBoard_placeHexes_arrGolds_swapWithRandom
-            (maxHex, nonAdjac, goldAdjacGold);
+            ( maxHex, nonAdjac, goldAdjacGold );
 
         // if any more, take care of them while we can
-        while (! (goldAdjacGold.isEmpty() || nonAdjac.isEmpty()))
+        while (!(goldAdjacGold.isEmpty() || nonAdjac.isEmpty()))
         {
             // goldAdjacGold, goldAdjac, and nonAdjac are mutated by swapWithRandom,
             // so we need a new iterator each time.
 
             final Integer oneGold = goldAdjacGold.keySet().iterator().next();
             makeNewBoard_placeHexes_arrGolds_swapWithRandom
-                (oneGold, nonAdjac, goldAdjacGold);
+                ( oneGold, nonAdjac, goldAdjacGold );
         }
     }
 
@@ -1487,15 +1486,15 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @return length of hex0's list after adding hex1
      */
     private int makeNewBoard_placeHexes_arrGolds_addToAdjacList
-        (HashMap<Integer, List<Integer>> goldAdjacGold, final Integer hex0, Integer hex1)
+    ( HashMap<Integer, List<Integer>> goldAdjacGold, final Integer hex0, Integer hex1 )
     {
-        List<Integer> al = goldAdjacGold.get(hex0);
+        List<Integer> al = goldAdjacGold.get( hex0 );
         if (al == null)
         {
             al = new ArrayList<>();
-            goldAdjacGold.put(hex0, al);
+            goldAdjacGold.put( hex0, al );
         }
-        al.add(hex1);
+        al.add( hex1 );
         return al.size();
     }
 
@@ -1510,7 +1509,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @throws IllegalArgumentException  if goldHex coordinates in hexLayoutLg aren't GOLD_HEX
      */
     private void makeNewBoard_placeHexes_arrGolds_swapWithRandom
-        (final Integer goldHex, HashSet<Integer> nonAdjac, HashMap<Integer, List<Integer>> goldAdjacGold)
+    ( final Integer goldHex, HashSet<Integer> nonAdjac, HashMap<Integer, List<Integer>> goldAdjacGold )
         throws IllegalArgumentException
     {
         // get a random non-adjacent hex to swap with gold:
@@ -1521,7 +1520,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
             int n = nonAdjac.size();
             Iterator<Integer> nai = nonAdjac.iterator();
             if (n > 1)
-                for (n = rand.nextInt(n); n > 0; --n)
+                for (n = rand.nextInt( n ); n > 0; --n)
                     nai.next();  // skip
 
             nonAdjHex = nai.next();
@@ -1534,38 +1533,38 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 nr = nonAdjHex >> 8,
                 nc = nonAdjHex & 0xFF;
             if (hexLayoutLg[gr][gc] != GOLD_HEX)
-                throw new IllegalArgumentException("goldHex coord not gold in hexLayoutLg: 0x" + Integer.toHexString(goldHex));
+                throw new IllegalArgumentException( "goldHex coord not gold in hexLayoutLg: 0x" + Integer.toHexString( goldHex ) );
             hexLayoutLg[gr][gc] = hexLayoutLg[nr][nc];  // gets nonAdjHex's land hex type
             hexLayoutLg[nr][nc] = GOLD_HEX;
         }
 
         // since it's gold now, remove nonAdjHex and its adjacents from nonAdjac:
-        nonAdjac.remove(nonAdjHex);
-        List<Integer> adjs = getAdjacentHexesToHex(nonAdjHex, false);
+        nonAdjac.remove( nonAdjHex );
+        List<Integer> adjs = getAdjacentHexesToHex( nonAdjHex, false );
         if (adjs != null)
             for (Integer ahex : adjs)
-                nonAdjac.remove(ahex);
+                nonAdjac.remove( ahex );
 
         // Remove goldHex from goldAdjacGold (both directions):
 
         // - as value: look for it in its own adjacents' adjacency lists
-        final List<Integer> adjacHexesToSwapped = goldAdjacGold.get(goldHex);
+        final List<Integer> adjacHexesToSwapped = goldAdjacGold.get( goldHex );
         if (adjacHexesToSwapped != null)
         {
             for (Integer ahex : adjacHexesToSwapped)
             {
-                List<Integer> adjacToAdjac = goldAdjacGold.get(ahex);
+                List<Integer> adjacToAdjac = goldAdjacGold.get( ahex );
                 if (adjacToAdjac != null)
                 {
-                    adjacToAdjac.remove(goldHex);
+                    adjacToAdjac.remove( goldHex );
                     if (adjacToAdjac.isEmpty())
-                        goldAdjacGold.remove(ahex);  // ahex had no other adjacents
+                        goldAdjacGold.remove( ahex );  // ahex had no other adjacents
                 }
             }
         }
 
         // - as key: remove it from goldAdjacGold
-        goldAdjacGold.remove(goldHex);
+        goldAdjacGold.remove( goldHex );
     }
 
     /**
@@ -1590,11 +1589,11 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @param scen  Game scenario, such as {@link SOCScenario#K_SC_4ISL}, or "";
      *              some scenarios might want special distribution of certain hex types or dice numbers.
      *              Currently recognized here: {@link SOCScenario#K_SC_FTRI}, {@link SOCScenario#K_SC_WOND}.
-     * @return  true if able to move all adjacent frequent numbers, false if some are still adjacent.
+     * @return true if able to move all adjacent frequent numbers, false if some are still adjacent.
      * @throws IllegalStateException if a {@link #FOG_HEX} is found
      */
     private boolean makeNewBoard_placeHexes_moveFrequentNumbers
-        (final int[] landPath, ArrayList<Integer> redHexes, final int maxPl, final String scen)
+    ( final int[] landPath, ArrayList<Integer> redHexes, final int maxPl, final String scen )
         throws IllegalStateException
     {
         if (redHexes.isEmpty())
@@ -1607,22 +1606,23 @@ public class SOCBoardAtServer extends SOCBoardLarge
             ArrayList<Integer> frequentGold = new ArrayList<>();
             for (Integer hexCoord : redHexes)
                 if (getHexTypeFromCoord( hexCoord ) == GOLD_HEX)
-                    frequentGold.add(hexCoord);
+                    frequentGold.add( hexCoord );
 
-            if (! frequentGold.isEmpty())
+            if (!frequentGold.isEmpty())
             {
                 int iterRemain = 100;
                 for (int hex : frequentGold)
                 {
                     int swapHex, diceNum;
-                    do {
-                        swapHex = landPath[Math.abs(rand.nextInt()) % landPath.length];
-                        diceNum = getNumberOnHexFromCoord(swapHex);
+                    do
+                    {
+                        swapHex = landPath[Math.abs( rand.nextInt() ) % landPath.length];
+                        diceNum = getNumberOnHexFromCoord( swapHex );
                         --iterRemain;
                     } while (((swapHex == hex)
-                              || (diceNum == 0) || ((diceNum >= 6) && (diceNum <= 8))
-                              || (getHexTypeFromCoord(swapHex) == GOLD_HEX))
-                             && (iterRemain > 0));
+                        || (diceNum == 0) || ((diceNum >= 6) && (diceNum <= 8))
+                        || (getHexTypeFromCoord( swapHex ) == GOLD_HEX))
+                        && (iterRemain > 0));
 
                     if (iterRemain == 0)
                         break;  // good enough effort
@@ -1634,8 +1634,8 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     numberLayoutLg[sr][sc] = numberLayoutLg[hr][hc];  // gets 6 or 8
                     numberLayoutLg[hr][hc] = diceNum;  // gets 2, 3, 4, 5, 9, 10, 11, or 12
 
-                    redHexes.remove(Integer.valueOf(hex));
-                    redHexes.add(swapHex);
+                    redHexes.remove( Integer.valueOf( hex ) );
+                    redHexes.add( swapHex );
                 }
             }
         }
@@ -1643,7 +1643,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         // Next, check for any hexes that forbid too-frequent dice numbers (only a few scenarios).
         // These will be at most 2 or 3 hexes; try once to move any that are found.
         final HashSet<Integer> moveAnyRedFromHexes
-            = makeNewBoard_placeHexes_moveFrequentNumbers_checkSpecialHexes(landPath, redHexes, maxPl, scen);
+            = makeNewBoard_placeHexes_moveFrequentNumbers_checkSpecialHexes( landPath, redHexes, maxPl, scen );
 
         // Main part of the method begins here.
 
@@ -1721,12 +1721,12 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
             for (int i = 0; i < redHexes.size(); )
             {
-                final int h0 = redHexes.get(i);
+                final int h0 = redHexes.get( i );
 
-                final List<Integer> ahex = getAdjacentHexesToHex(h0, false);
+                final List<Integer> ahex = getAdjacentHexesToHex( h0, false );
                 if (ahex == null)
                 {
-                    redHexes.remove(i);
+                    redHexes.remove( i );
                     continue;  // <--- No adjacent hexes at all: remove ---
                 }
 
@@ -1735,7 +1735,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 for (Iterator<Integer> ahi = ahex.iterator(); ahi.hasNext(); )
                 {
                     final int h = ahi.next();
-                    final int dnum = getNumberOnHexFromCoord(h);
+                    final int dnum = getNumberOnHexFromCoord( h );
                     if ((dnum == 6) || (dnum == 8))
                     {
                         ++adjacRed;
@@ -1752,7 +1752,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
                 if (adjacRed == 0)
                 {
-                    redHexes.remove(i);
+                    redHexes.remove( i );
                     continue;  // <--- No adjacent red hexes: remove ---
                 }
                 else if (adjacRed == 1)
@@ -1766,7 +1766,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 // If the 2+ adjacent reds are next to each other,
                 // swapping one will still leave adjacency.
 
-                if ((adjacRed > 3) || isHexAdjacentToHex(hAdjac1, hAdjacNext))
+                if ((adjacRed > 3) || isHexAdjacentToHex( hAdjac1, hAdjacNext ))
                 {
                     ++i;
                     continue;  // <--- Clump, not 3 in a row: skip ---
@@ -1782,7 +1782,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     {
                         if ((h == hAdjac1) || (h == hAdjacNext))
                             continue;
-                        clump = isHexAdjacentToHex(h, hAdjac1) || isHexAdjacentToHex(h, hAdjacNext);
+                        clump = isHexAdjacentToHex( h, hAdjac1 ) || isHexAdjacentToHex( h, hAdjacNext );
                     }
                     if (clump)
                     {
@@ -1799,12 +1799,12 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     otherCoastalHexes = new HashSet<>();
                     otherHexes = new HashSet<>();
                     makeNewBoard_placeHexes_moveFrequentNumbers_buildArrays
-                        (landPath, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes, null, null);
+                        ( landPath, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes, null, null );
                 }
 
                 // Now, swap.
                 IntTriple midSwap = makeNewBoard_placeHexes_moveFrequentNumbers_swapOne
-                    (h0, i, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes);
+                    ( h0, i, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes );
                 if (midSwap == null)
                 {
                     retry = true;
@@ -1814,7 +1814,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 {
                     if (swappedNums == null)
                         swappedNums = new ArrayList<>();
-                    swappedNums.add(midSwap);
+                    swappedNums.add( midSwap );
                     if (midSwap.c != 0)
                     {
                         // other hexes were removed from redHexes.
@@ -1831,7 +1831,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
             if (redHexes.isEmpty())
                 return true;
 
-            if (! retry)
+            if (!retry)
             {
                 // Otherwise, loop through redHexes for each remaining hex
                 // - If it has no adjacent reds, remove it from redHexes and loop to next
@@ -1842,22 +1842,22 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 //   (updates redHexes, otherCoastalHexes, otherHexes)
                 // - If no swap was available, we should undo all and retry.
 
-                for (int redIterRemain = 200; (redIterRemain > 0) && ! redHexes.isEmpty(); --redIterRemain)
+                for (int redIterRemain = 200; (redIterRemain > 0) && !redHexes.isEmpty(); --redIterRemain)
                 {
-                    final int h0 = redHexes.get(0);
+                    final int h0 = redHexes.get( 0 );
 
-                    final List<Integer> ahex = getAdjacentHexesToHex(h0, false);
+                    final List<Integer> ahex = getAdjacentHexesToHex( h0, false );
                     if (ahex == null)
                     {
-                        redHexes.remove(0);
+                        redHexes.remove( 0 );
                         continue;  // <--- No adjacent hexes at all: remove ---
                     }
 
                     // count and find red adjacent hexes
                     int adjacRed = 0, hAdjac1 = 0;
-                    for ( final int h : ahex )
+                    for (final int h : ahex)
                     {
-                        final int dnum = getNumberOnHexFromCoord(h);
+                        final int dnum = getNumberOnHexFromCoord( h );
                         if ((dnum == 6) || (dnum == 8))
                         {
                             ++adjacRed;
@@ -1868,7 +1868,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
                     if (adjacRed == 0)
                     {
-                        redHexes.remove(0);
+                        redHexes.remove( 0 );
                         continue;  // <--- No adjacent red hexes: remove ---
                     }
 
@@ -1880,7 +1880,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                         otherCoastalHexes = new HashSet<>();
                         otherHexes = new HashSet<>();
                         makeNewBoard_placeHexes_moveFrequentNumbers_buildArrays
-                            (landPath, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes, null, null);
+                            ( landPath, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes, null, null );
                     }
 
                     // Now, swap and remove from redHexes.
@@ -1888,7 +1888,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     if (adjacRed > 1)
                     {
                         hexnumSwap = makeNewBoard_placeHexes_moveFrequentNumbers_swapOne
-                            (h0, 0, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes);
+                            ( h0, 0, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes );
                     }
                     else
                     {
@@ -1896,7 +1896,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                         // because it will have 0 adjacents after the swap
                         final int iAdjac1 = redHexes.indexOf( hAdjac1 );
                         hexnumSwap = makeNewBoard_placeHexes_moveFrequentNumbers_swapOne
-                            (hAdjac1, iAdjac1, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes);
+                            ( hAdjac1, iAdjac1, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes );
                     }
 
                     if (hexnumSwap == null)
@@ -1908,12 +1908,12 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     {
                         if (swappedNums == null)
                             swappedNums = new ArrayList<>();
-                        swappedNums.add(hexnumSwap);
+                        swappedNums.add( hexnumSwap );
                     }
 
                 }  // loop while redHexes not empty and redIterRemain > 0
 
-                if (! redHexes.isEmpty())
+                if (!redHexes.isEmpty())
                 {
                     // Didn't make enough progress with random swaps,
                     // so undo and give it another overall try
@@ -1940,12 +1940,12 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 final int L = (swappedNums != null) ? swappedNums.size() : 0;
                 for (int i = L - 1; i >= 0; --i)
                 {
-                    final IntTriple swap = swappedNums.get(i);
+                    final IntTriple swap = swappedNums.get( i );
                     final int rs = swap.b >> 8,
-                              cs = swap.b & 0xFF,
-                              ro = swap.a >> 8,
-                              co = swap.a & 0xFF,
-                              ntmp = numberLayoutLg[ro][co];
+                        cs = swap.b & 0xFF,
+                        ro = swap.a >> 8,
+                        co = swap.a & 0xFF,
+                        ntmp = numberLayoutLg[ro][co];
                     numberLayoutLg[ro][co] = numberLayoutLg[rs][cs];
                     numberLayoutLg[rs][cs] = ntmp;
                 }
@@ -1954,10 +1954,10 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 for (int hc : landPath)
                 {
                     final int r = hc >> 8,
-                              c = hc & 0xFF,
-                              diceNum = numberLayoutLg[r][c];
+                        c = hc & 0xFF,
+                        diceNum = numberLayoutLg[r][c];
                     if ((diceNum == 6) || (diceNum == 8))
-                        redHexes.add(hc);
+                        redHexes.add( hc );
                 }
             }
 
@@ -1995,29 +1995,29 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @throws IllegalStateException if a {@link #FOG_HEX} is found
      */
     private void makeNewBoard_placeHexes_moveFrequentNumbers_buildArrays
-        (final int[] landPath, final ArrayList<Integer> redHexes, final HashSet<Integer> ignoreHexes,
-         HashSet<Integer> otherCoastalHexes, HashSet<Integer> otherHexes,
-         final String scen, final HashSet<Integer> otherHexesForScen)
+    ( final int[] landPath, final ArrayList<Integer> redHexes, final HashSet<Integer> ignoreHexes,
+        HashSet<Integer> otherCoastalHexes, HashSet<Integer> otherHexes,
+        final String scen, final HashSet<Integer> otherHexesForScen )
         throws IllegalStateException
     {
         final boolean buildOtherHexesLessFreq_59 =
-            (scen != null) && (otherHexesForScen != null) && scen.equals(SOCScenario.K_SC_FTRI);
+            (scen != null) && (otherHexesForScen != null) && scen.equals( SOCScenario.K_SC_FTRI );
 
         for (int h : landPath)
         {
             // Don't consider water, desert, gold
             {
-                final int htype = getHexTypeFromCoord(h);
+                final int htype = getHexTypeFromCoord( h );
                 if ((htype == WATER_HEX) || (htype == DESERT_HEX) || (htype == GOLD_HEX))
                     continue;
                 if (htype == FOG_HEX)
                     // FOG_HEX shouldn't be on the board yet
-                    throw new IllegalStateException("Don't call this after placing fog");
+                    throw new IllegalStateException( "Don't call this after placing fog" );
             }
 
             // Don't consider unnumbered or 6s or 8s
             // (check here because some may have already been removed from redHexes)
-            final int dnum = getNumberOnHexFromCoord(h);
+            final int dnum = getNumberOnHexFromCoord( h );
             if ((dnum <= 0) || (dnum == 6) || (dnum == 8))
                 continue;
 
@@ -2028,13 +2028,13 @@ public class SOCBoardAtServer extends SOCBoardLarge
             if (((dnum < 5) || (dnum > 9)) && buildOtherHexesLessFreq_59)
                 otherHexesForScen.add( h );
 
-            final List<Integer> ahex = getAdjacentHexesToHex(h, false);
+            final List<Integer> ahex = getAdjacentHexesToHex( h, false );
             boolean hasAdjacentRed = false;
             if (ahex != null)
             {
                 for (int ah : ahex)
                 {
-                    final int adnum = getNumberOnHexFromCoord(ah);
+                    final int adnum = getNumberOnHexFromCoord( ah );
                     if ((adnum == 6) || (adnum == 8))
                     {
                         if ((ignoreHexes != null) && ignoreHexes.contains( ah ))
@@ -2046,14 +2046,14 @@ public class SOCBoardAtServer extends SOCBoardLarge
                 }
             }
 
-            if (! hasAdjacentRed)
+            if (!hasAdjacentRed)
             {
                 final Integer hInt = h;
 
-                if (isHexCoastline(h))
-                    otherCoastalHexes.add(hInt);
+                if (isHexCoastline( h ))
+                    otherCoastalHexes.add( hInt );
                 else
-                    otherHexes.add(hInt);
+                    otherHexes.add( hInt );
             }
         }
     }
@@ -2073,10 +2073,10 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @param scen  Game scenario, such as {@link SOCScenario#K_SC_FTRI}, or "";
      *              some scenarios might want special distribution of certain hex types or dice numbers.
      *              Currently recognized here: {@link SOCScenario#K_SC_FTRI}, {@link SOCScenario#K_SC_WOND}.
-     * @return  Scenario's set of hexes which shouldn't contain red numbers, or {@code null}
+     * @return Scenario's set of hexes which shouldn't contain red numbers, or {@code null}
      */
     private HashSet<Integer> makeNewBoard_placeHexes_moveFrequentNumbers_checkSpecialHexes
-        (final int[] landPath, ArrayList<Integer> redHexes, final int maxPl, final String scen)
+    ( final int[] landPath, ArrayList<Integer> redHexes, final int maxPl, final String scen )
     {
         /** If scenario calls for it, hex coordinates from which to move any "red" dice numbers 6 and 8 */
         final HashSet<Integer> moveAnyRedFromHexes;
@@ -2084,12 +2084,12 @@ public class SOCBoardAtServer extends SOCBoardLarge
         final boolean moveAnyRedFromAlso59;
         {
             final int[] moveFrom;
-            if (scen.equals(SOCScenario.K_SC_FTRI))
+            if (scen.equals( SOCScenario.K_SC_FTRI ))
             {
                 moveFrom = FOR_TRI_LANDHEX_COORD_MAIN_FAR_COASTAL[(maxPl == 6) ? 1 : 0];
                 moveAnyRedFromAlso59 = true;
             }
-            else if (scen.equals(SOCScenario.K_SC_WOND))
+            else if (scen.equals( SOCScenario.K_SC_WOND ))
             {
                 moveFrom = WOND_LANDHEX_COORD_MAIN_AT_DESERT[(maxPl == 6) ? 1 : 0];
                 moveAnyRedFromAlso59 = false;
@@ -2122,9 +2122,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
         // Check if any dice numbers there need to be moved
         for (int hc : moveAnyRedFromHexes)
         {
-            final int dnum = getNumberOnHexFromCoord(hc);
+            final int dnum = getNumberOnHexFromCoord( hc );
             if ((dnum == 6) || (dnum == 8)
-                || ( moveAnyRedFromAlso59 && ((dnum == 5) || (dnum == 9)) ))
+                || (moveAnyRedFromAlso59 && ((dnum == 5) || (dnum == 9))))
             {
                 if (hexesToMove == null)
                     hexesToMove = new HashSet<>();
@@ -2139,13 +2139,13 @@ public class SOCBoardAtServer extends SOCBoardLarge
             HashSet<Integer> otherCoastalHexes = new HashSet<>(), otherHexes = new HashSet<>();
             HashSet<Integer> otherHexesForScen = (moveAnyRedFromAlso59) ? new HashSet<Integer>() : null;
             makeNewBoard_placeHexes_moveFrequentNumbers_buildArrays
-                (landPath, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes, scen, otherHexesForScen);
+                ( landPath, redHexes, moveAnyRedFromHexes, otherCoastalHexes, otherHexes, scen, otherHexesForScen );
 
             // Swap each of hexesToMove with another from otherCoastalHexes or otherHexes (6s and 8s)
             // or landPath (5s and 9s).
             for (int hc : hexesToMove)
             {
-                final int dnum = getNumberOnHexFromCoord(hc);
+                final int dnum = getNumberOnHexFromCoord( hc );
 
                 IntTriple swapped;
                 if (moveAnyRedFromAlso59)
@@ -2158,14 +2158,14 @@ public class SOCBoardAtServer extends SOCBoardLarge
                         ? redHexes.indexOf( hc )
                         : -1;
                     swapped = makeNewBoard_placeHexes_moveFrequentNumbers_swapOne
-                        (hc, rhIdx, redHexes, moveAnyRedFromHexes, otherHexesForScen, null);
+                        ( hc, rhIdx, redHexes, moveAnyRedFromHexes, otherHexesForScen, null );
                 }
                 else
                 {
                     // Swap a 6 or 8 with the usual process.
                     swapped = makeNewBoard_placeHexes_moveFrequentNumbers_swapOne
-                        (hc, redHexes.indexOf( hc ), redHexes, moveAnyRedFromHexes,
-                         otherCoastalHexes, otherHexes);
+                        ( hc, redHexes.indexOf( hc ), redHexes, moveAnyRedFromHexes,
+                            otherCoastalHexes, otherHexes );
                 }
 
                 if (((dnum == 6) || (dnum == 8)) && (swapped != null))
@@ -2220,8 +2220,8 @@ public class SOCBoardAtServer extends SOCBoardLarge
      *         should adjust its index (<tt>swapi</tt>) so no elements are skipped; the delta is always negative.
      */
     private IntTriple makeNewBoard_placeHexes_moveFrequentNumbers_swapOne
-        (final int swaphex, int swapi, ArrayList<Integer> redHexes, final HashSet<Integer> ignoreHexes,
-         HashSet<Integer> otherCoastalHexes, HashSet<Integer> otherHexes)
+    ( final int swaphex, int swapi, ArrayList<Integer> redHexes, final HashSet<Integer> ignoreHexes,
+        HashSet<Integer> otherCoastalHexes, HashSet<Integer> otherHexes )
     {
         // - If otherCoastalHexes and otherHexes are empty:
         //   Return nothing.
@@ -2233,7 +2233,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         final int ohex;
         {
             final int olen = others.size();
-            final int oi = (olen == 1) ? 0 : rand.nextInt(olen);
+            final int oi = (olen == 1) ? 0 : rand.nextInt( olen );
 
             // Although this is a linear search,
             // we chose to optimize the sets for
@@ -2253,12 +2253,12 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
         // - Swap the numbers and build the swap-info to return
         final int swapNum;
-        IntTriple triple = new IntTriple(swaphex, ohex, 0);
+        IntTriple triple = new IntTriple( swaphex, ohex, 0 );
         {
             final int rs = swaphex >> 8,
-                      cs = swaphex & 0xFF,
-                      ro = ohex >> 8,
-                      co = ohex & 0xFF;
+                cs = swaphex & 0xFF,
+                ro = ohex >> 8,
+                co = ohex & 0xFF;
             swapNum = numberLayoutLg[rs][cs];
             numberLayoutLg[rs][cs] = numberLayoutLg[ro][co];
             numberLayoutLg[ro][co] = swapNum;
@@ -2271,16 +2271,16 @@ public class SOCBoardAtServer extends SOCBoardLarge
         }
 
         // - Remove new location and its adjacents from otherCoastalHexes or otherHexes
-        others.remove(ohex);
-        List<Integer> ahex = getAdjacentHexesToHex(ohex, false);
+        others.remove( ohex );
+        List<Integer> ahex = getAdjacentHexesToHex( ohex, false );
         if (ahex != null)
         {
             for (int h : ahex)
             {
-                if (otherCoastalHexes.contains(h))
-                    otherCoastalHexes.remove(h);
-                if ((otherHexes != null) && otherHexes.contains(h))
-                    otherHexes.remove(h);
+                if (otherCoastalHexes.contains( h ))
+                    otherCoastalHexes.remove( h );
+                if ((otherHexes != null) && otherHexes.contains( h ))
+                    otherHexes.remove( h );
             }
         }
 
@@ -2289,24 +2289,24 @@ public class SOCBoardAtServer extends SOCBoardLarge
         //     because the adjacent no longer has any adjacent reds
         // - Check each of its adjacent reds, to see if the adjacent no longer has adjacent reds
         //     If so, we won't need to move it: remove that adjacent from redHexes
-        redHexes.remove(Integer.valueOf(swaphex));
-        ahex = getAdjacentHexesToHex(swaphex, false);
+        redHexes.remove( Integer.valueOf( swaphex ) );
+        ahex = getAdjacentHexesToHex( swaphex, false );
         if (ahex != null)
         {
             int idelta = 0;  // ahex loop does --idelta for each hex removed from redHexes
 
             for (int h : ahex)
             {
-                final int dnum = getNumberOnHexFromCoord(h);
+                final int dnum = getNumberOnHexFromCoord( h );
                 final boolean hexIsRed = (dnum == 6) || (dnum == 8);
                 boolean hasAdjacentRed = false;
-                final List<Integer> aahex = getAdjacentHexesToHex(h, false);
+                final List<Integer> aahex = getAdjacentHexesToHex( h, false );
                 if (aahex != null)
                 {
                     // adjacents to swaphex's adjacent
                     for (int aah : aahex)
                     {
-                        final int aanum = getNumberOnHexFromCoord(aah);
+                        final int aanum = getNumberOnHexFromCoord( aah );
                         if ((aanum == 6) || (aanum == 8))
                         {
                             hasAdjacentRed = true;
@@ -2315,7 +2315,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     }
                 }
 
-                if (! hasAdjacentRed)
+                if (!hasAdjacentRed)
                 {
                     final Integer hInt = h;
 
@@ -2323,10 +2323,10 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     {
                         // no longer has any adjacent reds; we won't need to move it
                         // Remove from redHexes
-                        int j = redHexes.indexOf(hInt);
+                        int j = redHexes.indexOf( hInt );
                         if (j != -1)  // if redHexes.contains(h)
                         {
-                            redHexes.remove(j);
+                            redHexes.remove( j );
                             if ((j < swapi) && (swapi != -1))
                             {
                                 --idelta;
@@ -2338,19 +2338,19 @@ public class SOCBoardAtServer extends SOCBoardLarge
                     else
                     {
                         // no longer has any adjacent reds; can add to otherCoastalHexes or otherHexes
-                        final int htype = getHexTypeFromCoord(h);
-                        if ((otherHexes != null) && ((ignoreHexes == null) || ! ignoreHexes.contains(hInt))
+                        final int htype = getHexTypeFromCoord( h );
+                        if ((otherHexes != null) && ((ignoreHexes == null) || !ignoreHexes.contains( hInt ))
                             && (dnum > 0) && (htype != DESERT_HEX) && (htype != WATER_HEX))
                         {
-                            if (isHexCoastline(h))
+                            if (isHexCoastline( h ))
                             {
-                                if (! otherCoastalHexes.contains(hInt))
-                                    otherCoastalHexes.add(hInt);
+                                if (!otherCoastalHexes.contains( hInt ))
+                                    otherCoastalHexes.add( hInt );
                             }
                             else
                             {
-                                if (! otherHexes.contains(hInt))
-                                    otherHexes.add(hInt);
+                                if (!otherHexes.contains( hInt ))
+                                    otherHexes.add( hInt );
                             }
                         }
                     }
@@ -2378,11 +2378,10 @@ public class SOCBoardAtServer extends SOCBoardLarge
      *            Inconsistent layout: Port at index 2 edge 0x803 faces water, not land, hex 0x904 <BR>
      *            Inconsistent layout: Port at index 2 edge 0x802 facing should be NE or SW, not 3
      */
-    private void makeNewBoard_checkPortLocationsConsistent
-        (final int[] portsLocFacing)
+    private void makeNewBoard_checkPortLocationsConsistent( final int[] portsLocFacing )
         throws IllegalArgumentException
     {
-        String err = null;
+        StringBuilder err = null;
 
         int i = 0;
         while (i < portsLocFacing.length)
@@ -2394,48 +2393,48 @@ public class SOCBoardAtServer extends SOCBoardLarge
             // similar to code in SOCBoardLarge.getPortFacingFromEdge, with more specific error messages
             {
                 final int r = (portEdge >> 8),
-                          c = (portEdge & 0xFF);
+                    c = (portEdge & 0xFF);
 
                 // "|" if r is odd
                 if ((r % 2) == 1)
                 {
                     if ((portFacing != FACING_E) && (portFacing != FACING_W))
-                        err = " facing should be E or W";
+                        err = new StringBuilder( " facing should be E or W" );
                 }
 
                 // "/" if (r/2,c) is even,odd or odd,even
-                else if ((c % 2) != ((r/2) % 2))
+                else if ((c % 2) != ((r / 2) % 2))
                 {
                     if ((portFacing != FACING_NW) && (portFacing != FACING_SE))
-                        err = " facing should be NW or SE";
+                        err = new StringBuilder( " facing should be NW or SE" );
                 }
                 else
                 {
                     // "\" if (r/2,c) is odd,odd or even,even
                     if ((portFacing != FACING_NE) && (portFacing != FACING_SW))
-                        err = " facing should be NE or SW";
+                        err = new StringBuilder( " facing should be NE or SW" );
                 }
 
                 if (err != null)
-                    err += ", not " + portFacing;
+                    err.append( ", not " ).append( portFacing );
             }
 
             // check edge's land hex in Port Facing direction
-            int hex = getAdjacentHexToEdge(portEdge, portFacing);
-            if ((err == null) && ((hex == 0) || (getHexTypeFromCoord(hex) == WATER_HEX)))
-                err = " faces water, not land, hex 0x" + Integer.toHexString(hex);
+            int hex = getAdjacentHexToEdge( portEdge, portFacing );
+            if ((err == null) && ((hex == 0) || (getHexTypeFromCoord( hex ) == WATER_HEX)))
+                err = new StringBuilder( " faces water, not land, hex 0x" + Integer.toHexString( hex ) );
 
             // facing + 3 rotates to "sea" direction from the port's edge
             portFacing += 3;
             if (portFacing > 6)
                 portFacing -= 6;
-            hex = getAdjacentHexToEdge(portEdge, portFacing);
-            if ((err == null) && ((hex != 0) && (getHexTypeFromCoord(hex) != WATER_HEX)))
-                  err = " covers up land hex 0x" + Integer.toHexString(hex);
+            hex = getAdjacentHexToEdge( portEdge, portFacing );
+            if ((err == null) && ((hex != 0) && (getHexTypeFromCoord( hex ) != WATER_HEX)))
+                err = new StringBuilder( " covers up land hex 0x" + Integer.toHexString( hex ) );
 
             if (err != null)
                 throw new IllegalArgumentException
-                  ("Inconsistent layout: Port at index " + (i-2) + " edge 0x" + Integer.toHexString(portEdge) + err);
+                    ( "Inconsistent layout: Port at index " + (i - 2) + " edge 0x" + Integer.toHexString( portEdge ) + err );
         }
     }
 
@@ -2480,19 +2479,19 @@ public class SOCBoardAtServer extends SOCBoardLarge
      */
     private void makeNewBoard_fillNodesOnLandFromHexes(
         final int[] landHexCoords, final int startIdx, final int pastEndIdx,
-        final int landAreaNumber, final boolean addToExistingLA, final boolean nodesAreInfill)
+        final int landAreaNumber, final boolean addToExistingLA, final boolean nodesAreInfill )
         throws IllegalStateException
     {
         if (landAreaNumber != 0)
         {
             if ((landAreasLegalNodes == null)
                 || (landAreaNumber >= landAreasLegalNodes.length))
-                throw new IllegalStateException("landarea " + landAreaNumber + " out of range");
+                throw new IllegalStateException( "landarea " + landAreaNumber + " out of range" );
 
             if (landAreasLegalNodes[landAreaNumber] != null)
             {
-                if (! addToExistingLA)
-                    throw new IllegalStateException("landarea " + landAreaNumber + " already has landAreasLegalNodes");
+                if (!addToExistingLA)
+                    throw new IllegalStateException( "landarea " + landAreaNumber + " already has landAreasLegalNodes" );
             }
             else
             {
@@ -2503,21 +2502,21 @@ public class SOCBoardAtServer extends SOCBoardLarge
         for (int i = startIdx; i < pastEndIdx; ++i)
         {
             final int hex = landHexCoords[i];
-            if (getHexTypeFromCoord(hex) == WATER_HEX)
+            if (getHexTypeFromCoord( hex ) == WATER_HEX)
                 continue;
 
-            for (Integer ni : getAdjacentNodesToHex(hex))
+            for (Integer ni : getAdjacentNodesToHex( hex ))
             {
                 if (landAreaNumber != 0)
                 {
-                    if (nodesAreInfill && nodesOnLand.contains(ni))
+                    if (nodesAreInfill && nodesOnLand.contains( ni ))
                         continue;
 
-                    landAreasLegalNodes[landAreaNumber].add(ni);
-                        // it's ok to add ni even if set already contains an Integer equal to it
+                    landAreasLegalNodes[landAreaNumber].add( ni );
+                    // it's ok to add ni even if set already contains an Integer equal to it
                 }
 
-                nodesOnLand.add(ni);
+                nodesOnLand.add( ni );
             }
         }
 
@@ -2549,14 +2548,14 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @throws IllegalArgumentException if {@code landAreaNumber} &lt;= 0 or {@code addNodeListNumber} &lt; 0
      */
     private void makeNewBoard_removeLegalNodes
-        (final int[] nodeCoords, final int landAreaNumber,
-         final int addNodeListNumber, final boolean emptyPartAfterInitPlace)
+    ( final int[] nodeCoords, final int landAreaNumber,
+        final int addNodeListNumber, final boolean emptyPartAfterInitPlace )
         throws IllegalArgumentException
     {
         if (landAreaNumber <= 0)
-            throw new IllegalArgumentException("landAreaNumber: " + landAreaNumber);
+            throw new IllegalArgumentException( "landAreaNumber: " + landAreaNumber );
         if (addNodeListNumber < 0)
-            throw new IllegalArgumentException("addNodeListNumber: " + addNodeListNumber);
+            throw new IllegalArgumentException( "addNodeListNumber: " + addNodeListNumber );
 
         final HashSet<Integer> legals = landAreasLegalNodes[landAreaNumber];
 
@@ -2565,11 +2564,11 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
         if (addNodeListNumber != 0)
         {
-            setAddedLayoutPart("N" + addNodeListNumber, nodeCoords);
+            setAddedLayoutPart( "N" + addNodeListNumber, nodeCoords );
 
             // create or append to Part "AL"
             int L;
-            int[] partAL = getAddedLayoutPart("AL");
+            int[] partAL = getAddedLayoutPart( "AL" );
             if (partAL == null)
             {
                 L = 0;
@@ -2579,13 +2578,13 @@ public class SOCBoardAtServer extends SOCBoardLarge
             {
                 L = partAL.length;
                 int[] newAL = new int[L + 2];
-                System.arraycopy(partAL, 0, newAL, 0, L);
+                System.arraycopy( partAL, 0, newAL, 0, L );
                 partAL = newAL;
             }
 
             partAL[L] = addNodeListNumber;
             partAL[L + 1] = (emptyPartAfterInitPlace) ? -landAreaNumber : landAreaNumber;
-            setAddedLayoutPart("AL", partAL);
+            setAddedLayoutPart( "AL", partAL );
         }
     }
 
@@ -2613,11 +2612,11 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @throws IllegalStateException  if any hexCoord is already {@link #FOG_HEX} within {@link #hexLayoutLg}
      * @see #revealFogHiddenHexPrep(int)
      */
-    protected void makeNewBoard_hideHexesInFog(final int[] hexCoords, final boolean nodesAreInfill)
+    protected void makeNewBoard_hideHexesInFog( final int[] hexCoords, final boolean nodesAreInfill )
         throws IllegalStateException
     {
         final boolean debugHalfAreGold =
-            (null != System.getProperty(PROP_JSETTLERS_DEBUG_BOARD_FOG__GOLD));
+            (null != System.getProperty( PROP_JSETTLERS_DEBUG_BOARD_FOG__GOLD ));
 
         for (final int hexCoord : hexCoords)
         {
@@ -2678,7 +2677,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         }
 
         if (newBoardProgressListener != null)
-            newBoardProgressListener.boardProgress(this, null, NewBoardProgressListener.FOG_HIDE_HEXES);
+            newBoardProgressListener.boardProgress( this, null, NewBoardProgressListener.FOG_HIDE_HEXES );
     }
 
     /**
@@ -2694,14 +2693,14 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @see SOCBoardLarge#getBoardSize(SOCGameOptionSet)
      * @see #getBoardShift(SOCGameOptionSet)
      */
-    private static IntPair getBoardSize(final SOCGameOptionSet gameOpts, final int maxPlayers)
+    private static IntPair getBoardSize( final SOCGameOptionSet gameOpts, final int maxPlayers )
     {
         int heightWidth = 0;
 
         // Always test maxPl for ==6 or < 4 ; actual value may be 6, 4, 3, or 2.
         // Same maxPl initialization as in getBoardShift(opts) and makeNewBoard(..).
         final int maxPl;
-        SOCGameOption opt = (gameOpts != null ? gameOpts.get("PL") : null);
+        SOCGameOption opt = (gameOpts != null ? gameOpts.get( "PL" ) : null);
         if ((opt == null) || (maxPlayers == 6))
             maxPl = maxPlayers;
         else if (opt.getIntValue() > 4)
@@ -2711,7 +2710,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
         SOCGameOption scOpt = null;
         if (gameOpts != null)
-            scOpt = gameOpts.get("SC");
+            scOpt = gameOpts.get( "SC" );
 
         if (scOpt != null)
         {
@@ -2761,7 +2760,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         }
 
         final int bH = heightWidth >> 8, bW = heightWidth & 0xFF;
-        return new IntPair(bH, bW);
+        return new IntPair( bH, bW );
     }
 
     /**
@@ -2777,7 +2776,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @see #getBoardSize(SOCGameOptionSet, int)
      */
     private static int[] getBoardShift
-        (final SOCGameOptionSet gameOpts)
+    ( final SOCGameOptionSet gameOpts )
     {
         SOCGameOption opt;
 
@@ -2785,14 +2784,14 @@ public class SOCBoardAtServer extends SOCBoardLarge
         // Always test maxPl for ==6 or < 4 ; actual value may be 6, 4, 3, or 2.
         // Same maxPl initialization as in makeNewBoard(opts).
         final int maxPl;
-        opt = (gameOpts != null ? gameOpts.get("PLB") : null);
+        opt = (gameOpts != null ? gameOpts.get( "PLB" ) : null);
         if ((opt != null) && opt.getBoolValue())
         {
             maxPl = 6;
         }
         else
         {
-            opt = (gameOpts != null ? gameOpts.get("PL") : null);
+            opt = (gameOpts != null ? gameOpts.get( "PL" ) : null);
             if (opt == null)
                 maxPl = 4;
             else if (opt.getIntValue() > 4)
@@ -2802,7 +2801,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         }
 
         final String scen;  // scenario key, such as SOCScenario.K_SC_4ISL, or empty string
-        opt = (gameOpts != null ? gameOpts.get("SC") : null);
+        opt = (gameOpts != null ? gameOpts.get( "SC" ) : null);
         if (opt != null)
         {
             final String ostr = opt.getStringValue();
@@ -2820,23 +2819,23 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
         if (scen.length() == 0)
             boardVS = FALLBACK_VIS_SHIFT;
-        else if (scen.equals(SOCScenario.K_SC_NSHO))
+        else if (scen.equals( SOCScenario.K_SC_NSHO ))
             boardVS = NSHO_VIS_SHIFT;
-        else if (scen.equals(SOCScenario.K_SC_4ISL))
+        else if (scen.equals( SOCScenario.K_SC_4ISL ))
             boardVS = FOUR_ISL_VIS_SHIFT;
-        else if (scen.equals(SOCScenario.K_SC_PIRI))
+        else if (scen.equals( SOCScenario.K_SC_PIRI ))
             return PIR_ISL_VIS_SHIFT;
-        else if (scen.equals(SOCScenario.K_SC_TTD))
+        else if (scen.equals( SOCScenario.K_SC_TTD ))
             boardVS = TTDESERT_VIS_SHIFT;
-        else if (scen.equals(SOCScenario.K_SC_FTRI))
+        else if (scen.equals( SOCScenario.K_SC_FTRI ))
             boardVS = FOR_TRI_VIS_SHIFT;
-        else if (scen.equals(SOCScenario.K_SC_CLVI))
+        else if (scen.equals( SOCScenario.K_SC_CLVI ))
             boardVS = CLVI_VIS_SHIFT;
-        else if (scen.equals(SOCScenario.K_SC_WOND))
+        else if (scen.equals( SOCScenario.K_SC_WOND ))
             boardVS = WOND_VIS_SHIFT;
         else if (gameOpts != null)
         {
-            opt = gameOpts.get(SOCGameOptionSet.K_SC_FOG);
+            opt = gameOpts.get( SOCGameOptionSet.K_SC_FOG );
             if ((opt != null) && opt.getBoolValue())
                 boardVS = FOG_ISL_VIS_SHIFT;
         }
@@ -2846,8 +2845,8 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
         final int idx =
             (boardVS.length == 2)
-            ? ((maxPl > 4) ? 1 : 0)  // 6-player or 4-player board layout
-            : ((maxPl > 4) ? 2 : (maxPl > 3) ? 1 : 0);  // 6-player, 4, or 3-player board layout
+                ? ((maxPl > 4) ? 1 : 0)  // 6-player or 4-player board layout
+                : ((maxPl > 4) ? 2 : (maxPl > 3) ? 1 : 0);  // 6-player, 4, or 3-player board layout
 
         return boardVS[idx];  // may return null
     }
@@ -2862,7 +2861,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * which lower-numbered seats are vacant, to avoid spacing gaps on the board.
      *
      * @param ga  Game data, for {@link SOCGame#maxPlayers} and {@link SOCGame#isSeatVacant(int)}
-     * @return  Edge data from {@link #PIR_ISL_SEA_EDGES}, containing an array for each
+     * @return Edge data from {@link #PIR_ISL_SEA_EDGES}, containing an array for each
      *          player from 0 to {@code ga.maxPlayers - 1}, where vacant players
      *          get empty subarrays of length 0.
      *          <P>
@@ -2872,9 +2871,9 @@ public class SOCBoardAtServer extends SOCBoardLarge
      *          <P>
      *          If game doesn't have {@link SOCGameOptionSet#K_SC_PIRI}, returns {@code null}.
      */
-    public static int[][] getLegalSeaEdges(final SOCGame ga)
+    public static int[][] getLegalSeaEdges( final SOCGame ga )
     {
-        if (! (ga.hasSeaBoard && ga.isGameOptionSet(SOCGameOptionSet.K_SC_PIRI)))
+        if (!(ga.hasSeaBoard && ga.isGameOptionSet( SOCGameOptionSet.K_SC_PIRI )))
             return null;
 
         final int[][] LEGAL_SEA_EDGES = PIR_ISL_SEA_EDGES[(ga.maxPlayers > 4) ? 1 : 0];
@@ -2883,7 +2882,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
         int i = 0;  // iterate i only when player present, to avoid spacing gaps from vacant players
         for (int pn = 0; pn < ga.maxPlayers; ++pn)
         {
-            if (ga.isSeatVacant(pn))
+            if (ga.isSeatVacant( pn ))
             {
                 lseArranged[pn] = new int[0];
             }
@@ -2913,24 +2912,24 @@ public class SOCBoardAtServer extends SOCBoardLarge
      *</UL>
      *
      * @param ga  Game to set up; assumes {@link SOCGame#startGame()} has just been called
-     * @return  this board layout's {@link #getLegalSeaEdges(SOCGame)}
+     * @return this board layout's {@link #getLegalSeaEdges(SOCGame)}
      *     if placement is restricted, or {@code null}
      */
-    public static int[][] startGame_scenarioSetup(final SOCGame ga)
+    public static int[][] startGame_scenarioSetup( final SOCGame ga )
     {
-        if (! ga.hasSeaBoard)
+        if (!ga.hasSeaBoard)
             return null;  // just in case; such a game shouldn't be using this class anyway
 
         final int[][] legalSeaEdges;  // used on sea board; if null, all are legal
-        legalSeaEdges = getLegalSeaEdges(ga);
+        legalSeaEdges = getLegalSeaEdges( ga );
         if (legalSeaEdges != null)
             for (int pn = 0; pn < ga.maxPlayers; ++pn)
-                ga.getPlayer(pn).setRestrictedLegalShips(legalSeaEdges[pn]);
+                ga.getPlayer( pn ).setRestrictedLegalShips( legalSeaEdges[pn] );
 
-        if (ga.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI) || ga.isGameOptionSet(SOCGameOptionSet.K_SC_PIRI))
+        if (ga.isGameOptionSet( SOCGameOptionSet.K_SC_FTRI ) || ga.isGameOptionSet( SOCGameOptionSet.K_SC_PIRI ))
         {
             // scenario has initial pieces
-            ((SOCBoardAtServer) (ga.getBoard())).startGame_putInitPieces(ga);
+            ((SOCBoardAtServer) (ga.getBoard())).startGame_putInitPieces( ga );
         }
 
         return legalSeaEdges;
@@ -2962,49 +2961,54 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * {@link SOCPlayer#setRestrictedLegalShips(int[])} before calling this method,
      * so the legal and potential arrays will be initialized.
      */
-    public void startGame_putInitPieces(SOCGame ga)
+    public void startGame_putInitPieces( SOCGame ga )
     {
-        if (ga.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI))
+        if (ga.isGameOptionSet( SOCGameOptionSet.K_SC_FTRI ))
         {
             // Set aside dev cards for players to be given when reaching "CE" Special Edges.
 
             final int cpn = ga.getCurrentPlayerNumber();
-            ga.setCurrentPlayerNumber(-1);  // to call buyDevCard without giving it to a player
+            ga.setCurrentPlayerNumber( -1 );  // to call buyDevCard without giving it to a player
 
             drawStack = new Stack<>();
             final int n = FOR_TRI_DEV_CARD_EDGES[(ga.maxPlayers > 4) ? 1 : 0].length;
             for (int i = 0; i < n; ++i)
-                drawStack.push(ga.buyDevCard());
+                drawStack.push( ga.buyDevCard() );
 
-            ga.setCurrentPlayerNumber(cpn);
+            ga.setCurrentPlayerNumber( cpn );
             return;
         }
 
-        if (! ga.isGameOptionSet(SOCGameOptionSet.K_SC_PIRI))
+        if (!ga.isGameOptionSet( SOCGameOptionSet.K_SC_PIRI ))
             return;
 
         final int gstate = ga.getGameState();
-        ga.setGameState(SOCGame.READY);  // prevent ga.putPiece from advancing turn
+        ga.setGameState( SOCGame.READY );  // prevent ga.putPiece from advancing turn
 
         final int[] inits = PIR_ISL_INIT_PIECES[(ga.maxPlayers > 4) ? 1 : 0];
         int[] possiLoneSettles = new int[ga.maxPlayers];  // lone possible-settlement node on the way to the island.
-            // vacant players will get 0 here, will not get free settlement, ship, or pirate fortress.
+        // vacant players will get 0 here, will not get free settlement, ship, or pirate fortress.
 
         int i = 0;  // iterate i only when player present, to avoid spacing gaps from vacant players
         for (int pn = 0; pn < ga.maxPlayers; ++pn)
         {
-            if (ga.isSeatVacant(pn))
+            if (ga.isSeatVacant( pn ))
                 continue;
 
-            SOCPlayer pl = ga.getPlayer(pn);
-            ga.putPiece(new SOCSettlement(pl, inits[i], this));  ++i;
-            ga.putPiece(new SOCShip(pl, inits[i], this));  ++i;
-            ga.putPiece(new SOCFortress(pl, inits[i], this));  ++i;
-            possiLoneSettles[pn] = inits[i];  ga.getPlayer(pn).addLegalSettlement(inits[i], false);  ++i;
+            SOCPlayer pl = ga.getPlayer( pn );
+            ga.putPiece( new SOCSettlement( pl, inits[i], this ) );
+            ++i;
+            ga.putPiece( new SOCShip( pl, inits[i], this ) );
+            ++i;
+            ga.putPiece( new SOCFortress( pl, inits[i], this ) );
+            ++i;
+            possiLoneSettles[pn] = inits[i];
+            ga.getPlayer( pn ).addLegalSettlement( inits[i], false );
+            ++i;
         }
-        setAddedLayoutPart("LS", possiLoneSettles);
+        setAddedLayoutPart( "LS", possiLoneSettles );
 
-        ga.setGameState(gstate);
+        ga.setGameState( gstate );
     }
 
 
@@ -3041,13 +3045,13 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * which will have 2 nodes where a port settlement/city can be built.
      */
     private static final int[] PORT_EDGE_FACING_MAINLAND_4PL =
-    {
-        0x0204, FACING_SE,  0x0207, FACING_SW,
-        0x040A, FACING_SW,  0x070C, FACING_W,
-        0x0A0A, FACING_NW,  0x0C07, FACING_NW,
-        0x0C04, FACING_NE,  0x0903, FACING_E,
-        0x0503, FACING_E
-    };
+        {
+            0x0204, FACING_SE, 0x0207, FACING_SW,
+            0x040A, FACING_SW, 0x070C, FACING_W,
+            0x0A0A, FACING_NW, 0x0C07, FACING_NW,
+            0x0C04, FACING_NE, 0x0903, FACING_E,
+            0x0503, FACING_E
+        };
 
     /**
      * Fallback board layout, 4 players: Outlying islands' ports.
@@ -3056,20 +3060,20 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * Second: Facing
      */
     private static final int[] PORT_EDGE_FACING_ISLANDS_4PL =
-    {
-        0x080F, FACING_NW,   // - northeast island
-        0x0C10, FACING_SW,  0x100D, FACING_NW,        // - southeast island
-        0x1007, FACING_SE    // - southwest island
-    };
+        {
+            0x080F, FACING_NW,   // - northeast island
+            0x0C10, FACING_SW, 0x100D, FACING_NW,        // - southeast island
+            0x1007, FACING_SE    // - southwest island
+        };
 
     /**
      * Port types for the 4 outlying-island ports on the 4-player fallback board.
      * For the mainland's port types, use {@link SOCBoard4p#PORTS_TYPE_V1}.
      */
     private static final int[] PORT_TYPE_ISLANDS_4PL =
-    {
-        MISC_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
-    };
+        {
+            MISC_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT
+        };
 
     /**
      * Fallback board layout for 4 players: Dice-number path (hex coordinates)
@@ -3078,13 +3082,13 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * For the mainland's dice numbers, see {@link SOCBoard4p#makeNewBoard_diceNums_v1}.
      */
     private static final int[] LANDHEX_DICEPATH_MAINLAND_4PL =
-    {
-        // clockwise from northwest
-        0x0305, 0x0307, 0x0309, 0x050A, 0x070B,
-        0x090A, 0x0B09, 0x0B07, 0x0B05, 0x0904,
-        0x0703, 0x0504, 0x0506, 0x0508, 0x0709,
-        0x0908, 0x0906, 0x0705, 0x0707
-    };
+        {
+            // clockwise from northwest
+            0x0305, 0x0307, 0x0309, 0x050A, 0x070B,
+            0x090A, 0x0B09, 0x0B07, 0x0B05, 0x0904,
+            0x0703, 0x0504, 0x0506, 0x0508, 0x0709,
+            0x0908, 0x0906, 0x0705, 0x0707
+        };
 
     /**
      * Fallback board layout, 4 players: All the outlying islands' land hex coordinates.
@@ -3097,11 +3101,11 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @see #LANDHEX_LANDAREA_RANGES_ISLANDS_4PL
      */
     private static final int[] LANDHEX_COORD_ISLANDS_ALL_4PL =
-    {
-        0x030F, 0x050E, 0x0510, 0x070F, 0x0711,
-        0x0D0E, 0x0D10, 0x0D12, 0x0F0D, 0x0F0F,
-        0x0F03, 0x0F05, 0x1106, 0x1108
-    };
+        {
+            0x030F, 0x050E, 0x0510, 0x070F, 0x0711,
+            0x0D0E, 0x0D10, 0x0D12, 0x0F0D, 0x0F0F,
+            0x0F03, 0x0F05, 0x1106, 0x1108
+        };
 
     /**
      * Fallback board layout for 4 players: Each outlying island's land hex coordinates.
@@ -3111,11 +3115,11 @@ public class SOCBoardAtServer extends SOCBoardLarge
      */
     @SuppressWarnings("unused")  // TODO is this field useful to keep for reference?
     private static final int[][] LANDHEX_COORD_ISLANDS_EACH =
-    {
-        { 0x030F, 0x050E, 0x0510, 0x070F, 0x0711 },
-        { 0x0D0E, 0x0D10, 0x0D12, 0x0F0D, 0x0F0F },
-        { 0x0F03, 0x0F05, 0x1106, 0x1108 }
-    };
+        {
+            {0x030F, 0x050E, 0x0510, 0x070F, 0x0711},
+            {0x0D0E, 0x0D10, 0x0D12, 0x0F0D, 0x0F0F},
+            {0x0F03, 0x0F05, 0x1106, 0x1108}
+        };
 
     /**
      * 4-player island hex counts and land area numbers within {@link #LANDHEX_COORD_ISLANDS_ALL_4PL}.
@@ -3124,22 +3128,22 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @see #LANDHEX_COORD_ISLANDS_EACH
      */
     private static final int[] LANDHEX_LANDAREA_RANGES_ISLANDS_4PL =
-    {
-        2, 5,  // landarea 2 is an island with 5 hexes
-        3, 5,  // landarea 3
-        4, 4   // landarea 4
-    };
+        {
+            2, 5,  // landarea 2 is an island with 5 hexes
+            3, 5,  // landarea 3
+            4, 4   // landarea 4
+        };
 
     /**
      * Fallback board layout, 4 players: Land hex types for the 3 small islands,
      * to be used with (for the main island) {@link SOCBoard4p#makeNewBoard_landHexTypes_v1}[].
      */
     private static final int[] LANDHEX_TYPE_ISLANDS_4PL =
-    {
-        CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX, DESERT_HEX,
-        WOOD_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX
-    };
+        {
+            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX, DESERT_HEX,
+            WOOD_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX
+        };
 
     /**
      * Fallback board layout, 4 players: Dice numbers for the outlying islands.
@@ -3148,11 +3152,11 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * To make the islands more attractive, avoids the infrequntly rolled 2 and 12.
      */
     private static final int[] LANDHEX_DICENUM_ISLANDS_4PL =
-    {
-        5, 4, 6, 3, 8,
-        10, 9, 11, 5, 9,
-        4, 10, 5  // leave 1 un-numbered, for the DESERT_HEX
-    };
+        {
+            5, 4, 6, 3, 8,
+            10, 9, 11, 5, 9,
+            4, 10, 5  // leave 1 un-numbered, for the DESERT_HEX
+        };
 
     /**
      * Fallback board layout for 6 players: Dice-number path (hex coordinates)
@@ -3161,14 +3165,14 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * For the mainland's dice numbers, see {@link SOCBoard6p#makeNewBoard_diceNums_v2}.
      */
     private static final int[] LANDHEX_DICEPATH_MAINLAND_6PL =
-    {
-        // clockwise inward from western corner
-        0x0904, 0x0705, 0x0506, 0x0307, 0x0309, 0x030B, 0x050C, 0x070D,
-        0x090E, 0x0B0D, 0x0D0C, 0x0F0B, 0x0F09, 0x0F07, 0x0D06, 0x0B05,  // end of outside of spiral
-        0x0906, 0x0707, 0x0508, 0x050A, 0x070B,
-        0x090C, 0x0B0B, 0x0D0A, 0x0D08, 0x0B07,  // end of middle layer of spiral
-        0x0908, 0x0709, 0x090A, 0x0B09
-    };
+        {
+            // clockwise inward from western corner
+            0x0904, 0x0705, 0x0506, 0x0307, 0x0309, 0x030B, 0x050C, 0x070D,
+            0x090E, 0x0B0D, 0x0D0C, 0x0F0B, 0x0F09, 0x0F07, 0x0D06, 0x0B05,  // end of outside of spiral
+            0x0906, 0x0707, 0x0508, 0x050A, 0x070B,
+            0x090C, 0x0B0B, 0x0D0A, 0x0D08, 0x0B07,  // end of middle layer of spiral
+            0x0908, 0x0709, 0x090A, 0x0B09
+        };
 
     /**
      * Fallback board layout for 6 players: Main island's ports, clockwise from its western corner (like dice path).
@@ -3180,14 +3184,14 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * which will have 2 nodes where a port settlement/city can be built.
      */
     private static final int[] PORT_EDGE_FACING_MAINLAND_6PL =
-    {
-        0x0704, FACING_E,   0x0405, FACING_SE,
-        0x0208, FACING_SE,  0x020B, FACING_SW,
-        0x060D, FACING_SW,  0x090F, FACING_W,
-        0x0C0D, FACING_NW,  0x100B, FACING_NW,
-        0x1008, FACING_NE,  0x0E05, FACING_NE,
-        0x0B04, FACING_E
-    };
+        {
+            0x0704, FACING_E, 0x0405, FACING_SE,
+            0x0208, FACING_SE, 0x020B, FACING_SW,
+            0x060D, FACING_SW, 0x090F, FACING_W,
+            0x0C0D, FACING_NW, 0x100B, FACING_NW,
+            0x1008, FACING_NE, 0x0E05, FACING_NE,
+            0x0B04, FACING_E
+        };
 
     /**
      * Fallback board layout, 6 players: All the outlying islands' land hex coordinates.
@@ -3199,11 +3203,11 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @see #LANDHEX_LANDAREA_RANGES_ISLANDS_6PL
      */
     private static final int[] LANDHEX_COORD_ISLANDS_ALL_6PL =
-    {
-        0x0311, 0x0313, 0x0510, 0x0512, 0x0514, 0x0711, 0x0713, 0x0914,
-        0x0D10, 0x0D12, 0x0D14, 0x0F0F, 0x0F11, 0x0F13, 0x1112, 0x1114,
-        0x1305, 0x1307, 0x1309, 0x130B, 0x130D
-    };
+        {
+            0x0311, 0x0313, 0x0510, 0x0512, 0x0514, 0x0711, 0x0713, 0x0914,
+            0x0D10, 0x0D12, 0x0D14, 0x0F0F, 0x0F11, 0x0F13, 0x1112, 0x1114,
+            0x1305, 0x1307, 0x1309, 0x130B, 0x130D
+        };
 
     /**
      * 4-player island hex counts and land area numbers within {@link #LANDHEX_COORD_ISLANDS_ALL_4PL}.
@@ -3212,22 +3216,22 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @see #LANDHEX_COORD_ISLANDS_EACH
      */
     private static final int[] LANDHEX_LANDAREA_RANGES_ISLANDS_6PL =
-    {
-        2, 8,  // landarea 2 is an island with 8 hexes
-        3, 8,  // landarea 3
-        4, 5   // landarea 4
-    };
+        {
+            2, 8,  // landarea 2 is an island with 8 hexes
+            3, 8,  // landarea 3
+            4, 5   // landarea 4
+        };
 
     /**
      * Fallback board layout, 6 players: Land hex types for the 3 small islands,
      * to be used with (for the main island) {@link SOCBoard6p#makeNewBoard_landHexTypes_v2}[].
      */
     private static final int[] LANDHEX_TYPE_ISLANDS_6PL =
-    {
-        CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
-        SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
-        DESERT_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX
-    };
+        {
+            CLAY_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+            SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX,
+            DESERT_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX
+        };
 
     /**
      * Fallback board layout, 6 players: Dice numbers for the outlying islands.
@@ -3236,10 +3240,10 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * To make the islands more attractive, avoids the infrequntly rolled 2 and 12.
      */
     private static final int[] LANDHEX_DICENUM_ISLANDS_6PL =
-    {
-        3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11
-        // leave 1 un-numbered, for the DESERT_HEX
-    };
+        {
+            3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11
+            // leave 1 un-numbered, for the DESERT_HEX
+        };
 
     /**
      * Fallback board layout, 6 players: Outlying islands' ports.
@@ -3248,20 +3252,20 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * Second: Facing
      */
     private static final int[] PORT_EDGE_FACING_ISLANDS_6PL =
-    {
-        0x0812, FACING_NE,  0x0310, FACING_E,    // - northeast island
-        0x0C12, FACING_SW,  0x1010, FACING_NE,   // - southeast island
-        0x1209, FACING_SW    // - southwest island
-    };
+        {
+            0x0812, FACING_NE, 0x0310, FACING_E,    // - northeast island
+            0x0C12, FACING_SW, 0x1010, FACING_NE,   // - southeast island
+            0x1209, FACING_SW    // - southwest island
+        };
 
     /**
      * Port types for the 4 outlying-island ports on the 6-player fallback board.
      * For the mainland's port types, use {@link SOCBoard6p#PORTS_TYPE_V2}.
      */
     private static final int[] PORT_TYPE_ISLANDS_6PL =
-    {
-        MISC_PORT, MISC_PORT, CLAY_PORT, WOOD_PORT, MISC_PORT
-    };
+        {
+            MISC_PORT, MISC_PORT, CLAY_PORT, WOOD_PORT, MISC_PORT
+        };
 
 
     ////////////////////////////////////////////
@@ -3281,8 +3285,10 @@ public class SOCBoardAtServer extends SOCBoardLarge
      */
     private static final int[] NSHO_BOARDSIZE = {0x120F, 0x1211, 0x1216};
 
-    /** New Shores: Visual Shift and Trim ("VS") */
-    private static final int NSHO_VIS_SHIFT[][] = {{-2,0, 1,0}, {-2,1}, {-1,0}};
+    /**
+     * New Shores: Visual Shift and Trim ("VS")
+     */
+    private static final int[][] NSHO_VIS_SHIFT = {{-2, 0, 1, 0}, {-2, 1}, {-1, 0}};
 
     /** New Shores: Starting robber hex (needed on 3-player board only) */
     private static final int NSHO_ROBBER_HEX_3PL = 0x0305;
@@ -3297,15 +3303,15 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * New Shores: Land hex types for the main island. Shuffled.
      */
     private static final int[][] NSHO_LANDHEX_TYPE_MAIN =
-    {
         {
-            // 3 players:
-            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
-            WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
-        },
-        SOCBoard4p.makeNewBoard_landHexTypes_v1,  // 4 players
-        SOCBoard6p.makeNewBoard_landHexTypes_v2   // 6 players
-    };
+            {
+                // 3 players:
+                CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX,
+                WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX
+            },
+            SOCBoard4p.makeNewBoard_landHexTypes_v1,  // 4 players
+            SOCBoard6p.makeNewBoard_landHexTypes_v2   // 6 players
+        };
 
     /**
      * New Shores: Land hex coordinates for the main island.
@@ -3315,25 +3321,25 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @see #NSHO_LANDHEX_COORD_ISL
      */
     private static final int[][] NSHO_LANDHEX_COORD_MAIN =
-    {{
-        // 3 players: clockwise from west (dice numbers are shuffled)
-        0x0B03, 0x0904, 0x0705, 0x0707, 0x0908,
-        0x0B09, 0x0D08, 0x0F07, 0x0F05, 0x0D04,
-        0x0B05, 0x0906, 0x0B07, 0x0D06
-    }, {
-        // 4 players: clockwise from northwest (dice path)
-        0x0705, 0x0707, 0x0709, 0x090A, 0x0B0B,
-        0x0D0A, 0x0F09, 0x0F07, 0x0F05, 0x0D04,
-        0x0B03, 0x0904, 0x0906, 0x0908, 0x0B09,
-        0x0D08, 0x0D06, 0x0B05, 0x0B07
-    }, {
-        // 6 players: clockwise from west (dice path)
-        0x0906, 0x0707, 0x0508, 0x0309, 0x030B, 0x030D, 0x050E,
-        0x070F, 0x0910, 0x0B0F, 0x0D0E, 0x0F0D, 0x0F0B, 0x0F09,
-        0x0D08, 0x0B07, 0x0908, 0x0709, 0x050A, 0x050C, 0x070D,
-        0x090E, 0x0B0D, 0x0D0C, 0x0D0A, 0x0B09, 0x090A, 0x070B,
-        0x090C, 0x0B0B
-    }};
+        {{
+            // 3 players: clockwise from west (dice numbers are shuffled)
+            0x0B03, 0x0904, 0x0705, 0x0707, 0x0908,
+            0x0B09, 0x0D08, 0x0F07, 0x0F05, 0x0D04,
+            0x0B05, 0x0906, 0x0B07, 0x0D06
+        }, {
+            // 4 players: clockwise from northwest (dice path)
+            0x0705, 0x0707, 0x0709, 0x090A, 0x0B0B,
+            0x0D0A, 0x0F09, 0x0F07, 0x0F05, 0x0D04,
+            0x0B03, 0x0904, 0x0906, 0x0908, 0x0B09,
+            0x0D08, 0x0D06, 0x0B05, 0x0B07
+        }, {
+            // 6 players: clockwise from west (dice path)
+            0x0906, 0x0707, 0x0508, 0x0309, 0x030B, 0x030D, 0x050E,
+            0x070F, 0x0910, 0x0B0F, 0x0D0E, 0x0F0D, 0x0F0B, 0x0F09,
+            0x0D08, 0x0B07, 0x0908, 0x0709, 0x050A, 0x050C, 0x070D,
+            0x090E, 0x0B0D, 0x0D0C, 0x0D0A, 0x0B09, 0x090A, 0x070B,
+            0x090C, 0x0B0B
+        }};
 
     /**
      * New Shores: Dice numbers for hexes on the main island along {@link #NSHO_LANDHEX_COORD_MAIN}.
@@ -3342,11 +3348,11 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @see #NSHO_DICENUM_ISL
      */
     private static final int[][] NSHO_DICENUM_MAIN =
-    {
-        { 2, 3, 4, 5, 5, 6, 6, 8, 8, 9, 10, 10, 11, 11 },  // 3 players
-        SOCBoard4p.makeNewBoard_diceNums_v1,  // 4 players
-        SOCBoard6p.makeNewBoard_diceNums_v2   // 6 players
-    };
+        {
+            {2, 3, 4, 5, 5, 6, 6, 8, 8, 9, 10, 10, 11, 11},  // 3 players
+            SOCBoard4p.makeNewBoard_diceNums_v1,  // 4 players
+            SOCBoard6p.makeNewBoard_diceNums_v2   // 6 players
+        };
 
     /**
      * New Shores: Port edges and facings. There are no ports on the small islands, only the main one.
@@ -3360,62 +3366,62 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * Port types ({@link #NSHO_PORT_TYPE}) are shuffled.
      */
     private static final int[][] NSHO_PORT_EDGE_FACING =
-    {{
-        0x0704, FACING_E,   0x0708, FACING_W,   0x0A09, FACING_SW,  0x0F08, FACING_W,
-        0x1006, FACING_NE,  0x0F04, FACING_E,   0x0C02, FACING_NE,  0x0A02, FACING_SE
-    }, {
-        0x0604, FACING_SE,  0x0607, FACING_SW,  0x080A, FACING_SW,  0x0B0C, FACING_W,
-        0x0E0A, FACING_NW,  0x1007, FACING_NW,  0x1004, FACING_NE,  0x0D03, FACING_E,
-        0x0903, FACING_E
-    }, {
-        0x020B, FACING_SW,  0x040E, FACING_SW,  0x0710, FACING_W,   0x0A10, FACING_NW,
-        0x0D0F, FACING_W,   0x100D, FACING_NW,  0x100A, FACING_NE,  0x0E07, FACING_NE,
-        0x0A05, FACING_NE,  0x0706, FACING_E,   0x0407, FACING_SE
-    }};
+        {{
+            0x0704, FACING_E, 0x0708, FACING_W, 0x0A09, FACING_SW, 0x0F08, FACING_W,
+            0x1006, FACING_NE, 0x0F04, FACING_E, 0x0C02, FACING_NE, 0x0A02, FACING_SE
+        }, {
+            0x0604, FACING_SE, 0x0607, FACING_SW, 0x080A, FACING_SW, 0x0B0C, FACING_W,
+            0x0E0A, FACING_NW, 0x1007, FACING_NW, 0x1004, FACING_NE, 0x0D03, FACING_E,
+            0x0903, FACING_E
+        }, {
+            0x020B, FACING_SW, 0x040E, FACING_SW, 0x0710, FACING_W, 0x0A10, FACING_NW,
+            0x0D0F, FACING_W, 0x100D, FACING_NW, 0x100A, FACING_NE, 0x0E07, FACING_NE,
+            0x0A05, FACING_NE, 0x0706, FACING_E, 0x0407, FACING_SE
+        }};
 
     /**
      * New Shores: Port types on main island; will be shuffled.
      */
     private static final int[][] NSHO_PORT_TYPE =
-    {
-        { 0, 0, 0, CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT },  // 3 players
-        SOCBoard4p.PORTS_TYPE_V1,  // 4 players
-        SOCBoard6p.PORTS_TYPE_V2   // 6 players
-    };
+        {
+            {0, 0, 0, CLAY_PORT, ORE_PORT, SHEEP_PORT, WHEAT_PORT, WOOD_PORT},  // 3 players
+            SOCBoard4p.PORTS_TYPE_V1,  // 4 players
+            SOCBoard6p.PORTS_TYPE_V2   // 6 players
+        };
 
     /**
      * New Shores: Land hex types on the several small islands. Shuffled.
      */
     private static final int[][] NSHO_LANDHEX_TYPE_ISL =
-    {{
-        CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, GOLD_HEX, GOLD_HEX
-    }, {
-        CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX
-    }, {
-        CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX, GOLD_HEX
-    }};
+        {{
+            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, GOLD_HEX, GOLD_HEX
+        }, {
+            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX
+        }, {
+            CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX, GOLD_HEX, GOLD_HEX, GOLD_HEX
+        }};
 
     /**
      * New Shores: Island hex counts and land area numbers within {@link #NSHO_LANDHEX_COORD_ISL}.
      * Allows them to be defined, shuffled, and placed together.
      */
     private static final int[][] NSHO_LANDHEX_LANDAREA_RANGES =
-    {{
-        2, 2,  // landarea 2 is the northwest island with 2 hexes
-        3, 4,  // landarea 3 NE, 4 hexes
-        4, 2,  // landarea 4 SE, 2 hexes
-    }, {
-        2, 2,
-        3, 5,
-        4, 2
-    }, {
-        2, 3,
-        3, 3,
-        4, 1,  // single-hex islands on east side of board
-        5, 1,
-        6, 1,
-        7, 1
-    }};
+        {{
+            2, 2,  // landarea 2 is the northwest island with 2 hexes
+            3, 4,  // landarea 3 NE, 4 hexes
+            4, 2,  // landarea 4 SE, 2 hexes
+        }, {
+            2, 2,
+            3, 5,
+            4, 2
+        }, {
+            2, 3,
+            3, 3,
+            4, 1,  // single-hex islands on east side of board
+            5, 1,
+            6, 1,
+            7, 1
+        }};
 
     /**
      * New Shores: Land hex coordinates for the several small islands.
@@ -3425,19 +3431,19 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @see #NSHO_LANDHEX_COORD_MAIN
      */
     private static final int[][] NSHO_LANDHEX_COORD_ISL =
-    {{
-        0x0305, 0x0307,
-        0x050A, 0x050C, 0x070B, 0x090C,
-        0x0D0C, 0x0F0B
-    }, {
-        0x0305, 0x0307,
-        0x030B, 0x050C, 0x050E, 0x070D, 0x090E,
-        0x0D0E, 0x0F0D
-    }, {
-        0x0305, 0x0504, 0x0703,
-        0x0B03, 0x0D04, 0x0F05,
-        0x0311,   0x0713,   0x0B13,   0x0F11
-    }};
+        {{
+            0x0305, 0x0307,
+            0x050A, 0x050C, 0x070B, 0x090C,
+            0x0D0C, 0x0F0B
+        }, {
+            0x0305, 0x0307,
+            0x030B, 0x050C, 0x050E, 0x070D, 0x090E,
+            0x0D0E, 0x0F0D
+        }, {
+            0x0305, 0x0504, 0x0703,
+            0x0B03, 0x0D04, 0x0F05,
+            0x0311, 0x0713, 0x0B13, 0x0F11
+        }};
 
     /**
      * New Shores: Dice numbers for hexes on the several small islands
@@ -3446,13 +3452,13 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @see #NSHO_DICENUM_MAIN
      */
     private static final int[][] NSHO_DICENUM_ISL =
-    {{
-        3, 4, 4, 5, 8, 9, 10, 12
-    }, {
-        2, 3, 4, 5, 6, 8, 9, 10, 11
-    }, {
-        2, 3, 4, 5, 6, 8, 9, 10, 11, 12
-    }};
+        {{
+            3, 4, 4, 5, 8, 9, 10, 12
+        }, {
+            2, 3, 4, 5, 6, 8, 9, 10, 11
+        }, {
+            2, 3, 4, 5, 6, 8, 9, 10, 11, 12
+        }};
 
 
     ////////////////////////////////////////////
@@ -5234,12 +5240,12 @@ public class SOCBoardAtServer extends SOCBoardLarge
          * @throws IllegalArgumentException if <tt>maxPlayers</tt> is not 4 or 6
          */
         public SOCBoard createBoard
-            (final SOCGameOptionSet gameOpts, final boolean largeBoard, final int maxPlayers)
+        ( final SOCGameOptionSet gameOpts, final boolean largeBoard, final int maxPlayers )
             throws IllegalArgumentException
         {
-            if (! largeBoard)
+            if (!largeBoard)
             {
-                return DefaultBoardFactory.staticCreateBoard(gameOpts, false, maxPlayers);
+                return DefaultBoardFactory.staticCreateBoard( gameOpts, false, maxPlayers );
             }
             else
             {
@@ -5334,7 +5340,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
          * @param landPath  Coordinates of each hex that was placed or checked in this step
          */
         void hexesProgress
-            (final SOCBoardAtServer board, final SOCGameOptionSet opts, final int step, final int[] landPath);
+        ( final SOCBoardAtServer board, final SOCGameOptionSet opts, final int step, final int[] landPath );
 
         /**
          * A step of the overall board generation has completed.
@@ -5346,7 +5352,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
          *     see {@link NewBoardProgressListener} javadoc for list
          */
         void boardProgress
-            (final SOCBoardAtServer board, final SOCGameOptionSet opts, final int step);
+        ( final SOCBoardAtServer board, final SOCGameOptionSet opts, final int step );
 
     }  // nested interface NewBoardProgressListener
 

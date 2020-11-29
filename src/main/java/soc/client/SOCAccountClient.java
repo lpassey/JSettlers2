@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file copyright (C) 2009-2011,2013-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -248,9 +248,9 @@ public class SOCAccountClient extends Applet
      *     {@link SwingMainDisplay#checkDisplayScaleFactor(Component)} with the Frame to which this display will be added
      * @throws IllegalArgumentException if {@code displayScaleFactor} &lt; 1
      */
-    public SOCAccountClient(final int displayScaleFactor)
+    public SOCAccountClient( final int displayScaleFactor )
     {
-        this(null, ClientNetwork.SOC_PORT_DEFAULT, displayScaleFactor);
+        this( null, ClientNetwork.SOC_PORT_DEFAULT, displayScaleFactor );
     }
 
     /**
@@ -267,25 +267,27 @@ public class SOCAccountClient extends Applet
      *     {@link SwingMainDisplay#checkDisplayScaleFactor(Component)} with the Frame to which this display will be added
      * @throws IllegalArgumentException if {@code displayScaleFactor} &lt; 1
      */
-    public SOCAccountClient(String h, int p, final int displayScaleFactor)
+    public SOCAccountClient( String h, int p, final int displayScaleFactor )
         throws IllegalArgumentException
     {
         if (displayScaleFactor < 1)
-            throw new IllegalArgumentException("displayScaleFactor");
+            throw new IllegalArgumentException( "displayScaleFactor" );
 
         host = h;
         port = p;
         displayScale = displayScaleFactor;
 
-        String jsLocale = System.getProperty(I18n.PROP_JSETTLERS_LOCALE);
+        String jsLocale = System.getProperty( I18n.PROP_JSETTLERS_LOCALE );
         Locale lo = null;
         if (jsLocale != null)
         {
             try
             {
-                lo = StringManager.parseLocale(jsLocale.trim());
-            } catch (IllegalArgumentException e) {
-                System.err.println("Could not parse locale " + jsLocale);
+                lo = StringManager.parseLocale( jsLocale.trim() );
+            }
+            catch( IllegalArgumentException e )
+            {
+                System.err.println( "Could not parse locale " + jsLocale );
             }
         }
         if (lo != null)
@@ -293,9 +295,9 @@ public class SOCAccountClient extends Applet
         else
             cliLocale = Locale.getDefault();
 
-        strings = soc.util.SOCStringManager.getClientManager(cliLocale);
+        strings = soc.util.SOCStringManager.getClientManager( cliLocale );
 
-        if (null != System.getProperty(SOCDisplaylessPlayerClient.PROP_JSETTLERS_DEBUG_TRAFFIC))
+        if (null != System.getProperty( SOCDisplaylessPlayerClient.PROP_JSETTLERS_DEBUG_TRAFFIC ))
             debugTraffic = true;  // set flag if debug prop has any value at all
     }
 
@@ -307,130 +309,130 @@ public class SOCAccountClient extends Applet
      */
     protected void initVisualElements()
     {
-        nick = new JTextField(20);
-        pass = new JPasswordField(10);
-        pass2 = new JPasswordField(10);
-        email = new JTextField(50);
-        status = new JTextField(50);
-        status.setEditable(false);
-        submit = new JButton(strings.get("account.okcreate"));  // "Create Account"
+        nick = new JTextField( 20 );
+        pass = new JPasswordField( 10 );
+        pass2 = new JPasswordField( 10 );
+        email = new JTextField( 50 );
+        status = new JTextField( 50 );
+        status.setEditable( false );
+        submit = new JButton( strings.get( "account.okcreate" ) );  // "Create Account"
         submitLock = false;
 
-        submit.addActionListener(this);
+        submit.addActionListener( this );
 
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
-        JPanel mainPane = new JPanel(gbl);
+        JPanel mainPane = new JPanel( gbl );
 
         c.fill = GridBagConstraints.BOTH;
 
         JLabel l;
 
-        promptLabel = new JLabel(strings.get("account.create.prompt.enter_your_info"), SwingConstants.CENTER);
-                // "To create an account, please enter your information."
+        promptLabel = new JLabel( strings.get( "account.create.prompt.enter_your_info" ), SwingConstants.CENTER );
+        // "To create an account, please enter your information."
         c.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(promptLabel, c);
-        mainPane.add(promptLabel);
+        gbl.setConstraints( promptLabel, c );
+        mainPane.add( promptLabel );
 
-        l = new JLabel(" ");  // spacer row
+        l = new JLabel( " " );  // spacer row
         c.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(l, c);
-        mainPane.add(l);
+        gbl.setConstraints( l, c );
+        mainPane.add( l );
 
-        nickLabel = new JLabel(strings.get("account.create.nickname.your"));  // "Your Nickname:"
-        nickLabel.setToolTipText(strings.get("account.create.nickname.your.tip"));  // "This will be your username."
+        nickLabel = new JLabel( strings.get( "account.create.nickname.your" ) );  // "Your Nickname:"
+        nickLabel.setToolTipText( strings.get( "account.create.nickname.your.tip" ) );  // "This will be your username."
         c.gridwidth = 1;
-        gbl.setConstraints(nickLabel, c);
-        mainPane.add(nickLabel);
+        gbl.setConstraints( nickLabel, c );
+        mainPane.add( nickLabel );
 
         c.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(nick, c);
-        mainPane.add(nick);
+        gbl.setConstraints( nick, c );
+        mainPane.add( nick );
 
         l = new JLabel();
         c.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(l, c);
-        mainPane.add(l);
+        gbl.setConstraints( l, c );
+        mainPane.add( l );
 
-        l = new JLabel(strings.get("account.create.password"));  // "Password:"
+        l = new JLabel( strings.get( "account.create.password" ) );  // "Password:"
         c.gridwidth = 1;
-        gbl.setConstraints(l, c);
-        mainPane.add(l);
+        gbl.setConstraints( l, c );
+        mainPane.add( l );
 
         c.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(pass, c);
-        mainPane.add(pass);
+        gbl.setConstraints( pass, c );
+        mainPane.add( pass );
 
         l = new JLabel();
         c.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(l, c);
-        mainPane.add(l);
+        gbl.setConstraints( l, c );
+        mainPane.add( l );
 
-        l = new JLabel(strings.get("account.create.password.again"));  // "Password (again):"
+        l = new JLabel( strings.get( "account.create.password.again" ) );  // "Password (again):"
         c.gridwidth = 1;
-        gbl.setConstraints(l, c);
-        mainPane.add(l);
+        gbl.setConstraints( l, c );
+        mainPane.add( l );
 
         c.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(pass2, c);
-        mainPane.add(pass2);
+        gbl.setConstraints( pass2, c );
+        mainPane.add( pass2 );
 
         l = new JLabel();
         c.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(l, c);
-        mainPane.add(l);
+        gbl.setConstraints( l, c );
+        mainPane.add( l );
 
-        l = new JLabel(strings.get("account.create.email"));  // "Email (optional):"
+        l = new JLabel( strings.get( "account.create.email" ) );  // "Email (optional):"
         c.gridwidth = 1;
-        gbl.setConstraints(l, c);
-        mainPane.add(l);
+        gbl.setConstraints( l, c );
+        mainPane.add( l );
 
         c.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(email, c);
-        mainPane.add(email);
+        gbl.setConstraints( email, c );
+        mainPane.add( email );
 
         l = new JLabel();
         c.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(l, c);
-        mainPane.add(l);
+        gbl.setConstraints( l, c );
+        mainPane.add( l );
 
         l = new JLabel();
         c.gridwidth = 1;
-        gbl.setConstraints(l, c);
-        mainPane.add(l);
+        gbl.setConstraints( l, c );
+        mainPane.add( l );
 
         int oldAnchor = c.anchor;
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.NONE;
         c.anchor = GridBagConstraints.LINE_START;
         c.ipadx = 20 * displayScale;
-        gbl.setConstraints(submit, c);
-        mainPane.add(submit);
+        gbl.setConstraints( submit, c );
+        mainPane.add( submit );
         c.fill = GridBagConstraints.BOTH;
         c.anchor = oldAnchor;
         c.ipadx = 0;
 
         l = new JLabel();
         c.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(l, c);
-        mainPane.add(l);
+        gbl.setConstraints( l, c );
+        mainPane.add( l );
 
         c.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(status, c);
-        mainPane.add(status);
+        gbl.setConstraints( status, c );
+        mainPane.add( status );
 
         // message label that takes up the whole pane
-        messageLabel = new JLabel("", SwingConstants.CENTER);
+        messageLabel = new JLabel( "", SwingConstants.CENTER );
 
-        JPanel messagePane = new JPanel(new BorderLayout());
-        messagePane.add(messageLabel, BorderLayout.CENTER);
+        JPanel messagePane = new JPanel( new BorderLayout() );
+        messagePane.add( messageLabel, BorderLayout.CENTER );
 
         // all together now...
         cardLayout = new CardLayout();
-        setLayout(cardLayout);
+        setLayout( cardLayout );
 
-        add(messagePane, MESSAGE_PANEL); // shown first
-        add(mainPane, MAIN_PANEL);
+        add( messagePane, MESSAGE_PANEL ); // shown first
+        add( mainPane, MAIN_PANEL );
 
         // Note: JFrame validate and pack seem to use mainPane's size, even if messagePane is taller; fields get cut off.
         // Workaround: Make sure mainPane is taller
@@ -449,102 +451,102 @@ public class SOCAccountClient extends Applet
 
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
-        pconn.setLayout(gbl);
+        pconn.setLayout( gbl );
         gbc.fill = GridBagConstraints.BOTH;
 
         JLabel L;
 
         // heading row
-        L = new JLabel(strings.get("account.common.must_auth"), SwingConstants.CENTER);
-            // "You must log in with a username and password before you can create accounts."
+        L = new JLabel( strings.get( "account.common.must_auth" ), SwingConstants.CENTER );
+        // "You must log in with a username and password before you can create accounts."
         gbc.gridwidth = 4;
         gbc.ipady = 12 * displayScale;  // space between this and next row
-        gbl.setConstraints(L, gbc);
-        pconn.add(L);
+        gbl.setConstraints( L, gbc );
+        pconn.add( L );
         L = new JLabel();  // Spacing for rest of form's rows
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(L, gbc);
-        pconn.add(L);
+        gbl.setConstraints( L, gbc );
+        pconn.add( L );
         gbc.ipady = 0;
 
         // rows for server, port, nickname, password:
 
         gbc.ipady = 2 * displayScale;
 
-        L = new JLabel(strings.get("pcli.cpp.server"));
+        L = new JLabel( strings.get( "pcli.cpp.server" ) );
         gbc.gridwidth = 1;
-        gbl.setConstraints(L, gbc);
-        pconn.add(L);
-        L = new JLabel(host);
+        gbl.setConstraints( L, gbc );
+        pconn.add( L );
+        L = new JLabel( host );
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.ipadx = 4 * displayScale;
-        gbl.setConstraints(L, gbc);
-        pconn.add(L);
+        gbl.setConstraints( L, gbc );
+        pconn.add( L );
         gbc.ipadx = 0;
 
-        L = new JLabel(strings.get("pcli.cpp.port"));
+        L = new JLabel( strings.get( "pcli.cpp.port" ) );
         gbc.gridwidth = 1;
-        gbl.setConstraints(L, gbc);
-        pconn.add(L);
-        L = new JLabel(Integer.toString(port));
+        gbl.setConstraints( L, gbc );
+        pconn.add( L );
+        L = new JLabel( Integer.toString( port ) );
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.ipadx = 4 * displayScale;
-        gbl.setConstraints(L, gbc);
-        pconn.add(L);
+        gbl.setConstraints( L, gbc );
+        pconn.add( L );
         gbc.ipadx = 0;
 
-        L = new JLabel(strings.get("pcli.cpp.nickname"));
+        L = new JLabel( strings.get( "pcli.cpp.nickname" ) );
         gbc.gridwidth = 1;
-        gbl.setConstraints(L, gbc);
-        pconn.add(L);
-        conn_user = new JTextField(20);
+        gbl.setConstraints( L, gbc );
+        pconn.add( L );
+        conn_user = new JTextField( 20 );
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(conn_user, gbc);
-        conn_user.addKeyListener(this);
-        pconn.add(conn_user);
+        gbl.setConstraints( conn_user, gbc );
+        conn_user.addKeyListener( this );
+        pconn.add( conn_user );
 
-        L = new JLabel(strings.get("pcli.cpp.password"));
+        L = new JLabel( strings.get( "pcli.cpp.password" ) );
         gbc.gridwidth = 1;
-        gbl.setConstraints(L, gbc);
-        pconn.add(L);
-        conn_pass = new JPasswordField(20);
+        gbl.setConstraints( L, gbc );
+        pconn.add( L );
+        conn_pass = new JPasswordField( 20 );
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(conn_pass, gbc);
-        conn_pass.addKeyListener(this);
-        pconn.add(conn_pass);
+        gbl.setConstraints( conn_pass, gbc );
+        conn_pass.addKeyListener( this );
+        pconn.add( conn_pass );
 
         gbc.ipady = 0;
 
         // Connect and Cancel buttons shouldn't stretch entire width, so they get their own sub-Panel
         JPanel btnsRow = new JPanel();
         final int bsize = 4 * displayScale;
-        btnsRow.setBorder(BorderFactory.createEmptyBorder(bsize, bsize, bsize, bsize));
+        btnsRow.setBorder( BorderFactory.createEmptyBorder( bsize, bsize, bsize, bsize ) );
 
-        conn_connect = new JButton(strings.get("pcli.cpp.connect"));
-        conn_connect.addActionListener(this);
-        conn_connect.addKeyListener(this);  // for win32 keyboard-focus ESC/ENTER
-        btnsRow.add(conn_connect);
+        conn_connect = new JButton( strings.get( "pcli.cpp.connect" ) );
+        conn_connect.addActionListener( this );
+        conn_connect.addKeyListener( this );  // for win32 keyboard-focus ESC/ENTER
+        btnsRow.add( conn_connect );
 
-        conn_cancel = new JButton(strings.get("base.cancel"));
-        conn_cancel.addActionListener(this);
-        conn_cancel.addKeyListener(this);
-        btnsRow.add(conn_cancel);
+        conn_cancel = new JButton( strings.get( "base.cancel" ) );
+        conn_cancel.addActionListener( this );
+        conn_cancel.addKeyListener( this );
+        btnsRow.add( conn_cancel );
 
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbl.setConstraints(btnsRow, gbc);
-        pconn.add(btnsRow);
+        gbl.setConstraints( btnsRow, gbc );
+        pconn.add( btnsRow );
 
-        conn_status = new JTextField(50);
-        conn_status.setEditable(false);
+        conn_status = new JTextField( 50 );
+        conn_status.setEditable( false );
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(conn_status, gbc);
-        pconn.add(conn_status);
+        gbl.setConstraints( conn_status, gbc );
+        pconn.add( conn_status );
 
         connPanel = pconn;
 
-        add(pconn, CONN_PANEL);
-        cardLayout.show(this, CONN_PANEL);
+        add( pconn, CONN_PANEL );
+        cardLayout.show( this, CONN_PANEL );
         validate();
 
         conn_user.requestFocus();
@@ -558,14 +560,14 @@ public class SOCAccountClient extends Applet
      */
     private void updateLabelsIfNotOpenReg()
     {
-        if (sFeatures.isActive(SOCFeatureSet.SERVER_OPEN_REG))
+        if (sFeatures.isActive( SOCFeatureSet.SERVER_OPEN_REG ))
             return;
 
-        promptLabel.setText(strings.get("account.create.prompt.enter_its_info"));
-            // "To create an account, please enter its information."
-        nickLabel.setText(strings.get("account.create.nickname.its"));  // "Nickname:"
-        nickLabel.setToolTipText(strings.get("account.create.nickname.its.tip"));
-            // "This will be the new account's username."
+        promptLabel.setText( strings.get( "account.create.prompt.enter_its_info" ) );
+        // "To create an account, please enter its information."
+        nickLabel.setText( strings.get( "account.create.nickname.its" ) );  // "Nickname:"
+        nickLabel.setToolTipText( strings.get( "account.create.nickname.its.tip" ) );
+        // "This will be the new account's username."
     }
 
     /**
@@ -574,17 +576,19 @@ public class SOCAccountClient extends Applet
      * @param name a parameter name. null is ignored
      * @return the parameter parsed as a hex value or -1 on error
      */
-    public int getHexParameter(String name)
+    public int getHexParameter( String name )
     {
         String value = null;
         int iValue = -1;
         try
         {
-            value = getParameter(name);
+            value = getParameter( name );
             if (value != null)
-                iValue = Integer.parseInt(value, 16);
-        } catch (Exception e) {
-            System.err.println("Invalid " + name + ": " + value);
+                iValue = Integer.parseInt( value, 16 );
+        }
+        catch( Exception e )
+        {
+            System.err.println( "Invalid " + name + ": " + value );
         }
 
         return iValue;
@@ -595,32 +599,35 @@ public class SOCAccountClient extends Applet
      */
     public synchronized void init()
     {
-        Version.printVersionText(System.out, "Java Settlers Account Client ");
+        Version.printVersionText( System.out, "Java Settlers Account Client " );
 
         String param = null;
         int intValue;
 
-        intValue = getHexParameter("background");
+        intValue = getHexParameter( "background" );
         if (intValue != -1)
-            setBackground(new Color(intValue));
+            setBackground( new Color( intValue ) );
 
-        intValue = getHexParameter("foreground");
+        intValue = getHexParameter( "foreground" );
         if (intValue != -1)
-            setForeground(new Color(intValue));
+            setForeground( new Color( intValue ) );
 
         initVisualElements(); // after the background is set
 
-        System.out.println("Getting host...");
+        System.out.println( "Getting host..." );
         host = getCodeBase().getHost();
-        if (host.equals(""))
+        if (host.equals( "" ))
             host = null;  // localhost
 
-        try {
-            param = getParameter("PORT");
+        try
+        {
+            param = getParameter( "PORT" );
             if (param != null)
-                port = Integer.parseInt(param);
-        } catch (Exception e) {
-            System.err.println("Invalid port: " + param);
+                port = Integer.parseInt( param );
+        }
+        catch( Exception e )
+        {
+            System.err.println( "Invalid port: " + param );
         }
 
         connect();
@@ -637,37 +644,39 @@ public class SOCAccountClient extends Applet
         String hostString = (host != null ? host : "localhost") + ":" + port;
         if (connected)
         {
-            throw new IllegalStateException("Already connected to " + hostString);
+            throw new IllegalStateException( "Already connected to " + hostString );
         }
 
         if (Version.versionNumber() == 0)
         {
-            messageLabel.setText("Packaging error: Cannot determine JSettlers version");
-                // I18N: Can't localize this, the i18n files are provided by the same packaging steps
-                // which would create /resources/version.info
-            throw new IllegalStateException("Packaging error: Cannot determine JSettlers version");
+            messageLabel.setText( "Packaging error: Cannot determine JSettlers version" );
+            // I18N: Can't localize this, the i18n files are provided by the same packaging steps
+            // which would create /resources/version.info
+            throw new IllegalStateException( "Packaging error: Cannot determine JSettlers version" );
         }
 
-        System.out.println("Connecting to " + hostString);
-        messageLabel.setText(strings.get("pcli.message.connecting.serv"));  // "Connecting to server..."
+        System.out.println( "Connecting to " + hostString );
+        messageLabel.setText( strings.get( "pcli.message.connecting.serv" ) );  // "Connecting to server..."
 
         try
         {
-            sock = new Socket(host, port);
-            in = new DataInputStream(sock.getInputStream());
-            out = new DataOutputStream(sock.getOutputStream());
+            sock = new Socket( host, port );
+            in = new DataInputStream( sock.getInputStream() );
+            out = new DataOutputStream( sock.getOutputStream() );
             connected = true;
-            (reader = new Thread(this)).start();
+            (reader = new Thread( this )).start();
 
             // send VERSION right away (1.1.07 and later)
             // Version msg includes locale in 2.0.00 and later clients; v1.x.xx servers will ignore that token.
-            put(SOCVersion.toCmd
-                (Version.versionNumber(), Version.version(), Version.buildnum(), null, cliLocale.toString()));
-        } catch (Exception e) {
+            put( SOCVersion.toCmd
+                ( Version.versionNumber(), Version.version(), Version.buildnum(), null, cliLocale.toString() ) );
+        }
+        catch( Exception e )
+        {
             ex = e;
-            String msg = strings.get("pcli.error.couldnotconnect", ex);  // "Could not connect to the server: " + ex
-            System.err.println(msg);
-            messageLabel.setText(msg);
+            String msg = strings.get( "pcli.error.couldnotconnect", ex );  // "Could not connect to the server: " + ex
+            System.err.println( msg );
+            messageLabel.setText( msg );
         }
     }
 
@@ -683,7 +692,7 @@ public class SOCAccountClient extends Applet
 
         if (user.length() == 0)
         {
-            conn_status.setText(strings.get("account.must_enter_nick"));  // "You must enter a nickname."
+            conn_status.setText( strings.get( "account.must_enter_nick" ) );  // "You must enter a nickname."
             conn_user.requestFocus();
 
             return;
@@ -691,7 +700,7 @@ public class SOCAccountClient extends Applet
 
         if (pw.length() == 0)
         {
-            conn_status.setText(strings.get("account.must_enter_pw"));  // "You must enter a password."
+            conn_status.setText( strings.get( "account.must_enter_pw" ) );  // "You must enter a password."
             conn_pass.requestFocus();
 
             return;
@@ -699,15 +708,15 @@ public class SOCAccountClient extends Applet
 
         if (pw.length() > SOCAuthRequest.PASSWORD_LEN_MAX)
         {
-            conn_status.setText(strings.get("account.common.password_too_long"));  // "That password is too long."
+            conn_status.setText( strings.get( "account.common.password_too_long" ) );  // "That password is too long."
             conn_pass.requestFocus();
 
             return;
         }
 
         conn_sentAuth = true;
-        put(new SOCAuthRequest
-            (SOCAuthRequest.ROLE_USER_ADMIN, user, pw, SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, host).toCmd());
+        put( new SOCAuthRequest
+            ( SOCAuthRequest.ROLE_USER_ADMIN, user, pw, SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, host ).toCmd() );
     }
 
     /**
@@ -717,29 +726,29 @@ public class SOCAccountClient extends Applet
     private void clickConnCancel()
     {
         if ((connPanel != null) && connPanel.isVisible())
-            connPanel.setVisible(false);
+            connPanel.setVisible( false );
 
         disconnect();
 
-        messageLabel.setText(strings.get("account.connect.canceled"));  // "Connection canceled."
-        cardLayout.show(this, MESSAGE_PANEL);
+        messageLabel.setText( strings.get( "account.connect.canceled" ) );  // "Connection canceled."
+        cardLayout.show( this, MESSAGE_PANEL );
         validate();
     }
 
     /**
      * Handle mouse clicks and keyboard
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed( ActionEvent e )
     {
         Object target = e.getSource();
 
         if (target == submit)
         {
             nickname = nick.getText().trim();
-            if (! SOCMessage.isSingleLineAndSafe(nickname))
+            if (!SOCMessage.isSingleLineAndSafe( nickname ))
             {
-                status.setText(strings.get("netmsg.status.common.newgame_name_rejected"));
-                    // "This name is not permitted, please choose a different name."
+                status.setText( strings.get( "netmsg.status.common.newgame_name_rejected" ) );
+                // "This name is not permitted, please choose a different name."
                 nick.requestFocusInWindow();
 
                 return;  // Not a valid username
@@ -754,29 +763,29 @@ public class SOCAccountClient extends Applet
             //
             if (nickname.length() == 0)
             {
-                status.setText(strings.get("account.must_enter_nick"));  // "You must enter a nickname."
+                status.setText( strings.get( "account.must_enter_nick" ) );  // "You must enter a nickname."
                 nick.requestFocus();
             }
             else if (password.length() == 0)
             {
-                status.setText(strings.get("account.must_enter_pw"));  // "You must enter a password."
+                status.setText( strings.get( "account.must_enter_pw" ) );  // "You must enter a password."
                 pass.requestFocus();
             }
             else if (password.length() > SOCAuthRequest.PASSWORD_LEN_MAX)
             {
-                status.setText(strings.get("account.common.password_too_long"));  // "That password is too long."
+                status.setText( strings.get( "account.common.password_too_long" ) );  // "That password is too long."
                 pass.requestFocus();
             }
-            else if (! password.equals(password2))
+            else if (!password.equals( password2 ))
             {
                 pass.requestFocus();
-                status.setText(strings.get("account.create.msg.passwords_dont_match"));  // "The passwords don't match."
+                status.setText( strings.get( "account.create.msg.passwords_dont_match" ) );  // "The passwords don't match."
             }
-            else if (! submitLock)
+            else if (!submitLock)
             {
                 submitLock = true;
-                status.setText(strings.get("account.create.msg.creating"));  // "Creating account..."
-                put(SOCCreateAccount.toCmd(nickname, password, host, emailAddress));
+                status.setText( strings.get( "account.create.msg.creating" ) );  // "Creating account..."
+                put( SOCCreateAccount.toCmd( nickname, password, host, emailAddress ) );
             }
         }
         else if (target == conn_connect)
@@ -811,19 +820,21 @@ public class SOCAccountClient extends Applet
             while (connected)
             {
                 String s = in.readUTF();
-                SOCMessage msg = SOCMessage.toMsg(s);
+                SOCMessage msg = SOCMessage.toMsg( s );
 
                 if (msg != null)
-                    treat(msg);
+                    treat( msg );
                 else if (debugTraffic)
-                    soc.debug.D.ebugERROR("Could not parse net message: " + s);
+                    soc.debug.D.ebugERROR( "Could not parse net message: " + s );
             }
-        } catch (IOException e) {
+        }
+        catch( IOException e )
+        {
             // purposefully closing the socket brings us here too
             if (connected)
             {
                 ex = e;
-                System.out.println("could not read from the net: " + ex);
+                System.out.println( "could not read from the net: " + ex );
                 destroy();
             }
         }
@@ -835,10 +846,10 @@ public class SOCAccountClient extends Applet
      * @param s  the message
      * @return true if the message was sent, false if not
      */
-    public synchronized boolean put(String s)
+    public synchronized boolean put( String s )
     {
         if (debugTraffic || D.ebugIsEnabled())
-            soc.debug.D.ebugPrintlnINFO("OUT - " + s);
+            soc.debug.D.ebugPrintlnINFO( "OUT - " + s );
 
         if ((ex != null) || !connected)
         {
@@ -847,10 +858,12 @@ public class SOCAccountClient extends Applet
 
         try
         {
-            out.writeUTF(s);
-        } catch (IOException e) {
+            out.writeUTF( s );
+        }
+        catch( IOException e )
+        {
             ex = e;
-            System.err.println("could not write to the net: " + ex);
+            System.err.println( "could not write to the net: " + ex );
             destroy();
 
             return false;
@@ -866,10 +879,10 @@ public class SOCAccountClient extends Applet
      *
      * @param mes    the message; not null
      */
-    public void treat(SOCMessage mes)
+    public void treat( SOCMessage mes )
     {
         if (debugTraffic || D.ebugIsEnabled())
-            soc.debug.D.ebugPrintlnINFO("IN - " + mes.toString());
+            soc.debug.D.ebugPrintlnINFO( "IN - " + mes.toString() );
 
         try
         {
@@ -879,7 +892,7 @@ public class SOCAccountClient extends Applet
              * server's version and feature report (among first messages from server)
              */
             case SOCMessage.VERSION:
-                handleVERSION((SOCVersion) mes);
+                handleVERSION( (SOCVersion) mes );
                 break;
 
             /**
@@ -887,7 +900,7 @@ public class SOCAccountClient extends Applet
              * Show {@link #MAIN_PANEL} if not already showing; see handleCHANNELS javadoc.
              */
             case SOCMessage.CHANNELS:
-                handleCHANNELS((SOCChannels) mes);
+                handleCHANNELS( (SOCChannels) mes );
 
                 break;
 
@@ -895,7 +908,7 @@ public class SOCAccountClient extends Applet
              * status message
              */
             case SOCMessage.STATUSMESSAGE:
-                handleSTATUSMESSAGE((SOCStatusMessage) mes);
+                handleSTATUSMESSAGE( (SOCStatusMessage) mes );
 
                 break;
 
@@ -903,12 +916,14 @@ public class SOCAccountClient extends Applet
              * handle the reject connection message
              */
             case SOCMessage.REJECTCONNECTION:
-                handleREJECTCONNECTION((SOCRejectConnection) mes);
+                handleREJECTCONNECTION( (SOCRejectConnection) mes );
 
                 break;
             }
-        } catch (Exception e) {
-            System.out.println("SOCAccountClient treat ERROR - " + e.getMessage());
+        }
+        catch( Exception e )
+        {
+            System.out.println( "SOCAccountClient treat ERROR - " + e.getMessage() );
             e.printStackTrace();
         }
     }
@@ -920,7 +935,7 @@ public class SOCAccountClient extends Applet
      * @param mes  the message
      * @since 1.1.19
      */
-    private void handleVERSION(SOCVersion mes)
+    private void handleVERSION( SOCVersion mes )
     {
         sVersion = mes.getVersionNumber();
         if (sVersion < SRV_VERSION_MIN)
@@ -928,10 +943,10 @@ public class SOCAccountClient extends Applet
             disconnect();
 
             messageLabel.setText
-                (strings.get
-                    ("account.server_version_minimum", Version.version(sVersion), Version.version(SRV_VERSION_MIN)));
-                // "This server has old version {0}; this client works only with {1} and newer servers."
-            cardLayout.show(this, MESSAGE_PANEL);
+                ( strings.get
+                    ( "account.server_version_minimum", Version.version( sVersion ), Version.version( SRV_VERSION_MIN ) ) );
+            // "This server has old version {0}; this client works only with {1} and newer servers."
+            cardLayout.show( this, MESSAGE_PANEL );
             validate();
 
             return;
@@ -939,21 +954,21 @@ public class SOCAccountClient extends Applet
 
         sFeatures =
             (sVersion >= SOCFeatureSet.VERSION_FOR_SERVERFEATURES)
-            ? new SOCFeatureSet(mes.feats)
-            : new SOCFeatureSet(true, true);
+                ? new SOCFeatureSet( mes.feats )
+                : new SOCFeatureSet( true, true );
 
-        if (! sFeatures.isActive(SOCFeatureSet.SERVER_ACCOUNTS))
+        if (!sFeatures.isActive( SOCFeatureSet.SERVER_ACCOUNTS ))
         {
             disconnect();
 
-            messageLabel.setText(strings.get("account.common.no_accts"));  // "This server does not use accounts and passwords."
-            cardLayout.show(this, MESSAGE_PANEL);
+            messageLabel.setText( strings.get( "account.common.no_accts" ) );  // "This server does not use accounts and passwords."
+            cardLayout.show( this, MESSAGE_PANEL );
             validate();
 
             return;
         }
 
-        if (! sFeatures.isActive(SOCFeatureSet.SERVER_OPEN_REG))
+        if (!sFeatures.isActive( SOCFeatureSet.SERVER_OPEN_REG ))
         {
             initInterface_conn();  // adds connPanel, sets it active, calls validate()
             updateLabelsIfNotOpenReg();  // update account-info label texts for use after authentication
@@ -965,7 +980,7 @@ public class SOCAccountClient extends Applet
      * Server connection is complete, show {@link #MAIN_PANEL} unless {@link #connPanel} is already showing.
      * @param mes  the message
      */
-    protected void handleCHANNELS(SOCChannels mes)
+    protected void handleCHANNELS( SOCChannels mes )
     {
         //
         // this message indicates that we're connected to the server
@@ -973,7 +988,7 @@ public class SOCAccountClient extends Applet
         if ((connPanel != null) && connPanel.isVisible())
             return;
 
-        cardLayout.show(this, MAIN_PANEL);
+        cardLayout.show( this, MAIN_PANEL );
         validate();
         nick.requestFocus();
     }
@@ -982,12 +997,12 @@ public class SOCAccountClient extends Applet
      * handle the "reject connection" message
      * @param mes  the message
      */
-    protected void handleREJECTCONNECTION(SOCRejectConnection mes)
+    protected void handleREJECTCONNECTION( SOCRejectConnection mes )
     {
         disconnect();
 
-        messageLabel.setText(mes.getText());
-        cardLayout.show(this, MESSAGE_PANEL);
+        messageLabel.setText( mes.getText() );
+        cardLayout.show( this, MESSAGE_PANEL );
         validate();
     }
 
@@ -998,7 +1013,7 @@ public class SOCAccountClient extends Applet
      * clear the password fields: must re-enter if creating another.
      * @param mes  the message
      */
-    protected void handleSTATUSMESSAGE(SOCStatusMessage mes)
+    protected void handleSTATUSMESSAGE( SOCStatusMessage mes )
     {
         int sv = mes.getStatusValue();
         String statusText = mes.getStatus();
@@ -1007,11 +1022,11 @@ public class SOCAccountClient extends Applet
         {
             sv = SOCStatusMessage.SV_OK;
 
-            final int i = statusText.indexOf(SOCMessage.sep2_char);
+            final int i = statusText.indexOf( SOCMessage.sep2_char );
             if (i > 0)
             {
-                nickname = statusText.substring(0, i);
-                statusText = statusText.substring(i + 1);
+                nickname = statusText.substring( 0, i );
+                statusText = statusText.substring( i + 1 );
             }
         }
 
@@ -1021,31 +1036,31 @@ public class SOCAccountClient extends Applet
             // This is either an initial STATUSMESSAGE from server, such as
             // when debug is on, or a response to the authrequest we've sent.
 
-            if ((sv != SOCStatusMessage.SV_OK) || ! conn_sentAuth)
+            if ((sv != SOCStatusMessage.SV_OK) || !conn_sentAuth)
             {
-                conn_status.setText(statusText);
+                conn_status.setText( statusText );
                 return;
             }
 
-            connPanel.setVisible(false);
-            cardLayout.show(this, MAIN_PANEL);
+            connPanel.setVisible( false );
+            cardLayout.show( this, MAIN_PANEL );
             validate();
             nick.requestFocus();
         }
 
-        status.setText(statusText);
+        status.setText( statusText );
         if ((sv == SOCStatusMessage.SV_ACCT_CREATED_OK)
             || (sv == SOCStatusMessage.SV_ACCT_CREATED_OK_FIRST_ONE))
         {
             // Clear password fields: must re-enter if creating another
-            pass.setText("");
-            pass2.setText("");
+            pass.setText( "" );
+            pass2.setText( "" );
 
             if (sv == SOCStatusMessage.SV_ACCT_CREATED_OK_FIRST_ONE)
                 // auth to server with new account
-                put(new SOCAuthRequest
-                    (SOCAuthRequest.ROLE_USER_ADMIN, nickname, password,
-                     SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, host).toCmd());
+                put( new SOCAuthRequest
+                    ( SOCAuthRequest.ROLE_USER_ADMIN, nickname, password,
+                        SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, host ).toCmd() );
         }
 
         submitLock = false;
@@ -1063,7 +1078,9 @@ public class SOCAccountClient extends Applet
         try
         {
             sock.close();
-        } catch (Exception e) {
+        }
+        catch( Exception e )
+        {
             ex = e;
         }
     }
@@ -1072,12 +1089,12 @@ public class SOCAccountClient extends Applet
     {
         return new WindowAdapter()
         {
-            public void windowClosing(WindowEvent evt)
+            public void windowClosing( WindowEvent evt )
             {
-                System.exit(0);
+                System.exit( 0 );
             }
 
-            public void windowOpened(WindowEvent evt)
+            public void windowOpened( WindowEvent evt )
             {
                 nick.requestFocus();
             }
@@ -1088,7 +1105,7 @@ public class SOCAccountClient extends Applet
      * For Connect panel, handle Enter or Esc key (KeyListener).
      * @since 1.1.19
      */
-    public void keyPressed(KeyEvent e)
+    public void keyPressed( KeyEvent e )
     {
         if (e.isConsumed())
             return;
@@ -1109,10 +1126,14 @@ public class SOCAccountClient extends Applet
     }
 
     /** Stub required by KeyListener */
-    public void keyReleased(KeyEvent e) { }
+    public void keyReleased( KeyEvent e )
+    {
+    }
 
     /** Stub required by KeyListener */
-    public void keyTyped(KeyEvent e) { }
+    public void keyTyped( KeyEvent e )
+    {
+    }
 
     /**
      * applet info
@@ -1128,14 +1149,14 @@ public class SOCAccountClient extends Applet
         // account.msg.applet_destroyed
         final String detail =
             (ex == null)
-            ? strings.get("account.msg.refresh")  // "Refresh the page to connect again."
-            : ex.toString();
-        String err = strings.get("account.msg.applet_destroyed", detail); // "Sorry, the applet has been destroyed. {0}"
+                ? strings.get( "account.msg.refresh" )  // "Refresh the page to connect again."
+                : ex.toString();
+        String err = strings.get( "account.msg.applet_destroyed", detail ); // "Sorry, the applet has been destroyed. {0}"
 
         disconnect();
 
-        messageLabel.setText(err);
-        cardLayout.show(this, MESSAGE_PANEL);
+        messageLabel.setText( err );
+        cardLayout.show( this, MESSAGE_PANEL );
         validate();
     }
 
@@ -1145,50 +1166,57 @@ public class SOCAccountClient extends Applet
      */
     public static void usage()
     {
-        System.err.println("usage: java -cp JSettlers.jar soc.client.SOCAccountClient <host> [<port>]");
+        System.err.println( "usage: java -cp JSettlers.jar soc.client.SOCAccountClient <host> [<port>]" );
     }
 
     /**
      * for stand-alones
      */
-    public static void main(String[] args)
+    public static void main( String[] args )
     {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {}
+        try
+        {
+            UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+        }
+        catch( Exception e )
+        {
+        }
 
-        JFrame frame = new JFrame("SOCAccountClient");
-        final int displayScale = SwingMainDisplay.checkDisplayScaleFactor(frame);
-        SwingMainDisplay.scaleUIManagerFonts(displayScale);
+        JFrame frame = new JFrame( "SOCAccountClient" );
+        final int displayScale = SwingMainDisplay.checkDisplayScaleFactor( frame );
+        SwingMainDisplay.scaleUIManagerFonts( displayScale );
         final int bsize = 8 * displayScale;
-        frame.getRootPane().setBorder(BorderFactory.createEmptyBorder(bsize, bsize, bsize, bsize));
+        frame.getRootPane().setBorder( BorderFactory.createEmptyBorder( bsize, bsize, bsize, bsize ) );
 
-        SOCAccountClient client = new SOCAccountClient(displayScale);
+        SOCAccountClient client = new SOCAccountClient( displayScale );
 
         if ((args.length < 1) || (args.length > 2))
         {
             usage();
-            System.exit(1);
+            System.exit( 1 );
         }
 
-        try {
+        try
+        {
             client.host = args[0];
-            client.port = (args.length > 1) ? Integer.parseInt(args[1]) : ClientNetwork.SOC_PORT_DEFAULT;
-        } catch (NumberFormatException x) {
+            client.port = (args.length > 1) ? Integer.parseInt( args[1] ) : ClientNetwork.SOC_PORT_DEFAULT;
+        }
+        catch( NumberFormatException x )
+        {
             usage();
-            System.err.println("Invalid port: " + args[1]);
-            System.exit(1);
+            System.err.println( "Invalid port: " + args[1] );
+            System.exit( 1 );
         }
 
         // Add a listener for the close event
-        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        frame.addWindowListener(client.createWindowAdapter());
+        frame.setDefaultCloseOperation( WindowConstants.DO_NOTHING_ON_CLOSE );
+        frame.addWindowListener( client.createWindowAdapter() );
 
         client.initVisualElements(); // after the background is set
 
-        frame.add(client, BorderLayout.CENTER);
+        frame.add( client, BorderLayout.CENTER );
         frame.pack();
-        frame.setVisible(true);
+        frame.setVisible( true );
 
         client.connect();
     }

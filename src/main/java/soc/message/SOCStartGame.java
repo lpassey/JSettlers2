@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2010,2013-2014,2017,2019 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
@@ -64,7 +64,7 @@ public class SOCStartGame extends SOCMessage
      *     Ignored from client. Values &lt; 0 are out of range and ignored (treated as 0).
      *     Must not send {@code gs} to a client older than {@link SOCGameState#VERSION_FOR_GAME_STATE_AS_FIELD}.
      */
-    public SOCStartGame(final String ga, final int gs)
+    public SOCStartGame( final String ga, final int gs )
     {
         messageType = STARTGAME;
         game = ga;
@@ -99,7 +99,7 @@ public class SOCStartGame extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, gameState);
+        return toCmd( game, gameState );
     }
 
     /**
@@ -109,7 +109,7 @@ public class SOCStartGame extends SOCMessage
      * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0 to omit that field
      * @return the command string
      */
-    public static String toCmd(final String ga, final int gs)
+    public static String toCmd( final String ga, final int gs )
     {
         return STARTGAME + sep + ga + ((gs > 0) ? sep2 + gs : "");
     }
@@ -118,23 +118,25 @@ public class SOCStartGame extends SOCMessage
      * Parse the command String into a StartGame message
      *
      * @param s   the String to parse
-     * @return    a StartGame message, or null if the data is garbled
+     * @return a StartGame message, or null if the data is garbled
      */
-    public static SOCStartGame parseDataStr(String s)
+    public static SOCStartGame parseDataStr( String s )
     {
         try
         {
             String ga;   // the game name
             int gs = 0;  // the game state
 
-            StringTokenizer st = new StringTokenizer(s, sep2);
+            StringTokenizer st = new StringTokenizer( s, sep2 );
 
             ga = st.nextToken();
             if (st.hasMoreTokens())
-                gs = Integer.parseInt(st.nextToken());
+                gs = Integer.parseInt( st.nextToken() );
 
-            return new SOCStartGame(ga, gs);
-        } catch (Exception e) {
+            return new SOCStartGame( ga, gs );
+        }
+        catch( Exception e )
+        {
             return null;
         }
     }
