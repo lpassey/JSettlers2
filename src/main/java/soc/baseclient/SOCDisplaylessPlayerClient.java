@@ -2045,7 +2045,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
         final int perpPN = mes.perpPN, victimPN = mes.victimPN;
         final SOCResourceSet resSet = mes.resSet;
-        if (mes.isGainLose && (amount == 0) && (resSet == null))
+        if (mes.isGainLose && (mes.amount == 0) && (resSet == null))
             return;
 
         final SOCPlayer perp = (perpPN >= 0) ? ga.getPlayer( perpPN ) : null,
@@ -2149,7 +2149,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * handle the "reject offer" message
      * @param mes  the message
      */
-    protected void handleREJECTOFFER(SOCRejectOffer mes) {}
+    protected void handleREJECTOFFER(SOCRejectOffer unused) {}
 
     /**
      * handle the "clear trade message" message

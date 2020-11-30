@@ -440,7 +440,7 @@ public class SOCGameMessageHandler
                             SOCPlayer vic = roll.sc_piri_fleetAttackVictim;
                             final String vicName = vic.getName();
                             final Connection vCon = srv.getConnection( vicName );
-                            final int vVersion = (vCon != null) ? vCon.getVersion() : 0;
+                            final int vVersion = (vCon != null) ? vCon.getRemoteVersion() : 0;
                             final int vpn = vic.getPlayerNumber();
                             final int strength = (roll.diceA < roll.diceB) ? roll.diceA : roll.diceB;
 

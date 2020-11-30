@@ -1515,6 +1515,7 @@ import javax.swing.UIManager;
                 {
                     clickPlayCardButton();
                 }
+            }
         }
         catch( Throwable th )
         {

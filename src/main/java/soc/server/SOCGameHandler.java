@@ -3440,10 +3440,12 @@ public class SOCGameHandler extends GameHandler
 
             if (playerConn != null)
             {
-                if ((vmax == 0) || (playerConn.getVersion() <= vmax))
-                    srv.messageToPlayer
-                        ( playerConn, gaName, ((vmax == 0) ? mainPlayer : SOCServer.PN_NON_EVENT),
-                            new SOCPlayerElement( gaName, mainPlayer, losegain, res, amt, isNews ) );
+                if ((vmax == 0) || (playerConn.getRemoteVersion() <= vmax))
+                {
+                    srv.messageToPlayer( playerConn, gaName,
+                        ((vmax == 0) ? mainPlayer : SOCServer.PN_NON_EVENT),
+                        new SOCPlayerElement( gaName, mainPlayer, losegain, res, amt, isNews ) );
+                }
             }
             else
             {
