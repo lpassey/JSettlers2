@@ -223,18 +223,20 @@ import soc.message.SOCNewGameWithOptions;
 
         if ((knownOpts == null) || knownOpts.isEmpty())
         {
-            knownOpts = new SOCGameOptionSet(servOpts);
-        } else {
+            knownOpts = new SOCGameOptionSet( servOpts );
+        }
+        else
+        {
             prevKnown = new HashSet<>();
             for (String oKey : servOpts.keySet())
             {
-                SOCGameOption op = servOpts.get(oKey);
-                if (knownOpts.put(op) != null)  // always add, even if OTYPE_UNKNOWN
-                    prevKnown.add(oKey);
+                SOCGameOption op = servOpts.get( oKey );
+                if (knownOpts.put( op ) != null)  // always add, even if OTYPE_UNKNOWN
+                    prevKnown.add( oKey );
             }
         }
 
-        List<String> unknowns = SOCVersionedItem.findUnknowns(servOpts, prevKnown);
+        List<String> unknowns = SOCVersionedItem.findUnknowns( servOpts, prevKnown );
         allOptionsReceived = (unknowns == null);
         defaultsReceived = true;
 
@@ -266,9 +268,10 @@ import soc.message.SOCNewGameWithOptions;
             noMoreOptions(false);
 
             return true;
-        } else {
+        }
+        else
+        {
             // remove old, replace with new from server (if any)
-
             knownOpts.addKnownOption(oinfo);
             if (isUnknown)
                 knownOpts.put(oinfo);  // since addKnownOption won't add an unknown

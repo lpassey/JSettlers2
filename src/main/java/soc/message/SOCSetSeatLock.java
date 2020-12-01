@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2010,2013-2014,2017-2018,2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
@@ -87,7 +87,7 @@ public class SOCSetSeatLock extends SOCMessageForGame
      *    {@link SeatLockState#CLEAR_ON_RESET} and should be sent {@link SeatLockState#UNLOCKED UNLOCKED}
      * @see #SOCSetSeatLock(String, SeatLockState[])
      */
-    public SOCSetSeatLock(String ga, int pn, SeatLockState st)
+    public SOCSetSeatLock( String ga, int pn, SeatLockState st )
     {
         super( SETSEATLOCK, ga );
         playerNumber = pn;
@@ -105,12 +105,12 @@ public class SOCSetSeatLock extends SOCMessageForGame
      * @see #SOCSetSeatLock(String, int, SeatLockState)
      * @since 2.0.00
      */
-    public SOCSetSeatLock(final String ga, final SeatLockState[] st)
+    public SOCSetSeatLock( final String ga, final SeatLockState[] st )
         throws IllegalArgumentException
     {
         super( SETSEATLOCK, ga );
         if ((st.length != 4) && (st.length != 6))
-            throw new IllegalArgumentException("length");
+            throw new IllegalArgumentException( "length" );
 
         playerNumber = -1;
         states = st;
@@ -167,8 +167,8 @@ public class SOCSetSeatLock extends SOCMessageForGame
             {
                 sb.append( sep2_char );
                 sb.append( (seatLockState == SeatLockState.LOCKED) ? "true"
-                        : (seatLockState == SeatLockState.UNLOCKED) ? "false"
-                        : "clear" );   // st == SeatLockState.CLEAR_ON_RESET
+                    : (seatLockState == SeatLockState.UNLOCKED) ? "false"
+                    : "clear" );   // st == SeatLockState.CLEAR_ON_RESET
             }
             return sb.toString();
         }
@@ -197,9 +197,9 @@ public class SOCSetSeatLock extends SOCMessageForGame
      * for one or all seats in the game.
      *
      * @param s   the String to parse
-     * @return    a SetSeatLock message, or null if the data is garbled
+     * @return a SetSeatLock message, or null if the data is garbled
      */
-    public static SOCSetSeatLock parseDataStr(String s)
+    public static SOCSetSeatLock parseDataStr( String s )
     {
         String ga; // the game name
         int pn; // the number of the changing player
@@ -247,7 +247,7 @@ public class SOCSetSeatLock extends SOCMessageForGame
      * @throws InputMismatchException if the next token isn't {@code "true"}, {@code "false"}, or {@code "clear"}
      * @since 2.0.00
      */
-    private static SeatLockState parseLockState(final String lockst)
+    private static SeatLockState parseLockState( final String lockst )
         throws InputMismatchException
     {
         final SeatLockState ls;
@@ -259,7 +259,7 @@ public class SOCSetSeatLock extends SOCMessageForGame
         else if (lockst.equals("clear") || "CLEAR_ON_RESET".equalsIgnoreCase( lockst ))
             ls = SeatLockState.CLEAR_ON_RESET;
         else
-            throw new InputMismatchException("lockstate: " + lockst);
+            throw new InputMismatchException( "lockstate: " + lockst );
 
         return ls;
     }
@@ -272,25 +272,25 @@ public class SOCSetSeatLock extends SOCMessageForGame
      * @return Message parameters without attribute names, or {@code null} if params are malformed
      * @since 2.4.50
      */
-    public static String stripAttribNames(String messageStrParams)
+    public static String stripAttribNames( String messageStrParams )
     {
-        String s = SOCMessage.stripAttribNames(messageStrParams);
+        String s = SOCMessage.stripAttribNames( messageStrParams );
         if (s == null)
             return null;
-        String[] pieces = s.split(SOCMessage.sep2);
+        String[] pieces = s.split( SOCMessage.sep2 );
         if (pieces.length < 2)
             return s;  // probably malformed, but there's no lock state strings to un-map
 
         for (int i = 1; i < pieces.length; ++i)
         {
             String lock = pieces[i];
-                // if message is for 1 player, [1] is player number; that's fine, number won't match any lock string
+            // if message is for 1 player, [1] is player number; that's fine, number won't match any lock string
 
-            if ("LOCKED".equals(lock))
+            if ("LOCKED".equals( lock ))
                 pieces[i] = "true";
-            else if ("UNLOCKED".equals(lock))
+            else if ("UNLOCKED".equals( lock ))
                 pieces[i] = "false";
-            else if ("CLEAR_ON_RESET".equals(lock))
+            else if ("CLEAR_ON_RESET".equals( lock ))
                 pieces[i] = "clear";
         }
 
@@ -298,8 +298,8 @@ public class SOCSetSeatLock extends SOCMessageForGame
         for (int i = 0; i < pieces.length; ++i)
         {
             if (i > 0)
-                ret.append(sep2_char);
-            ret.append(pieces[i]);
+                ret.append( sep2_char );
+            ret.append( pieces[i] );
         }
 
         return ret.toString();
@@ -313,17 +313,19 @@ public class SOCSetSeatLock extends SOCMessageForGame
         StringBuilder sb = new StringBuilder("SOCSetSeatLock:game=" + getGame());
         if (states == null)
         {
-            sb.append("|playerNumber=");
-            sb.append(playerNumber);
-            sb.append("|state=");
-            sb.append(state);
-        } else {
-            sb.append("|states=");
+            sb.append( "|playerNumber=" );
+            sb.append( playerNumber );
+            sb.append( "|state=" );
+            sb.append( state );
+        }
+        else
+        {
+            sb.append( "|states=" );
             for (int pn = 0; pn < states.length; ++pn)
             {
                 if (pn > 0)
-                    sb.append(',');
-                sb.append(states[pn]);
+                    sb.append( ',' );
+                sb.append( states[pn] );
             }
         }
 

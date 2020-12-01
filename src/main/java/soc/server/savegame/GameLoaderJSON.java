@@ -1,20 +1,20 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.server.savegame;
@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -59,10 +60,10 @@ import soc.server.SOCServer;
 public class GameLoaderJSON
 {
     /** Dummy game, for objects which require game != null */
-    public final static SOCGame dummyGame = new SOCGame("dummy", false);
+    public final static SOCGame dummyGame = new SOCGame( "dummy", false );
 
     /** Dummy player ({@code pn} == -2), for objects which require player != null */
-    public final static SOCPlayer dummyPlayer = new SOCPlayer(-2, dummyGame);
+    public final static SOCPlayer dummyPlayer = new SOCPlayer( -2, dummyGame );
 
     /** Builder; is set up in {@link #initGson()} */
     private static GsonBuilder gsonb;
@@ -78,7 +79,7 @@ public class GameLoaderJSON
      * @param srv  Server reference to check for bot name collisions; not {@code null}.
      *     Any bot players in the loaded game data with same names as those logged into the server
      *     will be renamed to avoid problems during random bot assignment while joining the game.
-     * @return  loaded game model
+     * @return loaded game model
      * @throws NoSuchElementException if file's model schema version is newer than the
      *     current {@link SavedGameModel#MODEL_VERSION}; see {@link SavedGameModel#checkCanLoad(SOCGameOptionSet)}
      *     for details
@@ -96,35 +97,35 @@ public class GameLoaderJSON
      *     Catch subclass {@code SOCGameOptionVersionException} before this one.
      *     Also thrown if {@code srv} is null.
      */
-    public static SavedGameModel loadGame(final File loadFrom, final SOCServer srv)
+    public static SavedGameModel loadGame( final File loadFrom, final SOCServer srv )
         throws NoSuchElementException, SOCGameOptionVersionException,
-            SavedGameModel.UnsupportedSGMOperationException, StringIndexOutOfBoundsException,
-            IOException, IllegalArgumentException
+               SavedGameModel.UnsupportedSGMOperationException, StringIndexOutOfBoundsException,
+               IOException, IllegalArgumentException
     {
         if (srv == null)
-            throw new IllegalArgumentException("srv");
+            throw new IllegalArgumentException( "srv" );
 
         initGson();
 
         final SavedGameModel sgm;
         try
-            (final FileInputStream fis = new FileInputStream(loadFrom);
-             final InputStreamReader reader = new InputStreamReader(fis, "UTF-8"); )
+            ( final FileInputStream fis = new FileInputStream( loadFrom );
+              final InputStreamReader reader = new InputStreamReader( fis, StandardCharsets.UTF_8 ) )
         {
-            sgm = gsonb.create().fromJson(reader, SavedGameModel.class);
+            sgm = gsonb.create().fromJson( reader, SavedGameModel.class );
         }
-        catch (JsonIOException e)
+        catch( JsonIOException e )
         {
-            throw new IOException("JSON: " + e.getMessage(), e);
+            throw new IOException( "JSON: " + e.getMessage(), e );
         }
-        catch (JsonSyntaxException e)
+        catch( JsonSyntaxException e )
         {
-            StringIndexOutOfBoundsException wrap = new StringIndexOutOfBoundsException("JSON: " + e.getMessage());
-            wrap.initCause(e);
+            StringIndexOutOfBoundsException wrap = new StringIndexOutOfBoundsException( "JSON: " + e.getMessage() );
+            wrap.initCause( e );
             throw wrap;
         }
 
-        sgm.createLoadedGame(srv);
+        sgm.createLoadedGame( srv );
 
         return sgm;
     }
@@ -142,13 +143,17 @@ public class GameLoaderJSON
             return;
 
         gb = new GsonBuilder();
-        SavedGameModel.initGsonRegisterAdapters(gb);
+        SavedGameModel.initGsonRegisterAdapters( gb );
         gb.registerTypeAdapter
-            (new TypeToken<HashMap<GEType, Integer>>(){}.getType(),
-                new EnumKeyedMapDeserializer<>( GEType.class ));
+            ( new TypeToken<HashMap<GEType, Integer>>()
+                {
+                }.getType(),
+                new EnumKeyedMapDeserializer<>( GEType.class ) );
         gb.registerTypeAdapter
-            (new TypeToken<HashMap<PEType, Integer>>(){}.getType(),
-                new EnumKeyedMapDeserializer<>( PEType.class ));
+            ( new TypeToken<HashMap<PEType, Integer>>()
+                {
+                }.getType(),
+                new EnumKeyedMapDeserializer<>( PEType.class ) );
 
         gsonb = gb;
     }
@@ -168,13 +173,13 @@ public class GameLoaderJSON
     {
         private final Class<E> enumClassType;
 
-        EnumKeyedMapDeserializer(final Class<E> enumClass)
+        EnumKeyedMapDeserializer( final Class<E> enumClass )
         {
             enumClassType = enumClass;
         }
 
         public HashMap<E, Integer> deserialize
-            (JsonElement elem, final Type t, final JsonDeserializationContext ctx)
+            ( JsonElement elem, final Type t, final JsonDeserializationContext ctx )
             throws JsonParseException
         {
             HashMap<E, Integer> ret = new HashMap<>();
@@ -188,19 +193,21 @@ public class GameLoaderJSON
                 final E ev;
                 try
                 {
-                    ev = E.valueOf(enumClassType, key);
-                    if (ev == null)
-                        continue;
-                } catch (IllegalArgumentException e) {
+                    ev = E.valueOf( enumClassType, key );
+                }
+                catch( IllegalArgumentException e )
+                {
                     continue;  // not found in enum
                 }
 
                 final JsonElement val = ent.getValue();
                 try
                 {
-                    ret.put(ev, val.getAsInt());
-                } catch (ClassCastException | IllegalStateException e) {
-                    throw new JsonParseException("Expected int values in map", e);
+                    ret.put( ev, val.getAsInt() );
+                }
+                catch( ClassCastException | IllegalStateException e )
+                {
+                    throw new JsonParseException( "Expected int values in map", e );
                 }
             }
 

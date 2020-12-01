@@ -3,20 +3,20 @@
  * This file Copyright (C) 2009-2014,2016-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2003 Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.server;
@@ -108,18 +108,18 @@ public class SOCGameListAtServer extends SOCGameList
      * @param knownOpts  All Known Options at server, in case needed for parsing game options; not null
      * @throws IllegalArgumentException if {@code knownOpts} is null
      */
-    public SOCGameListAtServer(final Random rand, final SOCGameOptionSet knownOpts)
+    public SOCGameListAtServer( final Random rand, final SOCGameOptionSet knownOpts )
         throws IllegalArgumentException
     {
-        super(knownOpts);
+        super( knownOpts );
         this.rand = rand;
 
         if (knownOpts == null)
-            throw new IllegalArgumentException("knownOpts");
+            throw new IllegalArgumentException( "knownOpts" );
 
         // Make sure server games have SOCBoardAtServer, for makeNewBoard.
         // Double-check class in case server is started at client after a client SOCGame.
-        if (! (SOCGame.boardFactory instanceof SOCBoardAtServer.BoardFactoryAtServer))
+        if (!(SOCGame.boardFactory instanceof SOCBoardAtServer.BoardFactoryAtServer))
             SOCGame.boardFactory = new SOCBoardAtServer.BoardFactoryAtServer();
 
         gameData = new Hashtable<>();
@@ -132,12 +132,12 @@ public class SOCGameListAtServer extends SOCGameList
      * @param   gaName  the name of the game
      * @return true if the game exists and has an empty member list
      */
-    public synchronized boolean isGameEmpty(String gaName)
+    public synchronized boolean isGameEmpty( String gaName )
     {
         boolean result;
         Vector<Connection> members;
 
-        members = gameMembers.get(gaName);
+        members = gameMembers.get( gaName );
 
         if ((members != null) && (members.isEmpty()))
         {
@@ -160,9 +160,9 @@ public class SOCGameListAtServer extends SOCGameList
      * @return the game object data, or null
      * @see #getGamesData()
      */
-    public SOCGame getGameData(String gaName)
+    public SOCGame getGameData( String gaName )
     {
-        return gameData.get(gaName);
+        return gameData.get( gaName );
     }
 
     /**
@@ -185,12 +185,12 @@ public class SOCGameListAtServer extends SOCGameList
     /**
      * Get this game's type handler from its {@link GameInfoAtServer}.
      * @param gaName  Game name
-     * @return  handler, or {@code null} if game unknown or its GameInfo doesn't have a handler
+     * @return handler, or {@code null} if game unknown or its GameInfo doesn't have a handler
      * @since 2.0.00
      */
-    public GameHandler getGameTypeHandler(final String gaName)
+    public GameHandler getGameTypeHandler( final String gaName )
     {
-        GameInfo gi = gameInfo.get(gaName);
+        GameInfo gi = gameInfo.get( gaName );
         if (!(gi instanceof GameInfoAtServer))
             return null;
 
@@ -200,12 +200,12 @@ public class SOCGameListAtServer extends SOCGameList
     /**
      * Get this game's type inbound message handler from its {@link GameInfoAtServer}.
      * @param gaName  Game name
-     * @return  handler, or {@code null} if game unknown or its GameInfo doesn't have a handler
+     * @return handler, or {@code null} if game unknown or its GameInfo doesn't have a handler
      * @since 2.0.00
      */
-    public GameMessageHandler getGameTypeMessageHandler(final String gaName)
+    public GameMessageHandler getGameTypeMessageHandler( final String gaName )
     {
-        GameInfo gi = gameInfo.get(gaName);
+        GameInfo gi = gameInfo.get( gaName );
         if (!(gi instanceof GameInfoAtServer))
             return null;
 
@@ -215,22 +215,22 @@ public class SOCGameListAtServer extends SOCGameList
     /**
      * Get a game's recent-chat buffer.
      * @param gaName  Game name
-     * @return  Game's chat buffer
+     * @return Game's chat buffer
      * @since 2.0.00
      */
-    public SOCChatRecentBuffer getChatBuffer(final String gaName)
+    public SOCChatRecentBuffer getChatBuffer( final String gaName )
     {
-        return gameChatBuffer.get(gaName);
+        return gameChatBuffer.get( gaName );
     }
 
     /**
      * get a game's members (client connections)
      * @param   gaName  game name; not null
-     * @return  list of members: a Vector of {@link Connection}s
+     * @return list of members: a Vector of {@link Connection}s
      */
-    public synchronized Vector<Connection> getMembers(String gaName)
+    public synchronized Vector<Connection> getMembers( String gaName )
     {
-        return gameMembers.get(gaName);
+        return gameMembers.get( gaName );
     }
 
     /**
@@ -242,11 +242,11 @@ public class SOCGameListAtServer extends SOCGameList
      * @return true if game exists and {@code conn} is a member
      * @see #isMember(String, String)
      */
-    public boolean isMember(Connection conn, String gaName)
+    public boolean isMember( Connection conn, String gaName )
     {
-        final Vector<Connection> members = getMembers(gaName);
+        final Vector<Connection> members = getMembers( gaName );
 
-        if ((members != null) && (members.contains(conn)))
+        if ((members != null) && (members.contains( conn )))
             return true;
         else
             return false;
@@ -262,16 +262,16 @@ public class SOCGameListAtServer extends SOCGameList
      * @see #isMember(Connection, String)
      * @since 2.3.00
      */
-    public boolean isMember(String memberName, String gaName)
+    public boolean isMember( String memberName, String gaName )
     {
-        final Vector<Connection> members = getMembers(gaName);
+        final Vector<Connection> members = getMembers( gaName );
         if (members == null)
             return false;
 
         for (final Connection c : members)
         {
             final String na = c.getData();
-            if ((na != null) && na.equals(memberName))
+            if ((na != null) && na.equals( memberName ))
                 return true;
         }
 
@@ -286,28 +286,28 @@ public class SOCGameListAtServer extends SOCGameList
      * @param  gaName   the name of the game
      * @param  conn     the member's connection; version should already be set
      */
-    public synchronized void addMember(Connection conn, String gaName)
+    public synchronized void addMember( Connection conn, String gaName )
     {
-        Vector<Connection> members = getMembers(gaName);
+        Vector<Connection> members = getMembers( gaName );
 
         if (members == null)
         {
-            if (! isGame(gaName))
+            if (!isGame( gaName ))
                 return;
 
             // won't be null, except during some unit tests
             // which use client-side SOCGameList.addGame for simplicity
             members = new Vector<>();
-            gameMembers.put(gaName, members);
+            gameMembers.put( gaName, members );
         }
 
-        if (! members.contains(conn))
+        if (!members.contains( conn ))
         {
             final boolean firstMember = members.isEmpty();
-            members.addElement(conn);
+            members.addElement( conn );
 
             // Check version range
-            SOCGame ga = getGameData(gaName);
+            SOCGame ga = getGameData( gaName );
             if (ga == null)
                 return;  // happens only in some unit tests
 
@@ -320,7 +320,7 @@ public class SOCGameListAtServer extends SOCGameList
             }
             else
             {
-                final int cliLowestAlready  = ga.clientVersionLowest;
+                final int cliLowestAlready = ga.clientVersionLowest;
                 final int cliHighestAlready = ga.clientVersionHighest;
                 if (cliVers < cliLowestAlready)
                 {
@@ -334,13 +334,13 @@ public class SOCGameListAtServer extends SOCGameList
                 }
             }
 
-            if (! ga.hasMultiLocales)
+            if (!ga.hasMultiLocales)
             {
                 final String gaLocale = ga.getOwnerLocale();
                 if (gaLocale != null)
                 {
                     final SOCClientData scd = (SOCClientData) conn.getAppData();
-                    if ((scd != null) && (scd.localeStr != null) && ! gaLocale.equals(scd.localeStr))
+                    if ((scd != null) && (scd.localeStr != null) && !gaLocale.equals( scd.localeStr ))
                         ga.hasMultiLocales = true;  // client's locale differs from other game members'
                 }
             }
@@ -355,16 +355,16 @@ public class SOCGameListAtServer extends SOCGameList
      * @param  gaName   the name of the game
      * @param  conn     the member's connection
      */
-    public synchronized void removeMember(Connection conn, String gaName)
+    public synchronized void removeMember( Connection conn, String gaName )
     {
-        Vector<Connection> members = getMembers(gaName);
+        Vector<Connection> members = getMembers( gaName );
 
         if ((members != null))
         {
-            members.removeElement(conn);
+            members.removeElement( conn );
 
             // Check version of remaining members
-            if (! members.isEmpty())
+            if (!members.isEmpty())
             {
                 Connection c = members.firstElement();
                 int lowVers = c.getVersion();
@@ -372,7 +372,7 @@ public class SOCGameListAtServer extends SOCGameList
 
                 for (int i = members.size() - 1; i >= 1; --i)
                 {
-                    c = members.elementAt(i);
+                    c = members.elementAt( i );
                     int v = c.getVersion();
                     if (v < lowVers)
                         lowVers = v;
@@ -380,8 +380,8 @@ public class SOCGameListAtServer extends SOCGameList
                         highVers = v;
                 }
 
-                SOCGame ga = getGameData(gaName);
-                ga.clientVersionLowest  = lowVers;
+                SOCGame ga = getGameData( gaName );
+                ga.clientVersionLowest = lowVers;
                 ga.clientVersionHighest = highVers;
                 ga.hasOldClients = (lowVers < Version.versionNumber());
             }
@@ -413,11 +413,11 @@ public class SOCGameListAtServer extends SOCGameList
      * @since 1.1.08
      */
     public synchronized List<SOCGame> replaceMemberAllGames
-        (final Connection oldConn, final Connection newConn, final boolean alwaysCheckFeats)
+    ( final Connection oldConn, final Connection newConn, final boolean alwaysCheckFeats )
         throws IllegalArgumentException
     {
-        if (! oldConn.getData().equals(newConn.getData()))
-            throw new IllegalArgumentException("keyname data");
+        if (!oldConn.getData().equals( newConn.getData() ))
+            throw new IllegalArgumentException( "keyname data" );
 
         List<SOCGame> unjoinables = new ArrayList<>();
 
@@ -427,27 +427,29 @@ public class SOCGameListAtServer extends SOCGameList
 
         for (String gaName : getGameNames())
         {
-            Vector<Connection> members = gameMembers.get(gaName);
-            if ((members != null) && members.contains(oldConn))
+            Vector<Connection> members = gameMembers.get( gaName );
+            if ((members != null) && members.contains( oldConn ))
             {
                 if (cliHasLimitedFeats)
                 {
-                    SOCGame ga = getGameData(gaName);
-                    if ((ga != null) && ! ga.canClientJoin(scd.feats))
+                    SOCGame ga = getGameData( gaName );
+                    if ((ga != null) && !ga.canClientJoin( scd.feats ))
                     {
                         // new client can't join this game (unlikely)
-                        unjoinables.add(ga);
+                        unjoinables.add( ga );
                         continue;
                     }
                 }
 
                 if (sameVersion)
                 {
-                    members.remove(oldConn);
-                    members.addElement(newConn);
-                } else {
-                    removeMember(oldConn, gaName);
-                    addMember(newConn, gaName);
+                    members.remove( oldConn );
+                    members.addElement( newConn );
+                }
+                else
+                {
+                    removeMember( oldConn, gaName );
+                    addMember( newConn, gaName );
                 }
             }
         }
@@ -474,11 +476,11 @@ public class SOCGameListAtServer extends SOCGameList
      * @see #addGame(SOCGame, GameHandler, String, String)
      */
     public synchronized SOCGame createGame
-        (final String gaName, final String gaOwner, final String gaLocaleStr,
-         final SOCGameOptionSet gaOpts, final GameHandler handler)
+    ( final String gaName, final String gaOwner, final String gaLocaleStr,
+        final SOCGameOptionSet gaOpts, final GameHandler handler )
         throws IllegalArgumentException
     {
-        return addGame(new SOCGame(gaName, gaOpts, knownOpts), handler, gaOwner, gaLocaleStr);
+        return addGame( new SOCGame( gaName, gaOpts, knownOpts ), handler, gaOwner, gaLocaleStr );
     }
 
     /**
@@ -499,33 +501,33 @@ public class SOCGameListAtServer extends SOCGameList
      * @since 2.3.00
      */
     protected synchronized SOCGame addGame
-        (final SOCGame game, final GameHandler handler, final String gaOwner, final String gaLocaleStr)
+    ( final SOCGame game, final GameHandler handler, final String gaOwner, final String gaLocaleStr )
         throws IllegalArgumentException, NoSuchElementException
     {
         if (handler == null)
-            throw new IllegalArgumentException("handler");
+            throw new IllegalArgumentException( "handler" );
 
         String gaName = game.getName();
-        if (isGame(gaName))
+        if (isGame( gaName ))
         {
-            gaName = makeUnusedName(gaName);
+            gaName = makeUnusedName( gaName );
             if (gaName == null)
-                throw new NoSuchElementException("gaName");
-            game.setName(gaName);
+                throw new NoSuchElementException( "gaName" );
+            game.setName( gaName );
         }
 
         if (gaOwner != null)
-            game.setOwner(gaOwner, gaLocaleStr);
+            game.setOwner( gaOwner, gaLocaleStr );
 
         Vector<Connection> members = new Vector<>();
-        gameMembers.put(gaName, members);
-        gameChatBuffer.put(gaName, new SOCChatRecentBuffer());
+        gameMembers.put( gaName, members );
+        gameChatBuffer.put( gaName, new SOCChatRecentBuffer() );
 
-        game.setExpiration(game.getStartTime().getTime() + (60 * 1000 * GAME_TIME_EXPIRE_MINUTES));
+        game.setExpiration( game.getStartTime().getTime() + (60 * 1000 * GAME_TIME_EXPIRE_MINUTES) );
 
-        handler.calcGameClientFeaturesRequired(game);
-        gameInfo.put(gaName, new GameInfoAtServer(game.getGameOptions(), handler));  // also creates MutexFlag
-        gameData.put(gaName, game);
+        handler.calcGameClientFeaturesRequired( game );
+        gameInfo.put( gaName, new GameInfoAtServer( game.getGameOptions(), handler ) );  // also creates MutexFlag
+        gameData.put( gaName, game );
 
         return game;
     }
@@ -537,51 +539,53 @@ public class SOCGameListAtServer extends SOCGameList
      * @return An unused game name, or {@code null} if can't get a name after about 240 tries
      * @since 2.3.00
      */
-    private synchronized String makeUnusedName(final String baseName)
+    private synchronized String makeUnusedName( final String baseName )
     {
         // + digits suffix
         int i0 = 2;
         String base = baseName;
-        if (Character.isDigit(baseName.charAt(baseName.length() - 1)))
+        if (Character.isDigit( baseName.charAt( baseName.length() - 1 ) ))
         {
             // if name is already -\d+ , start at that + 1 instead of at 2;
             // tries to avoid making a name like "mygame-6-2"
 
-            final Matcher m = Pattern.compile("-(\\d+)$").matcher(baseName);
+            final Matcher m = Pattern.compile( "-(\\d+)$" ).matcher( baseName );
             if (m.find())
             {
-                base = baseName.substring(0, m.start());  // "mygame-6" -> "mygame"
+                base = baseName.substring( 0, m.start() );  // "mygame-6" -> "mygame"
                 try
                 {
-                    i0 = Integer.parseInt(m.group(1));
+                    i0 = Integer.parseInt( m.group( 1 ) );
                     if (i0 < Integer.MAX_VALUE)
                         ++i0;
                     else
                         i0 = 2;
                 }
-                catch(NumberFormatException e) {}
+                catch( NumberFormatException e )
+                {
+                }
             }
         }
         for (int i = i0; i <= (i0 + 20); ++i)
         {
             String name = base + '-' + i;
-            if (! isGame(name))
+            if (!isGame( name ))
                 return name;
         }
 
         // + random alphanumeric suffix
         for (int i = 1; i < 20; ++i)
         {
-            String name = baseName + '-' + randomAlphanumericLegibles(5);
-            if (! isGame(name))
+            String name = baseName + '-' + randomAlphanumericLegibles( 5 );
+            if (!isGame( name ))
                 return name;
         }
 
         // "game-" + just random alphanumeric
         for (int i = 1; i < 200; ++i)
         {
-            String name = "game-" + randomAlphanumericLegibles(6);
-            if (! isGame(name))
+            String name = "game-" + randomAlphanumericLegibles( 6 );
+            if (!isGame( name ))
                 return name;
         }
 
@@ -601,12 +605,12 @@ public class SOCGameListAtServer extends SOCGameList
      * @return A random string of that length
      * @since 2.3.00
      */
-    private String randomAlphanumericLegibles(final int length)
+    private String randomAlphanumericLegibles( final int length )
     {
         final int L = ALPHANUMERIC_LEGIBLE_CHOICES.length();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length; ++i)
-            sb.append(ALPHANUMERIC_LEGIBLE_CHOICES.charAt(rand.nextInt(L)));
+            sb.append( ALPHANUMERIC_LEGIBLE_CHOICES.charAt( rand.nextInt( L ) ) );
 
         return sb.toString();
     }
@@ -636,13 +640,13 @@ public class SOCGameListAtServer extends SOCGameList
      * @see soc.game.SOCGame#resetAsCopy()
      * @since 1.1.00
      */
-    public SOCGameBoardReset resetBoard(String gaName)
+    public SOCGameBoardReset resetBoard( String gaName )
     {
-        SOCGame oldGame = gameData.get(gaName);
+        SOCGame oldGame = gameData.get( gaName );
         if (oldGame == null)
             return null;
 
-        takeMonitorForGame(gaName);
+        takeMonitorForGame( gaName );
 
         // Create reset-copy of game;
         // also removes robots from game obj and its member list,
@@ -650,33 +654,33 @@ public class SOCGameListAtServer extends SOCGameList
         SOCGameBoardReset reset = null;
         try
         {
-            reset = new SOCGameBoardReset(oldGame, getMembers(gaName));
+            reset = new SOCGameBoardReset( oldGame, getMembers( gaName ) );
             SOCGame rgame = reset.newGame;
 
             // As in createGame, set expiration timer
-            rgame.setExpiration(System.currentTimeMillis() + (60 * 1000 * GAME_TIME_EXPIRE_MINUTES));
+            rgame.setExpiration( System.currentTimeMillis() + (60 * 1000 * GAME_TIME_EXPIRE_MINUTES) );
 
             // Adjust game-list
-            gameData.remove(gaName);
-            gameData.put(gaName, rgame);
+            gameData.remove( gaName );
+            gameData.put( gaName, rgame );
 
             // Done.
             oldGame.destroyGame();
         }
-        catch (Throwable e)
+        catch( Throwable e )
         {
-            D.ebugPrintStackTrace(e, "ERROR -> gamelist.resetBoard");
+            D.ebugPrintStackTrace( e, "ERROR -> gamelist.resetBoard" );
         }
         finally
         {
-            releaseMonitorForGame(gaName);
+            releaseMonitorForGame( gaName );
         }
 
         return reset;  // null if error during reset
     }
 
     @Override
-    public synchronized void addGames(SOCGameList gl, final int ourVersion)
+    public synchronized void addGames( SOCGameList gl, final int ourVersion )
     {
         if (gl == null)
             return;
@@ -685,10 +689,10 @@ public class SOCGameListAtServer extends SOCGameList
         {
             Hashtable<String, SOCGame> gdata = ((SOCGameListAtServer) gl).gameData;
             if (gdata != null)
-                addGames(gdata.values(), ourVersion);
+                addGames( gdata.values(), ourVersion );
         }
 
-        super.addGames(gl, ourVersion);
+        super.addGames( gl, ourVersion );
     }
 
     /**
@@ -697,21 +701,21 @@ public class SOCGameListAtServer extends SOCGameList
      * @param gaName  the name of the game
      */
     @Override
-    public synchronized void deleteGame(String gaName)
+    public synchronized void deleteGame( String gaName )
     {
-        SOCGame game = gameData.remove(gaName);
+        SOCGame game = gameData.remove( gaName );
         if (game != null)
             game.destroyGame();
 
         // delete from super to destroy GameInfo and set its gameDestroyed flag
         // (Removes game from list before dealing with members, in case of locks)
-        super.deleteGame(gaName);
+        super.deleteGame( gaName );
 
-        Vector<Connection> members = gameMembers.remove(gaName);
+        Vector<Connection> members = gameMembers.remove( gaName );
         if (members != null)
             members.removeAllElements();
 
-        SOCChatRecentBuffer buf = gameChatBuffer.remove(gaName);
+        SOCChatRecentBuffer buf = gameChatBuffer.remove( gaName );
         if (buf != null)
             buf.clear();
     }
@@ -730,16 +734,16 @@ public class SOCGameListAtServer extends SOCGameList
      * @see #replaceMemberAllGames(Connection, Connection, boolean)
      * @since 1.1.08
      */
-    public int playerGamesMinVersion(Connection plConn)
+    public int playerGamesMinVersion( Connection plConn )
     {
         int minVers = 0;
 
-        synchronized(gameData)
+        synchronized (gameData)
         {
             for (SOCGame ga : getGamesData())
             {
-                Vector<Connection> members = getMembers(ga.getName());
-                if ((members == null) || ! members.contains(plConn))
+                Vector<Connection> members = getMembers( ga.getName() );
+                if ((members == null) || !members.contains( plConn ))
                     continue;
 
                 // plConn is a member of this game.
@@ -764,21 +768,21 @@ public class SOCGameListAtServer extends SOCGameList
      * @see #replaceMemberAllGames(Connection, Connection, boolean)
      * @since 1.1.08
      */
-    public List<SOCGame> memberGames(Connection c, final String firstGameName)
+    public List<SOCGame> memberGames( Connection c, final String firstGameName )
     {
         List<SOCGame> cGames = new ArrayList<>();
 
-        synchronized(gameData)
+        synchronized (gameData)
         {
             SOCGame firstGame = null;
             if (firstGameName != null)
             {
-                firstGame = getGameData(firstGameName);
+                firstGame = getGameData( firstGameName );
                 if (firstGame != null)
                 {
-                    Vector<?> members = getMembers(firstGameName);
-                    if ((members != null) && members.contains(c))
-                        cGames.add(firstGame);
+                    Vector<?> members = getMembers( firstGameName );
+                    if ((members != null) && members.contains( c ))
+                        cGames.add( firstGame );
                 }
             }
 
@@ -786,11 +790,11 @@ public class SOCGameListAtServer extends SOCGameList
             {
                 if (ga == firstGame)
                     continue;
-                Vector<?> members = getMembers(ga.getName());
-                if ((members == null) || ! members.contains(c))
+                Vector<?> members = getMembers( ga.getName() );
+                if ((members == null) || !members.contains( c ))
                     continue;
 
-                cGames.add(ga);
+                cGames.add( ga );
             }
         }
 
@@ -843,7 +847,7 @@ public class SOCGameListAtServer extends SOCGameList
      * @since 1.1.06
      */
     public void sendGameList
-        (final Connection c, final int prevVers, final boolean alwaysCheckFeats)
+    ( final Connection c, final int prevVers, final boolean alwaysCheckFeats )
     {
         final int cliVers = c.getVersion();   // Need to know this before sending
         final SOCClientData scd = (SOCClientData) c.getAppData();
@@ -861,26 +865,26 @@ public class SOCGameListAtServer extends SOCGameList
         // that it isn't capable of joining.
         boolean cliCanKnow = (cliVers >= SOCGames.VERSION_FOR_UNJOINABLE);
         final boolean cliCouldKnow = (prevVers >= SOCGames.VERSION_FOR_UNJOINABLE);
-        final boolean cliNotLimitedFeats = ! (alwaysCheckFeats || scd.hasLimitedFeats);
+        final boolean cliNotLimitedFeats = !(alwaysCheckFeats || scd.hasLimitedFeats);
         final SOCFeatureSet cliLimitedFeats = cliNotLimitedFeats ? null : scd.feats;
 
         ArrayList<Object> gl = new ArrayList<>();  // contains Strings and/or SOCGames;
-                                   // strings are names of unjoinable games,
-                                   // with the UNJOINABLE prefix.
+        // strings are names of unjoinable games,
+        // with the UNJOINABLE prefix.
         takeMonitor();
 
         // Note this flag now, while gamelist monitor is held
         final boolean alreadySent = scd.hasSentGameList();
         boolean cliVersionChange = alreadySent && (cliVers > prevVers);
 
-        if (alreadySent && ! cliVersionChange)
+        if (alreadySent && !cliVersionChange)
         {
             releaseMonitor();
 
             return;  // <---- Early return: Nothing to do ----
         }
 
-        if (! alreadySent)
+        if (!alreadySent)
         {
             scd.setSentGameList();  // Set while gamelist monitor is held
         }
@@ -917,20 +921,21 @@ public class SOCGameListAtServer extends SOCGameList
                 if (cliVersionChange && (prevVers >= gameVers))
                 {
                     continue;  // No need to re-announce, they already
-                               // could join it with lower (prev-assumed) version
+                    // could join it with lower (prev-assumed) version
                 }
 
                 if ((cliVers >= gameVers)
-                    && (cliNotLimitedFeats || g.canClientJoin(cliLimitedFeats)))
+                    && (cliNotLimitedFeats || g.canClientJoin( cliLimitedFeats )))
                 {
-                    gl.add(g);  // Can join
-                } else if (cliCanKnow)
+                    gl.add( g );  // Can join
+                }
+                else if (cliCanKnow)
                 {
                     //  Cannot join, but can see it
                     StringBuilder sb = new StringBuilder();
-                    sb.append(SOCGames.MARKER_THIS_GAME_UNJOINABLE);
-                    sb.append(g.getName());
-                    gl.add(sb.toString());
+                    sb.append( SOCGames.MARKER_THIS_GAME_UNJOINABLE );
+                    sb.append( g.getName() );
+                    gl.add( sb.toString() );
                 }
                 // else
                 //   can't join, and won't see it
@@ -939,15 +944,17 @@ public class SOCGameListAtServer extends SOCGameList
 
             // We now have the list of game names / socgame objs.
 
-            if (! alreadySent)
+            if (!alreadySent)
             {
                 // send the full list as 1 message
                 c.put
-                    ((cliVers >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
-                     ? new SOCGamesWithOptions(gl, cliVers)
-                     : new SOCGames(gl));
+                    ( (cliVers >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
+                        ? new SOCGamesWithOptions( gl, cliVers )
+                        : new SOCGames( gl ) );
 
-            } else {
+            }
+            else
+            {
                 // send deltas only
                 for (Object ob : gl)
                 {
@@ -970,9 +977,9 @@ public class SOCGameListAtServer extends SOCGameList
                 }
             }
         }
-        catch (Exception e)
+        catch( Exception e )
         {
-            D.ebugPrintStackTrace(e, "Exception in GLAS.sendGameList");
+            D.ebugPrintStackTrace( e, "Exception in GLAS.sendGameList" );
         }
     }
 
@@ -997,13 +1004,13 @@ public class SOCGameListAtServer extends SOCGameList
          * @throws IllegalArgumentException  if {@code handler} is null
          */
         public GameInfoAtServer
-            (final SOCGameOptionSet gameOpts, final GameHandler typeHandler)
+        ( final SOCGameOptionSet gameOpts, final GameHandler typeHandler )
             throws IllegalArgumentException
         {
-            super(true, gameOpts);
+            super( true, gameOpts );
 
             if (typeHandler == null)
-                throw new IllegalArgumentException("handler");
+                throw new IllegalArgumentException( "handler" );
 
             handler = typeHandler;
             messageHandler = handler.getMessageHandler();

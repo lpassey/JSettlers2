@@ -101,7 +101,9 @@ import soc.server.genericServer.Connection;
                             D.ebugPrintlnINFO("(*)(*)(*)(*) PINGING " + robotConnection.getData());
                         robotConnection.put(ping);
                     }
-                } catch (ConcurrentModificationException e) {
+                }
+                catch( ConcurrentModificationException e )
+                {
                     retry = true;
                 }
             }

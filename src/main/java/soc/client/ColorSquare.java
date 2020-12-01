@@ -464,23 +464,20 @@ public class ColorSquare extends JComponent implements MouseListener
         }
 
         // Color-based tooltip
-        if (c.equals(GREY))
+        if (! c.equals(GREY))           // GREY is the most common case. Do nothing.
+                                        // If needed, can call setToolTipText explicitly.
         {
-            // Most common case.
-            // Do nothing.
-            // If needed, can call setToolTipText explicitly.
+            if (c == CLAY)
+                setToolTipText( strings.get( "resources.clay" ) );
+            else if (c == ORE)
+                setToolTipText( strings.get( "resources.ore" ) );
+            else if (c == SHEEP)
+                setToolTipText( strings.get( "resources.sheep" ) );
+            else if (c == WHEAT)
+                setToolTipText( strings.get( "resources.wheat" ) );
+            else if (c == WOOD)
+                setToolTipText( strings.get( "resources.wood" ) );
         }
-        else if (c == CLAY)
-            setToolTipText(strings.get("resources.clay"));
-        else if (c == ORE)
-            setToolTipText(strings.get("resources.ore"));
-        else if (c == SHEEP)
-            setToolTipText(strings.get("resources.sheep"));
-        else if (c == WHEAT)
-            setToolTipText(strings.get("resources.wheat"));
-        else if (c == WOOD)
-            setToolTipText(strings.get("resources.wood"));
-
         if (in)
             addMouseListener(this);
     }
@@ -1236,40 +1233,28 @@ public class ColorSquare extends JComponent implements MouseListener
      *
      * @param e DOCUMENT ME!
      */
-    public void mouseEntered(MouseEvent e)
-    {
-        ;
-    }
+    public void mouseEntered(MouseEvent e) {}
 
     /**
      * DOCUMENT ME!
      *
      * @param e DOCUMENT ME!
      */
-    public void mouseExited(MouseEvent e)
-    {
-        ;
-    }
+    public void mouseExited(MouseEvent e) {}
 
     /**
      * DOCUMENT ME!
      *
      * @param e DOCUMENT ME!
      */
-    public void mouseClicked(MouseEvent e)
-    {
-        ;
-    }
+    public void mouseClicked(MouseEvent e) {}
 
     /**
      * DOCUMENT ME!
      *
      * @param e DOCUMENT ME!
      */
-    public void mouseReleased(MouseEvent e)
-    {
-        ;
-    }
+    public void mouseReleased(MouseEvent e) {}
 
     /**
      * DOCUMENT ME!

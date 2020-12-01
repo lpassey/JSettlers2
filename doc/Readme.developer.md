@@ -19,6 +19,7 @@
 - Coding Style
 - Release Testing
 - JSettlers on Github
+- Related Projects
 
 
 
@@ -60,25 +61,31 @@ and Robert S Thomas' dissertation.
 
 ### Board layouts and coordinates
 
-For more information about the board coordinates, see javadocs in `soc.game.SOCBoard`
-and `soc.game.SOCBoardLarge` (or dissertation appendix A), and these diagrams:
-
-**Sea boards:**  
-![hexcoord-sea.png](/doc/hexcoord-sea.png)
-
-**4-player classic:**  
-![hexcoord.gif](/doc/hexcoord.gif)
-
-**6-player classic:**  
-![hexcoord-6player.gif](/doc/hexcoord-6player.gif)
+Pieces are placed at edges, nodes, or hexes.
 
 To show piece coordinates in the board's tooltips, in the game window chat box type: `=*= showcoords`  
 To no longer show those coordinates, type: `=*= hidecoords`
 
+For more information about the board coordinates, see javadocs in `soc.game.SOCBoard`
+and `soc.game.SOCBoardLarge` (or dissertation appendix A), and these diagrams:
+
+**Sea boards:**  
+Rectilinear grid of rows and columns. A vertical edge's coordinate is its center.
+A diagonal edge's coordinate value is taken from its left-end node.  
+![hexcoord-sea.png](/doc/hexcoord-sea.png)
+
+**4-player classic:**  
+Diagonal axes for rows and columns.  
+![hexcoord.gif](/doc/hexcoord.gif)
+
+**6-player classic:**  
+Same coordinates as 4-player classic. Trading ports' hexes are off the edge of the grid.  
+![hexcoord-6player.gif](/doc/hexcoord-6player.gif)
+
 ### Development
 
-Coding is done in Java 7, but should compile cleanly in newer JDKs.
-(v2.0 and 2.1 used java 6 for backwards compatibility; 1.2 used java 5.)
+Coding is done in Java 7 for client compatibility, but should compile cleanly
+in newer JDKs. (v2.0 and 2.1 used java 6 for compatibility; 1.2 used java 5.)
 The build system is gradle 5.6 or higher (which requires java 8);
 the newest tested version is gradle 6.4. Use any IDE you want, including vi.
 Use spaces, not tabs.  Please try to keep the other conventions of the
@@ -458,7 +465,6 @@ from easier to more difficult. You can also search the source for TODO for
 ideas.
 
 - Visual reminder to player when they've made a trade offer
-- Show # VP when choosing where to sit, if game is in progress
 - Refactor: `new Date().getTime()` -> `System.currentTimeMillis()`
 - Occasionally the board does not re-scale at game reset
 - Docs: State diagram for `SOCGame` states, or important message sequences
@@ -503,7 +509,7 @@ ideas.
 - Customize bot names (txt file or startup property) in SOCServer.setupLocalRobots
 - Refactor `SOCRobotClient`: Move simple handle-methods which don't put the
   message into brainQ, but only update game fields/methods, into
-  SOCDisplayless if possible.
+  SOCDisplaylessPlayerClient if possible.
 - Refactor `SOCDisplaylessPlayerClient` like SOCPlayerClient: Move handler methods into
   a class like MessageHandler, and sender methods into a class like GameMessageSender.
   Watch for method calls from the `soc.robot` and `soc.client` packages.
@@ -543,7 +549,8 @@ ideas.
   bots, currently active/total games from `*STATS*` cmd, client versions, any
   errors, etc
 - Per-game thread/message queue at server (use SOCMessageForGame.getGame)
-- HTML5 client (see v3 branch for protobuf/JSON over websockets)
+- HTML5 client (see v3 branch for protobuf/JSON over websockets and preliminary
+  observer-only start on that work)
 - Cities & Knights support
     - UI mock-ups
     - state change / network message plans
@@ -675,8 +682,8 @@ use strings.get or strings.getSpecial with parameter placeholders such as {0}.
 `messageToGameKeyed`, etc.). The client strings live in
 `soc/client/strings/data*.properties`.  An example commit is 68c3972.
 The server strings live in `soc/server/strings/*.properties`.  An example
-commit is 3e062b7. See the comments at the top of any *.properties file for
-format details.
+commit is 3e062b7. See the comments at the top of
+strings/server/toClient.properties for format details.
 
 If an i18n string lookup's english text isn't obvious from the key, add it as a
 comment to make searching the source for strings easier:
@@ -727,6 +734,9 @@ The project was originally started as Robert S Thomas' PhD dissertation about AI
 agents, so there's some instrumentation for the bots but it's not entirely
 documented.  For a technical overview of how the bots plan their actions, start
 at the SOCRobotBrain class javadoc.
+
+See the "Related Projects" section near the end of this document for
+some third-party robot AI examples.
 
 ### Testing/Debugging
 
@@ -1091,3 +1101,35 @@ can be found at https://github.com/jdmonin/JSettlers1
 or https://sourceforge.net/projects/jsettlers/ .
 That JSettlers1 repo also includes jsettlers-1-1-branch which has
 Jeremy Monin's first JSettlers releases 1.1.00 through 1.1.06.
+
+
+## Related Projects
+
+JSettlers was originally started to explore AI agents, and these projects
+have used its code as a base for similar work.
+
+### STAC
+
+The Strategic Conversation Project (STAC) is an extensive multi-year effort
+to study negotiations, game theory, strategic decision making, and agents,
+including human-AI interactions in games. As part of their work, they ran
+tournaments of humans and bots using modified JSettlers and recorded that
+gameplay for study.
+
+STAC forked JSettlers and added several bot types, UI for partial trades
+and "fully observable" open-hand games, a way to record a game's actions to
+logs or a database for playback later, some bot API refactoring, and other
+miscellaneous work. Some of STAC's features and APIs have been
+adapted upstream as part of JSettlers v2.4.50.
+
+Website: https://www.irit.fr/STAC/about.html  
+Github: https://github.com/ruflab/StacSettlers  
+Previous github: https://github.com/sorinMD/StacSettlers
+
+### Settlers of Botan
+
+Instead of changing any JSettlers code, this undergraduate project's
+third-party bot uses JSettlers as a library and extends/overrides the
+robot classes with some new implementations and algorithms.
+
+https://github.com/sambattalio/settlers_of_botan

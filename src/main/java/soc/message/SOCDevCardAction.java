@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2010,2012-2014,2017-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
@@ -154,7 +154,7 @@ public class SOCDevCardAction extends SOCMessageForGame
      *     or {@link SOCDevCardConstants#UNKNOWN}
      * @see #SOCDevCardAction(String, int, int, List)
      */
-    public SOCDevCardAction(String ga, int pn, int ac, int ct)
+    public SOCDevCardAction( String ga, int pn, int ac, int ct )
     {
         super( DEVCARDACTION, ga );
         playerNumber = pn;
@@ -181,19 +181,19 @@ public class SOCDevCardAction extends SOCMessageForGame
      * @see #SOCDevCardAction(String, int, int, int)
      * @since 2.0.00
      */
-    public SOCDevCardAction(String ga, int pn, int ac, List<Integer> ct)
+    public SOCDevCardAction( String ga, int pn, int ac, List<Integer> ct )
         throws IllegalArgumentException
     {
         super( DEVCARDACTION, ga );
         if (pn < 0)
-            throw new IllegalArgumentException("pn: " + pn);
+            throw new IllegalArgumentException( "pn: " + pn );
         if ((ac == PLAY) || (ac == CANNOT_PLAY))
-            throw new IllegalArgumentException("action: " + ac);
+            throw new IllegalArgumentException( "action: " + ac );
         if (ct == null)
-            throw new IllegalArgumentException("ct: null");
+            throw new IllegalArgumentException( "ct: null" );
         final int S = ct.size();
         if ((S == 0) || (S > MAX_MULTIPLE))
-            throw new IllegalArgumentException("ct size: " + S);
+            throw new IllegalArgumentException( "ct size: " + S );
 
         playerNumber = pn;
         actionType = ac;
@@ -251,15 +251,15 @@ public class SOCDevCardAction extends SOCMessageForGame
             .append( sep2 ).append( actionType );
         if (cardTypes == null)
         {
-            sb.append(sep2);
-            sb.append(cardType);
+            sb.append( sep2 );
+            sb.append( cardType );
         }
         else
         {
             for (Integer ctype : cardTypes)
             {
-                sb.append(sep2);
-                sb.append(ctype);
+                sb.append( sep2 );
+                sb.append( ctype );
             }
         }
         return sb.toString();
@@ -269,9 +269,9 @@ public class SOCDevCardAction extends SOCMessageForGame
      * Parse the command String into a DEVCARDACTION message.
      *
      * @param s   the String to parse
-     * @return    a DEVCARDACTION message, or null if the data is garbled
+     * @return a DEVCARDACTION message, or null if the data is garbled
      */
-    public static SOCDevCardAction parseDataStr(String s)
+    public static SOCDevCardAction parseDataStr( String s )
     {
         String ga;
         int pn;
@@ -279,33 +279,33 @@ public class SOCDevCardAction extends SOCMessageForGame
         int ct;
         List<Integer> ctypes = null;
 
-        StringTokenizer st = new StringTokenizer(s, sep2);
+        StringTokenizer st = new StringTokenizer( s, sep2 );
 
         try
         {
             ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
-            ac = Integer.parseInt(st.nextToken());
-            ct = Integer.parseInt(st.nextToken());
+            pn = Integer.parseInt( st.nextToken() );
+            ac = Integer.parseInt( st.nextToken() );
+            ct = Integer.parseInt( st.nextToken() );
             if (st.hasMoreTokens())
             {
                 ctypes = new ArrayList<>();
-                ctypes.add(ct);
+                ctypes.add( ct );
                 for (int i = 2; st.hasMoreTokens() && (i <= MAX_MULTIPLE); ++i)
-                    ctypes.add(Integer.parseInt(st.nextToken()));
+                    ctypes.add( Integer.parseInt( st.nextToken() ) );
                 if (st.hasMoreTokens())
                     return null;  // more than MAX_MULTIPLE not allowed (possible DoS)
             }
         }
-        catch (Exception e)
+        catch( Exception e )
         {
             return null;
         }
 
         if (ctypes != null)
-            return new SOCDevCardAction(ga, pn, ac, ctypes);
+            return new SOCDevCardAction( ga, pn, ac, ctypes );
         else
-            return new SOCDevCardAction(ga, pn, ac, ct);
+            return new SOCDevCardAction( ga, pn, ac, ct );
     }
 
     /**
@@ -314,10 +314,10 @@ public class SOCDevCardAction extends SOCMessageForGame
      * @since 2.4.50
      */
     public static final String[] ACTION_STRINGS
-        = { "DRAW", "PLAY", "ADD_NEW", "ADD_OLD", "CANNOT_PLAY"};
-        // if you add to this array:
-        // - watch compatibility with older versions, which won't know the new entries
-        // - update its unit test in soctest.message.TestStringConstants
+        = {"DRAW", "PLAY", "ADD_NEW", "ADD_OLD", "CANNOT_PLAY"};
+    // if you add to this array:
+    // - watch compatibility with older versions, which won't know the new entries
+    // - update its unit test in soctest.message.TestStringConstants
 
     /**
      * Strip out the parameter/attribute names from {@link #toString()}'s format,
@@ -331,16 +331,16 @@ public class SOCDevCardAction extends SOCMessageForGame
      * @return Message parameters without attribute names, or {@code null} if params are malformed
      * @since 2.4.50
      */
-    public static String stripAttribNames(final String messageTypeName, final String messageStrParams)
+    public static String stripAttribNames( final String messageTypeName, final String messageStrParams )
     {
-        final boolean isV1Format = ("SOCDevCard".equals(messageTypeName));
-        final boolean hasArray = (! isV1Format) && (messageStrParams.indexOf("|cardTypes=[") > 0);
+        final boolean isV1Format = ("SOCDevCard".equals( messageTypeName ));
+        final boolean hasArray = (!isV1Format) && (messageStrParams.indexOf( "|cardTypes=[" ) > 0);
 
-        String s = SOCMessage.stripAttribNames(messageStrParams);
+        String s = SOCMessage.stripAttribNames( messageStrParams );
         if (s == null)
             return null;
 
-        String[] pieces = s.split(SOCMessage.sep2);
+        String[] pieces = s.split( SOCMessage.sep2 );
         if ((pieces.length <= 2) || pieces[2].isEmpty())
             return s;  // probably malformed, but there's no action string to un-map
 
@@ -350,7 +350,7 @@ public class SOCDevCardAction extends SOCMessageForGame
             int actType = -1;
             for (int ac = 0; ac < ACTION_STRINGS.length; ++ac)
             {
-                if (ACTION_STRINGS[ac].equals(act))
+                if (ACTION_STRINGS[ac].equals( act ))
                 {
                     actType = ac;
                     break;
@@ -358,7 +358,7 @@ public class SOCDevCardAction extends SOCMessageForGame
             }
 
             if (actType != -1)
-                pieces[2] = Integer.toString(actType);
+                pieces[2] = Integer.toString( actType );
         }
 
         if (hasArray)
@@ -369,23 +369,27 @@ public class SOCDevCardAction extends SOCMessageForGame
             for (int i = 3; i < ilast; ++i)
             {
                 String piece = pieces[i];
-                char ch0 = piece.charAt(0);
+                char ch0 = piece.charAt( 0 );
                 if ((ch0 == '[') || (ch0 == ' '))
-                    pieces[i] = piece.substring(1);
+                    pieces[i] = piece.substring( 1 );
             }
 
             String piece = pieces[ilast];
-            int charIdxFirst = (piece.charAt(0) == ' ') ? 1 : 0;
+            int charIdxFirst = (piece.charAt( 0 ) == ' ') ? 1 : 0;
             int charIdxLast = piece.length() - 1;
-            if ((charIdxLast >= 0) && (piece.charAt(charIdxLast) == ']'))
-                pieces[ilast] = piece.substring(charIdxFirst, charIdxLast);
-        } else if (isV1Format) {
+            if ((charIdxLast >= 0) && (piece.charAt( charIdxLast ) == ']'))
+                pieces[ilast] = piece.substring( charIdxFirst, charIdxLast );
+        }
+        else if (isV1Format)
+        {
             try
             {
-                int cardType = Integer.parseInt(pieces[3]);
+                int cardType = Integer.parseInt( pieces[3] );
                 if (cardType == SOCDevCardConstants.KNIGHT_FOR_VERS_1_X)
-                    pieces[3] = Integer.toString(SOCDevCardConstants.KNIGHT);
-            } catch (NumberFormatException e) {
+                    pieces[3] = Integer.toString( SOCDevCardConstants.KNIGHT );
+            }
+            catch( NumberFormatException e )
+            {
                 return null;
             }
         }
@@ -394,8 +398,8 @@ public class SOCDevCardAction extends SOCMessageForGame
         for (int i = 0; i < pieces.length; ++i)
         {
             if (i > 0)
-                ret.append(sep2_char);
-            ret.append(pieces[i]);
+                ret.append( sep2_char );
+            ret.append( pieces[i] );
         }
 
         return ret.toString();
@@ -410,13 +414,13 @@ public class SOCDevCardAction extends SOCMessageForGame
         if ((actionType >= 0) && (actionType < ACTION_STRINGS.length))
             act = ACTION_STRINGS[actionType];
         else
-            act = Integer.toString(actionType);
+            act = Integer.toString( actionType );
 
         return "SOCDevCardAction:game=" + getGame() + "|playerNum=" + playerNumber
             + "|actionType=" + act +
             ((cardTypes != null)
-             ? "|cardTypes=" + cardTypes.toString()  // "[1, 5, 7]"
-             : "|cardType=" + cardType);
+                ? "|cardTypes=" + cardTypes.toString()  // "[1, 5, 7]"
+                : "|cardType=" + cardType);
     }
 
 }

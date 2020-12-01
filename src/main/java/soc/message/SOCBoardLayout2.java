@@ -3,17 +3,17 @@
  * This file Copyright (C) 2009-2014,2016-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2003  Robert S. Thomas
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
@@ -102,7 +102,7 @@ public class SOCBoardLayout2 extends SOCMessageForGame
      * for details.
      * @since 2.0.00
      */
-    private final static String[] KNOWN_KEYS = { "HL", "NL", "RH", "PL", "LH", "PH", "PX", "RX", "CV" };
+    private final static String[] KNOWN_KEYS = {"HL", "NL", "RH", "PL", "LH", "PH", "PX", "RX", "CV"};
 
     /**
      * Minimum version (1.1.08) of client/server which recognize
@@ -144,7 +144,7 @@ public class SOCBoardLayout2 extends SOCMessageForGame
      *               contents are not validated here, but contents not matching their keys' documented type
      *               may cause a ClassCastException later.
      */
-    public SOCBoardLayout2(String ga, int bef, Map<String, Object> parts)
+    public SOCBoardLayout2( String ga, int bef, Map<String, Object> parts )
     {
         super( BOARDLAYOUT2, ga );
         boardEncodingFormat = bef;
@@ -164,7 +164,7 @@ public class SOCBoardLayout2 extends SOCMessageForGame
      * @param pl   the port layout, or null
      * @param rh   the robber hex
      */
-    public SOCBoardLayout2(final String ga, final int bef, final int[] hl, final int[] nl, final int[] pl, final int rh)
+    public SOCBoardLayout2( final String ga, final int bef, final int[] hl, final int[] nl, final int[] pl, final int rh )
     {
         super( BOARDLAYOUT2, ga );
         boardEncodingFormat = bef;
@@ -178,19 +178,21 @@ public class SOCBoardLayout2 extends SOCMessageForGame
             switch (h)
             {
             case SOCBoard.WATER_HEX:
-                h = SENTLAND_WATER;   break;
+                h = SENTLAND_WATER;
+                break;
             case SOCBoard.DESERT_HEX:
-                h = SENTLAND_DESERT;  break;
+                h = SENTLAND_DESERT;
+                break;
             default:
                 // leave unchanged
             }
             hexLayout[i] = h;
         }
-        layoutParts.put("HL", hexLayout);
+        layoutParts.put( "HL", hexLayout );
 
-        layoutParts.put("NL", nl);
+        layoutParts.put( "NL", nl );
         if (pl != null)
-            layoutParts.put("PL", pl);
+            layoutParts.put( "PL", pl );
         layoutParts.put("RH", Integer.valueOf(rh));
     }
 
@@ -210,28 +212,28 @@ public class SOCBoardLayout2 extends SOCMessageForGame
      *             Please make sure that new keys don't conflict with ones already listed in the class javadoc.
      */
     public SOCBoardLayout2
-        (final String ga, final int bef,
-         final int[] lh, final int[] pl, final int rh, final int ph, final int[] px, final int[] rx,
-         final Map<String, int[]> other)
+    ( final String ga, final int bef,
+        final int[] lh, final int[] pl, final int rh, final int ph, final int[] px, final int[] rx,
+        final Map<String, int[]> other )
     {
         super( BOARDLAYOUT2, ga );
         boardEncodingFormat = bef;
         layoutParts = new HashMap<String, Object>();
         if (lh != null)
-            layoutParts.put("LH", lh);
+            layoutParts.put( "LH", lh );
         if (pl != null)
-            layoutParts.put("PL", pl);
+            layoutParts.put( "PL", pl );
         if (rh > 0)
             layoutParts.put("RH", Integer.valueOf(rh));
         if (ph > 0)
             layoutParts.put("PH", Integer.valueOf(ph));
         if (px != null)
-            layoutParts.put("PX", px);
+            layoutParts.put( "PX", px );
         if (rx != null)
-            layoutParts.put("RX", rx);
+            layoutParts.put( "RX", rx );
 
         if (other != null)
-            layoutParts.putAll(other);
+            layoutParts.putAll( other );
     }
 
     /**
@@ -254,9 +256,9 @@ public class SOCBoardLayout2 extends SOCMessageForGame
      * @see #getIntPart(String)
      */
     @SuppressWarnings("unchecked")
-    public int[] getIntArrayPart(String pkey)
+    public int[] getIntArrayPart( String pkey )
     {
-        Object part = layoutParts.get(pkey);
+        Object part = layoutParts.get( pkey );
         final int[] iap;
         if (part instanceof ArrayList)
         {
@@ -264,11 +266,13 @@ public class SOCBoardLayout2 extends SOCMessageForGame
             final int L = ((ArrayList<?>) part).size();
             iap = new int[L];
             for (int i = 0; i < L; ++i)
-                iap[i] = ((ArrayList<Number>) part).get(i).intValue();
-        } else {
+                iap[i] = ((ArrayList<Number>) part).get( i ).intValue();
+        }
+        else
+        {
             iap = (int[]) part;
         }
-        if (! pkey.equals("HL"))
+        if (!pkey.equals( "HL" ))
             return iap;
 
         // Map "HL" (hex layout) from sent values to SOCBoard values
@@ -279,9 +283,11 @@ public class SOCBoardLayout2 extends SOCMessageForGame
             switch (h)
             {
             case SENTLAND_WATER:
-                h = SOCBoard.WATER_HEX;   break;
+                h = SOCBoard.WATER_HEX;
+                break;
             case SENTLAND_DESERT:
-                h = SOCBoard.DESERT_HEX;  break;
+                h = SOCBoard.DESERT_HEX;
+                break;
             default:
                 // leave unchanged
             }
@@ -296,9 +302,9 @@ public class SOCBoardLayout2 extends SOCMessageForGame
      * @return the part's value, or 0 if no part named <tt>pkey</tt>, or if it's not integer.
      * @see #getIntArrayPart(String)
      */
-    public int getIntPart(String pkey)
+    public int getIntPart( String pkey )
     {
-        final Object obj = layoutParts.get(pkey);
+        final Object obj = layoutParts.get( pkey );
         if (obj instanceof Number)
             return ((Number) obj).intValue();  // message was probably loaded from JSON
 
@@ -307,9 +313,9 @@ public class SOCBoardLayout2 extends SOCMessageForGame
             return 0;
         try
         {
-            return Integer.parseInt(sobj);
+            return Integer.parseInt( sobj );
         }
-        catch (NumberFormatException e)
+        catch( NumberFormatException e )
         {
             return 0;
         }
@@ -320,9 +326,9 @@ public class SOCBoardLayout2 extends SOCMessageForGame
      * @param pkey the part's key name
      * @return the part's value, or null if no part named <tt>pkey</tt>.
      */
-    public String getStringPart(String pkey)
+    public String getStringPart( String pkey )
     {
-        return (String) layoutParts.get(pkey);
+        return (String) layoutParts.get( pkey );
     }
 
     /**
@@ -341,7 +347,7 @@ public class SOCBoardLayout2 extends SOCMessageForGame
      * {@link SOCBoardLarge#setAddedLayoutParts(HashMap)} once for all the parts returned here.  For the other keys
      * listed in the class javadoc, such as {@code "CV"}, the client instead calls part-specific methods such as
      * {@link SOCBoardLarge#setVillageAndClothLayout(int[])} to set up the board when the server sends its layout.
-     * @return  Other added parts' keys and values, or null if none
+     * @return Other added parts' keys and values, or null if none
      * @since 2.0.00
      */
     public HashMap<String, int[]> getAddedParts()
@@ -353,18 +359,18 @@ public class SOCBoardLayout2 extends SOCMessageForGame
             boolean known = false;
             for (String knk : KNOWN_KEYS)
             {
-                if (key.equals(knk))
+                if (key.equals( knk ))
                 {
                     known = true;
                     break;
                 }
             }
 
-            if (! known)
+            if (!known)
             {
                 if (added == null)
                     added = new HashMap<String, int[]>();
-                added.put(key, getIntArrayPart(key));
+                added.put( key, getIntArrayPart( key ) );
             }
         }
 
@@ -388,30 +394,33 @@ public class SOCBoardLayout2 extends SOCMessageForGame
     {
         StringBuilder cmd = new StringBuilder( super.toCmd() );
 
-        cmd.append(sep2_char).append(boardEncodingFormat);
+        cmd.append( sep2_char ).append( boardEncodingFormat );
 
         for (String okey : layoutParts.keySet())
         {
-            cmd.append(sep2_char);
-            cmd.append(okey);
-            cmd.append(sep2_char);
+            cmd.append( sep2_char );
+            cmd.append( okey );
+            cmd.append( sep2_char );
 
-            Object ov = layoutParts.get(okey);
+            Object ov = layoutParts.get( okey );
             if (ov instanceof Integer)
             {
-                cmd.append(Integer.toString(((Integer) ov).intValue()));
-            } else if (ov instanceof int[])
+                cmd.append( ((Integer) ov).intValue() );
+            }
+            else if (ov instanceof int[])
             {
                 int[] ovi = (int[]) ov;
-                cmd.append("[");
+                cmd.append( "[" );
                 cmd.append(Integer.toString(ovi.length));
                 for (int i = 0; i < ovi.length; ++i)
                 {
                     cmd.append(sep2_char);
                     cmd.append(Integer.toString(ovi[i]));
                 }
-            } else {
-                cmd.append(ov.toString());
+            }
+            else
+            {
+                cmd.append( ov.toString() );
             }
         }
 
@@ -422,43 +431,45 @@ public class SOCBoardLayout2 extends SOCMessageForGame
      * Parse the command string into a BoardLayout2 message
      *
      * @param s   the String to parse
-     * @return    a BoardLayout2 message
+     * @return a BoardLayout2 message
      */
-    public static SOCBoardLayout2 parseDataStr(String s)
+    public static SOCBoardLayout2 parseDataStr( String s )
     {
         String ga; // game name
         final int bef;   // board encoding format
         HashMap<String, Object> parts = new HashMap<String, Object>();
-        StringTokenizer st = new StringTokenizer(s, sep2);
+        StringTokenizer st = new StringTokenizer( s, sep2 );
 
         try
         {
             ga = st.nextToken();
-            bef = Integer.parseInt(st.nextToken());
+            bef = Integer.parseInt( st.nextToken() );
             while (st.hasMoreTokens())
             {
                 String pname = st.nextToken();
                 String pvalue = st.nextToken();
-                if (pvalue.startsWith("["))
+                if (pvalue.startsWith( "[" ))
                 {
-                    int n = Integer.parseInt(pvalue.substring(1));
+                    int n = Integer.parseInt( pvalue.substring( 1 ) );
                     int[] pv = new int[n];
                     for (int i = 0; i < n; ++i)
                     {
-                        pv[i] = Integer.parseInt(st.nextToken());
+                        pv[i] = Integer.parseInt( st.nextToken() );
                     }
-                    parts.put(pname, pv);
-                } else {
-                    parts.put(pname, pvalue);
+                    parts.put( pname, pv );
+                }
+                else
+                {
+                    parts.put( pname, pvalue );
                 }
             }
         }
-        catch (Exception e)
+        catch( Exception e )
         {
             return null;
         }
 
-        return new SOCBoardLayout2(ga, bef, parts);
+        return new SOCBoardLayout2( ga, bef, parts );
     }
 
     /**
@@ -470,22 +481,24 @@ public class SOCBoardLayout2 extends SOCMessageForGame
     @Override
     public String toString()
     {
-        StringBuffer sb = new StringBuffer("SOCBoardLayout2:game=");
+        StringBuffer sb = new StringBuffer( "SOCBoardLayout2:game=" );
         sb.append( getGame() );
-        sb.append("|bef=");
-        sb.append(boardEncodingFormat);
+        sb.append( "|bef=" );
+        sb.append( boardEncodingFormat );
         for (String okey : layoutParts.keySet())
         {
-            sb.append("|");
-            sb.append(okey);
-            sb.append("=");
-            Object kv = layoutParts.get(okey);
+            sb.append( "|" );
+            sb.append( okey );
+            sb.append( "=" );
+            Object kv = layoutParts.get( okey );
             if (kv instanceof int[])
             {
                 DataUtils.arrayIntoStringBuf
-                    ((int[]) kv, sb, ! (okey.equals("HL") || okey.equals("NL")));
-            } else {
-                sb.append(kv.toString());
+                    ( (int[]) kv, sb, !(okey.equals( "HL" ) || okey.equals( "NL" )) );
+            }
+            else
+            {
+                sb.append( kv.toString() );
             }
         }
         return sb.toString();

@@ -632,9 +632,8 @@ public class SOCScenario
             try
             {
                 scens2.put(sc.key, (SOCScenario) sc.clone());
-            } catch (CloneNotSupportedException ce) {
-                // required, but not expected to happen
             }
+            catch( CloneNotSupportedException ignored ) {}   // required, but not expected to happen
         }
 
         return scens2;
@@ -751,7 +750,9 @@ public class SOCScenario
                     // required but not expected
                     copySc = new SOCScenario(nvpair);  // isUnknown
                 }
-            } else {
+            }
+            else
+            {
                 copySc = new SOCScenario(nvpair);  // isUnknown
             }
 
@@ -787,28 +788,27 @@ public class SOCScenario
 
         // use Iterator in loop, so we can remove from the map if needed
         boolean allKnown = true;
-        for (Iterator<Map.Entry<String, SOCScenario>> ikv = newScens.entrySet().iterator();
-             ikv.hasNext(); )
+        for (Map.Entry<String, SOCScenario> sckv : newScens.entrySet())
         {
-            Map.Entry<String, SOCScenario> sckv = ikv.next();
-
             SOCScenario sc = sckv.getValue();
-            SOCScenario knownSc = knownScenarios.get(sc.key);
+            SOCScenario knownSc = knownScenarios.get( sc.key );
             if (knownSc == null)
             {
                 allKnown = false;
-                scProblems.append(sc.key);
-                scProblems.append(": unknown. ");
-            } else {
+                scProblems.append( sc.key );
+                scProblems.append( ": unknown. " );
+            }
+            else
+            {
                 if (knownSc.lastModVersion != sc.lastModVersion)
                 {
                     allKnown = false;
-                    scProblems.append(sc.key);
-                    scProblems.append(": lastModVersion mismatch (");
-                    scProblems.append(knownSc.lastModVersion);
-                    scProblems.append(" != ");
-                    scProblems.append(sc.lastModVersion);
-                    scProblems.append("). ");
+                    scProblems.append( sc.key );
+                    scProblems.append( ": lastModVersion mismatch (" );
+                    scProblems.append( knownSc.lastModVersion );
+                    scProblems.append( " != " );
+                    scProblems.append( sc.lastModVersion );
+                    scProblems.append( "). " );
                 }
             }
         }
@@ -916,7 +916,9 @@ public class SOCScenario
             if (key.equals(osc.key))
                 return 0;
             return desc.compareTo(osc.desc);
-        } else {
+        }
+        else
+        {
             return hashCode() - other.hashCode();
         }
     }

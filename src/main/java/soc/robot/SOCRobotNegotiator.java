@@ -1039,7 +1039,7 @@ public class SOCRobotNegotiator
                 return response;
             }
 
-            receiverTargetPiece = receiverBuildingPlan.peek();
+            receiverTargetPiece = receiverBuildingPlan.getPlannedPiece(0);
             targetPieces[receiverNum] = receiverTargetPiece;
         }
 
@@ -1072,7 +1072,7 @@ public class SOCRobotNegotiator
                 return response;
             }
 
-            senderTargetPiece = senderBuildingPlan.peek();
+            senderTargetPiece = senderBuildingPlan.getPlannedPiece(0);
             targetPieces[senderNum] = senderTargetPiece;
         }
 
@@ -1586,7 +1586,7 @@ public class SOCRobotNegotiator
                 return counterOffer;
             }
 
-            targetPiece = ourBuildingPlan.peek();
+            targetPiece = ourBuildingPlan.getPlannedPiece(0);
             targetPieces[ourPlayerNumber] = targetPiece;
         }
 
@@ -2242,10 +2242,15 @@ public class SOCRobotNegotiator
     /**
      * Decide what bank/port trade to request, if any,
      * based on which resources we want and {@code ourResources}.
+     *<P>
+     * Other forms of {@code getOfferToBank(..)} call this one;
+     * this is the one to override if a third-party bot wants to
+     * customize {@code getOfferToBank} behavior.
      *
      * @return the offer that we'll make to the bank/ports,
      *     or {@code null} if {@code ourResources} already contains all needed {@code targetResources}
-     * @param targetResources  what resources we want; not null
+     *     or {@code targetResources} is null or empty
+     * @param targetResources  what resources we want; can be null or empty
      * @param ourResources     the resources we have; not null
      * @see #getOfferToBank(SOCBuildPlan, SOCResourceSet)
      */
@@ -2505,7 +2510,9 @@ public class SOCRobotNegotiator
      *<P>
      * Calls {@link #getOfferToBank(SOCResourceSet, SOCResourceSet)}.
      *
-     * @param buildPlan  what we want to build; may be {@code null} or empty
+     * @param buildPlan  what we want to build; may be {@code null} or empty.
+     *     Will call {@link SOCBuildPlan#getFirstPieceResources()}
+     *     unless a third-party bot overrides this method.
      * @param ourResources   the resources we have, from {@link SOCPlayer#getResources()}; not {@code null}
      * @return the offer that we'll make to the bank/ports, or {@code null} if none needed or {@code buildPlan} is empty
      * @since 2.4.50
@@ -2515,8 +2522,7 @@ public class SOCRobotNegotiator
         if ((buildPlan == null) || buildPlan.isEmpty())
             return null;
 
-        SOCPossiblePiece targetPiece = buildPlan.getPlannedPiece(0);
-        return getOfferToBank(targetPiece.getResourcesToBuild(), ourResources);
+        return getOfferToBank(buildPlan.getFirstPieceResources(), ourResources);
     }
 
     /**

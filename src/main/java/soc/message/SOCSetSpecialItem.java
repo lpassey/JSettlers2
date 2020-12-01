@@ -367,7 +367,7 @@ public class SOCSetSpecialItem extends SOCMessageForGame
         boolean svIsNull = false;
         if (messageStrParams.endsWith("|sv null"))
             svIsNull = true;
-        else if (-1 == messageStrParams.indexOf("|sv="))
+        else if (!messageStrParams.contains( "|sv=" ))
             return null;
 
         List<String> pieces = SOCMessage.stripAttribsToList(messageStrParams);

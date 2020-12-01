@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * This file Copyright (C) 2015,2017-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
@@ -189,20 +189,20 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
      * @throws NullPointerException if {@code str} is null
      * @since 2.4.50
      */
-    public SOCLocalizedStrings(final String type, final int flags, String str)
+    public SOCLocalizedStrings( final String type, final int flags, String str )
         throws IllegalArgumentException, NullPointerException
     {
-        this(type, flags, (List<String>) null);
+        this( type, flags, (List<String>) null );
         if (str == null)
-            throw new NullPointerException("str");
+            throw new NullPointerException( "str" );
 
         // checkParams validator needs a list
         ArrayList<String> strs = new ArrayList<>();
-        strs.add(str);
-        checkParams(type, strs);  // isSingleLineAndSafe(type), isSingleLineAndSafe(non-empty str), etc
+        strs.add( str );
+        checkParams( type, strs );  // isSingleLineAndSafe(type), isSingleLineAndSafe(non-empty str), etc
 
         // add to actual list field
-        pa.add(str);
+        pa.add( str );
     }
 
     /**
@@ -229,14 +229,14 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
      * @throws IllegalArgumentException  If {@code type} or any element of {@code strs} fails
      *     {@link SOCMessage#isSingleLineAndSafe(String)}.
      */
-    public SOCLocalizedStrings(final String type, final int flags, final List<String> strs)
+    public SOCLocalizedStrings( final String type, final int flags, final List<String> strs )
         throws IllegalArgumentException
     {
-        super(LOCALIZEDSTRINGS, ((strs != null) ? new ArrayList<>(strs) : new ArrayList<String>()));
-              // pa field gets copy of strs, if any
-        checkParams(type, strs);  // isSingleLineAndSafe(type), isSingleLineAndSafe(each non-empty str), etc
+        super( LOCALIZEDSTRINGS, ((strs != null) ? new ArrayList<>( strs ) : new ArrayList<String>()) );
+        // pa field gets copy of strs, if any
+        checkParams( type, strs );  // isSingleLineAndSafe(type), isSingleLineAndSafe(each non-empty str), etc
 
-        pa.add(0, type);  // client will expect first list element is the type
+        pa.add( 0, type );  // client will expect first list element is the type
         this.flags = flags;
     }
 
@@ -251,22 +251,22 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
      *     Will replace any {@link SOCMessage#EMPTYSTR} with "".
      * @throws NumberFormatException  if flags field isn't a valid hex number
      */
-    private SOCLocalizedStrings(final List<String> strs)
+    private SOCLocalizedStrings( final List<String> strs )
         throws NumberFormatException
     {
-        super(LOCALIZEDSTRINGS, parseData_FindEmptyStrs(strs));
+        super( LOCALIZEDSTRINGS, parseData_FindEmptyStrs( strs ) );
 
         // flag field; parse error throws exception for parseDataStr to catch
-        flags = Integer.parseInt(strs.get(1), 16);
-        strs.remove(1);
+        flags = Integer.parseInt( strs.get( 1 ), 16 );
+        strs.remove( 1 );
     }
 
     /**
      * Is this flag bit set in the {@code flags} field?
      * @param flag  A flag such as {@link #FLAG_SENT_ALL}
-     * @return  True if set
+     * @return True if set
      */
-    public final boolean isFlagSet(final int flag)
+    public final boolean isFlagSet( final int flag )
     {
         return (0 != (flags & flag));
     }
@@ -277,23 +277,28 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
      * @return Version number, 2000 for JSettlers 2.0.00.
      */
     @Override
-    public final int getMinimumVersion() { return 2000; }
+    public final int getMinimumVersion()
+    {
+        return 2000;
+    }
 
     /**
      * Parse the command String list into a SOCLocalizedStrings message.
      *
      * @param strs  the data list; length must be at least 1 to indicate the type
-     * @return    a SOCLocalizedStrings message, or null if parsing errors
+     * @return a SOCLocalizedStrings message, or null if parsing errors
      */
-    public static SOCLocalizedStrings parseDataStr(List<String> strs)
+    public static SOCLocalizedStrings parseDataStr( List<String> strs )
     {
         if ((strs == null) || (strs.size() < 2))
             return null;  // must have at least 2 strings: type, flags
 
         try
         {
-            return new SOCLocalizedStrings(strs);  // calls parseData_FindEmptyStrs
-        } catch (Exception e) {
+            return new SOCLocalizedStrings( strs );  // calls parseData_FindEmptyStrs
+        }
+        catch( Exception e )
+        {
             // catch NumberFormatException and anything else from a malformed message
             return null;
         }
@@ -309,10 +314,10 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
     public String toCmd()
     {
         StringBuilder sb = new StringBuilder(Integer.toString(getType()));
-        sb.append(sep);
+        sb.append( sep );
         sb.append(pa.get(0));
-        sb.append(sep);
-        sb.append(Integer.toHexString(flags));
+        sb.append( sep );
+        sb.append( Integer.toHexString( flags ) );
 
         if (pa != null)
         {
@@ -321,13 +326,13 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
                 if ((i == 0)) // && skipFirstStr)
                     continue;
 
-                sb.append(sep);
+                sb.append( sep );
 
                 String itm = pa.get(i);
                 if ((itm == null) || (itm.length() == 0))
                     itm = EMPTYSTR;
 
-                sb.append(itm);
+                sb.append( itm );
             }
         }
         return sb.toString();
@@ -339,27 +344,29 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
      * See {@link #SOCLocalizedStrings(String, int, List)} constructor for
      * required format and checks performed.
      */
-    private static void checkParams(final String type, final List<String> strs)
+    private static void checkParams( final String type, final List<String> strs )
         throws IllegalArgumentException
     {
-        if (! isSingleLineAndSafe(type))
-            throw new IllegalArgumentException("type: " + type);
+        if (!isSingleLineAndSafe( type ))
+            throw new IllegalArgumentException( "type: " + type );
 
         if (strs == null)
             return;
 
         for (int i = 0; i < strs.size(); ++i)
         {
-            final String itm = strs.get(i);
+            final String itm = strs.get( i );
             if ((itm == null) || (itm.length() == 0))
                 continue;
 
-            if (itm.charAt(0) == MARKER_PREFIX)
+            if (itm.charAt( 0 ) == MARKER_PREFIX)
             {
-                if (! itm.equals(MARKER_KEY_UNKNOWN))
-                    throw new IllegalArgumentException("item " + i + ": " + itm);
-            } else if ((itm.indexOf(SOCMessage.sep_char) != -1) || ! isSingleLineAndSafe(itm, true)) {
-                throw new IllegalArgumentException("item " + i + ": " + itm);
+                if (!itm.equals( MARKER_KEY_UNKNOWN ))
+                    throw new IllegalArgumentException( "item " + i + ": " + itm );
+            }
+            else if ((itm.indexOf( SOCMessage.sep_char ) != -1) || !isSingleLineAndSafe( itm, true ))
+            {
+                throw new IllegalArgumentException( "item " + i + ": " + itm );
             }
         }
     }
@@ -379,21 +386,23 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder("SOCLocalizedStrings:type=");
-        sb.append(pa.get(0));
-        sb.append("|flags=0x").append(Integer.toHexString(flags));
+        StringBuilder sb = new StringBuilder( "SOCLocalizedStrings:type=" );
+        sb.append( pa.get( 0 ) );
+        sb.append( "|flags=0x" ).append( Integer.toHexString( flags ) );
         final int L = pa.size();
         if (L < 2)
         {
-            sb.append("|(strs empty)");
-        } else {
-            sb.append("|strs=");
+            sb.append( "|(strs empty)" );
+        }
+        else
+        {
+            sb.append( "|strs=" );
             for (int i = 1; i < L; ++i)
             {
                 if (i > 1)
-                    sb.append(SOCMessage.sep_char);  // '|'
-                final String p = pa.get(i);
-                sb.append((p != null) ? p : "(null)");
+                    sb.append( SOCMessage.sep_char );  // '|'
+                final String p = pa.get( i );
+                sb.append( (p != null) ? p : "(null)" );
             }
         }
 

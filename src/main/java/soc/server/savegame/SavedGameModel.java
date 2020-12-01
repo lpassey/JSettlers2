@@ -1,20 +1,20 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.server.savegame;
@@ -337,19 +337,19 @@ public class SavedGameModel
      *     Optional localization params are {@link UnsupportedSGMOperationException#param1} and {@code param2}.
      * @see #checkCanLoad(SOCGameOptionSet)
      */
-    public static void checkCanSave(final SOCGame ga)
+    public static void checkCanSave( final SOCGame ga )
         throws UnsupportedSGMOperationException
     {
         // all current non-scenario game opts are supported
 
-        final String sc = ga.getGameOptionStringValue("SC");
+        final String sc = ga.getGameOptionStringValue( "SC" );
         if (null == sc)
             return;
 
-        final String unsuppOpt = checkUnsupportedScenOpts(ga.getGameOptions());
+        final String unsuppOpt = checkUnsupportedScenOpts( ga.getGameOptions() );
         if (unsuppOpt != null)
-            throw new UnsupportedSGMOperationException("admin.savegame.cannot_save.scen", sc, unsuppOpt);
-                // "scenario {0} with game option {1}"
+            throw new UnsupportedSGMOperationException( "admin.savegame.cannot_save.scen", sc, unsuppOpt );
+        // "scenario {0} with game option {1}"
     }
 
     /**
@@ -362,14 +362,14 @@ public class SavedGameModel
      * @return {@code null} if no problems, or the name of the first-seen unsupported option
      * @since 2.4.00
      */
-    private static String checkUnsupportedScenOpts(final SOCGameOptionSet opts)
+    private static String checkUnsupportedScenOpts( final SOCGameOptionSet opts )
     {
         if (opts == null)
             return null;
 
         for (final String okey : opts.keySet())
-            if (okey.startsWith("_SC_")
-                && ! (okey.equals(SOCGameOptionSet.K_SC_SEAC) || okey.equals(SOCGameOptionSet.K_SC_SANY)))
+            if (okey.startsWith( "_SC_" )
+                && !(okey.equals( SOCGameOptionSet.K_SC_SEAC ) || okey.equals( SOCGameOptionSet.K_SC_SANY )))
                 return okey;
 
         return null;
@@ -383,9 +383,10 @@ public class SavedGameModel
      * @param gb  GsonBuilder to register adapters with
      * @since 2.4.00
      */
-    /* package */ static void initGsonRegisterAdapters(final GsonBuilder gb)
+    /* package */
+    static void initGsonRegisterAdapters( final GsonBuilder gb )
     {
-        PlayerInfo.initGsonRegisterAdapters(gb);
+        PlayerInfo.initGsonRegisterAdapters( gb );
     }
 
     /**
@@ -412,16 +413,16 @@ public class SavedGameModel
      * @throws IllegalArgumentException if {@link SOCGameHandler#getBoardLayoutMessage(SOCGame)}
      *     returns an unexpected layout message type
      */
-    public SavedGameModel(final SOCGame ga, final SOCServer srv)
+    public SavedGameModel( final SOCGame ga, final SOCServer srv )
         throws UnsupportedSGMOperationException, IllegalStateException, IllegalArgumentException
     {
         this();
         glas = srv.getGameList();
 
-        checkCanSave(ga);
+        checkCanSave( ga );
 
         if (ga.getGameState() < SOCGame.ROLL_OR_CARD)
-            throw new IllegalStateException("gameState");
+            throw new IllegalStateException( "gameState" );
 
         modelVersion = MODEL_VERSION;
         savedByVersion = Version.versionNumber();
@@ -431,7 +432,7 @@ public class SavedGameModel
         gameName = ga.getName();
         final SOCGameOptionSet opts = ga.getGameOptions();
         if (opts != null)
-            gameOptions = SOCGameOption.packOptionsToString(opts.getAll(), false, true);
+            gameOptions = SOCGameOption.packOptionsToString( opts.getAll(), false, true );
         gameDurationSeconds = ga.getDurationSeconds();
         gameState = ga.getGameState();
         oldGameState = ga.getOldGameState();
@@ -451,23 +452,23 @@ public class SavedGameModel
 
         {
             final SOCPlayer lrPlayer = ga.getPlayerWithLongestRoad(),
-                            laPlayer = ga.getPlayerWithLargestArmy();
+                laPlayer = ga.getPlayerWithLargestArmy();
 
-            elements.put(GEType.ROUND_COUNT, ga.getRoundCount());
-            elements.put(GEType.FIRST_PLAYER, ga.getFirstPlayer());
-            elements.put(GEType.CURRENT_PLAYER, game.getCurrentPlayerNumber());
-            elements.put(GEType.LONGEST_ROAD_PLAYER, (lrPlayer != null) ? lrPlayer.getPlayerNumber() : -1);
-            elements.put(GEType.LARGEST_ARMY_PLAYER, (laPlayer != null) ? laPlayer.getPlayerNumber() : -1);
+            elements.put( GEType.ROUND_COUNT, ga.getRoundCount() );
+            elements.put( GEType.FIRST_PLAYER, ga.getFirstPlayer() );
+            elements.put( GEType.CURRENT_PLAYER, game.getCurrentPlayerNumber() );
+            elements.put( GEType.LONGEST_ROAD_PLAYER, (lrPlayer != null) ? lrPlayer.getPlayerNumber() : -1 );
+            elements.put( GEType.LARGEST_ARMY_PLAYER, (laPlayer != null) ? laPlayer.getPlayerNumber() : -1 );
             if (gameState == SOCGame.SPECIAL_BUILDING)
-                elements.put(GEType.SPECIAL_BUILDING_AFTER_PLAYER, ga.getSpecialBuildingPlayerNumberAfter());
+                elements.put( GEType.SPECIAL_BUILDING_AFTER_PLAYER, ga.getSpecialBuildingPlayerNumberAfter() );
         }
 
-        boardInfo = new BoardInfo(ga);
+        boardInfo = new BoardInfo( ga );
 
         playerSeatLocks = ga.getSeatLocks();
         playerSeats = new PlayerInfo[ga.maxPlayers];
         for (int pn = 0; pn < ga.maxPlayers; ++pn)
-            playerSeats[pn] = new PlayerInfo(ga.getPlayer(pn), ga.isSeatVacant(pn), srv);
+            playerSeats[pn] = new PlayerInfo( ga.getPlayer( pn ), ga.isSeatVacant( pn ), srv );
     }
 
     /**
@@ -499,8 +500,8 @@ public class SavedGameModel
         {
             if (playerSeats[pn].isSeatVacant)
                 continue;
-            final String plName = game.getPlayer(pn).getName();
-            if ((plName != null) && (! plName.isEmpty()) && glas.isMember(plName, gaName))
+            final String plName = game.getPlayer( pn ).getName();
+            if ((plName != null) && (!plName.isEmpty()) && glas.isMember( plName, gaName ))
                 continue;
 
             if (ret == null)
@@ -524,23 +525,23 @@ public class SavedGameModel
      * @throws MissingResourceException if non-vacant seats still need a bot or human player
      * @throws IllegalStateException if a constraint is not met
      */
-    public SOCGame resumePlay(final boolean ignoreConstraints)
+    public SOCGame resumePlay( final boolean ignoreConstraints )
         throws UnsupportedOperationException, MissingResourceException, IllegalStateException
     {
         final int gstate = game.getGameState();
         if ((gstate != SOCGame.LOADING) && (gstate != SOCGame.LOADING_RESUMING))
-            throw new UnsupportedOperationException("gameState: " + gstate);
+            throw new UnsupportedOperationException( "gameState: " + gstate );
 
         if (gameState != SOCGame.OVER)
         {
             if (null != findSeatsNeedingBots())
-                throw new MissingResourceException("Still need players to fill non-vacant seats", "unused", "unused");
+                throw new MissingResourceException( "Still need players to fill non-vacant seats", "unused", "unused" );
 
             // TODO once they're implemented, check constraints unless ignoreConstraints
         }
 
         game.lastActionTime = System.currentTimeMillis();
-        game.setGameState(gameState);
+        game.setGameState( gameState );
         game.savedGameModel = null;  // complex data structure no longer needed
 
         return game;
@@ -573,15 +574,15 @@ public class SavedGameModel
      *     and {@link Throwable#getCause()} will not be null.
      *     Optional localization params are {@link UnsupportedSGMOperationException#param1} and {@code param2}.
      */
-    public void checkCanLoad(final SOCGameOptionSet knownOpts)
+    public void checkCanLoad( final SOCGameOptionSet knownOpts )
         throws NoSuchElementException, SOCGameOptionVersionException, UnsupportedSGMOperationException
     {
         if (modelVersion > MODEL_VERSION)
             throw new NoSuchElementException
-                ("model version " + modelVersion + " newer than our version " + MODEL_VERSION);
+                ( "model version " + modelVersion + " newer than our version " + MODEL_VERSION );
         final int serverVersion = Version.versionNumber();
         if (gameMinVersion > serverVersion)
-            throw new SOCGameOptionVersionException(gameMinVersion, serverVersion, null);
+            throw new SOCGameOptionVersionException( gameMinVersion, serverVersion, null );
 
         if ((gameOptions == null) || gameOptions.isEmpty())
             return;
@@ -589,27 +590,29 @@ public class SavedGameModel
         SOCGameOptionSet opts;
         try
         {
-            opts = SOCGameOption.parseOptionsToSet(gameOptions, knownOpts);
-        } catch (IllegalArgumentException e) {
+            opts = SOCGameOption.parseOptionsToSet( gameOptions, knownOpts );
+        }
+        catch( IllegalArgumentException e )
+        {
             throw new UnsupportedSGMOperationException
-                ("Problem opt in gameOptions: " + e.getMessage(), e);
+                ( "Problem opt in gameOptions: " + e.getMessage(), e );
         }
         if (opts == null)
         {
-            if ((gameOptions != null) && ! gameOptions.isEmpty())
+            if ((gameOptions != null) && !gameOptions.isEmpty())
                 throw new UnsupportedSGMOperationException
-                    ("Can't parse gameOptions");
+                    ( "Can't parse gameOptions" );
             return;
         }
 
-        final SOCGameOption oSC = opts.get("SC");
+        final SOCGameOption oSC = opts.get( "SC" );
         if ((oSC != null) && (null != oSC.getStringValue()))
         {
-            final String unsuppOpt = checkUnsupportedScenOpts(opts);
+            final String unsuppOpt = checkUnsupportedScenOpts( opts );
             if (unsuppOpt != null)
                 throw new UnsupportedSGMOperationException
-                    ("admin.savegame.cannot_save.scen", oSC.getStringValue(), unsuppOpt);
-                        // "scenario {0} with game option {1}"
+                    ( "admin.savegame.cannot_save.scen", oSC.getStringValue(), unsuppOpt );
+            // "scenario {0} with game option {1}"
         }
 
         // all current non-scenario game opts are supported
@@ -645,32 +648,32 @@ public class SavedGameModel
      *     Catch subclass {@code SOCGameOptionVersionException} before this one.
      *     Also thrown if {@link #playerSeats}.length != created game's {@link SOCGame#maxPlayers}.
      */
-    /*package*/ void createLoadedGame(final SOCServer srv)
+    /*package*/ void createLoadedGame( final SOCServer srv )
         throws IllegalStateException, NoSuchElementException,
-            SOCGameOptionVersionException, UnsupportedSGMOperationException, IllegalArgumentException
+               SOCGameOptionVersionException, UnsupportedSGMOperationException, IllegalArgumentException
     {
         if (game != null)
-            throw new IllegalStateException("already called createLoadedGame");
+            throw new IllegalStateException( "already called createLoadedGame" );
 
         glas = srv.getGameList();
 
-        checkCanLoad(srv.knownOpts);
+        checkCanLoad( srv.knownOpts );
 
         try
         {
             final SOCGame ga = new SOCGame
-                (gameName, SOCGameOption.parseOptionsToSet(gameOptions, srv.knownOpts), srv.knownOpts);
+                ( gameName, SOCGameOption.parseOptionsToSet( gameOptions, srv.knownOpts ), srv.knownOpts );
             ga.initAtServer();
-            ga.setGameState(SOCGame.LOADING);
+            ga.setGameState( SOCGame.LOADING );
             if (ga.maxPlayers != playerSeats.length)
                 throw new IllegalArgumentException
-                    ("maxPlayers " + ga.maxPlayers + " != playerSeats.length " + playerSeats.length);
+                    ( "maxPlayers " + ga.maxPlayers + " != playerSeats.length " + playerSeats.length );
             game = ga;
             ga.savedGameModel = this;
             if (gameState >= SOCGame.OVER)
                 ga.hasDoneGameOverTasks = true;
-            ga.setTimeSinceCreated(gameDurationSeconds);
-            ga.setCurrentDice(currentDice);
+            ga.setTimeSinceCreated( gameDurationSeconds );
+            ga.setCurrentDice( currentDice );
             if (devCardDeck == null)
                 devCardDeck = new ArrayList<>();
             else
@@ -681,35 +684,35 @@ public class SavedGameModel
                         break;
                     }
             ga.setFieldsForLoad
-                (devCardDeck, oldGameState, shipsPlacedThisTurn,
-                 placingRobberForKnightCard, robberyWithPirateNotRobber, askedSpecialBuildPhase, movedShipThisTurn);
+                ( devCardDeck, oldGameState, shipsPlacedThisTurn,
+                    placingRobberForKnightCard, robberyWithPirateNotRobber, askedSpecialBuildPhase, movedShipThisTurn );
             if (elements != null)
                 for (GEType elem : elements.keySet())
-                    SOCDisplaylessPlayerClient.handleGAMEELEMENT(ga, elem, elements.get(elem));
+                    SOCDisplaylessPlayerClient.handleGAMEELEMENT( ga, elem, elements.get( elem ) );
 
-            boardInfo.loadInto(ga);
+            boardInfo.loadInto( ga );
 
             for (int pn = 0; pn < ga.maxPlayers; ++pn)
             {
-                final SOCPlayer pl = ga.getPlayer(pn);
+                final SOCPlayer pl = ga.getPlayer( pn );
                 final PlayerInfo pinfo = playerSeats[pn];
                 String pname = pinfo.name;
-                if (! pinfo.isSeatVacant)
+                if (!pinfo.isSeatVacant)
                 {
                     if (pinfo.isRobot)
                     {
-                        pname = checkBotRename(pname, ga, srv);
+                        pname = checkBotRename( pname, ga, srv );
                         pinfo.name = pname;
                     }
 
-                    ga.addPlayer(pname, pn);
+                    ga.addPlayer( pname, pn );
                 }
-                pinfo.loadInto(pl);
+                pinfo.loadInto( pl );
 
-                if ((pname != null) && ! pinfo.isRobot)
+                if ((pname != null) && !pinfo.isRobot)
                 {
-                    final String nLower = pname.toLowerCase(Locale.US);
-                    if (nLower.startsWith("droid ") || nLower.startsWith("robot ") || nLower.startsWith("extrabot "))
+                    final String nLower = pname.toLowerCase( Locale.US );
+                    if (nLower.startsWith( "droid " ) || nLower.startsWith( "robot " ) || nLower.startsWith( "extrabot " ))
                         warnHasHumanPlayerWithBotName = true;
                 }
             }
@@ -720,16 +723,18 @@ public class SavedGameModel
                 {
                     SOCGame.SeatLockState lock = playerSeatLocks[pn];
                     if (lock != null)
-                        ga.setSeatLock(pn, lock);
+                        ga.setSeatLock( pn, lock );
                 }
 
             // Now that all players are loaded and all pieces placed, set up players' longest route info
             // so Longest Route determinations in resumed game are correct
             for (int pn = 0; pn < ga.maxPlayers; ++pn)
-                ga.getPlayer(pn).calcLongestRoad2();
+                ga.getPlayer( pn ).calcLongestRoad2();
 
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Problem initializing game: " + e, e);
+        }
+        catch( Exception e )
+        {
+            throw new IllegalArgumentException( "Problem initializing game: " + e, e );
         }
     }
 
@@ -739,7 +744,7 @@ public class SavedGameModel
      * @since 2.4.00
      */
     private static Pattern REGEX_NAME_ENDS_WITH_DIGITS
-        = Pattern.compile("^(.+?)(\\d+)$");
+        = Pattern.compile( "^(.+?)(\\d+)$" );
 
     /**
      * If this robot player name conflicts with a bot connected to the server,
@@ -760,29 +765,29 @@ public class SavedGameModel
      * @return {@code botName}, renamed if a name conflict in {@code srv} was detected
      * @since 2.4.00
      */
-    private static String checkBotRename(final String botName, final SOCGame ga, final Server srv)
+    private static String checkBotRename( final String botName, final SOCGame ga, final Server srv )
     {
-        if ((botName != null) && (! botName.isEmpty())
-            && ((srv == null) || (null == srv.getConnection(botName, false))))
+        if ((botName != null) && (!botName.isEmpty())
+            && ((srv == null) || (null == srv.getConnection( botName, false ))))
             return botName;  // no server or no naming conflict
 
         if (botName != null)
         {
-            Matcher m = REGEX_NAME_ENDS_WITH_DIGITS.matcher(botName);
+            Matcher m = REGEX_NAME_ENDS_WITH_DIGITS.matcher( botName );
             if (m.matches())
             {
-                final String stem = m.group(1);
+                final String stem = m.group( 1 );
 
                 // first try to negate the number, so name's traceable back to save file
-                String newName = stem + '-' + m.group(2);
-                if ((null == srv.getConnection(newName, false)) && (null == ga.getPlayer(newName)))
+                String newName = stem + '-' + m.group( 2 );
+                if ((null == srv.getConnection( newName, false )) && (null == ga.getPlayer( newName )))
                     return newName;
 
                 // try random negative suffixes
                 for (int attempt = 0; attempt < 50; ++attempt)
                 {
-                    newName = stem + '-' + (10000 + rand.nextInt(989999));
-                    if ((null == srv.getConnection(newName, false)) && (null == ga.getPlayer(newName)))
+                    newName = stem + '-' + (10000 + rand.nextInt( 989999 ));
+                    if ((null == srv.getConnection( newName, false )) && (null == ga.getPlayer( newName )))
                         return newName;
                 }
             }
@@ -791,8 +796,8 @@ public class SavedGameModel
         // just try random generic bot names
         for (int attempt = 0; attempt < 250; ++attempt)
         {
-            String newName = "botNameConflict-" + (10000 + rand.nextInt(99989999));
-            if ((null == srv.getConnection(newName, false)) && (null == ga.getPlayer(newName)))
+            String newName = "botNameConflict-" + (10000 + rand.nextInt( 99989999 ));
+            if ((null == srv.getConnection( newName, false )) && (null == ga.getPlayer( newName )))
                 return newName;
         }
 
@@ -890,7 +895,7 @@ public class SavedGameModel
          */
         @JsonAdapter(DevCardEnumListAdapter.class)
         public ArrayList<Integer> oldDevCards = new ArrayList<>(),
-                           newDevCards = new ArrayList<>();
+            newDevCards = new ArrayList<>();
         // TODO: future: support general SOCInventoryItems/SOCSpecialItems for scenarios
 
         /**
@@ -908,7 +913,7 @@ public class SavedGameModel
          * Player's pieces in chronological order, from {@link SOCPlayer#getPieces()}.
          * @see #fortressPiece
          */
-       public ArrayList<SOCPlayingPiece> pieces = new ArrayList<>();
+        public ArrayList<SOCPlayingPiece> pieces = new ArrayList<>();
 
         /*
          * Player's fortress, if any, from {@link SOCPlayer#getFortress()}; usually null.
@@ -933,12 +938,12 @@ public class SavedGameModel
          * See that method for details.
          * @since 2.4.00
          */
-        private static void initGsonRegisterAdapters(final GsonBuilder gb)
+        private static void initGsonRegisterAdapters( final GsonBuilder gb )
         {
-            gb.registerTypeAdapterFactory(new PPieceAdapter());
+            gb.registerTypeAdapterFactory( new PPieceAdapter() );
         }
 
-        PlayerInfo(final SOCPlayer pl, final boolean isVacant, final SOCServer srv)
+        PlayerInfo( final SOCPlayer pl, final boolean isVacant, final SOCServer srv )
         {
             final SOCGame ga = pl.getGame();
 
@@ -949,103 +954,103 @@ public class SavedGameModel
             isBuiltInRobot = pl.isBuiltInRobot();
             if (isRobot)
             {
-                SOCRobotParameters params = srv.getRobotParameters(name);
+                SOCRobotParameters params = srv.getRobotParameters( name );
                 if ((params != null) && (params.getStrategyType() == SOCRobotDM.SMART_STRATEGY))
                     isRobotWithSmartStrategy = true;
 
-                if (! isBuiltInRobot)
+                if (!isBuiltInRobot)
                 {
-                    SOCClientData scd = srv.getClientData(name);
+                    SOCClientData scd = srv.getClientData( name );
                     if (scd != null)
                         robot3rdPartyBrainClass = scd.robot3rdPartyBrainClass;
                 }
             }
             faceID = pl.getFaceId();
-            resources = new KnownResourceSet(pl.getResources());
+            resources = new KnownResourceSet( pl.getResources() );
 
-            elements.put(PEType.NUMKNIGHTS, pl.getNumKnights());
-            elements.put(PEType.ROADS, pl.getNumPieces(SOCPlayingPiece.ROAD));
-            elements.put(PEType.SETTLEMENTS, pl.getNumPieces(SOCPlayingPiece.SETTLEMENT));
-            elements.put(PEType.CITIES, pl.getNumPieces(SOCPlayingPiece.CITY));
-            if (! isVacant)
+            elements.put( PEType.NUMKNIGHTS, pl.getNumKnights() );
+            elements.put( PEType.ROADS, pl.getNumPieces( SOCPlayingPiece.ROAD ) );
+            elements.put( PEType.SETTLEMENTS, pl.getNumPieces( SOCPlayingPiece.SETTLEMENT ) );
+            elements.put( PEType.CITIES, pl.getNumPieces( SOCPlayingPiece.CITY ) );
+            if (!isVacant)
             {
                 if (pl.getNeedToDiscard())
-                    elements.put(PEType.DISCARD_FLAG, 1);
+                    elements.put( PEType.DISCARD_FLAG, 1 );
                 else
                 {
                     int n = pl.getNeedToPickGoldHexResources();
                     if (n != 0)
-                        elements.put(PEType.NUM_PICK_GOLD_HEX_RESOURCES, n);
+                        elements.put( PEType.NUM_PICK_GOLD_HEX_RESOURCES, n );
                 }
                 if (pl.hasPlayedDevCard())
-                    elements.put(PEType.PLAYED_DEV_CARD_FLAG, 1);
+                    elements.put( PEType.PLAYED_DEV_CARD_FLAG, 1 );
                 if (ga.maxPlayers > 4)
                 {
                     if (pl.hasAskedSpecialBuild())
-                        elements.put(PEType.ASK_SPECIAL_BUILD, 1);
+                        elements.put( PEType.ASK_SPECIAL_BUILD, 1 );
                     if (ga.getGameState() == SOCGame.SPECIAL_BUILDING)
-                        elements.put(PEType.HAS_SPECIAL_BUILT, (pl.hasSpecialBuilt()) ? 1 : 0);
+                        elements.put( PEType.HAS_SPECIAL_BUILT, (pl.hasSpecialBuilt()) ? 1 : 0 );
                 }
 
                 SOCTradeOffer curr = pl.getCurrentOffer();
                 if (curr != null)
                     currentTradeOffer = new TradeOffer
-                        (curr, pl.getCurrentOfferTime() - ga.getStartTime().getTime());
+                        ( curr, pl.getCurrentOfferTime() - ga.getStartTime().getTime() );
             }
 
             int n;
             n = pl.numDISCCards;
             if (n > 0)
-                elements.put(PEType.NUM_PLAYED_DEV_CARD_DISC, n);
+                elements.put( PEType.NUM_PLAYED_DEV_CARD_DISC, n );
             n = pl.numMONOCards;
             if (n > 0)
-                elements.put(PEType.NUM_PLAYED_DEV_CARD_MONO, n);
+                elements.put( PEType.NUM_PLAYED_DEV_CARD_MONO, n );
             n = pl.numRBCards;
             if (n > 0)
-                elements.put(PEType.NUM_PLAYED_DEV_CARD_ROADS, n);
+                elements.put( PEType.NUM_PLAYED_DEV_CARD_ROADS, n );
 
             if (ga.hasSeaBoard)
             {
                 final HashMap<PEType, Integer> early = new HashMap<>();
 
-                elements.put(PEType.SHIPS, pl.getNumPieces(SOCPlayingPiece.SHIP));
+                elements.put( PEType.SHIPS, pl.getNumPieces( SOCPlayingPiece.SHIP ) );
                 n = pl.getNumWarships();
                 if (n != 0)
-                    elements.put(PEType.SCENARIO_WARSHIP_COUNT, n);
+                    elements.put( PEType.SCENARIO_WARSHIP_COUNT, n );
                 n = pl.getSpecialVP();
                 if (n != 0)
-                    elements.put(PEType.SCENARIO_SVP, n);
+                    elements.put( PEType.SCENARIO_SVP, n );
 
                 n = pl.getStartingLandAreasEncoded();
                 if (n != 0)
-                    early.put(PEType.STARTING_LANDAREAS, n);
+                    early.put( PEType.STARTING_LANDAREAS, n );
                 n = pl.getPlayerEvents();
                 if (n != 0)
-                    early.put(PEType.PLAYEREVENTS_BITMASK, n);
+                    early.put( PEType.PLAYEREVENTS_BITMASK, n );
                 n = pl.getScenarioSVPLandAreas();
                 if (n != 0)
-                    early.put(PEType.SCENARIO_SVP_LANDAREAS_BITMASK, n);
+                    early.put( PEType.SCENARIO_SVP_LANDAREAS_BITMASK, n );
 
-                if (! early.isEmpty())
+                if (!early.isEmpty())
                     earlyElements = early;
             }
 
             resRollStats = pl.getResourceRollStats();
 
             final SOCInventory cardsInv = pl.getInventory();
-            for (SOCInventoryItem item : cardsInv.getByState(SOCInventory.NEW))
+            for (SOCInventoryItem item : cardsInv.getByState( SOCInventory.NEW ))
                 if (item instanceof SOCDevCard)
-                    newDevCards.add(item.itype);
+                    newDevCards.add( item.itype );
             for (int dcState = SOCInventory.PLAYABLE; dcState <= SOCInventory.KEPT; ++dcState)
-                for (SOCInventoryItem item : cardsInv.getByState(dcState))
+                for (SOCInventoryItem item : cardsInv.getByState( dcState ))
                     if (item instanceof SOCDevCard)
-                        oldDevCards.add(item.itype);
+                        oldDevCards.add( item.itype );
             // TODO: future: for scenarios, other inventory item types: see SGH.sitDown_sendPrivateInfo
             List<Integer> cards = pl.getDevCardsPlayed();
             if (cards != null)
-                playedDevCards = new ArrayList<>(cards);
+                playedDevCards = new ArrayList<>( cards );
 
-            pieces.addAll(pl.getPieces());
+            pieces.addAll( pl.getPieces() );
             // fortressPiece = pl.getFortress();
 
             specialVPInfo = pl.getSpecialVPInfo();
@@ -1058,46 +1063,46 @@ public class SavedGameModel
          * in case player has been renamed to avoid conflicts.
          * @param pl  Player object to load from PlayerInfo; not null
          */
-        void loadInto(final SOCPlayer pl)
+        void loadInto( final SOCPlayer pl )
         {
             final SOCGame ga = pl.getGame();
             final int pn = pl.getPlayerNumber();
 
-            if (ga.isSeatVacant(pn))
-                pl.setName(name);
-            pl.setRobotFlag(isRobot, isBuiltInRobot);
-            pl.setFaceId(faceID);
-            resources.loadInto(pl.getResources());
+            if (ga.isSeatVacant( pn ))
+                pl.setName( name );
+            pl.setRobotFlag( isRobot, isBuiltInRobot );
+            pl.setFaceId( faceID );
+            resources.loadInto( pl.getResources() );
 
             if ((resRollStats != null) && (resRollStats.length > 0))
-                pl.setResourceRollStats(resRollStats);
+                pl.setResourceRollStats( resRollStats );
 
             {
                 final SOCInventory inv = pl.getInventory();
                 for (final int ctype : oldDevCards)
-                    inv.addDevCard(1, SOCInventory.OLD, ctype);
+                    inv.addDevCard( 1, SOCInventory.OLD, ctype );
                 for (final int ctype : newDevCards)
-                    inv.addDevCard(1, SOCInventory.NEW, ctype);
+                    inv.addDevCard( 1, SOCInventory.NEW, ctype );
             }
 
             if (playedDevCards != null)
                 for (final int ctype : playedDevCards)
-                    pl.updateDevCardsPlayed(ctype);
+                    pl.updateDevCardsPlayed( ctype );
 
             // Set some elements for scenario info before any putpiece,
             // so they know their starting land areas and scenario events
             if (earlyElements != null)
                 for (final PEType et : earlyElements.keySet())
                     SOCDisplaylessPlayerClient.handlePLAYERELEMENT
-                        (ga, pl, pn, SOCPlayerElement.SET, et, earlyElements.get(et), null);
+                        ( ga, pl, pn, SOCPlayerElement.SET, et, earlyElements.get( et ), null );
 
             final SOCBoard b = ga.getBoard();
-            final HashSet<Integer> psList = new HashSet<>(pl.getPotentialSettlements());
+            final HashSet<Integer> psList = new HashSet<>( pl.getPotentialSettlements() );
             for (SOCPlayingPiece pp : pieces)
             {
                 // TODO future: scenario SC_CLVI: handle SOCVillage
-                pp.setGameInfo(pl, b);
-                ga.putPiece(pp);
+                pp.setGameInfo( pl, b );
+                ga.putPiece( pp );
             }
             /*
             if (fortressPiece != null)
@@ -1106,9 +1111,9 @@ public class SavedGameModel
                 ga.putPiece(fortressPiece);
             }
              */
-            pl.setPotentialAndLegalSettlements(psList, false, null);  // fix incorrect adds from putPieces
+            pl.setPotentialAndLegalSettlements( psList, false, null );  // fix incorrect adds from putPieces
 
-            pl.setCurrentOffer((currentTradeOffer != null) ? currentTradeOffer.toOffer(pl) : null);
+            pl.setCurrentOffer( (currentTradeOffer != null) ? currentTradeOffer.toOffer( pl ) : null );
 
             // Set player elements and specialVP only after putPieces,
             // so remaining-piece counts aren't reduced twice
@@ -1117,8 +1122,8 @@ public class SavedGameModel
 
             for (final PEType et : elements.keySet())
                 SOCDisplaylessPlayerClient.handlePLAYERELEMENT
-                    (ga, pl, pn, SOCPlayerElement.SET, et, elements.get(et), null);
-            pl.setSpecialVPInfo(specialVPInfo);
+                    ( ga, pl, pn, SOCPlayerElement.SET, et, elements.get( et ), null );
+            pl.setSpecialVPInfo( specialVPInfo );
         }
 
         /**
@@ -1135,28 +1140,28 @@ public class SavedGameModel
         {
             private PPieceAdapter()
             {
-                super(SOCPlayingPiece.class);
+                super( SOCPlayingPiece.class );
             }
 
             @Override
-            protected void beforeWrite(final SOCPlayingPiece source, final JsonElement serializedTree)
+            protected void beforeWrite( final SOCPlayingPiece source, final JsonElement serializedTree )
                 throws IOException
             {
                 final JsonObject obj = serializedTree.getAsJsonObject();
 
-                obj.addProperty("pieceType", SOCPlayingPiece.getTypeName(source.getType()));
-                    // this "add" replaces default serialization's int pieceType
+                obj.addProperty( "pieceType", SOCPlayingPiece.getTypeName( source.getType() ) );
+                // this "add" replaces default serialization's int pieceType
 
-                JsonElement svpField = obj.get("specialVP");
+                JsonElement svpField = obj.get( "specialVP" );
                 if ((svpField != null) && (svpField.getAsInt() == 0))
-                    obj.remove("specialVP");
+                    obj.remove( "specialVP" );
 
                 if ((source instanceof SOCShip) && ((SOCShip) source).isClosed())
-                    obj.addProperty("isClosed", true);
+                    obj.addProperty( "isClosed", true );
             }
 
             @Override
-            protected SOCPlayingPiece afterRead(final JsonElement deserializedTree)
+            protected SOCPlayingPiece afterRead( final JsonElement deserializedTree )
                 throws IOException
             {
                 final JsonObject obj = deserializedTree.getAsJsonObject();
@@ -1164,21 +1169,23 @@ public class SavedGameModel
                 final int ptype, coord;
                 try
                 {
-                    final String ptStr = obj.get("pieceType").getAsString();
-                    ptype = SOCPlayingPiece.getType(ptStr);
-                        // handles int (3 or "3") or string from getPieceTypeName ("CITY")
+                    final String ptStr = obj.get( "pieceType" ).getAsString();
+                    ptype = SOCPlayingPiece.getType( ptStr );
+                    // handles int (3 or "3") or string from getPieceTypeName ("CITY")
                     if (ptype == -1)
-                        throw new IOException("unknown pieceType: " + ptStr);
+                        throw new IOException( "unknown pieceType: " + ptStr );
                 }
-                catch (RuntimeException e)
+                catch( RuntimeException e )
                 {
-                    throw new IOException("can't parse pieceType", e);
+                    throw new IOException( "can't parse pieceType", e );
                 }
                 try
                 {
-                    coord = obj.get("coord").getAsInt();
-                } catch (RuntimeException e) {
-                    throw new IOException("can't parse coord", e);
+                    coord = obj.get( "coord" ).getAsInt();
+                }
+                catch( RuntimeException e )
+                {
+                    throw new IOException( "can't parse coord", e );
                 }
 
                 final SOCPlayingPiece pp;
@@ -1186,20 +1193,20 @@ public class SavedGameModel
                 switch (ptype)
                 {
                 case SOCPlayingPiece.ROAD:
-                    pp = new SOCRoad(GameLoaderJSON.dummyPlayer, coord, null);
+                    pp = new SOCRoad( GameLoaderJSON.dummyPlayer, coord, null );
                     break;
 
                 case SOCPlayingPiece.SETTLEMENT:
-                    pp = new SOCSettlement(GameLoaderJSON.dummyPlayer, coord, null);
+                    pp = new SOCSettlement( GameLoaderJSON.dummyPlayer, coord, null );
                     break;
 
                 case SOCPlayingPiece.CITY:
-                    pp = new SOCCity(GameLoaderJSON.dummyPlayer, coord, null);
+                    pp = new SOCCity( GameLoaderJSON.dummyPlayer, coord, null );
                     break;
 
                 case SOCPlayingPiece.SHIP:
-                    pp = new SOCShip(GameLoaderJSON.dummyPlayer, coord, null);
-                    if (obj.has("isClosed") && obj.get("isClosed").getAsBoolean())
+                    pp = new SOCShip( GameLoaderJSON.dummyPlayer, coord, null );
+                    if (obj.has( "isClosed" ) && obj.get( "isClosed" ).getAsBoolean())
                         ((SOCShip) pp).setClosed();
                     break;
 
@@ -1207,18 +1214,20 @@ public class SavedGameModel
                 // because that's not part of player's SOCPlayingPiece list
 
                 default:
-                    throw new IOException("unknown pieceType: " + ptype);
+                    throw new IOException( "unknown pieceType: " + ptype );
                 }
 
-                if (obj.has("specialVP"))
+                if (obj.has( "specialVP" ))
                 {
                     try
                     {
-                        int n = obj.get("specialVP").getAsInt();
+                        int n = obj.get( "specialVP" ).getAsInt();
                         if (n != 0)
                             pp.specialVP = n;
-                    } catch (RuntimeException e) {
-                        throw new IOException("can't parse specialVP", e);
+                    }
+                    catch( RuntimeException e )
+                    {
+                        throw new IOException( "can't parse specialVP", e );
                     }
                 }
                 return pp;
@@ -1238,7 +1247,7 @@ public class SavedGameModel
      */
     private static class DevCardEnumListAdapter extends TypeAdapter<ArrayList<Integer>>
     {
-        public void write(final JsonWriter jw, final ArrayList<Integer> devcardTypes) throws IOException
+        public void write( final JsonWriter jw, final ArrayList<Integer> devcardTypes ) throws IOException
         {
             if (devcardTypes == null)
             {
@@ -1248,50 +1257,52 @@ public class SavedGameModel
             }
 
             jw.beginArray();
-            for(final Integer ctype : devcardTypes)
-                jw.value(SOCDevCard.getCardTypeName(ctype));
+            for (final Integer ctype : devcardTypes)
+                jw.value( SOCDevCard.getCardTypeName( ctype ) );
             jw.endArray();
         }
 
-        public ArrayList<Integer> read(final JsonReader jr) throws IOException
+        public ArrayList<Integer> read( final JsonReader jr ) throws IOException
         {
             JsonToken jtype = jr.peek();
             if (jtype == JsonToken.NULL)
                 return null;  // unlikely
 
             if (jtype != JsonToken.BEGIN_ARRAY)
-                throw new IOException("devcards expected [, not " + jtype);
+                throw new IOException( "devcards expected [, not " + jtype );
 
             ArrayList<Integer> ret = new ArrayList<>();
 
             jr.beginArray();
-            while(jr.hasNext())
+            while (jr.hasNext())
             {
                 jtype = jr.peek();
                 switch (jtype)
                 {
                 case NUMBER:
-                    ret.add(jr.nextInt());
+                    ret.add( jr.nextInt() );
                     break;
 
                 case NULL:
                     jr.nextNull();
-                    ret.add(0);  // unlikely
+                    ret.add( 0 );  // unlikely
                     break;
 
                 case STRING:
                     String v = jr.nextString();
                     try
                     {
-                        ret.add(SOCDevCard.getCardType(v));
-                    } catch (IllegalArgumentException e) {
-                        throw new IOException("bad cardtype format: " + v, e);
+                        ret.add( SOCDevCard.getCardType( v ) );
+                    }
+                    catch( IllegalArgumentException e )
+                    {
+                        throw new IOException( "bad cardtype format: " + v, e );
                     }
                     break;
 
                 default:
-                    throw new IOException("devcards expected int or string or ], not " + jtype);
-                        // note from test-run: reader doesn't add line number info to exception (in gson 2.8.6)
+                    throw new IOException( "devcards expected int or string or ], not " + jtype );
+                    // note from test-run: reader doesn't add line number info to exception (in gson 2.8.6)
                 }
             }
             jr.endArray();
@@ -1308,19 +1319,19 @@ public class SavedGameModel
     {
         public int clay, ore, sheep, wheat, wood;
 
-        public KnownResourceSet(SOCResourceSet rs)
+        public KnownResourceSet( SOCResourceSet rs )
         {
-            clay  = rs.getAmount(SOCResourceConstants.CLAY);
-            ore   = rs.getAmount(SOCResourceConstants.ORE);
-            sheep = rs.getAmount(SOCResourceConstants.SHEEP);
-            wheat = rs.getAmount(SOCResourceConstants.WHEAT);
-            wood  = rs.getAmount(SOCResourceConstants.WOOD);
+            clay = rs.getAmount( SOCResourceConstants.CLAY );
+            ore = rs.getAmount( SOCResourceConstants.ORE );
+            sheep = rs.getAmount( SOCResourceConstants.SHEEP );
+            wheat = rs.getAmount( SOCResourceConstants.WHEAT );
+            wood = rs.getAmount( SOCResourceConstants.WOOD );
         }
 
         /** Load resource-type counts from this KnownResourceSet into {@code rs}. */
-        public void loadInto(SOCResourceSet rs)
+        public void loadInto( SOCResourceSet rs )
         {
-            rs.setAmounts(toResourceSet());
+            rs.setAmounts( toResourceSet() );
         }
 
         /**
@@ -1329,7 +1340,7 @@ public class SavedGameModel
          */
         public SOCResourceSet toResourceSet()
         {
-            return new SOCResourceSet(clay, ore, sheep, wheat, wood, 0);
+            return new SOCResourceSet( clay, ore, sheep, wheat, wood, 0 );
         }
     }
 
@@ -1357,11 +1368,11 @@ public class SavedGameModel
          */
         public long offeredAtDurationMillis;
 
-        public TradeOffer(final SOCTradeOffer offer, final long offeredAtDurationMillis)
+        public TradeOffer( final SOCTradeOffer offer, final long offeredAtDurationMillis )
             throws NullPointerException
         {
-            give = new KnownResourceSet(offer.getGiveSet());
-            receive = new KnownResourceSet(offer.getGetSet());
+            give = new KnownResourceSet( offer.getGiveSet() );
+            receive = new KnownResourceSet( offer.getGetSet() );
             offeredTo = offer.getTo();
             this.offeredAtDurationMillis = offeredAtDurationMillis;
         }
@@ -1371,11 +1382,11 @@ public class SavedGameModel
          * @param fromPlayer Player from whom the offer will be;
          *     used for gameName and {@link SOCPlayer#getPlayerNumber()}
          */
-        public SOCTradeOffer toOffer(final SOCPlayer fromPlayer)
+        public SOCTradeOffer toOffer( final SOCPlayer fromPlayer )
         {
             return new SOCTradeOffer
-                (fromPlayer.getGame().getName(), fromPlayer.getPlayerNumber(),
-                 offeredTo, give.toResourceSet(), receive.toResourceSet());
+                ( fromPlayer.getGame().getName(), fromPlayer.getPlayerNumber(),
+                    offeredTo, give.toResourceSet(), receive.toResourceSet() );
         }
     }
 
@@ -1413,30 +1424,30 @@ public class SavedGameModel
          * @throws IllegalArgumentException if {@link SOCGameHandler#getBoardLayoutMessage(SOCGame)}
          *     returns an unexpected layout message type
          */
-        BoardInfo(final SOCGame ga)
+        BoardInfo( final SOCGame ga )
             throws IllegalArgumentException
         {
-            SOCMessage m = SOCGameHandler.getBoardLayoutMessage(ga);
+            SOCMessage m = SOCGameHandler.getBoardLayoutMessage( ga );
             if (m instanceof SOCBoardLayout)
                 layout1 = (SOCBoardLayout) m;
             else if (m instanceof SOCBoardLayout2)
                 layout2 = (SOCBoardLayout2) m;
             else
                 throw new IllegalArgumentException
-                    ("unexpected boardlayout msg type " + m.getType() + " " + m.getClass().getSimpleName());
+                    ( "unexpected boardlayout msg type " + m.getType() + " " + m.getClass().getSimpleName() );
 
-            playerPotentials = SOCGameHandler.gatherBoardPotentials(ga, Integer.MAX_VALUE);
+            playerPotentials = SOCGameHandler.gatherBoardPotentials( ga, Integer.MAX_VALUE );
         }
 
-        void loadInto(final SOCGame ga)
+        void loadInto( final SOCGame ga )
         {
             if (layout2 != null)
-                SOCDisplaylessPlayerClient.handleBOARDLAYOUT2(layout2, ga);
+                SOCDisplaylessPlayerClient.handleBOARDLAYOUT2( layout2, ga );
             else if (layout1 != null)
-                SOCDisplaylessPlayerClient.handleBOARDLAYOUT(layout1, ga);
+                SOCDisplaylessPlayerClient.handleBOARDLAYOUT( layout1, ga );
 
             for (final SOCPotentialSettlements potenMsg : playerPotentials)
-                SOCDisplaylessPlayerClient.handlePOTENTIALSETTLEMENTS(potenMsg, ga);
+                SOCDisplaylessPlayerClient.handlePOTENTIALSETTLEMENTS( potenMsg, ga );
         }
     }
 
@@ -1468,41 +1479,41 @@ public class SavedGameModel
     {
         private final Class<C> forClass;
 
-        public CallbackClassTypeAdapterFactory(final Class<C> forClass)
+        public CallbackClassTypeAdapterFactory( final Class<C> forClass )
         {
             this.forClass = forClass;
         }
 
         /** Use our adapter only if 'C' and 'T' are same type */
         @SuppressWarnings("unchecked")
-        public final <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type)
+        public final <T> TypeAdapter<T> create( Gson gson, TypeToken<T> type )
         {
             return (type.getRawType() == forClass)
-                ? (TypeAdapter<T>) customizeMyClassAdapter(gson, (TypeToken<C>) type)
+                ? (TypeAdapter<T>) customizeMyClassAdapter( gson, (TypeToken<C>) type )
                 : null;
         }
 
-        private TypeAdapter<C> customizeMyClassAdapter(Gson gson, TypeToken<C> type)
+        private TypeAdapter<C> customizeMyClassAdapter( Gson gson, TypeToken<C> type )
         {
-            final TypeAdapter<C> delegate = gson.getDelegateAdapter(this, type);
-            final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+            final TypeAdapter<C> delegate = gson.getDelegateAdapter( this, type );
+            final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter( JsonElement.class );
 
             return new TypeAdapter<C>()
             {
-                public void write(final JsonWriter out, final C value)
+                public void write( final JsonWriter out, final C value )
                     throws IOException
                 {
-                    JsonElement tree = delegate.toJsonTree(value);
-                    beforeWrite(value, tree);
-                    elementAdapter.write(out, tree);
+                    JsonElement tree = delegate.toJsonTree( value );
+                    beforeWrite( value, tree );
+                    elementAdapter.write( out, tree );
                 }
 
-                public C read(final JsonReader in)
+                public C read( final JsonReader in )
                     throws IOException
                 {
-                    JsonElement tree = elementAdapter.read(in);
-                    C maybeObj = afterRead(tree);
-                    return (maybeObj != null) ? maybeObj : delegate.fromJsonTree(tree);
+                    JsonElement tree = elementAdapter.read( in );
+                    C maybeObj = afterRead( tree );
+                    return (maybeObj != null) ? maybeObj : delegate.fromJsonTree( tree );
                 }
             };
         }
@@ -1514,7 +1525,9 @@ public class SavedGameModel
          * @param serializedTree  Serialized form of {@code source}
          * @throws IOException if object should not be written (data inconsistency, etc)
          */
-        protected void beforeWrite(C source, JsonElement serializedTree) throws IOException {}
+        protected void beforeWrite( C source, JsonElement serializedTree ) throws IOException
+        {
+        }
 
         /**
          * Override this stub to alter {@code deserializedTree} before it is parsed into
@@ -1526,7 +1539,7 @@ public class SavedGameModel
          * @throws IOException if object should not be instantiated
          *     (data inconsistency, wrong field type within {@code deserializedTree}, etc)
          */
-        protected C afterRead(JsonElement deserializedTree) throws IOException
+        protected C afterRead( JsonElement deserializedTree ) throws IOException
         {
             return null;
         }
@@ -1549,20 +1562,26 @@ public class SavedGameModel
         /** Optional localization parameter to use with {@link #getMessage()}, or null */
         public final String param1, param2;
 
-        public UnsupportedSGMOperationException(String msg) { this(msg, null, null); }
-
-        public UnsupportedSGMOperationException(String msg, String param1) { this(msg, param1, null); }
-
-        public UnsupportedSGMOperationException(String msg, Throwable cause)
+        public UnsupportedSGMOperationException( String msg )
         {
-            super(msg, cause);
+            this( msg, null, null );
+        }
+
+        public UnsupportedSGMOperationException( String msg, String param1 )
+        {
+            this( msg, param1, null );
+        }
+
+        public UnsupportedSGMOperationException( String msg, Throwable cause )
+        {
+            super( msg, cause );
             this.param1 = null;
             this.param2 = null;
         }
 
-        public UnsupportedSGMOperationException(String msg, String param1, String param2)
+        public UnsupportedSGMOperationException( String msg, String param1, String param2 )
         {
-            super(msg);
+            super( msg );
             this.param1 = param1;
             this.param2 = param2;
         }

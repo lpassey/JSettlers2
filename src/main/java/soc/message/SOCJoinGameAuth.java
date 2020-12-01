@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2010,2014-2017,2019-2020 Jeremy D Monin <jeremy@nand.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
@@ -23,6 +23,7 @@ package soc.message;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.StringTokenizer;
+
 import soc.game.SOCBoard;       // for javadocs only
 import soc.game.SOCBoardLarge;  // for javadocs only
 
@@ -77,9 +78,9 @@ public class SOCJoinGameAuth extends SOCMessageForGame
      * @param gaName  name of game
      * @see #SOCJoinGameAuth(String, int, int, int[])
      */
-    public SOCJoinGameAuth(final String gaName)
+    public SOCJoinGameAuth( final String gaName )
     {
-        this(gaName, 0, 0, null);
+        this( gaName, 0, 0, null );
     }
 
     /**
@@ -95,14 +96,14 @@ public class SOCJoinGameAuth extends SOCMessageForGame
      * @see #SOCJoinGameAuth(String)
      * @since 2.0.00
      */
-    public SOCJoinGameAuth(final String gaName, final int height, final int width, final int[] layoutVS)
+    public SOCJoinGameAuth( final String gaName, final int height, final int width, final int[] layoutVS )
         throws IllegalArgumentException
     {
         super( JOINGAMEAUTH, gaName );
         this.boardHeight = height;
         this.boardWidth = width;
         if ((layoutVS != null) && (layoutVS.length < 2))
-            throw new IllegalArgumentException("layoutVS");
+            throw new IllegalArgumentException( "layoutVS" );
         this.layoutVS = layoutVS;
     }
 
@@ -163,18 +164,18 @@ public class SOCJoinGameAuth extends SOCMessageForGame
 
         if ((boardHeight != 0) || (boardWidth != 0))
         {
-            sb.append(sep2_char);
-            sb.append(boardHeight);
-            sb.append(sep2_char);
-            sb.append(boardWidth);
+            sb.append( sep2_char );
+            sb.append( boardHeight );
+            sb.append( sep2_char );
+            sb.append( boardWidth );
             if (layoutVS != null)
             {
-                sb.append(sep2_char);
-                sb.append('S');  // in case a later version adds other optional fields
+                sb.append( sep2_char );
+                sb.append( 'S' );  // in case a later version adds other optional fields
                 for (final int elem : layoutVS)
                 {
-                    sb.append(sep2_char);
-                    sb.append(elem);
+                    sb.append( sep2_char );
+                    sb.append( elem );
                 }
             }
         }
@@ -187,41 +188,45 @@ public class SOCJoinGameAuth extends SOCMessageForGame
      * height, width, and optional {@link #getLayoutVS()}.
      *
      * @param s   the String to parse
-     * @return    a JoinGameAuth message, or null if the data is garbled
+     * @return a JoinGameAuth message, or null if the data is garbled
      */
-    public static SOCJoinGameAuth parseDataStr(String s)
+    public static SOCJoinGameAuth parseDataStr( String s )
     {
-        if (-1 == s.indexOf(sep2_char))
-            return new SOCJoinGameAuth(s, 0, 0, null);
+        if (-1 == s.indexOf( sep2_char ))
+            return new SOCJoinGameAuth( s, 0, 0, null );
 
         try
         {
-            final StringTokenizer st = new StringTokenizer(s, sep2);
+            final StringTokenizer st = new StringTokenizer( s, sep2 );
             final String gaName = st.nextToken();
-            final int bh = Integer.parseInt(st.nextToken()),
-                      bw = Integer.parseInt(st.nextToken());
+            final int bh = Integer.parseInt( st.nextToken() ),
+                bw = Integer.parseInt( st.nextToken() );
             final int[] vs;
             if (st.hasMoreTokens())
             {
-                if (! st.nextToken().equals("S"))
+                if (!st.nextToken().equals( "S" ))
                     return null;  // unrecognized optional-field marker
                 ArrayList<String> rest = new ArrayList<>();
                 while (st.hasMoreTokens())
-                    rest.add(st.nextToken());
+                    rest.add( st.nextToken() );
 
                 int L = rest.size();
                 if (L < 2)
                     return null;
                 vs = new int[L];
                 for (int i = 0; i < L; ++i)
-                    vs[i] = Integer.parseInt(rest.get(i));
-            } else {
+                    vs[i] = Integer.parseInt( rest.get( i ) );
+            }
+            else
+            {
                 vs = null;
             }
 
-            return new SOCJoinGameAuth(gaName, bh, bw, vs);
+            return new SOCJoinGameAuth( gaName, bh, bw, vs );
         }
-        catch (Exception e) {}  // NoSuchElementException, NumberFormatException, etc
+        catch( Exception e )
+        {
+        }  // NoSuchElementException, NumberFormatException, etc
 
         return null;
     }
@@ -235,29 +240,29 @@ public class SOCJoinGameAuth extends SOCMessageForGame
      * @return Message parameters without attribute names, or {@code null} if params are malformed
      * @since 2.4.50
      */
-    public static String stripAttribNames(String messageStrParams)
+    public static String stripAttribNames( String messageStrParams )
     {
-        final boolean hasVS = (messageStrParams.indexOf("|vs=[") > 0);
-        String s = SOCMessage.stripAttribNames(messageStrParams);
-        if ((s == null) || ! hasVS)
+        final boolean hasVS = (messageStrParams.indexOf( "|vs=[" ) > 0);
+        String s = SOCMessage.stripAttribNames( messageStrParams );
+        if ((s == null) || !hasVS)
             return s;
 
         // "ga,20,21,[-2, 1, 3, 0]" -> "ga,20,21,S,-2,1,3,0"
-        int i = s.indexOf(",[");
+        int i = s.indexOf( ",[" );
         if (i <= 0)
             return s;
-        final StringBuilder sb = new StringBuilder(s.substring(0, i + 1));
+        final StringBuilder sb = new StringBuilder( s.substring( 0, i + 1 ) );
         i += 2;  // move past '['
         final int L = s.length() - 1;
-        if (s.charAt(L) != ']')
+        if (s.charAt( L ) != ']')
             return s;  // probably malformed
 
-        sb.append("S,");  // added at this position in toCmd()
+        sb.append( "S," );  // added at this position in toCmd()
         for (; i < L; ++i)
         {
-            char ch = s.charAt(i);
+            char ch = s.charAt( i );
             if (ch != ' ')
-                sb.append(ch);
+                sb.append( ch );
         }
 
         return sb.toString();

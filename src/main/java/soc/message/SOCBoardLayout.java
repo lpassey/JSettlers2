@@ -3,20 +3,20 @@
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2009-2010,2012,2014,2016-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2017-2018 Strategic Conversation (STAC Project) https://www.irit.fr/STAC/
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
@@ -74,7 +74,7 @@ public class SOCBoardLayout extends SOCMessageForGame
      * Map of dice rolls to values in {@link #numberLayout}. Formerly in SOCBoard.
      * @since 1.1.08
      */
-    private static final int[] boardNum2sentNum = { -1, -1, 0, 1, 2, 3, 4, -1, 5, 6, 7, 8, 9 };
+    private static final int[] boardNum2sentNum = {-1, -1, 0, 1, 2, 3, 4, -1, 5, 6, 7, 8, 9};
 
     /**
      * Map of values in {@link #numberLayout} to dice rolls:<pre>
@@ -92,7 +92,7 @@ public class SOCBoardLayout extends SOCMessageForGame
      * Formerly in SOCBoard.
      * @since 1.1.08
      */
-    private static final int[] sentNum2BoardNum = { 2, 3, 4, 5, 6, 8, 9, 10, 11, 12 };
+    private static final int[] sentNum2BoardNum = {2, 3, 4, 5, 6, 8, 9, 10, 11, 12};
 
     /**
      * Hex land type numbers sent over the network.
@@ -129,9 +129,9 @@ public class SOCBoardLayout extends SOCMessageForGame
      * @param rh   the robber hex
      * @see #SOCBoardLayout(String, int[], int[], int, boolean)
      */
-    public SOCBoardLayout(String ga, int[] hl, int[] nl, int rh)
+    public SOCBoardLayout( String ga, int[] hl, int[] nl, int rh )
     {
-        this(ga, hl, nl, rh, false);
+        this( ga, hl, nl, rh, false );
     }
 
     /**
@@ -148,14 +148,16 @@ public class SOCBoardLayout extends SOCMessageForGame
      * @since 1.1.08
      */
     public SOCBoardLayout
-        (String ga, final int[] hl, final int[] nl, final int rh, final boolean alreadyMapped)
+    ( String ga, final int[] hl, final int[] nl, final int rh, final boolean alreadyMapped )
     {
         super( BOARDLAYOUT, ga );
         if (alreadyMapped)
         {
             hexLayout = hl;
             numberLayout = nl;
-        } else {
+        }
+        else
+        {
             hexLayout = new int[hl.length];
             for (int i = hl.length - 1; i >= 0; --i)
             {
@@ -163,9 +165,11 @@ public class SOCBoardLayout extends SOCMessageForGame
                 switch (h)
                 {
                 case SOCBoard.WATER_HEX:
-                    h = SENTLAND_WATER;   break;
+                    h = SENTLAND_WATER;
+                    break;
                 case SOCBoard.DESERT_HEX:
-                    h = SENTLAND_DESERT;  break;
+                    h = SENTLAND_DESERT;
+                    break;
                 default:
                     // leave unchanged
                 }
@@ -198,9 +202,11 @@ public class SOCBoardLayout extends SOCMessageForGame
             switch (h)
             {
             case SENTLAND_WATER:
-                h = SOCBoard.WATER_HEX;   break;
+                h = SOCBoard.WATER_HEX;
+                break;
             case SENTLAND_DESERT:
-                h = SOCBoard.DESERT_HEX;  break;
+                h = SOCBoard.DESERT_HEX;
+                break;
             default:
                 // leave unchanged
             }
@@ -252,12 +258,12 @@ public class SOCBoardLayout extends SOCMessageForGame
         StringBuilder cmd = new StringBuilder( super.toCmd() );
 
         for (int i = 0; i < 37; i++)
-            cmd.append(sep2_char).append(hexLayout[i]);
+            cmd.append( sep2_char ).append( hexLayout[i] );
 
         for (int i = 0; i < 37; i++)
-            cmd.append(sep2_char).append(numberLayout[i]);
+            cmd.append( sep2_char ).append( numberLayout[i] );
 
-        cmd.append(sep2_char).append(robberHex);
+        cmd.append( sep2_char ).append( robberHex );
 
         return cmd.toString();
     }
@@ -266,15 +272,15 @@ public class SOCBoardLayout extends SOCMessageForGame
      * Parse the command String into a BoardLayout message
      *
      * @param s   the String to parse
-     * @return    a BoardLayout message
+     * @return a BoardLayout message
      */
-    public static SOCBoardLayout parseDataStr(String s)
+    public static SOCBoardLayout parseDataStr( String s )
     {
         String ga; // game name
         int[] hl = new int[37]; // hex layout
         int[] nl = new int[37]; // number layout
         int rh; // robber hex
-        StringTokenizer st = new StringTokenizer(s, sep2);
+        StringTokenizer st = new StringTokenizer( s, sep2 );
 
         try
         {
@@ -282,22 +288,22 @@ public class SOCBoardLayout extends SOCMessageForGame
 
             for (int i = 0; i < 37; i++)
             {
-                hl[i] = Integer.parseInt(st.nextToken());
+                hl[i] = Integer.parseInt( st.nextToken() );
             }
 
             for (int i = 0; i < 37; i++)
             {
-                nl[i] = Integer.parseInt(st.nextToken());
+                nl[i] = Integer.parseInt( st.nextToken() );
             }
 
-            rh = Integer.parseInt(st.nextToken());
+            rh = Integer.parseInt( st.nextToken() );
         }
-        catch (Exception e)
+        catch( Exception e )
         {
             return null;
         }
 
-        return new SOCBoardLayout(ga, hl, nl, rh, true);
+        return new SOCBoardLayout( ga, hl, nl, rh, true );
     }
 
     /**
@@ -308,28 +314,28 @@ public class SOCBoardLayout extends SOCMessageForGame
      * @return Message parameters without attribute names, or {@code null} if params are malformed
      * @since 2.4.50
      */
-    public static String stripAttribNames(final String messageStrParams)
+    public static String stripAttribNames( final String messageStrParams )
     {
         // Totally different format - it's just one long CSV
 
-        String sp = SOCMessage.stripAttribNames(messageStrParams);
+        String sp = SOCMessage.stripAttribNames( messageStrParams );
         if (sp == null)
             return null;
-        String[] pieces = sp.split(SOCMessage.sep2);
+        String[] pieces = sp.split( SOCMessage.sep2 );
         StringBuilder ret = new StringBuilder();
-        ret.append(pieces[0]);
-        ret.append(sep2);
+        ret.append( pieces[0] );
+        ret.append( sep2 );
         for (int i = 0; i < 2; i++)
         {
             // strip leading "{ " and trailing "}". The space before the trailer will become a comma, exactly as we want
             String s = pieces[i + 1];
-            s = s.substring(2, s.length() - 1);
-            ret.append(s.replace(' ', sep2_char));
+            s = s.substring( 2, s.length() - 1 );
+            ret.append( s.replace( ' ', sep2_char ) );
         }
 
         // robber hex: need to convert from hex string to int - strip 0x and parse with radix=16
-        int robber = Integer.parseInt(pieces[3].substring(2), 16);
-        ret.append(robber);
+        int robber = Integer.parseInt( pieces[3].substring( 2 ), 16 );
+        ret.append( robber );
 
         return ret.toString();
     }
@@ -344,14 +350,14 @@ public class SOCBoardLayout extends SOCMessageForGame
      */
     public String toString()
     {
-        StringBuffer sb = new StringBuffer("SOCBoardLayout:game=");
+        StringBuffer sb = new StringBuffer( "SOCBoardLayout:game=" );
         sb.append(getGame());
-        sb.append("|hexLayout=");
-        DataUtils.arrayIntoStringBuf(hexLayout, sb, false);
-        sb.append("|numberLayout=");
-        DataUtils.arrayIntoStringBuf(numberLayout, sb, false);
-        sb.append("|robberHex=0x");
-        sb.append(Integer.toHexString(robberHex));
+        sb.append( "|hexLayout=" );
+        DataUtils.arrayIntoStringBuf( hexLayout, sb, false );
+        sb.append( "|numberLayout=" );
+        DataUtils.arrayIntoStringBuf( numberLayout, sb, false );
+        sb.append( "|robberHex=0x" );
+        sb.append( Integer.toHexString( robberHex ) );
 
         return sb.toString();
     }

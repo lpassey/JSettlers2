@@ -565,7 +565,9 @@ public class TradePanel extends ShadowedBox
                 rejTimerTask = new AutoRejectTask(sec);
                 pi.getEventTimer().scheduleAtFixedRate(rejTimerTask, 300 /* ms */, 1000 /* ms */ );
                     // initial 300ms delay, so TradePanel should be visible by first AutoRejectTask.run()
-            } else {
+            }
+            else
+            {
                 lineBelow.setVisible(false);
                 lineBelow.setText("");
             }
@@ -604,7 +606,9 @@ public class TradePanel extends ShadowedBox
         {
             if (btn.isEnabled() != hasRes)
                 btn.setEnabled(hasRes);
-        } else {
+        }
+        else 
+        {
             final boolean canAccept = isOfferToPlayer && hasRes;
             if (buttonVis != canAccept)
             {
@@ -915,7 +919,9 @@ public class TradePanel extends ShadowedBox
                 listener.button2Clicked();
             else if (src == btn3)
                 listener.button3Clicked();
-        } catch (Throwable th) {
+        }
+        catch (Throwable th)
+        {
             pi.chatPrintStackTrace(th);
         }
     }
@@ -978,7 +984,9 @@ public class TradePanel extends ShadowedBox
                     (strings.get("hpan.trade.auto_reject_countdown", secRemain ));
                     // "Auto-Reject in: 5"
                 --secRemain;
-            } else {
+            }
+        else 
+        {
                 lineBelow.setVisible(false);
                 lineBelow.setText("");
                 final TPListener lis = TradePanel.this.listener;

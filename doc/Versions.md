@@ -26,13 +26,15 @@ JARs for recent JSettlers versions can be downloaded from
 		- Report robbery with `SOCReportRobbery`
 		- Reject disallowed trade requests with `SOCBankTrade` or `SOCAcceptOffer` reason codes
 	- When Monopoly card played, server announces amount gained instead of player's total amount of that resource
+	- If client sends discard with incorrect total, server re-sends SOCDiscardRequest which includes required amount
 - For developers:
-	- Upstreamed and reintegrated from STAC Project fork https://github.com/sorinMD/StacSettlers :
+	- Upstreamed and reintegrated from STAC Project fork https://github.com/ruflab/StacSettlers :
 	    - Various player and game statistic fields/methods and misc code
-	    - Encapsulate robot's build stack as SOCBuildPlan
+	    - Misc bot API refactoring; encapsulate robot's build stack as SOCBuildPlan
 	    - soc.message methods to parse human-readable toString logging format: parseMsgStr, stripAttribNames
 	    - Extend soc.debug / disableDebug logging: 4 debug levels INFO, WARNING, ERROR, FATAL
 	    - SOCDBHelper is no longer a static/unextendable singleton
+	    - Many thanks to Morgan Giraud for collaboration on this work
 	- Enhanced server's recordGameEvent framework for more detailed game recording
 	- More accessible robot-related methods and data classes
 	- For third-party bots, added more granular override points like
@@ -57,7 +59,7 @@ JARs for recent JSettlers versions can be downloaded from
 	        - To avoid clutter, normally hidden and not sent to connecting clients
 	        - Activate in server config if needed: `jsettlers.gameopts.activate=PLAY_VPO,OTHEROPT`
 	        - For details see [Readme.developer.md](Readme.developer.md) section "Game rules, Game Options"
-	    - New inactive options, to show or help debug gameplay details:
+	    - New inactive options, to show or help debug gameplay details, from STAC concepts:
 	        - `PLAY_VPO`: Show all players' VP/dev card info
 	        - `PLAY_FO`: Show all player info as fully observable: Resources, VP/dev cards
 	    - "Third-Party Options" concept: Gameopts defined by a 3rd-party client, bot, or server JSettlers fork,
@@ -71,8 +73,6 @@ JARs for recent JSettlers versions can be downloaded from
 	- When game has been loaded but not yet resumed, humans can sit down at any player's seat (human or robot)
 	- If human takes over a player in a formerly bots-only game and stays until the end, don't delete that game immediately
 	- Fix cosmetic StringConnection IllegalStateException seen for bots during server shutdown
-- Network/Message traffic:
-	- If client's discard has incorrect total, server re-sends SOCDiscardRequest which includes required total
 - Client:
 	- New Game dialog:
 	    - Sort game option descriptions case-insensitively, in case of acronyms
@@ -82,6 +82,7 @@ JARs for recent JSettlers versions can be downloaded from
 	    - Hand Panel: Shrink unused space above trading squares
 	    - Forgotten Tribe scenario: Much less flicker while placing gift ports
 	    - Chat panel: If text to be sent contains `|`, show a popup to say that can't be sent
+	- If server announces it's shutting down with StatusMessage(SV_SERVER_SHUTDOWN), show Connect or Practice panel
 	- Net debug: If `jsettlers.debug.traffic=Y` is set and message from server can't be parsed, print it to console
 - Code internals:
 	- Fixed lint warnings for switch fallthrough, variable shadowing, renamed a few obscure fields

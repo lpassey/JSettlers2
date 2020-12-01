@@ -164,7 +164,9 @@ import java.util.Vector;
         try
         {
             return inputConnected && (0 < in.available());
-        } catch (IOException e) {
+        }
+        catch( IOException e )
+        {
             return false;
         }
     }

@@ -3,20 +3,20 @@
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2010-2014,2017-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
@@ -158,7 +158,7 @@ public class SOCPotentialSettlements extends SOCMessageForGame
      *   <tt>ps</tt> also is the list of legal settlements.
      * @see #SOCPotentialSettlements(String, int, List, int, HashSet[], int[][])
      */
-    public SOCPotentialSettlements(String ga, int pn, List<Integer> ps)
+    public SOCPotentialSettlements( String ga, int pn, List<Integer> ps )
     {
         super( POTENTIALSETTLEMENTS, ga );
         playerNumber = pn;
@@ -184,12 +184,12 @@ public class SOCPotentialSettlements extends SOCMessageForGame
      * @see #SOCPotentialSettlements(String, int, List, int, HashSet[], int[][])
      * @since 2.0.00
      */
-    public SOCPotentialSettlements(String ga, int pn, List<Integer> ps, final int[][] lse)
+    public SOCPotentialSettlements( String ga, int pn, List<Integer> ps, final int[][] lse )
         throws IllegalArgumentException
     {
-        this(ga, pn, ps);
+        this( ga, pn, ps );
         if (pn <= 0)
-            throw new IllegalArgumentException("pn");
+            throw new IllegalArgumentException( "pn" );
 
         legalSeaEdges = lse;
     }
@@ -227,7 +227,7 @@ public class SOCPotentialSettlements extends SOCMessageForGame
      * @since 2.0.00
      */
     public SOCPotentialSettlements
-        (String ga, int pn, final List<Integer> ps, final int pan, HashSet<Integer>[] lan, final int[][] lse)
+    ( String ga, int pn, final List<Integer> ps, final int pan, HashSet<Integer>[] lan, final int[][] lse )
         throws IllegalArgumentException, NullPointerException
     {
         super( POTENTIALSETTLEMENTS, ga );
@@ -243,7 +243,7 @@ public class SOCPotentialSettlements extends SOCMessageForGame
         // consistency-check land areas
         for (int i = 1; i < lan.length; ++i)
             if (lan[i] == null)
-                throw new IllegalArgumentException("lan[" + i + "] null");
+                throw new IllegalArgumentException( "lan[" + i + "] null" );
     }
 
     /**
@@ -269,7 +269,7 @@ public class SOCPotentialSettlements extends SOCMessageForGame
      *     (all if {@link #startingLandArea} == 0)
      * @return the list of potential settlements, possibly empty or null
      */
-    public List<Integer> getPotentialSettlements(final boolean buildIfFromLALN)
+    public List<Integer> getPotentialSettlements( final boolean buildIfFromLALN )
     {
         List<Integer> ps = psNodes;
         if (buildIfFromLALN && (ps == null) && (landAreasLegalNodes != null))
@@ -278,8 +278,10 @@ public class SOCPotentialSettlements extends SOCMessageForGame
             {
                 ps = new ArrayList<>();
                 for (int i = 1; i < landAreasLegalNodes.length; ++i)
-                    ps.addAll(landAreasLegalNodes[i]);
-            } else {
+                    ps.addAll( landAreasLegalNodes[i] );
+            }
+            else
+            {
                 ps = new ArrayList<>( landAreasLegalNodes[startingLandArea] );
             }
         }
@@ -355,7 +357,7 @@ public class SOCPotentialSettlements extends SOCMessageForGame
      * @param lan  Each land area's legal node lists, or null.
      *     Index 0 is unused (<tt>null</tt>).
      * @param lse  Legal sea edges for ships if restricted, or {@code null}; see {@link #legalSeaEdges} field for format
-     * @return   the command string
+     * @return the command string
      * @see #toCmd(String, int, List)
      */
     private String toCmd
@@ -365,36 +367,38 @@ public class SOCPotentialSettlements extends SOCMessageForGame
 
         if (ps != null)
         {
-            if (! ps.isEmpty())
+            if (!ps.isEmpty())
             {
                 for (Integer p : ps)
                 {
                     cmd.append( sep2 );
                     cmd.append( p.intValue() );
                 }
-            } else {
-                cmd.append(sep2);
-                cmd.append(0);
+            }
+            else
+            {
+                cmd.append( sep2 );
+                cmd.append( 0 );
             }
         }
 
-        cmd.append(sep2);
-        cmd.append("NA");  // number of areas
-        cmd.append(sep2);
-        cmd.append((lan != null) ? (lan.length - 1) : 0);
+        cmd.append( sep2 );
+        cmd.append( "NA" );  // number of areas
+        cmd.append( sep2 );
+        cmd.append( (lan != null) ? (lan.length - 1) : 0 );
 
-        cmd.append(sep2);
-        cmd.append("PAN");
-        cmd.append(sep2);
+        cmd.append( sep2 );
+        cmd.append( "PAN" );
+        cmd.append( sep2 );
         cmd.append(potLandArea);
 
         if (lan != null)
         {
             for (int i = 1; i < lan.length; ++i)
             {
-                cmd.append(sep2);
-                cmd.append("LA");
-                cmd.append(i);
+                cmd.append( sep2 );
+                cmd.append( "LA" );
+                cmd.append( i );
 
                 for (Integer integer : lan[i])
                 {
@@ -409,14 +413,14 @@ public class SOCPotentialSettlements extends SOCMessageForGame
         {
             for (int i = 0; i < lse.length; ++i)
             {
-                cmd.append(sep2);
-                cmd.append("SE");
+                cmd.append( sep2 );
+                cmd.append( "SE" );
 
                 final int[] lse_i = lse[i];
                 if ((lse_i.length == 0) && (i == (lse.length - 1)))
                 {
-                    cmd.append(sep2);
-                    cmd.append(0);
+                    cmd.append( sep2 );
+                    cmd.append( 0 );
                     // 0 is used for padding the last SE list if empty;
                     // otherwise, at the end of the message, an empty list will have no tokens.
                 }
@@ -444,10 +448,10 @@ public class SOCPotentialSettlements extends SOCMessageForGame
      * Parse the command String into a PotentialSettlements message
      *
      * @param s   the String to parse
-     * @return    a PotentialSettlements message, or null if the data is garbled
+     * @return a PotentialSettlements message, or null if the data is garbled
      */
     @SuppressWarnings("unchecked")
-    public static SOCPotentialSettlements parseDataStr(String s)
+    public static SOCPotentialSettlements parseDataStr( String s )
     {
         String ga;
         int pn;
@@ -456,18 +460,18 @@ public class SOCPotentialSettlements extends SOCMessageForGame
         int pan = 0;
         int[][] legalSeaEdges = null;
 
-        StringTokenizer st = new StringTokenizer(s, sep2);
+        StringTokenizer st = new StringTokenizer( s, sep2 );
 
         try
         {
             ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
+            pn = Integer.parseInt( st.nextToken() );
             boolean hadNA = false;
 
             while (st.hasMoreTokens())
             {
                 String tok = st.nextToken();
-                if (tok.equals("NA"))
+                if (tok.equals( "NA" ))
                 {
                     hadNA = true;
                     break;
@@ -482,21 +486,23 @@ public class SOCPotentialSettlements extends SOCMessageForGame
                 // NA, 3, PAN, 1, LA2, ..., LA3, ...
                 // None of the LA#s will be PAN's number.
 
-                final int numArea = Integer.parseInt(st.nextToken());
+                final int numArea = Integer.parseInt( st.nextToken() );
                 if (numArea > 0)
                     lan = new HashSet[numArea + 1];
 
                 String tok = st.nextToken();
-                if (! tok.equals("PAN"))
+                if (!tok.equals( "PAN" ))
                     return null;
-                pan = Integer.parseInt(st.nextToken());
+                pan = Integer.parseInt( st.nextToken() );
                 if (pan < 0)
                     return null;
 
                 if (st.hasMoreTokens())
                 {
                     tok = st.nextToken();  // "LA2", "LA3", etc, or "SE"
-                } else {
+                }
+                else
+                {
                     // should not occur, but allow if 1 area
                     tok = null;
                     if ((numArea > 1) || (pan != 1))
@@ -506,15 +512,15 @@ public class SOCPotentialSettlements extends SOCMessageForGame
                 // lan[]: Loop for numAreas, starting with tok == "LA#"
                 while (st.hasMoreTokens())
                 {
-                    if (! tok.startsWith("LA"))
+                    if (!tok.startsWith( "LA" ))
                     {
-                        if (tok.equals("SE"))
+                        if (tok.equals( "SE" ))
                             break;  // "SE" are Legal Sea Edges, to be parsed in next loop
                         else
                             return null;  // unrecognized: bad message
                     }
 
-                    final int areaNum = Integer.parseInt(tok.substring(2));
+                    final int areaNum = Integer.parseInt( tok.substring( 2 ) );
                     if (areaNum <= 0)
                         return null;  // malformed
                     HashSet<Integer> ls = new HashSet<>();
@@ -523,7 +529,7 @@ public class SOCPotentialSettlements extends SOCMessageForGame
                     while (st.hasMoreTokens())
                     {
                         tok = st.nextToken();
-                        if (tok.equals("SE") || tok.startsWith("LA"))
+                        if (tok.equals( "SE" ) || tok.startsWith( "LA" ))
                             break;
                         if (areaNum == 0)
                             return null;  // WIP: LA0 must be empty
@@ -534,10 +540,10 @@ public class SOCPotentialSettlements extends SOCMessageForGame
                 }
 
                 // legalSeaEdges[][]: Parse the optional "SE" edge lists (SC_PIRI)
-                if (st.hasMoreTokens() && tok.equals("SE"))
+                if (st.hasMoreTokens() && tok.equals( "SE" ))
                 {
                     ArrayList<int[]> allLSE = new ArrayList<>();
-                    while (st.hasMoreTokens() && tok.equals("SE"))
+                    while (st.hasMoreTokens() && tok.equals( "SE" ))
                     {
                         ArrayList<Integer> lse = new ArrayList<>();
 
@@ -545,9 +551,9 @@ public class SOCPotentialSettlements extends SOCMessageForGame
                         while (st.hasMoreTokens())
                         {
                             tok = st.nextToken();
-                            if (tok.equals("SE"))
+                            if (tok.equals( "SE" ))
                                 break;
-                            final int edge = Integer.parseInt(tok, 16);
+                            final int edge = Integer.parseInt( tok, 16 );
                             if (edge != 0)
                                 // 0 is used for padding the last SE list if empty;
                                 // otherwise, at the end of the message, an empty list will have no tokens.
@@ -557,22 +563,22 @@ public class SOCPotentialSettlements extends SOCMessageForGame
                         final int L = lse.size();
                         int[] lseArr = new int[L];
                         for (int i = 0; i < L; ++i)
-                            lseArr[i] = lse.get(i);
+                            lseArr[i] = lse.get( i );
 
-                        allLSE.add(lseArr);
+                        allLSE.add( lseArr );
                     }
 
                     final int L = allLSE.size();
                     legalSeaEdges = new int[L][];
                     for (int i = 0; i < L; ++i)
-                        legalSeaEdges[i] = allLSE.get(i);
+                        legalSeaEdges[i] = allLSE.get( i );
                 }
 
                 // empty ps list is sent as list which is solely {0};
                 // if {0} wasn't sent, ps is null
                 if (ps.isEmpty())
                     ps = null;
-                else if ((ps.size() == 1) && (ps.get(0) == 0))
+                else if ((ps.size() == 1) && (ps.get( 0 ) == 0))
                     ps.clear();
 
                 if (numArea > 0)
@@ -582,7 +588,7 @@ public class SOCPotentialSettlements extends SOCMessageForGame
                             return null;
             }
         }
-        catch (Exception e)
+        catch( Exception e )
         {
             return null;
         }
@@ -594,12 +600,16 @@ public class SOCPotentialSettlements extends SOCMessageForGame
                 if (pn <= 0)
                     return null;  // not well-formed; see constructor javadocs
 
-                return new SOCPotentialSettlements(ga, pn, ps, legalSeaEdges);
-            } else{
-                return new SOCPotentialSettlements(ga, pn, ps);
+                return new SOCPotentialSettlements( ga, pn, ps, legalSeaEdges );
             }
-        } else {
-            return new SOCPotentialSettlements(ga, pn, ps, pan, lan, legalSeaEdges);
+            else
+            {
+                return new SOCPotentialSettlements( ga, pn, ps );
+            }
+        }
+        else
+        {
+            return new SOCPotentialSettlements( ga, pn, ps, pan, lan, legalSeaEdges );
         }
     }
 
@@ -611,11 +621,11 @@ public class SOCPotentialSettlements extends SOCMessageForGame
      * @return Message parameters without attribute names, or {@code null} if params are malformed
      * @since 2.4.50
      */
-    public static String stripAttribNames(String messageStrParams)
+    public static String stripAttribNames( String messageStrParams )
     {
         // don't call SOCMessage.stripAttribNames(message), we need field names to parse here
 
-        String[] pieces = messageStrParams.split(sepRE);
+        String[] pieces = messageStrParams.split( sepRE );
         if (pieces.length < 3)
             return null;
 
@@ -629,32 +639,36 @@ public class SOCPotentialSettlements extends SOCMessageForGame
 
         StringBuilder ret = new StringBuilder();
 
-        if (pieces[0].startsWith("game="))
-            ret.append(pieces[0].substring(5));
+        if (pieces[0].startsWith( "game=" ))
+            ret.append( pieces[0].substring( 5 ) );
         else
             return null;
 
-        if (pieces[1].startsWith("playerNum="))
-            ret.append(sep2_char).append(pieces[1].substring(10));
+        if (pieces[1].startsWith( "playerNum=" ))
+            ret.append( sep2_char ).append( pieces[1].substring( 10 ) );
         else
             return null;
 
         final int psListStatus;  // -1 null, 0 empty, 1 non-empty
         String s = pieces[2];
-        if ((s.length() <= 5) || ! s.startsWith("list="))
+        if ((s.length() <= 5) || !s.startsWith( "list=" ))
             return null;
-        s = s.substring(5);
-        if (s.equals("(null)") || s.equals("(fromAllLANodes)"))
+        s = s.substring( 5 );
+        if (s.equals( "(null)" ) || s.equals( "(fromAllLANodes)" ))
         {
             psListStatus = -1;
-        } else {
-            if (s.equals("(empty)"))
+        }
+        else
+        {
+            if (s.equals( "(empty)" ))
             {
                 psListStatus = 0;
-            } else {
+            }
+            else
+            {
                 psListStatus = 1;
-                for (String coordStr : s.split(" "))
-                    ret.append(sep2_char).append( Integer.parseInt( coordStr, 16 ) );
+                for (String coordStr : s.split( " " ))
+                    ret.append( sep2_char ).append( Integer.parseInt( coordStr, 16 ) );
             }
         }
 
@@ -663,104 +677,108 @@ public class SOCPotentialSettlements extends SOCMessageForGame
             return ret.toString();
 
         if (psListStatus == 0)
-            ret.append(sep2_char).append(0);  // extended forms send empty non-null psNodes as if contains 0
+            ret.append( sep2_char ).append( 0 );  // extended forms send empty non-null psNodes as if contains 0
 
         int pieceIdx = 3;
-        if (pieces[3].startsWith("pan="))
+        if (pieces[3].startsWith( "pan=" ))
         {
-            final int pan = Integer.parseInt(pieces[3].substring(4));
+            final int pan = Integer.parseInt( pieces[3].substring( 4 ) );
 
             final List<List<Integer>> landAreaNodes = new ArrayList<>();
             pieceIdx = 4;
             for (; pieceIdx < pieces.length; ++pieceIdx)
             {
                 String piece = pieces[pieceIdx];
-                if (! piece.startsWith("la"))
+                if (!piece.startsWith( "la" ))
                     break;
 
-                int i = piece.indexOf('=');  // "la4=a0f 60a ... "
+                int i = piece.indexOf( '=' );  // "la4=a0f 60a ... "
                 if ((i < 3) || (i > 5))  // up to 3 digits is reasonable
                     return null;
-                final int laNum = Integer.parseInt(piece.substring(2, i));
+                final int laNum = Integer.parseInt( piece.substring( 2, i ) );
                 if (laNum <= 0)
                     return null;
-                if ((laNum < landAreaNodes.size()) && (landAreaNodes.get(laNum) != null))
+                if ((laNum < landAreaNodes.size()) && (landAreaNodes.get( laNum ) != null))
                     return null;  // duplicate area number
 
                 List<Integer> nodes = new ArrayList<>();
-                String rhs = piece.substring(i + 1);
-                if (! rhs.equals("(empty)"))
-                    for (String node : rhs.split(" "))
-                        nodes.add(Integer.parseInt(node, 16));
+                String rhs = piece.substring( i + 1 );
+                if (!rhs.equals( "(empty)" ))
+                    for (String node : rhs.split( " " ))
+                        nodes.add( Integer.parseInt( node, 16 ) );
 
                 while (laNum >= landAreaNodes.size())
-                    landAreaNodes.add(null);
-                landAreaNodes.set(laNum, nodes);
+                    landAreaNodes.add( null );
+                landAreaNodes.set( laNum, nodes );
             }
 
             // done parsing LAs
 
             // NA # PAN # LA# ... LA# ...
             int numArea = landAreaNodes.size() - 1;
-            ret.append(",NA,").append(numArea);
-            ret.append(",PAN,").append(pan);
+            ret.append( ",NA," ).append( numArea );
+            ret.append( ",PAN," ).append( pan );
             for (int i = 1; i <= numArea; ++i)
             {
-                ret.append(",LA").append(i);
-                List<Integer> nodes = landAreaNodes.get(i);
+                ret.append( ",LA" ).append( i );
+                List<Integer> nodes = landAreaNodes.get( i );
                 if (nodes != null)
                     for (Integer node : nodes)
-                        ret.append(sep2_char).append(node);
+                        ret.append( sep2_char ).append( node );
             }
-        } else {
+        }
+        else
+        {
             if (pieceIdx < pieces.length)
                 // message is only ps and lse: stub pan & la info like toCmd() does
-                ret.append(",NA,0,PAN,0");
+                ret.append( ",NA,0,PAN,0" );
         }
 
         if (pieceIdx < pieces.length)
         {
             String piece = pieces[pieceIdx];
             final int pL = piece.length();
-            if (! (piece.startsWith("lse={") && piece.substring(pL - 2).equals("}}")))
+            if (!(piece.startsWith( "lse={" ) && piece.substring( pL - 2 ).equals( "}}" )))
                 return null;  // unknown token
 
             // "lse={{c07-c0b,d07-d0b,e04-e0a},{207-20b,107-10b,4-a},{},{803-80a,903,905,a03,a04}}"
             List<List<Integer>> lse = new ArrayList<>();
-            for (String subLseStr: piece.substring(6, pL - 2).split("\\},\\{", 99))
-                // 99 to not drop empty match at end; actual expected max is 6 players
+            for (String subLseStr : piece.substring( 6, pL - 2 ).split( "\\},\\{", 99 ))
+            // 99 to not drop empty match at end; actual expected max is 6 players
             {
                 List<Integer> subLse = new ArrayList<>();
-                if (! subLseStr.isEmpty())
-                    for (String item : subLseStr.split(","))
+                if (!subLseStr.isEmpty())
+                    for (String item : subLseStr.split( "," ))
                     {
                         // "a03" or "c07-c0b"
-                        int i = item.indexOf('-');
+                        int i = item.indexOf( '-' );
                         if (i == -1)
                         {
-                            subLse.add(Integer.parseInt(item, 16));
-                        } else {
-                            subLse.add(Integer.parseInt(item.substring(0, i), 16));
-                            subLse.add(-Integer.parseInt(item.substring(i + 1), 16));
+                            subLse.add( Integer.parseInt( item, 16 ) );
+                        }
+                        else
+                        {
+                            subLse.add( Integer.parseInt( item.substring( 0, i ), 16 ) );
+                            subLse.add( -Integer.parseInt( item.substring( i + 1 ), 16 ) );
                         }
                     }
 
-                lse.add(subLse);
+                lse.add( subLse );
             }
 
             for (List<Integer> sublse : lse)
             {
-                ret.append(",SE");
+                ret.append( ",SE" );
                 final int L = sublse.size();
                 for (int i = 0; i < L; ++i)
                 {
-                    ret.append(sep2_char).append(Integer.toString(sublse.get(i), 16));
+                    ret.append( sep2_char ).append( Integer.toString( sublse.get( i ), 16 ) );
                     if (i + 1 < L)
                     {
-                        int next = sublse.get(i + 1);
+                        int next = sublse.get( i + 1 );
                         if (next < 0)
                         {
-                            ret.append(sep2_char).append(Integer.toString(next, 16));
+                            ret.append( sep2_char ).append( Integer.toString( next, 16 ) );
                             ++i;
                         }
                     }
@@ -768,8 +786,8 @@ public class SOCPotentialSettlements extends SOCMessageForGame
             }
 
             // if last subLse was empty, pad with 0 to avoid no tokens in that subLse
-            if (lse.get(lse.size() - 1).isEmpty())
-                ret.append(",0");
+            if (lse.get( lse.size() - 1 ).isEmpty())
+                ret.append( ",0" );
         }
 
         return ret.toString();
@@ -784,32 +802,32 @@ public class SOCPotentialSettlements extends SOCMessageForGame
         StringBuilder s = new StringBuilder
             ("SOCPotentialSettlements:game=" + getGame() + "|playerNum=" + playerNumber + "|list=");
         if (psNodesFromAll)
-            s.append("(fromAllLANodes)");
+            s.append( "(fromAllLANodes)" );
         else if (psNodes == null)
-            s.append("(null)");
+            s.append( "(null)" );
         else if (psNodes.isEmpty())
-            s.append("(empty)");
+            s.append( "(empty)" );
         else
             for (Integer number : psNodes)
             {
-                s.append(Integer.toHexString( number ));
-                s.append(' ');
+                s.append( Integer.toHexString( number ) );
+                s.append( ' ' );
             }
 
         if (landAreasLegalNodes != null)
         {
-            s.append("|pan=");
-            s.append(startingLandArea);
+            s.append( "|pan=" );
+            s.append( startingLandArea );
             for (int i = 1; i < landAreasLegalNodes.length; ++i)
             {
-                s.append("|la");
-                s.append(i);
-                s.append('=');
+                s.append( "|la" );
+                s.append( i );
+                s.append( '=' );
 
                 final HashSet<Integer> nodes = landAreasLegalNodes[i];
                 if (nodes.isEmpty())
                 {
-                    s.append("(empty)");
+                    s.append( "(empty)" );
                     continue;
                 }
 
@@ -823,29 +841,29 @@ public class SOCPotentialSettlements extends SOCMessageForGame
 
         if (legalSeaEdges != null)
         {
-            s.append("|lse={");
+            s.append( "|lse={" );
             for (int i = 0; i < legalSeaEdges.length; ++i)
             {
-                if (i > 0)  s.append(',');
-                s.append('{');
+                if (i > 0) s.append( ',' );
+                s.append( '{' );
                 final int[] lse_i = legalSeaEdges[i];
                 for (int j = 0; j < lse_i.length; ++j)
                 {
                     int k = lse_i[j];
                     if (k < 0)
                     {
-                        s.append('-');
+                        s.append( '-' );
                         k = -k;
                     }
                     else if (j > 0)
                     {
-                        s.append(',');
+                        s.append( ',' );
                     }
-                    s.append(Integer.toHexString(k));
+                    s.append( Integer.toHexString( k ) );
                 }
-                s.append('}');
+                s.append( '}' );
             }
-            s.append('}');
+            s.append( '}' );
         }
 
         return s.toString();

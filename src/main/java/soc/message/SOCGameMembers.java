@@ -3,20 +3,20 @@
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2009-2012,2014,2016-2017,2019-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- *
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
@@ -70,7 +70,7 @@ public class SOCGameMembers extends SOCMessageForGame
      * @param ga  name of game
      * @param ml  list of members
      */
-    public SOCGameMembers(String ga, List<String> ml)
+    public SOCGameMembers( String ga, List<String> ml )
     {
         super( GAMEMEMBERS, ga );
         members = ml;
@@ -124,27 +124,27 @@ public class SOCGameMembers extends SOCMessageForGame
      * Parse the command String into a GAMEMEMBERS message.
      *
      * @param s   the String to parse
-     * @return    a GAMEMEMBERS message, or null if the data is garbled
+     * @return a GAMEMEMBERS message, or null if the data is garbled
      */
-    public static SOCGameMembers parseDataStr(String s)
+    public static SOCGameMembers parseDataStr( String s )
     {
         String ga;
         List<String> ml = new ArrayList<>();
-        StringTokenizer st = new StringTokenizer(s, sep2);
+        StringTokenizer st = new StringTokenizer( s, sep2 );
 
         try
         {
             ga = st.nextToken();
 
             while (st.hasMoreTokens())
-                ml.add(st.nextToken());
+                ml.add( st.nextToken() );
         }
-        catch (Exception e)
+        catch( Exception e )
         {
             return null;
         }
 
-        return new SOCGameMembers(ga, ml);
+        return new SOCGameMembers( ga, ml );
     }
 
     /**
@@ -156,9 +156,9 @@ public class SOCGameMembers extends SOCMessageForGame
      * @return Member list for {@link #parseDataStr(String)}, or {@code null} if params are malformed
      * @since 2.4.50
      */
-    public static String stripAttribNames(String messageStrParams)
+    public static String stripAttribNames( String messageStrParams )
     {
-        return stripAttribNamesToMemberList("game=", messageStrParams);
+        return stripAttribNamesToMemberList( "game=", messageStrParams );
     }
 
     /**
@@ -172,38 +172,40 @@ public class SOCGameMembers extends SOCMessageForGame
      * @return Member list for {@link #parseDataStr(String)}, or {@code null} if params are malformed
      */
     public static String stripAttribNamesToMemberList
-        (final String prefix, final String messageStrParams)
+    ( final String prefix, final String messageStrParams )
     {
-        if (! messageStrParams.startsWith(prefix))
+        if (!messageStrParams.startsWith( prefix ))
             return null;
         int L = messageStrParams.length();
-        int pipeIdx = messageStrParams.indexOf(sep_char);
+        int pipeIdx = messageStrParams.indexOf( sep_char );
         if ((pipeIdx <= 0) || (pipeIdx >= (L - 11)))
             return null;
-        if (! "members=".equals(messageStrParams.subSequence(pipeIdx + 1, pipeIdx + 9)))
+        if (!"members=".equals( messageStrParams.subSequence( pipeIdx + 1, pipeIdx + 9 ) ))
             return null;
 
-        StringBuilder ret = new StringBuilder(messageStrParams.subSequence(prefix.length(), pipeIdx));  // skip prefix
+        StringBuilder ret = new StringBuilder( messageStrParams.subSequence( prefix.length(), pipeIdx ) );  // skip prefix
 
-        if ('[' != messageStrParams.charAt(pipeIdx + 9))  // just after "members=": '[' or first char of a name
+        if ('[' != messageStrParams.charAt( pipeIdx + 9 ))  // just after "members=": '[' or first char of a name
         {
             // no brackets in this message; separator is "," not ", " which is also what toCmd is expecting
-            ret.append(sep2_char).append(messageStrParams.substring(pipeIdx + 9));
-        } else {
+            ret.append( sep2_char ).append( messageStrParams.substring( pipeIdx + 9 ) );
+        }
+        else
+        {
             // member name list; ignore [ ] brackets, change separator ", " -> ",":
 
-            if (']' != messageStrParams.charAt(L - 1))
+            if (']' != messageStrParams.charAt( L - 1 ))
                 return null;
 
             int prevComma = pipeIdx + 8;  // 10-2 because skips 2 chars as if first name preceded by ", "
-            for (int commaIdx = messageStrParams.indexOf(", ", prevComma + 2);
+            for (int commaIdx = messageStrParams.indexOf( ", ", prevComma + 2 );
                  commaIdx != -1;
-                 prevComma = commaIdx, commaIdx = messageStrParams.indexOf(", ", prevComma + 2))
+                 prevComma = commaIdx, commaIdx = messageStrParams.indexOf( ", ", prevComma + 2 ))
             {
-                ret.append(sep2_char).append(messageStrParams.subSequence(prevComma + 2, commaIdx));
+                ret.append( sep2_char ).append( messageStrParams.subSequence( prevComma + 2, commaIdx ) );
             }
             // member after last comma
-            ret.append(sep2_char).append(messageStrParams.subSequence(prevComma + 2, messageStrParams.length() - 1));
+            ret.append( sep2_char ).append( messageStrParams.subSequence( prevComma + 2, messageStrParams.length() - 1 ) );
         }
 
         return ret.toString();
@@ -215,11 +217,11 @@ public class SOCGameMembers extends SOCMessageForGame
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder("SOCGameMembers:game=");
+        StringBuilder sb = new StringBuilder( "SOCGameMembers:game=" );
         sb.append( getGame() );
-        sb.append("|members=");
+        sb.append( "|members=" );
         if (members != null)
-            sb.append(members);  // "[joe, bob, lily,...]"
+            sb.append( members );  // "[joe, bob, lily,...]"
         return sb.toString();
     }
 
