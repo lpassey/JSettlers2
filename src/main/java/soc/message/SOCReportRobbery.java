@@ -213,9 +213,9 @@ public class SOCReportRobbery extends SOCMessageForGame
         throws IllegalArgumentException
     {
         super( REPORTROBBERY, gaName );
-        if ((peType == null) && (resType < 0))
-            throw new IllegalArgumentException("peType/resType");
-        if ((amount < 0) || (victimAmount < 0))
+        if ((peType == null) && (resSet == null) && (resType < 0))
+            throw new IllegalArgumentException("peType/resSet/resType");
+        if ((resSet == null) && ((amount < 0) || (victimAmount < 0)))
             throw new IllegalArgumentException( "amounts" );
         if (isGainLose && (victimAmount != 0))
             throw new IllegalArgumentException( "victimAmount but isGainLose" );
@@ -255,7 +255,7 @@ public class SOCReportRobbery extends SOCMessageForGame
     public String toCmd()
     {
         StringBuilder sb = new StringBuilder
-            ( REPORTROBBERY + sep + gaName + sep2 + perpPN + sep2 + victimPN + sep2 );
+            ( REPORTROBBERY + sep + getGame() + sep2 + perpPN + sep2 + victimPN + sep2 );
         if (resSet != null)
         {
             sb.append( 'S' );
@@ -267,7 +267,7 @@ public class SOCReportRobbery extends SOCMessageForGame
             }
         }
         else if (peType != null)
-            sb.append('E').append(sep2).append(peType.getValue());
+            sb.append( 'E' ).append( sep2 ).append( peType.getValue() ).append( sep2 ).append( amount );
         else
             sb.append( 'R' ).append( sep2 ).append( resType ).append( sep2 ).append( amount );
         sb.append( sep2 ).append( isGainLose ? 'T' : 'F' );
@@ -429,9 +429,7 @@ public class SOCReportRobbery extends SOCMessageForGame
                         resPairs.add( Integer.toString( amt ) );
                     }
                 }
-                catch( NumberFormatException e )
-                {
-                }
+                catch (NumberFormatException ignored) {}
             }
 
             // Replace the 6 resource amounts in pieces[4..9] with resPairs

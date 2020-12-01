@@ -467,12 +467,19 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
      * @see #getTypeName(int)
      * @since 2.4.00
      */
-//    public static int getType( final String typeName )
-//        throws IllegalArgumentException, NumberFormatException
-//    {
-////        return getType(typeName, PIECETYPE_NAMES, -1);
-//        throw new IllegalArgumentException();
-//    }
+    public static int getType( final String typeName )
+        throws IllegalArgumentException, NumberFormatException
+    {
+        if ((typeName == null) || typeName.isEmpty())
+            throw new IllegalArgumentException("typeName empty or null");
+
+        final char c0 = typeName.charAt(0);
+        if ((c0 >= '0') && (c0 <= '9'))
+        {
+            return Integer.parseInt(typeName);
+        }
+        return PieceType.valueOf( typeName ).getValue();
+    }
 
     /**
      * For game items which have different type constants ({@link SOCPlayingPiece}, {@link SOCDevCard}, etc),
