@@ -3,20 +3,20 @@
  * This file Copyright (C) 2009-2014,2016-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2003 Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- * <p>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
+ *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.server;
@@ -334,15 +334,22 @@ public class SOCGameListAtServer extends SOCGameList
                 }
             }
 
+            final SOCClientData scd = (SOCClientData) conn.getAppData();
+
             if (!ga.hasMultiLocales)
             {
                 final String gaLocale = ga.getOwnerLocale();
                 if (gaLocale != null)
                 {
-                    final SOCClientData scd = (SOCClientData) conn.getAppData();
                     if ((scd != null) && (scd.localeStr != null) && !gaLocale.equals( scd.localeStr ))
                         ga.hasMultiLocales = true;  // client's locale differs from other game members'
                 }
+            }
+
+            if ((scd != null) && (scd.feats != null)
+                && scd.feats.isActive(SOCFeatureSet.CLIENT_REQUESTS_DICE_RESULTS_FULLY_SENT))
+            {
+                ga.clientRequestsDiceResultsFullySent = true;
             }
         }
     }

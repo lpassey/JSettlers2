@@ -4,20 +4,21 @@
  * Portions of this file Copyright (C) 2007-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
  * Portions of this file Copyright (C) 2017 Ruud Poutsma <rtimon@gmail.com>
- * <p>
+ * Portions of this file Copyright (C) 2017-2018 Strategic Conversation (STAC Project) https://www.irit.fr/STAC/
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
+ *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.game;
@@ -270,14 +271,14 @@ public abstract class SOCBoard implements Serializable, Cloneable
      * or from a node to another node 2 nodes away.
      * Facing 1 is NE, 2 is E, 3 is SE, 4 is SW, etc;
      * used in {@link #hexLayout} for ports, and elsewhere.<pre>
-     6 &lt;--.    .--> 1
-     \/\/
-     /  \
-     5&lt;--|    |--> 2
-     |    |
-     \  /
-     /\/\
-     4 &lt;--.    .--> 3  </pre>
+      6 &lt;--.    .--> 1
+            \/\/
+            /  \
+       5&lt;--|    |--> 2
+           |    |
+            \  /
+            /\/\
+      4 &lt;--.    .--> 3  </pre>
      * @since 1.1.08
      */
     public static final int FACING_NE = 1, FACING_E = 2, FACING_SE = 3,
@@ -569,15 +570,15 @@ public abstract class SOCBoard implements Serializable, Cloneable
      * @see #getLandHexCoords()
      */
     private int[] numToHexID =
-        {
-            0x17, 0x39, 0x5B, 0x7D,
-            0x15, 0x37, 0x59, 0x7B, 0x9D,
-            0x13, 0x35, 0x57, 0x79, 0x9B, 0xBD,
-            0x11, 0x33, 0x55, 0x77, 0x99, 0xBB, 0xDD,
-            0x31, 0x53, 0x75, 0x97, 0xB9, 0xDB,
-            0x51, 0x73, 0x95, 0xB7, 0xD9,
-            0x71, 0x93, 0xB5, 0xD7
-        };
+    {
+                 0x17, 0x39, 0x5B, 0x7D,
+              0x15, 0x37, 0x59, 0x7B, 0x9D,
+           0x13, 0x35, 0x57, 0x79, 0x9B, 0xBD,
+        0x11, 0x33, 0x55, 0x77, 0x99, 0xBB, 0xDD,
+           0x31, 0x53, 0x75, 0x97, 0xB9, 0xDB,
+              0x51, 0x73, 0x95, 0xB7, 0xD9,
+                 0x71, 0x93, 0xB5, 0xD7
+    };
 
     /**
      * translate hex ID (hex coordinate) to an array index within {@link #hexLayout},
