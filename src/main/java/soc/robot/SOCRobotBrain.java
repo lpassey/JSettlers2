@@ -5,20 +5,20 @@
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
  * Portions of this file Copyright (C) 2017 Ruud Poutsma <rtimon@gmail.com>
  * Portions of this file Copyright (C) 2017-2018 Strategic Conversation (STAC Project) https://www.irit.fr/STAC/
- * <p>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
+ *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.robot;
@@ -78,17 +78,13 @@ import soc.message.SOCTurn;
 
 import soc.util.CappedQueue;
 import soc.util.DebugRecorder;
-import soc.util.Queue;
 import soc.util.SOCRobotParameters;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.Stack;
 import java.util.Vector;
 
 
@@ -605,7 +601,7 @@ public class SOCRobotBrain extends Thread
      * @see #waitingForOurTurn
      * @since 2.4.50
      */
-    private boolean waitingForTurnMain;
+    protected boolean waitingForTurnMain;
 
     /**
      * True when we're waiting for the results of our requested bank trade.
@@ -690,11 +686,11 @@ public class SOCRobotBrain extends Thread
      * @since 2.0.00
      */
     protected SOCInventoryItem rejectedPlayInvItem;
-    // TODO refine later: must build/play something else first, have that clear this field. After building/playing
-    // something else, the previously rejected inv item type might be okay to play again this turn.
-    // Don't need to also add a count of play inv item rejections this turn (to avoid loop forever
-    // asking & being rejected between building other things) because would run out of other things.
-    // To find places which build/play something else, look for counter = 0.
+        // TODO refine later: must build/play something else first, have that clear this field. After building/playing
+        // something else, the previously rejected inv item type might be okay to play again this turn.
+        // Don't need to also add a count of play inv item rejections this turn (to avoid loop forever
+        // asking & being rejected between building other things) because would run out of other things.
+        // To find places which build/play something else, look for counter = 0.
 
     /**
      * the game state before the current one
@@ -971,6 +967,15 @@ public class SOCRobotBrain extends Thread
     public SOCRobotDM getDecisionMaker()
     {
         return decisionMaker;
+    }
+
+    /**
+     * @return the OBS
+     * @since 2.4.50
+     */
+    public OpeningBuildStrategy getOpeningBuildStrategy()
+    {
+        return openingBuildStrategy;
     }
 
     /**
@@ -1528,16 +1533,15 @@ public class SOCRobotBrain extends Thread
                         {
                             final int acceptingPN = ((SOCAcceptOffer) mes).getAcceptingNumber();
 
-                            if ((ourPlayerNumber == acceptingPN)
-                                || (ourPlayerNumber == (((SOCAcceptOffer) mes).getOfferingNumber())))
+                            if (acceptingPN < 0)
+                            {
+                                clearTradingFlags(false, false);
+                            }
+                            else if (   (ourPlayerNumber == acceptingPN)
+                                     || (ourPlayerNumber == (((SOCAcceptOffer) mes).getOfferingNumber())))
                             {
                                 handleTradeResponse( acceptingPN, true );
                             }
-                            else if (acceptingPN < 0)
-                            {
-                                clearTradingFlags( false, false );
-                            }
-
                         }
                         break;
 
@@ -2135,26 +2139,26 @@ public class SOCRobotBrain extends Thread
      * When state moves from {@link SOCGame#ROLL_OR_CARD} to {@link SOCGame#PLAY1},
      * calls {@link #startTurnMainActions()}.
      *
-     * @param gs  New game state, like {@link SOCGame#ROLL_OR_CARD}; if 0, does nothing
+     * @param newState  New game state, like {@link SOCGame#ROLL_OR_CARD}; if 0, does nothing
      * @since 2.0.00
      */
-    protected void handleGAMESTATE( final int gs )
+    protected void handleGAMESTATE(final int newState)
     {
-        if (gs == 0)
+        if (newState == 0)
             return;
 
-        waitingForGameState = ((gs == SOCGame.LOADING) || (gs == SOCGame.LOADING_RESUMING));  // almost always false
+        waitingForGameState = ((newState == SOCGame.LOADING) || (newState == SOCGame.LOADING_RESUMING));  // almost always false
         int currGS = game.getGameState();
-        if (currGS != gs)
+        if (currGS != newState)
             oldGameState = currGS;  // if no actual change, don't overwrite previously known oldGameState
 
-        SOCDisplaylessPlayerClient.handleGAMESTATE( game, gs );
+        SOCDisplaylessPlayerClient.handleGAMESTATE(game, newState);
 
-        if (gs == SOCGame.ROLL_OR_CARD)
+        if (newState == SOCGame.ROLL_OR_CARD)
         {
             waitingForTurnMain = true;
         }
-        else if ((gs == SOCGame.PLAY1) && waitingForTurnMain)
+        else if ((newState == SOCGame.PLAY1) && waitingForTurnMain)
         {
             startTurnMainActions();
             waitingForTurnMain = false;
@@ -2300,7 +2304,7 @@ public class SOCRobotBrain extends Thread
          * and if we haven't given up building
          * attempts this turn.
          */
-        if ((!expectPLACING_ROBBER) && buildingPlan.empty()
+        if ( (! expectPLACING_ROBBER) && buildingPlan.isEmpty()
             && (ourPlayerData.getResources().getTotal() > 1)
             && (failedBuildingAttempts < MAX_DENIED_BUILDING_PER_TURN))
         {
@@ -2320,7 +2324,7 @@ public class SOCRobotBrain extends Thread
         }
 
         //D.ebugPrintln("DONE PLANNING");
-        if ((!expectPLACING_ROBBER) && (!buildingPlan.empty()))
+        if ( (! expectPLACING_ROBBER) && (! buildingPlan.isEmpty()))
         {
             // Time to build something.
 
@@ -2849,7 +2853,7 @@ public class SOCRobotBrain extends Thread
      * bot will build {@link #whatWeWantToBuild} by calling {@link #placeIfExpectPlacing()}.
      *
      * @since 1.1.08
-     * @throws IllegalStateException  if {@link #buildingPlan}{@link Stack#isEmpty() .isEmpty()}
+     * @throws IllegalStateException  if {@link #buildingPlan}{@link SOCBuildPlan#isEmpty() .isEmpty()}
      */
     protected void buildOrGetResourceByTradeOrCard()
         throws IllegalStateException
@@ -3511,8 +3515,10 @@ public class SOCRobotBrain extends Thread
 
     /**
      * Handle a DEVCARDACTION for 1 card in this game.
-     * No brain-specific action.
-     * Ignores messages where {@link SOCDevCardAction#getCardTypes()} != {@code null}.
+     * Updates game data. No brain-specific action, but
+     * bots can override this to observe and record dev card interactions.
+     * Ignores messages where {@link SOCDevCardAction#getCardTypes()} != {@code null}
+     * because those are currently sent only at game end.
      *<P>
      * Before v2.0.00 this method was {@code handleDEVCARD}.
      *
@@ -4325,7 +4331,6 @@ public class SOCRobotBrain extends Thread
             }
             catch( Exception e )
             {
-                tracker.releaseMonitor();
                 if (alive)
                 {
                     System.out.println( "Exception caught - " + e );
@@ -4360,7 +4365,6 @@ public class SOCRobotBrain extends Thread
             }
             catch( Exception e )
             {
-                tracker.releaseMonitor();
                 if (alive)
                 {
                     System.out.println( "Exception caught - " + e );
@@ -4396,7 +4400,6 @@ public class SOCRobotBrain extends Thread
             }
             catch( Exception e )
             {
-                tracker.releaseMonitor();
                 if (alive)
                 {
                     System.out.println( "Exception caught - " + e );
@@ -4692,9 +4695,9 @@ public class SOCRobotBrain extends Thread
         {
             msec = (int) (msec * BOTS_ONLY_FAST_PAUSE_FACTOR);
             if (msec == 0)
-                return;  // will still yield within run() loop
+                return;  // or would still yield within run() loop
         }
-        else if (pauseFaster && !waitingForTradeResponse)
+        else if (pauseFaster && ! waitingForTradeResponse)
         {
             msec = (msec / 2) + (msec / 4);
         }
@@ -4705,7 +4708,7 @@ public class SOCRobotBrain extends Thread
             if (msec > 2)  // skip very short sleeps from small BOTS_ONLY_FAST_PAUSE_FACTOR
                 sleep( msec );
         }
-        catch( InterruptedException exc )
+        catch( InterruptedException ignored )
         {
         }
     }
@@ -4797,255 +4800,6 @@ public class SOCRobotBrain extends Thread
     }
 
     /**
-     * do some trading -- this method is obsolete and not called.
-     * Instead see {@link #makeOffer(SOCBuildPlan)}, {@link #considerOffer(SOCTradeOffer)},
-     * etc, and the javadoc for {@link #negotiator}.
-     */
-    protected void tradeStuff()
-    {
-        /**
-         * make a tree of all the possible trades that we can
-         * make with the bank or ports
-         */
-        SOCTradeTree treeRoot = new SOCTradeTree( ourPlayerData.getResources(), null );
-        Hashtable<SOCResourceSet, SOCTradeTree> treeNodes = new Hashtable<>();
-        treeNodes.put( treeRoot.getResourceSet(), treeRoot );
-
-        Queue<SOCTradeTree> queue = new Queue<>();
-        queue.put( treeRoot );
-
-        while (!queue.empty())
-        {
-            SOCTradeTree currentTreeNode = queue.get();
-
-            //D.ebugPrintln("%%% Expanding "+currentTreeNode.getResourceSet());
-            expandTradeTreeNode( currentTreeNode, treeNodes );
-
-            Enumeration<SOCTradeTree> childrenEnum = currentTreeNode.getChildren().elements();
-
-            while (childrenEnum.hasMoreElements())
-            {
-                SOCTradeTree child = childrenEnum.nextElement();
-
-                //D.ebugPrintln("%%% Child "+child.getResourceSet());
-                if (child.needsToBeExpanded())
-                {
-                    /**
-                     * make a new table entry
-                     */
-                    treeNodes.put( child.getResourceSet(), child );
-                    queue.put( child );
-                }
-            }
-        }
-
-        /**
-         * find the best trade result and then perform the trades
-         */
-        SOCResourceSet bestTradeOutcome = null;
-        int bestTradeScore = -1;
-        Enumeration<SOCResourceSet> possibleTrades = treeNodes.keys();
-
-        while (possibleTrades.hasMoreElements())
-        {
-            SOCResourceSet possibleTradeOutcome = possibleTrades.nextElement();
-
-            //D.ebugPrintln("%%% "+possibleTradeOutcome);
-            int score = scoreTradeOutcome( possibleTradeOutcome );
-
-            if (score > bestTradeScore)
-            {
-                bestTradeOutcome = possibleTradeOutcome;
-                bestTradeScore = score;
-            }
-        }
-
-        /**
-         * find the trade outcome in the tree, then follow
-         * the chain of parents until you get to the root
-         * all the while pushing the outcomes onto a stack.
-         * then pop outcomes off of the stack and perfoem
-         * the trade to get each outcome
-         */
-        Stack<SOCTradeTree> stack = new Stack<>();
-        SOCTradeTree cursor = treeNodes.get( bestTradeOutcome );
-
-        while (cursor != treeRoot)
-        {
-            stack.push( cursor );
-            cursor = cursor.getParent();
-        }
-
-        SOCResourceSet give = new SOCResourceSet();
-        SOCResourceSet get = new SOCResourceSet();
-        SOCTradeTree currTreeNode;
-        SOCTradeTree prevTreeNode;
-        prevTreeNode = treeRoot;
-
-        while (!stack.empty())
-        {
-            currTreeNode = stack.pop();
-            give.setAmounts( prevTreeNode.getResourceSet() );
-            give.subtract( currTreeNode.getResourceSet() );
-            get.setAmounts( currTreeNode.getResourceSet() );
-            get.subtract( prevTreeNode.getResourceSet() );
-
-            /**
-             * get rid of the negative numbers
-             */
-            for (int rt = SOCResourceConstants.CLAY;
-                 rt <= SOCResourceConstants.WOOD; rt++)
-            {
-                if (give.getAmount( rt ) < 0)
-                {
-                    give.setAmount( 0, rt );
-                }
-
-                if (get.getAmount( rt ) < 0)
-                {
-                    get.setAmount( 0, rt );
-                }
-            }
-
-            //D.ebugPrintln("Making bank trade:");
-            //D.ebugPrintln("give: "+give);
-            //D.ebugPrintln("get: "+get);
-            client.bankTrade( game, give, get );
-            pause( 2000 );
-            prevTreeNode = currTreeNode;
-        }
-    }
-
-    /**
-     * expand a trade tree node
-     *
-     * @param currentTreeNode   the tree node that we're expanding
-     * @param table  the table of all of the nodes in the tree except this one
-     */
-    protected void expandTradeTreeNode( SOCTradeTree currentTreeNode, Hashtable<SOCResourceSet, SOCTradeTree> table )
-    {
-        /**
-         * the resources that we have to work with
-         */
-        SOCResourceSet rSet = currentTreeNode.getResourceSet();
-
-        /**
-         * go through the resources one by one, and generate all possible
-         * resource sets that result from trading that type of resource
-         */
-        for (int giveResource = SOCResourceConstants.CLAY;
-             giveResource <= SOCResourceConstants.WOOD; giveResource++)
-        {
-            /**
-             * find the ratio at which we can trade
-             */
-            int tradeRatio;
-
-            if (ourPlayerData.getPortFlag( giveResource ))
-            {
-                tradeRatio = 2;
-            }
-            else if (ourPlayerData.getPortFlag( SOCBoard.MISC_PORT ))
-            {
-                tradeRatio = 3;
-            }
-            else
-            {
-                tradeRatio = 4;
-            }
-
-            /**
-             * make sure we have enough resources to trade
-             */
-            if (rSet.getAmount( giveResource ) >= tradeRatio)
-            {
-                /**
-                 * trade the resource that we're looking at for one
-                 * of every other resource
-                 */
-                for (int getResource = SOCResourceConstants.CLAY;
-                     getResource <= SOCResourceConstants.WOOD;
-                     getResource++)
-                {
-                    if (getResource != giveResource)
-                    {
-                        SOCResourceSet newTradeResult = rSet.copy();
-                        newTradeResult.subtract( tradeRatio, giveResource );
-                        newTradeResult.add( 1, getResource );
-
-                        SOCTradeTree newTree = new SOCTradeTree( newTradeResult, currentTreeNode );
-
-                        /**
-                         * if the trade results in a set of resources that is
-                         * equal to or worse than a trade we've already seen,
-                         * then we don't want to expand this tree node
-                         */
-                        Enumeration<SOCResourceSet> tableEnum = table.keys();
-
-                        while (tableEnum.hasMoreElements())
-                        {
-                            SOCResourceSet oldTradeResult = tableEnum.nextElement();
-
-                            /*
-                               //D.ebugPrintln("%%%     "+newTradeResult);
-                               //D.ebugPrintln("%%%  <= "+oldTradeResult+" : "+
-                               SOCResourceSet.lte(newTradeResult, oldTradeResult));
-                             */
-                            if (SOCResourceSet.lte( newTradeResult, oldTradeResult ))
-                            {
-                                newTree.setNeedsToBeExpanded( false );
-
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * evaluate a trade outcome by calculating how much you could build with it
-     *
-     * @param tradeOutcome  a set of resources that would be the result of trading
-     */
-    protected int scoreTradeOutcome( SOCResourceSet tradeOutcome )
-    {
-        int score = 0;
-        SOCResourceSet tempTO = tradeOutcome.copy();
-
-        if ((ourPlayerData.getNumPieces( SOCPlayingPiece.SETTLEMENT ) >= 1) && (ourPlayerData.hasPotentialSettlement()))
-        {
-            while (tempTO.contains( SOCSettlement.COST ))
-            {
-                score += 2;
-                tempTO.subtract( SOCSettlement.COST );
-            }
-        }
-
-        if ((ourPlayerData.getNumPieces( SOCPlayingPiece.ROAD ) >= 1) && (ourPlayerData.hasPotentialRoad()))
-        {
-            while (tempTO.contains( SOCRoad.COST ))
-            {
-                score += 1;
-                tempTO.subtract( SOCRoad.COST );
-            }
-        }
-
-        if ((ourPlayerData.getNumPieces( SOCPlayingPiece.CITY ) >= 1) && (ourPlayerData.hasPotentialCity()))
-        {
-            while (tempTO.contains( SOCCity.COST ))
-            {
-                score += 2;
-                tempTO.subtract( SOCCity.COST );
-            }
-        }
-
-        //D.ebugPrintln("Score for "+tradeOutcome+" : "+score);
-        return score;
-    }
-
-    /**
      * Make bank trades or port trades to get the target resources, if possible.
      * Calls {@link SOCRobotNegotiator#getOfferToBank(SOCBuildPlan, SOCResourceSet)}.
      *<P>
@@ -5131,7 +4885,8 @@ public class SOCRobotBrain extends Thread
         if (offer != null)
         {
             ///
-            ///  reset the offerRejections flag and check for human players
+            ///  reset the offerRejections flag, and check for human players in game
+            ///  (which affects how long to keep the offer out there, so they can watch)
             ///
             boolean anyHumans = false;
             for (int pn = 0; pn < game.maxPlayers; ++pn)
@@ -5166,7 +4921,7 @@ public class SOCRobotBrain extends Thread
      * If no counteroffer is made here, sets {@link #doneTrading}.
      *
      * @param offer  the other player's offer
-     * @return true if we made and sent an offer
+     * @return true if we made and sent a counteroffer
      */
     protected boolean makeCounterOffer( SOCTradeOffer offer )
     {
@@ -5180,10 +4935,10 @@ public class SOCRobotBrain extends Thread
             ///
             ///  reset the offerRejections flag
             ///
-            final int pn = offer.getFrom();
-            offerRejections[pn] = false;
+            final int fromPN = offer.getFrom();
+            offerRejections[fromPN] = false;
             waitingForTradeResponse = true;
-            tradeResponseTimeoutSec = (game.getPlayer( pn ).isRobot())
+            tradeResponseTimeoutSec = (game.getPlayer(fromPN).isRobot())
                 ? TRADE_RESPONSE_TIMEOUT_SEC_BOTS_ONLY
                 : TRADE_RESPONSE_TIMEOUT_SEC_HUMANS;
             counter = 0;
@@ -5206,7 +4961,7 @@ public class SOCRobotBrain extends Thread
      * any flags added in a third-party robot brain.
      *
      * @param isBankTrade  True if was bank/port trade, not player trade
-     * @param wasAllowed  True if trade was successfully offered or completed,
+     * @param wasAllowed  True if trade was successfully offered, completed, or rejected;
      *     false if server sent a message disallowing it
      * @see #tradeStopWaitingClearOffer()
      * @see #handleTradeResponse(int, boolean)

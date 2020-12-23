@@ -5,20 +5,20 @@
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
  * Portions of this file Copyright (C) 2017 Ruud Poutsma <rtimon@gmail.com>
  * Portions of this file Copyright (C) 2017-2018 Strategic Conversation (STAC Project) https://www.irit.fr/STAC/
- * <p>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
+ *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.robot;
@@ -685,6 +685,7 @@ public class SOCPlayerTracker
         //
         final SOCBoard board = game.getBoard();
         Collection<Integer> adjNodeEnum = board.getAdjacentNodesToEdge( rs.getCoordinates() );
+        final SOCBuildingSpeedEstimateFactory bsef = brain.getEstimatorFactory();
 
         for (Integer adjNode : adjNodeEnum)
         {
@@ -712,7 +713,7 @@ public class SOCPlayerTracker
                     // else, add new possible settlement
                     //
                     //D.ebugPrintln("$$$ adding new possible settlement at "+Integer.toHexString(adjNode.intValue()));
-                    SOCPossibleSettlement newPosSet = new SOCPossibleSettlement( player, adjNode, null );
+                    SOCPossibleSettlement newPosSet = new SOCPossibleSettlement(player, adjNode, null, bsef);
                     newPosSet.setNumberOfNecessaryRoads( 0 );
                     possibleSettlements.put( adjNode, newPosSet );
                     updateSettlementConflicts( newPosSet, trackers );
@@ -920,6 +921,7 @@ public class SOCPlayerTracker
         //
         //D.ebugPrintln("$$$ checking for possible settlements");
         //
+        final SOCBuildingSpeedEstimateFactory bsef = brain.getEstimatorFactory();
         for (Integer adjNode : board.getAdjacentNodesToEdge( tgtRoadEdge ))
         {
             if (dummy.canPlaceSettlement( adjNode ))
@@ -962,7 +964,7 @@ public class SOCPlayerTracker
                     List<SOCPossibleRoad> nr = new ArrayList<>();
                     nr.add( targetRoad );
 
-                    SOCPossibleSettlement newPosSet = new SOCPossibleSettlement( pl, adjNode, nr );
+                    SOCPossibleSettlement newPosSet = new SOCPossibleSettlement(pl, adjNode, nr, bsef);
                     newPosSet.setNumberOfNecessaryRoads( targetRoad.getNumberOfNecessaryRoads() + 1 );
                     possibleSettlements.put( adjNode, newPosSet );
                     targetRoad.addNewPossibility( newPosSet );

@@ -4,20 +4,20 @@
  * Portions of this file Copyright (C) 2005 Chadwick A McHenry <mchenryc@acm.org>
  * Portions of this file Copyright (C) 2007-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- * <p>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
+ *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.server;
@@ -92,7 +92,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * A server for Settlers of Catan
  *
- * @author Robert S. Thomas
+ * @author  Robert S. Thomas
  *
  * Note: This is an attempt at being more modular. 5/13/99 RST
  * Note: Hopefully fixed all of the deadlock problems. 12/27/01 RST
@@ -612,51 +612,51 @@ public class SOCServer extends Server
      * @since 1.1.09
      */
     public static final String[] PROPS_LIST =
-        {
-            PROP_JSETTLERS_PORT, "TCP port number for server to listen for client connections",
-            PROP_JSETTLERS_CONNECTIONS, "Maximum connection count, including robots (default " + SOC_MAXCONN_DEFAULT + ")",
-            PROP_JSETTLERS_STARTROBOTS, "Number of robots to create at startup (default " + SOC_STARTROBOTS_DEFAULT + ")",
-            PROP_JSETTLERS_ACCOUNTS_OPEN, "Permit open self-registration of new user accounts? (if Y and using a DB)",
-            PROP_JSETTLERS_ACCOUNTS_REQUIRED, "Require all players to have a user account? (if Y; requires a DB)",
-            PROP_JSETTLERS_ACCOUNTS_ADMINS, "Permit only these usernames to create accounts (comma-separated)",
-            PROP_JSETTLERS_ADMIN_WELCOME, "If set, welcome message text to send when clients connect",
-            PROP_JSETTLERS_ALLOW_DEBUG, "Allow remote debug commands? (if Y)",
-            PROP_JSETTLERS_CLI_MAXCREATECHANNELS, "Maximum simultaneous channels that a client can create",
-            PROP_JSETTLERS_CLI_MAXCREATEGAMES, "Maximum simultaneous games that a client can create",
-            PROP_JSETTLERS_GAMEOPT_PREFIX + "*", "Game option defaults, case-insensitive: jsettlers.gameopt.RD=y",
-            PROP_JSETTLERS_GAMEOPTS_ACTIVATE, "If set, activate these inactive game options (comma-separated list)",
-            PROP_JSETTLERS_GAME_DISALLOW_6PLAYER, "Flag to disallow 6-player games",
-            PROP_JSETTLERS_GAME_DISALLOW_SEA__BOARD, "Flag to disallow sea board and scenarios",
-            // I18n.PROP_JSETTLERS_LOCALE,             "Locale override from the default, such as es or en_US, for console output",
+    {
+        PROP_JSETTLERS_PORT,     "TCP port number for server to listen for client connections",
+        PROP_JSETTLERS_CONNECTIONS,   "Maximum connection count, including robots (default " + SOC_MAXCONN_DEFAULT + ")",
+        PROP_JSETTLERS_STARTROBOTS,   "Number of robots to create at startup (default " + SOC_STARTROBOTS_DEFAULT + ")",
+        PROP_JSETTLERS_ACCOUNTS_OPEN, "Permit open self-registration of new user accounts? (if Y and using a DB)",
+        PROP_JSETTLERS_ACCOUNTS_REQUIRED, "Require all players to have a user account? (if Y; requires a DB)",
+        PROP_JSETTLERS_ACCOUNTS_ADMINS, "Permit only these usernames to create accounts (comma-separated)",
+        PROP_JSETTLERS_ADMIN_WELCOME, "If set, welcome message text to send when clients connect",
+        PROP_JSETTLERS_ALLOW_DEBUG,   "Allow remote debug commands? (if Y)",
+        PROP_JSETTLERS_CLI_MAXCREATECHANNELS,   "Maximum simultaneous channels that a client can create",
+        PROP_JSETTLERS_CLI_MAXCREATEGAMES,      "Maximum simultaneous games that a client can create",
+        PROP_JSETTLERS_GAMEOPT_PREFIX + "*",    "Game option defaults, case-insensitive: jsettlers.gameopt.RD=y",
+        PROP_JSETTLERS_GAMEOPTS_ACTIVATE,       "If set, activate these inactive game options (comma-separated list)",
+        PROP_JSETTLERS_GAME_DISALLOW_6PLAYER,   "Flag to disallow 6-player games",
+        PROP_JSETTLERS_GAME_DISALLOW_SEA__BOARD, "Flag to disallow sea board and scenarios",
+        // I18n.PROP_JSETTLERS_LOCALE,             "Locale override from the default, such as es or en_US, for console output",
             // -- not used yet at server
-            PROP_JSETTLERS_BOTS_BOTGAMES_TOTAL, "Run this many robot-only games, a few at a time (default 0); allow bot-only games",
-            PROP_JSETTLERS_BOTS_BOTGAMES_GAMETYPES, "Robot-only games: Game size/board type mix (default 1)",
-            PROP_JSETTLERS_BOTS_BOTGAMES_PARALLEL, "Start this many robot-only games at a time (default 4)",
-            PROP_JSETTLERS_BOTS_BOTGAMES_WAIT__SEC, "Wait at startup before starting robot-only games (default 1.6 seconds)",
-            PROP_JSETTLERS_BOTS_BOTGAMES_SHUTDOWN, "After running the robot-only games, shut down the server if no other games are active (if Y)",
-            PROP_JSETTLERS_BOTS_COOKIE, "Robot cookie value (default is random generated each startup)",
-            PROP_JSETTLERS_BOTS_SHOWCOOKIE, "Flag to show the robot cookie value at startup",
-            PROP_JSETTLERS_BOTS_FAST__PAUSE__PERCENT, "Pause at percent of normal pause time (0 to 100) for robot-only games (default 25)",
-            PROP_JSETTLERS_BOTS_PAUSE_FOR_HUMAN_TRADE, "In games with humans, robots wait this many seconds before answering a trade offer (default 8)",
-            PROP_JSETTLERS_BOTS_PERCENT3P, "Percent of bots which should be third-party (0 to 100) if available",
-            PROP_JSETTLERS_BOTS_START3P, "Third-party bot client classes to start up with server",
-            PROP_JSETTLERS_BOTS_TIMEOUT_TURN, "Robot turn timeout (seconds) for third-party bots",
-            PROP_JSETTLERS_SAVEGAME_DIR, "Dir in which to store savegame files",
-            PROP_JSETTLERS_STATS_FILE_NAME, "If set, filename to append daily *STATS* into",
-            PROP_JSETTLERS_TEST_VALIDATE__CONFIG, "Flag to validate server and DB config, then exit (same as -t command-line option)",
-            PROP_JSETTLERS_TEST_DB, "Flag to test database methods, then exit",
-            SOCDBHelper.PROP_JSETTLERS_DB_BCRYPT_WORK__FACTOR, "For user accounts in DB, password encryption Work Factor (see README) (9 to "
+        PROP_JSETTLERS_BOTS_BOTGAMES_TOTAL,     "Run this many robot-only games, a few at a time (default 0); allow bot-only games",
+        PROP_JSETTLERS_BOTS_BOTGAMES_GAMETYPES, "Robot-only games: Game size/board type mix (default 1)",
+        PROP_JSETTLERS_BOTS_BOTGAMES_PARALLEL,  "Start this many robot-only games at a time (default 4)",
+        PROP_JSETTLERS_BOTS_BOTGAMES_WAIT__SEC, "Wait at startup before starting robot-only games (default 1.6 seconds)",
+        PROP_JSETTLERS_BOTS_BOTGAMES_SHUTDOWN,  "After running the robot-only games, shut down the server if no other games are active (if Y)",
+        PROP_JSETTLERS_BOTS_COOKIE,             "Robot cookie value (default is random generated each startup)",
+        PROP_JSETTLERS_BOTS_SHOWCOOKIE,         "Flag to show the robot cookie value at startup",
+        PROP_JSETTLERS_BOTS_FAST__PAUSE__PERCENT, "Pause at percent of normal pause time (0 to 100) for robot-only games (default 25)",
+        PROP_JSETTLERS_BOTS_PAUSE_FOR_HUMAN_TRADE, "In games with humans, robots wait this many seconds before answering a trade offer (default 8)",
+        PROP_JSETTLERS_BOTS_PERCENT3P,          "Percent of bots which should be third-party (0 to 100) if available",
+        PROP_JSETTLERS_BOTS_START3P,            "Third-party bot client classes to start up with server",
+        PROP_JSETTLERS_BOTS_TIMEOUT_TURN,       "Robot turn timeout (seconds) for third-party bots",
+        PROP_JSETTLERS_SAVEGAME_DIR,            "Dir in which to store savegame files",
+        PROP_JSETTLERS_STATS_FILE_NAME,         "If set, filename to append daily *STATS* into",
+        PROP_JSETTLERS_TEST_VALIDATE__CONFIG,   "Flag to validate server and DB config, then exit (same as -t command-line option)",
+        PROP_JSETTLERS_TEST_DB,                 "Flag to test database methods, then exit",
+        SOCDBHelper.PROP_JSETTLERS_DB_BCRYPT_WORK__FACTOR, "For user accounts in DB, password encryption Work Factor (see README) (9 to "
             + soc.server.database.BCrypt.GENSALT_MAX_LOG2_ROUNDS + ')',
-            SOCDBHelper.PROP_JSETTLERS_DB_SAVE_GAMES, "Flag to save all games in DB (if 1 or Y)",
-            SOCDBHelper.PROP_JSETTLERS_DB_USER, "DB username",
-            SOCDBHelper.PROP_JSETTLERS_DB_PASS, "DB password",
-            SOCDBHelper.PROP_JSETTLERS_DB_URL, "DB connection URL",
-            SOCDBHelper.PROP_JSETTLERS_DB_JAR, "DB driver jar filename",
-            SOCDBHelper.PROP_JSETTLERS_DB_DRIVER, "DB driver class name",
-            SOCDBHelper.PROP_JSETTLERS_DB_SETTINGS, "If set to \"write\", save DB settings properties values to the settings table and exit",
-            SOCDBHelper.PROP_JSETTLERS_DB_SCRIPT_SETUP, "If set, full path or relative path to db setup sql script; will run and exit",
-            SOCDBHelper.PROP_JSETTLERS_DB_UPGRADE__SCHEMA, "Flag: If set, server will upgrade the DB schema to latest version and exit (if 1 or Y)",
-        };
+        SOCDBHelper.PROP_JSETTLERS_DB_SAVE_GAMES,  "Flag to save all games in DB (if 1 or Y)",
+        SOCDBHelper.PROP_JSETTLERS_DB_USER,     "DB username",
+        SOCDBHelper.PROP_JSETTLERS_DB_PASS,     "DB password",
+        SOCDBHelper.PROP_JSETTLERS_DB_URL,      "DB connection URL",
+        SOCDBHelper.PROP_JSETTLERS_DB_JAR,      "DB driver jar filename",
+        SOCDBHelper.PROP_JSETTLERS_DB_DRIVER,   "DB driver class name",
+        SOCDBHelper.PROP_JSETTLERS_DB_SETTINGS, "If set to \"write\", save DB settings properties values to the settings table and exit",
+        SOCDBHelper.PROP_JSETTLERS_DB_SCRIPT_SETUP, "If set, full path or relative path to db setup sql script; will run and exit",
+        SOCDBHelper.PROP_JSETTLERS_DB_UPGRADE__SCHEMA, "Flag: If set, server will upgrade the DB schema to latest version and exit (if 1 or Y)",
+    };
 
     // JVM/System properties for testing
     //
@@ -688,7 +688,7 @@ public class SOCServer extends Server
      * in {@link #checkNickname(String, Connection, boolean, boolean)}.
      * @since 2.0.00
      */
-    private static final String SERVERNAME_LC = SERVERNAME.toLowerCase( Locale.US );  // "server"
+    private static final String SERVERNAME_LC = SERVERNAME.toLowerCase(Locale.US);  // "server"
 
     /**
      * Minimum required client version, to connect and play a game.
@@ -749,8 +749,8 @@ public class SOCServer extends Server
      * @since 1.1.20
      */
     public static final int GAME_TIME_EXPIRE_ADDTIME_MINUTES = 30;
-    // 30 minutes is hardcoded into some texts sent to players;
-    // if you change it here, you will need to also search for those.
+        // 30 minutes is hardcoded into some texts sent to players;
+        // if you change it here, you will need to also search for those.
 
     /**
      * Force robot to end their turn after this many seconds of inactivity.
@@ -768,8 +768,8 @@ public class SOCServer extends Server
      * @since 1.1.11
      */
     public static int ROBOT_FORCE_ENDTURN_SECONDS = 8;
-    // If this value is changed, also update the jsettlers.bots.timeout.turn
-    // comments in /src/main/bin/jsserver.properties.sample.
+        // If this value is changed, also update the jsettlers.bots.timeout.turn
+        // comments in /src/main/bin/jsserver.properties.sample.
 
     /**
      * Force a particularly slow or buggy ("stubborn") robot to end their turn after this many seconds of inactivity.
@@ -1089,12 +1089,12 @@ public class SOCServer extends Server
      */
     public static SOCRobotParameters ROBOT_PARAMS_DEFAULT
         = new SOCRobotParameters( 120, 35, 0.13f, 1.0f, 1.0f, 3.0f, 1.0f, 1, 1 );
-    // Formerly a literal in handleIMAROBOT.
-    // Strategy type 1 == SOCRobotDM.FAST_STRATEGY.
-    // If you change values here, see authOrRejectClientRobot(..),
-    // setupLocalRobots(..), getRobotParameters(..),
-    // and SOCPlayerClient.startPracticeGame(..)
-    // for assumptions which may also need to be changed.
+        // Formerly a literal in handleIMAROBOT.
+        // Strategy type 1 == SOCRobotDM.FAST_STRATEGY.
+        // If you change values here, see authOrRejectClientRobot(..),
+        // setupLocalRobots(..), getRobotParameters(..),
+        // and SOCPlayerClient.startPracticeGame(..)
+        // for assumptions which may also need to be changed.
 
     /**
      * Smarter robot default parameters.
@@ -3622,7 +3622,6 @@ public class SOCServer extends Server
                 ? new ServerConnectInfo( strSocketName, robotCookie )
                 : new ServerConnectInfo( "localhost", port, robotCookie );
 
-        String curr3pBotClass = null;  // for context when reporting third-party bot instantiation errors
         try
         {
             // Make some faster ones first.
@@ -3646,28 +3645,36 @@ public class SOCServer extends Server
             // Now, any third-party bots starting up with server.
             if (robots3pCliConstrucs != null)
             {
-                int i = 0;
-                for (final Constructor<? extends SOCRobotClient> con : robots3pCliConstrucs)
+                String curr3pBotClass = null;
+
+                try
                 {
-                    ++i;
-                    curr3pBotClass = con.getDeclaringClass().getName();
-                    SOCLocalRobotClient.createAndStartRobotClientThread( "extrabot " + i, sci, knownOpts, con );
+                    int i = 0;
+                    for (final Constructor<? extends SOCRobotClient> con : robots3pCliConstrucs)
+                    {
+                        ++i;
+                        curr3pBotClass = con.getDeclaringClass().getName();
+                        SOCLocalRobotClient.createAndStartRobotClientThread( "extrabot " + i, sci, knownOpts, con );
+                    }
+                }
+                catch( Exception e )
+                {
+                    System.err.println( "*** Can't start third-party bot " + curr3pBotClass + ": " + e );
+                    if ((e instanceof ReflectiveOperationException) && (e.getCause() instanceof Exception))
+                    {
+                        e = (Exception) e.getCause();
+                        System.err.println( "    caused by " + e );
+                    }
+                    e.printStackTrace();
+
+                    return false;
                 }
             }
         }
-        catch( Exception e )
+        catch (Exception e)
         {
-            if (curr3pBotClass != null)
-            {
-                System.err.println( "*** Can't start third-party bot " + curr3pBotClass + ": " + e );
-                if ((e instanceof ReflectiveOperationException) && (e.getCause() instanceof Exception))
-                {
-                    e = (Exception) e.getCause();
-                    System.err.println( "    caused by " + e );
-                }
-                e.printStackTrace();
-            }
-            //TODO: log
+            System.err.println("*** setupLocalRobots: Can't start bot: " + e);
+            //TODO: log?
             return false;
         }
         catch( LinkageError e )
@@ -3803,7 +3810,8 @@ public class SOCServer extends Server
 
     /**
      * This server's game list. Treat as read-only.
-     * Useful for membership checks like {@link SOCGameListAtServer#isMember(String, String)}.
+     * Useful for membership checks like {@link SOCGameListAtServer#isMember(String, String)}
+     * and operations like {@link SOCGameList#takeMonitorForGame(String)}.
      * @since 2.4.50
      */
     public SOCGameListAtServer getGameList()
@@ -6866,6 +6874,7 @@ public class SOCServer extends Server
      * That method also ensures this method and {@code authCallback} run in the Treater thread; see
      * {@link Server#multiplexQueue waitQueue}.{@link InboundMessageQueue#isCurrentThreadTreater() isCurrentThreadTreater()}.
      *
+     * @param authUsername  User name as authenticated (or from user if has no DB/no auth), or null if auth failed
      * @param hadDelay  If true, this callback has been delayed by {@code BCrypt} calculations;
      *     otherwise it's an immediate callback (user not found, password didn't use BCrypt hashing)
      * @since 1.2.00

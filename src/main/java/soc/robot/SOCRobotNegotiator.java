@@ -287,10 +287,9 @@ public class SOCRobotNegotiator
      *<P>
      * Before v2.4.50 this method took a {@link SOCPossiblePiece} instead of a {@link SOCBuildPlan}.
      *
-     * @param targetPiece  the piece that we want to build, or {@code null}
+     * @param buildPlan  our build plan, or {@code null}
      * @return the offer we want to make, or {@code null} for no offer
-     * @see #getOfferToBank(SOCResourceSet)
-     * @see #makeOffer(SOCBuildPlan)
+     * @see #getOfferToBank(SOCBuildPlan, SOCResourceSet)
      */
     public SOCTradeOffer makeOffer(SOCBuildPlan buildPlan)
     {
@@ -1022,7 +1021,7 @@ public class SOCRobotNegotiator
         {
             SOCBuildPlanStack receiverBuildingPlan = new SOCBuildPlanStack();
             simulator = new SOCRobotDM
-                (brain.getRobotParameters(), brain.openingBuildStrategy,
+                (brain.getRobotParameters(), brain.openingBuildStrategy, brain.getEstimatorFactory(),
                  playerTrackers, receiverPlayerTracker, receiverPlayerData, receiverBuildingPlan);
 
             if (receiverNum == ourPlayerNumber)
@@ -1055,7 +1054,7 @@ public class SOCRobotNegotiator
         {
             SOCBuildPlanStack senderBuildingPlan = new SOCBuildPlanStack();
             simulator = new SOCRobotDM
-                (brain.getRobotParameters(), brain.openingBuildStrategy,
+                (brain.getRobotParameters(), brain.openingBuildStrategy, brain.getEstimatorFactory(),
                  playerTrackers, senderPlayerTracker, senderPlayerData, senderBuildingPlan);
 
             if (senderNum == ourPlayerNumber)
@@ -1576,7 +1575,7 @@ public class SOCRobotNegotiator
                 SOCRobotDM simulator;
                 D.ebugPrintlnINFO("**** our building plan is empty ****");
                 simulator = new SOCRobotDM
-                    (brain.getRobotParameters(), brain.openingBuildStrategy,
+                    (brain.getRobotParameters(), brain.openingBuildStrategy, brain.getEstimatorFactory(),
                      playerTrackers, ourPlayerTracker, ourPlayerData, ourBuildingPlan);
                 simulator.planStuff(strategyType);
             }

@@ -6,20 +6,20 @@
  * Portions of this file Copyright (C) 2007-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
  * Portions of this file Copyright (C) 2017-2018 Strategic Conversation (STAC Project) https://www.irit.fr/STAC/
- * <p>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
+ *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.server;
@@ -118,9 +118,9 @@ public class SOCGameMessageHandler
      *     unless {@code message} implements {@link SOCMessageFromUnauthClient}.
      * @return true if processed, false if ignored or unknown message type
      */
-    public boolean dispatch
-    ( SOCGame game, SOCMessageForGame message, Connection connection )
-        throws Exception
+    public boolean dispatch(
+        SOCGame game, SOCMessageForGame message, Connection connection )
+            throws Exception
     {
         switch (message.getType())
         {
@@ -416,7 +416,7 @@ public class SOCGameMessageHandler
                     srv.messageToGameForVersions( ga, 0, SOCGameTextMsg.VERSION_FOR_DICE_RESULT_INSTEAD - 1,
                         new SOCGameTextMsg
                             ( gn, SOCGameTextMsg.SERVERNAME,
-                                plName + " rolled a " + roll.diceA + " and a " + roll.diceB + "." ), // I18N
+                             plName + " rolled a " + roll.diceA + " and a " + roll.diceB + "."), // I18N OK: v1.x always english
                         true );
                 }
                 handler.sendGameState( ga );  // For 7, give visual feedback before sending discard request
@@ -788,6 +788,10 @@ public class SOCGameMessageHandler
                         }
                     }
                 }
+
+                if (ga.clientRequestsDiceResultsFullySent)
+                    srv.messageToGame(gn, true, new SOCSimpleAction
+                        (gn, -1, SOCSimpleAction.DICE_RESULTS_FULLY_SENT));
             }
             else
             {
@@ -1503,7 +1507,8 @@ public class SOCGameMessageHandler
     /**
      * Check and complete a player trade accepted by both sides, and announce it with messages to the game.
      * Calls {@link SOCGame#canMakeTrade(int, int)}, {@link SOCGame#makeTrade(int, int)},
-     * {@link SOCGameHandler#reportTrade(SOCGame, int, int)}.
+     * {@link SOCGameHandler#reportTrade(SOCGame, int, int)}, then clears all trade offers
+     * by announcing {@link SOCClearOffer}.
      *<P>
      * <B>Note:</B> Calling this method assumes the players have either accepted and/or made a counter-offer,
      * and that the offer-initiating player's {@link SOCPlayer#getCurrentOffer()} is set to the trade to be executed.
@@ -1527,12 +1532,6 @@ public class SOCGameMessageHandler
             {
                 ga.makeTrade( offeringNumber, acceptingNumber );
                 handler.reportTrade( ga, offeringNumber, acceptingNumber );
-
-                /**
-                 * announce the accepted offer to game; won't re-send mes from client
-                 * because its acceptingNumber isn't required or sanitized
-                 */
-                srv.messageToGame( gaName, true, new SOCAcceptOffer( gaName, acceptingNumber, offeringNumber ) );
 
                 /**
                  * clear all offers
@@ -3263,10 +3262,24 @@ public class SOCGameMessageHandler
                     {
                         ga.doDiscoveryAction( rsrcs );
 
-                        handler.reportRsrcGainLoss( ga, rsrcs, false, false, pn, -1, null );
-                        srv.messageToGameKeyedSpecial
-                            ( ga, true, true, "action.card.discov.received", player.getName(), rsrcs );
-                        // "{0} received {1,rsrcs} from the bank."
+                        final SOCPickResources picked = new SOCPickResources
+                            (gaName, rsrcs, pn, SOCPickResources.REASON_DISCOVERY);
+                        if (ga.clientVersionLowest >= SOCPickResources.VERSION_FOR_SERVER_ANNOUNCE)
+                        {
+                            srv.messageToGame(gaName, true, picked);
+                        } else {
+                            srv.recordGameEvent(gaName, picked);
+
+                            srv.messageToGameForVersions
+                                (ga, SOCPickResources.VERSION_FOR_SERVER_ANNOUNCE, Integer.MAX_VALUE, picked, true);
+
+                            handler.reportRsrcGainLossForVersions
+                                (ga, rsrcs, false, true, pn, -1, null, SOCPickResources.VERSION_FOR_SERVER_ANNOUNCE - 1);
+                            srv.messageToGameForVersionsKeyed
+                                (ga, 0, SOCPickResources.VERSION_FOR_SERVER_ANNOUNCE - 1, true, true,
+                                 "action.card.discov.received", player.getName(), rsrcs);
+                                     // "{0} received {1,rsrcs} from the bank."
+                        }
                         handler.sendGameState( ga );
                     }
                     else
@@ -3427,6 +3440,22 @@ public class SOCGameMessageHandler
 
                     srv.gameList.takeMonitorForGame( gaName );
 
+                    /**
+                     * Send each affected player's resource counts for the monopolized resource;
+                     * set isNews flag for each victim player's count.
+                     * Sending rsrc number works because SOCPlayerElement.CLAY == SOCResourceConstants.CLAY.
+                     */
+                    for (int pn = 0; pn < ga.maxPlayers; ++pn)
+                        if (isVictim[pn])
+                            srv.messageToGameWithMon
+                                (gaName, true, new SOCPlayerElement
+                                    (gaName, pn, SOCPlayerElement.SET,
+                                     rsrc, ga.getPlayer(pn).getResources().getAmount(rsrc), true));
+                    srv.messageToGameWithMon
+                        (gaName, true, new SOCPlayerElement
+                            (gaName, cpn, SOCPlayerElement.GAIN,
+                             rsrc, monoTotal, false));
+
                     final SOCSimpleAction actMsg = new SOCSimpleAction
                         ( gaName, cpn,
                             SOCSimpleAction.RSRC_TYPE_MONOPOLIZED, monoTotal, rsrc );
@@ -3455,22 +3484,6 @@ public class SOCGameMessageHandler
                         srv.messageToGameForVersions( ga, -1, SOCStringManager.VERSION_FOR_I18N - 1,
                             new SOCGameTextMsg( gaName, SOCGameTextMsg.SERVERNAME, monoTxt ), false );
                     }
-
-                    /**
-                     * send each affected player's resource counts for the monopolized resource;
-                     * set isNews flag for each victim player's count
-                     */
-                    for (int pn = 0; pn < ga.maxPlayers; ++pn)
-                        if (isVictim[pn])
-                            // sending rsrc number works because SOCPlayerElement.CLAY == SOCResourceConstants.CLAY
-                            srv.messageToGameWithMon
-                                ( gaName, true, new SOCPlayerElement
-                                    ( gaName, pn, SOCPlayerElement.SET,
-                                        rsrc, ga.getPlayer( pn ).getResources().getAmount( rsrc ), true ) );
-                    srv.messageToGameWithMon
-                        ( gaName, true, new SOCPlayerElement
-                            ( gaName, cpn, SOCPlayerElement.GAIN,
-                                rsrc, monoTotal, false ) );
 
                     srv.gameList.releaseMonitorForGame( gaName );
 

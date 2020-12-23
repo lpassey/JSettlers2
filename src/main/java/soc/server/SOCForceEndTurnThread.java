@@ -1,6 +1,6 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
- * This file Copyright (C) 2013,2015,2019 Jeremy D Monin <jeremy@nand.net>
+ * This file Copyright (C) 2013,2015,2019-2020 Jeremy D Monin <jeremy@nand.net>
  * This class was created in 2010 within SOCServer; reading SOCServer.java's
  * commit history led to this notice when the class was split out in 2013 to its own file:
  * Portions of this file Copyright (C) 2010-2013 Jeremy D Monin.
@@ -32,7 +32,7 @@ import soc.communication.Connection;
 
 /**
  * Force this robot's turn to end, by calling
- * {@link SOCGameHandler#endGameTurnOrForce(SOCGame, int, String, Connection, boolean)}.
+ * {@link GameHandler#endGameTurnOrForce(SOCGame, int, String, Connection, boolean)}.
  * Done in a separate thread in case of deadlocks; see {@link #run()} for more details.
  * Created from {@link SOCGameHandler#endTurnIfInactive(SOCGame, long)}
  * when that's called from {@link SOCGameTimeoutChecker#run()}.
@@ -48,11 +48,11 @@ import soc.communication.Connection;
 /*package*/ class SOCForceEndTurnThread extends Thread
 {
     private final SOCServer srv;
-    private final SOCGameHandler hand;
+    private final GameHandler hand;
     private final SOCGame ga;
     private final SOCPlayer pl;
 
-    public SOCForceEndTurnThread(final SOCServer srv, final SOCGameHandler hand, final SOCGame g, final SOCPlayer p)
+    public SOCForceEndTurnThread(final SOCServer srv, final GameHandler hand, final SOCGame g, final SOCPlayer p)
     {
         setDaemon(true);
         this.srv = srv;
@@ -65,7 +65,7 @@ import soc.communication.Connection;
      * If our targeted robot player is still the current player, force-end their turn.
      * If not current player but game is waiting for them to discard or pick free resources,
      * choose randomly so the game can continue.
-     * Calls {@link SOCGameHandler#endGameTurnOrForce(SOCGame, int, String, Connection, boolean)}.
+     * Calls {@link GameHandler#endGameTurnOrForce(SOCGame, int, String, Connection, boolean)}.
      */
     @Override
     public void run()
