@@ -77,6 +77,7 @@ import soc.message.SOCMakeOffer;
 import soc.message.SOCMessage;
 import soc.message.SOCMovePiece;
 import soc.message.SOCMoveRobber;
+import soc.message.SOCPickResources;
 import soc.message.SOCPieceValue;
 import soc.message.SOCPlayerElement;
 import soc.message.SOCPlayerElement.PEType;
@@ -3141,7 +3142,7 @@ public class SOCGameHandler extends GameHandler
      * Also announces the trade to pre-v2.0.00 clients with a {@link SOCGameTextMsg}
      * ("Joe gave 1 sheep for 1 wood from Lily.").
      *<P>
-     * Caller must also report trade player numbers by sending a {@link SOCAcceptOffer}
+     * Also reports trade player numbers by sending a {@link SOCAcceptOffer}
      * message to the game after calling this method. In v2.0.00 and newer clients,
      * that message announces the trade instead of {@link SOCGameTextMsg}.
      *
@@ -3159,6 +3160,9 @@ public class SOCGameHandler extends GameHandler
 
         reportRsrcGainLoss(ga, giveSet, true, false, offering, accepting, null);
         reportRsrcGainLoss(ga, getSet, false, false, offering, accepting, null);
+
+        srv.messageToGame(gaName, true, new SOCAcceptOffer(gaName, accepting, offering));
+
         if (ga.clientVersionLowest < SOCStringManager.VERSION_FOR_I18N)
         {
             // v2.0.00 and newer clients will announce this with localized text from
@@ -3330,6 +3334,9 @@ public class SOCGameHandler extends GameHandler
         (final SOCGame ga, final ResourceSet resourceSet, final boolean isLoss, boolean isNews,
          final int mainPlayer, final int tradingPlayer, Connection playerConn, final int vmax)
     {
+        // Note: For benefit of external callers, javadoc says this method doesn't record any events.
+        // reportRsrcGainLoss internally calls this with vmax = 0, for which this method does record events.
+
         final String gaName = ga.getName();
         final int losegain  = isLoss ? SOCPlayerElement.LOSE : SOCPlayerElement.GAIN;  // for pnA
         final int gainlose  = isLoss ? SOCPlayerElement.GAIN : SOCPlayerElement.LOSE;  // for pnB
@@ -3376,9 +3383,11 @@ public class SOCGameHandler extends GameHandler
 
     /**
      * Report to game members what a player picked from the gold hex.
-     * Sends {@link SOCPlayerElement} for resources and to reset the
-     * {@link PEType#NUM_PICK_GOLD_HEX_RESOURCES} counter.
-     * Also sends text "playername has picked ___ from the gold hex.".
+     * Announces resource info and reason for pick using {@link SOCPickResources}
+     * or (for older clients) {@link SOCPlayerElement} and
+     * "playername has picked ___ " or "playername has picked ___ from the gold hex." text,
+     * then {@link SOCPlayerElement} to reset the
+     * {@link PEType#NUM_PICK_GOLD_HEX_RESOURCES} counter: See {@link SOCPickResources} javadoc for details.
      *<P>
      * Messages sent by this method are always treated as "events":
      * Indirectly calls {@link SOCServer#recordGameEvent(String, SOCMessage)} or similar methods.
@@ -3391,22 +3400,41 @@ public class SOCGameHandler extends GameHandler
      *                Sets the {@link SOCPlayerElement#isNews()} flag in messages sent by this method.
      *                If there are multiple resource types, flag is set only for the first type sent
      *                to avoid several alert sounds at client.
-     * @param includeGoldHexText  If true, text ends with "from the gold hex." after the resource name.
+     * @param includeGoldHexText  If true, sent text ends with "from the gold hex." after the resource name,
+     *     or sends {@link SOCPickResources#REASON_GOLD_HEX} reason code. If false,
+     *     sends {@link SOCPickResources#REASON_GENERIC} instead.
      * @since 2.0.00
      */
     void reportRsrcGainGold
         (final SOCGame ga, final SOCPlayer player, final int pn, final SOCResourceSet rsrcs,
          final boolean isNews, final boolean includeGoldHexText)
     {
-        final String gn = ga.getName();
+        final String gaName = ga.getName();
 
-        // Send SOCPlayerElement messages
-        reportRsrcGainLoss(ga, rsrcs, false, isNews, pn, -1, null);
-        srv.messageToGameKeyedSpecial(ga, true, true,
-            ((includeGoldHexText) ? "action.picked.rsrcs.goldhex" : "action.picked.rsrcs"),
-            player.getName(), rsrcs);
-        srv.messageToGame(gn, true, new SOCPlayerElement
-            (gn, pn, SOCPlayerElement.SET, PEType.NUM_PICK_GOLD_HEX_RESOURCES, 0));
+        final SOCPickResources picked = new SOCPickResources
+            (gaName, rsrcs, pn,
+             (includeGoldHexText) ? SOCPickResources.REASON_GOLD_HEX : SOCPickResources.REASON_GENERIC);
+
+        if (ga.clientVersionLowest >= SOCPickResources.VERSION_FOR_SERVER_ANNOUNCE)
+        {
+            srv.messageToGame(gaName, true, picked);
+        } else {
+            srv.recordGameEvent(gaName, picked);
+
+            srv.messageToGameForVersions
+                (ga, SOCPickResources.VERSION_FOR_SERVER_ANNOUNCE, Integer.MAX_VALUE, picked, true);
+
+            // Send SOCPlayerElement messages
+            reportRsrcGainLossForVersions
+                (ga, rsrcs, false, isNews, pn, -1, null, SOCPickResources.VERSION_FOR_SERVER_ANNOUNCE - 1);
+            srv.messageToGameForVersionsKeyed
+                (ga, 0, SOCPickResources.VERSION_FOR_SERVER_ANNOUNCE - 1, true, true,
+                 ((includeGoldHexText) ? "action.picked.rsrcs.goldhex" : "action.picked.rsrcs"),
+                 player.getName(), rsrcs);
+        }
+
+        srv.messageToGame(gaName, true, new SOCPlayerElement
+            (gaName, pn, SOCPlayerElement.SET, PEType.NUM_PICK_GOLD_HEX_RESOURCES, 0));
     }
 
     /**
@@ -4070,38 +4098,8 @@ public class SOCGameHandler extends GameHandler
         new SOCForceEndTurnThread(srv, this, ga, pl).start();
     }
 
-    /**
-     * A bot is unresponsive, or a human player has left the game.
-     * End this player's turn cleanly, or force-end if needed.
-     *<P>
-     * Can be called for a player still in the game, or for a player
-     * who has left ({@link SOCGame#removePlayer(String, boolean)} has been called).
-     * Can be called for a player who isn't current player; in that case
-     * it takes action if the game was waiting for the player (picking random
-     * resources for discard or gold-hex picks) but won't end the current turn.
-     *<P>
-     * If they were placing an initial road, also cancels that road's
-     * initial settlement.
-     *<P>
-     * <b>Locks:</b> Must not have ga.takeMonitor() when calling this method.
-     * May or may not have <tt>gameList.takeMonitorForGame(ga)</tt>;
-     * use <tt>hasMonitorFromGameList</tt> to indicate.
-     *<P>
-     * Not public, but package visibility, for use by {@link SOCForceEndTurnThread} for {@link SOCGameTimeoutChecker}.
-     *
-     * @param ga   The game to end turn if called for current player, or to otherwise stop waiting for a player
-     * @param plNumber  player.getNumber; may or may not be current player
-     * @param plName    player.getName
-     * @param plConn    player's client connection
-     * @param hasMonitorFromGameList  if false, have not yet called
-     *          {@link SOCGameList#takeMonitorForGame(String) gameList.takeMonitorForGame(ga)};
-     *          if false, this method will take this monitor at its start,
-     *          and release it before returning.
-     * @return true if the turn was ended and game is still active;
-     *          false if we find that all players have left and
-     *          the gamestate has been changed here to {@link SOCGame#OVER OVER}.
-     */
-    boolean endGameTurnOrForce
+    // javadoc inherited from GameHandler
+    public boolean endGameTurnOrForce
         (SOCGame ga, final int plNumber, final String plName, Connection plConn,
          final boolean hasMonitorFromGameList)
     {

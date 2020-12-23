@@ -706,7 +706,16 @@ import soc.util.Version;
              */
             case SOCMessage.REPORTROBBERY:
                 handleREPORTROBBERY
-                    ((SOCReportRobbery) mes, client.games.get(((SOCReportRobbery) mes).getGame()));
+                    ((SOCReportRobbery) mes, client.games.get(((SOCMessageForGame) mes).getGame()));
+                break;
+
+            /**
+             * Player has Picked Resources.
+             * Added 2020-12-14 for v2.4.50.
+             */
+            case SOCMessage.PICKRESOURCES:
+                handlePICKRESOURCES
+                    ((SOCPickResources) mes, client.games.get(((SOCMessageForGame) mes).getGame()));
                 break;
 
             }  // switch (mes.getType())
@@ -2165,13 +2174,13 @@ import soc.util.Version;
         final int pn = mes.getPlayerNumber();
         SOCPlayer player = null;
         if (pn != -1)
+        {
             player = ga.getPlayer(pn);
-
-        if (pn != -1)
-            ga.getPlayer(pn).setCurrentOffer(null);
-        else
+            player.setCurrentOffer(null);
+        } else {
             for (int i = 0; i < ga.maxPlayers; ++i)
                 ga.getPlayer(i).setCurrentOffer(null);
+        }
 
         PlayerClientListener pcl = client.getClientListener(mes.getGame());
         pcl.requestedTradeClear(player, false);
@@ -2313,6 +2322,24 @@ import soc.util.Version;
         SOCDisplaylessPlayerClient.handlePLAYERELEMENT_simple
             (ga, null, mes.getPlayerNumber(), SOCPlayerElement.SET,
              PEType.PLAYED_DEV_CARD_FLAG, mes.hasPlayedDevCard() ? 1 : 0, null);
+    }
+
+    /**
+     * Handle the "Player has Picked Resources" message by updating player resource data.
+     * @param mes  the message
+     * @param ga  Game to update
+     * @since 2.4.50
+     */
+    public void handlePICKRESOURCES
+        (final SOCPickResources mes, final SOCGame ga)
+    {
+        if (! SOCDisplaylessPlayerClient.handlePICKRESOURCES(mes, ga))
+            return;
+
+        PlayerClientListener pcl = client.getClientListener(ga.getName());
+        if (pcl != null)
+            pcl.playerPickedResources
+                (ga.getPlayer(mes.getPlayerNumber()), mes.getResources(), mes.getReasonCode());
     }
 
     /**
@@ -2794,10 +2821,18 @@ import soc.util.Version;
             pcl.simpleAction(mes.getPlayerNumber(), atype, mes.getValue1(), mes.getValue2());
             break;
 
+        case SOCSimpleAction.DICE_RESULTS_FULLY_SENT:
+            // game data updates are sent in preceding messages, can ignore this one
+            break;
+
         default:
             // ignore unknown types
-            System.err.println
-                ("handleSIMPLEACTION: Unknown type ignored: " + atype + " in game " + gaName);
+            {
+                final int mesPN = mes.getPlayerNumber();
+                if ((mesPN >= 0) && (mesPN == pcl.getClientPlayerNumber()))
+                    System.err.println
+                        ("handleSIMPLEACTION: Unknown type ignored: " + atype + " in game " + gaName);
+            }
         }
     }
 

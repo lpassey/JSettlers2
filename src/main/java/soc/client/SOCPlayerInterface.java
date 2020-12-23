@@ -49,6 +49,7 @@ import soc.game.SOCVillage;
 import soc.message.SOCMessage;
 import soc.message.SOCPlayerElement.PEType;
 import soc.message.SOCBankTrade;     // for reply code constant
+import soc.message.SOCPickResources;  // for reason code constants
 import soc.message.SOCSimpleAction;  // for action type constants
 import soc.message.SOCSimpleRequest;  // for request type constants
 import soc.util.SOCStringManager;
@@ -543,7 +544,7 @@ public class SOCPlayerInterface extends Frame
     protected final SOCPlayerClient client;
 
     /**
-     * the game associated with this interface. This reference changes if board is reset.
+     * the game associated with this interface. Not null. This reference changes if board is reset.
      */
     protected SOCGame game;
 
@@ -1204,7 +1205,7 @@ public class SOCPlayerInterface extends Frame
                 // Player data may not be received yet;
                 // game is created empty, then SITDOWN messages are received from server.
                 // gameState is at default 0 (NEW) during JOINGAMEAUTH and SITDOWN.
-                // initInterfaceElements is also called at board reset.
+                // initUIElements is also called at board reset.
                 // updatePlayerLimitDisplay will check the current gameState.
         }
 
@@ -1470,7 +1471,8 @@ public class SOCPlayerInterface extends Frame
     }
 
     /**
-     * @return the game associated with this interface
+     * Get the game displayed in this PlayerInterface. This reference changes if board is reset.
+     * @return the game associated with this interface; not null
      */
     public SOCGame getGame()
     {
@@ -4287,6 +4289,11 @@ public class SOCPlayerInterface extends Frame
             this.pi = pi;
         }
 
+        public SOCGame getGame()
+        {
+            return pi.getGame();
+        }
+
         public int getClientPlayerNumber()
         {
             return pi.getClientPlayerNumber();
@@ -4404,6 +4411,33 @@ public class SOCPlayerInterface extends Frame
         {
             SOCHandPanel hpan = pi.getPlayerHandPanel(player.getPlayerNumber());
             hpan.updateValue(PlayerClientListener.UpdateType.Resources);
+        }
+
+        public void playerPickedResources
+            (final SOCPlayer player, final SOCResourceSet resSet, final int reasonCode)
+        {
+            final String key;
+            switch (reasonCode)
+            {
+            case SOCPickResources.REASON_GENERIC:
+                key = "action.picked.rsrcs";  // "{0} has picked {1,rsrcs}."
+                break;
+
+            case SOCPickResources.REASON_DISCOVERY:
+                key = "action.card.discov.received";  // "{0} received {1,rsrcs} from the bank."
+                break;
+
+            case SOCPickResources.REASON_GOLD_HEX:
+                key = "action.picked.rsrcs.goldhex";  // "{0} has picked {1,rsrcs} from the gold hex."
+                break;
+
+            default:
+                return;
+            }
+
+            pi.printKeyedSpecial(key, player.getName(), resSet);
+            pi.getPlayerHandPanel(player.getPlayerNumber())
+                .updateValue(PlayerClientListener.UpdateType.ResourceTotalAndDetails);
         }
 
         public void playerElementUpdated
@@ -4689,6 +4723,11 @@ public class SOCPlayerInterface extends Frame
         public void messageBroadcast(String msg)
         {
             pi.chatPrint("::: " + msg + " :::");
+        }
+
+        public void printText(String txt)
+        {
+            pi.print(txt);
         }
 
         public void messageReceived(String nickname, String message)
@@ -5037,6 +5076,15 @@ public class SOCPlayerInterface extends Frame
         {
             final int pn = (playerToReset != null) ? playerToReset.getPlayerNumber() : -1;
             pi.hideHandMessage(pn);
+        }
+
+        public void clearTradeOffer(SOCPlayer player, boolean updateSendCheckboxes)
+        {
+            if (player != null)
+                pi.hands[player.getPlayerNumber()].clearOffer(updateSendCheckboxes);
+            else
+                for (SOCHandPanel hp : pi.hands)
+                    hp.clearOffer(updateSendCheckboxes);
         }
 
         public void requestedDiceRoll(final int pn)

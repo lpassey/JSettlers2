@@ -1456,6 +1456,7 @@ import javax.swing.UIManager;
         {
             clickPlayCardButton();
         }
+
         } catch (Throwable th) {
             playerInterface.chatPrintStackTrace(th);
         }
@@ -3176,6 +3177,7 @@ import javax.swing.UIManager;
     public void rejectOfferAtClient()
     {
         messageSender.rejectOffer(game);
+
         messagePanel.setText(null);
         messagePanel.setVisible(false);
         offerPanel.setVisible(false);
