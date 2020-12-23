@@ -81,15 +81,15 @@ public class SOCRobotDM
 
   protected int maxETA = 99;
 
-  protected float etaBonusFactor = (float) 0.8;
+  protected float etaBonusFactor = 0.8f;
 
-  protected float adversarialFactor = (float) 1.5;
+  protected float adversarialFactor = 1.5f;
 
-  protected float leaderAdversarialFactor = (float) 3.0;
+  protected float leaderAdversarialFactor = 3.0f;
 
-  protected float devCardMultiplier = (float) 2.0;
+  protected float devCardMultiplier = 2.0f;
 
-  protected float threatMultiplier = (float) 1.1;
+  protected float threatMultiplier = 1.1f;
 
   protected static final int LA_CHOICE = 0;
   protected static final int LR_CHOICE = 1;
@@ -331,8 +331,8 @@ public class SOCRobotDM
     D.ebugPrintlnINFO("PLANSTUFF");
 
     SOCBuildingSpeedEstimate currentBSE = getEstimator(ourPlayerData.getNumbers());
-    int currentBuildingETAs[] = currentBSE.getEstimatesFromNowFast
-        (ourPlayerData.getResources(), ourPlayerData.getPortFlags());
+      int[] currentBuildingETAs = currentBSE.getEstimatesFromNowFast
+          ( ourPlayerData.getResources(), ourPlayerData.getPortFlags() );
 
     threatenedSettlements.clear();
     goodSettlements.clear();
@@ -490,19 +490,17 @@ public class SOCRobotDM
       //
       if (ourPlayerData.getNumPieces(SOCPlayingPiece.CITY) > 0)
       {
-          Iterator<SOCPossibleCity> posCitiesIter = ourPlayerTracker.getPossibleCities().values().iterator();
-          while (posCitiesIter.hasNext())
+          for (SOCPossibleCity posCity : ourPlayerTracker.getPossibleCities().values())
           {
-              SOCPossibleCity posCity = posCitiesIter.next();
-              D.ebugPrintlnINFO("Estimate speedup of city at "+game.getBoard().nodeCoordToString(posCity.getCoordinates()));
-              D.ebugPrintlnINFO("Speedup = "+posCity.getSpeedupTotal());
-              D.ebugPrintlnINFO("ETA = "+buildingETAs[SOCBuildingSpeedEstimate.CITY]);
+              D.ebugPrintlnINFO( "Estimate speedup of city at " + game.getBoard().nodeCoordToString( posCity.getCoordinates() ) );
+              D.ebugPrintlnINFO( "Speedup = " + posCity.getSpeedupTotal() );
+              D.ebugPrintlnINFO( "ETA = " + buildingETAs[SOCBuildingSpeedEstimate.CITY] );
               if ((brain != null) && brain.getDRecorder().isOn())
               {
-                  brain.getDRecorder().startRecording("CITY"+posCity.getCoordinates());
-                  brain.getDRecorder().record("Estimate speedup of city at "+game.getBoard().nodeCoordToString(posCity.getCoordinates()));
-                  brain.getDRecorder().record("Speedup = "+posCity.getSpeedupTotal());
-                  brain.getDRecorder().record("ETA = "+buildingETAs[SOCBuildingSpeedEstimate.CITY]);
+                  brain.getDRecorder().startRecording( "CITY" + posCity.getCoordinates() );
+                  brain.getDRecorder().record( "Estimate speedup of city at " + game.getBoard().nodeCoordToString( posCity.getCoordinates() ) );
+                  brain.getDRecorder().record( "Speedup = " + posCity.getSpeedupTotal() );
+                  brain.getDRecorder().record( "ETA = " + buildingETAs[SOCBuildingSpeedEstimate.CITY] );
                   brain.getDRecorder().stopRecording();
               }
               if ((favoriteCity == null) ||
@@ -667,12 +665,14 @@ public class SOCRobotDM
         laETA = ourBSE.calculateRollsFast
             (ourPlayerData.getResources(), targetResources, 100, ourPlayerData.getPortFlags());
       }
+/*
       else
       {
         ///
         /// not enough dev cards left
         ///
       }
+*/
       if ((laETA < bestETA) && ! forSpecialBuildingPhase)
       {
         bestETA = laETA;
@@ -1033,7 +1033,7 @@ public class SOCRobotDM
                   final int pathLength = path.size();
                   final SOCPossiblePiece pathFirst = (pathLength > 0) ? path.peek() : null;
                   SOCResourceSet rtype =
-                      ((pathFirst != null) && (pathFirst instanceof SOCPossibleShip)
+                      (   (pathFirst instanceof SOCPossibleShip)
                        && ! ((SOCPossibleShip) pathFirst).isCoastalRoadAndShip)  // TODO better coastal ETA scoring
                       ? SOCShip.COST
                       : SOCRoad.COST;
@@ -1195,8 +1195,7 @@ public class SOCRobotDM
         if (! buildingPlan.empty())
         {
           SOCPossiblePiece planPeek = buildingPlan.peek();
-          if (   (planPeek == null) ||
-              (! (planPeek instanceof SOCPossibleRoad)))
+          if ( ! (planPeek instanceof SOCPossibleRoad))
           {
             if (secondFavoriteRoad != null)
             {
@@ -1784,8 +1783,8 @@ public class SOCRobotDM
     {
         SOCPlayerTracker[] trackersCopy = SOCPlayerTracker.copyPlayerTrackers( playerTrackers );
         SOCPlayerTracker ourTrackerCopy = trackersCopy[ourPlayerNumber];
-        int originalWGETAs[] = new int[game.maxPlayers];
-        int WGETAdiffs[] = new int[game.maxPlayers];
+        int[] originalWGETAs = new int[game.maxPlayers];
+        int[] WGETAdiffs = new int[game.maxPlayers];
         Vector<SOCPlayerTracker> leaders = new Vector<>();
         int bestWGETA = 1000;
         // int bonus = 0;
@@ -2579,7 +2578,7 @@ public class SOCRobotDM
     SOCSettlement tmpSet = null;
     SOCCity tmpCity = null;
     SOCRoutePiece tmpRS = null;  // road or ship
-    float bonus = 0;
+    float bonus;
 
     D.ebugPrintlnINFO("--- before [start] ---");
     //SOCPlayerTracker.playerTrackersDebug(playerTrackers);
@@ -2683,8 +2682,8 @@ public class SOCRobotDM
     int ourCurrentWGETA = ourPlayerTracker.getWinGameETA();
     D.ebugPrintlnINFO("ourCurrentWGETA = "+ourCurrentWGETA);
 
-    SOCPlayerTracker[] trackersCopy = null;
-    SOCRoutePiece tmpRS = null;
+    SOCPlayerTracker[] trackersCopy;
+    SOCRoutePiece tmpRS;
     // Building road or ship?  TODO Better ETA calc for coastal road/ship
     final boolean isShip = (posRoad instanceof SOCPossibleShip)
         && ! ((SOCPossibleShip) posRoad).isCoastalRoadAndShip;
@@ -2751,11 +2750,11 @@ public class SOCRobotDM
       (final SOCPlayerTracker[] trackersBefore, final SOCPlayerTracker[] trackersAfter)
   {
     D.ebugPrintlnINFO("^^^^^ calcWGETABonus");
-    int originalWGETAs[] = new int[game.maxPlayers];
-    int WGETAdiffs[] = new int[game.maxPlayers];
+      int[] originalWGETAs = new int[game.maxPlayers];
+      int[] WGETAdiffs = new int[game.maxPlayers];
     Vector<SOCPlayerTracker> leaders = new Vector<>();  // Players winning soonest, based on ETA
     int bestWGETA = 1000;  // Lower is better
-    float bonus = 0;
+    float bonus;
 
     for (final SOCPlayerTracker trackerBefore : trackersBefore)
     {
