@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
+    testCompile 'junit:junit:4.13.1'
     implementation 'com.google.code.gson:gson:2.8.6'  // optional at runtime, for savegame feature
         // If version changes, update Readme.developer.md and jsserver.properties.sample
         // Same version is used by v3 branch (dependency of protobuf-java-util)
@@ -270,8 +270,7 @@ task distCheckSrcDirty {
             if (! stdout.isEmpty())
             {
                 println "Untracked files in repo: Commit, move, or .gitignore these:" + System.properties['line.separator'] + stdout
-                throw new BuildCancelledException
-                    ("Untracked files in repo: Commit, move, or .gitignore")
+                throw new BuildCancelledException( "Untracked files in repo: Commit, move, or .gitignore" )
             }
         }
     }

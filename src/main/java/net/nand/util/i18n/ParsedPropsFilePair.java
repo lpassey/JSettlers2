@@ -126,8 +126,8 @@ public class ParsedPropsFilePair
     {
         srcFile = src;
         destFile = dest;
-        parsed = new ArrayList<FileKeyEntry>();
-        cont = new ArrayList<FileEntry>();
+        parsed = new ArrayList<>();
+        cont = new ArrayList<>();
     }
 
     /**
@@ -164,7 +164,7 @@ public class ParsedPropsFilePair
         if (unsavedInsRows)
             convertInsertedRows();
 
-        ArrayList<KeyPairLine> ret = new ArrayList<KeyPairLine>(cont.size());
+        ArrayList<KeyPairLine> ret = new ArrayList<>( cont.size() );
         for (final FileEntry kp: cont)
         {
             if (kp instanceof FileCommentEntry)
@@ -178,7 +178,7 @@ public class ParsedPropsFilePair
                 if (commentLine == null)
                     ret.add(new KeyPairLine(null));
                 else {
-                    ArrayList<String> oneline = new ArrayList<String>(2);
+                    ArrayList<String> oneline = new ArrayList<>( 2 );
                     oneline.add(commentLine);
                     ret.add(new KeyPairLine(oneline));
                 }
@@ -296,7 +296,7 @@ public class ParsedPropsFilePair
         if (! parsed.isEmpty())
             throw new IllegalStateException("cannot call parseSrc unless object is empty");
 
-        Map<String, String> dupeKeys = new HashMap<String, String>();
+        Map<String, String> dupeKeys = new HashMap<>();
         final List<PropsFileParser.KeyPairLine> srcLines = PropsFileParser.parseOneFile(srcFile, dupeKeys);
         if (srcLines.isEmpty())
             return;
@@ -387,7 +387,7 @@ public class ParsedPropsFilePair
         if (isDestNew)
             throw new IllegalStateException("do not call both parseDest and setDestIsNew");
 
-        Map<String, String> dupeKeys = new HashMap<String, String>();
+        Map<String, String> dupeKeys = new HashMap<>();
         final List<PropsFileParser.KeyPairLine> destLines = PropsFileParser.parseOneFile(destFile, dupeKeys);
         if (destLines.isEmpty())
             return;
@@ -412,7 +412,7 @@ public class ParsedPropsFilePair
         /** Map from destination keys in destLines to {@link #cont} entries.
          * Does not contain {@link #contHeadingComment} or {@link #contEndingComment} because their key would be null.
          */
-        Map<String, PropsFileParser.KeyPairLine> destKeys = new HashMap<String, PropsFileParser.KeyPairLine>();
+        Map<String, PropsFileParser.KeyPairLine> destKeys = new HashMap<>();
 
         // Go through destLines first, to build destKeys and set contEndingComment.
         // Remove the ending comment if any from destLines.
@@ -452,7 +452,7 @@ public class ParsedPropsFilePair
                 continue;
 
             if (destOnlyPairs == null)
-                destOnlyPairs = new ArrayList<PropsFileParser.KeyPairLine>();
+                destOnlyPairs = new ArrayList<>();
             destOnlyPairs.add(line);
 
             FileKeyEntry fe = new FileKeyEntry(line.key, line.value);

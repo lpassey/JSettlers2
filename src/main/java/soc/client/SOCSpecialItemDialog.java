@@ -1,20 +1,20 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2014-2020 Jeremy D Monin <jeremy@nand.net>
- * <p>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
+ *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -122,8 +122,7 @@ import javax.swing.border.EmptyBorder;
      *     and {@link SOCSpecialItem#makeKnownItem(String, int)} javadoc's {@code typeKey} param.
      * @throws IllegalArgumentException if the {@code typeKey} is unknown here
      */
-    public SOCSpecialItemDialog
-    ( SOCPlayerInterface pi, final String typeKey )
+    public SOCSpecialItemDialog( SOCPlayerInterface pi, final String typeKey )
         throws IllegalArgumentException
     {
         super( pi, "Special Items", true );  // default title text here, in case typeKey has no string
@@ -133,7 +132,7 @@ import javax.swing.border.EmptyBorder;
             setTitle( strings.get( "dialog.specitem." + typeKey + ".title" ) );
             // "dialog.specitem._SC_WOND.title" -> "Wonders"
         }
-        catch( MissingResourceException e )
+        catch( MissingResourceException ignored )
         {
         }
 
@@ -146,12 +145,12 @@ import javax.swing.border.EmptyBorder;
         final int px3 = 3 * pi.displayScale;  // for spacing
 
         Container cpane = getContentPane();
-        if (!(cpane instanceof JPanel))
+        if (! (cpane instanceof JPanel))
         {
             cpane = new JPanel();
             setContentPane( cpane );
         }
-        ((JPanel) cpane).setBorder( new EmptyBorder( 2 * px3, 2 * px3, px3, 2 * px3 ) );
+        ((JPanel) cpane).setBorder( new EmptyBorder( 2 * px3, 2 * px3, px3, 2 * px3 ));
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.LINE_START;
@@ -599,7 +598,7 @@ import javax.swing.border.EmptyBorder;
 
                 final GameMessageSender messageSender = pi.getClient().getGameMessageSender();
                 boolean askedSBP = false;
-                if (!pi.clientIsCurrentPlayer())
+                if (! pi.isClientCurrentPlayer())
                 {
                     final int cpn = pi.getClientPlayerNumber();
                     if ((cpn != -1) && ga.canAskSpecialBuild( cpn, false ))
