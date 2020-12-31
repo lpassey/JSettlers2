@@ -71,14 +71,23 @@ public interface PlayerClientListener
      * Get the game shown in this UI. This reference changes if board is reset.
      * @return game; not null
      * @since 2.4.50
+     * @see #getClientPlayerNumber()
      */
     SOCGame getGame();
 
     /**
      * Get the client's player number if client is a player in a game.
      * @return Client player's {@link SOCPlayer#getPlayerNumber()} if playing, or -1 if observing or not yet seated
+     * @see #isClientCurrentPlayer()
      */
     int getClientPlayerNumber();
+
+    /**
+     * Is the client player active in this game, and the current player?
+     * @see #getClientPlayerNumber()
+     * @since 2.4.50
+     */
+    boolean isClientCurrentPlayer();
 
     /**
      * Receive a notification that the current player has rolled the dice.
@@ -173,6 +182,7 @@ public interface PlayerClientListener
      * @param player  The player
      * @param addedPlayable  True if the update added a dev card or item that's playable now
      *     ({@link SOCInventory#OLD}, not {@link SOCInventory#NEW NEW})
+     * @see UpdateType#DevCards
      */
     void playerDevCardsUpdated(SOCPlayer player, final boolean addedPlayable);
 
@@ -668,9 +678,18 @@ public interface PlayerClientListener
         /** Wonder build level, in {@link SOCGameOptionSet#K_SC_WOND _SC_WOND} scenario */
         WonderLevel,
 
+        /** Victory Points, from {@link SOCPlayer#getTotalVP()} **/
         VictoryPoints,
+
         SpecialVictoryPoints,
+
+        /**
+         * Total count of development cards/items, from player's {@link SOCInventory#getTotal()}.
+         * Doesn't update the inventory item list if that's shown:
+         * Call {@link PlayerClientListener#playerDevCardsUpdated(SOCPlayer, boolean)} if needed.
+         */
         DevCards,
+
         LongestRoad,
         LargestArmy
     }
