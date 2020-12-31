@@ -263,7 +263,7 @@ public class PTEMain extends JFrame
         userPrefs = Preferences.userNodeForPackage(PTEMain.class);
         tryGetPrefLastEditedDir();
 
-        ptes = new ArrayList<PropertiesTranslatorEditor>();
+        ptes = new ArrayList<>();
 
         btns = new JPanel();
         btns.setLayout(new BoxLayout(btns, BoxLayout.PAGE_AXIS));
@@ -558,7 +558,7 @@ public class PTEMain extends JFrame
             if (pte.hasUnsavedChanges())
             {
                 if (unsaved == null)
-                    unsaved = new ArrayList<PropertiesTranslatorEditor>();
+                    unsaved = new ArrayList<>();
                 unsaved.add(pte);
             }
         }

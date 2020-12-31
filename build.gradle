@@ -270,8 +270,7 @@ task distCheckSrcDirty {
             if (! stdout.isEmpty())
             {
                 println "Untracked files in repo: Commit, move, or .gitignore these:" + System.properties['line.separator'] + stdout
-                throw new BuildCancelledException
-                    ("Untracked files in repo: Commit, move, or .gitignore")
+                throw new BuildCancelledException( "Untracked files in repo: Commit, move, or .gitignore" )
             }
         }
     }

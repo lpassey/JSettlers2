@@ -101,7 +101,7 @@ public class PropsFileParser
     public static List<KeyPairLine> parseOneFile(final File pFile, final Map<String, String> dupeKeys)
         throws IOException, SecurityException, UnsupportedEncodingException
     {
-        List<KeyPairLine> ret = new ArrayList<KeyPairLine>();
+        List<KeyPairLine> ret = new ArrayList<>();
 
         BufferedReader fr = new BufferedReader
             (new InputStreamReader(new FileInputStream(pFile), "ISO-8859-1"));  // bundle encoding is not UTF-8
@@ -127,7 +127,7 @@ public class PropsFileParser
                 // At top of file, if we have a blank line, preceding comment lines become part of headerComment.
 
                 if (headerComment == null)
-                    headerComment = new ArrayList<String>();
+                    headerComment = new ArrayList<>();
 
                 if ((comment != null) && ! comment.isEmpty())
                 {
@@ -140,7 +140,7 @@ public class PropsFileParser
             else if ((L.length() == 0) || (L.charAt(0) == '#'))
             {
                 if (comment == null)
-                    comment = new ArrayList<String>();
+                    comment = new ArrayList<>();
                 comment.add(L);
             } else {
                 final int ieq = L.indexOf('=');  // assumes keyname won't have an escaped = in it
@@ -238,7 +238,7 @@ public class PropsFileParser
     public static void findDuplicateKeys(final List<KeyPairLine> kpLines, final Map<String, String> dupeKeys)
     {
         /** Each key's first-seen value, to place both values into dupeKeys */
-        final Map<String, String> kSeen = new HashMap<String, String>();
+        final Map<String, String> kSeen = new HashMap<>();
 
         for (KeyPairLine kp : kpLines)
         {
