@@ -3150,7 +3150,7 @@ public class SOCPlayerInterface extends Frame
     public void showScenarioInfoDialog()
     {
         NewGameOptionsFrame.showScenarioInfoDialog
-            ( game, ((game.isPractice) ? client.practiceServGameOpts : client.tcpServGameOpts).knownOpts,
+            ( game, ( /*(game.isPractice) ? client.practiceServGameOpts :*/ client.tcpServGameOpts).knownOpts,
                 getMainDisplay(), this );
     }
 

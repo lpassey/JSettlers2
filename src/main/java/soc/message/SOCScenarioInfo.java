@@ -137,8 +137,8 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
      * server responds with set of SCENARIOINFOs. Mark end of this list with a
      * SCENARIOINFO named "-". At the client this sets the {@link #noMoreScens} flag.
      */
-    public static final SOCScenarioInfo SCENINFO_NO_MORE_SCENS
-        = new SOCScenarioInfo( null, null, null );
+//    public static final SOCScenarioInfo SCENINFO_NO_MORE_SCENS
+//        = new SOCScenarioInfo( null, null, null );
 
     /**
      * {@link #scKey} marker {@code "?"} from client to ask for any new or changed scenarios
@@ -176,7 +176,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     private static final String STR_MARKER_KEY_UNKNOWN = Integer.toString( MARKER_KEY_UNKNOWN );
 
     /** True if this message is scenario info from server, not a request from client. */
-    public final boolean isFromServer;
+//    public final boolean isFromServer;
 
     /**
      * Parsed scenario from server ({@link #getScenario()}),
@@ -225,9 +225,9 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     {
         super( SCENARIOINFO, new ArrayList<String>() );
 
-        isFromServer = true;
+        noMoreScens = (sc == null); // we have to do this here as it is marked as a final variable.
+//        isFromServer = true;        // frequently not true, but ignored upon receipt.
         isKeyUnknown = false;
-        noMoreScens = (sc != null);
 
         scen = sc;
         if (sc != null)
@@ -279,7 +279,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
         if (!isSingleLineAndSafe( scKey ))
             throw new IllegalArgumentException( "scKey: " + scKey );
 
-        isFromServer = isServerReply;
+//        isFromServer = isServerReply;
         noMoreScens = false;
         isKeyUnknown = isServerReply;
         this.scKey = scKey;
@@ -316,7 +316,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     {
         super( SCENARIOINFO, (scKeys != null) ? scKeys : new ArrayList<String>() );
 
-        isFromServer = false;
+//        isFromServer = false;
 
         if ((scKeys == null) || scKeys.isEmpty())
         {
@@ -360,7 +360,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
         final String s = pa.get( 0 );  // may throw IndexOutOfBoundsException if empty
         final boolean startswithCliListMarker = s.equals( MARKER_SCEN_NAME_LIST );
 
-        isFromServer = !(startswithCliListMarker || s.equals( MARKER_ANY_CHANGED ));
+        boolean isFromServer = !(startswithCliListMarker || s.equals( MARKER_ANY_CHANGED ));
 
         if (!isFromServer)
         {
@@ -504,14 +504,14 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     public String toString()
     {
         List<String> fields = pa;
-        if (isFromServer && (fields.size() > 2)
+        if ( /*isFromServer &&*/ (fields.size() > 2)
             && (isKeyUnknown || fields.get( 2 ).equals( STR_MARKER_KEY_UNKNOWN )))
         {
             fields = new ArrayList<>( fields );
             fields.set( 2, "MARKER_KEY_UNKNOWN" );
         }
 
-        return toString( fields, isFromServer ? FIELD_NAMES : null );
+        return toString( fields, /*isFromServer ?*/ FIELD_NAMES );  // : null );
     }
 
 }

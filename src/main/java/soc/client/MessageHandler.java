@@ -103,14 +103,13 @@ public final class MessageHandler implements SOCMessageDispatcher
      * Before v2.0.00 this method was {@code SOCPlayerClient.treat(..)}.
      *
      * @param mes    the message
-     * @param isPractice  Message is coming from {@link ClientNetwork#practiceServer}, not a TCP server
+     * @param connection  The peer connection that sent the message
      */
     public void handle( SOCMessage mes, Connection connection )
     {
         if (mes == null)
             return;  // Parsing error
 
-        final boolean isPractice = connection instanceof MemConnection;
         if (client.debugTraffic || D.ebugIsEnabled())
             soc.debug.D.ebugPrintlnINFO("IN - client - " + mes.toString());
 
@@ -154,7 +153,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              * status message
              */
             case SOCMessage.STATUSMESSAGE:
-                handleSTATUSMESSAGE( (SOCStatusMessage) mes, isPractice );
+                handleSTATUSMESSAGE( (SOCStatusMessage) mes );
                 break;
 
             /**
@@ -191,7 +190,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              * Show main panel if not already showing; see handleCHANNELS javadoc.
              */
             case SOCMessage.CHANNELS:
-                handleCHANNELS( (SOCChannels) mes, isPractice );
+                handleCHANNELS( (SOCChannels) mes, true );
                 break;
 
             /**
@@ -219,14 +218,14 @@ public final class MessageHandler implements SOCMessageDispatcher
              * list of games on the server
              */
             case SOCMessage.GAMES:
-                handleGAMES( (SOCGames) mes, isPractice );
+                handleGAMES( (SOCGames) mes );
                 break;
 
             /**
              * join game authorization
              */
             case SOCMessage.JOINGAMEAUTH:
-                handleJOINGAMEAUTH( (SOCJoinGameAuth) mes, isPractice );
+                handleJOINGAMEAUTH( (SOCJoinGameAuth) mes );
                 break;
 
             /**
@@ -247,7 +246,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              * new game has been created
              */
             case SOCMessage.NEWGAME:
-                handleNEWGAME( (SOCNewGame) mes, isPractice );
+                handleNEWGAME( (SOCNewGame) mes );
                 break;
 
             /**
@@ -484,7 +483,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              * a dev card action, either draw, play, or add to hand
              */
             case SOCMessage.DEVCARDACTION:
-                handleDEVCARDACTION( isPractice, (SOCDevCardAction) mes );
+                handleDEVCARDACTION( (SOCDevCardAction) mes );
                 break;
 
             /**
@@ -581,15 +580,15 @@ public final class MessageHandler implements SOCMessageDispatcher
                 break;
 
             case SOCMessage.GAMEOPTIONINFO:
-                handleGAMEOPTIONINFO( (SOCGameOptionInfo) mes, isPractice );
+                handleGAMEOPTIONINFO( (SOCGameOptionInfo) mes );
                 break;
 
             case SOCMessage.NEWGAMEWITHOPTIONS:
-                handleNEWGAMEWITHOPTIONS( (SOCNewGameWithOptions) mes, isPractice );
+                handleNEWGAMEWITHOPTIONS( (SOCNewGameWithOptions) mes );
                 break;
 
             case SOCMessage.GAMESWITHOPTIONS:
-                handleGAMESWITHOPTIONS( (SOCGamesWithOptions) mes, isPractice );
+                handleGAMESWITHOPTIONS( (SOCGamesWithOptions) mes );
                 break;
 
             /**
@@ -700,7 +699,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              * Added 2015-01-11 for v2.0.00.
              */
             case SOCMessage.LOCALIZEDSTRINGS:
-                handleLOCALIZEDSTRINGS( (SOCLocalizedStrings) mes, isPractice );
+                handleLOCALIZEDSTRINGS( (SOCLocalizedStrings) mes );
                 break;
 
             /**
@@ -708,7 +707,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              * Added 2015-09-21 for v2.0.00.
              */
             case SOCMessage.SCENARIOINFO:
-                handleSCENARIOINFO( (SOCScenarioInfo) mes, isPractice );
+                handleSCENARIOINFO( (SOCScenarioInfo) mes );
                 break;
 
             /**
@@ -747,24 +746,22 @@ public final class MessageHandler implements SOCMessageDispatcher
      * and display the version on the main panel.
      * (Local server's version is always {@link Version#versionNumber()}.)
      *
-     * @param isPractice Is the server {@link ClientNetwork#practiceServer}, not remote?  Client can be connected
-     *                only to one at a time.
      * @param mes  the message
-     * @since 1.1.00
+     * @param connection  The peer connection that sent the message
+     * @since 3.0.0
      */
     private void handleVERSION( SOCVersion mes, Connection connection )
     {
         D.ebugPrintlnINFO( "handleVERSION: " + mes );
-        final boolean isPractice = connection instanceof MemConnection;
 
         int vers = mes.getVersionNumber();
 
-            client.getConnection().setVersion( vers, true );
-            client.sFeatures = (vers >= SOCFeatureSet.VERSION_FOR_SERVERFEATURES)
-                ? new SOCFeatureSet( mes.feats )
-                : new SOCFeatureSet( true, true );
+        client.getConnection().setVersion( vers, true );
+        client.sFeatures = (vers >= SOCFeatureSet.VERSION_FOR_SERVERFEATURES)
+            ? new SOCFeatureSet( mes.feats )
+            : new SOCFeatureSet( true, true );
 
-            client.getMainDisplay().showVersion( vers, mes.getVersionString(), mes.getBuild(), client.sFeatures );
+        client.getMainDisplay().showVersion( vers, mes.getVersionString(), mes.getBuild(), client.sFeatures );
 
         // If we ever require a minimum server version, would check that here.
 
@@ -780,16 +777,15 @@ public final class MessageHandler implements SOCMessageDispatcher
             && ! ("en".equals(client.cliLocale.getLanguage())
             && "US".equals(client.cliLocale.getCountry()));
 
-        SOCGameOptionSet opts3p =
-            (vers >= cliVersion && ! isPractice)
+        SOCGameOptionSet opts3p = (vers >= cliVersion)
                 ? client.tcpServGameOpts.knownOpts.optionsWithFlag( SOCGameOption.FLAG_3RD_PARTY, 0 )
                 : null;   // sVersion < cliVersion, so SOCGameOptionSet.optionsNewerThanVersion will find any 3rd-party opts
 
         if (    (vers > cliVersion)
-             || ( sameVersion && (withTokenI18n || (opts3p != null))) )
+             || ( sameVersion && (withTokenI18n || (opts3p != null ))) )
         {
             // Newer server: Ask it to list any options we don't know about yet.
-            // Same version: Ask for all localized option descs if available.
+            // Same version: Ask for all localized option descriptions if available.
             // Also ask about any 3rd-party options known at client.
 
             final SOCGameOptionGetInfos ogiMsg;
@@ -807,9 +803,8 @@ public final class MessageHandler implements SOCMessageDispatcher
                 // sends "-" and/or "?I18N"
             }
 
-            if (!isPractice)
-                client.getMainDisplay().optionsRequested();
-            connection.send( ogiMsg );  // send the request back on the same connection it came in on.
+            client.getMainDisplay().optionsRequested();     // Tell the display that we've requested the game options
+            connection.send( ogiMsg );  // ask for the game options from the server on the same connection it came in on.
         }
         else if (vers < cliVersion)
         {
@@ -875,17 +870,19 @@ public final class MessageHandler implements SOCMessageDispatcher
             // and found nothing else to ask about (i18n, 3rd-party gameopts).
 
             // For practice games, knownOpts may already be initialized, so check vs null.
-            ServerGametypeInfo opts = (isPractice ? client.practiceServGameOpts : client.tcpServGameOpts);
+            ServerGametypeInfo opts = client.tcpServGameOpts;
             if (opts.knownOpts == null)
                 opts.knownOpts = SOCGameOptionSet.getAllKnownOptions();
-            opts.noMoreOptions( isPractice );  // defaults not known unless it's practice
+            opts.noMoreOptions( false );  // defaults not known unless it's practice
 
+/*
             if (!(withTokenI18n || isPractice))
             {
                 // won't need i18n strings: set flags so we won't ask server later for scenario details
                 opts.allScenStringsReceived = true;
                 opts.allScenInfoReceived = true;
             }
+*/
         }
     }
 
@@ -902,7 +899,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      * @param mes  the message
      * @param isPractice from practice server, not remote server?
      */
-    protected void handleSTATUSMESSAGE( SOCStatusMessage mes, final boolean isPractice )
+    protected void handleSTATUSMESSAGE( SOCStatusMessage mes )
     {
         int sv = mes.getStatusValue();
         String statusText = mes.getStatus();
@@ -924,7 +921,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         }
 
         final boolean srvDebugMode;
-        if (isPractice || (client.getConnection().getRemoteVersion() >= 2000))
+        if ( /*isPractice ||*/ (client.getConnection().getRemoteVersion() >= 2000))
         {
             final boolean svIsOKDebug = (sv == SOCStatusMessage.SV_OK_DEBUG_MODE_ON);
             srvDebugMode = svIsOKDebug;
@@ -939,7 +936,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         client.getMainDisplay().showStatus( statusText, (sv == SOCStatusMessage.SV_OK), srvDebugMode );
 
         // Are we waiting for auth response in order to show NGOF?
-        if ((!isPractice) && client.isNGOFWaitingForAuthStatus)
+        if ( /*(!isPractice) &&*/ client.isNGOFWaitingForAuthStatus)
         {
             client.isNGOFWaitingForAuthStatus = false;
 
@@ -980,7 +977,7 @@ public final class MessageHandler implements SOCMessageDispatcher
 
                 StringBuilder opts = new StringBuilder();
                 final SOCGameOptionSet knowns =
-                    (isPractice) ? client.practiceServGameOpts.knownOpts : client.tcpServGameOpts.knownOpts;
+                    /*(isPractice) ? client.practiceServGameOpts.knownOpts :*/ client.tcpServGameOpts.knownOpts;
                 for (String oname : optNames)
                 {
                     opts.append( '\n' );
@@ -1013,7 +1010,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                 st.nextToken();
                 final String gameName = st.nextToken();
                 final String featsList = (st.hasMoreTokens()) ? st.nextToken() : "?";
-                final String msgKey = (client.doesGameExist( gameName, true ))
+                final String msgKey = (client.doesGameExist( gameName ))
                     ? "pcli.gamelist.client_feats.cannot_join"
                     // "Cannot create game {0}\nThis client does not have required feature(s): {1}"
                     : "pcli.gamelist.client_feats.cannot_create";
@@ -1082,18 +1079,18 @@ public final class MessageHandler implements SOCMessageDispatcher
      * handle the "list of channels" message; this message indicates that
      * we're newly connected to the server, and is sent even if the server
      * isn't using {@link SOCFeatureSet#SERVER_CHANNELS}: Server connection is complete.
-     * Unless {@code isPractice}, show {@link #MAIN_PANEL}.
+     * Unless {@code showChannels}, show {@link #MAIN_PANEL}.
      * @param mes  the message
-     * @param isPractice is the server actually {@link ClientNetwork#practiceServer} (practice game)?
+     * @param showChannels show the list of channels. TODO: If there are no other non-robot players, this should be false
      */
-    protected void handleCHANNELS( final SOCChannels mes, final boolean isPractice )
+    protected void handleCHANNELS( final SOCChannels mes, final boolean showChannels )
     {
         EventQueue.invokeLater( new Runnable()
         {
             public void run()
             {
                 MainDisplay mdisp = client.getMainDisplay();
-                mdisp.channelList( mes.getChannels(), isPractice );
+                mdisp.channelList( mes.getChannels(), showChannels );
                 mdisp.repaintGameAndChannelLists();
             }
         } );
@@ -1167,7 +1164,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      * handle the "list of games" message
      * @param mes  the message
      */
-    protected void handleGAMES( final SOCGames mes, final boolean isPractice )
+    protected void handleGAMES( final SOCGames mes )
     {
         // Any game's name in this msg may start with the "unjoinable" prefix
         // SOCGames.MARKER_THIS_GAME_UNJOINABLE.
@@ -1175,18 +1172,15 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         List<String> gameNames = mes.getGames();
 
-        if (!isPractice)  // practiceServer's gameoption data is set up in handleVERSION
-        {
-            if (client.serverGames == null)
-                client.serverGames = new SOCGameList( client.tcpServGameOpts.knownOpts );
-            client.serverGames.addGames( gameNames, Version.versionNumber() );
+        if (client.serverGames == null)
+            client.serverGames = new SOCGameList( client.tcpServGameOpts.knownOpts );
+        client.serverGames.addGames( gameNames, Version.versionNumber() );
 
-            // No more game-option info will be received,
-            // because that's always sent before game names are sent.
-            // We may still ask for GAMEOPTIONGETDEFAULTS if asking to create a game,
-            // but that will happen when user clicks that button, not yet.
-            client.tcpServGameOpts.noMoreOptions( false );
-        }
+        // No more game-option info will be received,
+        // because that's always sent before game names are sent.
+        // We may still ask for GAMEOPTIONGETDEFAULTS if asking to create a game,
+        // but that will happen when user clicks that button, not yet.
+        client.tcpServGameOpts.noMoreOptions( false );
 
         // update displayed list on AWT event thread, not network message thread,
         // to ensure right timing for repaint to avoid appearing empty.
@@ -1206,25 +1200,16 @@ public final class MessageHandler implements SOCMessageDispatcher
      * handle the "join game authorization" message: create new {@link SOCGame} and
      * {@link SOCPlayerInterface} so user can join the game
      * @param mes  the message
-     * @param isPractice  if server is practiceServer (not normal tcp network)
      * @throws IllegalStateException if board size {@link SOCGameOption} "_BHW" isn't defined (unlikely internal error)
      */
-    protected void handleJOINGAMEAUTH( SOCJoinGameAuth mes, final boolean isPractice )
+    protected void handleJOINGAMEAUTH( SOCJoinGameAuth mes )
         throws IllegalStateException
     {
         client.gotPassword = true;
 
-        final SOCGameOptionSet knownOpts =
-            ((isPractice) ? client.practiceServGameOpts : client.tcpServGameOpts).knownOpts;
+        final SOCGameOptionSet knownOpts = client.tcpServGameOpts.knownOpts;
         final String gaName = mes.getGame();
         SOCGameOptionSet gameOpts;
-        if (isPractice)
-        {
-            gameOpts = client.getNet().practiceServer.getGameOptions( gaName );
-            if (gameOpts != null)
-                gameOpts = new SOCGameOptionSet( gameOpts, false ); // so _BHW change here won't change practiceServ's copy
-        }
-        else
         {
             if (client.serverGames != null)
                 gameOpts = client.serverGames.parseGameOptions( gaName );
@@ -1247,8 +1232,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         }
 
         SOCGame ga = new SOCGame(gaName, gameOpts, knownOpts); // Constructors will never return null
-        ga.isPractice = isPractice;
-        ga.serverVersion = (isPractice) ? Version.versionNumber() : client.getConnection().getRemoteVersion();
+        ga.serverVersion = client.getConnection().getRemoteVersion();
 
             PlayerClientListener clientListener =
                 client.getMainDisplay().gameJoined( ga, mes.getLayoutVS(), client.getGameReqLocalPrefs().get( gaName ) );
@@ -1301,16 +1285,18 @@ public final class MessageHandler implements SOCMessageDispatcher
      * handle the "new game" message
      * @param mes  the message
      */
-    protected void handleNEWGAME( SOCNewGame mes, final boolean isPractice )
+    protected void handleNEWGAME( SOCNewGame mes )
     {
         // Run in network message thread, not AWT event thread,
         // in case client is about to be auth'd to join this game:
         // messages must take effect in the order sent
 
-        client.addToGameList( mes.getGame(), null, !isPractice );
+        client.addToGameList( mes.getGame(), null, true );
     }
 
     /**
+     * TODO: What is the message really used for?
+     *
      * handle the "delete game" message
      * @param mes  the message
      */
@@ -1425,7 +1411,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         final boolean playerIsClient = client.getNickname( ga.isPractice ).equals( plName );
 
         if (playerIsClient
-            && (ga.isPractice || (client.getConnection().getRemoteVersion() >= SOCDevCardAction.VERSION_FOR_SITDOWN_CLEARS_INVENTORY)))
+            && ( /*ga.isPractice ||*/ (client.getConnection().getRemoteVersion() >= SOCDevCardAction.VERSION_FOR_SITDOWN_CLEARS_INVENTORY)))
         {
             // server is about to send our dev-card inventory contents
             player.getInventory().clear();
@@ -1456,14 +1442,14 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleBOARDLAYOUT( SOCBoardLayout mes )
     {
-        final String gaName = mes.getGame();
-        SOCGame ga = client.games.get( gaName );
-        if (ga == null)
+        final String gameName = mes.getGame();
+        SOCGame game = client.games.get( gameName );
+        if (game == null)
             return;
 
-        SOCDisplaylessPlayerClient.handleBOARDLAYOUT( mes, ga );
+        SOCDisplaylessPlayerClient.handleBOARDLAYOUT( mes, game );
 
-        PlayerClientListener pcl = client.getClientListener( gaName );
+        PlayerClientListener pcl = client.getClientListener( gameName );
         if (pcl != null)
             pcl.boardLayoutUpdated();
     }
@@ -2275,7 +2261,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      * Updates game data, then calls {@link PlayerClientListener#playerDevCardsUpdated(SOCPlayer, boolean)}.
      * @param mes  the message
      */
-    protected void handleDEVCARDACTION( final boolean isPractice, final SOCDevCardAction mes )
+    protected void handleDEVCARDACTION( final SOCDevCardAction mes )
     {
         SOCGame theGame = client.games.get(mes.getGame());
         if (theGame == null)
@@ -2302,8 +2288,9 @@ public final class MessageHandler implements SOCMessageDispatcher
         }
         else
         {
+            // TODO: with new client/server architecture we will not support older servers, so this check can be removed.
             int ctype = mes.getCardType();
-            if ((! isPractice) && (client.getConnection().getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
+            if ( /*(! isPractice) &&*/ (client.getConnection().getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
             {
                 if (ctype == SOCDevCardConstants.KNIGHT_FOR_VERS_1_X)
                     ctype = SOCDevCardConstants.KNIGHT;
@@ -2488,7 +2475,6 @@ public final class MessageHandler implements SOCMessageDispatcher
             return;  // Not one of our games
 
         SOCGame greset = ga.resetAsCopy();
-        greset.isPractice = ga.isPractice;
         client.games.put( gname, greset );
         pcl.boardReset( greset, mes.getRejoinPlayerNumber(), mes.getRequestingPlayerNumber() );
         ga.destroyGame();
@@ -2565,13 +2551,16 @@ public final class MessageHandler implements SOCMessageDispatcher
         ServerGametypeInfo servOpts;
         boolean isPractice = connection instanceof MemConnection;
         final List<String> unknowns;
+/*
         if (isPractice) synchronized (client.practiceServGameOpts)
         {
             unknowns = client.practiceServGameOpts.receiveDefaults(
                 SOCGameOption.parseOptionsToMap( mes.getOpts(), client.practiceServGameOpts.knownOpts ) );
             servOpts = client.practiceServGameOpts;
         }
-        else synchronized (client.tcpServGameOpts)
+        else
+*/
+        synchronized (client.tcpServGameOpts)
         {
             // receiveDefaults sets opts.defaultsReceived, may set opts.allOptionsReceived
             unknowns = client.tcpServGameOpts.receiveDefaults(
@@ -2581,16 +2570,16 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         if (unknowns != null)
         {
-            if (!isPractice)
+//            if (!isPractice)
             {
                 client.getMainDisplay().optionsRequested();
             }
-            connection.send( new SOCGameOptionGetInfos(unknowns, client.wantsI18nStrings(isPractice), false) );
+            connection.send( new SOCGameOptionGetInfos(unknowns, client.wantsI18nStrings( false ), false) );
         }
         else
         {
             servOpts.newGameWaitingForOpts = false;
-            client.getMainDisplay().optionsReceived( servOpts, isPractice );
+            client.getMainDisplay().optionsReceived( servOpts, false );
         }
     }
 
@@ -2610,12 +2599,14 @@ public final class MessageHandler implements SOCMessageDispatcher
      *
      * @since 1.1.07
      */
-    /*package*/ void handleGAMEOPTIONINFO( SOCGameOptionInfo mes, final boolean isPractice )
+    /*package*/ void handleGAMEOPTIONINFO( SOCGameOptionInfo mes )
     {
         ServerGametypeInfo opts;
+/*
         if (isPractice)
             opts = client.practiceServGameOpts;
         else
+*/
             opts = client.tcpServGameOpts;
 
         boolean hasAllNow;
@@ -2625,14 +2616,14 @@ public final class MessageHandler implements SOCMessageDispatcher
         }
 
         boolean isDash = mes.getOptionNameKey().equals( "-" );  // I18N OK: do not localize "-" or any other keyname
-        client.getMainDisplay().optionsReceived( opts, isPractice, isDash, hasAllNow );
+        client.getMainDisplay().optionsReceived( opts, false, isDash, hasAllNow );
     }
 
     /**
      * process the "new game with options" message
      * @since 1.1.07
      */
-    private void handleNEWGAMEWITHOPTIONS( final SOCNewGameWithOptions mes, final boolean isPractice )
+    private void handleNEWGAMEWITHOPTIONS( final SOCNewGameWithOptions mes )
     {
         // Note: Must run in network message thread, not AWT event thread,
         // in case client is about to be auth'd to join this game:
@@ -2648,25 +2639,25 @@ public final class MessageHandler implements SOCMessageDispatcher
             canJoin = false;
         }
 
-        client.getMainDisplay().addToGameList( !canJoin, gname, opts, !isPractice );
+        client.getMainDisplay().addToGameList( !canJoin, gname, opts, true );
     }
 
     /**
      * handle the "list of games with options" message
      * @since 1.1.07
      */
-    private void handleGAMESWITHOPTIONS( SOCGamesWithOptions mes, final boolean isPractice )
+    private void handleGAMESWITHOPTIONS( SOCGamesWithOptions mes )
     {
         // Any game's name in this msg may start with the "unjoinable" prefix
         // SOCGames.MARKER_THIS_GAME_UNJOINABLE.
         // This is recognized and removed in mes.getGameList.
 
         final SOCGameList msgGames = mes.getGameList
-            ( (isPractice ? client.practiceServGameOpts : client.tcpServGameOpts).knownOpts );
+            ( /*(isPractice ? client.practiceServGameOpts :*/ client.tcpServGameOpts.knownOpts );
         if (msgGames == null)
             return;
 
-        if (!isPractice)  // practice gameoption data is set up in handleVERSION;
+//        if (!isPractice)  // practice gameoption data is set up in handleVERSION;
         {                  // practice srv's gamelist is reached through practiceServer obj.
             if (client.serverGames == null)
                 client.serverGames = msgGames;
@@ -2701,12 +2692,12 @@ public final class MessageHandler implements SOCMessageDispatcher
     /**
      * Localized i18n strings for game items.
      * Added 2015-01-11 for v2.0.00.
-     * @param isPractice  Is the server {@link ClientNetwork#practiceServer}, not remote?
+     * @param mes  the localized strings message from the server. TODO: ignore this message and do all the localization on the client
      */
-    private void handleLOCALIZEDSTRINGS( final SOCLocalizedStrings mes, final boolean isPractice )
+    private void handleLOCALIZEDSTRINGS( final SOCLocalizedStrings mes )
     {
         final SOCGameOptionSet knownOpts =
-            ((isPractice) ? client.practiceServGameOpts : client.tcpServGameOpts).knownOpts;
+            ( /*(isPractice) ? client.practiceServGameOpts :*/ client.tcpServGameOpts).knownOpts;
         final List<String> strs = mes.getParams();
         final String type = strs.get( 0 );
 
@@ -2727,8 +2718,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         }
         else if (type.equals( SOCLocalizedStrings.TYPE_SCENARIO ))
         {
-            client.localizeGameScenarios
-                ( strs, true, mes.isFlagSet( SOCLocalizedStrings.FLAG_SENT_ALL ), isPractice );
+            client.localizeGameScenarios( strs, true, mes.isFlagSet( SOCLocalizedStrings.FLAG_SENT_ALL ));
         }
         else
         {
@@ -2739,14 +2729,15 @@ public final class MessageHandler implements SOCMessageDispatcher
     /**
      * Updated scenario info.
      * Added 2015-09-21 for v2.0.00.
-     * @param isPractice  Is the server {@link ClientNetwork#practiceServer}, not remote?
      */
-    private void handleSCENARIOINFO( final SOCScenarioInfo mes, final boolean isPractice )
+    private void handleSCENARIOINFO( final SOCScenarioInfo mes )
     {
         ServerGametypeInfo opts;
+/*
         if (isPractice)
             opts = client.practiceServGameOpts;
         else
+*/
             opts = client.tcpServGameOpts;
 
         if (mes.noMoreScens)
@@ -2764,7 +2755,8 @@ public final class MessageHandler implements SOCMessageDispatcher
             if (mes.isKeyUnknown)
                 SOCScenario.removeUnknownScenario( scKey );
             else
-                SOCScenario.addKnownScenario( mes.getScenario() );
+                client.getNet().addValidScenario( mes.getScenario() );
+//                SOCScenario.addKnownScenario( mes.getScenario() );
 
             synchronized (opts)
             {

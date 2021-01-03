@@ -895,11 +895,11 @@ public class SOCServerMessageHandler
         Map<String, SOCScenario> knownScens = null;  // caches SOCScenario.getAllKnownScenarios() if called
 
         List<SOCScenario> changes = null;
-        if (hasAnyChangedMarker && (cliVers < Version.versionNumber()))
+        if (hasAnyChangedMarker /*&& (cliVers < Version.versionNumber())*/ )
         {
             knownScens = SOCScenario.getAllKnownScenarios();
-            changes = SOCVersionedItem.itemsNewerThanVersion
-                ( cliVers, false, knownScens );
+            changes = SOCVersionedItem.implItemsVersionCheck( cliVers, true, false, knownScens );
+//            changes = SOCVersionedItem.itemsNewerThanVersion( cliVers, false, knownScens );
         }
 
         if (L > 0)

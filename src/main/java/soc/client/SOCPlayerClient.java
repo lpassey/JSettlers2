@@ -350,8 +350,8 @@ public class SOCPlayerClient
      * @see #sFeatures
      * @since 1.1.07
      */
-    protected final ServerGametypeInfo tcpServGameOpts = new ServerGametypeInfo(),
-        practiceServGameOpts = new ServerGametypeInfo();
+    protected final ServerGametypeInfo tcpServGameOpts = new ServerGametypeInfo();
+//        practiceServGameOpts = new ServerGametypeInfo();
 
     /**
      * For practice games, default game name ("Practice").
@@ -536,7 +536,7 @@ public class SOCPlayerClient
                     SOCGameOption.FLAG_3RD_PARTY | SOCGameOption.FLAG_DROP_IF_UNUSED,
                     "Client test 3p option " + gameopt3pName );
             tcpServGameOpts.knownOpts.put( gameopt3p );
-            practiceServGameOpts.knownOpts.put( gameopt3p );
+//            practiceServGameOpts.knownOpts.put( gameopt3p );
             soc.server.SOCServer.startupKnownOpts.put( gameopt3p );
             // similar code is in SOCRobotClient.buildClientFeats()
         }
@@ -755,10 +755,10 @@ public class SOCPlayerClient
      * @param isPractice  Is the server {@link ClientNetwork#practiceServer}, not remote?
      * @since 2.0.00
      */
-    protected void localizeGameScenarios
-    ( final List<String> scStrs, final boolean skipFirst, final boolean sentAll, final boolean isPractice )
+    protected void localizeGameScenarios( final List<String> scStrs, final boolean skipFirst,
+        final boolean sentAll /*, final boolean isPractice*/ )
     {
-        ServerGametypeInfo opts = (isPractice ? practiceServGameOpts : tcpServGameOpts);
+        ServerGametypeInfo opts =  tcpServGameOpts;
 
         final int L = scStrs.size();
         int i = (skipFirst) ? 1 : 0;
@@ -799,7 +799,7 @@ public class SOCPlayerClient
      * @return True if game exists in client's practice server or remote server game lists
      * @since 2.0.00
      */
-    public boolean doesGameExist( final String gameName, final boolean checkPractice )
+    public boolean doesGameExist( final String gameName /*, final boolean checkPractice */ )
     {
         boolean gameExists = false;
 //            = (checkPractice)

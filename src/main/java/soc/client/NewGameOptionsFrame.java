@@ -301,7 +301,7 @@ import soc.util.Version;
         SOCPlayerClient cli = md.getClient();
         forNewGame = (gaName == null);
         this.opts = opts;
-        knownOpts = ((forPractice) ? cli.practiceServGameOpts : cli.tcpServGameOpts).knownOpts;
+        knownOpts = ( /*(forPractice) ? cli.practiceServGameOpts :*/ cli.tcpServGameOpts).knownOpts;
         localPrefs = new HashMap<>();
         this.forPractice = forPractice;
         this.readOnly = readOnly;
@@ -581,8 +581,9 @@ import soc.util.Version;
                 opt.userChanged = false;  // clear flag from any previously shown NGOF
         }
 
-        if (opts.containsKey( "SC" ))
-            allSc = SOCScenario.getAllKnownScenarios();
+//        if (opts.containsKey( "SC" ))
+        allSc = mainDisplay.getClient().getNet().getValidScenarios();
+//            allSc = SOCScenario.getAllKnownScenarios();
 
         gbc.anchor = GridBagConstraints.WEST;
 
@@ -711,8 +712,8 @@ import soc.util.Version;
      * @param gbl Use this layout
      * @param gbc Use these constraints
      */
-    private void initInterface_OptLine
-    ( SOCGameOption op, JPanel bp, GridBagLayout gbl, GridBagConstraints gbc )
+    private void initInterface_OptLine( SOCGameOption op, JPanel bp, GridBagLayout gbl,
+        GridBagConstraints gbc )
     {
         if (op.key.equals( "SC" ))
         {
@@ -1532,7 +1533,7 @@ import soc.util.Version;
          * Always check remote server for the requested game name.
          * Check practice game names only if creating another practice game.
          */
-        if (cl.doesGameExist( gmName, forPractice ))
+        if (cl.doesGameExist( gmName ))
         {
             NotifyDialog.createAndShow
                 ( mainDisplay, this, strings.get( "netmsg.status.common.newgame_already_exists" ), null, true );

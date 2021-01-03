@@ -172,7 +172,7 @@ public class SOCScenario
      *
      * @return a fresh copy of the "known" scenarios, with their hardcoded default values
      */
-    private static Map<String, SOCScenario> initAllScenarios()
+    public static Map<String, SOCScenario> initAllScenarios()
     {
         Map<String, SOCScenario> allSc = new HashMap<>();
 
@@ -437,7 +437,7 @@ public class SOCScenario
      *                see {@link SOCVersionedItem#isAlphanumericUpcaseAscii(String)} for format.
      * @throws IllegalArgumentException if key length is > 8 or not alphanumeric
      */
-    public SOCScenario(final String key)
+    public SOCScenario( final String key )
         throws IllegalArgumentException
     {
         this(false, key, Integer.MAX_VALUE, 0, "", null, "");
@@ -471,8 +471,7 @@ public class SOCScenario
      *        or fail their described requirements,
      *        or if minVers or lastModVers is under 2000 but not -1
      */
-    public SOCScenario
-        (final String key, final int minVers, final int lastModVers,
+    public SOCScenario( final String key, final int minVers, final int lastModVers,
          final String desc, final String longDesc, final String opts)
         throws IllegalArgumentException
     {
@@ -507,9 +506,8 @@ public class SOCScenario
      *        or if opts is {@code null} or the empty string "",
      *        or if minVers or lastModVers is under 2000 but not -1
      */
-    private SOCScenario
-        (final boolean isKnown, final String key, final int minVers, final int lastModVers,
-         final String desc, final String longDesc, final String opts)
+    private SOCScenario( final boolean isKnown, final String key, final int minVers, final int lastModVers,
+         final String desc, final String longDesc, final String opts )
         throws IllegalArgumentException
     {
         super(key, minVers, lastModVers, isKnown, desc);
@@ -563,7 +561,6 @@ public class SOCScenario
     public static Map<String, SOCScenario> getAllKnownScenarios()
     {
         // To add a new scenario, see initAllScenarios().
-
         return cloneScenarios(allScenarios);
     }
 

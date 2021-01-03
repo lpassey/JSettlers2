@@ -409,9 +409,8 @@ public abstract class SOCVersionedItem implements Cloneable
      * @throws IllegalArgumentException  if {@code getAllForVersion && checkValues}: Cannot combine these modes
      * @throws NullPointerException if {@code items} is null
      */
-    protected static <I extends SOCVersionedItem> List<I> implItemsVersionCheck
-    ( final int vers, final boolean getAllForVersion, final boolean checkValues,
-        Map<String, I> items )
+    public static <I extends SOCVersionedItem> List<I> implItemsVersionCheck( final int vers,
+        final boolean getAllForVersion, final boolean checkValues, Map<String, I> items )
         throws IllegalArgumentException
     {
         if (getAllForVersion && checkValues)

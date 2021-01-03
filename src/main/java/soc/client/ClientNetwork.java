@@ -28,7 +28,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
@@ -38,6 +40,7 @@ import soc.communication.NetConnection;
 // import soc.disableDebug.D;
 import soc.game.SOCGame;
 import soc.game.SOCGameOptionSet;
+import soc.game.SOCScenario;
 import soc.message.SOCJoinGame;
 import soc.message.SOCMessage;
 import soc.message.SOCNewGameWithOptionsRequest;
@@ -184,6 +187,8 @@ import soc.util.Version;
      */
     protected SOCServer practiceServer = null;
 
+    private Map<String, SOCScenario> validScenarios;
+
     /**
      * Create our client's ClientNetwork.
      * Before using the ClientNetwork, caller client must construct their GUI
@@ -218,11 +223,23 @@ import soc.util.Version;
         disconnect();
     }
 
+    public Map<String, SOCScenario> getValidScenarios()
+    {
+        return validScenarios;
+    }
+
+    void addValidScenario( SOCScenario newScenario )
+    {
+        if (null == validScenarios)
+            validScenarios = new HashMap<>();
+        validScenarios.put( newScenario.key, newScenario );
+    }
 
     public boolean startPracticeServer()
     {
         if (practiceServer == null)
         {
+            validScenarios = new HashMap<>(  );
             try
             {
                 if (Version.versionNumber() == 0)
@@ -233,6 +250,22 @@ import soc.util.Version;
                 practiceServer = new SOCServer(SOCServer.PRACTICE_STRINGPORT, SOCServer.SOC_MAXCONN_DEFAULT, null, null);
                 practiceServer.setPriority(5);  // same as in SOCServer.main
                 practiceServer.start();
+
+                // Server is started. Create a connection so we can get setup information.
+                Connection prCli = MemServerSocket.connectTo( SOCServer.PRACTICE_STRINGPORT, null );
+                if (client.debugTraffic)
+                {
+                    prCli.setData( "client" );
+                    prCli.setDebugTraffic( true );
+                }
+                client.setConnection( prCli );
+                prCli.startMessageProcessing( client.getMessageHandler() );  // Reader will start its own thread
+
+                // Send VERSION right away
+                sendVersion();
+
+                // Practice server supports per-game options
+                mainDisplay.enableOptions();
             }
             catch (Throwable th)
             {

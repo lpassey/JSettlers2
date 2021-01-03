@@ -1825,7 +1825,6 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             status.setText( client.strings.get( "pcli.message.talkingtoserv" ) );  // "Talking to server..."
             setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );  // NGOF create calls setCursor(DEFAULT_CURSOR)
             client.requestAuth();
-
             return;
         }
 
@@ -1842,6 +1841,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         {
             boolean fullSetIsKnown = false;
 
+/*
             if (forPracticeServer)
             {
                 opts = client.practiceServGameOpts;
@@ -1868,6 +1868,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 }
             }
             else
+*/
             {
                 opts = client.tcpServGameOpts;
                 if (   (! opts.allOptionsReceived)
@@ -1881,6 +1882,10 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
             if (fullSetIsKnown)
             {
+                // we have all the known options, localize them if possible.
+                client.localizeGameScenarios( SOCServer.localizeGameScenarios( client.cliLocale, null,
+                    true, false, null ),
+                    false, true );
                 opts.allOptionsReceived = true;
                 opts.defaultsReceived = true;
             }
@@ -1939,7 +1944,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
 
         final int cliVers = Version.versionNumber();
-        if ((!forPracticeServer) && (!opts.allScenInfoReceived)
+        if ( /*(!forPracticeServer) &&*/ (!opts.allScenInfoReceived)
             && (client.getRemoteVersion() >= SOCScenario.VERSION_FOR_SCENARIOS))
         {
             // Before game option defaults, ask for any updated or localized scenario info;
@@ -1967,14 +1972,16 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             //   If server is newer: Ask for any scenario changes since our version.
             //   If same version: Ask for i18n localized scenarios strings if available.
 
-            if (cliVers != client.getRemoteVersion())
+//            if (cliVers != client.getRemoteVersion())
             {
                 client.sendScenarioInfo( changes );
             }
+/*
             else if (client.wantsI18nStrings( false ))
             {
                 client.requestLocalizedStrings();
             }
+*/
         }
 
         opts.newGameWaitingForOpts = true;
@@ -1984,7 +1991,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         if (gameOptsDefsTask != null)
             gameOptsDefsTask.cancel();
         gameOptsDefsTask = new GameOptionDefaultsTimeoutTask( this, client.tcpServGameOpts, forPracticeServer );
-        eventTimer.schedule( gameOptsDefsTask, 5000 /* ms */ );
+        eventTimer.schedule( gameOptsDefsTask, 150000 /* ms */ );
 
         // Once options are received, handlers will
         // create and show NewGameOptionsFrame.
@@ -2463,7 +2470,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         if (gameOptsTask != null)
             gameOptsTask.cancel();
         gameOptsTask = new GameOptionsTimeoutTask( this, client.tcpServGameOpts );
-        eventTimer.schedule( gameOptsTask, 5000 /* ms */ );
+        eventTimer.schedule( gameOptsTask, 150000 /* ms */ );
     }
 
     /**
@@ -2984,8 +2991,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         {
             pcli.gameOptsTask = null;  // Clear reference to this soon-to-expire obj
             srvOpts.noMoreOptions( false );
-            pcli.getClient().getMessageHandler().handleGAMEOPTIONINFO
-                ( new SOCGameOptionInfo( new SOCGameOption( "-" ), Version.versionNumber(), null ), false );
+            pcli.getClient().getMessageHandler().handleGAMEOPTIONINFO(
+                new SOCGameOptionInfo( new SOCGameOption( "-" ), Version.versionNumber(), null ));
         }
 
     }  // GameOptionsTimeoutTask
