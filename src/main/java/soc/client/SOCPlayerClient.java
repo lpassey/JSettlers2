@@ -935,10 +935,10 @@ public class SOCPlayerClient
      *         starting the practice server or client
      * @since 1.1.00
      */
-    public boolean startPracticeGame()
-    {
-        return startPracticeGame( null, null, true );
-    }
+//    public boolean startPracticeGame()
+//    {
+//        return startPracticeGame( null, null, true );
+//    }
 
     /**
      * Setup for practice game (on the non-tcp server).
@@ -967,6 +967,13 @@ public class SOCPlayerClient
         mainDisplay.practiceGameStarting();
 
         return net.startPracticeGame( practiceGameName, gameOpts );
+    }
+
+    public String getNextGameName()
+    {
+        if (0 == numPracticeGames)
+            return DEFAULT_PRACTICE_GAMENAME;
+        return DEFAULT_PRACTICE_GAMENAME + " " + (numPracticeGames);  // "Practice 3"
     }
 
     /**
@@ -1248,7 +1255,7 @@ public class SOCPlayerClient
         {
             final String pw = ( gotPassword ? "" : password);  // after successful auth, don't need to send
             SOCMessage askMsg =
-            new SOCNewGameWithOptionsRequest( nickname, pw, SOCMessage.EMPTYSTR, gameName, opts.getAll() );
+                new SOCNewGameWithOptionsRequest( nickname, pw, SOCMessage.EMPTYSTR, gameName, opts.getAll() );
             serverConnection.send( askMsg );
         }
     }

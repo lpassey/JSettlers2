@@ -128,6 +128,14 @@ import soc.util.Version;
      * @since 2.0.00
      */
     private final SOCFeatureSet cliFeats;
+
+    private boolean practiceGame;
+
+    public boolean isPracticeGame()
+    {
+        return practiceGame;
+    }
+
     {
         cliFeats = new SOCFeatureSet(false, false);
         cliFeats.add(SOCFeatureSet.CLIENT_6_PLAYERS);
@@ -237,6 +245,8 @@ import soc.util.Version;
 
     public boolean startPracticeServer()
     {
+        // We only get here if the "Practice" button was pushed, so we can set a practice flag here.
+        practiceGame = true;
         if (practiceServer == null)
         {
             validScenarios = new HashMap<>(  );

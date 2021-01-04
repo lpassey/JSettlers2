@@ -2010,11 +2010,13 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     {
         client.putGameReqLocalPrefs(gameName, localPrefs);
 
+/*
         if (forPracticeServer)
         {
             client.startPracticeGame(gameName, opts, true);  // Also sets WAIT_CURSOR
         }
         else
+*/
         {
             client.requestNewGameWithOptions( gameName, opts );
             System.out.flush();  // for debug print output (temporary)
@@ -2498,8 +2500,10 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
         if ((opts.newGameOpts == null) && (opts.knownOpts != null))
             opts.newGameOpts = new SOCGameOptionSet( opts.knownOpts, true );
-        newGameOptsFrame = NewGameOptionsFrame.createAndShow
-            ( null, SwingMainDisplay.this, null, opts.newGameOpts, isPractice, false );
+        isPractice = getClient().getNet().isPracticeGame();
+        newGameOptsFrame = NewGameOptionsFrame.createAndShow( null, SwingMainDisplay.this,
+            isPractice ? getClient().getNextGameName() : null,
+            opts.newGameOpts, isPractice, false );
     }
 
     public void optionsReceived( ServerGametypeInfo opts, boolean isPractice, boolean isDash, boolean hasAllNow )

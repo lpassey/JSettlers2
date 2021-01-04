@@ -2549,7 +2549,7 @@ public final class MessageHandler implements SOCMessageDispatcher
     private void handleGAMEOPTIONGETDEFAULTS(SOCGameOptionGetDefaults mes, Connection connection )
     {
         ServerGametypeInfo servOpts;
-        boolean isPractice = connection instanceof MemConnection;
+//        boolean isPractice = connection instanceof MemConnection;
         final List<String> unknowns;
 /*
         if (isPractice) synchronized (client.practiceServGameOpts)
@@ -2579,7 +2579,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         else
         {
             servOpts.newGameWaitingForOpts = false;
-            client.getMainDisplay().optionsReceived( servOpts, false );
+            client.getMainDisplay().optionsReceived( servOpts, true );
         }
     }
 

@@ -3,17 +3,17 @@
  * Copyright (C) 2003  Robert S. Thomas
  * This file copyright (C) 2009-2015,2017-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012-2013 Paul Bilnoski <paul@bilnoski.net>
- * <p>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
@@ -359,19 +359,18 @@ import soc.util.Version;
      * See {@link #NewGameOptionsFrame(SOCPlayerInterface, MainDisplay, String, SOCGameOptionSet, boolean, boolean) constructor}
      * for notes about <tt>opts</tt> and other parameters.
      * @param pi  Interface of existing game, or {@code null} for a new game; see constructor
-     * @param gaName  Name of existing game, or {@code null} to show options for a new game;
+     * @param gameName  Name of existing game, or {@code null} to show options for a new game;
      *     see constructor for details
      * @return the new frame
      * @throws IllegalArgumentException if a non-null {@code opts} is the client's knownOpts
      *     from {@link ServerGametypeInfo#knownOpts}, which should be copied before use for a new game's options
      */
-    public static NewGameOptionsFrame createAndShow
-    ( SOCPlayerInterface pi, MainDisplay md, String gaName,
-        SOCGameOptionSet opts, boolean forPractice, boolean readOnly )
+    public static NewGameOptionsFrame createAndShow( SOCPlayerInterface pi, MainDisplay md,
+        String gameName, SOCGameOptionSet opts, boolean forPractice, boolean readOnly )
         throws IllegalArgumentException
     {
-        final NewGameOptionsFrame ngof =
-            new NewGameOptionsFrame( pi, md, gaName, opts, forPractice, readOnly );
+        final NewGameOptionsFrame ngof = new NewGameOptionsFrame( pi, md, gameName, opts,
+            forPractice, readOnly );
         ngof.pack();
         ngof.setVisible( true );
 
