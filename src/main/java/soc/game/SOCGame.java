@@ -1427,8 +1427,8 @@ public class SOCGame implements Serializable, Cloneable
      *             or {@code knownOpts} is null but {@code op} is non-null
      * @since 1.1.07
      */
-    public SOCGame
-    ( final String gameName, final boolean isActive, final SOCGameOptionSet op, final SOCGameOptionSet knownOpts )
+    public SOCGame( final String gameName, final boolean isActive, final SOCGameOptionSet op,
+        final SOCGameOptionSet knownOpts )
         throws IllegalArgumentException
     {
         // For places to initialize fields, see also resetAsCopy().

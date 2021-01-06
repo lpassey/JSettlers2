@@ -28,6 +28,7 @@ import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
 import soc.game.SOCScenario;
 import soc.message.SOCMessage;
+import soc.server.SOCServerScenario;
 
 /**
  * Tests for any SOCScenarios with inconsistent game options.
@@ -105,7 +106,7 @@ public class TestScenarioOpts
         final SOCGameOptionSet knownOpts = SOCGameOptionSet.getAllKnownOptions();
         final TreeSet<String> badScens = new TreeSet<>(); // use TreeSet for sorted results
 
-        for (final SOCScenario sc : SOCScenario.getAllKnownScenarios().values())
+        for (final SOCScenario sc : SOCServerScenario.getAllKnownScenarios().values())
         {
             if (sc.scOpts.equals("-"))
                 continue;

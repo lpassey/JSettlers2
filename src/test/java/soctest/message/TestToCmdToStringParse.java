@@ -47,6 +47,8 @@ import soc.message.SOCGameElements.GEType;
 import soc.message.SOCPlayerElement.PEType;
 
 import org.junit.Test;
+import soc.server.SOCServerScenario;
+
 import static org.junit.Assert.*;
 
 /**
@@ -108,9 +110,13 @@ public class TestToCmdToStringParse
             if (expectedToCmd == null)
             {
                 // that's fine, skip toCmd
-            } else if (! s.equals(expectedToCmd)) {
+            }
+            else if (! s.equals(expectedToCmd))
+            {
                 res.append(" toCmd: expected \"" + expectedToCmd + "\", got \"" + s + "\"");
-            } else {
+            }
+            else
+            {
                 // finish round-trip compare msg -> toCmd() -> toMsg(cmd)
                 SOCMessage rev = SOCMessage.toMsg(s);
                 if (rev == null)
@@ -870,7 +876,7 @@ public class TestToCmdToStringParse
             new HashSet<String>(Arrays.asList("scKey", "noMoreScens"))
         },
         {
-            new SOCScenarioInfo(SOCScenario.getScenario(SOCScenario.K_SC_NSHO), "new shores", null),  // has no long desc
+            new SOCScenarioInfo( SOCServerScenario.getScenario(SOCScenario.K_SC_NSHO), "new shores", null),  // has no long desc
             "1101|SC_NSHO|2000|2000|_SC_SEAC=t,SBL=t,VP=t13|new shores",
             "SOCScenarioInfo:key=SC_NSHO|minVers=2000|lastModVers=2000|opts=_SC_SEAC=t,SBL=t,VP=t13|title=new shores",
             OPT_SKIP_PARSE,
@@ -878,7 +884,7 @@ public class TestToCmdToStringParse
             new HashSet<String>(Arrays.asList("scKey", "noMoreScens"))
         },
         {
-            new SOCScenarioInfo(SOCScenario.getScenario(SOCScenario.K_SC_4ISL), "4 islands", "long desc, 4 islands"),
+            new SOCScenarioInfo( SOCServerScenario.getScenario(SOCScenario.K_SC_4ISL), "4 islands", "long desc, 4 islands"),
             "1101|SC_4ISL|2000|2000|_SC_SEAC=t,SBL=t,VP=t12|4 islands|long desc, 4 islands",
             "SOCScenarioInfo:key=SC_4ISL|minVers=2000|lastModVers=2000|opts=_SC_SEAC=t,SBL=t,VP=t12|title=4 islands|desc=long desc, 4 islands",
             OPT_SKIP_PARSE,

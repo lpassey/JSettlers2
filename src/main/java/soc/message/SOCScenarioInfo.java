@@ -226,7 +226,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
         super( SCENARIOINFO, new ArrayList<String>() );
 
         noMoreScens = (sc == null); // we have to do this here as it is marked as a final variable.
-//        isFromServer = true;        // frequently not true, but ignored upon receipt.
+//        isFromServer = true;
         isKeyUnknown = false;
 
         scen = sc;
@@ -315,8 +315,6 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
         throws IllegalArgumentException
     {
         super( SCENARIOINFO, (scKeys != null) ? scKeys : new ArrayList<String>() );
-
-//        isFromServer = false;
 
         if ((scKeys == null) || scKeys.isEmpty())
         {
@@ -503,15 +501,18 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     @Override
     public String toString()
     {
+        final String s = pa.get( 0 );  // may throw IndexOutOfBoundsException if empty
+
+        boolean isFromServer = !(pa.get(0).equals( MARKER_SCEN_NAME_LIST ) || s.equals( MARKER_ANY_CHANGED ));
+
         List<String> fields = pa;
-        if ( /*isFromServer &&*/ (fields.size() > 2)
+        if (   (fields.size() > 2)
             && (isKeyUnknown || fields.get( 2 ).equals( STR_MARKER_KEY_UNKNOWN )))
         {
             fields = new ArrayList<>( fields );
             fields.set( 2, "MARKER_KEY_UNKNOWN" );
         }
 
-        return toString( fields, /*isFromServer ?*/ FIELD_NAMES );  // : null );
+        return toString( fields, isFromServer ? FIELD_NAMES : null );
     }
-
 }

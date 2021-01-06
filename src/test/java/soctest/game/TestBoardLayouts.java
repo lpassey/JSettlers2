@@ -45,6 +45,7 @@ import soc.game.SOCVersionedItem;  // for javadoc
 import soc.server.SOCBoardAtServer;
 import soc.server.SOCGameHandler;
 import soc.server.SOCGameListAtServer;
+import soc.server.SOCServerScenario;
 
 /**
  * Tests for inconsistent board layouts: Classic 4- and 6-player games and
@@ -117,7 +118,7 @@ public class TestBoardLayouts
     @BeforeClass
     public static void setup()
     {
-        allScens = SOCScenario.getAllKnownScenarios();
+        allScens = SOCServerScenario.getAllKnownScenarios();
         sgh = new SOCGameHandler(null);
         gl = new SOCGameListAtServer(new Random(), SOCGameOptionSet.getAllKnownOptions());
     }

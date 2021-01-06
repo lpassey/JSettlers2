@@ -42,6 +42,7 @@ import soc.game.SOCGameOptionSet;
 import soc.game.SOCScenario;
 import soc.message.SOCLocalizedStrings;
 import soc.message.SOCMessage;
+import soc.server.SOCServerScenario;
 import soc.util.SOCStringManager;
 
 /**
@@ -70,7 +71,7 @@ public class TestI18NGameoptScenStrings
     {
         sm = SOCStringManager.getServerManagerForClient(new Locale("en_US"));
         allOpts = SOCGameOptionSet.getAllKnownOptions();
-        allScens = SOCScenario.getAllKnownScenarios();
+        allScens = SOCServerScenario.getAllKnownScenarios();
     }
 
     /**

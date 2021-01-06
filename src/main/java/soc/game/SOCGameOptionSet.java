@@ -1409,8 +1409,8 @@ public class SOCGameOptionSet
      * @throws IllegalArgumentException  if {@code getAllForVersion && checkValues}: Cannot combine these modes
      * @since 2.0.00
      */
-    private List<SOCGameOption> implOptionsVersionCheck
-    ( final int vers, final boolean getAllForVersion, final boolean checkValues, final boolean trimEnums )
+    private List<SOCGameOption> implOptionsVersionCheck( final int vers, final boolean getAllForVersion,
+        final boolean checkValues, final boolean trimEnums )
         throws IllegalArgumentException
     {
         /** collect newer options here, or all options if getAllForVersion */
@@ -1570,8 +1570,8 @@ public class SOCGameOptionSet
      * @throws IllegalArgumentException if {@code knownOpts} is null
      * @since 1.1.07
      */
-    public StringBuilder adjustOptionsToKnown
-    ( final SOCGameOptionSet knownOpts, final boolean doServerPreadjust, final SOCFeatureSet limitedCliFeats )
+    public StringBuilder adjustOptionsToKnown( final SOCGameOptionSet knownOpts, final boolean doServerPreadjust,
+        final SOCFeatureSet limitedCliFeats )
         throws IllegalArgumentException
     {
         if (knownOpts == null)

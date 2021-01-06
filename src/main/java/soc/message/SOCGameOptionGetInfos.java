@@ -172,8 +172,8 @@ public class SOCGameOptionGetInfos extends SOCMessage
      * @throws IllegalArgumentException if {@code withOnlyTokenI18n}, but {@code okeys != null}
      * @see #SOCGameOptionGetInfos(List, boolean)
      */
-    public SOCGameOptionGetInfos
-    ( final List<String> okeys, final boolean withTokenI18nDescs, final boolean withOnlyTokenI18n )
+    public SOCGameOptionGetInfos( final List<String> okeys, final boolean withTokenI18nDescs,
+        final boolean withOnlyTokenI18n )
         throws IllegalArgumentException
     {
         if (withOnlyTokenI18n && (okeys != null))

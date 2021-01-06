@@ -110,8 +110,8 @@ public final class MessageHandler implements SOCMessageDispatcher
         if (mes == null)
             return;  // Parsing error
 
-        if (client.debugTraffic || D.ebugIsEnabled())
-            soc.debug.D.ebugPrintlnINFO("IN - client - " + mes.toString());
+//        if (client.debugTraffic || D.ebugIsEnabled())
+//            soc.debug.D.ebugPrintlnINFO("IN - client - " + mes.toString());
 
         try
         {
@@ -754,14 +754,14 @@ public final class MessageHandler implements SOCMessageDispatcher
     {
         D.ebugPrintlnINFO( "handleVERSION: " + mes );
 
-        int vers = mes.getVersionNumber();
+        int serverVersion = mes.getVersionNumber();
 
-        client.getConnection().setVersion( vers, true );
-        client.sFeatures = (vers >= SOCFeatureSet.VERSION_FOR_SERVERFEATURES)
+        client.getConnection().setVersion( serverVersion, true );
+        client.sFeatures = (serverVersion >= SOCFeatureSet.VERSION_FOR_SERVERFEATURES)
             ? new SOCFeatureSet( mes.feats )
             : new SOCFeatureSet( true, true );
 
-        client.getMainDisplay().showVersion( vers, mes.getVersionString(), mes.getBuild(), client.sFeatures );
+        client.getMainDisplay().showVersion( serverVersion, mes.getVersionString(), mes.getBuild(), client.sFeatures );
 
         // If we ever require a minimum server version, would check that here.
 
@@ -771,18 +771,18 @@ public final class MessageHandler implements SOCMessageDispatcher
         // In v2.4.50 and later, also checks for 3rd-party game opts.
 
         final int cliVersion = Version.versionNumber();
-        final boolean sameVersion = (vers == cliVersion);
+        final boolean sameVersion = (serverVersion == cliVersion);
         final boolean withTokenI18n = (client.cliLocale != null)
-            && (vers >= SOCStringManager.VERSION_FOR_I18N)
+            && (serverVersion >= SOCStringManager.VERSION_FOR_I18N)
             && ! ("en".equals(client.cliLocale.getLanguage())
             && "US".equals(client.cliLocale.getCountry()));
 
-        SOCGameOptionSet opts3p = (vers >= cliVersion)
+        SOCGameOptionSet opts3p = (serverVersion >= cliVersion)
                 ? client.tcpServGameOpts.knownOpts.optionsWithFlag( SOCGameOption.FLAG_3RD_PARTY, 0 )
                 : null;   // sVersion < cliVersion, so SOCGameOptionSet.optionsNewerThanVersion will find any 3rd-party opts
 
-        if (    (vers > cliVersion)
-             || ( sameVersion && (withTokenI18n || (opts3p != null ))) )
+//        if (    (vers > cliVersion)
+//             || ( sameVersion && (withTokenI18n || (opts3p != null ))) )
         {
             // Newer server: Ask it to list any options we don't know about yet.
             // Same version: Ask for all localized option descriptions if available.
@@ -806,9 +806,10 @@ public final class MessageHandler implements SOCMessageDispatcher
             client.getMainDisplay().optionsRequested();     // Tell the display that we've requested the game options
             connection.send( ogiMsg );  // ask for the game options from the server on the same connection it came in on.
         }
-        else if (vers < cliVersion)
+//        else
+        if (serverVersion < cliVersion)
         {
-            if (vers >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
+            if (serverVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
             {
                 // Older server: Look for options created or changed since server's version
                 // (and any 3rd-party options).
@@ -822,9 +823,9 @@ public final class MessageHandler implements SOCMessageDispatcher
                 }
 
                 List<SOCGameOption> tooNewOpts =
-                    knownOpts.optionsNewerThanVersion(vers, false, false);
+                    knownOpts.optionsNewerThanVersion(serverVersion, false, false);
 
-                if ((tooNewOpts != null) && (vers < SOCGameOption.VERSION_FOR_LONGER_OPTNAMES))
+                if ((tooNewOpts != null) && (serverVersion < SOCGameOption.VERSION_FOR_LONGER_OPTNAMES))
                 {
                     // Server is older than 2.0.00; we can't send it any long option names.
                     // Remove them from our set of options usable for games on that server.
@@ -855,6 +856,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                     connection.send( new SOCGameOptionGetInfos(null, true, false) );  // sends opt list "-,?I18N"
                 }
             }
+/*
             else
             {
                 // server is too old to understand options. Can't happen with local practice srv,
@@ -863,6 +865,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                 client.tcpServGameOpts.noMoreOptions( true );
                 client.tcpServGameOpts.knownOpts = null;
             }
+*/
         }
         else
         {
@@ -870,10 +873,10 @@ public final class MessageHandler implements SOCMessageDispatcher
             // and found nothing else to ask about (i18n, 3rd-party gameopts).
 
             // For practice games, knownOpts may already be initialized, so check vs null.
-            ServerGametypeInfo opts = client.tcpServGameOpts;
-            if (opts.knownOpts == null)
-                opts.knownOpts = SOCGameOptionSet.getAllKnownOptions();
-            opts.noMoreOptions( false );  // defaults not known unless it's practice
+//            ServerGametypeInfo opts = client.tcpServGameOpts;
+//            if (opts.knownOpts == null)
+//                opts.knownOpts = SOCGameOptionSet.getAllKnownOptions();
+//            opts.noMoreOptions( false );  // defaults not known unless it's practice
 
 /*
             if (!(withTokenI18n || isPractice))
@@ -1305,8 +1308,8 @@ public final class MessageHandler implements SOCMessageDispatcher
         final String gaName = mes.getGame();
         final boolean isPractice = connection instanceof MemConnection;
 
-        if (isPractice)
-            connection.disconnect();
+//        if (isPractice)
+//            connection.disconnect();
         // run on AWT event thread, not network thread, to avoid occasional ArrayIndexOutOfBoundsException
         // console stack trace (javax.swing.DefaultListModel.getElementAt) after deleteFromGameList
         EventQueue.invokeLater( new Runnable()

@@ -1953,6 +1953,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
             List<String> changes = null;
 
+/*
             if (cliVers > client.getRemoteVersion())
             {
                 // Client newer than server: Ask about specific new/changed scenarios which server might not know.
@@ -1968,6 +1969,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                         changes.add( sc.key );
                 }
             }
+*/
             // Else, server is newer than our client or same version.
             //   If server is newer: Ask for any scenario changes since our version.
             //   If same version: Ask for i18n localized scenarios strings if available.
@@ -2587,7 +2589,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 lm.set( 0, JoinableListItem.BLANK );  // keep blank item
                 gmlist.clearSelection();
 
-                if ((!isPractice) && (client.serverGames != null))
+                if ( /*(!isPractice) &&*/ (client.serverGames != null))
                     client.serverGames.deleteGame( gameName );  // may not be in there
 
                 gi.setEnabled( false );

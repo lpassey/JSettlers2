@@ -25,6 +25,7 @@
 
 package soc.client;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -177,7 +178,9 @@ public class ServerGametypeInfo
      */
     public ServerGametypeInfo()
     {
-        knownOpts = SOCGameOptionSet.getAllKnownOptions();
+        knownOpts =
+            new SOCGameOptionSet(  );
+        //    SOCGameOptionSet.getAllKnownOptions();
         scenKeys = new HashSet<>();
     }
 

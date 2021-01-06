@@ -703,6 +703,13 @@ public class SOCServerMessageHandler
                 opts.put( okey, opt );
             }
         }
+        else    // Not requesting a specific option key, send them all
+        {
+            for (SOCGameOption opt : server.knownOpts )
+            {
+                opts.put( opt.key, opt );
+            }
+        }
 
         if (mes.hasTokenGetAnyChanges
             || ((mes.optionKeys == null) && !mes.hasOnlyTokenI18n))
@@ -897,7 +904,7 @@ public class SOCServerMessageHandler
         List<SOCScenario> changes = null;
         if (hasAnyChangedMarker /*&& (cliVers < Version.versionNumber())*/ )
         {
-            knownScens = SOCScenario.getAllKnownScenarios();
+            knownScens = SOCServerScenario.getAllKnownScenarios();
             changes = SOCVersionedItem.implItemsVersionCheck( cliVers, true, false, knownScens );
 //            changes = SOCVersionedItem.itemsNewerThanVersion( cliVers, false, knownScens );
         }
@@ -939,7 +946,7 @@ public class SOCServerMessageHandler
             if (scd.localeHasScenStrings)
             {
                 if (knownScens == null)
-                    knownScens = SOCScenario.getAllKnownScenarios();
+                    knownScens = SOCServerScenario.getAllKnownScenarios();
 
                 ArrayList<String> scKeys = new ArrayList<>();
                 for (final SOCScenario sc : SOCVersionedItem.itemsForVersion( cliVers, knownScens ))
@@ -2397,8 +2404,7 @@ public class SOCServerMessageHandler
             return;
 
         final Map<String, SOCGameOption> optsMap = mes.getOptions(server.knownOpts);
-        server.createOrJoinGameIfUserOK
-            ( c, mes.getNickname(), mes.getPassword(), mes.getGame(),
+        server.createOrJoinGameIfUserOK( c, mes.getNickname(), mes.getPassword(), mes.getGame(),
                 (optsMap != null) ? new SOCGameOptionSet( optsMap ) : null );
     }
 
@@ -2427,12 +2433,12 @@ public class SOCServerMessageHandler
          */
         if (c.getRemoteVersion() == -1)
         {
-            if (! server.setClientVersSendGamesOrReject(c, SOCServer.CLI_VERSION_ASSUMED_GUESS, null, null, false))
+            if (! server.setClientVersSendGamesOrReject( c, SOCServer.CLI_VERSION_ASSUMED_GUESS,
+                                                   null, null, false ))
                 return;  // <--- Early return: Client too old ---
         }
 
-        server.createOrJoinGameIfUserOK
-            ( c, mes.getNickname(), mes.getPassword(), mes.getGame(), null );
+        server.createOrJoinGameIfUserOK( c, mes.getNickname(), mes.getPassword(), mes.getGame(), null );
     }
 
     /**

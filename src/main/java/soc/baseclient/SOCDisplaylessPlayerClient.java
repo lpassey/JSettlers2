@@ -51,6 +51,7 @@ import soc.message.*;
 import soc.message.SOCGameElements.GEType;
 import soc.message.SOCPlayerElement.PEType;
 
+import soc.server.SOCServer;
 import soc.util.SOCFeatureSet;
 import soc.util.Version;
 
@@ -142,7 +143,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @see #handleGAMEOPTIONINFO(SOCGameOptionInfo)
      * @since 2.4.50
      */
-    public SOCGameOptionSet knownOpts = SOCGameOptionSet.getAllKnownOptions();
+    public SOCGameOptionSet knownOpts = new SOCGameOptionSet( SOCServer.startupKnownOpts, true );
 
     /**
      * Since server and built-in robots are the same version,
