@@ -43,7 +43,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
@@ -74,20 +73,14 @@ import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
 import soc.game.SOCScenario;
-import soc.game.SOCVersionedItem;
 import soc.message.SOCAuthRequest;
-import soc.message.SOCChannelTextMsg;
 import soc.message.SOCGameOptionGetDefaults;
 import soc.message.SOCGameOptionGetInfos;
 import soc.message.SOCGameOptionInfo;
 import soc.message.SOCJoinChannel;
-import soc.message.SOCJoinGame;
-import soc.message.SOCLocalizedStrings;
 import soc.message.SOCMessage;
 import soc.message.SOCNewGameWithOptions;
-import soc.message.SOCNewGameWithOptionsRequest;
-import soc.message.SOCScenarioInfo;
-import soc.server.SOCServer;
+// import soc.server.SOCServer;
 import soc.util.SOCFeatureSet;
 import soc.util.SOCGameList;
 import soc.util.SOCStringManager;
@@ -1538,7 +1531,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                     // localized strings, ask the server for that but don't wait for
                     // a reply before showing the NewGameOptionsFrame.
 
-                    if (client.tcpServGameOpts.allOptionsReceived)
+                    if (client.gameOpts.allOptionsReceived)
                     {
                         opts = client.serverGames.parseGameOptions( gameName );
                         client.checkGameoptsForUnknownScenario( opts );
@@ -1550,7 +1543,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                         // and will also clear WAIT_CURSOR.
                         // (see handleGAMEOPTIONINFO)
 
-                        client.tcpServGameOpts.gameInfoWaitingForOpts = gameName;
+                        client.gameOpts.gameInfoWaitingForOpts = gameName;
                         setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
                         return true;  // <---- early return: not yet ready to show ----
                     }
@@ -1719,8 +1712,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         if (!precheckOnly)
         {
             client.nickname = n;
-            if (client.practiceNickname == null)
-                client.practiceNickname = n;
+//            if (client.practiceNickname == null)
+//                client.practiceNickname = n;
         }
 
         return n;
@@ -1835,7 +1828,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             pass.setEditable( false );
         }
 
-        ServerGametypeInfo opts;
+//        ServerGametypeInfo opts;
 
         // What server are we going against? Do we need to ask it for options?
         {
@@ -1870,44 +1863,46 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             else
 */
             {
-                opts = client.tcpServGameOpts;
-                if (   (! opts.allOptionsReceived)
+//                opts = client.gameOpts;
+                if (   (! client.gameOpts.allOptionsReceived)
                     && (client.getConnection().getRemoteVersion() < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS))
                 {
                     // Server doesn't support them.  Don't ask it.
                     fullSetIsKnown = true;
-                    opts.knownOpts = null;
+                    client.gameOpts.knownOpts = null;
                 }
             }
 
+/*
             if (fullSetIsKnown)
             {
                 // we have all the known options, localize them if possible.
                 client.localizeGameScenarios( SOCServer.localizeGameScenarios( client.cliLocale, null,
                     true, false, null ),
                     false, true );
-                opts.allOptionsReceived = true;
-                opts.defaultsReceived = true;
+                client.gameOpts.allOptionsReceived = true;
+                client.gameOpts.defaultsReceived = true;
             }
+*/
         }
 
         // Do we already have info on all options?
         boolean askedAlready, optsAllKnown, knowDefaults;
-        synchronized (opts)
+        synchronized (client.gameOpts)
         {
-            askedAlready = opts.askedDefaultsAlready;
-            optsAllKnown = opts.allOptionsReceived;
-            knowDefaults = opts.defaultsReceived;
+            askedAlready = client.gameOpts.askedDefaultsAlready;
+            optsAllKnown = client.gameOpts.allOptionsReceived;
+            knowDefaults = client.gameOpts.defaultsReceived;
         }
 
         if (askedAlready && !(optsAllKnown && knowDefaults))
         {
             // If we're only waiting on defaults, how long ago did we ask for them?
             // If > 5 seconds ago, assume we'll never know the unknown ones, and present gui frame.
-            if (optsAllKnown && (5000 < Math.abs( System.currentTimeMillis() - opts.askedDefaultsTime )))
+            if (optsAllKnown && (55000 < Math.abs( System.currentTimeMillis() - client.gameOpts.askedDefaultsTime )))
             {
                 knowDefaults = true;
-                opts.defaultsReceived = true;
+                client.gameOpts.defaultsReceived = true;
                 if (gameOptsDefsTask != null)
                 {
                     gameOptsDefsTask.cancel();
@@ -1924,10 +1919,10 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         if (optsAllKnown && knowDefaults)
         {
             // All done, present the options window frame
-            if ((opts.newGameOpts == null) && (opts.knownOpts != null))
-                opts.newGameOpts = new SOCGameOptionSet( opts.knownOpts, true );
+            if ((client.gameOpts.newGameOpts == null) && (client.gameOpts.knownOpts != null))
+                client.gameOpts.newGameOpts = new SOCGameOptionSet( client.gameOpts.knownOpts, true );
             newGameOptsFrame = NewGameOptionsFrame.createAndShow
-                ( null, this, null, opts.newGameOpts, forPracticeServer, false );
+                ( null, this, null, client.gameOpts.newGameOpts, forPracticeServer, false );
 
             return;  // <--- Early return: Show options to user ----
         }
@@ -1943,8 +1938,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         status.setText( client.strings.get( "pcli.message.talkingtoserv" ) );  // "Talking to server..."
         setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
 
-        final int cliVers = Version.versionNumber();
-        if ( /*(!forPracticeServer) &&*/ (!opts.allScenInfoReceived)
+        if (   (!client.gameOpts.allScenInfoReceived)
             && (client.getRemoteVersion() >= SOCScenario.VERSION_FOR_SCENARIOS))
         {
             // Before game option defaults, ask for any updated or localized scenario info;
@@ -1986,13 +1980,13 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 */
         }
 
-        opts.newGameWaitingForOpts = true;
-        opts.askedDefaultsAlready = true;
-        opts.askedDefaultsTime = System.currentTimeMillis();
+        client.gameOpts.newGameWaitingForOpts = true;
+        client.gameOpts.askedDefaultsAlready = true;
+        client.gameOpts.askedDefaultsTime = System.currentTimeMillis();
         client.requestGameOptionDefaults();
         if (gameOptsDefsTask != null)
             gameOptsDefsTask.cancel();
-        gameOptsDefsTask = new GameOptionDefaultsTimeoutTask( this, client.tcpServGameOpts, forPracticeServer );
+        gameOptsDefsTask = new GameOptionDefaultsTimeoutTask( this, client.gameOpts, forPracticeServer );
         eventTimer.schedule( gameOptsDefsTask, 150000 /* ms */ );
 
         // Once options are received, handlers will
@@ -2010,21 +2004,12 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     public void askStartGameWithOptions( final String gameName, final boolean forPracticeServer,
         final SOCGameOptionSet opts, final Map<String, Object> localPrefs )
     {
-        client.putGameReqLocalPrefs(gameName, localPrefs);
+        client.putGameReqLocalPrefs( gameName, localPrefs );
 
-/*
-        if (forPracticeServer)
-        {
-            client.startPracticeGame(gameName, opts, true);  // Also sets WAIT_CURSOR
-        }
-        else
-*/
-        {
-            client.requestNewGameWithOptions( gameName, opts );
-            System.out.flush();  // for debug print output (temporary)
-            status.setText( client.strings.get( "pcli.message.talkingtoserv" ) );  // "Talking to server..."
-            setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
-        }
+        client.requestNewGameWithOptions( gameName, opts );
+        System.out.flush();  // for debug print output (temporary)
+        status.setText( client.strings.get( "pcli.message.talkingtoserv" ) );  // "Talking to server..."
+        setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
     }
 
     /**
@@ -2473,7 +2458,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     {
         if (gameOptsTask != null)
             gameOptsTask.cancel();
-        gameOptsTask = new GameOptionsTimeoutTask( this, client.tcpServGameOpts );
+        gameOptsTask = new GameOptionsTimeoutTask( this, client.gameOpts );
         eventTimer.schedule( gameOptsTask, 150000 /* ms */ );
     }
 
@@ -2530,22 +2515,22 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                     opts.gameInfoWaitingForOpts = null;
                 }
                 final SOCGameOptionSet gameOpts = client.serverGames.parseGameOptions( gameInfoWaiting );
-                if (!isPractice)
-                    client.checkGameoptsForUnknownScenario( gameOpts );
-                newGameOptsFrame = NewGameOptionsFrame.createAndShow
-                    ( playerInterfaces.get( gameInfoWaiting ), SwingMainDisplay.this,
-                        gameInfoWaiting, gameOpts, isPractice, true );
+
+                client.checkGameoptsForUnknownScenario( gameOpts );
+                newGameOptsFrame = NewGameOptionsFrame.createAndShow(
+                    playerInterfaces.get( gameInfoWaiting ), SwingMainDisplay.this,
+                    gameInfoWaiting, gameOpts, isPractice, true );
             }
             else if (newGameWaiting)
             {
                 synchronized (opts)
                 {
-                    opts.newGameWaitingForOpts = false;
                     if ((opts.newGameOpts == null) && (opts.knownOpts != null))
                         opts.newGameOpts = new SOCGameOptionSet( opts.knownOpts, true );
+                    opts.newGameWaitingForOpts = false;
                 }
-                newGameOptsFrame = NewGameOptionsFrame.createAndShow
-                    ( null, SwingMainDisplay.this, null, opts.newGameOpts, isPractice, false );
+                newGameOptsFrame = NewGameOptionsFrame.createAndShow( null, SwingMainDisplay.this,
+                    null, opts.newGameOpts, client.getNet().isPracticeGame(), false );
             }
         }
     }
@@ -2556,7 +2541,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         if (addToSrvList)
         {
             if (client.serverGames == null)
-                client.serverGames = new SOCGameList( client.tcpServGameOpts.knownOpts );
+                client.serverGames = new SOCGameList( client.gameOpts.knownOpts );
             client.serverGames.addGame( gameName, gameOptsStr, cannotJoin );
         }
 
@@ -2578,18 +2563,19 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         gmlist.repaint();
     }
 
-    public boolean deleteFromGameList( String gameName, final boolean isPractice, final boolean withUnjoinablePrefix )
+    public boolean deleteFromGameList( String gameName, final boolean withUnjoinablePrefix )
     {
         final DefaultListModel<JoinableListItem> lm = (DefaultListModel<JoinableListItem>) gmlist.getModel();
 
         if (lm.size() == 1)
         {
+            //noinspection EqualsBetweenInconvertibleTypes
             if (lm.get( 0 ).equals( gameName ))
             {
                 lm.set( 0, JoinableListItem.BLANK );  // keep blank item
                 gmlist.clearSelection();
 
-                if ( /*(!isPractice) &&*/ (client.serverGames != null))
+                if (client.serverGames != null)
                     client.serverGames.deleteGame( gameName );  // may not be in there
 
                 gi.setEnabled( false );
@@ -2609,7 +2595,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 gmlist.setSelectedIndex( c - 1 );  // one of the remaining games, or blank item if none
         }
 
-        if (found && (!isPractice) && (client.serverGames != null))
+        if (found && (client.serverGames != null))
             client.serverGames.deleteGame( gameName );  // may not be in there
 
         return found;
@@ -2919,7 +2905,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         public void windowClosing( WindowEvent evt )
         {
             // Are we a client to any active games?
-            SOCPlayerInterface piActive = md.findAnyActiveGame(false);;
+            SOCPlayerInterface piActive = md.findAnyActiveGame(false);
 
             if (piActive != null)
             {

@@ -73,8 +73,8 @@ import soc.message.SOCMessage;
  * @author Jeremy D. Monin &lt;jeremy@nand.net&gt;
  * @since 2.0.00
  */
-public class SOCScenario
-    extends SOCVersionedItem implements Cloneable, Comparable<Object>
+public class SOCScenario extends SOCVersionedItem
+    implements Cloneable, Comparable<Object>
 {
     /** Version 2.0.00 (2000) introduced game scenarios. */
     public static final int VERSION_FOR_SCENARIOS = 2000;
@@ -247,12 +247,13 @@ public class SOCScenario
     /**
      * Scenario's {@link SOCGameOption}s, as a formatted string
      * from {@link SOCGameOption#packOptionsToString(Map, boolean, boolean)}.
-     * Never {@code null} or empty; {@code "-"} if scenario has no game options.
+     * <em>Never {@code null} or empty</em>; {@code "-"} if scenario has no game options.
      */
+    // TODO: change to {@link SOCGameOptionSet}
     public final String scOpts;
 
     /**
-     * Detailed text for the scenario description and special rules, or null.
+     * Detailed text for the scenario description and special rules; may be null.
      * See {@link #getLongDesc()} for more info and requirements.
      */
     private String scLongDesc;
@@ -342,7 +343,6 @@ public class SOCScenario
             // checks isAlphanumericUpcaseAscii(key), isSingleLineAndSafe(desc)
 
         // validate & set scenario properties:
-
         if (key.length() > 8)
             throw new IllegalArgumentException("Key length > 8: " + key);
         if ((minVers < VERSION_FOR_SCENARIOS) && (minVers != -1))
@@ -747,10 +747,10 @@ public class SOCScenario
     {
         if (other instanceof SOCScenario)
         {
-            SOCScenario osc = (SOCScenario) other;
-            if (key.equals(osc.key))
+            SOCScenario otherScenario = (SOCScenario) other;
+            if (key.equals(otherScenario.key))
                 return 0;
-            return desc.compareTo(osc.desc);
+            return desc.compareTo(otherScenario.desc);
         }
         else
         {
@@ -772,7 +772,14 @@ public class SOCScenario
         if (other == null)
             return false;
         else if (other instanceof SOCScenario)
-            return key.equals(((SOCScenario) other).key);
+        {
+            SOCScenario otherScenario = (SOCScenario) other;
+            // A Scenario object may have localized title and descriptions. The objects are equal if
+            // the keys match and the option string matches.
+            return (   key.equals( otherScenario.key )
+                    && scOpts.equals( otherScenario.scOpts )
+            );
+        }
         else
             return super.equals(other);
     }

@@ -9259,29 +9259,29 @@ import javax.swing.JComponent;
 
             boolean didEnableDisable = true;  // don't go through both sets of menu item enable/disable statements
 
-          menuPlayerIsCurrent = (player != null) && playerInterface.isClientCurrentPlayer();
+            menuPlayerIsCurrent = (player != null) && playerInterface.isClientCurrentPlayer();
 
             if (menuPlayerIsCurrent)
             {
-                int gs = game.getGameState();
+                int gameState = game.getGameState();
                 if (game.isDebugFreePlacement() && game.isInitialPlacement())
                 {
                     switch (player.getPieces().size())
                     {
                     case 0:
                     case 2:
-                        gs = SOCGame.START1A;  // Settlement
+                        gameState = SOCGame.START1A;  // Settlement
                         break;
                     case 1:
                     case 3:
-                        gs = SOCGame.START1B;  // Road
+                        gameState = SOCGame.START1B;  // Road
                         break;
                     default:
-                        gs = SOCGame.PLAY1;  // any piece is okay
+                        gameState = SOCGame.PLAY1;  // any piece is okay
                     }
                 }
 
-                switch (gs)
+                switch (gameState)
                 {
                 case SOCGame.START1A:
                 case SOCGame.START2A:
@@ -9312,8 +9312,7 @@ import javax.swing.JComponent;
                     break;
 
                 case SOCGame.PLACING_FREE_ROAD2:
-                  if (game.isPractice
-                      || (playerInterface.getClient().getConnection().getRemoteVersion() >= SOCGame.VERSION_FOR_CANCEL_FREE_ROAD2))
+                  if (playerInterface.getClient().getConnection().getRemoteVersion() >= SOCGame.VERSION_FOR_CANCEL_FREE_ROAD2)
                     {
                         cancelBuildItem.setEnabled( true );
                         cancelBuildItem.setLabel( strings.get( "board.build.skip.road.ship" ) );  // "Skip road or ship"
@@ -9330,7 +9329,7 @@ import javax.swing.JComponent;
 
                 default:
                     didEnableDisable = false;  // must still check enable/disable
-                    if (gs < SOCGame.PLAY1)
+                    if (gameState < SOCGame.PLAY1)
                         menuPlayerIsCurrent = false;  // Not in a state to place items
                 }
             }
@@ -9538,11 +9537,11 @@ import javax.swing.JComponent;
 
             // If possible, send putpiece request right now.
             // Otherwise, multi-phase send (build request, receive gamestate, putpiece request).
-            final int gstate = game.getGameState();
+            final int gameState = game.getGameState();
             final boolean sendNow = isInitialPlacement || wantsCancel || debugPP
-                || (gstate == SOCGame.PLACING_FREE_ROAD1) || (gstate == SOCGame.PLACING_FREE_ROAD2)
-                || (((gstate == SOCGame.PLAY1) || (gstate == SOCGame.SPECIAL_BUILDING))
-                  && (game.isPractice || playerInterface.client.getConnection().getRemoteVersion() >= 2000));
+                || (gameState == SOCGame.PLACING_FREE_ROAD1) || (gameState == SOCGame.PLACING_FREE_ROAD2)
+                || (((gameState == SOCGame.PLAY1) || (gameState == SOCGame.SPECIAL_BUILDING))
+                  && (playerInterface.client.getConnection().getRemoteVersion() >= 2000));
             final GameMessageSender messageSender = (sendNow)
                 ? playerInterface.getClient().getGameMessageSender()
                 : null;

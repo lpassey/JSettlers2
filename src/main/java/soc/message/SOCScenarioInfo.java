@@ -214,14 +214,14 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
      *     Scenario key isn't checked here for {@link SOCMessage#isSingleLineAndSafe(String)}
      *     because the {@link SOCScenario} constructor already checked it against
      *     more restrictive {@link SOCVersionedItem#isAlphanumericUpcaseAscii(String)}.
-     * @param localDesc  i18n localized brief description/title, or {@code null} to use
+     * @param localizedTitle  i18n localized brief description/title, or {@code null} to use
      *     {@link SOCVersionedItem#getDesc() SOCScenario.getDesc()}
-     * @param localLongDesc  i18n localized long description, or {@code null} to use
+     * @param localizedDesc  i18n localized long description, or {@code null} to use
      *     {@link SOCScenario#getLongDesc()}
      * @see #SOCScenarioInfo(String, boolean)
      * @see #SOCScenarioInfo(List, boolean)
      */
-    public SOCScenarioInfo( final SOCScenario sc, String localDesc, String localLongDesc )
+    public SOCScenarioInfo( final SOCScenario sc, String localizedTitle, String localizedDesc )
     {
         super( SCENARIOINFO, new ArrayList<String>() );
 
@@ -234,8 +234,8 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
         {
             scKey = sc.key;
             String opts = sc.scOpts;
-            if (localDesc == null)
-                localDesc = sc.getDesc();
+            if (localizedTitle == null)
+                localizedTitle = sc.getDesc();
 
             /* [0] */
             pa.add( sc.key );
@@ -246,12 +246,12 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
             /* [3] */
             pa.add( opts );
             /* [4] */
-            pa.add( localDesc );
+            pa.add( localizedTitle );
 
-            if (localLongDesc == null)
-                localLongDesc = sc.getLongDesc();
-            if ((localLongDesc != null) && (localLongDesc.length() > 0))
-                /* [5] */ pa.add( localLongDesc );
+            if (localizedDesc == null)
+                localizedDesc = sc.getLongDesc();
+            if ((localizedDesc != null) && (localizedDesc.length() > 0))
+                /* [5] */ pa.add( localizedDesc );
         }
         else
         {

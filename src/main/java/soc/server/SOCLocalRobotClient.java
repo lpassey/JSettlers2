@@ -104,8 +104,8 @@ import soc.robot.SOCRobotClient;
             ? new SOCRobotClient(sci, rname, "pw")
             : cliConstruc3p.newInstance(sci, rname, "pw");
 
-        if (knownOpts != null)
-            rcli.knownOpts = new SOCGameOptionSet(knownOpts, true);
+//        if (knownOpts != null)
+//            rcli.knownOpts = new SOCGameOptionSet(knownOpts, true);
         rcli.printedInitialWelcome = true;  // don't clutter the server console
 
         Thread rth = new Thread(new SOCLocalRobotClient(rcli));

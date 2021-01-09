@@ -1817,6 +1817,10 @@ public class SOCGameOption
         return super.clone();
     }
 
+    public void localize()
+    {
+    }
+
     /**
      * Listener for option value changes <em>at the client</em> during game creation.
      * When the user changes an option, allows a related option to change.

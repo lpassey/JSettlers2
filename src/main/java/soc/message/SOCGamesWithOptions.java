@@ -118,11 +118,13 @@ public class SOCGamesWithOptions extends SOCMessageTemplateMs
      * @return list of games contained in this message, or an empty SOCGameList
      * @see SOCGameList#parseGameOptions(String)
      */
-    public SOCGameList getGameList(final SOCGameOptionSet knownOpts)
+    public SOCGameList createNewGameList(final SOCGameOptionSet knownOpts)
     {
+        final int L = pa.size();
+        if (1 > L)
+            return null;
         SOCGameList gamelist = new SOCGameList(knownOpts);
 
-        final int L = pa.size();
         for (int ii = 0; ii < L; )
         {
             final String gaName = pa.get(ii);

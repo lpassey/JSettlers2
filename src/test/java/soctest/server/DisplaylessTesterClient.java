@@ -146,7 +146,7 @@ public class DisplaylessTesterClient
     @Override
     protected void handleVERSION(boolean isLocal, SOCVersion mes)
     {
-        super.handleVERSION(isLocal, mes);
+//        super.handleVERSION(isLocal, mes);
 
 //        if (isLocal)
 //            sVersion = sLocalVersion;
@@ -166,7 +166,7 @@ public class DisplaylessTesterClient
     @Override
     protected void handleGAMESWITHOPTIONS(final SOCGamesWithOptions mes)
     {
-        serverGames.addGames(mes.getGameList(knownOpts), Version.versionNumber());
+        serverGames.addGames(mes.createNewGameList(knownOpts), Version.versionNumber());
     }
 
     @Override
@@ -197,7 +197,7 @@ public class DisplaylessTesterClient
     }
 
     @Override
-    protected void handleJOINGAMEAUTH(SOCJoinGameAuth mes, final boolean isPractice)
+    protected void handleJOINGAMEAUTH( SOCJoinGameAuth mes )
     {
         gotPassword = true;
 
@@ -216,7 +216,7 @@ public class DisplaylessTesterClient
         }
 
         final SOCGame ga = new SOCGame(gameName, opts, knownOpts);
-        ga.isPractice = isPractice;
+//        ga.isPractice = isPractice;
         ga.serverVersion = connection.getRemoteVersion();   // (isPractice) ? sLocalVersion : sVersion;
         games.put(gameName, ga);
     }

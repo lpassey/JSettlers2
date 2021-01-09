@@ -803,7 +803,7 @@ public class SOCServerMessageHandler
 
             if (opt.optType != SOCGameOption.OTYPE_UNKNOWN)
             {
-                if ((opt.minVersion > clientVersion)
+                if (   (opt.minVersion > clientVersion)
                     || (hasLimitedFeats && unsupportedOpts.containsKey( okey )))
                     opt = new SOCGameOption( okey );  // OTYPE_UNKNOWN
                 else if (wantsLocalDescs)
@@ -1181,12 +1181,13 @@ public class SOCServerMessageHandler
                 // Note: If the command text changes from '*ADDTIME*' to something else,
                 // please update the warning text sent in checkForExpiredGames().
 
-                if (ga.isPractice)
-                {
-                    server.messageToPlayerKeyed(c, gaName, SOCServer.PN_NON_EVENT, "reply.addtime.practice.never");
-                    // ">>> Practice games never expire."
-                }
-                else if (ga.getGameState() >= SOCGame.OVER)
+//                if (ga.isPractice)
+//                {
+//                    server.messageToPlayerKeyed(c, gaName, SOCServer.PN_NON_EVENT, "reply.addtime.practice.never");
+//                    // ">>> Practice games never expire."
+//                }
+//                else
+                if (ga.getGameState() >= SOCGame.OVER)
                 {
                     server.messageToPlayerKeyed(c, gaName, SOCServer.PN_NON_EVENT, "reply.addtime.game_over");
                     // "This game is over, cannot extend its time."
@@ -1470,9 +1471,9 @@ public class SOCServerMessageHandler
         final String gaName = ga.getName();
 
         final long connMinutes = (((System.currentTimeMillis() - c.getConnectTime().getTime())) + 30000L) / 60000L;
-        final String connMsgKey = (ga.isPractice)
-            ? "stats.cli.connected.minutes.prac"  // "You have been practicing # minutes."
-            : "stats.cli.connected.minutes";      // "You have been connected # minutes."
+        final String connMsgKey =
+      //      (ga.isPractice) ? "stats.cli.connected.minutes.prac" : // "You have been practicing # minutes."
+            "stats.cli.connected.minutes";      // "You have been connected # minutes."
         server.messageToPlayerKeyed(c, gaName, SOCServer.PN_NON_EVENT, connMsgKey, connMinutes);
 
         final SOCClientData scd = (SOCClientData) c.getAppData();
@@ -1557,7 +1558,7 @@ public class SOCServerMessageHandler
         // "This game took # minutes # seconds." [or 1 second.]
         // Ignore possible "1 minutes"; that game is too short to worry about.
 
-        if (!gameData.isPractice)   // practice games don't expire
+//        if (!gameData.isPractice)   // practice games don't expire
         {
             // If isCheckTime, use ">>>" in message text to mark as urgent:
             // ">>> This game will expire in 15 minutes."

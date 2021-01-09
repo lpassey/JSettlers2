@@ -289,10 +289,10 @@ public class SOCGameOptionInfo extends SOCMessageTemplateMs
     }
 
     /**
-     * @return the parsed option values, or null if this
+     * @return the option value, or null if this
      *    message is coming from a client asking about a game
      */
-    public SOCGameOption getOptionInfo()
+    public SOCGameOption getOption()
     {
         return opt;
     }

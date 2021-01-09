@@ -25,10 +25,10 @@
 
 package soc.client;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
@@ -36,6 +36,7 @@ import soc.game.SOCScenario;
 import soc.game.SOCVersionedItem;
 import soc.message.SOCGameOptionInfo;
 import soc.message.SOCNewGameWithOptions;
+import soc.util.SOCStringManager;
 
 /**
  * Track the server's information about the game type: valid game option set, scenarios, etc.
@@ -214,7 +215,7 @@ public class ServerGametypeInfo
      *                 Assumes has been parsed already against the locally known opts,
      *                 so any opts that we don't know are {@link SOCGameOption#OTYPE_UNKNOWN}.
      * @return null if all are known, or a list of key names for unknown options.
-     * @see #receiveInfo(SOCGameOptionInfo)
+     * @see #receiveInfo(SOCGameOptionInfo, SOCStringManager)
      */
     public List<String> receiveDefaults(final Map<String, SOCGameOption> servOpts)
     {
@@ -253,31 +254,44 @@ public class ServerGametypeInfo
      * If client already had information about this game option, that old info is discarded
      * but any {@link SOCGameOption.ChangeListener} is copied to the message's new {@link SOCGameOption}.
      *
-     * @param gi  Message from server with info on one parameter, or end-of-list marker
+     * @param optionInfo  Message from server with info on one parameter, or end-of-list marker
      *     {@link SOCGameOptionInfo#OPTINFO_NO_MORE_OPTS}
+     * @param strings
      * @return true if all are known, false if more are still unknown after this
      *     because {@code gi} isn't the end-of-list marker
      */
-    public boolean receiveInfo(SOCGameOptionInfo gi)
+    public boolean receiveInfo( SOCGameOptionInfo optionInfo, SOCStringManager strings )
     {
-        final SOCGameOption oinfo = gi.getOptionInfo();
-        final boolean isUnknown = (oinfo.optType == SOCGameOption.OTYPE_UNKNOWN);
+        final SOCGameOption gameOption = optionInfo.getOption ();
 
-        if ((oinfo.key.equals("-")) && isUnknown)
+        final boolean isUnknown = (gameOption.optType == SOCGameOption.OTYPE_UNKNOWN);
+
+        if ((gameOption.key.equals("-")) && isUnknown)
         {
             // end-of-list marker: no more options from server.
             // That is end of srv's response to cli sending GAMEOPTIONGETINFOS("-").
-
             noMoreOptions(false);
 
             return true;
         }
         else
         {
+            String newDesc;
+
+            try
+            {
+                newDesc = strings.get( "gameopt." + gameOption.key );
+            }
+            catch ( MissingResourceException mre )
+            {
+                newDesc = gameOption.getDesc();
+            }
+            SOCGameOption localizedOption = new SOCGameOption( gameOption, newDesc );
             // remove old, replace with new from server (if any)
-            knownOpts.addKnownOption(oinfo);
             if (isUnknown)
-                knownOpts.put(oinfo);  // since addKnownOption won't add an unknown
+                knownOpts.put( localizedOption );  // since addKnownOption won't add an unknown
+            else
+                knownOpts.addKnownOption(localizedOption);
 
             return false;
         }

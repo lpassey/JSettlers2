@@ -821,7 +821,7 @@ public class SOCPlayerInterface extends Frame
         throws IllegalArgumentException
     {
         super( strings.get( "interface.title.game", title )
-            + (ga.isPractice ? "" : " [" + md.getClient().getNickname( false ) + "]") );
+            + (ga.isPractice ? "" : " [" + md.getClient().getNickname() + "]") );
         // "Settlers of Catan Game: {0}"
 
         layoutNotReadyYet = true;  // will set to false at end of doLayout
@@ -1968,7 +1968,7 @@ public class SOCPlayerInterface extends Frame
      */
     public final String getClientNickname()
     {
-        return client.getNickname( game.isPractice );
+        return client.getNickname();
     }
 
     /**
@@ -2161,17 +2161,15 @@ public class SOCPlayerInterface extends Frame
      * @return true if OK to send, false if a dialog was shown
      * @since 2.4.50
      */
-    public static boolean checkTextCharactersOrPopup
-    ( final String txt, final MainDisplay md, final Window parent )
+    public static boolean checkTextCharactersOrPopup( String txt, MainDisplay md, Window parent )
     {
         if (txt.indexOf( SOCMessage.sep_char ) != -1)
         {
-            NotifyDialog.createAndShow
-                ( md, parent, strings.get( "interface.chat.text.no_pipe_symbol" ), null, true );
+            NotifyDialog.createAndShow( md, parent,
+                strings.get( "interface.chat.text.no_pipe_symbol" ), null, true );
             // "Chat text can't contain the '|' symbol."
             return false;
         }
-
         return true;
     }
 
@@ -3150,8 +3148,7 @@ public class SOCPlayerInterface extends Frame
     public void showScenarioInfoDialog()
     {
         NewGameOptionsFrame.showScenarioInfoDialog
-            ( game, ( /*(game.isPractice) ? client.practiceServGameOpts :*/ client.tcpServGameOpts).knownOpts,
-                getMainDisplay(), this );
+            ( game, client.gameOpts.knownOpts, getMainDisplay(), this );
     }
 
     /**

@@ -3061,8 +3061,8 @@ public class SOCServer extends Server
 
             if (isBotsOnly)
                 newGame.isBotsOnly = true;
-            else if ((strSocketName != null) && (strSocketName.equals( PRACTICE_STRINGPORT )))
-                newGame.isPractice = true;  // flag if practice game (set since 1.1.09)
+//            else if ((strSocketName != null) && (strSocketName.equals( PRACTICE_STRINGPORT )))
+//                newGame.isPractice = true;  // flag if practice game (set since 1.1.09)
 
             if (c != null)
                 // Add this (creating) player to the game
@@ -8928,12 +8928,14 @@ public class SOCServer extends Server
             }
         }
 
+        String titleKey = "gamescen." + scKey + ".n";
+        String descKey = "gamescen." + scKey + ".d";
         if (localeHasScenStrs)
         {
             try
             {
-                nm = c.getLocalized( "gamescen." + scKey + ".n" );
-                desc = c.getLocalized( "gamescen." + scKey + ".d" );
+                nm = c.getLocalized( titleKey );
+                desc = c.getLocalized( descKey );
             }
             catch( MissingResourceException e )
             {
@@ -8975,7 +8977,7 @@ public class SOCServer extends Server
 
         if (scSend != null)
         {
-            c.send( new SOCScenarioInfo( scSend, nm, desc ));
+            c.send( new SOCScenarioInfo( scSend, nm + ":" + titleKey, desc + ":" + descKey ));
         }
         else
         {

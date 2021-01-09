@@ -1041,10 +1041,10 @@ import javax.swing.SwingConstants;
             boolean currentCanBuy = (!isDebugFreePlacement)
                 && game.canBuyOrAskSpecialBuild( pnum );
 
-            if (isCurrent && ((gstate == SOCGame.PLACING_ROAD)
-                || ((gstate == SOCGame.PLACING_FREE_ROAD2)
-                && (game.isPractice
-                            || pi.getClient().getConnection().getRemoteVersion() >= SOCGame.VERSION_FOR_CANCEL_FREE_ROAD2))))
+            if (   isCurrent
+                && (   (gstate == SOCGame.PLACING_ROAD)
+                    || (   (gstate == SOCGame.PLACING_FREE_ROAD2)
+                        && (pi.getClient().getConnection().getRemoteVersion() >= SOCGame.VERSION_FOR_CANCEL_FREE_ROAD2))))
             {
                 roadBut.setEnabled( true );
                 roadBut.setText( strings.get( "base.cancel" ) );  // "Cancel"

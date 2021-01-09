@@ -633,7 +633,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
              * join game authorization
              */
             case SOCMessage.JOINGAMEAUTH:
-                handleJOINGAMEAUTH((SOCJoinGameAuth) mes, (connection != null));
+                handleJOINGAMEAUTH((SOCJoinGameAuth) mes );
                 break;
 
             /**
@@ -870,6 +870,49 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     }
 
     /**
+     * Handle the "version" message, server's version report.
+     *<P>
+     * Because SOCDisplaylessPlayerClient is used only for the
+     * robot, and the robot should always be the same version as
+     * the server, don't ask server for info about
+     * {@link soc.game.SOCGameOption game option} deltas between
+     * the two versions.
+     *<P>
+     * If somehow the server isn't our version, print an error and disconnect.
+     *
+     * @param isLocal  Is the server local, or remote?  Client can be connected
+     *                only to local, or remote.
+     * @param mes  the message
+     * @since 1.1.00
+     */
+    @Override
+    protected void handleVERSION(boolean isLocal, SOCVersion mes)
+    {
+        D.ebugPrintlnINFO( "handleVERSION: " + mes );
+        int vers = mes.getVersionNumber();
+        final SOCFeatureSet feats =
+            (vers >= SOCFeatureSet.VERSION_FOR_SERVERFEATURES)
+                ? new SOCFeatureSet( mes.feats )
+                : new SOCFeatureSet( true, true );
+
+        connection.setVersion( vers, true );
+        final int ourVers = Version.versionNumber();
+        if (vers != ourVers)
+        {
+            final String errmsg =
+                "Internal error SOCDisplaylessPlayerClient.handleVERSION: Server must be same as our version "
+                    + ourVers + ", not " + vers;  // i18n: Unlikely error, keep un-localized for possible bug reporting
+            System.err.println( errmsg );
+            ex = new IllegalStateException( errmsg );
+            destroy();
+        }
+
+        SOCGameOptionGetInfos ogiMsg = new SOCGameOptionGetInfos( null, false, false );
+
+        connection.send( ogiMsg );  // ask for the game options from the server on the same connection it came in on.
+    }
+
+    /**
      * handle the "join game request" message.
      * Remember the game options, and record in {@link #seatRequests}.
      * Send a {@link SOCJoinGame JOINGAME} to server in response.
@@ -945,11 +988,10 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     /**
      * handle the "join game authorization" message
      * @param mes  the message
-     * @param isPractice Is the server local for practice, or remote?
      * @throws IllegalStateException if board size {@link SOCGameOption} "_BHW" isn't defined (unlikely internal error)
      */
     @Override
-    protected void handleJOINGAMEAUTH( SOCJoinGameAuth mes, final boolean isPractice )
+    protected void handleJOINGAMEAUTH( SOCJoinGameAuth mes )
     {
         gamesPlayed++;
 
@@ -971,7 +1013,6 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         try
         {
             final SOCGame ga = new SOCGame( gaName, gameOpts, knownOpts );
-            ga.isPractice = isPractice;
             ga.serverVersion = connection.getRemoteVersion(); //    (isPractice) ? sLocalVersion : sVersion;
             games.put( gaName, ga );
 

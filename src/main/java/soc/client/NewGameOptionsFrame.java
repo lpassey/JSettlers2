@@ -268,7 +268,7 @@ import soc.util.Version;
      * @param pi  Interface of existing game, or {@code null} for a new game.
      *     Used for updating settings like {@link SOCPlayerInterface#isSoundMuted()}.
      * @param md  Client's main display interface
-     * @param gaName   Name of existing game,
+     * @param gameName   Name of existing game,
      *                 or null for new game; will be blank or (forPractice)
      *                 to use {@link SOCPlayerClient#DEFAULT_PRACTICE_GAMENAME}.
      * @param opts     Set of {@link SOCGameOption}s; its values will be changed when "New Game" button
@@ -283,13 +283,12 @@ import soc.util.Version;
      * @throws IllegalArgumentException if a non-null {@code opts} is the client's knownOpts
      *     from {@link ServerGametypeInfo#knownOpts}, which should be copied before use for a new game's options
      */
-    public NewGameOptionsFrame
-    ( final SOCPlayerInterface pi, final MainDisplay md, String gaName,
+    public NewGameOptionsFrame( final SOCPlayerInterface pi, final MainDisplay md, String gameName,
         final SOCGameOptionSet opts, final boolean forPractice, final boolean readOnly )
         throws IllegalArgumentException
     {
         super( pi, readOnly
-            ? (strings.get( "game.options.title", gaName ))
+            ? (strings.get( "game.options.title", gameName ))
             : (forPractice
             ? strings.get( "game.options.title.newpractice" )
             : strings.get( "game.options.title.new" )) );
@@ -299,9 +298,9 @@ import soc.util.Version;
         this.pi = pi;
         this.mainDisplay = md;
         SOCPlayerClient cli = md.getClient();
-        forNewGame = (gaName == null);
+        forNewGame = (gameName == null);
         this.opts = opts;
-        knownOpts = ( /*(forPractice) ? cli.practiceServGameOpts :*/ cli.tcpServGameOpts).knownOpts;
+        knownOpts = ( /*(forPractice) ? cli.practiceServGameOpts :*/ cli.gameOpts).knownOpts;
         localPrefs = new HashMap<>();
         this.forPractice = forPractice;
         this.readOnly = readOnly;
@@ -314,12 +313,12 @@ import soc.util.Version;
             optsControls = new HashMap<>();
             boolOptCheckboxes = new HashMap<>();
         }
-        if ((gaName == null) && forPractice)
+        if ((gameName == null) && forPractice)
         {
             if (cli.numPracticeGames == 0)
-                gaName = cli.DEFAULT_PRACTICE_GAMENAME;
+                gameName = cli.DEFAULT_PRACTICE_GAMENAME;
             else
-                gaName = cli.DEFAULT_PRACTICE_GAMENAME + " " + (1 + cli.numPracticeGames);
+                gameName = cli.DEFAULT_PRACTICE_GAMENAME + " " + (1 + cli.numPracticeGames);
         }
 
         // same Frame/Window setup as in SOCPlayerClient.main
@@ -335,7 +334,7 @@ import soc.util.Version;
 
         addKeyListener( this );
 
-        initInterfaceElements( gaName );
+        initInterfaceElements( gameName );
 
         addWindowListener( new WindowAdapter()
         {

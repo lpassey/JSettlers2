@@ -380,7 +380,7 @@ public interface MainDisplay
      * @return true if deleted, false if not found in list
      * @see #addToGameList(boolean, String, String, boolean)
      */
-    boolean deleteFromGameList(String gameName, final boolean isPractice, final boolean withUnjoinablePrefix);
+    boolean deleteFromGameList(String gameName, final boolean withUnjoinablePrefix);
 
     /**
      * Utility for time-driven events in the client.

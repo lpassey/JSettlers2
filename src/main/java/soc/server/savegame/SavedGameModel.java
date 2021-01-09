@@ -406,7 +406,7 @@ public class SavedGameModel
      * @param ga  Game data to save; not null
      * @param srv  Server, for game/player info lookups; not null.
      *     Not retained in object fields, used only during construction.
-     *     Sets {@link #glas} from {@link SOCServer#getGameList() srv.getGameList()}.
+     *     Sets {@link #glas} from {@link SOCServer#getGameList() srv.createNewGameList()}.
      * @throws UnsupportedSGMOperationException  if game has an option or feature not yet supported
      *     by {@link SavedGameModel}; see {@link #checkCanSave(SOCGame)} for details.
      * @throws IllegalStateException if game state &lt; {@link SOCGame#ROLL_OR_CARD}
@@ -631,7 +631,7 @@ public class SavedGameModel
      * {@link #warnDevCardDeckHasUnknownType} flags.
      *
      * @param srv  Server reference to check for bot name collisions; not {@code null}.
-     *     Calls {@link SOCServer#getGameList() srv.getGameList()} and sets {@link #glas}.
+     *     Calls {@link SOCServer#getGameList() srv.createNewGameList()} and sets {@link #glas}.
      *     Any bot players in the loaded game data with same names as those logged into the server
      *     will be renamed to avoid problems during random bot assignment while joining the game.
      * @throws IllegalStateException if this method's already been called

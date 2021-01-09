@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
@@ -240,6 +241,13 @@ import soc.util.Version;
     {
         if (null == validScenarios)
             validScenarios = new HashMap<>();
+        try
+        {
+            String scenarioTitle = client.strings.get( "gamescen." + newScenario.key + ".n" );
+            String scenarioDesc = client.strings.get( "gamescen." + newScenario.key + ".d" );
+            newScenario.setDesc( scenarioTitle, scenarioDesc );
+        }
+        catch( MissingResourceException ignored ) {};
         validScenarios.put( newScenario.key, newScenario );
     }
 
@@ -335,12 +343,11 @@ import soc.util.Version;
             return false;
         }
 
-
         // Ask internal practice server to create the game
         if (gameOpts == null)
-            prCli.send(new SOCJoinGame(client.practiceNickname, "", SOCMessage.EMPTYSTR, practiceGameName));
+            prCli.send(new SOCJoinGame(client.nickname, "", SOCMessage.EMPTYSTR, practiceGameName));
         else
-            prCli.send(new SOCNewGameWithOptionsRequest( client.practiceNickname, "", SOCMessage.EMPTYSTR,
+            prCli.send(new SOCNewGameWithOptionsRequest( client.nickname, "", SOCMessage.EMPTYSTR,
                 practiceGameName, gameOpts.getAll()));
 
         return true;

@@ -8894,8 +8894,8 @@ public class SOCGame implements Serializable, Cloneable
      */
     public SOCGame resetAsCopy()
     {
-        SOCGame cp = new SOCGame
-            ( name, active, (opts != null) ? new SOCGameOptionSet( opts, true ) : null, knownOpts );
+        SOCGame cp = new SOCGame( name, active,
+            (opts != null) ? new SOCGameOptionSet( opts, true ) : null, knownOpts );
         // the constructor will set most fields, based on game options
 
         cp.isFromBoardReset = true;

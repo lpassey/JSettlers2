@@ -88,7 +88,7 @@ import static soc.game.SOCPlayingPiece.*;
  *
  * @author Robert S Thomas
  */
-public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
+public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 {
     /**
      * Flag property <tt>jsettlers.debug.traffic</tt>: When present, the
@@ -143,7 +143,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @see #handleGAMEOPTIONINFO(SOCGameOptionInfo)
      * @since 2.4.50
      */
-    public SOCGameOptionSet knownOpts = new SOCGameOptionSet( SOCServer.startupKnownOpts, true );
+    public SOCGameOptionSet knownOpts = new SOCGameOptionSet(); // SOCServer.startupKnownOpts, true );
 
     /**
      * Since server and built-in robots are the same version,
@@ -421,7 +421,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
              * join game authorization
              */
             case SOCMessage.JOINGAMEAUTH:
-                handleJOINGAMEAUTH((SOCJoinGameAuth) mes, (connection != null));
+                handleJOINGAMEAUTH( (SOCJoinGameAuth) mes );
                 break;
 
             /**
@@ -659,14 +659,14 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
              * the current number of development cards
              */
             case SOCMessage.DEVCARDCOUNT:
-                handleDEVCARDCOUNT((SOCDevCardCount) mes);
+                handleDEVCARDCOUNT( (SOCDevCardCount) mes );
                 break;
 
             /**
              * a dev card action, either draw, play, or add to hand
              */
             case SOCMessage.DEVCARDACTION:
-                handleDEVCARDACTION((connection != null), (SOCDevCardAction) mes);
+                handleDEVCARDACTION( (SOCDevCardAction) mes );
                 break;
 
             /**
@@ -674,7 +674,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
              * development card this turn
              */
             case SOCMessage.SETPLAYEDDEVCARD:
-                handleSETPLAYEDDEVCARD((SOCSetPlayedDevCard) mes);
+                handleSETPLAYEDDEVCARD( (SOCSetPlayedDevCard) mes );
                 break;
 
             /**
@@ -824,6 +824,8 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
                 handlePICKRESOURCES
                     ((SOCPickResources) mes, games.get(((SOCMessageForGame) mes).getGame()));
                 break;
+            default:
+                System.out.println( "Unrecognized message!" );
             }
         }
         catch (Exception e)
@@ -888,48 +890,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         gotPassword = true;
     }
 
-    /**
-     * Handle the "version" message, server's version report.
-     *<P>
-     * Because SOCDisplaylessPlayerClient is used only for the
-     * robot, and the robot should always be the same version as
-     * the server, don't ask server for info about
-     * {@link soc.game.SOCGameOption game option} deltas between
-     * the two versions.
-     *<P>
-     * If somehow the server isn't our version, print an error and disconnect.
-     *
-     * @param isLocal  Is the server local, or remote?  Client can be connected
-     *                only to local, or remote.
-     * @param mes  the message
-     * @since 1.1.00
-     */
-    protected void handleVERSION(boolean isLocal, SOCVersion mes)
-    {
-        D.ebugPrintlnINFO("handleVERSION: " + mes);
-        int vers = mes.getVersionNumber();
-        final SOCFeatureSet feats =
-            (vers >= SOCFeatureSet.VERSION_FOR_SERVERFEATURES)
-            ? new SOCFeatureSet(mes.feats)
-            : new SOCFeatureSet(true, true);
-
-        connection.setVersion( vers, true );
-        final int ourVers = Version.versionNumber();
-        if (vers != ourVers)
-        {
-            final String errmsg =
-                "Internal error SOCDisplaylessPlayerClient.handleVERSION: Server must be same as our version "
-                + ourVers + ", not " + vers;  // i18n: Unlikely error, keep un-localized for possible bug reporting
-            System.err.println(errmsg);
-            ex = new IllegalStateException(errmsg);
-            destroy();
-        }
-
-        // Clients v1.1.07 and later send SOCVersion right away at connect,
-        // so no need to reply here with our client version.
-
-        // Don't check for game options different at version, unlike SOCPlayerClient.handleVERSION.
-    }
+    protected abstract void handleVERSION( boolean isLocal, SOCVersion mes );
 
     /**
      * handle the "a client joined a channel" message.
@@ -994,9 +955,8 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     /**
      * handle the "join game authorization" message
      * @param mes  the message
-     * @param isPractice Is the server local for practice, or remote?
      */
-    protected void handleJOINGAMEAUTH(SOCJoinGameAuth mes, final boolean isPractice)
+    protected void handleJOINGAMEAUTH( SOCJoinGameAuth mes )
     {
         gotPassword = true;
 
@@ -1016,7 +976,6 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         }
 
         final SOCGame ga = new SOCGame(mes.getGame(), opts, knownOpts);
-        ga.isPractice = isPractice;
         ga.serverVersion = connection.getRemoteVersion(); // (isPractice) ? sLocalVersion : sVersion;
         games.put( mes.getGame(), ga);
     }
@@ -1172,8 +1131,8 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             ga.releaseMonitor();
         }
 
-        if (nickname.equals(plName)
-            && (ga.isPractice || (connection.getRemoteVersion() >= SOCDevCardAction.VERSION_FOR_SITDOWN_CLEARS_INVENTORY)))
+        if (    nickname.equals(plName)
+            && (connection.getRemoteVersion() >= SOCDevCardAction.VERSION_FOR_SITDOWN_CLEARS_INVENTORY))
         {
             // server is about to send our dev-card inventory contents
             player.getInventory().clear();
@@ -2179,11 +2138,9 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     /**
      * handle the "development card action" message for 1 card in this game.
      * Ignores messages where {@link SOCDevCardAction#getCardTypes()} != {@code null}.
-     * @param isPractice  Is the server local, or remote?  Client can be connected
-     *                only to local, or remote.
      * @param mes  the message
      */
-    protected void handleDEVCARDACTION(final boolean isPractice, final SOCDevCardAction mes)
+    protected void handleDEVCARDACTION( final SOCDevCardAction mes )
     {
         if (mes.getCardTypes() != null)
             return;  // <--- ignore: bots don't care about game-end VP card reveals ---
@@ -2195,7 +2152,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         SOCPlayer player = ga.getPlayer(mes.getPlayerNumber());
 
         int ctype = mes.getCardType();
-        if ((! isPractice) && (connection.getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
+        if (connection.getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES)
         {
             if (ctype == SOCDevCardConstants.KNIGHT_FOR_VERS_1_X)
                 ctype = SOCDevCardConstants.KNIGHT;
@@ -2457,17 +2414,17 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @see soc.game.SOCGame#resetAsCopy()
      * @since 1.1.00
      */
-    protected void handleRESETBOARDAUTH(SOCResetBoardAuth mes)
+    protected void handleRESETBOARDAUTH( SOCResetBoardAuth mes )
     {
-        String gname = mes.getGame();
-        SOCGame ga = games.get(gname);
-        if (ga == null)
+        String gameName = mes.getGame();
+        SOCGame game = games.get( gameName );
+        if (game == null)
             return;  // Not one of our games
 
-        SOCGame greset = ga.resetAsCopy();
-        greset.isPractice = ga.isPractice;
-        games.put( gname, greset);
-        ga.destroyGame();
+        SOCGame greset = game.resetAsCopy();
+        greset.isPractice = game.isPractice;
+        games.put( gameName, greset);
+        game.destroyGame();
     }
 
     /**
@@ -2479,7 +2436,7 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleGAMEOPTIONINFO(final SOCGameOptionInfo optInfo)
     {
-        final SOCGameOption opt = optInfo.getOptionInfo();
+        final SOCGameOption opt = optInfo.getOption();
 
         if ((opt.key.equals( "-" )) && (opt.optType == SOCGameOption.OTYPE_UNKNOWN))
         {
@@ -3096,23 +3053,23 @@ public class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     /**
      * the user wants to play a development card
      *
-     * @param ga  the game
-     * @param dc  the type of development card
+     * @param game          the game
+     * @param devCardType   the type of development card
      */
-    public void playDevCard(SOCGame ga, int dc)
+    public void playDevCard( SOCGame game, int devCardType )
     {
-        if ((! ga.isPractice) && (connection.getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
+        if (connection.getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES )
         {
             // Unlikely; the displayless client is currently used for SOCRobotClient,
             // and the built-in robots must be the same version as the server.
             // This code is here for a third-party bot or other user of displayless.
 
-            if (dc == SOCDevCardConstants.KNIGHT)
-                dc = SOCDevCardConstants.KNIGHT_FOR_VERS_1_X;
-            else if (dc == SOCDevCardConstants.UNKNOWN)
-                dc = SOCDevCardConstants.UNKNOWN_FOR_VERS_1_X;
+            if (devCardType == SOCDevCardConstants.KNIGHT)
+                devCardType = SOCDevCardConstants.KNIGHT_FOR_VERS_1_X;
+            else if (devCardType == SOCDevCardConstants.UNKNOWN)
+                devCardType = SOCDevCardConstants.UNKNOWN_FOR_VERS_1_X;
         }
-        connection.send( new SOCPlayDevCardRequest( ga.getName(), dc));
+        connection.send( new SOCPlayDevCardRequest( game.getName(), devCardType));
     }
 
     /**

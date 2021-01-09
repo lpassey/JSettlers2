@@ -489,5 +489,4 @@ public abstract class SOCVersionedItem implements Cloneable
 
         return true;
     }
-
 }

@@ -336,7 +336,7 @@ public class SOCPlayerClient
     protected SOCFeatureSet sFeatures;
 
     /**
-     * Track the game options available at the remote server and at the practice server.
+     * Track the game options available at the remote server and at the local server.
      * Initialized by {@link SwingMainDisplay#gameWithOptionsBeginSetup(boolean, boolean)}
      * and/or {@link MessageHandler#handleVERSION(boolean, SOCVersion)}.
      * These fields are never null, even if the respective server is not connected or not running.
@@ -350,8 +350,7 @@ public class SOCPlayerClient
      * @see #sFeatures
      * @since 1.1.07
      */
-    protected final ServerGametypeInfo tcpServGameOpts = new ServerGametypeInfo();
-//        practiceServGameOpts = new ServerGametypeInfo();
+    protected final ServerGametypeInfo gameOpts = new ServerGametypeInfo();
 
     /**
      * For practice games, default game name ("Practice").
@@ -361,19 +360,9 @@ public class SOCPlayerClient
     public final String DEFAULT_PRACTICE_GAMENAME;
 
     /**
-     * Client's nickname as a player in practice games; null until validated and set by
-     * {@link SwingMainDisplay#getValidNickname(boolean) SwingMainDisplay.getValidNickname(false)}.
-     * Returned by {@link #getNickname(boolean) getNickname(true)}.
-     * @see #nickname
-     * @since 2.3.00
-     */
-    protected String practiceNickname = null;
-
-    /**
      * Client nickname as a player; null until validated and set by
      * {@link SwingMainDisplay#getValidNickname(boolean) SwingMainDisplay.getValidNickname(false)}.
      * Returned by {@link #getNickname(boolean) getNickname(false)}.
-     * @see #practiceNickname
      */
     protected String nickname = null;
 
@@ -527,23 +516,20 @@ public class SOCPlayerClient
         if (debug_clearPrefs != null)
             UserPreferences.clear( debug_clearPrefs );
 
-        String gameopt3pName = System.getProperty( SOCDisplaylessPlayerClient.PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P );
-        if (gameopt3pName != null)
-        {
-            gameopt3pName = gameopt3pName.toUpperCase( Locale.US );
-            SOCGameOption gameopt3p = new SOCGameOption
-                ( gameopt3pName, 2000, Version.versionNumber(), false,
-                    SOCGameOption.FLAG_3RD_PARTY | SOCGameOption.FLAG_DROP_IF_UNUSED,
-                    "Client test 3p option " + gameopt3pName );
-            tcpServGameOpts.knownOpts.put( gameopt3p );
-//            practiceServGameOpts.knownOpts.put( gameopt3p );
-            soc.server.SOCServer.startupKnownOpts.put( gameopt3p );
-            // similar code is in SOCRobotClient.buildClientFeats()
-        }
+//        String gameopt3pName = System.getProperty( SOCDisplaylessPlayerClient.PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P );
+//        if (gameopt3pName != null)
+//        {
+//            gameopt3pName = gameopt3pName.toUpperCase( Locale.US );
+//            SOCGameOption gameopt3p = new SOCGameOption( gameopt3pName, 2000,
+//                Version.versionNumber(), false,
+//                    SOCGameOption.FLAG_3RD_PARTY | SOCGameOption.FLAG_DROP_IF_UNUSED,
+//                    "Client test 3p option " + gameopt3pName );
+//            gameOpts.knownOpts.put( gameopt3p );
+//            soc.server.SOCServer.startupKnownOpts.put( gameopt3p );
+//            // similar code is in SOCRobotClient.buildClientFeats()
+//        }
 
         net = new ClientNetwork( this );
-//        gameMessageSender = new GameMessageSender(this, clientListeners);
-//        messageHandler = new MessageHandler(this);
     }
 
     /**
@@ -589,13 +575,12 @@ public class SOCPlayerClient
 
     /**
      * Get the client user's nickname used on the remote/TCP server or practice server, if set.
-     * @param forPractice  If true return nickname for practice games, not for the remote server
      * @return the nickname of this user, or {@code null}
      *     if {@link SwingMainDisplay#getValidNickname(boolean)} hasn't been called
      */
-    public String getNickname( final boolean forPractice )
+    public String getNickname()
     {
-        return (forPractice) ? practiceNickname : nickname;
+        return nickname;
     }
 
     /**
@@ -721,11 +706,11 @@ public class SOCPlayerClient
      */
     protected void checkGameoptsForUnknownScenario( final SOCGameOptionSet opts )
     {
-        if ((opts == null) || tcpServGameOpts.allScenInfoReceived || !opts.containsKey( "SC" ))
+        if ((opts == null) || gameOpts.allScenInfoReceived || !opts.containsKey( "SC" ))
             return;
 
         final String scKey = opts.get( "SC" ).getStringValue();
-        if ((scKey.length() == 0) || tcpServGameOpts.scenKeys.contains( scKey ))
+        if ((scKey.length() == 0) || gameOpts.scenKeys.contains( scKey ))
             return;
 
         if (serverConnection.getRemoteVersion() != Version.versionNumber())
@@ -737,7 +722,7 @@ public class SOCPlayerClient
         {
             // same version: need localization strings, at most
             serverConnection.send(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey) );
-            tcpServGameOpts.scenKeys.add( scKey );  // don't ask again later
+            gameOpts.scenKeys.add( scKey );  // don't ask again later
         }
     }
 
@@ -752,13 +737,12 @@ public class SOCPlayerClient
      * @param skipFirst  If true skip the first element of {@code scStrs}, it isn't a scenario keyname.
      * @param sentAll  True if no further strings will be received; is {@link SOCLocalizedStrings#FLAG_SENT_ALL} set?
      *     If true, sets {@link ServerGametypeInfo#allScenStringsReceived}.
-     * @param isPractice  Is the server {@link ClientNetwork#practiceServer}, not remote?
      * @since 2.0.00
      */
     protected void localizeGameScenarios( final List<String> scStrs, final boolean skipFirst,
-        final boolean sentAll /*, final boolean isPractice*/ )
+        final boolean sentAll )
     {
-        ServerGametypeInfo opts =  tcpServGameOpts;
+        ServerGametypeInfo opts =  gameOpts;
 
         final int L = scStrs.size();
         int i = (skipFirst) ? 1 : 0;
@@ -792,21 +776,17 @@ public class SOCPlayerClient
     }
 
     /**
-     * Does a game with this name exist, either at the remote server or our Practice Server (if one is running)?
+     * Does a game with this name exist, either at the remote server or our local Server (if one is running)?
      * @param gameName  Game name to check. Should not have the prefix {@link SOCGames#MARKER_THIS_GAME_UNJOINABLE}.
-     * @param checkPractice  True if should also check list of practice games, false to ignore practice games.
-     *     It's safe to use {@code true} even when the practice server isn't running.
-     * @return True if game exists in client's practice server or remote server game lists
+     * @return True if game exists in client's server game lists
      * @since 2.0.00
      */
-    public boolean doesGameExist( final String gameName /*, final boolean checkPractice */ )
+    public boolean doesGameExist( final String gameName )
     {
         boolean gameExists = false;
-//            = (checkPractice)
-//            ? ((net.practiceServer != null) && (net.practiceServer.getGame(gameName) != null))
-//            : false;
+
         if ( (serverGames != null))
-            gameExists = gameExists || serverGames.isGame( gameName );
+            gameExists = serverGames.isGame( gameName );
 
         return gameExists;
     }
@@ -1079,8 +1059,8 @@ public class SOCPlayerClient
             if (!isPractice)
             {
                 e.getValue().gameDisconnected( false, err );
-                if (!mainDisplay.deleteFromGameList( gaName, false, false ))
-                    mainDisplay.deleteFromGameList( gaName, false, true );
+                if (!mainDisplay.deleteFromGameList( gaName, false ))
+                    mainDisplay.deleteFromGameList( gaName, true );
             }
         }
 
