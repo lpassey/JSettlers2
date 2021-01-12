@@ -189,7 +189,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              * Show main panel if not already showing; see handleCHANNELS javadoc.
              */
             case SOCMessage.CHANNELS:
-                handleCHANNELS( (SOCChannels) mes, true );
+                handleCHANNELS( (SOCChannels) mes );
                 break;
 
             /**
@@ -1079,21 +1079,19 @@ public final class MessageHandler implements SOCMessageDispatcher
     }
 
     /**
-     * handle the "list of channels" message; this message indicates that
-     * we're newly connected to the server, and is sent even if the server
-     * isn't using {@link SOCFeatureSet#SERVER_CHANNELS}: Server connection is complete.
-     * Unless {@code showChannels}, show {@link #MAIN_PANEL}.
+     * handle the "list of channels" message; this message indicates that we've
+     * newly connected to the server, and it is sent even if the server
+     * isn't using {@link SOCFeatureSet#SERVER_CHANNELS}: Server handshake is complete.
      * @param mes  the message
-     * @param showChannels show the list of channels. TODO: If there are no other non-robot players, this should be false
      */
-    protected void handleCHANNELS( final SOCChannels mes, final boolean showChannels )
+    protected void handleCHANNELS( final SOCChannels mes )
     {
         EventQueue.invokeLater( new Runnable()
         {
             public void run()
             {
                 MainDisplay mdisp = client.getMainDisplay();
-                mdisp.channelList( mes.getChannels(), showChannels );
+                mdisp.channelList( mes.getChannels() );
                 mdisp.repaintGameAndChannelLists();
             }
         } );
@@ -2566,7 +2564,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         else
         {
             servOpts.newGameWaitingForOpts = false;
-            client.getMainDisplay().optionsReceived( servOpts, true );
+            client.getMainDisplay().optionsReceived( servOpts );
         }
     }
 

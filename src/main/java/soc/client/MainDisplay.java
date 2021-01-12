@@ -234,13 +234,12 @@ public interface MainDisplay
 
     /**
      * Server has sent its list of chat channels (or an empty list), so
-     * populate and show that list along with the rest of the UI.
-     * The server sends the list when the client successfully connects.
+     * populate and show that list along with the rest of the UI. The server
+     * sends the list when the client successfully connects, and it may be empty
      * @param channelNames  List of server's chat channels, from server message
-     * @param isPractice  True if this is the practice server, not a TCP server
      * @see #repaintGameAndChannelLists()
      */
-    void channelList(Collection<String> channelNames, boolean isPractice);
+    void channelList(Collection<String> channelNames );
 
     void channelDeleted(String channelName);
 
@@ -328,7 +327,7 @@ public interface MainDisplay
      * @param opts  Client's game option info, tracking the TCP or local practice server
      * @param isPractice  True if received from {@link ClientNetwork#practiceServer}, instead of TCP server
      */
-    void optionsReceived(ServerGametypeInfo opts, boolean isPractice);
+    void optionsReceived( ServerGametypeInfo opts );
 
     /**
      * Server has sent info about a single game option.  If {@code hasAllNow},
