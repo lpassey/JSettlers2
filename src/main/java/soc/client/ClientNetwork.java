@@ -130,12 +130,12 @@ import soc.util.Version;
      */
     private final SOCFeatureSet cliFeats;
 
-    private boolean practiceGame;
+//    private boolean practiceGame;
 
-    public boolean isPracticeGame()
-    {
-        return practiceGame;
-    }
+    public boolean isPracticeGame; // ()
+//    {
+//        return practiceGame;
+//    }
 
     {
         cliFeats = new SOCFeatureSet(false, false);
@@ -254,7 +254,7 @@ import soc.util.Version;
     public boolean startPracticeServer()
     {
         // We only get here if the "Practice" button was pushed, so we can set a practice flag here.
-        practiceGame = true;
+        isPracticeGame = true;
         if (practiceServer == null)
         {
             validScenarios = new HashMap<>(  );

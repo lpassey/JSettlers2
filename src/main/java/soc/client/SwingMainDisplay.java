@@ -395,7 +395,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     private String statusOKText;
 
     /**
-     * Chat channel name to create or join with {@link #jc} button.
+     * Chat channel name to create or join with {@link #joinChannelButton} button.
      * Hidden in v1.1.19+ if server is missing {@link SOCFeatureSet#SERVER_CHANNELS}.
      */
     protected JTextField channel;
@@ -403,7 +403,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     // protected TextField game;  // removed 1.1.07 - NewGameOptionsFrame instead
 
     /**
-     * List of chat channels that can be joined with {@link #jc} button or by double-click.
+     * List of chat channels that can be joined with {@link #joinChannelButton} button or by double-click.
      * Hidden in v1.1.19+ if server is missing {@link SOCFeatureSet#SERVER_CHANNELS}.
      *<P>
      * When there are no channels, this list contains a single blank item (" ").
@@ -411,10 +411,10 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     protected JList<JoinableListItem> chlist;
 
     /**
-     * List of games that can be joined with {@link #jg} button or by double-click,
-     * or detail info displayed with {@link #gi} button.
+     * List of games that can be joined with {@link #joinGameButton} button or by double-click,
+     * or detail info displayed with {@link #gameInfoButton} button.
      * Contains all games on server if connected, and any Practice Games
-     * created with {@link #pg} button.
+     * created with {@link #practiceButton} button.
      *<P>
      * When there are no games, this list contains a single blank item (" ").
      */
@@ -424,32 +424,32 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * "New Game..." button, brings up {@link NewGameOptionsFrame} window
      * @since 1.1.07
      */
-    protected JButton ng;  // new game
+    protected JButton newGameButton;  // new game
 
     /**
      * "Join Channel" button, for channel currently highlighted in {@link #chlist},
      * or create new channel named in {@link #channel}. Hidden in v1.1.19+ if server
      * is missing {@link SOCFeatureSet#SERVER_CHANNELS}.
      */
-    protected JButton jc;
+    protected JButton joinChannelButton;
 
     /** "Join Game" button */
-    protected JButton jg;
+    protected JButton joinGameButton;
 
     /**
      * Practice Game button: Create game to play against
      * {@link ClientNetwork#practiceServer}, not {@link ClientNetwork#localTCPServer}.
      * @since 1.1.00
      */
-    protected JButton pg;
+    protected JButton practiceButton;
 
     /**
      * "Game Info" button, shows a game's {@link SOCGameOption}s.
      *<P>
-     * Renamed in 2.0.00 to 'gi'; previously 'so' Show Options.
+     * Renamed in 2.0.00 to 'gameInfoButton'; previously 'so' Show Options.
      * @since 1.1.07
      */
-    protected JButton gi;
+    protected JButton gameInfoButton;
 
     /**
      * Local Server indicator in main panel: blank, or 'server is running' if
@@ -849,32 +849,32 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         gmlist.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
         lm.addElement( JoinableListItem.BLANK );
 
-        ng = new JButton( strings.get( "pcli.main.newgame" ) );       // "New Game..."
-        jc = new JButton( strings.get( "pcli.main.join.channel" ) );  // "Join Channel"
-        jg = new JButton( strings.get( "pcli.main.join.game" ) );     // "Join Game"
-        pg = new JButton( strings.get( "pcli.main.practice" ) );      // "Practice" -- "practice game" text is too wide
-        gi = new JButton( strings.get( "pcli.main.game.info" ) );     // "Game Info" -- show game options
+        newGameButton = new JButton( strings.get( "pcli.main.newgame" ) );       // "New Game..."
+        joinChannelButton = new JButton( strings.get( "pcli.main.join.channel" ) );  // "Join Channel"
+        joinGameButton = new JButton( strings.get( "pcli.main.join.game" ) );     // "Join Game"
+        practiceButton = new JButton( strings.get( "pcli.main.practice" ) );      // "Practice" -- "practice game" text is too wide
+        gameInfoButton = new JButton( strings.get( "pcli.main.game.info" ) );     // "Game Info" -- show game options
 
         if (SOCPlayerClient.IS_PLATFORM_WINDOWS && !isOSColorHighContrast)
         {
             // swing on win32 needs all JButtons to inherit their bgcolor from panel, or they get gray corners
-            ng.setBackground( null );
-            jc.setBackground( null );
-            jg.setBackground( null );
-            pg.setBackground( null );
-            gi.setBackground( null );
+            newGameButton.setBackground( null );
+            joinChannelButton.setBackground( null );
+            joinGameButton.setBackground( null );
+            practiceButton.setBackground( null );
+            gameInfoButton.setBackground( null );
         }
 
         versionOrlocalTCPPortLabel = new JLabel();
         localTCPServerLabel = new JLabel();
 
         // Username not entered yet: can't click buttons
-        ng.setEnabled( false );
-        jc.setEnabled( false );
+        newGameButton.setEnabled( false );
+        joinChannelButton.setEnabled( false );
 
         // when game is selected in gmlist, these buttons will be enabled:
-        jg.setEnabled( false );
-        gi.setEnabled( false );
+        joinGameButton.setEnabled( false );
+        gameInfoButton.setEnabled( false );
 
         nick.getDocument().addDocumentListener( new DocumentListener()
         {
@@ -900,10 +900,10 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             private void textValueChanged()
             {
                 boolean notEmpty = (nick.getText().trim().length() > 0);
-                if (notEmpty != ng.isEnabled())
+                if (notEmpty != newGameButton.isEnabled())
                 {
-                    ng.setEnabled( notEmpty );
-                    jc.setEnabled( notEmpty );
+                    newGameButton.setEnabled( notEmpty );
+                    joinChannelButton.setEnabled( notEmpty );
                 }
             }
         } );
@@ -952,20 +952,20 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             public void valueChanged( ListSelectionEvent e )
             {
                 boolean wasSel = !(((ListSelectionModel) (e.getSource())).isSelectionEmpty());
-                if (wasSel != jg.isEnabled())
+                if (wasSel != joinGameButton.isEnabled())
                 {
-                    jg.setEnabled( wasSel );
-                    gi.setEnabled( wasSel &&
+                    joinGameButton.setEnabled( wasSel );
+                    gameInfoButton.setEnabled( wasSel &&
                         (   (client.getNet().practiceServer != null)
                          || (client.getConnection().getRemoteVersion() >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)));
                 }
             }
         } );
-        ng.addActionListener( actionListener );
-        jc.addActionListener( actionListener );
-        jg.addActionListener( actionListener );
-        pg.addActionListener( actionListener );
-        gi.addActionListener( actionListener );
+        newGameButton.addActionListener( actionListener );
+        joinChannelButton.addActionListener( actionListener );
+        joinGameButton.addActionListener( actionListener );
+        practiceButton.addActionListener( actionListener );
+        gameInfoButton.addActionListener( actionListener );
 
         initMainPanelLayout( true, null );  // status line only, until later call to showVersion
 
@@ -1093,7 +1093,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         // If ! hasChannels, these aren't part of a layout: hide them in case other code checks isVisible()
         channel.setVisible( hasChannels );
         chlist.setVisible( hasChannels );
-        jc.setVisible( hasChannels );
+        joinChannelButton.setVisible( hasChannels );
 
         JLabel l;
 
@@ -1174,8 +1174,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         mainPane.add( l );
 
         c.gridwidth = 1;  // this position was "New Game:" label before 1.1.07
-        gbl.setConstraints( pg, c );
-        mainPane.add( pg );  // "Practice"; stretched to same width as "Game Info"
+        gbl.setConstraints( practiceButton, c );
+        mainPane.add( practiceButton );  // "Practice"; stretched to same width as "Game Info"
 
         l = new JLabel();
         c.gridwidth = 1;
@@ -1184,8 +1184,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
         c.gridwidth = 1;
         c.fill = GridBagConstraints.NONE;
-        gbl.setConstraints( ng, c );
-        mainPane.add( ng );  // "New Game..."
+        gbl.setConstraints( newGameButton, c );
+        mainPane.add( newGameButton );  // "New Game..."
         c.fill = GridBagConstraints.BOTH;
 
         l = new JLabel();
@@ -1209,8 +1209,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         {
             c.fill = GridBagConstraints.NONE;
             c.gridwidth = 1;
-            gbl.setConstraints( jc, c );
-            mainPane.add( jc );  // "Join Channel"
+            gbl.setConstraints( joinChannelButton, c );
+            mainPane.add( joinChannelButton );  // "Join Channel"
             c.fill = GridBagConstraints.BOTH;
         }
 
@@ -1220,8 +1220,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         mainPane.add( l );
 
         c.gridwidth = 1;
-        gbl.setConstraints( gi, c );
-        mainPane.add( gi );  // "Game Info"; stretched to same width as "Practice"
+        gbl.setConstraints( gameInfoButton, c );
+        mainPane.add( gameInfoButton );  // "Game Info"; stretched to same width as "Practice"
 
         l = new JLabel();
         c.gridwidth = 1;
@@ -1230,8 +1230,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
         c.gridwidth = 1;
         c.fill = GridBagConstraints.NONE;
-        gbl.setConstraints( jg, c );
-        mainPane.add( jg );  // "Join Game"
+        gbl.setConstraints( joinGameButton, c );
+        mainPane.add( joinGameButton );  // "Join Game"
         c.fill = GridBagConstraints.BOTH;
 
         l = new JLabel();
@@ -1297,7 +1297,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         nick.setText( cuser );
         nick.requestFocusInWindow();
         if ((cuser != null) && (cuser.trim().length() > 0))
-            ng.setEnabled( true );
+            newGameButton.setEnabled( true );
 
         cardLayout.show( this, MESSAGE_PANEL );
     }
@@ -1317,7 +1317,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * To help debugging, catches any thrown exceptions and prints them to {@link System#err}.
      *
      * @param target Action source, from ActionEvent.getSource(),
-     *     such as {@link #jg}, {@link #ng}, {@link #chlist}, or {@link #gmlist}.
+     *     such as {@link #joinGameButton}, {@link #newGameButton}, {@link #chlist}, or {@link #gmlist}.
      * @since 1.1.00
      */
     private void guardedActionPerform( Object target )
@@ -1326,12 +1326,12 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         {
             boolean showPopupCannotJoin = false;
 
-            if ((target == jc) || (target == channel) || (target == chlist)) // Join channel stuff
+            if ((target == joinChannelButton) || (target == channel) || (target == chlist)) // Join channel stuff
             {
                 showPopupCannotJoin = !guardedActionPerform_channels( target );
             }
-            else if ((target == jg) || (target == ng) || (target == gmlist)
-                || (target == pg) || (target == pgm) || (target == gi)) // Join game stuff
+            else if ((target == joinGameButton) || (target == newGameButton) || (target == gmlist)
+                || (target == practiceButton) || (target == pgm) || (target == gameInfoButton)) // Join game stuff
             {
                 showPopupCannotJoin = !guardedActionPerform_games( target );
             }
@@ -1374,7 +1374,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     {
         String ch = null;
 
-        if (target == jc) // "Join Channel" Button
+        if (target == joinChannelButton) // "Join Channel" Button
         {
             ch = channel.getText().trim();
             if (ch.length() == 0)
@@ -1475,9 +1475,10 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         String gameName;  // May also be 0-length string, if pulled from Lists
         boolean isUnjoinable = false;  // if selecting game from gmList, may become true
 
-        if ((target == pg) || (target == pgm)) // "Practice Game" Buttons
+        if ((target == practiceButton) || (target == pgm)) // "Practice Game" Buttons
         {
             gameName = client.DEFAULT_PRACTICE_GAMENAME;  // "Practice"
+            client.getNet().isPracticeGame = true;
 
             // If blank, fill in player name
             // (v1.x used DEFAULT_PLAYER_NAME const field here)
@@ -1485,7 +1486,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             if (0 == nick.getText().trim().length())
                 nick.setText( client.strings.get( "default.name.practice.player" ) );  // "Player"
         }
-        else if (target == ng)  // "New Game" button
+        else if (target == newGameButton)  // "New Game" button
         {
             if (null != getValidNickname( true ))  // name check, but don't set nick field yet
                 gameWithOptionsBeginSetup( false, false );  // Also may set status, WAIT_CURSOR
@@ -1494,7 +1495,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
             return true;
         }
-        else  // "Join Game" Button jg, or game list
+        else  // "Join Game" Button joinGameButton, or game list
         {
             JoinableListItem item = gmlist.getSelectedValue();
             if (item == null)
@@ -1509,7 +1510,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             return true;
         }
 
-        if (target == gi)  // show game info, game options, for an existing game
+        if (target == gameInfoButton)  // show game info, game options, for an existing game
         {
             // This game is either from the tcp server, or practice server,
             // both servers' games are in the same GUI list.
@@ -1570,7 +1571,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         SOCPlayerInterface pi = playerInterfaces.get(gameName);
 
         if ((pi == null)
-            && ((target == pg) || (target == pgm))
+            && ((target == practiceButton) || (target == pgm))
             && (net.practiceServer != null)
                 && (gameName.equalsIgnoreCase(client.DEFAULT_PRACTICE_GAMENAME)))
         {
@@ -1579,7 +1580,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             pi = findAnyActiveGame( true );
         }
 
-        if ((pi != null) && ((target == pg) || (target == pgm)))
+        if ((pi != null) && ((target == practiceButton) || (target == pgm)))
         {
             // Practice game requested, already exists.
             //
@@ -1620,9 +1621,9 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 }
             }
 
-            if (((target == pg) || (target == pgm)) && (null == net.ex_P))
+            if (((target == practiceButton) || (target == pgm)) && (null == net.ex_P))
             {
-                if (target == pg)
+                if (target == practiceButton)
                     status.setText
                         ( client.strings.get( "pcli.message.startingpractice" ) );  // "Starting practice game setup..."
 
@@ -2151,8 +2152,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
     public void enableOptions()
     {
-        if (gi != null)
-            gi.setEnabled( true );
+        if (gameInfoButton != null)
+            gameInfoButton.setEnabled( true );
     }
 
     /**
@@ -2179,8 +2180,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         validate();
 
         if ((net.practiceServer == null) && (vers < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
-            && (gi != null))
-            gi.setEnabled( false );  // server too old for options, so don't use that button
+            && (gameInfoButton != null))
+            gameInfoButton.setEnabled( false );  // server too old for options, so don't use that button
     }
 
     public void showStatus( final String statusText, final boolean statusIsOK, final boolean debugWarn )
@@ -2350,10 +2351,15 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         addToList( channelName, chlist );
     }
 
-    public void channelList( Collection<String> channelNames, boolean isPractice )
+    public void channelList( Collection<String> channelNames )
     {
-        if (!isPractice)
+        for (String ch : channelNames)
         {
+            addToList( ch, chlist );
+        }
+        if (!this.client.getNet().isPracticeGame)
+        {
+            // FIXME: TODO: This is probably not the most intuitive place to do this...
             cardLayout.show( SwingMainDisplay.this, MAIN_PANEL );
             validate();
 
@@ -2362,15 +2368,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                     ? NEED_NICKNAME_BEFORE_JOIN    // "First enter a nickname, then join a game or channel."
                     : NEED_NICKNAME_BEFORE_JOIN_G  // "First enter a nickname, then join a game."
                 );
-        }
-
-        for (String ch : channelNames)
-        {
-            addToList( ch, chlist );
-        }
-
-        if (!isPractice)
             nick.requestFocus();
+        }
     }
 
     public void chatMessageBroadcast( String message )
@@ -2481,13 +2480,13 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         gameOptionsSetTimeoutTask();
     }
 
-    public void optionsReceived( ServerGametypeInfo opts, boolean isPractice )
+    public void optionsReceived( ServerGametypeInfo opts )
     {
         gameOptionsCancelTimeoutTask();
 
         if ((opts.newGameOpts == null) && (opts.knownOpts != null))
             opts.newGameOpts = new SOCGameOptionSet( opts.knownOpts, true );
-        isPractice = getClient().getNet().isPracticeGame();
+        boolean isPractice = getClient().getNet().isPracticeGame;
         newGameOptsFrame = NewGameOptionsFrame.createAndShow( null, SwingMainDisplay.this,
             isPractice ? getClient().getNextGameName() : null,
             opts.newGameOpts, isPractice, false );
@@ -2530,7 +2529,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                     opts.newGameWaitingForOpts = false;
                 }
                 newGameOptsFrame = NewGameOptionsFrame.createAndShow( null, SwingMainDisplay.this,
-                    null, opts.newGameOpts, client.getNet().isPracticeGame(), false );
+                    null, opts.newGameOpts, client.getNet().isPracticeGame, false );
             }
         }
     }
@@ -2552,8 +2551,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         {
             lm.set( 0, item );
             gmlist.setSelectedIndex( 0 );
-            jg.setEnabled( true );
-            gi.setEnabled( (net.practiceServer != null)
+            joinGameButton.setEnabled( true );
+            gameInfoButton.setEnabled( (net.practiceServer != null)
                 || (client.getRemoteVersion() >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS));
         }
         else
@@ -2578,7 +2577,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 if (client.serverGames != null)
                     client.serverGames.deleteGame( gameName );  // may not be in there
 
-                gi.setEnabled( false );
+                gameInfoButton.setEnabled( false );
 
                 return true;
             }
@@ -2813,7 +2812,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         // This lets player create a game after starting a practice game (which sets nickname)
         // and then starting a server.
         if (nick.getText().trim().length() > 0)
-            ng.setEnabled( true );
+            newGameButton.setEnabled( true );
         else
             nick.setEditable( true );
 
