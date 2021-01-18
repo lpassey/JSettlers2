@@ -22,7 +22,6 @@
 package soc.baseclient;
 
 import soc.communication.Connection;
-import soc.communication.MemConnection;
 import soc.communication.SOCMessageDispatcher;
 import soc.disableDebug.D;
 
@@ -50,10 +49,6 @@ import soc.game.SOCVillage;
 import soc.message.*;
 import soc.message.SOCGameElements.GEType;
 import soc.message.SOCPlayerElement.PEType;
-
-import soc.server.SOCServer;
-import soc.util.SOCFeatureSet;
-import soc.util.Version;
 
 import java.io.InterruptedIOException;
 
@@ -88,6 +83,7 @@ import static soc.game.SOCPlayingPiece.*;
  *
  * @author Robert S Thomas
  */
+@SuppressWarnings("unused")
 public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 {
     /**
@@ -110,8 +106,8 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     public static final String PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P = "jsettlers.debug.client.gameopt3p";
 
-    protected static String STATSPREFEX = "  [";
     protected String doc;
+
     protected SOCMessage lastMessage;
 
     /**
@@ -143,7 +139,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @see #handleGAMEOPTIONINFO(SOCGameOptionInfo)
      * @since 2.4.50
      */
-    public SOCGameOptionSet knownOpts = new SOCGameOptionSet(); // SOCServer.startupKnownOpts, true );
+    public SOCGameOptionSet knownOpts = new SOCGameOptionSet();
 
     /**
      * Since server and built-in robots are the same version,
@@ -167,22 +163,8 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected Connection connection;
 
-    /**
-     * Server version number, sent soon after connect, or -1 if unknown.
-     * {@link #sLocalVersion} should always equal our own version.
-     * @since 1.1.00
-     */
-//    protected int sVersion = -1, sLocalVersion = -1;
-
-    /**
-     * Server's active optional features, sent soon after connect, or null if unknown.
-     * {@link #sLocalFeatures} goes with our locally hosted server, if any.
-     * @since 1.1.19
-     */
-    protected SOCFeatureSet sFeatures, sLocalFeatures;
-
-    protected Thread reader = null;
     protected Exception ex = null;
+
     protected boolean connected = false;
 
     /**
@@ -232,7 +214,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @throws IllegalArgumentException if {@code sci == null}
      * @since 2.2.00
      */
-    public SOCDisplaylessPlayerClient(ServerConnectInfo sci, Connection unused )
+    public SOCDisplaylessPlayerClient( ServerConnectInfo sci )
         throws IllegalArgumentException
     {
         if (sci == null)
@@ -261,41 +243,22 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     }
 
     /**
-     * Treat the incoming messages.
+     * Handle an incoming message. Only called from subclasses.
      *<P>
-     * For message types relevant to robots and automated clients, will update our data from the
-     * message contents. Other types will be ignored. Messages of unknown type are ignored
-     * ({@code mes} will be null from {@link SOCMessage#toMsg(String)}).
+     * For message types relevant to robots and automated clients, update our data from the
+     * message contents. Other types will be ignored. Messages of unknown type are ignored.
      *<P>
-     * If {@link #PROP_JSETTLERS_DEBUG_TRAFFIC} is set, debug-prints message contents.
+     *<B>Note:</B> <tt>{@link SOCRobotClient.dispatch( SOCMessage )}</tt> calls this method as its
+     * default case, for message types which have no robot-specific handling. For those that do,
+     * the robot dispatch's switch case can call <tt>treat(mes)</tt> before or after any
+     * robot-specific handling. (Before v2.0.00, the bot didn't call this method by default.)
      *<P>
-     *<B>Note:</B> <tt>SOCRobotClient.treat(mes)</tt> calls this method as its default case, for
-     * message types which have no robot-specific handling. For those that do, the robot treat's
-     * switch case can call <tt>super.treat(mes)</tt> before or after any robot-specific handling.
-     * (Before v2.0.00, the bot didn't call this method by default.)
-     *<P>
-     *<B>New message types:</B><BR>
+     *<B>New message types:</B>
+     * <BR>
      * If the message type is relevant to bots and other automated clients, add it here. If handling
-     * differs between displayless and the robot client, add it to <tt>SOCRobotClient.treat</tt> too.
+     * differs between the robot client and other automated clients, override it in the sub-classes.
      *
-     * @param message    the message
-     */
-
-    @Override
-    public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
-    {
-        treat(message, false);
-    }
-
-    @Override       // the client side there doesn't need to discriminate between first and subsequent messages.
-    public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
-    {
-        treat( message, connection instanceof MemConnection );
-    }
-
-    /**
-     * Treat the incoming messages, callable from subclasses. For details see {@link #treat(SOCMessage)}.
-     * This method adds a flag parameter to prevent debug printing message contents twice.
+     * This method has a flag parameter used by sub-classes to prevent printing debug messages twice.
      *
      * @param mes  The message
      * @param didDebugPrintAlready  If true, don't debug print {@code mes.toString()}
@@ -303,7 +266,8 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      *     would have done that debug print if enabled.
      * @since 2.0.00
      */
-    protected void treat(final SOCMessage mes, final boolean didDebugPrintAlready)
+    @SuppressWarnings("ConstantConditions")     // prevent "ClassCastException" warnings
+    protected void treat( final SOCMessage mes, final boolean didDebugPrintAlready )
     {
         if (mes == null)
             return;  // Msg parsing error
@@ -322,6 +286,11 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         if (mes instanceof SOCMessageForGame)
             nextServerPingExpectedAt = 0;  // bot not idle, is in a game
 
+        /*
+         Many of these messages are ignored by robot clients. We should still call the abstract
+         method for them in case some other class extends this one; we'll make sub-classes
+         decide what to ignore and what not to ignore.
+         */
         try
         {
             switch (typ)
@@ -824,8 +793,12 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
                 handlePICKRESOURCES
                     ((SOCPickResources) mes, games.get(((SOCMessageForGame) mes).getGame()));
                 break;
+
+            case SOCMessage.ROLLDICEPROMPT:
+                handleROLLDICEPROMPT( (SOCRollDicePrompt) mes );
+                break;
             default:
-                System.out.println( "Unrecognized message!" );
+                System.out.println( "Unrecognized message: " + mes.toString() );
             }
         }
         catch (Exception e)
@@ -836,61 +809,11 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         }
     }
 
-    /**
-     * Handle the "status message" message.
-     * This stub does nothing except for {@link SOCStatusMessage#SV_SERVER_SHUTDOWN},
-     * which calls {@link #disconnect()}.
-     * @param mes  the message
+    /*
+        Handlers for messages that are ignored by this class. If you need to "treat" one of these
+        messages, you must override the method in your derived class
      */
-    protected void handleSTATUSMESSAGE(SOCStatusMessage mes)
-    {
-        if (mes.getStatusValue() == SOCStatusMessage.SV_SERVER_SHUTDOWN)
-            connection.disconnect();
-    }
-
-    /**
-     * handle the server ping message.
-     * Echo back to server, to ensure we're still connected.
-     *<P>
-     * Message was ignored before version 1.1.08 (this method was an empty stub).
-     * Moved for v2.0.00 from subclass {@code SOCRobotClient}.
-     *
-     * @param mes  the message
-     */
-    protected void handleSERVERPING(SOCServerPing mes)
-    {
-        final long now = System.currentTimeMillis();
-        boolean hidePingDebug = (debugTraffic && (nextServerPingExpectedAt != 0))
-            && (Math.abs(now - nextServerPingExpectedAt) <= 66000);  // within 66 seconds of expected time)
-
-        nextServerPingExpectedAt = now + mes.getSleepTime();
-
-        if (hidePingDebug)
-            debugTraffic = false;
-
-        connection.send( mes );
-
-        if (hidePingDebug)
-            debugTraffic = true;
-
-        /*
-           D.ebugPrintln("(*)(*) ServerPing message = "+mes);
-           D.ebugPrintln("(*)(*) ServerPing sleepTime = "+mes.getSleepTime());
-           D.ebugPrintln("(*)(*) resetThread = "+resetThread);
-           resetThread.sleepMore();
-         */
-    }
-
-    /**
-     * handle the "join channel authorization" message.
-     * @param mes  the message
-     */
-    protected void handleJOINCHANNELAUTH(SOCJoinChannelAuth mes)
-    {
-        gotPassword = true;
-    }
-
-    protected abstract void handleVERSION( boolean isLocal, SOCVersion mes );
+    protected void handleVERSION( boolean isLocal, SOCVersion mes ) {}
 
     /**
      * handle the "a client joined a channel" message.
@@ -953,6 +876,92 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     protected void handleGAMESWITHOPTIONS(final SOCGamesWithOptions mes) {}
 
     /**
+     * handle the roll dice prompt message (it is now x's turn to roll the dice)
+     * @param mes  the message
+     */
+    protected void handleROLLDICEPROMPT( SOCRollDicePrompt mes ) {}
+
+    /**
+     * handle the "join game" message
+     * @param mes  the message
+     */
+    protected void handleJOINGAME(SOCJoinGame mes) {}
+
+    /**
+     * handle the "reject offer" message
+     * @param mes  the message
+     */
+    protected void handleREJECTOFFER(SOCRejectOffer mes) {}
+
+    /**
+     * handle the "clear trade message" message
+     * @param mes  the message
+     */
+    protected void handleCLEARTRADEMSG(SOCClearTradeMsg mes) {}
+
+    /**
+     * handle the "discard request" message
+     * @param mes  the message
+     */
+    protected void handleDISCARDREQUEST(SOCDiscardRequest mes) {}
+
+    /**
+     * handle the "choose player request" message
+     * @param mes  the message
+     */
+    protected void handleCHOOSEPLAYERREQUEST(SOCChoosePlayerRequest mes) {}
+
+    /*
+        Methods that can be used by subclasses.
+     */
+    /**
+     * Handle the "status message" message.
+     * This stub does nothing except for {@link SOCStatusMessage#SV_SERVER_SHUTDOWN},
+     * which calls {@link #disconnect()}.
+     * @param mes  the message
+     */
+    protected void handleSTATUSMESSAGE(SOCStatusMessage mes)
+    {
+        if (mes.getStatusValue() == SOCStatusMessage.SV_SERVER_SHUTDOWN)
+            connection.disconnect();
+    }
+
+    /**
+     * handle the server ping message.
+     * Echo back to server, to ensure we're still connected.
+     *<P>
+     * Message was ignored before version 1.1.08 (this method was an empty stub).
+     * Moved for v2.0.00 from subclass {@code SOCRobotClient}.
+     *
+     * @param mes  the message
+     */
+    protected void handleSERVERPING( SOCServerPing mes )
+    {
+        final long now = System.currentTimeMillis();
+        boolean hidePingDebug = (debugTraffic && (nextServerPingExpectedAt != 0))
+            && (Math.abs(now - nextServerPingExpectedAt) <= 66000);  // within 66 seconds of expected time)
+
+        nextServerPingExpectedAt = now + mes.getSleepTime();
+
+        if (hidePingDebug)
+            debugTraffic = false;
+
+        connection.send( mes );
+
+        if (hidePingDebug)
+            debugTraffic = true;
+    }
+
+    /**
+     * handle the "join channel authorization" message.
+     * @param mes  the message
+     */
+    protected void handleJOINCHANNELAUTH( SOCJoinChannelAuth mes )
+    {
+        gotPassword = true;
+    }
+
+    /**
      * handle the "join game authorization" message
      * @param mes  the message
      */
@@ -979,12 +988,6 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         ga.serverVersion = connection.getRemoteVersion(); // (isPractice) ? sLocalVersion : sVersion;
         games.put( mes.getGame(), ga);
     }
-
-    /**
-     * handle the "join game" message
-     * @param mes  the message
-     */
-    protected void handleJOINGAME(SOCJoinGame mes) {}
 
     /**
      * handle the "leave game" message
@@ -1110,7 +1113,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
         final int pn = mes.getPlayerNumber();
         final String plName = mes.getNickname();
-        SOCPlayer player = null;
+        SOCPlayer player;
 
         ga.takeMonitor();
         try
@@ -1483,7 +1486,8 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             return;
         if ((pl == null) && (pn != -1))
             pl = ga.getPlayer(pn);
-
+        if (null == pl)     // Probably only needed to prevent compiler warnings, as this should never happen.
+            return;
         switch (etype)
         {
         case ASK_SPECIAL_BUILD:
@@ -1510,12 +1514,6 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             {
                 SOCResourceSet rsrcs = pl.getResources();
 
-/*
-                if (D.ebugOn)
-                {
-                    //pi.print(">>> RESOURCE COUNT ERROR: "+mes.getCount()+ " != "+rsrcs.getTotal());
-                }
-*/
                 //
                 //  fix it if possible
                 //
@@ -1983,18 +1981,6 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     }
 
     /**
-     * handle the "discard request" message
-     * @param mes  the message
-     */
-    protected void handleDISCARDREQUEST(SOCDiscardRequest mes) {}
-
-    /**
-     * handle the "choose player request" message
-     * @param mes  the message
-     */
-    protected void handleCHOOSEPLAYERREQUEST(SOCChoosePlayerRequest mes) {}
-
-    /**
      * Handle the "report robbery" message.
      * Updates game data by calling {@link #handlePLAYERELEMENT_numRsrc(SOCPlayer, int, int, int)}
      * or {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, PEType, int, String)}.
@@ -2115,18 +2101,6 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     }
 
     /**
-     * handle the "reject offer" message
-     * @param mes  the message
-     */
-    protected void handleREJECTOFFER(SOCRejectOffer unused) {}
-
-    /**
-     * handle the "clear trade message" message
-     * @param mes  the message
-     */
-    protected void handleCLEARTRADEMSG(SOCClearTradeMsg mes) {}
-
-    /**
      * handle the "number of development cards" message
      * @param mes  the message
      */
@@ -2162,11 +2136,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
         switch (mes.getAction())
         {
-        case SOCDevCardAction.DRAW:
-            player.getInventory().addDevCard(1, SOCInventory.NEW, ctype);
-            break;
-
-        case SOCDevCardAction.PLAY:
+         case SOCDevCardAction.PLAY:
             player.getInventory().removeDevCard(SOCInventory.OLD, ctype);
             player.updateDevCardsPlayed(ctype);
             break;
@@ -2175,6 +2145,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             player.getInventory().addDevCard(1, SOCInventory.OLD, ctype);
             break;
 
+        case SOCDevCardAction.DRAW:
         case SOCDevCardAction.ADD_NEW:
             player.getInventory().addDevCard(1, SOCInventory.NEW, ctype);
             break;
@@ -2270,7 +2241,6 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
         // case SOCInventoryItemAction.CANNOT_PLAY: already covered above: returns true
         }
-
         return false;
     }
 
@@ -2571,7 +2541,6 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         SOCShip sh = new SOCShip
             (ga.getPlayer(mes.getPlayerNumber()), mes.getFromCoord(), null);
         ga.moveShip(sh, mes.getToCoord());
-
     }
 
     /**

@@ -22,6 +22,7 @@ package soctest.server;
 
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
+import soc.communication.Connection;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
@@ -73,7 +74,7 @@ public class DisplaylessTesterClient
     public DisplaylessTesterClient( final String stringport, final String nickname,
         final String localeStr, final SOCGameOptionSet knownOpts)
     {
-        super(new ServerConnectInfo(stringport, null), null );
+        super(new ServerConnectInfo( stringport, null ));
 
         this.nickname = nickname;
         this.localeStr = localeStr;
@@ -81,6 +82,18 @@ public class DisplaylessTesterClient
             this.knownOpts = knownOpts;
 
         debugTraffic = true;
+    }
+
+    @Override
+    public void dispatch( SOCMessage message, Connection connection ) throws IllegalStateException
+    {
+        treat( message, false );
+    }
+
+    @Override       // the client side doesn't need to discriminate between first and subsequent messages.
+    public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
+    {
+        treat( message, false );
     }
 
     /**
@@ -146,15 +159,10 @@ public class DisplaylessTesterClient
     @Override
     protected void handleVERSION(boolean isLocal, SOCVersion mes)
     {
-//        super.handleVERSION(isLocal, mes);
-
-//        if (isLocal)
-//            sVersion = sLocalVersion;
-//        else
-//            sLocalVersion = sVersion;
+        connection.setVersion( mes.getVersionNumber(), true );
     }
 
-    // TODO refactor common with SOCPlayerClient vs this and its displayless parent,
+    // TODO: refactor common with SOCPlayerClient vs this and its displayless parent,
     // which currently don't share a parent client class with SOCPlayerClient
 
     @Override
@@ -216,7 +224,6 @@ public class DisplaylessTesterClient
         }
 
         final SOCGame ga = new SOCGame(gameName, opts, knownOpts);
-//        ga.isPractice = isPractice;
         ga.serverVersion = connection.getRemoteVersion();   // (isPractice) ? sLocalVersion : sVersion;
         games.put(gameName, ga);
     }
