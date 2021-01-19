@@ -290,8 +290,8 @@ import soc.util.Version;
         super( pi, readOnly
             ? (strings.get( "game.options.title", gameName ))
             : (forPractice
-            ? strings.get( "game.options.title.newpractice" )
-            : strings.get( "game.options.title.new" )) );
+                ? strings.get( "game.options.title.newpractice" )
+                : strings.get( "game.options.title.new" )) );
 
         // Uses default BorderLayout, for simple stretching when window is resized
 
@@ -300,7 +300,7 @@ import soc.util.Version;
         SOCPlayerClient cli = md.getClient();
         forNewGame = (gameName == null);
         this.opts = opts;
-        knownOpts = ( /*(forPractice) ? cli.practiceServGameOpts :*/ cli.gameOpts).knownOpts;
+        knownOpts = cli.gameOpts.knownOpts;
         localPrefs = new HashMap<>();
         this.forPractice = forPractice;
         this.readOnly = readOnly;
@@ -579,9 +579,7 @@ import soc.util.Version;
                 opt.userChanged = false;  // clear flag from any previously shown NGOF
         }
 
-//        if (opts.containsKey( "SC" ))
         allSc = mainDisplay.getClient().getNet().getValidScenarios();
-//            allSc = SOCScenario.getAllKnownScenarios();
 
         gbc.anchor = GridBagConstraints.WEST;
 
@@ -1116,7 +1114,7 @@ import soc.util.Version;
         // Per-PI prefs:
         if (withPerGamePrefs)
         {
-            bval = (pi != null) ? pi.isSoundMuted() : false;
+            bval = (pi != null) && pi.isSoundMuted();
             localPrefs.put( SOCPlayerInterface.PREF_SOUND_MUTE, bval );
             initInterface_Pref1
                 ( bp, gbl, gbc, null,
@@ -1546,8 +1544,7 @@ import soc.util.Version;
                 // All fields OK, ready to create a new game.
                 setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );  // Immediate feedback in this window
                 persistLocalPrefs();
-                mainDisplay.askStartGameWithOptions
-                    ( gmName, forPractice, opts, localPrefs );  // sets WAIT_CURSOR in main client frame
+                mainDisplay.askStartGameWithOptions( gmName, opts, localPrefs );  // sets WAIT_CURSOR in main client frame
             }
             else
             {
