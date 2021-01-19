@@ -62,7 +62,7 @@ public class DisplaylessTesterClient
      *   or {@link MessageHandler#handleNEWGAMEWITHOPTIONS(SOCNewGameWithOptions, boolean) handleNEWGAMEWITHOPTIONS}
      *   is called.
      */
-    protected SOCGameList serverGames = new SOCGameList(knownOpts);
+    protected SOCGameList serverGames;
 
     /**
      * Constructor for a displayless client which will connect to a local server.
@@ -80,7 +80,9 @@ public class DisplaylessTesterClient
         this.localeStr = localeStr;
         if (knownOpts != null)
             this.knownOpts = knownOpts;
-
+        else
+            this.knownOpts = SOCGameOptionSet.getAllKnownOptions();
+        serverGames = new SOCGameList( this.knownOpts );
         debugTraffic = true;
     }
 
