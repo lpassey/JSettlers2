@@ -122,7 +122,7 @@ import soc.util.Version;
      * Note that {@link SOCGame#isPractice} is false for localTCPServer's games.
      * @since 1.1.00
      */
-    SOCServer localTCPServer = null;
+    SOCServer localServer = null;
 
     /**
      * Features supported by this built-in JSettlers client.
@@ -130,12 +130,8 @@ import soc.util.Version;
      */
     private final SOCFeatureSet cliFeats;
 
-//    private boolean practiceGame;
-
-    public boolean isPracticeGame; // ()
-//    {
-//        return practiceGame;
-//    }
+    boolean isPracticeGame; // was the current game launched by one of the "Practice" buttons
+                            // or by joining a named game on the server.
 
     {
         cliFeats = new SOCFeatureSet(false, false);
@@ -166,37 +162,11 @@ import soc.util.Version;
      */
     Exception ex_P = null;
 
-    /**
-     * For debug, our last message sent over the net.
-     *<P>
-     * Before v1.1.00 this field was {@code lastMessage}.
-     * @see #lastMessage_P
-     * /
-     protected String lastMessage_N;
-    */
 
     /**
-     * For debug, our last message sent to practice server (stringport pipes).
-     *<P>
-     * Before v2.0.00 this field was {@code lastMessage_L} (Local server).
-     * @see #lastMessage_N
-     * @since 1.1.00
+     * Tracks the scenarios presented by the server.
      */
-//    protected SOCMessage lastMessage_P;
-
-    /**
-     * Server for practice games via {@link #prCli}; not connected to the network,
-     * not suited for hosting multi-player games. Use {@link #localTCPServer}
-     * for those.
-     * SOCMessages of games where {@link SOCGame#isPractice} is true are sent
-     * to practiceServer.
-     *<P>
-     * Null before it's started in {@link SOCPlayerClient#startPracticeGame()}.
-     * @since 1.1.00
-     */
-    protected SOCServer practiceServer = null;
-
-    private Map<String, SOCScenario> validScenarios;
+    private final Map<String, SOCScenario> validScenarios = new HashMap<>();
 
     /**
      * Create our client's ClientNetwork.
@@ -239,25 +209,23 @@ import soc.util.Version;
 
     void addValidScenario( SOCScenario newScenario )
     {
-        if (null == validScenarios)
-            validScenarios = new HashMap<>();
         try
         {
+            if (null == newScenario)
+                return;
             String scenarioTitle = client.strings.get( "gamescen." + newScenario.key + ".n" );
             String scenarioDesc = client.strings.get( "gamescen." + newScenario.key + ".d" );
             newScenario.setDesc( scenarioTitle, scenarioDesc );
         }
-        catch( MissingResourceException ignored ) {};
+        catch( MissingResourceException ignored ) {}
         validScenarios.put( newScenario.key, newScenario );
     }
 
     public boolean startPracticeServer()
     {
-        // We only get here if the "Practice" button was pushed, so we can set a practice flag here.
-        isPracticeGame = true;
-        if (practiceServer == null)
+        if (localServer == null)
         {
-            validScenarios = new HashMap<>(  );
+            validScenarios.clear();
             try
             {
                 if (Version.versionNumber() == 0)
@@ -265,22 +233,12 @@ import soc.util.Version;
                     throw new IllegalStateException("Packaging error: Cannot determine JSettlers version");
                 }
 
-                practiceServer = new SOCServer(SOCServer.PRACTICE_STRINGPORT, SOCServer.SOC_MAXCONN_DEFAULT, null, null);
-                practiceServer.setPriority(5);  // same as in SOCServer.main
-                practiceServer.start();
+                localServer = new SOCServer(SOCServer.PRACTICE_STRINGPORT, SOCServer.SOC_MAXCONN_DEFAULT, null, null);
+                localServer.setPriority(5);  // same as in SOCServer.main
+                localServer.start();
 
                 // Server is started. Create a connection so we can get setup information.
-                Connection prCli = MemServerSocket.connectTo( SOCServer.PRACTICE_STRINGPORT, null );
-                if (client.debugTraffic)
-                {
-                    prCli.setData( "client" );
-                    prCli.setDebugTraffic( true );
-                }
-                client.setConnection( prCli );
-                prCli.startMessageProcessing( client.getMessageHandler() );  // Reader will start its own thread
-
-                // Send VERSION right away
-                sendVersion();
+                memConnect();
 
                 // Practice server supports per-game options
                 mainDisplay.enableOptions();
@@ -306,12 +264,14 @@ import soc.util.Version;
      */
     public boolean startPracticeGame( final String practiceGameName, final SOCGameOptionSet gameOpts )
     {
-        if (practiceServer == null)
+        if (localServer == null)
         {
             if (!startPracticeServer())
                 return false;
         }
 
+        // We only get here if the "Practice" button was pushed, so we can set the practice flag here.
+        isPracticeGame = true;
         Connection prCli = client.getConnection();
 
         if (prCli instanceof MemConnection)
@@ -321,6 +281,8 @@ import soc.util.Version;
 
         try
         {
+            // practice games always run with an in-memory connection, even if connected to a
+            // local server supporting TCP connections.
             prCli = MemServerSocket.connectTo( SOCServer.PRACTICE_STRINGPORT, (MemConnection) prCli );
             if (client.debugTraffic)
             {
@@ -336,7 +298,7 @@ import soc.util.Version;
             // Practice server supports per-game options
             mainDisplay.enableOptions();
         }
-        catch( ConnectException e )
+        catch( ConnectException | ClassCastException e )
         {
             ex_P = e;
 
@@ -356,10 +318,10 @@ import soc.util.Version;
     /** Shut down the local TCP server. */
     public void shutdownLocalServer()
     {
-        if ((localTCPServer != null) && (localTCPServer.isUp()))
+        if ((localServer != null) && (localServer.isUp()))
         {
-            localTCPServer.stopServer();
-            localTCPServer = null;
+            localServer.stopServer();
+            localServer = null;
         }
     }
 
@@ -368,13 +330,13 @@ import soc.util.Version;
      * If startup fails, show a {@link NotifyDialog} with the error message.
      * @return True if started, false if not
      */
-    public boolean initLocalServer(int tport)
+    public boolean initLocalServer( int tport )
     {
         try
         {
-            localTCPServer = new SOCServer(tport, SOCServer.SOC_MAXCONN_DEFAULT, null, null);
-            localTCPServer.setPriority(5);  // same as in SOCServer.main
-            localTCPServer.start();
+            localServer = new SOCServer(tport, SOCServer.SOC_MAXCONN_DEFAULT, null, null);
+            localServer.setPriority(5);  // same as in SOCServer.main
+            localServer.start();
         }
         catch (Throwable th)
         {
@@ -410,11 +372,50 @@ import soc.util.Version;
     }
 
     /**
-     * Attempts to connect to the server. See {@link #isConnected()} for success or
-     * failure. Once connected, starts a {@link #reader} thread.
+     * Attempts to connect to a local server. See {@link #isConnected()} for success or
+     * failure. Once connected, starts a client {@link MessageHandler} thread.
      * The first message sent from client to server is our {@link SOCVersion}.
-     * From server to client when client connects: If server is full, it sends {@link SOCRejectConnection}.
-     * Otherwise its {@code SOCVersion} and current channels and games ({@link SOCChannels}, {@link SOCGames}) are sent.
+     * Upon connection, if server is full, it sends a {@link SOCRejectConnection} message,
+     * otherwise it sends {@code SOCVersion} and current channels and games ({@link SOCChannels}, {@link SOCGames}).
+     *
+     * @throws IllegalStateException if already connected or otherwise unable to connect
+     * @see soc.server.SOCServer#newConnection1(Connection)
+     */
+    public synchronized void memConnect() throws IllegalStateException
+    {
+        if (client.isConnected())
+        {
+            throw new IllegalStateException
+                ("Already connected to " + (serverConnectInfo.hostname != null ? serverConnectInfo.hostname : "localhost")
+                    + ":" + serverConnectInfo.port);
+        }
+        Connection memConnection;
+        try
+        {
+            memConnection = MemServerSocket.connectTo( SOCServer.PRACTICE_STRINGPORT, null );
+        }
+        catch( ConnectException e )
+        {
+            throw new IllegalStateException( "Could not connect to in-memory server" );
+        }
+        if (client.debugTraffic)
+        {
+            memConnection.setData( "client" );
+            memConnection.setDebugTraffic( true );
+        }
+        client.setConnection( memConnection );
+        memConnection.startMessageProcessing( client.getMessageHandler() );  // Reader will start its own thread
+
+        // Send VERSION right away
+        sendVersion();
+    }
+
+    /**
+     * Attempts to connect to a TCP server. See {@link #isConnected()} for success or
+     * failure. Once connected, starts a client {@link MessageHandler} thread.
+     * The first message sent from client to server is our {@link SOCVersion}.
+     * Upon connection, if server is full, it sends a {@link SOCRejectConnection} message,
+     * otherwise it sends {@code SOCVersion} and current channels and games ({@link SOCChannels}, {@link SOCGames}).
      *<P>
      * Since user login and authentication don't occur until a game or channel join is requested,
      * no username or password is needed here.
@@ -425,7 +426,7 @@ import soc.util.Version;
      *     or if {@link Version#versionNumber()} returns 0 (packaging error)
      * @see soc.server.SOCServer#newConnection1(Connection)
      */
-    public synchronized void connect(final String host, final int port)
+    public synchronized void netConnect( final String host, final int port )
         throws IllegalStateException
     {
         if (client.isConnected())
@@ -535,14 +536,14 @@ import soc.util.Version;
     }
 
     /**
-     * Are we running a local tcp server?
+     * Are we running a local server?
      * @see #getLocalServerPort()
      * @see #anyHostedActiveGames()
      * @since 1.1.00
      */
     public boolean isRunningLocalServer()
     {
-        return localTCPServer != null;
+        return localServer != null;
     }
 
     /**
@@ -555,20 +556,19 @@ import soc.util.Version;
      */
     public boolean anyHostedActiveGames()
     {
-        if (localTCPServer == null)
+        if (localServer == null)
             return false;
 
-        Collection<String> gameNames = localTCPServer.getGameNames();
+        Collection<String> gameNames = localServer.getGameNames();
 
         for (String tryGm : gameNames)
         {
-            int gs = localTCPServer.getGameState(tryGm);
+            int gs = localServer.getGameState(tryGm);
             if ((gs < SOCGame.OVER) && (gs >= SOCGame.START1A))
             {
                 return true;  // Active
             }
         }
-
         return false;  // No active games found
     }
 }
