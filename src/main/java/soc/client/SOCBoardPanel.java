@@ -9540,8 +9540,8 @@ import javax.swing.JComponent;
             final int gameState = game.getGameState();
             final boolean sendNow = isInitialPlacement || wantsCancel || debugPP
                 || (gameState == SOCGame.PLACING_FREE_ROAD1) || (gameState == SOCGame.PLACING_FREE_ROAD2)
-                || (((gameState == SOCGame.PLAY1) || (gameState == SOCGame.SPECIAL_BUILDING))
-                  && (playerInterface.client.getConnection().getRemoteVersion() >= 2000));
+                || (   ((gameState == SOCGame.PLAY1) || (gameState == SOCGame.SPECIAL_BUILDING))
+                    && (playerInterface.client.getConnection().getRemoteVersion() >= 2000));
             final GameMessageSender messageSender = (sendNow)
                 ? playerInterface.getClient().getGameMessageSender()
                 : null;
