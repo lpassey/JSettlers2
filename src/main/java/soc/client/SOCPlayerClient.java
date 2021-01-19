@@ -336,10 +336,10 @@ public class SOCPlayerClient
     protected SOCFeatureSet sFeatures;
 
     /**
-     * Track the game options available at the remote server and at the local server.
-     * Initialized by {@link SwingMainDisplay#gameWithOptionsBeginSetup(boolean, boolean)}
-     * and/or {@link MessageHandler#handleVERSION(boolean, SOCVersion)}.
-     * These fields are never null, even if the respective server is not connected or not running.
+     * Track the game options available at the remote server.
+     * Initialized by {@link MessageHandler#handleGAMEOPTIONGETDEFAULTS(SOCGameOptionGetDefaults, Connection)}
+     * and {@link MessageHandler#handleGAMEOPTIONINFO(SOCGameOptionInfo)}.
+     * These fields are never null, but may be empty.
      *<P>
      * For a summary of the flags and variables involved with game options,
      * and the client/server interaction about their values, see
@@ -361,8 +361,8 @@ public class SOCPlayerClient
 
     /**
      * Client nickname as a player; null until validated and set by
-     * {@link SwingMainDisplay#getValidNickname(boolean) SwingMainDisplay.getValidNickname(false)}.
-     * Returned by {@link #getNickname(boolean) getNickname(false)}.
+     * {@link SwingMainDisplay#getValidNickname(boolean)}.
+     * Returned by {@link #getNickname(boolean)}.
      */
     protected String nickname = null;
 
@@ -516,19 +516,6 @@ public class SOCPlayerClient
         if (debug_clearPrefs != null)
             UserPreferences.clear( debug_clearPrefs );
 
-//        String gameopt3pName = System.getProperty( SOCDisplaylessPlayerClient.PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P );
-//        if (gameopt3pName != null)
-//        {
-//            gameopt3pName = gameopt3pName.toUpperCase( Locale.US );
-//            SOCGameOption gameopt3p = new SOCGameOption( gameopt3pName, 2000,
-//                Version.versionNumber(), false,
-//                    SOCGameOption.FLAG_3RD_PARTY | SOCGameOption.FLAG_DROP_IF_UNUSED,
-//                    "Client test 3p option " + gameopt3pName );
-//            gameOpts.knownOpts.put( gameopt3p );
-//            soc.server.SOCServer.startupKnownOpts.put( gameopt3p );
-//            // similar code is in SOCRobotClient.buildClientFeats()
-//        }
-
         net = new ClientNetwork( this );
     }
 
@@ -562,13 +549,12 @@ public class SOCPlayerClient
     {
         mainDisplay.connect( cpass, cuser );
 
-        // TODO don't do net connect attempt on UI thread
-        // Meanwhile: To ensure the UI repaints before starting net connect:
+        // Don't do net connect attempt on UI thread to ensure the UI repaints before starting net connect:
         EventQueue.invokeLater( new Runnable()
         {
             public void run()
             {
-                net.connect( chost, cport );
+                net.netConnect( chost, cport );
             }
         } );
     }
@@ -720,7 +706,7 @@ public class SOCPlayerClient
         }
         else
         {
-            // same version: need localization strings, at most
+            // TODO: do all localization at client
             serverConnection.send(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey) );
             gameOpts.scenKeys.add( scKey );  // don't ask again later
         }
@@ -908,19 +894,6 @@ public class SOCPlayerClient
     }
 
     /**
-     * Create a game name, and start a practice game.
-     * Assumes {@link SwingMainDisplay#MAIN_PANEL} is initialized.
-     * See {@link #startPracticeGame(String, SOCGameOptionSet, boolean)} for details.
-     * @return True if the practice game request was sent, false if there was a problem
-     *         starting the practice server or client
-     * @since 1.1.00
-     */
-//    public boolean startPracticeGame()
-//    {
-//        return startPracticeGame( null, null, true );
-//    }
-
-    /**
      * Setup for practice game (on the non-tcp server).
      * If needed, a (stringport, not tcp) {@link ClientNetwork#practiceServer}, client, and robots are started.
      *
@@ -1010,16 +983,14 @@ public class SOCPlayerClient
      */
     boolean putLeaveAll()
     {
-        final boolean canPractice = true; // (ex_P == null);  // Can we still start a practice game?
-
         SOCLeaveAll leaveAllMes = new SOCLeaveAll();
 
-        if ((serverConnection != null) && ! canPractice)
+        if ((serverConnection != null))
             serverConnection.send( leaveAllMes );
 
         net.shutdownLocalServer();
 
-        return canPractice;
+        return true;
     }
 
     /**
@@ -1037,6 +1008,7 @@ public class SOCPlayerClient
         final boolean canPractice = putLeaveAll(); // Can we still start a practice game?
 
         String err;
+        // TODO: The server shutting down is not an error, and should not be represented as such.
         if (canPractice)
         {
             err = strings.get( "pcli.error.networktrouble" );  // "Sorry, network trouble has occurred."
@@ -1045,9 +1017,6 @@ public class SOCPlayerClient
         {
             err = strings.get( "pcli.error.clientshutdown" );  // "Sorry, the client has been shut down."
         }
-//        err = err + " " + ((net.ex == null) ? strings.get("pcli.error.loadpageagain") : net.ex.toString());
-        // "Load the page again."
-
         mainDisplay.channelsClosed( err );
 
         // Stop network games; continue Practice games if possible.
@@ -1152,8 +1121,9 @@ public class SOCPlayerClient
             return;
         }
 
+        // Connect to a remote server if host:port were specified on the command line.
         if ((host != null) && (port != -1))
-            client.net.connect( host, port );
+            client.net.netConnect( host, port );
     }
 
     public boolean isConnected()
@@ -1169,7 +1139,6 @@ public class SOCPlayerClient
     }
 
     // TODO: all of these should probably be moved to GameMessageSender
-
     public void joinGame( String gameName )
     {
         if (serverConnection != null)
