@@ -265,11 +265,6 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     protected final long startTime;
 
     /**
-     * used to maintain connection
-     */
-    SOCRobotResetThread resetThread;
-
-    /**
      * Have we printed the initial welcome message text from server?
      * Suppress further ones (disconnect-reconnect).
      *<P>
@@ -293,7 +288,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     public SOCRobotClient( final ServerConnectInfo sci, final String nn, final String pw )
         throws IllegalArgumentException
     {
-        super( sci, null );
+        super( sci );
 
         gamesPlayed = 0;
         gamesFinished = 0;
@@ -390,17 +385,6 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             try
             {
                 connected = false;
-                // Use this if you want the robot to connect to the server via a socket
-/*
-                if (serverConnectInfo.memSocketName == null)
-                {
-                    sock.close();
-                    sock = new Socket( serverConnectInfo.hostname, serverConnectInfo.port );
-                    in = new DataInputStream( sock.getInputStream() );
-                    out = new DataOutputStream( sock.getOutputStream() );
-                }
-                else
-*/
                 {
                     connection.disconnect();
                     connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT, null );
@@ -503,9 +487,15 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         return new SOCRobotBrain( this, params, ga, mq );
     }
 
+    @Override       // the client side doesn't need to discriminate between first and subsequent messages.
+    public void dispatchFirst( SOCMessage message, Connection connection ) throws IllegalStateException
+    {
+        dispatch( message, connection );
+    }
+
     /**
      * dispatch the incoming messages to the appropriate message handler
-     * Messages of unknown type are ignored. All {@link SOCGameServerText} are ignored.
+     * Messages of unknown type are ignored. All {@link SOCGameServerText} messages are ignored
      * ({@code mes} will be null from {@link SOCMessage#toMsg(String)}).
      *<P>
      *<B>Note:</B> If a message doesn't need any robot-specific handling,
@@ -515,6 +505,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * @param mes A generic SOCMessage to be handled. This method must figure out
      *                   what kind of message it is to dispatch it correctly
      */
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void dispatch(SOCMessage mes, Connection connection)
     {
@@ -706,7 +697,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
              * and for PROMPT_PICK_RESOURCES from gold hex.
              */
             case SOCMessage.SIMPLEREQUEST:
-                super.handleSIMPLEREQUEST( games, (SOCSimpleRequest) mes );
+                handleSIMPLEREQUEST( games, (SOCSimpleRequest) mes );
                 handlePutBrainQ( (SOCSimpleRequest) mes );
                 break;
 
@@ -793,7 +784,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
              * Other message types will be ignored.
              */
             default:
-                super.treat( mes, true );
+                treat( mes, true );
             }
         }
         catch( Throwable e )
@@ -890,10 +881,6 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     {
         D.ebugPrintlnINFO( "handleVERSION: " + mes );
         int vers = mes.getVersionNumber();
-        final SOCFeatureSet feats =
-            (vers >= SOCFeatureSet.VERSION_FOR_SERVERFEATURES)
-                ? new SOCFeatureSet( mes.feats )
-                : new SOCFeatureSet( true, true );
 
         connection.setVersion( vers, true );
         final int ourVers = Version.versionNumber();
@@ -910,6 +897,12 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         SOCGameOptionGetInfos ogiMsg = new SOCGameOptionGetInfos( null, false, false );
 
         connection.send( ogiMsg );  // ask for the game options from the server on the same connection it came in on.
+    }
+
+    @Override
+    protected void handleJOINCHANNEL( SOCJoinChannel mes )
+    {
+
     }
 
     /**
@@ -1043,16 +1036,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
          * sit down to play
          */
         Integer pn = seatRequests.get( mes.getGame() );
-/*    why??
-        try
-        {
-            //wait(Math.round(Math.random()*1000));
-        }
-        catch (Exception e)
-        {
-            ;
-        }
-*/
+
         if (pn != null)
         {
             connection.send( new SOCSitDown( mes.getGame(), SOCMessage.EMPTYSTR, pn, true));
@@ -1176,30 +1160,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
                 if (lastMove != null)
                 {
-                    String key = null;
-
-                    switch (lastMove.getType())
-                    {
-                    case SOCPossiblePiece.CARD:
-                        key = "DEVCARD";
-                        break;
-
-                    case SOCPossiblePiece.ROAD:
-                        key = "ROAD" + lastMove.getCoordinates();
-                        break;
-
-                    case SOCPossiblePiece.SETTLEMENT:
-                        key = "SETTLEMENT" + lastMove.getCoordinates();
-                        break;
-
-                    case SOCPossiblePiece.CITY:
-                        key = "CITY" + lastMove.getCoordinates();
-                        break;
-
-                    case SOCPossiblePiece.SHIP:
-                        key = "SHIP" + lastMove.getCoordinates();
-                        break;
-                    }
+                    String key = getKeyForType( lastMove );
 
                     sendRecordsText( gaName, key, true );
                 }
@@ -1216,18 +1177,8 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             final int L = tokens.length;
             String keytoken = (L > 2) ? tokens[L - 2].trim() : "(missing)",
                 lasttoken = (L > 1) ? tokens[L - 1].trim() : "(missing)",
-                key = null;
+                key = getKeyForToken( lasttoken );
 
-            if (lasttoken.equals( "card" ))
-                key = "DEVCARD";
-            else if (keytoken.equals( "road" ))
-                key = "ROAD" + lasttoken;
-            else if (keytoken.equals( "ship" ))
-                key = "SHIP" + lasttoken;
-            else if (keytoken.equals( "settlement" ))
-                key = "SETTLEMENT" + lasttoken;
-            else if (keytoken.equals( "city" ))
-                key = "CITY" + lasttoken;
 
             final SOCGame ga = games.get( gaName );
             if (key == null)
@@ -1249,30 +1200,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
                 if (lastTarget != null)
                 {
-                    String key = null;
-
-                    switch (lastTarget.getType())
-                    {
-                    case SOCPossiblePiece.CARD:
-                        key = "DEVCARD";
-                        break;
-
-                    case SOCPossiblePiece.ROAD:
-                        key = "ROAD" + lastTarget.getCoordinates();
-                        break;
-
-                    case SOCPossiblePiece.SETTLEMENT:
-                        key = "SETTLEMENT" + lastTarget.getCoordinates();
-                        break;
-
-                    case SOCPossiblePiece.CITY:
-                        key = "CITY" + lastTarget.getCoordinates();
-                        break;
-
-                    case SOCPossiblePiece.SHIP:
-                        key = "SHIP" + lastTarget.getCoordinates();
-                        break;
-                    }
+                    String key = getKeyForType( lastTarget );
 
                     sendRecordsText( gaName, key, false );
                 }
@@ -1289,18 +1217,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             final int L = tokens.length;
             String keytoken = (L > 2) ? tokens[L - 2].trim() : "(missing)",
                 lasttoken = (L > 1) ? tokens[L - 1].trim() : "(missing)",
-                key = null;
-
-            if (lasttoken.equals( "card" ))
-                key = "DEVCARD";
-            else if (keytoken.equals( "road" ))
-                key = "ROAD" + lasttoken;
-            else if (keytoken.equals( "ship" ))
-                key = "SHIP" + lasttoken;
-            else if (keytoken.equals( "settlement" ))
-                key = "SETTLEMENT" + lasttoken;
-            else if (keytoken.equals( "city" ))
-                key = "CITY" + lasttoken;
+                key = getKeyForToken( lasttoken );
 
             final SOCGame ga = games.get( gaName );
             if (key == null)
@@ -1339,7 +1256,50 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             rt.gc();
             sendText( ga, "Free Memory:" + rt.freeMemory() );
         }
+    }
 
+    private String getKeyForToken( String keytoken )
+    {
+        if (keytoken.equals( "card" ))
+            return "DEVCARD";
+        if (keytoken.equals( "road" ))
+            return "ROAD" + keytoken;
+        if (keytoken.equals( "ship" ))
+            return "SHIP" + keytoken;
+        if (keytoken.equals( "settlement" ))
+            return "SETTLEMENT" + keytoken;
+        if (keytoken.equals( "city" ))
+            return "CITY" + keytoken;
+        return null;
+    }
+
+    private String getKeyForType( SOCPossiblePiece possiblePiece )
+    {
+        String key = null;
+
+        switch (possiblePiece.getType())
+        {
+        case SOCPossiblePiece.CARD:
+            key = "DEVCARD";
+            break;
+
+        case SOCPossiblePiece.ROAD:
+            key = "ROAD" + possiblePiece.getCoordinates();
+            break;
+
+        case SOCPossiblePiece.SETTLEMENT:
+            key = "SETTLEMENT" + possiblePiece.getCoordinates();
+            break;
+
+        case SOCPossiblePiece.CITY:
+            key = "CITY" + possiblePiece.getCoordinates();
+            break;
+
+        case SOCPossiblePiece.SHIP:
+            key = "SHIP" + possiblePiece.getCoordinates();
+            break;
+        }
+        return key;
     }
 
     /**
@@ -1479,15 +1439,6 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             {
                 D.ebugPrintlnINFO( "CutoffExceededException" + exc );
             }
-/*
-            SOCGame ga = games.get( mes.getGame() );
-
-            if (ga != null)
-            {
-                // SOCPlayer pl = ga.getPlayer(mes.getPlayerNumber());
-                // JDM TODO - Was this in stock client?
-            }
-*/
         }
     }
 
@@ -1556,6 +1507,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         leaveGame( ga, "resetboardauth", false, false );  // Same as in handleROBOTDISMISS
         ga.destroyGame();
     }
+
 
     /**
      * Call sendText on each string element of a record
@@ -1692,5 +1644,4 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             ( new ServerConnectInfo( args[0], Integer.parseInt( args[1] ), args[4] ), args[2], args[3] );
         ex1.init();
     }
-
 }
