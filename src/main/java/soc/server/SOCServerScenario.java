@@ -33,20 +33,6 @@ public class SOCServerScenario extends SOCScenario
     }
 
     /**
-     * Create a new unknown scenario ({@link SOCVersionedItem#isKnown isKnown} false).
-     * Minimum version will be {@link Integer#MAX_VALUE}.
-     * scDesc and scOpts will be an empty string.
-     * @param key   Alphanumeric key name for this option;
-     *                see {@link SOCVersionedItem#isAlphanumericUpcaseAscii(String)} for format.
-     * @throws IllegalArgumentException if key length is > 8 or not alphanumeric
-     */
-    public SOCServerScenario( String key ) throws IllegalArgumentException
-    {
-        super( key );
-    }
-
-
-    /**
      * Create a new known game scenario.
      *
      * @param key     Alphanumeric key name for this scenario;
