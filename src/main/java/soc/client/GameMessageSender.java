@@ -81,7 +81,6 @@ import soc.message.SOCStartGame;
 /*package*/ class GameMessageSender
 {
     private final SOCPlayerClient client;
-//    private final ClientNetwork net;
     private final Connection connection;
     private final Map<String, PlayerClientListener> clientListeners;
 
@@ -99,36 +98,36 @@ import soc.message.SOCStartGame;
     /**
      * request to buy a development card
      *
-     * @param ga     the game
+     * @param game     the game
      */
-    public void buyDevCard(SOCGame ga)
+    public void buyDevCard(SOCGame game)
     {
-        connection.send( new SOCBuyDevCardRequest(ga.getName()) );
+        connection.send( new SOCBuyDevCardRequest( game.getName() ));
     }
 
     /**
      * request to build something
      *
-     * @param ga     the game
+     * @param game   the game
      * @param piece  the type of piece, from {@link soc.game.SOCPlayingPiece} constants,
      *               or -1 to request the Special Building Phase.
      * @throws IllegalArgumentException if {@code piece} &lt; -1
      */
-    public void buildRequest(SOCGame ga, int piece)
+    public void buildRequest(SOCGame game, int piece)
         throws IllegalArgumentException
     {
-        connection.send( new SOCBuildRequest(ga.getName(), piece) );
+        connection.send( new SOCBuildRequest( game.getName(), piece ));
     }
 
     /**
      * request to cancel building something
      *
-     * @param ga     the game
+     * @param game   the game
      * @param piece  the type of piece, from SOCPlayingPiece constants
      */
-    public void cancelBuildRequest(SOCGame ga, int piece)
+    public void cancelBuildRequest(SOCGame game, int piece)
     {
-        connection.send( new SOCCancelBuildRequest(ga.getName(), piece));
+        connection.send( new SOCCancelBuildRequest( game.getName(), piece ));
     }
 
     /**
@@ -136,25 +135,25 @@ import soc.message.SOCStartGame;
      * If the game is in {@link SOCGame#isDebugFreePlacement()} mode,
      * send the {@link SOCDebugFreePlace} message instead.
      *
-     * @param ga  the game where the action is taking place
-     * @param pp  the piece being placed; {@link SOCPlayingPiece#getCoordinates() pp.getCoordinates()}
+     * @param game the game where the action is taking place
+     * @param pp   the piece being placed; {@link SOCPlayingPiece#getCoordinates() pp.getCoordinates()}
      *     and {@link SOCPlayingPiece#getType() pp.getType()} must be >= 0
      * @throws IllegalArgumentException if {@code pp.getType()} &lt; 0 or {@code pp.getCoordinates()} &lt; 0
      */
-    public void putPiece(SOCGame ga, SOCPlayingPiece pp)
+    public void putPiece( SOCGame game, SOCPlayingPiece pp )
         throws IllegalArgumentException
     {
         final int co = pp.getCoordinates();
-        final SOCMessage ppm = (ga.isDebugFreePlacement())
-            ? new SOCDebugFreePlace( ga.getName(), pp.getPlayerNumber(), pp.getType(), co)
-            : new SOCPutPiece( ga.getName(), pp.getPlayerNumber(), pp.getType(), co);
+        final SOCMessage ppm = (game.isDebugFreePlacement())
+            ? new SOCDebugFreePlace( game.getName(), pp.getPlayerNumber(), pp.getType(), co )
+            : new SOCPutPiece( game.getName(), pp.getPlayerNumber(), pp.getType(), co );
 
         connection.send( ppm);
     }
 
     /**
      * Ask the server to move this piece to a different coordinate.
-     * @param ga  the game where the action is taking place
+     * @param game  the game where the action is taking place
      * @param pn  The piece's player number
      * @param ptype    The piece type, such as {@link SOCPlayingPiece#SHIP}; must be >= 0
      * @param fromCoord  Move the piece from here; must be >= 0
@@ -162,23 +161,22 @@ import soc.message.SOCStartGame;
      * @throws IllegalArgumentException if {@code ptype} &lt; 0, {@code fromCoord} &lt; 0, or {@code toCoord} &lt; 0
      * @since 2.0.00
      */
-    public void movePieceRequest
-        (final SOCGame ga, final int pn, final int ptype, final int fromCoord, final int toCoord)
+    public void movePieceRequest( SOCGame game, int pn, int ptype, int fromCoord, int toCoord)
         throws IllegalArgumentException
     {
-        connection.send( new SOCMovePiece( ga.getName(), pn, ptype, fromCoord, toCoord));
+        connection.send( new SOCMovePiece( game.getName(), pn, ptype, fromCoord, toCoord ));
     }
 
     /**
      * the player wants to move the robber or the pirate ship.
      *
-     * @param ga  the game
-     * @param pl  the player
+     * @param game the game
+     * @param pl   the player
      * @param coord  hex where the player wants the robber, or negative hex for the pirate ship
      */
-    public void moveRobber(SOCGame ga, SOCPlayer pl, int coord)
+    public void moveRobber(SOCGame game, SOCPlayer pl, int coord)
     {
-        connection.send( new SOCMoveRobber(ga.getName(), pl.getPlayerNumber(), coord));
+        connection.send( new SOCMoveRobber( game.getName(), pl.getPlayerNumber(), coord ));
     }
 
     /**
@@ -236,64 +234,64 @@ import soc.message.SOCStartGame;
     /**
      * the user leaves the given game
      *
-     * @param ga   the game
+     * @param game the game
      */
-    public void leaveGame(SOCGame ga)
+    public void leaveGame( SOCGame game )
     {
-        clientListeners.remove(ga.getName());
-        client.games.remove(ga.getName());
-        connection.send( new SOCLeaveGame("-", "-", ga.getName()) );
+        clientListeners.remove( game.getName() );
+        client.games.remove( game.getName() );
+        connection.send( new SOCLeaveGame("-", "-", game.getName() ));
     }
 
     /**
      * the user sits down to play
      *
-     * @param ga   the game
+     * @param game the game
      * @param pn   the number of the seat where the user wants to sit
      */
-    public void sitDown(SOCGame ga, int pn)
+    public void sitDown(SOCGame game, int pn)
     {
-        connection.send( new SOCSitDown(ga.getName(), SOCMessage.EMPTYSTR, pn, false) );
+        connection.send( new SOCSitDown(game.getName(), SOCMessage.EMPTYSTR, pn, false) );
     }
 
     /**
      * the user wants to start the game
      *
-     * @param ga  the game
+     * @param game  the game
      */
-    public void startGame(SOCGame ga)
+    public void startGame(SOCGame game)
     {
-        connection.send( new SOCStartGame(ga.getName(), 0));
+        connection.send( new SOCStartGame(game.getName(), 0));
     }
 
     /**
      * the user rolls the dice
      *
-     * @param ga  the game
+     * @param game  the game
      */
-    public void rollDice(SOCGame ga)
+    public void rollDice(SOCGame game)
     {
-        connection.send( new SOCRollDice(ga.getName()));
+        connection.send( new SOCRollDice(game.getName()));
     }
 
     /**
      * the user is done with the turn
      *
-     * @param ga  the game
+     * @param game  the game
      */
-    public void endTurn(SOCGame ga)
+    public void endTurn(SOCGame game)
     {
-        connection.send( new SOCEndTurn(ga.getName()));
+        connection.send( new SOCEndTurn(game.getName()));
     }
 
     /**
      * the user wants to discard
      *
-     * @param ga  the game
+     * @param game  the game
      */
-    public void discard(SOCGame ga, SOCResourceSet rs)
+    public void discard(SOCGame game, SOCResourceSet rs)
     {
-        connection.send( new SOCDiscard( ga.getName(), -1, rs));
+        connection.send( new SOCDiscard( game.getName(), -1, rs));
     }
 
     /**
@@ -301,13 +299,13 @@ import soc.message.SOCStartGame;
      * or in game state {@link SOCGame#WAITING_FOR_DISCOVERY} has picked these
      * 2 free resources from a Discovery/Year of Plenty card.
      *
-     * @param ga  the game
+     * @param game  the game
      * @param rs  The resources to pick
      * @since 2.0.00
      */
-    public void pickResources(SOCGame ga, SOCResourceSet rs)
+    public void pickResources(SOCGame game, SOCResourceSet rs)
     {
-        connection.send( new SOCPickResources(ga.getName(), rs));
+        connection.send( new SOCPickResources(game.getName(), rs ));
     }
 
     /**
@@ -317,99 +315,99 @@ import soc.message.SOCStartGame;
      * or (game state {@link SOCGame#WAITING_FOR_ROB_CLOTH_OR_RESOURCE})
      * chose whether to steal a resource or cloth.
      *
-     * @param ga  the game
+     * @param game  the game
      * @param ch  the player number,
      *   or {@link SOCChoosePlayer#CHOICE_MOVE_ROBBER} to move the robber
      *   or {@link SOCChoosePlayer#CHOICE_MOVE_PIRATE} to move the pirate ship.
      *   See {@link SOCChoosePlayer#SOCChoosePlayer(String, int)} for meaning
      *   of <tt>ch</tt> for game state <tt>WAITING_FOR_ROB_CLOTH_OR_RESOURCE</tt>.
      */
-    public void choosePlayer(SOCGame ga, final int ch)
+    public void choosePlayer(SOCGame game, final int ch)
     {
-        connection.send( new SOCChoosePlayer(ga.getName(), ch));
+        connection.send( new SOCChoosePlayer(game.getName(), ch));
     }
 
     /**
      * The user is reacting to the move robber request.
      *
-     * @param ga  the game
+     * @param game  the game
      */
-    public void chooseRobber(SOCGame ga)
+    public void chooseRobber(SOCGame game)
     {
-        choosePlayer(ga, SOCChoosePlayer.CHOICE_MOVE_ROBBER);
+        choosePlayer(game, SOCChoosePlayer.CHOICE_MOVE_ROBBER);
     }
 
     /**
      * The user is reacting to the move pirate request.
      *
-     * @param ga  the game
+     * @param game  the game
      */
-    public void choosePirate(SOCGame ga)
+    public void choosePirate(SOCGame game)
     {
-        choosePlayer(ga, SOCChoosePlayer.CHOICE_MOVE_PIRATE);
+        choosePlayer(game, SOCChoosePlayer.CHOICE_MOVE_PIRATE);
     }
 
     /**
      * the user is rejecting the current offers
      *
-     * @param ga  the game
+     * @param game  the game
      */
-    public void rejectOffer(SOCGame ga)
+    public void rejectOffer(SOCGame game)
     {
-        connection.send( new SOCRejectOffer( ga.getName(), 0));
+        connection.send( new SOCRejectOffer( game.getName(), 0));
     }
 
     /**
      * the user is accepting an offer
      *
-     * @param ga  the game
+     * @param game  the game
      * @param offeringPN  the number of the player that is making the offer
      */
-    public void acceptOffer(SOCGame ga, final int offeringPN)
+    public void acceptOffer(SOCGame game, final int offeringPN)
     {
-        connection.send( new SOCAcceptOffer( ga.getName(), 0, offeringPN));
+        connection.send( new SOCAcceptOffer( game.getName(), 0, offeringPN));
     }
 
     /**
      * the user is clearing an offer
      *
-     * @param ga  the game
+     * @param game the game
      */
-    public void clearOffer(SOCGame ga)
+    public void clearOffer(SOCGame game)
     {
-        connection.send( new SOCClearOffer( ga.getName(), 0));
+        connection.send( new SOCClearOffer( game.getName(), 0));
     }
 
     /**
      * the user wants to trade with the bank or a port.
      *
-     * @param ga    the game
+     * @param game  the game
      * @param give  what is being offered
      * @param get   what the player wants
      */
-    public void bankTrade(SOCGame ga, SOCResourceSet give, SOCResourceSet get)
+    public void bankTrade(SOCGame game, SOCResourceSet give, SOCResourceSet get)
     {
-        connection.send( new SOCBankTrade(ga.getName(), give, get, -1));
+        connection.send( new SOCBankTrade(game.getName(), give, get, -1));
     }
 
     /**
      * the user is making an offer to trade with other players.
      *
-     * @param ga    the game
+     * @param game  the game
      * @param offer the trade offer
      */
-    public void offerTrade(SOCGame ga, SOCTradeOffer offer)
+    public void offerTrade(SOCGame game, SOCTradeOffer offer)
     {
-        connection.send( new SOCMakeOffer( ga.getName(), offer));
+        connection.send( new SOCMakeOffer( game.getName(), offer));
     }
 
     /**
      * the user wants to play a development card
      *
-     * @param ga  the game
+     * @param game  the game
      * @param dc  the type of development card
      */
-    public void playDevCard(SOCGame ga, int dc)
+    public void playDevCard( SOCGame game, int dc )
     {
         if (client.getConnection().getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES)
         {
@@ -418,26 +416,26 @@ import soc.message.SOCStartGame;
             else if (dc == SOCDevCardConstants.UNKNOWN)
                 dc = SOCDevCardConstants.UNKNOWN_FOR_VERS_1_X;
         }
-        client.getConnection().send( new SOCPlayDevCardRequest( ga.getName(), dc));
+        client.getConnection().send( new SOCPlayDevCardRequest( game.getName(), dc ));
     }
 
     /**
      * The current user wants to play a special {@link soc.game.SOCInventoryItem SOCInventoryItem}.
      * Send the server a {@link SOCInventoryItemAction}{@code (currentPlayerNumber, PLAY, itype, rc=0)} message.
-     * @param ga     the game
+     * @param game   the game
      * @param itype  the special inventory item type picked by player,
      *     from {@link soc.game.SOCInventoryItem#itype SOCInventoryItem.itype}
      */
-    public void playInventoryItem(SOCGame ga, final int itype)
+    public void playInventoryItem(SOCGame game, final int itype)
     {
-        connection.send( new SOCInventoryItemAction( ga.getName(), ga.getCurrentPlayerNumber(),
+        connection.send( new SOCInventoryItemAction( game.getName(), game.getCurrentPlayerNumber(),
             SOCInventoryItemAction.PLAY, itype, 0));
     }
 
     /**
      * The current user wants to pick a {@link SOCSpecialItem Special Item}.
      * Send the server a {@link SOCSetSpecialItem}{@code (PICK, typeKey, gi, pi, owner=-1, coord=-1, level=0)} message.
-     * @param ga  Game
+     * @param game  Game
      * @param typeKey  Special item type.  Typically a {@link SOCGameOption} keyname; see the {@link SOCSpecialItem}
      *     class javadoc for details.
      * @param gi  Game Item Index, as in {@link SOCGame#getSpecialItem(String, int)} or
@@ -445,10 +443,10 @@ import soc.message.SOCStartGame;
      * @param pi  Player Item Index, as in {@link SOCSpecialItem#playerPickItem(String, SOCGame, SOCPlayer, int, int)},
      *     or -1
      */
-    public void pickSpecialItem(SOCGame ga, final String typeKey, final int gi, final int pi)
+    public void pickSpecialItem(SOCGame game, final String typeKey, final int gi, final int pi)
     {
         connection.send( new SOCSetSpecialItem
-            (ga.getName(), SOCSetSpecialItem.OP_PICK, typeKey, gi, pi, -1));
+            (game.getName(), SOCSetSpecialItem.OP_PICK, typeKey, gi, pi, -1));
     }
 
     /**
@@ -456,39 +454,39 @@ import soc.message.SOCStartGame;
      *<P>
      * Before v2.0.00 this method was {@code monopolyPick}.
      *
-     * @param ga   the game
-     * @param res  the resource type, such as
+     * @param game  the game
+     * @param res   the resource type, such as
      *     {@link SOCResourceConstants#CLAY} or {@link SOCResourceConstants#SHEEP}
      */
-    public void pickResourceType(SOCGame ga, int res)
+    public void pickResourceType(SOCGame game, int res)
     {
-        connection.send( new SOCPickResourceType(ga.getName(), res));
+        connection.send( new SOCPickResourceType(game.getName(), res));
     }
 
     /**
      * the user is changing their face image
      *
-     * @param ga  the game
+     * @param game  the game
      * @param id  the new image id
      */
-    public void changeFace(SOCGame ga, int id)
+    public void changeFace( SOCGame game, int id )
     {
         client.lastFaceChange = id;
-        connection.send( new SOCChangeFace(ga.getName(), 0, id));
+        connection.send( new SOCChangeFace( game.getName(), 0, id ));
     }
 
     /**
      * The user is locking or unlocking a seat.
      *
-     * @param ga  the game
+     * @param game  the game
      * @param pn  the seat number
      * @param sl  new seat lock state; remember that servers older than v2.0.00 won't recognize {@code CLEAR_ON_RESET}
      *     and should be sent {@code UNLOCKED}
      * @since 2.0.00
      */
-    public void setSeatLock(SOCGame ga, int pn, SOCGame.SeatLockState sl)
+    public void setSeatLock(SOCGame game, int pn, SOCGame.SeatLockState sl )
     {
-        connection.send( new SOCSetSeatLock( ga.getName(), pn, sl));
+        connection.send( new SOCSetSeatLock( game.getName(), pn, sl ));
     }
 
     /**
@@ -501,9 +499,9 @@ import soc.message.SOCStartGame;
      * and game.getResetVoteActive().
      * @since 1.1.00
      */
-    public void resetBoardRequest(SOCGame ga)
+    public void resetBoardRequest( SOCGame game )
     {
-        connection.send( new SOCResetBoardRequest( ga.getName()));
+        connection.send( new SOCResetBoardRequest( game.getName() ));
     }
 
     /**
@@ -517,9 +515,32 @@ import soc.message.SOCStartGame;
      * @param voteYes If true, this player votes yes; if false, no
      * @since 1.1.00
      */
-    public void resetBoardVote(final SOCGame ga, final boolean voteYes)
+    public void resetBoardVote( SOCGame game, boolean voteYes)
     {
-        connection.send( new SOCResetBoardVote( ga.getName(), 0, voteYes));
+        connection.send( new SOCResetBoardVote( game.getName(), 0, voteYes ));
+    }
+
+    private void addPieceTypeStr( StringBuffer sb, int pieceType )
+    {
+        switch (pieceType)
+        {
+        case SOCPlayingPiece.SETTLEMENT:
+            sb.append( "settlement" );
+            break;
+
+        case SOCPlayingPiece.ROAD:
+            sb.append( "road" );
+            break;
+
+        case SOCPlayingPiece.SHIP:
+            sb.append( "ship" );
+            break;
+
+        case SOCPlayingPiece.CITY:
+            sb.append( "city" );
+            break;
+        }
+
     }
 
     /**
@@ -530,35 +551,17 @@ import soc.message.SOCStartGame;
      * To show debug info <B>before</B> making a move, see
      * {@link #considerTarget(SOCGame, SOCPlayer, SOCPlayingPiece)}.
      *
-     * @param ga  the game
+     * @param game  the game
      * @param robotPlayer  the robot player; will call {@link SOCPlayer#getName() getName()}
      * @param piece  the piece type and coordinate to consider
      */
-    public void considerMove(final SOCGame ga, final SOCPlayer robotPlayer, final SOCPlayingPiece piece)
+    public void considerMove(final SOCGame game, final SOCPlayer robotPlayer, final SOCPlayingPiece piece)
     {
-        String msg = robotPlayer.getName() + ":consider-move ";  // i18n OK: Is a formatted command to a robot
+        StringBuffer msg = new StringBuffer( robotPlayer.getName()).append( ":consider-move " );  // i18n OK: Is a formatted command to a robot
+        addPieceTypeStr( msg, piece.getType() );
 
-        switch (piece.getType())
-        {
-        case SOCPlayingPiece.SETTLEMENT:
-            msg += "settlement";
-            break;
-
-        case SOCPlayingPiece.ROAD:
-            msg += "road";
-            break;
-
-        case SOCPlayingPiece.SHIP:
-            msg += "ship";
-            break;
-
-        case SOCPlayingPiece.CITY:
-            msg += "city";
-            break;
-        }
-
-        msg += (" " + piece.getCoordinates());
-        sendText(ga, msg);
+        msg.append( " " ).append( piece.getCoordinates() );
+        sendText(game, msg.toString());
     }
 
     /**
@@ -573,31 +576,13 @@ import soc.message.SOCStartGame;
      * @param robotPlayer  the robot player; will call {@link SOCPlayer#getName() getName()}
      * @param piece  the piece type and coordinate to consider
      */
-    public void considerTarget(final SOCGame ga, final SOCPlayer robotPlayer, final SOCPlayingPiece piece)
+    public void considerTarget( SOCGame ga, SOCPlayer robotPlayer, SOCPlayingPiece piece )
     {
-        String msg = robotPlayer.getName() + ":consider-target ";  // i18n OK: Is a formatted command to a robot
+        StringBuffer msg = new StringBuffer( robotPlayer.getName()).append( ":consider-target " );  // i18n OK: Is a formatted command to a robot
+        addPieceTypeStr( msg, piece.getType() );
 
-        switch (piece.getType())
-        {
-        case SOCPlayingPiece.SETTLEMENT:
-            msg += "settlement";
-            break;
-
-        case SOCPlayingPiece.ROAD:
-            msg += "road";
-            break;
-
-        case SOCPlayingPiece.SHIP:
-            msg += "ship";
-            break;
-
-        case SOCPlayingPiece.CITY:
-            msg += "city";
-            break;
-        }
-
-        msg += (" " + piece.getCoordinates());
-        sendText(ga, msg);
+        msg.append( " " ).append( piece.getCoordinates() );
+        sendText( ga, msg.toString() );
     }
 
 }
