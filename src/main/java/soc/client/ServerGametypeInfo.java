@@ -38,6 +38,8 @@ import soc.message.SOCGameOptionInfo;
 import soc.message.SOCNewGameWithOptions;
 import soc.util.SOCStringManager;
 
+import static soc.game.SOCGameOption.FLAG_DROP_IF_UNUSED;
+
 /**
  * Track the server's information about the game type: valid game option set, scenarios, etc.
  * Client has one instance for remote tcp server, one for practice server.
@@ -110,10 +112,7 @@ public class ServerGametypeInfo
     public String    gameInfoWaitingForOpts = null;
 
     /**
-     * Known Options of the connected server; will be null if {@link SOCPlayerClient#sVersion}
-     * is less than {@link SOCNewGameWithOptions#VERSION_FOR_NEWGAMEWITHOPTIONS} (1.1.07).
-     * Otherwise, set from {@link SOCGameOptionSet#getAllKnownOptions()}
-     * and update from server as needed.
+     * Known Options of the connected server; will be updated from server upon connection
      *<P>
      * May contain {@link SOCGameOption#OTYPE_UNKNOWN} opts sent from server
      * as part of gameopt info synchronization.
@@ -121,7 +120,7 @@ public class ServerGametypeInfo
      * Before v2.4.50 this field was {@code optionSet}.
      * @see #newGameOpts
      */
-    public SOCGameOptionSet knownOpts = null;
+    public final SOCGameOptionSet knownOpts;
 
     /**
      * Deep copy of {@link #knownOpts} for {@link NewGameOptionsFrame}
@@ -174,14 +173,13 @@ public class ServerGametypeInfo
     public HashSet<String> scenKeys;
 
     /**
-     * Create a new ServerGametypeInfo, with an {@link #knownOpts} defaulting
-     * to our client version's {@link SOCGameOptionSet#getAllKnownOptions()}.
+     * Create a new ServerGametypeInfo, with {@link #knownOpts} initialized to an empty set.
      */
     public ServerGametypeInfo()
     {
-        knownOpts =
-            new SOCGameOptionSet(  );
-        //    SOCGameOptionSet.getAllKnownOptions();
+        knownOpts = new SOCGameOptionSet(  );
+        knownOpts.put( new SOCGameOption( "SC", 2000, 2000, 8, false,
+            FLAG_DROP_IF_UNUSED, "Game Scenario: #" ));
         scenKeys = new HashSet<>();
     }
 
@@ -212,32 +210,23 @@ public class ServerGametypeInfo
      * use servOpts to replace its {@link SOCGameOption} references instead of creating a new Map.
      *
      * @param servOpts The allowable {@link SOCGameOption}s received from the server.
-     *                 Assumes has been parsed already against the locally known opts,
-     *                 so any opts that we don't know are {@link SOCGameOption#OTYPE_UNKNOWN}.
+     *
      * @return null if all are known, or a list of key names for unknown options.
      * @see #receiveInfo(SOCGameOptionInfo, SOCStringManager)
      */
-    public List<String> receiveDefaults(final Map<String, SOCGameOption> servOpts)
+    public List<String> receiveDefaults( Map<String, SOCGameOption> servOpts )
     {
-        // Replacing the changed option objects is effectively the same as updating their default values;
-        // we already parsed these servOpts for all SGO fields, including current value.
+        // Replacing the changed option objects is effectively the same as updating their default
+        // values. In that case we have already parsed these server options for all game options
+        // fields, including current value.
         // Option objects are always accessed by key name, so replacement is OK.
 
-        HashSet<String> prevKnown = null;
-
-        if ((knownOpts == null) || knownOpts.isEmpty())
+        HashSet<String> prevKnown = new HashSet<>();
+        for (String oKey : servOpts.keySet())
         {
-            knownOpts = new SOCGameOptionSet( servOpts );
-        }
-        else
-        {
-            prevKnown = new HashSet<>();
-            for (String oKey : servOpts.keySet())
-            {
-                SOCGameOption op = servOpts.get( oKey );
-                if (knownOpts.put( op ) != null)  // always add, even if OTYPE_UNKNOWN
-                    prevKnown.add( oKey );
-            }
+            SOCGameOption op = servOpts.get( oKey );
+            if (knownOpts.put( op ) != null)  // always add, even if OTYPE_UNKNOWN
+                prevKnown.add( oKey );
         }
 
         List<String> unknowns = SOCVersionedItem.findUnknowns( servOpts, prevKnown );
