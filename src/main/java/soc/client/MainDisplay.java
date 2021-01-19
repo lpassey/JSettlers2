@@ -122,21 +122,16 @@ public interface MainDisplay
     boolean hasAnyActiveGame(final boolean fromPracticeServer);
 
     /**
-     * Ask server to start a game with options.
-     * If it's practice, will call {@link SOCPlayerClient#startPracticeGame(String, SOCGameOptionSet, boolean)}.
-     * Otherwise, ask tcp server, and also set {@code WAIT_CURSOR} and status line ("Talking to server...").
+     * Ask server to start a game with options and also set {@code WAIT_CURSOR} and status line ("Talking to server...").
      *<P>
      * Assumes we're already connected to server, and that nickname, password, hostname are already validated.
      *
-     * @param gmName Game name; for practice, null is allowed
-     * @param forPracticeServer Is this for a new game on the practice (not tcp) server?
+     * @param gmName Game name; for practice games, null is allowed
      * @param opts Set of {@link SOCGameOption game options} to use, or null
      * @param localPrefs Set of per-game local preferences to pass to {@link SOCPlayerInterface} constructor, or null
      * @see #readValidNicknameAndPassword()
      */
-    void askStartGameWithOptions
-        (final String gmName, final boolean forPracticeServer,
-         final SOCGameOptionSet opts, final Map<String, Object> localPrefs);
+    void askStartGameWithOptions( final String gmName, final SOCGameOptionSet opts, final Map<String, Object> localPrefs);
 
     /**
      * Clear any visual indicators that we are waiting for the network or other action, like {@code WAIT_CURSOR}.
@@ -235,7 +230,8 @@ public interface MainDisplay
     /**
      * Server has sent its list of chat channels (or an empty list), so
      * populate and show that list along with the rest of the UI. The server
-     * sends the list when the client successfully connects, and it may be empty
+     * sends the list when the client successfully connects, and it may be empty.
+     *
      * @param channelNames  List of server's chat channels, from server message
      * @see #repaintGameAndChannelLists()
      */
@@ -325,7 +321,6 @@ public interface MainDisplay
      * will have game options.
      *
      * @param opts  Client's game option info, tracking the TCP or local practice server
-     * @param isPractice  True if received from {@link ClientNetwork#practiceServer}, instead of TCP server
      */
     void optionsReceived( ServerGametypeInfo opts );
 
@@ -336,13 +331,12 @@ public interface MainDisplay
      * were waiting, show a game info/options dialog for a new game or existing game.
      *
      * @param opts  Client's game option info, tracking the TCP or local practice server
-     * @param isPractice  True if received from {@link ClientNetwork#practiceServer}, instead of TCP server
      * @param isDash  True if the game option was {@code "-"}, indicating the end of the list.
      *     If so, no further options will be sent and any running timeout task related to the
      *     game options can be cancelled.
      * @param hasAllNow  If true, all game option info has now been received by the client
      */
-    void optionsReceived(ServerGametypeInfo opts, boolean isPractice, boolean isDash, boolean hasAllNow);
+    void optionsReceived(ServerGametypeInfo opts, boolean isDash, boolean hasAllNow);
 
     /**
      * Callback for when the client player leaves a game and closes its {@link SOCPlayerInterface}.
@@ -372,7 +366,6 @@ public interface MainDisplay
      * If it's on the {@link SOCPlayerClient#serverGames} list, also remove from there.
      *
      * @param gameName  the game to remove
-     * @param isPractice   Game is practice, not at tcp server?
      * @param withUnjoinablePrefix  True if game's display name starts with
      *     {@link SOCPlayerClient#GAMENAME_PREFIX_CANNOT_JOIN};
      *     {@code gameName} should not include this prefix

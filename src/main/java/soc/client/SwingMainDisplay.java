@@ -72,7 +72,6 @@ import javax.swing.text.JTextComponent;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
-import soc.game.SOCScenario;
 import soc.message.SOCAuthRequest;
 import soc.message.SOCGameOptionGetDefaults;
 import soc.message.SOCGameOptionGetInfos;
@@ -80,7 +79,7 @@ import soc.message.SOCGameOptionInfo;
 import soc.message.SOCJoinChannel;
 import soc.message.SOCMessage;
 import soc.message.SOCNewGameWithOptions;
-// import soc.server.SOCServer;
+
 import soc.util.SOCFeatureSet;
 import soc.util.SOCGameList;
 import soc.util.SOCStringManager;
@@ -956,7 +955,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 {
                     joinGameButton.setEnabled( wasSel );
                     gameInfoButton.setEnabled( wasSel &&
-                        (   (client.getNet().practiceServer != null)
+                        (   (client.getNet().localServer != null)
                          || (client.getConnection().getRemoteVersion() >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)));
                 }
             }
@@ -1517,9 +1516,9 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
             SOCGameOptionSet opts = null;
 
-            if ((net.practiceServer != null) && (net.practiceServer.getGame(gameName) != null))
+            if ((net.localServer != null) && (net.localServer.getGame(gameName) != null))
             {
-                opts = net.practiceServer.getGameOptions(gameName);  // won't ever need to parse from string on practice server
+                opts = net.localServer.getGameOptions(gameName);  // won't ever need to parse from string on practice server
             }
             else if (client.serverGames != null)
             {
@@ -1572,12 +1571,12 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
         if ((pi == null)
             && ((target == practiceButton) || (target == pgm))
-            && (net.practiceServer != null)
-                && (gameName.equalsIgnoreCase(client.DEFAULT_PRACTICE_GAMENAME)))
+            && (net.localServer != null)
+            && (gameName.equalsIgnoreCase( client.DEFAULT_PRACTICE_GAMENAME )))
         {
             // Practice game requested, no game named "Practice" already exists.
             // Check for other active practice games. (Could be "Practice 2")
-            pi = findAnyActiveGame( true );
+            pi = findAnyActiveGame();
         }
 
         if ((pi != null) && ((target == practiceButton) || (target == pgm)))
@@ -1713,8 +1712,6 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         if (!precheckOnly)
         {
             client.nickname = n;
-//            if (client.practiceNickname == null)
-//                client.practiceNickname = n;
         }
 
         return n;
@@ -1805,7 +1802,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         // Have we authenticated our password?  If not, do so now before creating newGameOptsFrame.
         // Even if the server doesn't support accounts or passwords, this will name our connection
         // and reserve our nickname.
-        if ((!(forPracticeServer || client.gotPassword))
+        if (   (!(client.getNet().isPracticeGame || client.gotPassword))
             && (client.getConnection().getRemoteVersion() >= SOCAuthRequest.VERSION_FOR_AUTHREQUEST))
         {
             if (!readValidNicknameAndPassword())
@@ -1829,63 +1826,14 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             pass.setEditable( false );
         }
 
-//        ServerGametypeInfo opts;
-
-        // What server are we going against? Do we need to ask it for options?
+        // FIXME: This clause is probably not needed
+        if (   (! client.gameOpts.allOptionsReceived)
+            && (client.getConnection().getRemoteVersion() < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS))
         {
-            boolean fullSetIsKnown = false;
-
-/*
-            if (forPracticeServer)
-            {
-                opts = client.practiceServGameOpts;
-                if (!opts.allOptionsReceived)
-                {
-                    // We know what the practice options will be,
-                    // because they're in our own JAR file.
-                    // Also, the practice server isn't started yet,
-                    // so we can't ask it for the options.
-                    // The practice server will be started when the player clicks
-                    // "Create Game" in the NewGameOptionsFrame, causing the new
-                    // game to be requested from askStartGameWithOptions.
-                    fullSetIsKnown = true;
-                    opts.knownOpts = SOCServer.localizeKnownOptions( client.cliLocale, true );
-                }
-
-                if (!opts.allScenStringsReceived)
-                {
-                    // Game scenario localized text. As with game options, the practice client and
-                    // practice server aren't started yet, so we can't go through them to request localization.
-                    client.localizeGameScenarios
-                        ( SOCServer.localizeGameScenarios( client.cliLocale, null, true, false, null ),
-                            false, true, true );
-                }
-            }
-            else
-*/
-            {
-//                opts = client.gameOpts;
-                if (   (! client.gameOpts.allOptionsReceived)
-                    && (client.getConnection().getRemoteVersion() < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS))
-                {
-                    // Server doesn't support them.  Don't ask it.
-                    fullSetIsKnown = true;
-                    client.gameOpts.knownOpts = null;
-                }
-            }
-
-/*
-            if (fullSetIsKnown)
-            {
-                // we have all the known options, localize them if possible.
-                client.localizeGameScenarios( SOCServer.localizeGameScenarios( client.cliLocale, null,
-                    true, false, null ),
-                    false, true );
-                client.gameOpts.allOptionsReceived = true;
-                client.gameOpts.defaultsReceived = true;
-            }
-*/
+            // Server doesn't support them.  Don't ask it.
+            client.gameOpts.knownOpts.clear();
         }
+
 
         // Do we already have info on all options?
         boolean askedAlready, optsAllKnown, knowDefaults;
@@ -1900,7 +1848,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         {
             // If we're only waiting on defaults, how long ago did we ask for them?
             // If > 5 seconds ago, assume we'll never know the unknown ones, and present gui frame.
-            if (optsAllKnown && (55000 < Math.abs( System.currentTimeMillis() - client.gameOpts.askedDefaultsTime )))
+            if (optsAllKnown && (5000 < Math.abs( System.currentTimeMillis() - client.gameOpts.askedDefaultsTime )))
             {
                 knowDefaults = true;
                 client.gameOpts.defaultsReceived = true;
@@ -1923,75 +1871,32 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             if ((client.gameOpts.newGameOpts == null) && (client.gameOpts.knownOpts != null))
                 client.gameOpts.newGameOpts = new SOCGameOptionSet( client.gameOpts.knownOpts, true );
             newGameOptsFrame = NewGameOptionsFrame.createAndShow
-                ( null, this, null, client.gameOpts.newGameOpts, forPracticeServer, false );
+                ( null, this, null, client.gameOpts.newGameOpts, client.getNet().isPracticeGame, false );
 
             return;  // <--- Early return: Show options to user ----
         }
 
-        // OK, we need to sync scenario and option info.
-        // Ask the server by sending GAMEOPTIONGETDEFAULTS.
-        // (This will never happen for practice games, see above.)
+        // Ask the server for game options by sending GAMEOPTIONGETDEFAULTS.
+        // Scenarios will be requested once all game options are received.
 
-        // May take a while for server to send our info.
-        // The new-game-options window will clear this cursor
+        // It may take a while for server to send our info.
+        // The new-game-options window will clear this cursor when invoked
         // (NewGameOptionsFrame constructor)
 
         status.setText( client.strings.get( "pcli.message.talkingtoserv" ) );  // "Talking to server..."
         setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
 
-        if (   (!client.gameOpts.allScenInfoReceived)
-            && (client.getRemoteVersion() >= SOCScenario.VERSION_FOR_SCENARIOS))
+        synchronized (client.gameOpts )
         {
-            // Before game option defaults, ask for any updated or localized scenario info;
-            // that will all be received before game option defaults, so client will have it
-            // before NewGameOptionsFrame appears with the scenarios dropdown Choice widget.
-
-            List<String> changes = null;
-
-/*
-            if (cliVers > client.getRemoteVersion())
-            {
-                // Client newer than server: Ask about specific new/changed scenarios which server might not know.
-
-                final List<SOCScenario> changeScens =
-                    SOCVersionedItem.itemsNewerThanVersion
-                        (client.getRemoteVersion(), false, SOCScenario.getAllKnownScenarios());
-
-                if (changeScens != null)
-                {
-                    changes = new ArrayList<>();
-                    for (SOCScenario sc : changeScens)
-                        changes.add( sc.key );
-                }
-            }
-*/
-            // Else, server is newer than our client or same version.
-            //   If server is newer: Ask for any scenario changes since our version.
-            //   If same version: Ask for i18n localized scenarios strings if available.
-
-//            if (cliVers != client.getRemoteVersion())
-            {
-                client.sendScenarioInfo( changes );
-            }
-/*
-            else if (client.wantsI18nStrings( false ))
-            {
-                client.requestLocalizedStrings();
-            }
-*/
+            client.gameOpts.newGameWaitingForOpts = true;
+            client.gameOpts.askedDefaultsAlready = true;
+            client.gameOpts.askedDefaultsTime = System.currentTimeMillis();
         }
-
-        client.gameOpts.newGameWaitingForOpts = true;
-        client.gameOpts.askedDefaultsAlready = true;
-        client.gameOpts.askedDefaultsTime = System.currentTimeMillis();
-        client.requestGameOptionDefaults();
+//        client.requestGameOptionDefaults();     // Send a message requesting default options from the server
         if (gameOptsDefsTask != null)
-            gameOptsDefsTask.cancel();
+            gameOptsDefsTask.cancel();  // cancel and reschedule the waiting task
         gameOptsDefsTask = new GameOptionDefaultsTimeoutTask( this, client.gameOpts, forPracticeServer );
-        eventTimer.schedule( gameOptsDefsTask, 150000 /* ms */ );
-
-        // Once options are received, handlers will
-        // create and show NewGameOptionsFrame.
+        eventTimer.schedule( gameOptsDefsTask, 5000 /* ms */ );
     }
 
     /**
@@ -2002,7 +1907,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *
      * @since 1.1.07
      */
-    public void askStartGameWithOptions( final String gameName, final boolean forPracticeServer,
+    public void askStartGameWithOptions( final String gameName,
         final SOCGameOptionSet opts, final Map<String, Object> localPrefs )
     {
         client.putGameReqLocalPrefs( gameName, localPrefs );
@@ -2030,24 +1935,20 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     /**
      * Look for active games that we're playing
      *
-     * @param fromPracticeServer  Enumerate games from {@link ClientNetwork#practiceServer},
-     *     instead of all games in {@link #playerInterfaces}?
      * @return Any found game of ours which is active (state &lt; {@link SOCGame#OVER}), or null if none.
      * @see #hasAnyActiveGame(boolean)
      * @see ClientNetwork#anyHostedActiveGames()
      * @since 1.1.00
      */
-    protected SOCPlayerInterface findAnyActiveGame( boolean fromPracticeServer )
+    protected SOCPlayerInterface findAnyActiveGame()
     {
         SOCPlayerInterface pi = null;
         int gs;  // gamestate
 
         Collection<String> gameNames;
-        if (fromPracticeServer)
+        if (net.localServer != null)
         {
-            if (net.practiceServer == null)
-                return null;  // <---- Early return: no games if no practice server ----
-            gameNames = net.practiceServer.getGameNames();
+            gameNames = net.localServer.getGameNames();
         }
         else
         {
@@ -2056,9 +1957,9 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
         for (String tryGm : gameNames)
         {
-            if (fromPracticeServer)
+            if (net.localServer != null)
             {
-                gs = net.practiceServer.getGameState( tryGm );
+                gs = net.localServer.getGameState( tryGm );
                 if (gs < SOCGame.OVER)
                 {
                     pi = playerInterfaces.get( tryGm );
@@ -2087,7 +1988,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     @Override
     public boolean hasAnyActiveGame( final boolean fromPracticeServer )
     {
-        return (null != findAnyActiveGame( fromPracticeServer ));
+        return (null != findAnyActiveGame());
     }
 
     /**
@@ -2166,7 +2067,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     public void showVersion
     ( final int vers, final String versionString, final String buildString, final SOCFeatureSet feats )
     {
-        if (null == net.localTCPServer)
+        if (null == net.localServer)
         {
             versionOrlocalTCPPortLabel.setForeground( miscLabelFGColor );  // MISC_LABEL_FG_OFF_WHITE
             versionOrlocalTCPPortLabel.setText( client.strings.get( "pcli.main.version", versionString ) );  // "v {0}"
@@ -2178,10 +2079,6 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
         initMainPanelLayout( false, feats );  // complete the layout as appropriate for server
         validate();
-
-        if ((net.practiceServer == null) && (vers < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
-            && (gameInfoButton != null))
-            gameInfoButton.setEnabled( false );  // server too old for options, so don't use that button
     }
 
     public void showStatus( final String statusText, final boolean statusIsOK, final boolean debugWarn )
@@ -2458,7 +2355,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         if (gameOptsTask != null)
             gameOptsTask.cancel();
         gameOptsTask = new GameOptionsTimeoutTask( this, client.gameOpts );
-        eventTimer.schedule( gameOptsTask, 150000 /* ms */ );
+        eventTimer.schedule( gameOptsTask, 5000 /* ms */ );
     }
 
     /**
@@ -2487,15 +2384,19 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         if ((opts.newGameOpts == null) && (opts.knownOpts != null))
             opts.newGameOpts = new SOCGameOptionSet( opts.knownOpts, true );
         boolean isPractice = getClient().getNet().isPracticeGame;
-        newGameOptsFrame = NewGameOptionsFrame.createAndShow( null, SwingMainDisplay.this,
-            isPractice ? getClient().getNextGameName() : null,
-            opts.newGameOpts, isPractice, false );
+        if (opts.newGameWaitingForOpts)
+        {
+            newGameOptsFrame = NewGameOptionsFrame.createAndShow( null, SwingMainDisplay.this,
+                isPractice ? getClient().getNextGameName() : null,
+                opts.newGameOpts, isPractice, false );
+        }
     }
 
-    public void optionsReceived( ServerGametypeInfo opts, boolean isPractice, boolean isDash, boolean hasAllNow )
+    public void optionsReceived( ServerGametypeInfo opts, boolean isDash, boolean hasAllNow )
     {
         final boolean newGameWaiting;
         final String gameInfoWaiting;
+        boolean isPractice = client.getNet().isPracticeGame;
         synchronized (opts)
         {
             newGameWaiting = opts.newGameWaitingForOpts;
@@ -2507,13 +2408,19 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
         if (hasAllNow)
         {
-            if (gameInfoWaiting != null)
+            if (!opts.allScenStringsReceived)
+            {
+                // We've received all the default options, but haven't received all the scenarios.
+                // Ask for them now before showing the "New Game" dialog.
+                client.sendScenarioInfo( null );
+            }
+            else if (gameInfoWaiting != null)
             {
                 synchronized (opts)
                 {
                     opts.gameInfoWaitingForOpts = null;
                 }
-                final SOCGameOptionSet gameOpts = client.serverGames.parseGameOptions( gameInfoWaiting );
+                SOCGameOptionSet gameOpts = client.serverGames.parseGameOptions( gameInfoWaiting );
 
                 client.checkGameoptsForUnknownScenario( gameOpts );
                 newGameOptsFrame = NewGameOptionsFrame.createAndShow(
@@ -2525,11 +2432,13 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 synchronized (opts)
                 {
                     if ((opts.newGameOpts == null) && (opts.knownOpts != null))
+                    {
                         opts.newGameOpts = new SOCGameOptionSet( opts.knownOpts, true );
+                    }
                     opts.newGameWaitingForOpts = false;
                 }
                 newGameOptsFrame = NewGameOptionsFrame.createAndShow( null, SwingMainDisplay.this,
-                    null, opts.newGameOpts, client.getNet().isPracticeGame, false );
+                    null, opts.newGameOpts, isPractice, false );
             }
         }
     }
@@ -2552,7 +2461,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             lm.set( 0, item );
             gmlist.setSelectedIndex( 0 );
             joinGameButton.setEnabled( true );
-            gameInfoButton.setEnabled( (net.practiceServer != null)
+            gameInfoButton.setEnabled( (net.localServer != null)
                 || (client.getRemoteVersion() >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS));
         }
         else
@@ -2695,9 +2604,14 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     public void startLocalTCPServer( final int tport )
         throws IllegalArgumentException, IllegalStateException
     {
-        if (net.localTCPServer != null)
+        if (net.localServer != null)
         {
-            return;  // Already set up
+            // stop the currently running server, then restart it in TCP mode.
+            net.localServer.stopServer();
+            // as it shuts down, the server will send a disconnect message to all the clients.
+            // Give our message handler a chance to get that message before proceeding
+            try { Thread.sleep( 500 ); } catch (InterruptedException ignored) { Thread.yield(); }
+            while (client.isConnected()) { Thread.yield(); }
         }
         if (client.isConnected())
         {
@@ -2799,8 +2713,10 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
         cardLayout.show( this, MESSAGE_PANEL );
 
+        // we've started a tcp server, but connect via an in-memory connection
+        net.isPracticeGame = false;
         // Connect to it
-        net.connect( "localhost", tport );  // I18N: no need to localize this hostname
+        net.memConnect();
 
         // Ensure we can't "connect" to another, too
         if (connectOrPracticePane != null)
@@ -2904,7 +2820,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         public void windowClosing( WindowEvent evt )
         {
             // Are we a client to any active games?
-            SOCPlayerInterface piActive = md.findAnyActiveGame(false);
+            SOCPlayerInterface piActive = md.findAnyActiveGame();
 
             if (piActive != null)
             {
@@ -2929,11 +2845,15 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                     SOCQuitAllConfirmDialog.createAndShow( md, (Frame) c );
                 }
             }
+            else if (cnet.isRunningLocalServer())
+            {
+                cnet.shutdownLocalServer();
+            }
 
             if (!canAskHostingGames)
             {
-                // Just quit.
                 md.getClient().putLeaveAll();
+                md.getClient().disconnect();    // Tell the server I'm leaving, and to remove this connection
                 System.exit( 0 );
             }
         }
@@ -2985,7 +2905,6 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             pcli.getClient().getMessageHandler().handleGAMEOPTIONINFO(
                 new SOCGameOptionInfo( new SOCGameOption( "-" ), Version.versionNumber(), null ));
         }
-
     }  // GameOptionsTimeoutTask
 
 
@@ -3025,10 +2944,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             if (srvOpts.newGameWaitingForOpts)
                 pcli.gameWithOptionsBeginSetup( forPracticeServer, false );
         }
-
     }  // GameOptionDefaultsTimeoutTask
-
-
 }
 
 
