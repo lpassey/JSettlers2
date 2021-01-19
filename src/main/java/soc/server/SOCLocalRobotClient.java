@@ -58,19 +58,19 @@ import soc.robot.SOCRobotClient;
     /**
      * This bot's client in {@link #robotClients}.
      */
-    final SOCRobotClient rob;
+    final SOCRobotClient robotClient;
 
     protected SOCLocalRobotClient(SOCRobotClient rc)
     {
-        rob = rc;
+        robotClient = rc;
     }
 
     public void run()
     {
-        final String rname = rob.getNickname();
+        final String rname = robotClient.getNickname();
         Thread.currentThread().setName("localrobotclient-" + rname);  // was robotrunner- in v1.x.xx
-        robotClients.put(rname, rob);
-        rob.init();
+        robotClients.put(rname, robotClient);
+        robotClient.init();
     }
 
     /**
@@ -88,24 +88,19 @@ import soc.robot.SOCRobotClient;
      *     {@code null} for built-in bots
      * @since 1.1.09
      * @see SOCServer#setupLocalRobots(int, int)
-     * @throws ClassNotFoundException  if a robot class, or SOCDisplaylessClient,
-     *           can't be loaded. This can happen due to packaging of the server-only JAR.
      * @throws LinkageError  for same reason as ClassNotFoundException
      * @throws IllegalArgumentException if {@code sci == null}
      * @throws ReflectiveOperationException if there's a problem instantiating from a non-null {@link cliConstruc3p}
      */
-    public static void createAndStartRobotClientThread
-        (final String rname, final ServerConnectInfo sci, final SOCGameOptionSet knownOpts,
-         final Constructor<? extends SOCRobotClient> cliConstruc3p)
-        throws ClassNotFoundException, IllegalArgumentException, LinkageError, ReflectiveOperationException
+    public static void createAndStartRobotClientThread( final String rname, final ServerConnectInfo sci,
+         final Constructor<? extends SOCRobotClient> cliConstruc3p )
+        throws IllegalArgumentException, LinkageError, ReflectiveOperationException
     {
         final SOCRobotClient rcli =
             (cliConstruc3p == null)
             ? new SOCRobotClient(sci, rname, "pw")
             : cliConstruc3p.newInstance(sci, rname, "pw");
 
-//        if (knownOpts != null)
-//            rcli.knownOpts = new SOCGameOptionSet(knownOpts, true);
         rcli.printedInitialWelcome = true;  // don't clutter the server console
 
         Thread rth = new Thread(new SOCLocalRobotClient(rcli));
