@@ -817,11 +817,11 @@ public class SOCPlayerInterface extends Frame
      *     ({@link Integer} or {@link Boolean}) based on its key's javadoc.
      */
     public SOCPlayerInterface
-    ( String title, MainDisplay md, SOCGame ga, final int[] layoutVS, final Map<String, Object> localPrefs )
+    ( String title, MainDisplay md, SOCGame game, final int[] layoutVS, final Map<String, Object> localPrefs )
         throws IllegalArgumentException
     {
         super( strings.get( "interface.title.game", title )
-            + (ga.isPractice ? "" : " [" + md.getClient().getNickname() + "]") );
+            + " [" + md.getClient().getNickname() + "]" );
         // "Settlers of Catan Game: {0}"
 
         layoutNotReadyYet = true;  // will set to false at end of doLayout
@@ -838,7 +838,6 @@ public class SOCPlayerInterface extends Frame
             displayScale = ((ds > 0) && (ds <= 3)) ? ds : md.getDisplayScaleFactor();
         }
         client = md.getClient();
-        game = ga;
         game.setGameEventListener( this );
         is6player = (game.maxPlayers > 4);
         isGameFullyObservable = game.isGameOptionSet( SOCGameOptionSet.K_PLAY_FO );
@@ -1234,7 +1233,7 @@ public class SOCPlayerInterface extends Frame
             // Player data may not be received yet;
             // game is created empty, then SITDOWN messages are received from server.
             // gameState is at default 0 (NEW) during JOINGAMEAUTH and SITDOWN.
-                // initUIElements is also called at board reset.
+            // initUIElements is also called at board reset.
             // updatePlayerLimitDisplay will check the current gameState.
         }
 
@@ -1303,8 +1302,7 @@ public class SOCPlayerInterface extends Frame
                     textInput.selectAll();
             }
         } );
-        addHotkeysInputMap_one
-            ( textInput.getInputMap( JComponent.WHEN_FOCUSED ),
+        addHotkeysInputMap_one( textInput.getInputMap( JComponent.WHEN_FOCUSED ),
                 KeyEvent.VK_A, "hotkey_selectAllOrTradeAccept", null );
     }
 
@@ -1702,8 +1700,7 @@ public class SOCPlayerInterface extends Frame
      * @param newp  New player with longest/largest, or null if none
      * @since 1.1.00
      */
-    public void updateLongestLargest
-    ( boolean isRoadNotArmy, SOCPlayer oldp, SOCPlayer newp )
+    public void updateLongestLargest( boolean isRoadNotArmy, SOCPlayer oldp, SOCPlayer newp )
     {
         // Update handpanels
         final PlayerClientListener.UpdateType updateType;
@@ -1719,7 +1716,7 @@ public class SOCPlayerInterface extends Frame
         }
 
         // Check for and announce change in largest army, or longest road
-        if ((newp != oldp)
+        if (   (newp != oldp)
             && ((null != oldp) || (null != newp)))
         {
             final String changedObj;  // what was changed?  Key prefix will be combined below with .taken/.first/.lost
