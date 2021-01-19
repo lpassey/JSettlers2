@@ -104,13 +104,14 @@ public final class MessageHandler implements SOCMessageDispatcher
      * @param mes    the message
      * @param connection  The peer connection that sent the message
      */
+    @SuppressWarnings("ConstantConditions")
     public void handle( SOCMessage mes, Connection connection )
     {
         if (mes == null)
             return;  // Parsing error
 
-//        if (client.debugTraffic || D.ebugIsEnabled())
-//            soc.debug.D.ebugPrintlnINFO("IN - client - " + mes.toString());
+        if (client.debugTraffic || D.ebugIsEnabled())
+            soc.debug.D.ebugPrintlnINFO("IN - client - " + mes.toString());
 
         try
         {
@@ -706,7 +707,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              * Added 2015-09-21 for v2.0.00.
              */
             case SOCMessage.SCENARIOINFO:
-                handleSCENARIOINFO( (SOCScenarioInfo) mes );
+                handleSCENARIOINFO( (SOCScenarioInfo) mes, connection );
                 break;
 
             /**
@@ -770,44 +771,10 @@ public final class MessageHandler implements SOCMessageDispatcher
         // In v2.4.50 and later, also checks for 3rd-party game opts.
 
         final int cliVersion = Version.versionNumber();
-        final boolean sameVersion = (serverVersion == cliVersion);
         final boolean withTokenI18n = (client.cliLocale != null)
             && (serverVersion >= SOCStringManager.VERSION_FOR_I18N)
             && ! ("en".equals(client.cliLocale.getLanguage())
             && "US".equals(client.cliLocale.getCountry()));
-
-//        SOCGameOptionSet opts3p = (serverVersion >= cliVersion)
-//                ? client.gameOpts.knownOpts.optionsWithFlag( SOCGameOption.FLAG_3RD_PARTY, 0 )
-//                : null;   // sVersion < cliVersion, so SOCGameOptionSet.optionsNewerThanVersion will find any 3rd-party opts
-
-//        if (    (vers > cliVersion)
-//             || ( sameVersion && (withTokenI18n || (opts3p != null ))) )
-        {
-            // Newer server: Ask it to list any options we don't know about yet.
-            // Same version: Ask for all localized option descriptions if available.
-            // Also ask about any 3rd-party options known at client.
-
-            final SOCGameOptionGetInfos ogiMsg;
-/*
-            if (opts3p != null)
-            {
-                ArrayList<String> olist = new ArrayList<>( opts3p.keySet() );
-                if (!sameVersion)
-                    olist.add( SOCGameOptionGetInfos.OPTKEY_GET_ANY_CHANGES );
-                ogiMsg = new SOCGameOptionGetInfos( olist, withTokenI18n, false );
-                // sends opts and maybe "?I18N"
-            }
-            else
-*/
-            {
-                ogiMsg = new SOCGameOptionGetInfos( null, withTokenI18n, withTokenI18n && sameVersion );
-                // sends "-" and/or "?I18N"
-            }
-
-            client.getMainDisplay().optionsRequested();     // Tell the display that we've requested the game options
-            connection.send( ogiMsg );  // ask for the game options from the server on the same connection it came in on.
-        }
-//        else
         if (serverVersion < cliVersion)
         {
             if (serverVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
@@ -815,16 +782,8 @@ public final class MessageHandler implements SOCMessageDispatcher
                 // Older server: Look for options created or changed since server's version
                 // (and any 3rd-party options).
                 // Ask it what it knows about them.
-
-                SOCGameOptionSet knownOpts = client.gameOpts.knownOpts;
-                if (knownOpts == null)
-                {
-                    knownOpts = SOCGameOptionSet.getAllKnownOptions();
-                    client.gameOpts.knownOpts = knownOpts;
-                }
-
                 List<SOCGameOption> tooNewOpts =
-                    knownOpts.optionsNewerThanVersion(serverVersion, false, false);
+                    client.gameOpts.knownOpts.optionsNewerThanVersion(serverVersion, false, false);
 
                 if ((tooNewOpts != null) && (serverVersion < SOCGameOption.VERSION_FOR_LONGER_OPTNAMES))
                 {
@@ -838,7 +797,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                         //TODO i18n how to?
                         if ((op.key.length() > 3) || op.key.contains( "_" ))
                         {
-                            knownOpts.remove( op.key );
+                            client.gameOpts.knownOpts.remove( op.key );
                             opi.remove();
                         }
                     }
@@ -857,37 +816,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                     connection.send( new SOCGameOptionGetInfos(null, true, false) );  // sends opt list "-,?I18N"
                 }
             }
-/*
-            else
-            {
-                // server is too old to understand options. Can't happen with local practice srv,
-                // because that's our version (it runs from our own JAR file).
-
-                client.tcpServGameOpts.noMoreOptions( true );
-                client.tcpServGameOpts.knownOpts = null;
-            }
-*/
         }
-/*
-        else
-        {
-            // client.sVersion == cliVersion, so we have same info/code as server for getAllKnownOptions, scenarios, etc
-            // and found nothing else to ask about (i18n, 3rd-party gameopts).
-
-            // For practice games, knownOpts may already be initialized, so check vs null.
-//            ServerGametypeInfo opts = client.tcpServGameOpts;
-//            if (opts.knownOpts == null)
-//                opts.knownOpts = SOCGameOptionSet.getAllKnownOptions();
-//            opts.noMoreOptions( false );  // defaults not known unless it's practice
-
-            if (!(withTokenI18n || isPractice))
-            {
-                // won't need i18n strings: set flags so we won't ask server later for scenario details
-                opts.allScenStringsReceived = true;
-                opts.allScenInfoReceived = true;
-            }
-        }
-*/
     }
 
     /**
@@ -924,7 +853,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         }
 
         final boolean srvDebugMode;
-        if ( /*isPractice ||*/ (client.getConnection().getRemoteVersion() >= 2000))
+        if (client.getConnection().getRemoteVersion() >= 2000)
         {
             final boolean svIsOKDebug = (sv == SOCStatusMessage.SV_OK_DEBUG_MODE_ON);
             srvDebugMode = svIsOKDebug;
@@ -939,7 +868,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         client.getMainDisplay().showStatus( statusText, (sv == SOCStatusMessage.SV_OK), srvDebugMode );
 
         // Are we waiting for auth response in order to show NGOF?
-        if ( /*(!isPractice) &&*/ client.isNGOFWaitingForAuthStatus)
+        if (client.isNGOFWaitingForAuthStatus)
         {
             client.isNGOFWaitingForAuthStatus = false;
 
@@ -979,8 +908,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                     optNames.add( st.nextToken() );
 
                 StringBuilder opts = new StringBuilder();
-                final SOCGameOptionSet knowns =
-                    /*(isPractice) ? client.practiceServGameOpts.knownOpts :*/ client.gameOpts.knownOpts;
+                final SOCGameOptionSet knowns = client.gameOpts.knownOpts;
                 for (String oname : optNames)
                 {
                     opts.append( '\n' );
@@ -1093,6 +1021,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                 MainDisplay mdisp = client.getMainDisplay();
                 mdisp.channelList( mes.getChannels() );
                 mdisp.repaintGameAndChannelLists();
+                client.requestGameOptionDefaults();     // Send a message requesting default options from the server
             }
         } );
     }
@@ -1291,14 +1220,12 @@ public final class MessageHandler implements SOCMessageDispatcher
         // Run in network message thread, not AWT event thread,
         // in case client is about to be auth'd to join this game:
         // messages must take effect in the order sent
-
         client.addToGameList( mes.getGame(), null, true );
     }
 
     /**
-     * TODO: What is the message really used for?
+     * handle the "delete game" message. Removes the game from the list of joinable games on the server.
      *
-     * handle the "delete game" message
      * @param mes  the message
      */
     protected void handleDELETEGAME(SOCDeleteGame mes, final Connection connection)
@@ -1407,7 +1334,7 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         final boolean playerIsClient = client.getNickname().equals( plName );
 
-        if (playerIsClient
+        if (   playerIsClient
             && ((client.getConnection().getRemoteVersion() >= SOCDevCardAction.VERSION_FOR_SITDOWN_CLEARS_INVENTORY)))
         {
             // server is about to send our dev-card inventory contents
@@ -1649,6 +1576,9 @@ public final class MessageHandler implements SOCMessageDispatcher
         if ((pl == null) && (pn != -1))
             pl = ga.getPlayer( pn );
 
+        if (null == pl)
+            return;     // probably unnecessary, but prevents IDE warnings
+
         PlayerClientListener.UpdateType utype = null;  // If not null, update this type's amount display
 
         switch (etype)
@@ -1745,18 +1675,11 @@ public final class MessageHandler implements SOCMessageDispatcher
             if (amount != pl.getResources().getTotal())
             {
                 SOCResourceSet rsrcs = pl.getResources();
-/*
-                if (D.ebugOn)
-                {
-                    pi.print(">>> RESOURCE COUNT ERROR: "+ mes.getCount() + " != " + rsrcs.getTotal());
-                }
-*/
                 boolean isClientPlayer = pl.getName().equals( client.getNickname());
 
                 //
-                //  fix it
+                //  FIXME: fix it
                 //
-
                 if (!isClientPlayer)
                 {
                     rsrcs.clear();
@@ -2021,12 +1944,6 @@ public final class MessageHandler implements SOCMessageDispatcher
                 ga.undoPutInitSettlement( pp );
             }
         }
-/*
-        else
-        {
-            // ptype is -3 (SOCCancelBuildRequest.INV_ITEM_PLACE_CANCEL)
-        }
-*/
         PlayerClientListener pcl = client.getClientListener( mes.getGame() );
         pcl.buildRequestCanceled( pl );
     }
@@ -2042,7 +1959,7 @@ public final class MessageHandler implements SOCMessageDispatcher
             return;
 
         /**
-         * Note: Don't call ga.moveRobber() because that will call the
+         * Note: Don't call SOCGame.moveRobber() because that will call the
          * functions to do the stealing.  We just want to say where
          * the robber moved without seeing if something was stolen.
          */
@@ -2287,7 +2204,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         {
             // TODO: with new client/server architecture we will not support older servers, so this check can be removed.
             int ctype = mes.getCardType();
-            if ( /*(! isPractice) &&*/ (client.getConnection().getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES))
+            if (client.getConnection().getRemoteVersion() < SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES)
             {
                 if (ctype == SOCDevCardConstants.KNIGHT_FOR_VERS_1_X)
                     ctype = SOCDevCardConstants.KNIGHT;
@@ -2552,14 +2469,14 @@ public final class MessageHandler implements SOCMessageDispatcher
         {
             // receiveDefaults sets opts.defaultsReceived, may set opts.allOptionsReceived
             unknowns = client.gameOpts.receiveDefaults(
-                SOCGameOption.parseOptionsToMap(mes.getOpts(), client.gameOpts.knownOpts ));
+                SOCGameOption.parseOptionsToMap( mes.getOpts(), client.gameOpts.knownOpts ));
             servOpts = client.gameOpts;
         }
 
         if (unknowns != null)
         {
             client.getMainDisplay().optionsRequested();
-            connection.send( new SOCGameOptionGetInfos(unknowns, client.wantsI18nStrings( false ), false) );
+            connection.send( new SOCGameOptionGetInfos( unknowns, false, false) );
         }
         else
         {
@@ -2595,7 +2512,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         }
 
         boolean isDash = mes.getOptionNameKey().equals( "-" );  // I18N OK: do not localize "-" or any other keyname
-        client.getMainDisplay().optionsReceived( opts, false, isDash, hasAllNow );
+        client.getMainDisplay().optionsReceived( opts, isDash, hasAllNow );
     }
 
     /**
@@ -2705,18 +2622,40 @@ public final class MessageHandler implements SOCMessageDispatcher
      * Updated scenario info.
      * Added 2015-09-21 for v2.0.00.
      */
-    private void handleSCENARIOINFO( final SOCScenarioInfo mes )
+    private void handleSCENARIOINFO( final SOCScenarioInfo mes, Connection connection )
     {
-        ServerGametypeInfo opts;
-        opts = client.gameOpts;
-
         if (mes.noMoreScens)
         {
-            synchronized (opts)
+            synchronized (client.gameOpts)
             {
-                opts.allScenStringsReceived = true;
-                opts.allScenInfoReceived = true;
+                client.gameOpts.allScenStringsReceived = true;
+                client.gameOpts.allScenInfoReceived = true;
+                // collect all the options from the scenarios, and ask for the info for them.
             }
+            Map<String, SOCScenario> scens = client.getNet().getValidScenarios();
+            List<String> unknowns = new ArrayList<>(  );
+            for( SOCScenario scen : scens.values() )
+            {
+                SOCGameOptionSet gos = SOCGameOption.parseOptionsToSet( scen.scOpts, client.gameOpts.knownOpts );
+                if (gos != null) for (SOCGameOption opt : gos )
+                {
+                    if (!client.gameOpts.knownOpts.contains( opt ))
+                    {
+                        if (client.gameOpts.knownOpts.put( opt ) == null)  // always add, even if OTYPE_UNKNOWN
+                            unknowns.add( opt.key );
+                    }
+                }
+            }
+            // Check for any options added by a scenario. Also will trigger the callback to open the "New Game" dialog.
+            if ( ! unknowns.isEmpty())
+            {
+                client.gameOpts.allOptionsReceived = false;
+                client.getMainDisplay().optionsRequested();
+                connection.send( new SOCGameOptionGetInfos( unknowns, false, false ) );
+            }
+            else        // Trigger the callback to open the "New Game" dialog.
+                client.getMainDisplay().optionsReceived( client.gameOpts, true, true );
+
         }
         else
         {
@@ -2727,9 +2666,9 @@ public final class MessageHandler implements SOCMessageDispatcher
             else
                 client.getNet().addValidScenario( mes.getScenario() );
 
-            synchronized (opts)
+            synchronized (client.gameOpts)
             {
-                opts.scenKeys.add( scKey );  // OK if was already present from received localized strings
+                client.gameOpts.scenKeys.add( scKey );  // OK if was already present from received localized strings
             }
         }
     }
@@ -2830,8 +2769,7 @@ public final class MessageHandler implements SOCMessageDispatcher
             // game data updates are sent in preceding messages, can ignore this one
             break;
 
-        default:
-            // ignore unknown types
+        default:            // ignore unknown types
             {
                 final int mesPN = mes.getPlayerNumber();
                 if ((mesPN >= 0) && (mesPN == pcl.getClientPlayerNumber()))
