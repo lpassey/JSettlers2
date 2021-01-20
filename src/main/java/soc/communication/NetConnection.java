@@ -229,6 +229,8 @@ public final class NetConnection
     @Override
     public final void send( SOCMessage socMessage )
     {
+        if (debugTraffic || D.ebugIsEnabled())
+            soc.debug.D.ebugPrintlnINFO("OUT - " + data + " - " + socMessage.toString());
         putForReal( socMessage.toCmd() );
     }
 
