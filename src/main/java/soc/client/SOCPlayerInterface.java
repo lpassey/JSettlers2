@@ -816,8 +816,7 @@ public class SOCPlayerInterface extends Frame
      * @throws IllegalArgumentException if a {@code localPrefs} value isn't the expected type
      *     ({@link Integer} or {@link Boolean}) based on its key's javadoc.
      */
-    public SOCPlayerInterface
-    ( String title, MainDisplay md, SOCGame game, final int[] layoutVS, final Map<String, Object> localPrefs )
+    public SOCPlayerInterface( String title, MainDisplay md, SOCGame game, int[] layoutVS, Map<String, Object> localPrefs )
         throws IllegalArgumentException
     {
         super( strings.get( "interface.title.game", title )
@@ -838,6 +837,7 @@ public class SOCPlayerInterface extends Frame
             displayScale = ((ds > 0) && (ds <= 3)) ? ds : md.getDisplayScaleFactor();
         }
         client = md.getClient();
+        this.game = game;
         game.setGameEventListener( this );
         is6player = (game.maxPlayers > 4);
         isGameFullyObservable = game.isGameOptionSet( SOCGameOptionSet.K_PLAY_FO );
