@@ -1,6 +1,6 @@
 package soc.message;
 
-public class SOCDisconnect extends SOCMessage
+public class SOCDisconnect extends SOCMessage implements SOCMessageFromUnauthClient
 {
     /**
      * A message indicating that a connection is disconnecting from its peer.
