@@ -3061,8 +3061,6 @@ public class SOCServer extends Server
 
             if (isBotsOnly)
                 newGame.isBotsOnly = true;
-//            else if ((strSocketName != null) && (strSocketName.equals( PRACTICE_STRINGPORT )))
-//                newGame.isPractice = true;  // flag if practice game (set since 1.1.09)
 
             if (c != null)
                 // Add this (creating) player to the game
@@ -3628,7 +3626,7 @@ public class SOCServer extends Server
             for (int i = 0; i < numFast; ++i)
             {
                 String rname = "droid " + (i + 1);
-                SOCLocalRobotClient.createAndStartRobotClientThread( rname, sci, knownOpts, null );
+                SOCLocalRobotClient.createAndStartRobotClientThread( rname, sci, null );
                 // to ratelimit, create includes Thread.yield() and sleep(75 ms) on caller's thread
             }
 
@@ -3639,7 +3637,7 @@ public class SOCServer extends Server
             for (int i = 0; i < numSmart; ++i)
             {
                 String rname = "robot " + (i + 1 + numFast);
-                SOCLocalRobotClient.createAndStartRobotClientThread( rname, sci, knownOpts, null );
+                SOCLocalRobotClient.createAndStartRobotClientThread( rname, sci, null );
             }
 
             // Now, any third-party bots starting up with server.
@@ -3654,7 +3652,7 @@ public class SOCServer extends Server
                     {
                         ++i;
                         curr3pBotClass = con.getDeclaringClass().getName();
-                        SOCLocalRobotClient.createAndStartRobotClientThread( "extrabot " + i, sci, knownOpts, con );
+                        SOCLocalRobotClient.createAndStartRobotClientThread( "extrabot " + i, sci, con );
                     }
                 }
                 catch( Exception e )
