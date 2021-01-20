@@ -49,6 +49,7 @@ import soc.game.SOCRoad;
 import soc.game.SOCSettlement;
 import soc.game.SOCTradeOffer;
 import soc.message.SOCBuildRequest;
+import soc.message.SOCChangeFace;
 import soc.message.SOCChoosePlayer;
 import soc.message.SOCGameServerText;
 import soc.communication.SOCClientData;
@@ -182,10 +183,10 @@ public class TestRecorder
         System.out.flush();
         System.out.println(sb);
         System.out.flush();
-
-        assertNull
-            ("resume loaded game; if trouble, search output for \"--- Resuming loaded game\"",
-             server.resumeReloadedGame(cliConn, ga));
+        try {Thread.sleep(180 ); } catch( InterruptedException ignored ){}
+        String answer = server.resumeReloadedGame( cliConn, ga );
+        assertNull("resume loaded game; if trouble, search output for \"--- Resuming loaded game\"",
+             answer );
                 // note: SOCServer.RESUME_RELOADED_FETCHING_ROBOTS counts as "trouble" here because
                 // unit test should have connected all "human" players already before calling this method
                 // to prevent timing/gamestate-assert problems
@@ -534,23 +535,23 @@ public class TestRecorder
         tcli.init();
         assertEquals(clientName, tcli.getNickname());
 
-        try { Thread.sleep(120); }
+        try { Thread.sleep(180); }
         catch(InterruptedException e) {}
         assertEquals("get version from test SOCServer", Version.versionNumber(), tcli.getServerVersion());
 
-        final DisplaylessTesterClient tcli2;
+        final DisplaylessTesterClient testerClient;
         if (client2Name != null)
         {
-            tcli2 = new DisplaylessTesterClient
+            testerClient = new DisplaylessTesterClient
                 (Server.ROBOT_ENDPOINT, client2Name, null, clientKnownOpts);
-            tcli2.init();
-            assertEquals(client2Name, tcli2.getNickname());
+            testerClient.init();
+            assertEquals(client2Name, testerClient.getNickname());
 
             try { Thread.sleep(120); }
             catch(InterruptedException e) {}
-            assertEquals("get version from test SOCServer", Version.versionNumber(), tcli2.getServerVersion());
+            assertEquals("get version from test SOCServer", Version.versionNumber(), testerClient.getServerVersion());
         } else {
-            tcli2 = null;
+            testerClient = null;
         }
 
         final SavedGameModel sgm = (gameArtifactSGM != null)
@@ -620,19 +621,19 @@ public class TestRecorder
         if (clientAsRobot && othersAsRobot)
             ga.isBotsOnly = true;
 
-        if (tcli2 != null)
+        if (testerClient != null)
         {
-            tcli2.askJoinGame(loadedName);
+            testerClient.askJoinGame(loadedName);
 
             // wait to join in client's thread
-            try { Thread.sleep(150); }
+            try { Thread.sleep(1500 ); }
             catch(InterruptedException e) {}
 
             assertTrue("cli2 member of reloaded game?", server.getGameList().isMember(tcli2Conn, loadedName));
 
-            tcli2.sitDown(ga, client2PN);
+            testerClient.sitDown(ga, client2PN);
 
-            try { Thread.sleep(90); }
+            try { Thread.sleep(30000 ); }
             catch(InterruptedException e) {}
 
             // checks results soon: ga.getPlayer(client2PN) below
@@ -665,15 +666,23 @@ public class TestRecorder
             if (tcli2Conn != null)
                 tcli2Conn.setI18NStringManager(null, null);
         }
+        try { Thread.sleep(500); } catch(InterruptedException e) {}
         for (int pn = 0; pn < ga.maxPlayers; ++pn)
-            if ((pn != clientPN) && (! ga.isSeatVacant(pn)) && ((client2Name == null) || (pn != client2PN)))
-                ga.getPlayer(pn).setRobotFlag(othersAsRobot, othersAsRobot);
+        {
+            if (   (pn != clientPN)
+                && (!ga.isSeatVacant( pn ))
+                && (   (client2Name == null)
+                    || (pn != client2PN)))
+            {
+                ga.getPlayer( pn ).setRobotFlag( othersAsRobot, othersAsRobot );
+            }
+        }
 
+        try { Thread.sleep(500); } catch(InterruptedException e) {}
         if (withResume)
         {
             resumeLoadedGame(ga, server, tcliConn);
-            try { Thread.sleep(120); }
-            catch(InterruptedException e) {}
+            try { Thread.sleep(180); } catch(InterruptedException e) {}
 
             assertEquals(SOCGame.PLAY1, ga.getGameState());
         }
@@ -682,7 +691,7 @@ public class TestRecorder
         assertNotNull("record queue for game", records);
 
         return new StartedTestGameObjects
-            (tcli, tcli2, tcliConn, tcli2Conn, sgm, ga, ga.getBoard(), cliPl, cli2Pl, records);
+            (tcli, testerClient, tcliConn, tcli2Conn, sgm, ga, ga.getBoard(), cliPl, cli2Pl, records);
     }
 
     /**
@@ -720,13 +729,12 @@ public class TestRecorder
         assertEquals(5, cliPl.getInventory().getTotal());
         tcli.buyDevCard(ga);
 
-        try { Thread.sleep(60); }
+        try { Thread.sleep(500); }
         catch(InterruptedException e) {}
         assertEquals(22, ga.getNumDevCards());
         assertEquals(6, cliPl.getInventory().getTotal());
 
-        StringBuilder comparesBuyCard = compareRecordsToExpected
-            (records, new String[][]
+        StringBuilder comparesBuyCard = compareRecordsToExpected( records, new String[][]
             {
                 {"all:SOCPlayerElements:", "|playerNum=3|actionType=LOSE|e2=1,e3=1,e4=1"},
                 {"all:SOCGameElements:", "|e2=22"},
@@ -745,8 +753,7 @@ public class TestRecorder
         assertEquals(Arrays.asList(SOCDevCardConstants.KNIGHT), cliPl.getDevCardsPlayed());
         tcli.playDevCard(ga, SOCDevCardConstants.KNIGHT);
 
-        try { Thread.sleep(60); }
-        catch(InterruptedException e) {}
+        try { Thread.sleep(500 ); } catch(InterruptedException e) {}
         assertTrue(cliPl.hasPlayedDevCard());
         assertEquals(2, cliPl.getNumKnights());
         assertEquals(Arrays.asList(SOCDevCardConstants.KNIGHT, SOCDevCardConstants.KNIGHT), cliPl.getDevCardsPlayed());
@@ -806,9 +813,9 @@ public class TestRecorder
      * @param records {@code ga}'s message records at test server; doesn't call {@link Vector#clear()}.
      * @return any discrepancies found by {@link #compareRecordsToExpected(List, String[][])}, or null if no differences
      */
-    public static StringBuilder buildRoadSequence
-        (final DisplaylessTesterClient tcli, final SOCGame ga, final SOCPlayer cliPl,
-         final Vector<QueueEntry> records, final boolean withBuildRequest)
+    public static StringBuilder buildRoadSequence( final DisplaylessTesterClient tcli,
+        final SOCGame ga, final SOCPlayer cliPl, final Vector<QueueEntry> records,
+        final boolean withBuildRequest )
     {
         final SOCBoard board = ga.getBoard();
         final String clientName = tcli.getNickname();
@@ -822,7 +829,7 @@ public class TestRecorder
         {
             tcli.buildRequest(ga, SOCPlayingPiece.ROAD);
 
-            try { Thread.sleep(60); }
+            try { Thread.sleep(500); }
             catch(InterruptedException e) {}
             assertEquals(SOCGame.PLACING_ROAD, ga.getGameState());
             assertArrayEquals(new int[]{2, 3, 3, 4, 3}, cliPl.getResources().getAmounts(false));
@@ -830,7 +837,7 @@ public class TestRecorder
 
         tcli.putPiece(ga, new SOCRoad(cliPl, ROAD_COORD, board));
 
-        try { Thread.sleep(60); }
+        try { Thread.sleep(1000); }
         catch(InterruptedException e) {}
         assertNotNull("road built", board.roadOrShipAtEdge(ROAD_COORD));
         assertEquals(11, cliPl.getNumPieces(SOCPlayingPiece.ROAD));
@@ -868,9 +875,9 @@ public class TestRecorder
      * @param seqPrefix null, or messages which start the sequence to be compared here
      * @return any discrepancies found by {@link #compareRecordsToExpected(List, String[][])}, or null if no differences
      */
-    public static StringBuilder moveRobberStealSequence
-        (final DisplaylessTesterClient tcli, final SOCGame ga, final SOCPlayer cliPl, final int observabilityMode,
-         final Vector<QueueEntry> records, final String[][] seqPrefix)
+    public static StringBuilder moveRobberStealSequence( final DisplaylessTesterClient tcli,
+        final SOCGame ga, final SOCPlayer cliPl, final int observabilityMode,
+        final Vector<QueueEntry> records, final String[][] seqPrefix)
         throws UnsupportedOperationException
     {
         assertTrue(ga.hasSeaBoard);
@@ -905,15 +912,17 @@ public class TestRecorder
         assertEquals(SOCGame.WAITING_FOR_ROBBER_OR_PIRATE, ga.getGameState());
         tcli.choosePlayer(ga, SOCChoosePlayer.CHOICE_MOVE_ROBBER);
 
-        try { Thread.sleep(60); }
+        try { Thread.sleep(500); }
         catch(InterruptedException e) {}
         assertEquals(SOCGame.PLACING_ROBBER, ga.getGameState());
+
         tcli.moveRobber(ga, cliPl, MOVE_ROBBER_STEAL_SEQUENCE_NEW_HEX);
 
-        try { Thread.sleep(70); }
+        try { Thread.sleep(500); }
         catch(InterruptedException e) {}
         assertEquals("new robberHex", MOVE_ROBBER_STEAL_SEQUENCE_NEW_HEX, board.getRobberHex());
         SOCMoveRobberResult robRes = ga.getRobberyResult();
+
         assertNotNull(robRes);
         final int resType = robRes.getLoot();
         assertTrue(resType > 0);
@@ -1040,13 +1049,19 @@ public class TestRecorder
         // preprocess: ignore/remove incidental rename message from artifact loading
         {
             ListIterator<QueueEntry> ri = records.listIterator();
-            while (ri.hasNext())
+            while( ri.hasNext())
             {
                 QueueEntry rec = ri.next();
-                if ((rec.toPN == SOCServer.PN_REPLY_TO_UNDETERMINED)
+                if (   (rec.toPN == SOCServer.PN_REPLY_TO_UNDETERMINED)     // -258
                     && (rec.event instanceof SOCGameServerText)
                     && ((SOCGameServerText) rec.event).getText().startsWith(GAME_RENAMED_TEXT_PREFIX))
+                {
                     ri.remove();
+                }
+                if (rec.event instanceof SOCChangeFace)
+                {
+                    ri.remove();
+                }
             }
         }
 
