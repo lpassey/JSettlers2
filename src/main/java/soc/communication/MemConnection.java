@@ -184,7 +184,8 @@ public class MemConnection extends Connection
         if (debugTraffic || D.ebugIsEnabled())
             soc.debug.D.ebugPrintlnINFO("OUT - " + data + " - " + socMessage.toString());
 
-        ourPeer.receive( socMessage );
+        if (null != ourPeer)
+            ourPeer.receive( socMessage );
     }
 
 
@@ -329,9 +330,15 @@ public class MemConnection extends Connection
         // let the remote-end know we're closing
         if (null != ourPeer)
         {
-            ourPeer.ourPeer = null; // prevent infinite loops
-            ourPeer.receive( new SOCDisconnect() );
-            ourPeer = null;
+            send( new SOCDisconnect());
+            // It's possible that the receiving thread set ourPeer to null just like we're doing
+            // here before we get a chance to do anything, so protect ourselves here.
+            if (ourPeer != null)
+            {
+                ourPeer.ourPeer = null; // prevent infinite loops
+                ourPeer.receive( new SOCDisconnect() );
+                ourPeer = null;
+            }
         }
         accepted.set( false );
         waitQueue.clear();
