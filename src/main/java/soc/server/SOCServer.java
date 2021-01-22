@@ -824,7 +824,7 @@ public class SOCServer extends Server
      * @see StringConnection
      * @since 1.1.00
      */
-    public static String PRACTICE_STRINGPORT = "SOCPRACTICE";
+//    public static String PRACTICE_STRINGPORT = "SOCPRACTICE";
 
     /**
      * For {@link #messageToPlayer(Connection, String, int, SOCMessage)} and similar methods,
@@ -1545,7 +1545,7 @@ public class SOCServer extends Server
      * any option defaults require a minimum client version, or if
      * {@link #hasSetGameOptions} is set.
      *
-     * @param s    the stringport that the server listens on.
+     * @param stringport    the stringport that the server listens on.
      *             If this is a "practice game" server on the user's local computer,
      *             please use {@link #PRACTICE_STRINGPORT}.
      * @param mc   the maximum number of connections allowed;
@@ -1560,13 +1560,13 @@ public class SOCServer extends Server
      * @see #SOCServer(String, Properties)
      * @since 1.1.00
      */
-    public SOCServer( String s, int mc, String databaseUserName, String databasePassword )
+    public SOCServer( String stringport )
         throws SocketException, EOFException, SQLException, IllegalStateException
     {
-        super(s, new SOCServerMessageDispatcher(), null);
+        super(stringport, new SOCServerMessageDispatcher(), null);
 
-        maxConnections = mc;
-        initSocServer( databaseUserName, databasePassword );
+        maxConnections = SOC_MAXCONN_DEFAULT;
+        initSocServer( null, null );
     }
 
     /**
@@ -7653,7 +7653,7 @@ public class SOCServer extends Server
          */
         if (!gameList.isGame( gameName ))
         {
-            if (((strSocketName == null) || !strSocketName.equals( PRACTICE_STRINGPORT ))
+            if (((strSocketName == null) || !strSocketName.equals( Connection.PRACTICE_STRINGPORT ))
                 && (loadedGame == null)
                 && (CLIENT_MAX_CREATE_GAMES >= 0)
                 && (CLIENT_MAX_CREATE_GAMES <= scd.getCurrentCreatedGames()))
@@ -8823,8 +8823,7 @@ public class SOCServer extends Server
      * @param stringsOnly  If true, send only localized strings, not entire {@link SOCScenarioInfo}.
      * @since 2.0.00
      */
-    void sendGameScenarioInfo
-    ( String scKey, final SOCScenario scData, final Connection c,
+    void sendGameScenarioInfo( String scKey, final SOCScenario scData, final Connection c,
         final boolean alwaysSend, final boolean stringsOnly )
     {
         if (scKey == null)
@@ -8904,7 +8903,6 @@ public class SOCServer extends Server
         scensSent.put( scKey, (stringsOnly) ? SOCClientData.SENT_SCEN_STRINGS : SOCClientData.SENT_SCEN_INFO );
 
         // Check for localized strings:
-
         String nm = null, desc = null;
 
         final boolean localeHasScenStrs;
@@ -8926,18 +8924,17 @@ public class SOCServer extends Server
             }
         }
 
-        String titleKey = "gamescen." + scKey + ".n";
-        String descKey = "gamescen." + scKey + ".d";
+        // Always send title and description in message even if the client localizes itself.
+        try
+        {
+            nm = c.getLocalized( "gamescen." + scKey + ".n" );
+            desc = c.getLocalized( "gamescen." + scKey + ".d" );
+        }
+        catch( MissingResourceException e )
+        {
+        }
         if (localeHasScenStrs)
         {
-            try
-            {
-                nm = c.getLocalized( titleKey );
-                desc = c.getLocalized( descKey );
-            }
-            catch( MissingResourceException e )
-            {
-            }
 
             if (scSend == null)
             {
@@ -8975,7 +8972,7 @@ public class SOCServer extends Server
 
         if (scSend != null)
         {
-            c.send( new SOCScenarioInfo( scSend, nm + ":" + titleKey, desc + ":" + descKey ));
+            c.send( new SOCScenarioInfo( scSend, nm, desc ));
         }
         else
         {

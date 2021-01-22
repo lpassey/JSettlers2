@@ -22,7 +22,7 @@
  **/
 package soc.communication;
 
-import soc.disableDebug.D;
+import soc.debug.D;
 import soc.message.SOCDisconnect;
 import soc.message.SOCMessage;
 
@@ -184,6 +184,8 @@ public final class NetConnection
                 // readUTF max message size is 65535 chars, modified utf-8 format
                 final String msgStr = in.readUTF();  // blocks until next message is available
                 SOCMessage socMessage = SOCMessage.toMsg(msgStr);
+                if (debugTraffic || D.ebugIsEnabled())
+                    soc.debug.D.ebugPrintlnINFO("IN - " + data + " - " + socMessage.toString());
                 if (socMessage instanceof SOCDisconnect)
                 {
                    disconnect();    // sets inputConnected = false, so this thread will now terminate

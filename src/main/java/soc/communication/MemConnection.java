@@ -21,7 +21,7 @@
  **/
 package soc.communication;
 
-import soc.disableDebug.D;
+import soc.debug.D;
 import soc.message.SOCDisconnect;
 import soc.message.SOCMessage;
 import soc.server.genericServer.Server;
@@ -133,6 +133,8 @@ public class MemConnection extends Connection
      */
     public boolean receive( SOCMessage receivedMessage )
     {
+        if (debugTraffic || D.ebugIsEnabled())
+            soc.debug.D.ebugPrintlnINFO("IN - " + data + " - " + receivedMessage.toString());
         try
         {
             waitQueue.put( receivedMessage );

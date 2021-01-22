@@ -233,7 +233,7 @@ import soc.util.Version;
                     throw new IllegalStateException("Packaging error: Cannot determine JSettlers version");
                 }
 
-                localServer = new SOCServer(SOCServer.PRACTICE_STRINGPORT, SOCServer.SOC_MAXCONN_DEFAULT, null, null);
+                localServer = new SOCServer( Connection.PRACTICE_STRINGPORT );
                 localServer.setPriority(5);  // same as in SOCServer.main
                 localServer.start();
 
@@ -283,7 +283,7 @@ import soc.util.Version;
         {
             // practice games always run with an in-memory connection, even if connected to a
             // local server supporting TCP connections.
-            prCli = MemServerSocket.connectTo( SOCServer.PRACTICE_STRINGPORT, (MemConnection) prCli );
+            prCli = MemServerSocket.connectTo( Connection.PRACTICE_STRINGPORT, (MemConnection) prCli );
             if (client.debugTraffic)
             {
                 prCli.setData( "client" );
@@ -334,7 +334,7 @@ import soc.util.Version;
     {
         try
         {
-            localServer = new SOCServer(tport, SOCServer.SOC_MAXCONN_DEFAULT, null, null);
+            localServer = new SOCServer( tport, SOCServer.SOC_MAXCONN_DEFAULT, null, null );
             localServer.setPriority(5);  // same as in SOCServer.main
             localServer.start();
         }
@@ -392,7 +392,7 @@ import soc.util.Version;
         Connection memConnection;
         try
         {
-            memConnection = MemServerSocket.connectTo( SOCServer.PRACTICE_STRINGPORT, null );
+            memConnection = MemServerSocket.connectTo( Connection.PRACTICE_STRINGPORT, null );
         }
         catch( ConnectException e )
         {
@@ -403,6 +403,7 @@ import soc.util.Version;
             memConnection.setData( "client" );
             memConnection.setDebugTraffic( true );
         }
+        serverConnectInfo = new ServerConnectInfo( Connection.PRACTICE_STRINGPORT, null);
         client.setConnection( memConnection );
         memConnection.startMessageProcessing( client.getMessageHandler() );  // Reader will start its own thread
 

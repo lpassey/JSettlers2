@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import soc.game.SOCGame;  // strictly for passthrough in getLocalizedSpecial, and javadocs; not used otherwise
 import soc.message.SOCMessage;
+import soc.server.SOCServer;
 import soc.server.genericServer.*;
 import soc.util.SOCStringManager;
 
@@ -80,10 +81,20 @@ public abstract class Connection implements Runnable
     public final static int MAX_MESSAGE_SIZE_UTF8 = 0xFFFF;
 
     /**
+     * Default maximum number of connected clients (40; {@link #maxConnections} field;
+     * {@link #PROP_JSETTLERS_CONNECTIONS} property).
+     * Always at least 20 more than {@link #SOC_STARTROBOTS_DEFAULT}.
+     * @since 1.1.15
+     */
+    public static final int SOC_MAXCONN_DEFAULT = Math.max( 40, 20 + SOCServer.SOC_STARTROBOTS_DEFAULT );
+
+    public static String PRACTICE_STRINGPORT = "JVM";
+    /**
      * The key (client "name") associated with this connection, or {@code null}.
      *<P>
      * Before v1.2.0, this field was an Object and could contain any arbitrary key data.
      */
+
     protected String data;
 
     /** Active connection, server has called accept, and not disconnected yet */

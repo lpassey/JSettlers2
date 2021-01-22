@@ -55,7 +55,7 @@ public class ServerConnectInfo
      * using {@link MemConnection}, or {@code null} when using TCP {@link #port} instead.
      * Can be used by robots in local practice games.
      */
-//    public final String memSocketName;
+    public final String memSocketName;
 
     /**
      * Security cookie (weak shared secret) for robot connections to server.
@@ -74,7 +74,7 @@ public class ServerConnectInfo
     {
         hostname = host;
         this.port = port;
-//        memSocketName = null;
+        memSocketName = null;
         robotCookie = cookie;
     }
 
@@ -87,8 +87,7 @@ public class ServerConnectInfo
     {
         hostname = null;
         port = 0;
-//        this.memSocketName = stringSocketName;
+        memSocketName = stringSocketName;
         robotCookie = cookie;
     }
-
 }
