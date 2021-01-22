@@ -74,7 +74,7 @@ public class TestLoadgame
     public static void setup()
         throws Exception
     {
-        srv = new SOCServer("dummy", 0, null, null);
+        srv = new SOCServer("dummy" );
 
         // - create the inactive game option used in bad-gameopt-inactive.game.json
         //   and testLoadInactiveGameopt, and no other unit test methods in this class

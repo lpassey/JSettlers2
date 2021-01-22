@@ -65,7 +65,7 @@ public class TestSavegame
     public static void setup()
         throws Exception
     {
-        srv = new SOCServer("dummy", 0, null, null);
+        srv = new SOCServer("dummy" );
     }
 
     /** This folder and all contents are created at start of each test method, deleted at end of it */
