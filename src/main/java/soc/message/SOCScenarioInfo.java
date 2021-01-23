@@ -133,14 +133,6 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     private static final long serialVersionUID = 2450L;  // last structural change v2.4.50
 
     /**
-     * If an older client is asking for any changed/new scenarios,
-     * server responds with set of SCENARIOINFOs. Mark end of this list with a
-     * SCENARIOINFO named "-". At the client this sets the {@link #noMoreScens} flag.
-     */
-//    public static final SOCScenarioInfo SCENINFO_NO_MORE_SCENS
-//        = new SOCScenarioInfo( null, null, null );
-
-    /**
      * {@link #scKey} marker {@code "?"} from client to ask for any new or changed scenarios
      * between the client and server versions. When present, this must be the last item in the parameter list.
      * The server will reply with a sequence of messages with scenario info, and a sequence-ending empty message
@@ -174,9 +166,6 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
      * @since 2.4.50
      */
     private static final String STR_MARKER_KEY_UNKNOWN = Integer.toString( MARKER_KEY_UNKNOWN );
-
-    /** True if this message is scenario info from server, not a request from client. */
-//    public final boolean isFromServer;
 
     /**
      * Parsed scenario from server ({@link #getScenario()}),
@@ -226,7 +215,6 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
         super( SCENARIOINFO, new ArrayList<String>() );
 
         noMoreScens = (sc == null); // we have to do this here as it is marked as a final variable.
-//        isFromServer = true;
         isKeyUnknown = false;
 
         scen = sc;
@@ -279,7 +267,6 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
         if (!isSingleLineAndSafe( scKey ))
             throw new IllegalArgumentException( "scKey: " + scKey );
 
-//        isFromServer = isServerReply;
         noMoreScens = false;
         isKeyUnknown = isServerReply;
         this.scKey = scKey;
