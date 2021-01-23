@@ -36,7 +36,6 @@ import soc.message.*;
 
 import soc.communication.MemServerSocket;
 
-import soc.server.genericServer.Server;
 import soc.util.CappedQueue;
 import soc.util.CutoffExceededException;
 import soc.util.DebugRecorder;
@@ -336,14 +335,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     {
         try
         {
-//            if (serverConnectInfo.memSocketName == null)
-            {
-                connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT, null );
-            }
-//            else
-//            {
-//                connection = MemServerSocket.connectTo( serverConnectInfo.memSocketName );
-//            }
+            connection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null );
+            if (D.ebugIsEnabled())
+                connection.setDebugTraffic( true );
             connection.setData( nickname );
             connection.startMessageProcessing( this );
             connected = true;
@@ -356,8 +350,6 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                     throw new IllegalStateException( "buildClientFeats() must not return null" );
             }
 
-            //resetThread = new SOCRobotResetThread(this);
-            //resetThread.start();
             connection.send( new SOCVersion( Version.versionNumber(), Version.version(), Version.buildnum(),
                 cliFeats.getEncodedList(), null ));
             connection.send( new SOCImARobot( nickname, serverConnectInfo.robotCookie, rbclass ));
@@ -387,7 +379,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                 connected = false;
                 {
                     connection.disconnect();
-                    connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT, null );
+                    connection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null );
                     connection.setData( nickname  );
                     connection.startMessageProcessing( this );
                 }
@@ -406,8 +398,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             {
                 ex = e;
                 System.err.println( "disconnectReconnect error: " + ex );
-                if (attempt > 0)
-                    System.err.println( "-> Retrying" );
+                System.err.println( "-> Retrying" );
             }
         }
 

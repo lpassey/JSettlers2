@@ -92,8 +92,6 @@ import soc.server.SOCServer;
 @SuppressWarnings("serial")  // not expecting to persist an instance between versions
 public abstract class Server extends Thread implements Serializable, Cloneable
 {
-    public static final String ROBOT_ENDPOINT = "JVM";
-
     /*
       We need both of these endpoints, because robots exist on the server side so they only
       talk to the server via an in-memory connection, not via a network (TCP) connection
@@ -308,7 +306,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         try
         {
             serverSocket = new NetServerSocket( port );
-            localSocket = new MemServerSocket( ROBOT_ENDPOINT );
+            localSocket = new MemServerSocket( Connection.JVM_STRINGPORT );
         }
         catch( IOException e )
         {

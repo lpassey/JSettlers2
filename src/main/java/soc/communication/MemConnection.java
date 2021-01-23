@@ -21,7 +21,7 @@
  **/
 package soc.communication;
 
-import soc.debug.D;
+import soc.disableDebug.D;
 import soc.message.SOCDisconnect;
 import soc.message.SOCMessage;
 import soc.server.genericServer.Server;

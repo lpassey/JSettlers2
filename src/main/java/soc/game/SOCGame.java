@@ -805,7 +805,7 @@ public class SOCGame implements Serializable, Cloneable
      * or if connection instanceof {@link StringConnection}.
      *<P>
      * Since 1.1.09: This flag is set at the server, true only if the server is a local practice
-     * server whose stringport name equals {@code SOCServer.PRACTICE_STRINGPORT}.
+     * server whose stringport name equals {@code SOCServer.JVM_STRINGPORT}.
      *<P>
      * Before 1.1.13 this field was called {@code isLocal}, but that was misleading;
      * the full client can launch a locally hosted tcp LAN server.

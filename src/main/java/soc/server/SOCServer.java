@@ -818,15 +818,6 @@ public class SOCServer extends Server
     public static int CLIENT_MAX_CREATE_CHANNELS = 2;
 
     /**
-     * For local practice games (pipes, not TCP), the name of the pipe.
-     * Used to distinguish practice vs "real" games.
-     *
-     * @see StringConnection
-     * @since 1.1.00
-     */
-//    public static String PRACTICE_STRINGPORT = "SOCPRACTICE";
-
-    /**
      * For {@link #messageToPlayer(Connection, String, int, SOCMessage)} and similar methods,
      * "event playerNumber" parameter value to indicate message isn't an event and shouldn't be recorded.
      *<P>
@@ -7653,7 +7644,7 @@ public class SOCServer extends Server
          */
         if (!gameList.isGame( gameName ))
         {
-            if (((strSocketName == null) || !strSocketName.equals( Connection.PRACTICE_STRINGPORT ))
+            if (((strSocketName == null) || !strSocketName.equals( Connection.JVM_STRINGPORT ))
                 && (loadedGame == null)
                 && (CLIENT_MAX_CREATE_GAMES >= 0)
                 && (CLIENT_MAX_CREATE_GAMES <= scd.getCurrentCreatedGames()))

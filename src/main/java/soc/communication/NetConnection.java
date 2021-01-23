@@ -22,11 +22,9 @@
  **/
 package soc.communication;
 
-import soc.debug.D;
+import soc.disableDebug.D;
 import soc.message.SOCDisconnect;
 import soc.message.SOCMessage;
-
-// TODO: we need to break this dependency!
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

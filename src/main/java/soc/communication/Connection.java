@@ -88,7 +88,7 @@ public abstract class Connection implements Runnable
      */
     public static final int SOC_MAXCONN_DEFAULT = Math.max( 40, 20 + SOCServer.SOC_STARTROBOTS_DEFAULT );
 
-    public static String PRACTICE_STRINGPORT = "JVM";
+    public static String JVM_STRINGPORT = "JVM";
     /**
      * The key (client "name") associated with this connection, or {@code null}.
      *<P>
