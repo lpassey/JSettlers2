@@ -104,31 +104,21 @@ public final class MessageHandler implements SOCMessageDispatcher
      * @param mes    the message
      * @param connection  The peer connection that sent the message
      */
-    @SuppressWarnings("ConstantConditions")
     public void handle( SOCMessage mes, Connection connection )
     {
         if (mes == null)
             return;  // Parsing error
 
-        if (client.debugTraffic || D.ebugIsEnabled())
-            soc.debug.D.ebugPrintlnINFO("IN - client - " + mes.toString());
-
         try
         {
-            final String gaName;
-            final SOCGame ga;
+            SOCGame ga = null;
             if (mes instanceof SOCMessageForGame)
             {
-                gaName = ((SOCMessageForGame) mes).getGame();
+                final String gaName = ((SOCMessageForGame) mes).getGame();
                 ga = (gaName != null) ? client.games.get( gaName ) : null;
                 // Allows null gaName, for the few message types (like SOCScenarioInfo) which
                 // for convenience use something like SOCTemplateMs which extends SOCMessageForGame
                 // but aren't actually game-specific messages.
-            }
-            else
-            {
-                gaName = null;
-                ga = null;
             }
 
             switch (mes.getType())
@@ -253,7 +243,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              * game has been destroyed
              */
             case SOCMessage.DELETEGAME:
-                handleDELETEGAME((SOCDeleteGame) mes, connection);
+                handleDELETEGAME( (SOCDeleteGame) mes );
                 break;
 
             /**
@@ -1021,7 +1011,6 @@ public final class MessageHandler implements SOCMessageDispatcher
                 MainDisplay mdisp = client.getMainDisplay();
                 mdisp.channelList( mes.getChannels() );
                 mdisp.repaintGameAndChannelLists();
-                client.requestGameOptionDefaults();     // Send a message requesting default options from the server
             }
         } );
     }
@@ -1228,7 +1217,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      *
      * @param mes  the message
      */
-    protected void handleDELETEGAME(SOCDeleteGame mes, final Connection connection)
+    protected void handleDELETEGAME(SOCDeleteGame mes )
     {
         final String gaName = mes.getGame();
         // run on AWT event thread, not network thread, to avoid occasional ArrayIndexOutOfBoundsException
@@ -1466,6 +1455,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         if (newState == 0)
             return;
 
+        //noinspection ConstantConditions
         final boolean gameStarted = (ga.getGameState() == SOCGame.NEW) && (newState != SOCGame.NEW);
 
         ga.setGameState( newState );
@@ -2503,16 +2493,14 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     /*package*/ void handleGAMEOPTIONINFO( SOCGameOptionInfo mes )
     {
-        ServerGametypeInfo opts = client.gameOpts;
-
         boolean hasAllNow;
-        synchronized (opts)
+        synchronized (client.gameOpts)
         {
-            hasAllNow = opts.receiveInfo( mes, client.strings );
+            hasAllNow = client.gameOpts.receiveInfo( mes, client.strings );
         }
 
         boolean isDash = mes.getOptionNameKey().equals( "-" );  // I18N OK: do not localize "-" or any other keyname
-        client.getMainDisplay().optionsReceived( opts, isDash, hasAllNow );
+        client.getMainDisplay().optionsReceived( client.gameOpts, isDash, hasAllNow );
     }
 
     /**
