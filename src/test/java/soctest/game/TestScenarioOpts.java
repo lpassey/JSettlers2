@@ -28,6 +28,7 @@ import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
 import soc.game.SOCScenario;
 import soc.message.SOCMessage;
+import soc.server.SOCServerGameOptionSet;
 import soc.server.SOCServerScenario;
 
 /**
@@ -56,7 +57,7 @@ public class TestScenarioOpts
 
         try
         {
-            sc = new SOCScenario("SC_TEST", 2000, -1, "desc", null, "-");
+            new SOCScenario("SC_TEST", 2000, -1, "desc", null, "-");
         }
         catch (IllegalArgumentException e) {
             fail("SOCScenario constructor accepts '-' gameopt");
@@ -64,17 +65,17 @@ public class TestScenarioOpts
 
         try
         {
-            sc = new SOCScenario("SC_TEST", 2000, -1, "desc", null, null);
+            new SOCScenario("SC_TEST", 2000, -1, "desc", null, null);
             fail("SOCScenario constructor rejects null opt");
         }
-        catch (IllegalArgumentException e) {}  // is expected
+        catch (IllegalArgumentException ignore) {}  // is expected
 
         try
         {
-            sc = new SOCScenario("SC_TEST", 2000, -1, "desc", null, "");
+            new SOCScenario("SC_TEST", 2000, -1, "desc", null, "");
             fail("SOCScenario constructor rejects empty opt");
         }
-        catch (IllegalArgumentException e) {}  // is expected
+        catch (IllegalArgumentException ignore) {}  // is expected
 
     }
 
@@ -89,7 +90,7 @@ public class TestScenarioOpts
         assertNull(SOCScenario.getScenario("_TESTF"));
         final SOCScenario newKnown = new SOCScenario("_TESTF", 2100, -1, "desc", null, "-");
         SOCScenario.addKnownScenario(newKnown);
-        assertTrue(newKnown == SOCScenario.getScenario("_TESTF"));
+        assertSame( newKnown, SOCScenario.getScenario( "_TESTF" ) );
 
         // cleanup/remove known
         SOCScenario.removeUnknownScenario("_TESTF");
@@ -103,7 +104,7 @@ public class TestScenarioOpts
     @Test
     public void testAllScenarios()
     {
-        final SOCGameOptionSet knownOpts = SOCGameOptionSet.getAllKnownOptions();
+        final SOCGameOptionSet knownOpts = SOCServerGameOptionSet.getAllKnownOptions();
         final TreeSet<String> badScens = new TreeSet<>(); // use TreeSet for sorted results
 
         for (final SOCScenario sc : SOCServerScenario.getAllKnownScenarios().values())
@@ -116,7 +117,7 @@ public class TestScenarioOpts
                 final SOCGameOptionSet parsedOpts = SOCGameOption.parseOptionsToSet(sc.scOpts, knownOpts);
                     // will be null if any opts failed parsing
 
-                StringBuilder sb = null;
+                StringBuilder sb;
                 // Look for unknown opts; may clip value of out-of-range opts.
                 // This same pre-check is done by TestBoardLayouts.testSingleLayout(..)
                 if (parsedOpts != null)

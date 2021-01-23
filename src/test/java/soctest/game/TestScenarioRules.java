@@ -25,7 +25,6 @@ import java.util.Random;
 
 import soc.game.SOCCity;
 import soc.game.SOCGame;
-import soc.game.SOCGameOptionSet;
 import soc.game.SOCMoveRobberResult;
 import soc.game.SOCPlayer;
 import soc.game.SOCResourceConstants;
@@ -37,6 +36,8 @@ import soc.server.SOCGameListAtServer;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import soc.server.SOCServerGameOptionSet;
+
 import static org.junit.Assert.*;
 
 /**
@@ -56,7 +57,7 @@ public class TestScenarioRules
     public static void setup()
     {
         sgh = new SOCGameHandler(null);
-        gl = new SOCGameListAtServer(new Random(), SOCGameOptionSet.getAllKnownOptions());
+        gl = new SOCGameListAtServer(new Random(), SOCServerGameOptionSet.getAllKnownOptions());
     }
 
     /**

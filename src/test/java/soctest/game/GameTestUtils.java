@@ -26,6 +26,7 @@ import soc.game.SOCGameOptionSet;
 import soc.server.SOCBoardAtServer;
 import soc.server.SOCGameHandler;
 import soc.server.SOCGameListAtServer;
+import soc.server.SOCServerGameOptionSet;
 
 import static org.junit.Assert.*;
 
@@ -63,7 +64,7 @@ public abstract class GameTestUtils
         (final int pl, final String scName, final String otherOpts, String gaName,
         final SOCGameListAtServer gl, final SOCGameHandler sgh)
     {
-        final SOCGameOptionSet knownOpts = SOCGameOptionSet.getAllKnownOptions();
+        final SOCGameOptionSet knownOpts = SOCServerGameOptionSet.getAllKnownOptions();
         if (gaName == null)
             gaName = "testGame";
 

@@ -25,6 +25,8 @@ import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
 import soc.game.SOCScenario;
 import soc.server.SOCGameHandler;
+import soc.server.SOCServer;
+import soc.server.SOCServerGameOptionSet;
 import soc.util.SOCFeatureSet;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -43,7 +45,7 @@ public class TestSOCGameHandler
     @Test
     public void testCalcGameClientFeaturesRequired()
     {
-        final SOCGameOptionSet knownOpts = SOCGameOptionSet.getAllKnownOptions();
+        final SOCGameOptionSet knownOpts = SOCServerGameOptionSet.getAllKnownOptions();
 
         /**
          * Game opts and expected resulting client features.

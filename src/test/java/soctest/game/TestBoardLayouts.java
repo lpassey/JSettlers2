@@ -45,6 +45,7 @@ import soc.game.SOCVersionedItem;  // for javadoc
 import soc.server.SOCBoardAtServer;
 import soc.server.SOCGameHandler;
 import soc.server.SOCGameListAtServer;
+import soc.server.SOCServerGameOptionSet;
 import soc.server.SOCServerScenario;
 
 /**
@@ -120,7 +121,7 @@ public class TestBoardLayouts
     {
         allScens = SOCServerScenario.getAllKnownScenarios();
         sgh = new SOCGameHandler(null);
-        gl = new SOCGameListAtServer(new Random(), SOCGameOptionSet.getAllKnownOptions());
+        gl = new SOCGameListAtServer(new Random(), SOCServerGameOptionSet.getAllKnownOptions());
     }
 
     /**
@@ -238,7 +239,7 @@ public class TestBoardLayouts
 
         for (int laNum = 1; laNum < lan.length; ++laNum)
         {
-            final Integer laInt = Integer.valueOf(laNum);
+            final Integer laInt = laNum;
             final Integer[] nodes = lan[laNum].toArray(new Integer[0]);
             Arrays.sort(nodes);  // for stable, easy-to-browse output
             for (Integer nodeInt : nodes)
@@ -397,7 +398,7 @@ public class TestBoardLayouts
                     }
 
                     if (board.getHexTypeFromCoord(adjacHex) == SOCBoard.WATER_HEX)
-                        coastalWaterHexes.add(Integer.valueOf(adjacHex));
+                        coastalWaterHexes.add( adjacHex );
                 }
             }
         }

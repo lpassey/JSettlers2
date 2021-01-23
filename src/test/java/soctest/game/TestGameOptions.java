@@ -32,6 +32,7 @@ import soc.game.SOCDevCardConstants;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
 import soc.game.SOCVersionedItem;
+import soc.server.SOCServerGameOptionSet;
 import soc.util.SOCFeatureSet;
 import soc.util.Version;
 
@@ -55,7 +56,7 @@ public class TestGameOptions
     @BeforeClass
     public static void setup()
     {
-        knownOpts = SOCGameOptionSet.getAllKnownOptions();
+        knownOpts = SOCServerGameOptionSet.getAllKnownOptions();
     }
 
     /**
@@ -142,7 +143,7 @@ public class TestGameOptions
     @Test
     public void testAddKnownOption()
     {
-        final SOCGameOptionSet knowns = SOCGameOptionSet.getAllKnownOptions();
+        final SOCGameOptionSet knowns = SOCServerGameOptionSet.getAllKnownOptions();
 
         // add known opt
         assertNull(knowns.getKnownOption("_TESTF", false));
@@ -153,11 +154,11 @@ public class TestGameOptions
 
         // getOption without clone should be same object
         SOCGameOption opt = knowns.getKnownOption("_TESTF", false);
-        assertTrue(newKnown == opt);
+        assertSame( newKnown, opt );
 
         // getOption with clone should be different object with same field values
         opt = knowns.getKnownOption("_TESTF", true);
-        assertTrue(newKnown != opt);
+        assertNotSame( newKnown, opt );
         assertNotNull(opt);
         assertEquals("_TESTF", opt.key);
         assertEquals(SOCGameOption.OTYPE_BOOL, opt.optType);
@@ -173,7 +174,7 @@ public class TestGameOptions
             {}
         };
         newKnown.addChangeListener(cl);
-        assertTrue(newKnown.getChangeListener() == cl);
+        assertSame( newKnown.getChangeListener(), cl );
 
         final SOCGameOption newKnown2 = new SOCGameOption
             ("_TESTF", 2000, 2000, false, 0, "Changed for unit test");
@@ -181,8 +182,8 @@ public class TestGameOptions
         assertFalse(hadNoOld);
 
         opt = knowns.getKnownOption("_TESTF", false);
-        assertTrue(newKnown2 == opt);
-        assertTrue("SGOSet.addKnownOption should copy ChangeListener ref", newKnown2.getChangeListener() == cl);
+        assertSame( newKnown2, opt );
+        assertSame( "SGOSet.addKnownOption should copy ChangeListener ref", newKnown2.getChangeListener(), cl );
 
         // cleanup/remove known opt, by adding unknown opt
         hadNoOld = knowns.addKnownOption(new SOCGameOption("_TESTF"));
@@ -197,7 +198,7 @@ public class TestGameOptions
     @Test
     public void testFlagInternalGameProperty()
     {
-        final SOCGameOptionSet knowns = SOCGameOptionSet.getAllKnownOptions();
+        final SOCGameOptionSet knowns = SOCServerGameOptionSet.getAllKnownOptions();
 
         // setup
         final SOCGameOption newKnown = new SOCGameOption
@@ -233,7 +234,7 @@ public class TestGameOptions
     public void testFlagInactiveActivate()
     {
         final int TEST_CLI_VERSION = 2100;
-        final SOCGameOptionSet knowns = SOCGameOptionSet.getAllKnownOptions();
+        final SOCGameOptionSet knowns = SOCServerGameOptionSet.getAllKnownOptions();
 
         // setup:
         // - an option changed after client version 2100:
@@ -459,7 +460,7 @@ public class TestGameOptions
     public void testOptionsNewerThanVersion()
     {
         final int currVers = Version.versionNumber();
-        final SOCGameOptionSet knowns = SOCGameOptionSet.getAllKnownOptions();
+        final SOCGameOptionSet knowns = SOCServerGameOptionSet.getAllKnownOptions();
 
         // client-side tests: checkValues=false, trimEnums=false
 
@@ -520,7 +521,7 @@ public class TestGameOptions
 
         // build a reasonable expected list
         Map<String, SOCGameOption> builtMap = new HashMap<>();
-        for (SOCGameOption opt : SOCGameOptionSet.getAllKnownOptions())
+        for (SOCGameOption opt : SOCServerGameOptionSet.getAllKnownOptions())
         {
             if (((opt.lastModVersion > OLDER_VERSION) || opt.hasFlag(SOCGameOption.FLAG_ACTIVATED))
                 && ! opt.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN))
@@ -803,33 +804,31 @@ public class TestGameOptions
     public void testEquals()
     {
         SOCGameOption opt = knownOpts.getKnownOption("PL", true);
-        assertFalse(opt.equals(null));
-        assertTrue(opt.equals(opt));
 
         // int value
         SOCGameOption op2 = knownOpts.getKnownOption("PL", true);
-        assertTrue(opt.equals(op2));
+        assertEquals( opt, op2 );
         assertEquals(4, opt.getIntValue());
         op2.setIntValue(5);
-        assertFalse(opt.equals(op2));
+        assertNotEquals( opt, op2 );
 
         // bool value
         SOCGameOption optPLB = knownOpts.getKnownOption("PLB", true);
-        assertFalse(opt.equals(optPLB));
+        assertNotEquals( opt, optPLB );
         op2 = knownOpts.getKnownOption("PLB", true);
         assertFalse(op2.getBoolValue());
-        assertTrue(optPLB.equals(op2));
+        assertEquals( optPLB, op2 );
         op2.setBoolValue(true);
-        assertFalse(optPLB.equals(op2));
+        assertNotEquals( optPLB, op2 );
 
         // string value
         SOCGameOption optSC = knownOpts.getKnownOption("SC", true);
-        assertFalse(opt.equals(optSC));
+        assertNotEquals( opt, optSC );
         op2 = knownOpts.getKnownOption("SC", true);
         assertEquals("", optSC.getStringValue());
-        assertTrue(optSC.equals(op2));
+        assertEquals( optSC, op2 );
         op2.setStringValue("xyz");
-        assertFalse(optSC.equals(op2));
+        assertNotEquals( optSC, op2 );
     }
 
     public static void main(String[] args)

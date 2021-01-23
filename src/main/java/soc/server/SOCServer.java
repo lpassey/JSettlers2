@@ -895,7 +895,7 @@ public class SOCServer extends Server
      * Before v2.4.50, {@link SOCGameOption} relied on an internal static map and this field wasn't needed.
      * @since 2.4.50
      */
-    public final static SOCGameOptionSet startupKnownOpts = SOCGameOptionSet.getAllKnownOptions();
+    public final static SOCGameOptionSet startupKnownOpts = SOCServerGameOptionSet.getAllKnownOptions();
 
     /**
      * So we can get random numbers.

@@ -47,6 +47,7 @@ import soc.message.SOCGameElements.GEType;
 import soc.message.SOCPlayerElement.PEType;
 
 import org.junit.Test;
+import soc.server.SOCServerGameOptionSet;
 import soc.server.SOCServerScenario;
 
 import static org.junit.Assert.*;
@@ -65,7 +66,7 @@ import static org.junit.Assert.*;
  */
 public class TestToCmdToStringParse
 {
-    private static SOCGameOptionSet knownOpts = SOCGameOptionSet.getAllKnownOptions();
+    private static SOCGameOptionSet knownOpts = SOCServerGameOptionSet.getAllKnownOptions();
 
     /**
      * Round-trip parsing tests on messages listed in {@link #TOCMD_TOSTRING_COMPARES}.
@@ -107,28 +108,31 @@ public class TestToCmdToStringParse
             }
 
             String s = msg.toCmd();  // call even if not checking contents, to make sure no exception is thrown
-            if (expectedToCmd == null)
+            if (expectedToCmd != null)
             {
                 // that's fine, skip toCmd
-            }
-            else if (! s.equals(expectedToCmd))
-            {
-                res.append(" toCmd: expected \"" + expectedToCmd + "\", got \"" + s + "\"");
-            }
-            else
-            {
-                // finish round-trip compare msg -> toCmd() -> toMsg(cmd)
-                SOCMessage rev = SOCMessage.toMsg(s);
-                if (rev == null)
+                if (!s.equals( expectedToCmd ))
                 {
-                    res.append(" toMsg(cmd): got null");
-                } else if (! msgClass.isInstance(rev)) {
-                    res.append(" toMsg(cmd): got wrong class " + rev.getClass().getSimpleName());
-                } else {
-                    compareMsgObjFields(msgClass, msg, rev, res, ignoreObjFields);
+                    res.append( " toCmd: expected \"" + expectedToCmd + "\", got \"" + s + "\"" );
+                }
+                else
+                {
+                    // finish round-trip compare msg -> toCmd() -> toMsg(cmd)
+                    SOCMessage rev = SOCMessage.toMsg( s );
+                    if (rev == null)
+                    {
+                        res.append( " toMsg(cmd): got null" );
+                    }
+                    else if (!msgClass.isInstance( rev ))
+                    {
+                        res.append( " toMsg(cmd): got wrong class " + rev.getClass().getSimpleName() );
+                    }
+                    else
+                    {
+                        compareMsgObjFields( msgClass, msg, rev, res, ignoreObjFields );
+                    }
                 }
             }
-
             s = (parseOnly)
                 ? expectedToString
                 : msg.toString();  // call even if not checking contents, to make sure no exception is thrown

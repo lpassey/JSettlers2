@@ -28,6 +28,7 @@ import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
 import soc.message.*;
 import soc.communication.MemServerSocket;
+import soc.server.SOCServerGameOptionSet;
 import soc.server.genericServer.Server;
 import soc.util.SOCFeatureSet;
 import soc.util.SOCGameList;
@@ -81,7 +82,7 @@ public class DisplaylessTesterClient
         if (knownOpts != null)
             this.knownOpts = knownOpts;
         else
-            this.knownOpts = SOCGameOptionSet.getAllKnownOptions();
+            this.knownOpts = SOCServerGameOptionSet.getAllKnownOptions();
         serverGames = new SOCGameList( this.knownOpts );
         debugTraffic = true;
     }

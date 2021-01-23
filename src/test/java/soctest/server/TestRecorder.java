@@ -56,6 +56,7 @@ import soc.communication.SOCClientData;
 import soc.server.SOCGameHandler;
 import soc.server.SOCGameListAtServer;
 import soc.server.SOCServer;
+import soc.server.SOCServerGameOptionSet;
 import soc.server.genericServer.Server;
 import soc.server.savegame.SavedGameModel;
 import soc.util.SOCStringManager;
@@ -519,7 +520,7 @@ public class TestRecorder
                 assertTrue(opt.hasFlag(SOCGameOption.FLAG_ACTIVATED));
             }
 
-            clientKnownOpts = SOCGameOptionSet.getAllKnownOptions();
+            clientKnownOpts = SOCServerGameOptionSet.getAllKnownOptions();
             clientKnownOpts.activate(key);
 
             assertTrue("option activated at server: " + key, opt.hasFlag(SOCGameOption.FLAG_ACTIVATED));

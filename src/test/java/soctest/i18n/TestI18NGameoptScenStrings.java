@@ -42,6 +42,7 @@ import soc.game.SOCGameOptionSet;
 import soc.game.SOCScenario;
 import soc.message.SOCLocalizedStrings;
 import soc.message.SOCMessage;
+import soc.server.SOCServerGameOptionSet;
 import soc.server.SOCServerScenario;
 import soc.util.SOCStringManager;
 
@@ -70,7 +71,7 @@ public class TestI18NGameoptScenStrings
     public static void loadStrings()
     {
         sm = SOCStringManager.getServerManagerForClient(new Locale("en_US"));
-        allOpts = SOCGameOptionSet.getAllKnownOptions();
+        allOpts = SOCServerGameOptionSet.getAllKnownOptions();
         allScens = SOCServerScenario.getAllKnownScenarios();
     }
 
@@ -315,7 +316,8 @@ public class TestI18NGameoptScenStrings
         pname = pname.substring(0, pname.length() - ".properties".length());  // to use as prefix in loop
 
         boolean allOK = true;
-        for (final File f : dir.listFiles())
+        File[] listOfFiles = dir.listFiles();
+        if (null != listOfFiles) for (final File f : listOfFiles)
         {
             if (! f.getName().startsWith(pname))
                 continue;
