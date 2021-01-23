@@ -222,22 +222,26 @@ public class SOCServerGameOptionSet extends SOCGameOptionSet
         // I18N: Game option descriptions are also stored as gameopt.* in server/strings/toClient_*.properties
         //       to be sent to clients if needed.
 
-        final SOCGameOption optPL = new SOCGameOption
-            ( "PL", -1, 1108, 4, 2, 6, 0, "Maximum # players" );
+        final SOCGameOption optPL = new SOCGameOption(
+            "PL", -1, 1108, 4, 2, 6, 0,
+            "Maximum # players" );
         opts.add( optPL );
 
-        final SOCGameOption optPLB = new SOCGameOption
-            ( "PLB", 1108, 1113, false, FLAG_DROP_IF_UNUSED, "Use 6-player board" );
+        final SOCGameOption optPLB = new SOCGameOption(
+            "PLB", 1108, 1113, false, FLAG_DROP_IF_UNUSED,
+            "Use 6-player board" );
         optPLB.setClientFeature( SOCFeatureSet.CLIENT_6_PLAYERS );
         opts.add( optPLB );
 
-        final SOCGameOption optPLP = new SOCGameOption
-            ( "PLP", 1108, 2300, false, FLAG_DROP_IF_UNUSED, "6-player board: Can Special Build only if 5 or 6 players in game" );
+        final SOCGameOption optPLP = new SOCGameOption(
+            "PLP", 1108, 2300, false, FLAG_DROP_IF_UNUSED,
+            "6-player board: Can Special Build only if 5 or 6 players in game" );
         optPLP.setClientFeature( SOCFeatureSet.CLIENT_6_PLAYERS );
         opts.add( optPLP );
 
-        SOCGameOption optSBL = new SOCGameOption
-            ( "SBL", 2000, 2000, false, FLAG_DROP_IF_UNUSED, "Use sea board" );  // see also SOCBoardLarge
+        SOCGameOption optSBL = new SOCGameOption(
+            "SBL", 2000, 2000, false, FLAG_DROP_IF_UNUSED,
+            "Use sea board" );  // see also SOCBoardLarge
         optSBL.setClientFeature( SOCFeatureSet.CLIENT_SEA_BOARD );
         opts.add( optSBL );
 
@@ -326,154 +330,6 @@ public class SOCServerGameOptionSet extends SOCGameOptionSet
         // NEW_OPTION - Add opt.put here at end of list, and update the
         //       list of "current known options" in javadoc just above.
 
-        // ChangeListeners for client convenience:
-        // Remember that a new server version can't update this code at an older client:
-        // If you create a ChangeListener, also update adjustOptionsToKnown for server-side code.
-
-        // If PL goes over 4, set PLB.
-        optPL.addChangeListener( new SOCGameOption.ChangeListener()
-        {
-            public void valueChanged
-                ( final SOCGameOption op, Object oldValue, Object newValue,
-                    final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts )
-            {
-                if (!(oldValue instanceof Integer))
-                    return;  // ignore unless int
-                final int ov = (Integer) oldValue;
-                final int nv = (Integer) newValue;
-                if ((ov <= 4) && (nv > 4))
-                {
-                    SOCGameOption plb = currentOpts.get( "PLB" );
-                    if (plb == null)
-                        return;
-                    plb.setBoolValue( true );
-                    plb.refreshDisplay();
-                }
-            }
-        } );
-
-        // If PLB becomes unchecked, set PL to 4 if it's 5 or 6;
-        // if it becomes checked, set PL to 6 if <= 4, unless PL.userChanged already
-        optPLB.addChangeListener( new SOCGameOption.ChangeListener()
-        {
-            public void valueChanged
-                ( final SOCGameOption op, Object oldValue, Object newValue,
-                    final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts )
-            {
-                SOCGameOption pl = currentOpts.get( "PL" );
-                if (pl == null)
-                    return;
-                final int numPl = pl.getIntValue();
-                boolean refreshPl = false;
-
-                if (Boolean.TRUE.equals( newValue ))
-                {
-                    // PLB became checked; check PL 4 vs 6
-                    if ((numPl <= 4) && !pl.userChanged)
-                    {
-                        pl.setIntValue( 6 );
-                        refreshPl = true;
-                    }
-                }
-                else
-                {
-                    // PLB became unchecked
-
-                    if (numPl > 4)
-                    {
-                        pl.setIntValue( 4 );
-                        pl.userChanged = false;  // so re-check will set to 6
-                        refreshPl = true;
-                    }
-
-                    // numPl <= 4, so PLP doesn't apply
-                    SOCGameOption plp = currentOpts.get( "PLP" );
-                    if ((plp != null) && plp.getBoolValue() && !plp.userChanged)
-                    {
-                        plp.setBoolValue( false );
-                        plp.refreshDisplay();
-                    }
-                }
-
-                if (refreshPl)
-                    pl.refreshDisplay();
-            }
-        } );
-
-        // If PLP is set or cleared, also set or clear PLB unless user's already changed it
-        optPLP.addChangeListener( new SOCGameOption.ChangeListener()
-        {
-            public void valueChanged
-                ( final SOCGameOption op, Object oldValue, Object newValue,
-                    final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts )
-            {
-                final boolean changedTo = (Boolean.TRUE.equals( newValue ));
-
-                SOCGameOption plb = currentOpts.get( "PLB" );
-                if ((plb == null) || plb.userChanged || (changedTo == plb.getBoolValue()))
-                    return;
-
-                plb.setBoolValue( changedTo );
-                plb.refreshDisplay();
-            }
-        } );
-
-        // If SC (scenario) is chosen, also set SBL (use sea board)
-        // and VP (vp to win), unless already changed by user.
-        // This is for NGOF responsiveness during new-game option setup at the client:
-        // Game creation at the server doesn't rely on these updates.
-        // For game creation with scenario options, see adjustOptionsToKnown(doServerPreadjust=true).
-
-        optSC.addChangeListener( new SOCGameOption.ChangeListener()
-        {
-            public void valueChanged
-                ( final SOCGameOption optSc, Object oldValue, Object newValue,
-                    final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts )
-            {
-                final String newSC = optSc.getStringValue();
-                final boolean isScenPicked = optSc.getBoolValue() && (newSC.length() != 0);
-
-                // check/update #VP if scenario specifies it, otherwise revert to standard
-                SOCGameOption vp = currentOpts.get( "VP" );
-                if ((vp != null) && !vp.userChanged)
-                {
-                    int newVP = SOCGame.VP_WINNER_STANDARD;
-                    if (isScenPicked)
-                    {
-                        final SOCScenario scen = SOCScenario.getScenario( newSC );
-                        if (scen != null)
-                        {
-                            final Map<String, SOCGameOption> scenOpts =
-                                SOCGameOption.parseOptionsToMap( scen.scOpts, knownOpts );
-                            final SOCGameOption scOptVP = (scenOpts != null) ? scenOpts.get( "VP" ) : null;
-                            if (scOptVP != null)
-                                newVP = scOptVP.getIntValue();
-
-                            // TODO possibly update other scen opts, not just VP
-                        }
-                    }
-
-                    if (newVP != vp.getIntValue())
-                    {
-                        vp.setIntValue( newVP );
-                        vp.setBoolValue( newVP != SOCGame.VP_WINNER_STANDARD );
-                        vp.refreshDisplay();
-                    }
-                }
-
-                // check/update SBL
-                SOCGameOption sbl = currentOpts.get( "SBL" );
-                if ((sbl != null) && !sbl.userChanged)
-                {
-                    if (isScenPicked != sbl.getBoolValue())
-                    {
-                        sbl.setBoolValue( isScenPicked );
-                        sbl.refreshDisplay();
-                    }
-                }
-            }
-        } );
-
         /*
             // A commented-out debug option for testing convenience:
             // Un-comment to let client create games that no one can join.
@@ -533,6 +389,4 @@ public class SOCServerGameOptionSet extends SOCGameOptionSet
         // OBSOLETE OPTIONS, REMOVED OPTIONS - Move its opt.put down here, commented out,
         //       including the version, date, and reason of the removal.
     }
-
-
 }

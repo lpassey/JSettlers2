@@ -92,7 +92,7 @@ import soc.server.SOCServer;
 @SuppressWarnings("serial")  // not expecting to persist an instance between versions
 public abstract class Server extends Thread implements Serializable, Cloneable
 {
-    public static final String ROBOT_ENDPOINT = "SOCPRACTICE";
+    public static final String ROBOT_ENDPOINT = "JVM";
 
     /*
       We need both of these endpoints, because robots exist on the server side so they only

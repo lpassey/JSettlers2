@@ -72,6 +72,7 @@ import javax.swing.text.JTextComponent;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
+import soc.game.SOCScenario;
 import soc.message.SOCAuthRequest;
 import soc.message.SOCGameOptionGetDefaults;
 import soc.message.SOCGameOptionGetInfos;
@@ -1488,7 +1489,12 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         else if (target == newGameButton)  // "New Game" button
         {
             if (null != getValidNickname( true ))  // name check, but don't set nick field yet
+            {
+                if (!client.gameOpts.allOptionsReceived)
+                    client.requestGameOptionDefaults();     // Send a message requesting default options from the server
+
                 gameWithOptionsBeginSetup( false, false );  // Also may set status, WAIT_CURSOR
+            }
             else
                 nick.requestFocusInWindow();  // Not a valid player nickname
 
@@ -1625,6 +1631,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 if (target == practiceButton)
                     status.setText
                         ( client.strings.get( "pcli.message.startingpractice" ) );  // "Starting practice game setup..."
+                if (!client.gameOpts.allOptionsReceived)
+                    client.requestGameOptionDefaults();     // Send a message requesting default options from the server
 
                 gameWithOptionsBeginSetup( true, false );  // Also may set WAIT_CURSOR
             }
@@ -2413,8 +2421,170 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 // We've received all the default options, but haven't received all the scenarios.
                 // Ask for them now before showing the "New Game" dialog.
                 client.sendScenarioInfo( null );
+                return;
             }
-            else if (gameInfoWaiting != null)
+            // At this point we've received all the options from the server, including changes from
+            // scenarios. Add listeners for changes to these options in case the user wants to change
+            // one or more of them.
+
+            // ChangeListeners for client convenience:
+            // Remember that a new server version can't update this code at an older client:
+            // If you create a ChangeListener, also update adjustOptionsToKnown for server-side code.
+
+            // If PL ("Maximum # players") goes over 4, set PLB ("Use 6-player board").
+            SOCGameOption gameOption = opts.knownOpts.get( "PL" );
+            if (null != gameOption)
+            {
+                gameOption.addChangeListener( new SOCGameOption.ChangeListener()
+                {
+                    public void valueChanged( final SOCGameOption op, Object oldValue, Object newValue,
+                            final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts )
+                    {
+                        if (!(oldValue instanceof Integer))
+                            return;  // ignore unless int
+                        final int ov = (Integer) oldValue;
+                        final int nv = (Integer) newValue;
+                        if ((ov <= 4) && (nv > 4))
+                        {
+                            SOCGameOption plb = currentOpts.get( "PLB" );
+                            if (plb == null)
+                                return;
+                            plb.setBoolValue( true );
+                            plb.refreshDisplay();
+                        }
+                    }
+                } );
+            }
+
+            // If PLB ("Use 6-player board") becomes unchecked, set PL ("Maximum # players") to 4
+            // if it's 5 or 6; if it becomes checked, set PL to 6 if <= 4, unless PL.userChanged already
+            gameOption = opts.knownOpts.get( "PLB" );
+            if (null != gameOption)
+            {
+                gameOption.addChangeListener( new SOCGameOption.ChangeListener()
+                {
+                    public void valueChanged( final SOCGameOption op, Object oldValue, Object newValue,
+                        final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts )
+                    {
+                        SOCGameOption pl = currentOpts.get( "PL" );
+                        if (pl == null)
+                            return;
+                        final int numPl = pl.getIntValue();
+                        boolean refreshPl = false;
+
+                        if (Boolean.TRUE.equals( newValue ))
+                        {
+                            // PLB became checked; check PL 4 vs 6
+                            if ((numPl <= 4) && !pl.userChanged)
+                            {
+                                pl.setIntValue( 6 );
+                                refreshPl = true;
+                            }
+                        }
+                        else
+                        {
+                            // PLB became unchecked
+
+                            if (numPl > 4)
+                            {
+                                pl.setIntValue( 4 );
+                                pl.userChanged = false;  // so re-check will set to 6
+                                refreshPl = true;
+                            }
+
+                            // numPl <= 4, so PLP doesn't apply
+                            SOCGameOption plp = currentOpts.get( "PLP" );
+                            if ((plp != null) && plp.getBoolValue() && !plp.userChanged)
+                            {
+                                plp.setBoolValue( false );
+                                plp.refreshDisplay();
+                            }
+                        }
+
+                        if (refreshPl)
+                            pl.refreshDisplay();
+                    }
+                } );
+            }
+            // If PLP ("6-player board: Can Special Build only if 5 or 6 players in game")
+            // is set or cleared, also set or clear PLB unless user's already changed it
+            gameOption = opts.knownOpts.get( "PLP" );
+            if (null != gameOption)
+            {
+                gameOption.addChangeListener( new SOCGameOption.ChangeListener()
+                {
+                    public void valueChanged( final SOCGameOption op, Object oldValue, Object newValue,
+                        final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts )
+                    {
+                        final boolean changedTo = (Boolean.TRUE.equals( newValue ));
+
+                        SOCGameOption plb = currentOpts.get( "PLB" );
+                        if ((plb == null) || plb.userChanged || (changedTo == plb.getBoolValue()))
+                            return;
+
+                        plb.setBoolValue( changedTo );
+                        plb.refreshDisplay();
+                    }
+                } );
+            }
+            // If SC (scenario) is chosen, also set SBL (use sea board)
+            // and VP (vp to win), unless already changed by user.
+            // This is for NewGameOptionsFrame responsiveness during new-game option setup at the client:
+            // Game creation at the server doesn't rely on these updates.
+            // For game creation with scenario options, see adjustOptionsToKnown( doServerPreadjust=true).
+            gameOption = opts.knownOpts.get( "SC" );
+            if (null != gameOption)
+            {
+                gameOption.addChangeListener( new SOCGameOption.ChangeListener()
+                {
+                    public void valueChanged( final SOCGameOption optSc, Object oldValue, Object newValue,
+                        final SOCGameOptionSet currentOpts, final SOCGameOptionSet knownOpts )
+                    {
+                        final String newSC = optSc.getStringValue();
+                        final boolean isScenPicked = optSc.getBoolValue() && (newSC.length() != 0);
+
+                        // check/update #VP if scenario specifies it, otherwise revert to standard
+                        SOCGameOption vp = currentOpts.get( "VP" );
+                        if ((vp != null) && !vp.userChanged)
+                        {
+                            int newVP = SOCGame.VP_WINNER_STANDARD;
+                            if (isScenPicked)
+                            {
+                                final SOCScenario scen = SOCScenario.getScenario( newSC );
+                                if (scen != null)
+                                {
+                                    final Map<String, SOCGameOption> scenOpts =
+                                        SOCGameOption.parseOptionsToMap( scen.scOpts, knownOpts );
+                                    final SOCGameOption scOptVP = (scenOpts != null) ? scenOpts.get( "VP" ) : null;
+                                    if (scOptVP != null)
+                                        newVP = scOptVP.getIntValue();
+
+                                    // TODO possibly update other scen opts, not just VP
+                                }
+                            }
+
+                            if (newVP != vp.getIntValue())
+                            {
+                                vp.setIntValue( newVP );
+                                vp.setBoolValue( newVP != SOCGame.VP_WINNER_STANDARD );
+                                vp.refreshDisplay();
+                            }
+                        }
+
+                        // check/update SBL
+                        SOCGameOption sbl = currentOpts.get( "SBL" );
+                        if ((sbl != null) && !sbl.userChanged)
+                        {
+                            if (isScenPicked != sbl.getBoolValue())
+                            {
+                                sbl.setBoolValue( isScenPicked );
+                                sbl.refreshDisplay();
+                            }
+                        }
+                    }
+                } );
+            }
+            if (gameInfoWaiting != null)
             {
                 synchronized (opts)
                 {
