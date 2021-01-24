@@ -68,6 +68,13 @@ public class SOCGameOptionInfo extends SOCMessageTemplateMs
 {
     private static final long serialVersionUID = 2000L;
 
+    protected final boolean EOL;
+
+    public boolean isEndOfList()
+    {
+        return EOL;
+    }
+
     /**
      * If the client is asking for any new options by sending GAMEOPTIONGETINFOS("-"),
      * server responds with set of GAMEOPTIONINFOs. End of this list is marked with a
@@ -76,7 +83,7 @@ public class SOCGameOptionInfo extends SOCMessageTemplateMs
     public static final SOCGameOptionInfo OPTINFO_NO_MORE_OPTS
         = new SOCGameOptionInfo( new SOCGameOption( "-" ), 0, null );
 
-    protected SOCGameOption opt = null;
+    protected SOCGameOption opt;
 
     /**
      * Constructor for server to tell client about a game option.
@@ -93,6 +100,7 @@ public class SOCGameOptionInfo extends SOCMessageTemplateMs
 
         // OTYPE_*
         opt = op;
+        EOL = (op.key.equals( "-" ));
         /* [0] */
         pa.add( op.key );
         /* [1] */
@@ -173,6 +181,7 @@ public class SOCGameOptionInfo extends SOCMessageTemplateMs
         final String[] params = pal.toArray( new String[L] );
 
         // OTYPE_*
+        EOL = (params[0].equals( "-" ));
         int otyp = Integer.parseInt( params[1] );
         if ((otyp < SOCGameOption.OTYPE_MIN) || (otyp > SOCGameOption.OTYPE_MAX))
             otyp = SOCGameOption.OTYPE_UNKNOWN;
@@ -332,5 +341,4 @@ public class SOCGameOptionInfo extends SOCMessageTemplateMs
             return null;
         }
     }
-
 }

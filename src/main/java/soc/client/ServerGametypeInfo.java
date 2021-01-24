@@ -255,7 +255,7 @@ public class ServerGametypeInfo
 
         final boolean isUnknown = (gameOption.optType == SOCGameOption.OTYPE_UNKNOWN);
 
-        if ((gameOption.key.equals("-")) && isUnknown)
+        if (optionInfo.isEndOfList() && isUnknown)
         {
             // end-of-list marker: no more options from server.
             // That is end of srv's response to cli sending GAMEOPTIONGETINFOS("-").
