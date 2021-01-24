@@ -2217,6 +2217,7 @@ public final class MessageHandler implements SOCMessageDispatcher
     {
         switch (act)
         {
+        case SOCDevCardAction.ADD_NEW:
         case SOCDevCardAction.DRAW:
             player.getInventory().addDevCard( 1, SOCInventory.NEW, ctype );
             break;
@@ -2228,10 +2229,6 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         case SOCDevCardAction.ADD_OLD:
             player.getInventory().addDevCard( 1, SOCInventory.OLD, ctype );
-            break;
-
-        case SOCDevCardAction.ADD_NEW:
-            player.getInventory().addDevCard( 1, SOCInventory.NEW, ctype );
             break;
         }
     }
@@ -2465,8 +2462,8 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         if (unknowns != null)
         {
-            client.getMainDisplay().optionsRequested();
             connection.send( new SOCGameOptionGetInfos( unknowns, false, false) );
+            client.getMainDisplay().optionsRequested();
         }
         else
         {
@@ -2493,14 +2490,15 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     /*package*/ void handleGAMEOPTIONINFO( SOCGameOptionInfo mes )
     {
-        boolean hasAllNow;
+        boolean hasAllNow = false;      // Unnecessary initialization, added to make it clear what the default value is.
         synchronized (client.gameOpts)
         {
+            // returns true is "mes" is the end-of-list message, so there's no need to
+            // check for that flag explicitly
             hasAllNow = client.gameOpts.receiveInfo( mes, client.strings );
         }
 
-        boolean isDash = mes.getOptionNameKey().equals( "-" );  // I18N OK: do not localize "-" or any other keyname
-        client.getMainDisplay().optionsReceived( client.gameOpts, isDash, hasAllNow );
+        client.getMainDisplay().optionsReceived( client.gameOpts, hasAllNow );
     }
 
     /**
@@ -2612,14 +2610,15 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     private void handleSCENARIOINFO( final SOCScenarioInfo mes, Connection connection )
     {
+        // Tell everyone we've received all the scenario info.
+        synchronized (client.gameOpts)
+        {
+            client.gameOpts.allScenStringsReceived = true;
+            client.gameOpts.allScenInfoReceived = true;
+        }
         if (mes.noMoreScens)
         {
-            synchronized (client.gameOpts)
-            {
-                client.gameOpts.allScenStringsReceived = true;
-                client.gameOpts.allScenInfoReceived = true;
-                // collect all the options from the scenarios, and ask for the info for them.
-            }
+            // collect all the unknown options from the scenarios, and ask for the info for them.
             Map<String, SOCScenario> scens = client.getNet().getValidScenarios();
             List<String> unknowns = new ArrayList<>(  );
             for( SOCScenario scen : scens.values() )
@@ -2634,7 +2633,8 @@ public final class MessageHandler implements SOCMessageDispatcher
                     }
                 }
             }
-            // Check for any options added by a scenario. Also will trigger the callback to open the "New Game" dialog.
+            // Check for any options added by a scenario. Relies on handleGAMEOPTIONINFO() to
+            // open the "New Game" dialog.
             if ( ! unknowns.isEmpty())
             {
                 client.gameOpts.allOptionsReceived = false;
@@ -2642,8 +2642,15 @@ public final class MessageHandler implements SOCMessageDispatcher
                 connection.send( new SOCGameOptionGetInfos( unknowns, false, false ) );
             }
             else        // Trigger the callback to open the "New Game" dialog.
-                client.getMainDisplay().optionsReceived( client.gameOpts, true, true );
-
+            {
+                EventQueue.invokeLater( new Runnable()
+                {
+                    public void run()
+                    {
+                        client.getMainDisplay().optionsReceived( client.gameOpts, true );
+                    }
+                } );
+            }
         }
         else
         {

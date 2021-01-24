@@ -45,7 +45,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Collection;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -2380,8 +2379,18 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         }
     }
 
+    /**
+     * receive a notification that we've asked the server for option details.
+     */
     public void optionsRequested()
     {
+        // if we've asked for details, we must already know the default keys, so cancel the timeout
+        // task that waits for them
+        if (null != gameOptsDefsTask)
+        {
+            gameOptsDefsTask.cancel();
+            gameOptsDefsTask = null;
+        }
         gameOptionsSetTimeoutTask();
     }
 
@@ -2400,7 +2409,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         }
     }
 
-    public void optionsReceived( ServerGametypeInfo opts, boolean isDash, boolean hasAllNow )
+    public void optionsReceived( ServerGametypeInfo opts, boolean hasAllNow )
     {
         final boolean newGameWaiting;
         final String gameInfoWaiting;
@@ -2411,11 +2420,9 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             gameInfoWaiting = opts.gameInfoWaitingForOpts;
         }
 
-        if ((!isPractice) && isDash)
-            gameOptionsCancelTimeoutTask();
-
         if (hasAllNow)
         {
+            gameOptionsCancelTimeoutTask();
             if (!opts.allScenStringsReceived)
             {
                 // We've received all the default options, but haven't received all the scenarios.
@@ -3055,12 +3062,12 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      */
     private static class GameOptionsTimeoutTask extends TimerTask
     {
-        public SwingMainDisplay pcli;
+        public SwingMainDisplay mainDisplay;
         public ServerGametypeInfo srvOpts;
 
-        public GameOptionsTimeoutTask( SwingMainDisplay c, ServerGametypeInfo opts )
+        public GameOptionsTimeoutTask( SwingMainDisplay md, ServerGametypeInfo opts )
         {
-            pcli = c;
+            mainDisplay = md;
             srvOpts = opts;
         }
 
@@ -3070,9 +3077,9 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         @Override
         public void run()
         {
-            pcli.gameOptsTask = null;  // Clear reference to this soon-to-expire obj
+            mainDisplay.gameOptsTask = null;  // Clear reference to this soon-to-expire obj
             srvOpts.noMoreOptions( false );
-            pcli.getClient().getMessageHandler().handleGAMEOPTIONINFO(
+            mainDisplay.getClient().getMessageHandler().handleGAMEOPTIONINFO(
                 new SOCGameOptionInfo( new SOCGameOption( "-" ), Version.versionNumber(), null ));
         }
     }  // GameOptionsTimeoutTask
@@ -3092,13 +3099,13 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      */
     private static class GameOptionDefaultsTimeoutTask extends TimerTask
     {
-        public SwingMainDisplay pcli;
+        public SwingMainDisplay mainDisplay;
         public ServerGametypeInfo srvOpts;
         public boolean forPracticeServer;
 
-        public GameOptionDefaultsTimeoutTask( SwingMainDisplay c, ServerGametypeInfo opts, boolean forPractice )
+        public GameOptionDefaultsTimeoutTask( SwingMainDisplay md, ServerGametypeInfo opts, boolean forPractice )
         {
-            pcli = c;
+            mainDisplay = md;
             srvOpts = opts;
             forPracticeServer = forPractice;
         }
@@ -3109,10 +3116,10 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         @Override
         public void run()
         {
-            pcli.gameOptsDefsTask = null;  // Clear reference to this soon-to-expire obj
+            mainDisplay.gameOptsDefsTask = null;  // Clear reference to this soon-to-expire obj
             srvOpts.noMoreOptions( true );
             if (srvOpts.newGameWaitingForOpts)
-                pcli.gameWithOptionsBeginSetup( forPracticeServer, false );
+                mainDisplay.gameWithOptionsBeginSetup( forPracticeServer, false );
         }
     }  // GameOptionDefaultsTimeoutTask
 }

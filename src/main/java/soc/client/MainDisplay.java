@@ -331,12 +331,11 @@ public interface MainDisplay
      * were waiting, show a game info/options dialog for a new game or existing game.
      *
      * @param opts  Client's game option info, tracking the TCP or local practice server
-     * @param isDash  True if the game option was {@code "-"}, indicating the end of the list.
-     *     If so, no further options will be sent and any running timeout task related to the
-     *     game options can be cancelled.
-     * @param hasAllNow  If true, all game option info has now been received by the client
+     * @param hasAllNow  If true, all game option info has now been received by the client. No
+     *                   further options will be sent and any running timeout task related to the
+     *                   game options can be cancelled.
      */
-    void optionsReceived(ServerGametypeInfo opts, boolean isDash, boolean hasAllNow);
+    void optionsReceived( ServerGametypeInfo opts, boolean hasAllNow );
 
     /**
      * Callback for when the client player leaves a game and closes its {@link SOCPlayerInterface}.
