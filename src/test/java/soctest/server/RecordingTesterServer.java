@@ -25,10 +25,10 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.Vector;
 
+import soc.communication.Connection;
 import soc.message.SOCMessage;
 import soc.message.SOCServerPing;
 import soc.server.SOCServer;
-import soc.server.genericServer.Server;
 
 /**
  * Non-testing class: Server which records game events into {@link #records}
@@ -78,7 +78,7 @@ public class RecordingTesterServer
     public RecordingTesterServer()
         throws IllegalStateException
     {
-        super( Server.ROBOT_ENDPOINT, PROPS);
+        super( Connection.JVM_STRINGPORT, PROPS);
     }
 
     @Override

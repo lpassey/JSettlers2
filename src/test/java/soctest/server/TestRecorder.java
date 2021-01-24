@@ -57,7 +57,6 @@ import soc.server.SOCGameHandler;
 import soc.server.SOCGameListAtServer;
 import soc.server.SOCServer;
 import soc.server.SOCServerGameOptionSet;
-import soc.server.genericServer.Server;
 import soc.server.savegame.SavedGameModel;
 import soc.util.SOCStringManager;
 import soc.util.Version;
@@ -210,7 +209,7 @@ public class TestRecorder
         final String CLIENT_NAME = "testServerUp";
 
         assertNotNull(srv);
-        assertEquals( Server.ROBOT_ENDPOINT, srv.getLocalSocketName());
+        assertEquals( Connection.JVM_STRINGPORT, srv.getLocalSocketName());
 
         assertTrue("recordGameEvents shouldn't be stubbed out", srv.recordGameEventsIsActive());
 
@@ -218,8 +217,8 @@ public class TestRecorder
         assertTrue
             ("some bots are connected; actual nConn=" + nConn, nConn >= RecordingTesterServer.NUM_STARTROBOTS);
 
-        DisplaylessTesterClient tcli = new DisplaylessTesterClient
-            ( Server.ROBOT_ENDPOINT, CLIENT_NAME, null, null);
+        DisplaylessTesterClient tcli = new DisplaylessTesterClient( Connection.JVM_STRINGPORT,
+            CLIENT_NAME, null, null);
         tcli.init();
         try { Thread.sleep(120); }
         catch(InterruptedException e) {}
@@ -265,8 +264,8 @@ public class TestRecorder
 
         assertNotNull(server);
 
-        DisplaylessTesterClient tcli = new DisplaylessTesterClient
-            (Server.ROBOT_ENDPOINT, CLIENT_NAME, null, null);
+        DisplaylessTesterClient tcli = new DisplaylessTesterClient( Connection.JVM_STRINGPORT,
+            CLIENT_NAME, null, null);
         tcli.init();
         try { Thread.sleep(120); }
         catch(InterruptedException e) {}
@@ -320,8 +319,8 @@ public class TestRecorder
 
         assertNotNull(srv);
 
-        DisplaylessTesterClient tcli = new DisplaylessTesterClient
-            (Server.ROBOT_ENDPOINT, CLIENT_NAME, "es", null);
+        DisplaylessTesterClient tcli = new DisplaylessTesterClient( Connection.JVM_STRINGPORT,
+            CLIENT_NAME, "es", null);
         tcli.init();
         try { Thread.sleep(120); }
         catch(InterruptedException e) {}
@@ -531,8 +530,8 @@ public class TestRecorder
             observabilityOpt = null;
         }
 
-        final DisplaylessTesterClient tcli = new DisplaylessTesterClient
-            (Server.ROBOT_ENDPOINT, clientName, null, clientKnownOpts);
+        final DisplaylessTesterClient tcli = new DisplaylessTesterClient( Connection.JVM_STRINGPORT,
+            clientName, null, clientKnownOpts);
         tcli.init();
         assertEquals(clientName, tcli.getNickname());
 
@@ -543,8 +542,8 @@ public class TestRecorder
         final DisplaylessTesterClient testerClient;
         if (client2Name != null)
         {
-            testerClient = new DisplaylessTesterClient
-                (Server.ROBOT_ENDPOINT, client2Name, null, clientKnownOpts);
+            testerClient = new DisplaylessTesterClient( Connection.JVM_STRINGPORT, client2Name,
+                null, clientKnownOpts);
             testerClient.init();
             assertEquals(client2Name, testerClient.getNickname());
 

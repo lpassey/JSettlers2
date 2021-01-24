@@ -29,7 +29,6 @@ import soc.game.SOCGameOptionSet;
 import soc.message.*;
 import soc.communication.MemServerSocket;
 import soc.server.SOCServerGameOptionSet;
-import soc.server.genericServer.Server;
 import soc.util.SOCFeatureSet;
 import soc.util.SOCGameList;
 import soc.util.Version;
@@ -111,7 +110,7 @@ public class DisplaylessTesterClient
     {
         try
         {
-            connection = MemServerSocket.connectTo( Server.ROBOT_ENDPOINT, null );
+            connection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null );
             connected = true;
             connection.startMessageProcessing( this );
 
