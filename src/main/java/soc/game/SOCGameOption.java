@@ -352,7 +352,7 @@ public class SOCGameOption
      * <LI> {@link #OTYPE_STRHIDE} text string (like {@link #OTYPE_STR}) but hidden from view; is NOT encrypted.
      *</UL>
      */
-    public final int optType;  // OTYPE_* - if a new type is added, update this field's javadoc.
+    public int optType;  // OTYPE_* - if a new type is added, update this field's javadoc.
 
     /**
      * Sum of all of option's flags, if any, such as {@link #FLAG_DROP_IF_UNUSED}.
@@ -1085,6 +1085,7 @@ public class SOCGameOption
      *          if this option has no restriction.
      *          Enum values range from 1 to n, not from 0 to n-1.
      */
+    @SuppressWarnings("unused")
     public static int getMaxEnumValueForVersion( final String optKey, final int vers )
     {
         // SAMPLE CODE:
@@ -1144,8 +1145,8 @@ public class SOCGameOption
      * @see #parseOptionsToMap(String, SOCGameOptionSet)
      * @see #parseOptionsToSet(String, SOCGameOptionSet)
      */
-    public static String packKnownOptionsToString
-    ( final SOCGameOptionSet knownOpts, final boolean hideEmptyStringOpts, final boolean hideLongNameOpts )
+    public static String packKnownOptionsToString( final SOCGameOptionSet knownOpts,
+        final boolean hideEmptyStringOpts, final boolean hideLongNameOpts )
     {
         return packOptionsToString( knownOpts.getAll(), hideEmptyStringOpts, false, (hideLongNameOpts) ? -3 : -2 );
     }
@@ -1157,12 +1158,12 @@ public class SOCGameOption
      *<P>
      * For sending options to a client, use {@link #packOptionsToString(Map, boolean, boolean, int)} instead.
      *
-     * @param omap  Map of SOCGameOptions, or null
+     * @param gameOptionsMap  Map of SOCGameOptions, or null
      * @param hideEmptyStringOpts omit string-valued options which are empty?
      *            Suitable only for sending defaults.
-     * @param sortByKey  If true, sort the options by {@link SOCVersionedItem#key}
-     *            (using {@link String#compareTo(String)}) to make the returned string stable and canonical
-     * @return string of name-value pairs, or "-" for an empty or null {@code omap};
+     * @param sortByKey  If true, sort the options by {@link SOCVersionedItem#key} (using
+     *            {@link String#compareTo(String)}) to make the returned string stable and canonical
+     * @return string of name-value pairs, or "-" for an empty or null {@code gameOptionsMap};
      *     any gameoptions of {@link #OTYPE_UNKNOWN} will not be part of the string.
      *     Also skips any option which has {@link #FLAG_INACTIVE_HIDDEN}.
      *     <P>
@@ -1181,10 +1182,10 @@ public class SOCGameOption
      * @see #parseOptionNameValue(String, String, boolean, SOCGameOptionSet)
      * @see #packValue(StringBuilder)
      */
-    public static String packOptionsToString
-    ( final Map<String, SOCGameOption> omap, boolean hideEmptyStringOpts, final boolean sortByKey )
+    public static String packOptionsToString( final Map<String, SOCGameOption> gameOptionsMap,
+        boolean hideEmptyStringOpts, final boolean sortByKey )
     {
-        return packOptionsToString( omap, hideEmptyStringOpts, sortByKey, -2 );
+        return packOptionsToString( gameOptionsMap, hideEmptyStringOpts, sortByKey, -2 );
     }
 
     /**
@@ -1194,7 +1195,7 @@ public class SOCGameOption
      * or {@link #parseOptionsToSet(String, SOCGameOptionSet)}.
      * See {@link #packOptionsToString(Map, boolean, boolean)} javadoc for details.
      *
-     * @param omap  Map of SOCGameOptions, or null
+     * @param gameOptionsMap  Map of SOCGameOptions, or null
      * @param hideEmptyStringOpts omit string-valued options which are empty?
      *            Suitable only for sending defaults.
      * @param sortByKey  If true, sort the options by {@link SOCVersionedItem#key}
@@ -1204,25 +1205,25 @@ public class SOCGameOption
      *            Use -2 if the client version doesn't matter, or if adjustment should not be done.
      *            Use -3 to omit options with long names, and do no other adjustment;
      *               for use with clients older than {@link SOCGameOption#VERSION_FOR_LONGER_OPTNAMES}.
-     * @return string of name-value pairs, or "-" for an empty or null omap;
+     * @return string of name-value pairs, or "-" for an empty or null gameOptionsMap;
      *         see {@link #packOptionsToString(Map, boolean, boolean)} javadoc for details.
      * @see #packValue(StringBuilder)
      */
-    public static String packOptionsToString
-    ( final Map<String, SOCGameOption> omap, boolean hideEmptyStringOpts, final boolean sortByKey, final int cliVers )
+    public static String packOptionsToString( final Map<String, SOCGameOption> gameOptionsMap,
+        boolean hideEmptyStringOpts, final boolean sortByKey, final int cliVers )
     {
-        if ((omap == null) || omap.size() == 0)
+        if ((gameOptionsMap == null) || gameOptionsMap.size() == 0)
             return "-";
 
         // If the "PLB" option is set, old client versions
         //  may need adjustment of the "PL" option.
-        final boolean hasOptPLB = (cliVers > -2) && omap.containsKey( "PLB" )
-            && omap.get( "PLB" ).boolValue;
+        final boolean hasOptPLB = (cliVers > -2) && gameOptionsMap.containsKey( "PLB" )
+            && gameOptionsMap.get( "PLB" ).boolValue;
 
         // Pack all non-unknown options:
         StringBuilder sb = new StringBuilder();
         boolean hadAny = false;
-        Collection<SOCGameOption> opts = omap.values();
+        Collection<SOCGameOption> opts = gameOptionsMap.values();
         if (sortByKey)
         {
             ArrayList<SOCGameOption> olist = new ArrayList<>( opts );
@@ -1349,7 +1350,7 @@ public class SOCGameOption
         if ((ostr == null) || ostr.equals( "-" ))
             return null;
 
-        HashMap<String, SOCGameOption> ohash = new HashMap<>();
+        HashMap<String, SOCGameOption> gameOptionMap = new HashMap<>();
 
         StringTokenizer st = new StringTokenizer( ostr, SOCMessage.sep2 );
         String nvpair;
@@ -1359,10 +1360,10 @@ public class SOCGameOption
             SOCGameOption copyOpt = parseOptionNameValue( nvpair, false, knownOpts );
             if (copyOpt == null)
                 return null;  // parse error
-            ohash.put( copyOpt.key, copyOpt );
+            gameOptionMap.put( copyOpt.key, copyOpt );
         }  // while (moreTokens)
 
-        return ohash;
+        return gameOptionMap;
     }
 
     /**
@@ -1370,7 +1371,7 @@ public class SOCGameOption
      * For each pair in {@code ostr}, calls
      * {@link #parseOptionNameValue(String, boolean, SOCGameOptionSet) parseOptionNameValue(pair, false, knownOpts)}.
      *
-     * @param ostr string of name-value pairs, as created by {@link #packOptionsToString(Map, boolean, boolean)}.
+     * @param optionsString string of name-value pairs, as created by {@link #packOptionsToString(Map, boolean, boolean)}.
      *     A leading comma is OK (possible artifact of StringTokenizer coming from over the network).
      *     If ostr is "-", returned map will be null.
      * @param knownOpts  all Known Options
@@ -1384,13 +1385,14 @@ public class SOCGameOption
      *     and not a valid alphanumeric keyname by the rules listed at {@link #SOCGameOption(String)}
      * @since 2.4.50
      */
-    public static SOCGameOptionSet parseOptionsToSet( final String ostr, final SOCGameOptionSet knownOpts )
+    public static SOCGameOptionSet parseOptionsToSet( final String optionsString,
+        final SOCGameOptionSet knownOpts )
     {
-        final Map<String, SOCGameOption> omap = parseOptionsToMap( ostr, knownOpts );
-        if (omap == null)
+        final Map<String, SOCGameOption> gameOptionsMap = parseOptionsToMap( optionsString, knownOpts );
+        if (gameOptionsMap == null)
             return null;
 
-        return new SOCGameOptionSet( omap );
+        return new SOCGameOptionSet( gameOptionsMap );
     }
 
     /**
@@ -1431,6 +1433,34 @@ public class SOCGameOption
     }
 
     /**
+     *  Parses a string to see if the first character is t/T/y/Y/f/F/n/N
+     *
+     * @param optval
+     * @return the boolean value derived from the option value string, or null if it is not a boolean
+     */
+    static Boolean parseBoolean( String optval )
+    {
+        if (optval.length() >0 )
+        {
+            switch (optval.charAt( 0 ))
+            {
+            case 't':  // fall through
+            case 'T':
+            case 'y':
+            case 'Y':
+                return true;
+
+            case 'f':  // fall through
+            case 'F':
+            case 'n':
+            case 'N':
+                return false;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Utility - parse an option name-value pair produced by {@link #packValue(StringBuilder)} or
      * {@link #packOptionsToString(Map, boolean, boolean)}. Expected format of {@code optval} depends on its type.
      * See {@code packOptionsToString(..)} for the format.
@@ -1464,9 +1494,54 @@ public class SOCGameOption
 
         SOCGameOption knownOpt = knownOpts.get( optkey );
         SOCGameOption copyOpt;
+        Boolean bv;
         if (knownOpt == null)
         {
-            copyOpt = new SOCGameOption( optkey );  // OTYPE_UNKNOWN; may throw IllegalArgumentException
+            // We've not yet encountered this option, make a best guess as to it's type.
+            copyOpt = // new SOCGameOption( optkey );  // OTYPE_UNKNOWN; may throw IllegalArgumentException
+            new SOCGameOption( OTYPE_UNKNOWN, optkey, Version.versionNumber(), Version.versionNumber(),
+                false, 0, 0, Integer.MAX_VALUE,
+                null, 0, optkey + "=" + optval );
+
+            if (optval.length() > 0)
+            {
+                bv = parseBoolean( optval );
+                if (null != bv)
+                {
+                    // Some kind of boolean
+                    copyOpt.setBoolValue( bv );
+                    if (optval.length() > 1)
+                    {
+                        int intVal = Integer.parseInt( optval.substring( 1 ));
+                        copyOpt.setIntValue( intVal );
+                        copyOpt.optType = OTYPE_INTBOOL;
+                    }
+                    else
+                    {
+                        copyOpt.optType = OTYPE_BOOL;
+                    }
+                }
+                else
+                {
+                    // not a bool. if we can parse it to an int, so be it, otherwise it's a string
+                    try
+                    {
+                        int intVal = Integer.parseInt( optval.substring( 0 ));
+                        copyOpt.setIntValue( intVal );
+                        copyOpt.optType = OTYPE_INT;
+                    }
+                    catch( NumberFormatException ignore )
+                    {
+                        copyOpt.setStringValue( optval );
+                        copyOpt.optType = OTYPE_STR;
+                    }
+                }
+                try
+                {
+                    knownOpts.add( (SOCGameOption) copyOpt.clone() );
+                }
+                catch( CloneNotSupportedException ignore ) { }
+            }
         }
         else
         {
@@ -1488,28 +1563,9 @@ public class SOCGameOption
             switch (copyOpt.optType)  // OTYPE_* - update this switch, must match format produced
             {                         //           in packValue / packOptionsToString
             case OTYPE_BOOL:
-                if (optval.length() == 1)
+                bv = parseBoolean( optval );
+                if (null != bv)
                 {
-                    final boolean bv;
-                    switch (optval.charAt( 0 ))
-                    {
-                    case 't':  // fall through
-                    case 'T':
-                    case 'y':
-                    case 'Y':
-                        bv = true;
-                        break;
-
-                    case 'f':  // fall through
-                    case 'F':
-                    case 'n':
-                    case 'N':
-                        bv = false;
-                        break;
-
-                    default:
-                        return null;  // malformed
-                    }
                     copyOpt.setBoolValue( bv );
                 }
                 else
@@ -1534,24 +1590,9 @@ public class SOCGameOption
             case OTYPE_ENUMBOOL:
                 try
                 {
-                    final boolean bv;
-                    switch (optval.charAt( 0 ))
+                    bv = parseBoolean( optval );
+                    if (null == bv)
                     {
-                    case 't':  // fall through
-                    case 'T':
-                    case 'y':
-                    case 'Y':
-                        bv = true;
-                        break;
-
-                    case 'f':  // fall through
-                    case 'F':
-                    case 'n':
-                    case 'N':
-                        bv = false;
-                        break;
-
-                    default:
                         return null;  // malformed
                     }
                     copyOpt.setBoolValue( bv );
@@ -1711,6 +1752,7 @@ public class SOCGameOption
      * @see #getChangeListener()
      * @since 1.1.13
      */
+    @SuppressWarnings("unused")     // TODO: should this be removed?
     public boolean hasChangeListener()
     {
         return (optCL != null);
@@ -1801,9 +1843,9 @@ public class SOCGameOption
         final SOCGameOption oopt = (SOCGameOption) other;
         return (optType == oopt.optType) && (optFlags == oopt.optFlags) && key.equals( oopt.key )
             && (boolValue == oopt.boolValue) && (intValue == oopt.intValue)
-            && ((strValue == null)
-            ? (oopt.strValue == null)
-            : strValue.equals( oopt.strValue ));
+            && (  (strValue == null)
+                ? (oopt.strValue == null)
+                : strValue.equals( oopt.strValue ));
     }
 
     /**

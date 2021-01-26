@@ -905,17 +905,8 @@ public class TestLoadgame
     {
         assertNull(srv.knownOpts.getKnownOption("_NOEXIST", false));
 
-        try
-        {
-            final SavedGameModel sgm = load("bad-gameopt-unknown.game.json", srv);
-            // should throw exception before here
-            assertEquals("game name", "hopefully-unreached-code", sgm.gameName);
-        } catch (IllegalArgumentException e) {
-            final String msg = e.getMessage();
-            assertTrue
-                ("IllegalArgExcep message text should contain: \"unknown option(s): _NOEXIST: unknown\" but was: " + msg,
-                 msg.contains("unknown option(s): _NOEXIST: unknown"));
-        }
+        final SavedGameModel sgm = load("bad-gameopt-unknown.game.json", srv);
+        assertTrue( sgm.gameOptions.contains( "_NOEXIST=t" ));
     }
 
     /** Test loading an inactive {@link SOCGameOption}: {@code bad-gameopt-inactive.game.json} */
