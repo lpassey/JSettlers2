@@ -2,7 +2,7 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file copyright (C) 2019 Colin Werner
  * Extracted in 2019 from SOCPlayerClient.java, so:
- * Portions of this file Copyright (C) 2007-2020 Jeremy D Monin <jeremy@nand.net>
+ * Portions of this file Copyright (C) 2007-2021 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2012-2013 Paul Bilnoski <paul@bilnoski.net>
  *
@@ -75,7 +75,7 @@ public final class MessageHandler implements SOCMessageDispatcher
 {
     private final SOCPlayerClient client;
 
-    MessageHandler( SOCPlayerClient client )
+    MessageHandler( SOCPlayerClient client)
     {
         if (client == null)
             throw new IllegalArgumentException( "client is null" );
@@ -424,7 +424,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              * a player has made a bank/port trade
              */
             case SOCMessage.BANKTRADE:
-                handleBANKTRADE( (SOCBankTrade) mes );
+                handleBANKTRADE((SOCBankTrade) mes);
                 break;
 
             /**
@@ -442,7 +442,8 @@ public final class MessageHandler implements SOCMessageDispatcher
                 break;
 
             /**
-             * a player has rejected an offer
+             * a player has rejected an offer,
+             * or server has disallowed our trade-related request.
              */
             case SOCMessage.REJECTOFFER:
                 handleREJECTOFFER( (SOCRejectOffer) mes );
@@ -2049,11 +2050,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         if (pcl == null)
             return;
 
-        final int pn = mes.getPlayerNumber();
-        if (pn >= 0)
-            pcl.playerBankTrade( ga.getPlayer( pn ), mes.getGiveSet(), mes.getGetSet() );
-        else
-            pcl.playerTradeDisallowed( -1, (pn == SOCBankTrade.PN_REPLY_NOT_YOUR_TURN) );
+        pcl.playerBankTrade(ga.getPlayer(mes.getPlayerNumber()), mes.getGiveSet(), mes.getGetSet());
     }
 
     /**
@@ -2069,16 +2066,8 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         SOCTradeOffer offer = mes.getOffer();
         final int fromPN = offer.getFrom();
-        SOCPlayer from;
-        if (fromPN >= 0)
-        {
-            from = ga.getPlayer( fromPN );
-            from.setCurrentOffer( offer );
-        }
-        else
-        {
-            from = null;
-        }
+        SOCPlayer from = ga.getPlayer(fromPN);
+        from.setCurrentOffer( offer );
 
         PlayerClientListener pcl = client.getClientListener( gaName );
         pcl.requestedTrade( from, fromPN );
@@ -2110,16 +2099,35 @@ public final class MessageHandler implements SOCMessageDispatcher
     }
 
     /**
-     * handle the "reject offer" message
+     * handle the "reject offer"/"disallowed trade" message
      * @param mes  the message
      */
     protected void handleREJECTOFFER( SOCRejectOffer mes )
     {
         SOCGame ga = client.games.get( mes.getGame() );
-        SOCPlayer player = ga.getPlayer( mes.getPlayerNumber() );
+        final int pn = mes.getPlayerNumber();
+        SOCPlayer player = (pn >= 0) ? ga.getPlayer(pn) : null;
 
         PlayerClientListener pcl = client.getClientListener( mes.getGame() );
-        pcl.requestedTradeRejection( player );
+
+        int rc = mes.getReasonCode();
+        switch (rc)
+        {
+        case 0:
+            pcl.requestedTradeRejection( player );
+            break;
+
+        case SOCRejectOffer.REASON_NOT_YOUR_TURN:
+            pcl.playerTradeDisallowed( -1, false, true );
+            break;
+
+        case SOCRejectOffer.REASON_CANNOT_MAKE_OFFER:
+            pcl.playerTradeDisallowed( pn, true, false );
+            break;
+
+        default:
+            pcl.playerTradeDisallowed( pn, false, false );
+        }
     }
 
     /**
@@ -2137,11 +2145,8 @@ public final class MessageHandler implements SOCMessageDispatcher
         if (pcl == null)
             return;
 
-        final int offeringPN = mes.getOfferingNumber(), acceptingPN = mes.getAcceptingNumber();
-        if (acceptingPN >= 0)
-            pcl.playerTradeAccepted( ga.getPlayer( offeringPN ), ga.getPlayer( acceptingPN ) );
-        else
-            pcl.playerTradeDisallowed( offeringPN, false );
+        pcl.playerTradeAccepted( ga.getPlayer(mes.getOfferingNumber()),
+            ga.getPlayer( mes.getAcceptingNumber() ));
     }
 
     /**
@@ -2162,24 +2167,30 @@ public final class MessageHandler implements SOCMessageDispatcher
 
     /**
      * Handle the "development card action" message, which may have multiple cards.
-     * Updates game data, then calls {@link PlayerClientListener#playerDevCardsUpdated(SOCPlayer, boolean)}.
+     * Updates game data by calling {@link #handleDEVCARDACTION(SOCGame, SOCPlayer, boolean, int, int)},
+     * then calls {@link PlayerClientListener#playerDevCardsUpdated(SOCPlayer, boolean)}.
+     *<P>
+     * If message is about the player's own cards at end of game when server reveals all VP cards
+     * ({@link SOCDevCardAction#ADD_OLD} in state {@link SOCGame#OVER}),
+     * returns immediately and doesn't call those methods.
+     *
      * @param mes  the message
      */
     protected void handleDEVCARDACTION( final SOCDevCardAction mes )
     {
-        SOCGame theGame = client.games.get(mes.getGame());
+        SOCGame theGame = client.games.get( mes.getGame() );
         if (theGame == null)
             return;
 
         final int pn = mes.getPlayerNumber();
         final SOCPlayer player = theGame.getPlayer(pn);
         final PlayerClientListener pcl = client.getClientListener( mes.getGame() );
-        final int clientPN = (pcl != null) ? pcl.getClientPlayerNumber() : -2;  // not -1: message may have that
+        final boolean isClientPlayer = (pcl != null) && (pn >= 0) && (pn == pcl.getClientPlayerNumber());
         final int act = mes.getAction();
 
-        if ((pn == clientPN) && (act == SOCDevCardAction.ADD_OLD) && (theGame.getGameState() == SOCGame.OVER))
+        if (isClientPlayer && (act == SOCDevCardAction.ADD_OLD) && (theGame.getGameState() == SOCGame.OVER))
         {
-            return;  // ignore messages at OVER about our own VP dev cards
+            return;
         }
 
         final List<Integer> ctypes = mes.getCardTypes();
@@ -2187,7 +2198,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         {
             for (final int ctype : ctypes)
             {
-                handleDEVCARDACTION( player, act, ctype );
+                handleDEVCARDACTION( theGame, player, isClientPlayer, act, ctype );
             }
         }
         else
@@ -2201,7 +2212,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                 else if (ctype == SOCDevCardConstants.UNKNOWN_FOR_VERS_1_X)
                     ctype = SOCDevCardConstants.UNKNOWN;
             }
-            handleDEVCARDACTION( player, act, ctype );
+            handleDEVCARDACTION( theGame, player, isClientPlayer, act, ctype );
         }
 
         if (pcl != null)
@@ -2212,9 +2223,21 @@ public final class MessageHandler implements SOCMessageDispatcher
      * Handle one dev card's game data update for {@link #handleDEVCARDACTION(boolean, SOCDevCardAction)}.
      * In case this is part of a list of cards, does not call
      * {@link PlayerClientListener#playerDevCardsUpdated(SOCPlayer, boolean)}: Caller must do so afterwards.
+     * For {@link SOCDevCardAction#PLAY}, calls {@link SOCPlayer#updateDevCardsPlayed(int)}.
+     *
+     * @param ga  Game being updated
+     * @param player  Player in {@code ga} being updated
+     * @param isClientPlayer  True if {@code player} is our client playing in {@code ga}
+     * @param act  Action being done: {@link SOCDevCardAction#DRAW}, {@link SOCDevCardAction#PLAY PLAY},
+     *     {@link SOCDevCardAction#ADD_OLD ADD_OLD}, or {@link SOCDevCardAction#ADD_NEW ADD_NEW}
+     * @param ctype  Type of development card from {@link SOCDevCardConstants}
+     * @see SOCDisplaylessPlayerClient#handleDEVCARDACTION(SOCGame, SOCPlayer, int, int)
      */
-    private void handleDEVCARDACTION( final SOCPlayer player, final int act, final int ctype )
+    protected void handleDEVCARDACTION( final SOCGame ga, final SOCPlayer player,
+        final boolean isClientPlayer, final int act, final int ctype)
     {
+        // if you change this method, consider changing SOCDisplaylessPlayerClient.handleDEVCARDACTION too
+
         switch (act)
         {
         case SOCDevCardAction.ADD_NEW:

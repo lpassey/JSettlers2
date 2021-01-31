@@ -1,23 +1,23 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
- * Portions of this file Copyright (C) 2007-2020 Jeremy D Monin <jeremy@nand.net>
+ * Portions of this file Copyright (C) 2007-2021 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012-2013 Paul Bilnoski <paul@bilnoski.net>
- * - UI layer refactoring, GameStatistics, nested class refactoring, parameterize types
- * <p>
+ *     - UI layer refactoring, GameStatistics, nested class refactoring, parameterize types
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
+ *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.client;
@@ -282,17 +282,24 @@ public class SOCPlayerClient
 
     /**
      * Helper object to deal with network connectivity.
+     * Calls {@link #messageHandler} to dispatch inbound message traffic.
+     * @see #gameMessageSender
      * @since 2.0.00
      */
     private ClientNetwork net;
 
     /**
-     * Helper object to receive incoming network traffic from the server.
+     * Helper object to dispatch incoming messages from the server.
+     * Called by {@link ClientNetwork} when it receives network traffic.
+     * Must call {@link MessageHandler#init(SOCPlayerClient)} before usage.
+     * @see #gameMessageSender
      */
     private MessageHandler messageHandler;
 
     /**
      * Helper object to form and send outgoing network traffic to the server.
+     * @see #messageHandler
+     * @see #net
      * @since 2.0.00
      */
     private GameMessageSender gameMessageSender;

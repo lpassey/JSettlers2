@@ -2,7 +2,7 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  *
  * This file Copyright (C) 2012-2013 Paul Bilnoski <paul@bilnoski.net>
- * Portions of this file Copyright (C) 2013-2020 Jeremy D Monin <jeremy@nand.net>
+ * Portions of this file Copyright (C) 2013-2021 Jeremy D Monin <jeremy@nand.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -298,7 +298,10 @@ public interface PlayerClientListener
          final boolean isGainLose, final int amount, final int victimAmount, final int extraValue);
 
     /**
-     * This player has just made a successful trade with the bank or a port.
+     * This player has just made a successful trade with the bank or a port. Implementation may call
+     * <tt>{@link #playerElementUpdated(SOCPlayer, UpdateType, boolean, boolean) playerElementUpdated}(player,
+     * {@link UpdateType#ResourceTotalAndDetails}, false, false)</tt>.
+     *
      * @param player  Player making the bank/port trade
      * @param give  Resources given by player in trade
      * @param get   Resources received by player in trade
@@ -311,12 +314,9 @@ public interface PlayerClientListener
      * or updated the resources of their already-displayed offer.
      * Show its details in their part of the game interface.
      * For offer details call {@code offerer.}{@link SOCPlayer#getCurrentOffer() getCurrentOffer()}.
-     *<P>
-     * Also called when server says our requested trade offer wasn't allowed:
-     * {@code offerer} will be {@code null}, {@code fromPN} will be &lt; 0.
      *
-     * @param offerer  Player with a new trade offer, or {@code null} if {@code fromPN} &lt; 0
-     * @param fromPN  {@code offerer}'s player number, or "not allowed" code value &lt; 0 from network message
+     * @param offerer  Player with a new trade offer
+     * @param fromPN  {@code offerer}'s player number
      */
     void requestedTrade(SOCPlayer offerer, int fromPN);
 
@@ -348,12 +348,15 @@ public interface PlayerClientListener
     void playerTradeAccepted(SOCPlayer offerer, SOCPlayer acceptor);
 
     /**
-     * Server has rejected client player's attempt to trade with the bank or accept a player's offer.
-     * @param offeringPN  Player number offering the disallowed trade, or -1 if bank trade
+     * Server has rejected client player's attempt to trade with the bank,
+     * make a trade offer, or accept another player's offer.
+     * @param offeringPN  Player number offering the disallowed trade,
+     *     or -1 if bank trade. Always -1 if {@code isNotTurn}.
+     * @param isOffer  True if this is about a proposed trade offer, not acceptance of an existing offer
      * @param isNotTurn  True if was disallowed because this trade can be done only during client player's turn
      * @since 2.4.50
      */
-    void playerTradeDisallowed(int offeringPN, boolean isNotTurn);
+    void playerTradeDisallowed(int offeringPN, boolean isOffer, boolean isNotTurn);
 
     /**
      * Clear any visible trade messages/responses.
@@ -652,6 +655,7 @@ public interface PlayerClientListener
 
         /**
          * Update Total Resource count, and also each box (Clay,Ore,Sheep,Wheat,Wood) if shown.
+         * May update other parts of the window beyond that player's hand: Enable/disable trade offer Accept buttons, etc.
          * @see #Resources
          */
         ResourceTotalAndDetails,
