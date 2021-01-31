@@ -76,7 +76,7 @@ public final class MessageHandler implements SOCMessageDispatcher
 {
     private final SOCPlayerClient client;
 
-    MessageHandler( SOCPlayerClient clien t)
+    MessageHandler( SOCPlayerClient client)
     {
         if (client == null)
             throw new IllegalArgumentException( "client is null" );
@@ -2215,7 +2215,8 @@ public final class MessageHandler implements SOCMessageDispatcher
     protected void handleREJECTOFFER( SOCRejectOffer mes )
     {
         SOCGame ga = client.games.get( mes.getGame() );
-        SOCPlayer player = ga.getPlayer(mes.getPlayerNumber());
+        final int pn = mes.getPlayerNumber();
+        SOCPlayer player = (pn >= 0) ? ga.getPlayer(pn) : null;
 
         PlayerClientListener pcl = client.getClientListener( mes.getGame() );
 
@@ -2227,15 +2228,15 @@ public final class MessageHandler implements SOCMessageDispatcher
             break;
 
         case SOCRejectOffer.REASON_NOT_YOUR_TURN:
-            pcl.playerTradeDisallowed(-1, false, true);
+            pcl.playerTradeDisallowed( -1, false, true );
             break;
 
         case SOCRejectOffer.REASON_CANNOT_MAKE_OFFER:
-            pcl.playerTradeDisallowed(pn, true, false);
+            pcl.playerTradeDisallowed( pn, true, false );
             break;
 
         default:
-            pcl.playerTradeDisallowed(pn, false, false);
+            pcl.playerTradeDisallowed( pn, false, false );
         }
     }
 
@@ -2297,7 +2298,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         final boolean isClientPlayer = (pcl != null) && (pn >= 0) && (pn == pcl.getClientPlayerNumber());
         final int act = mes.getAction();
 
-        if (isClientPlayer && (act == SOCDevCardAction.ADD_OLD) && (ga.getGameState() == SOCGame.OVER))
+        if (isClientPlayer && (act == SOCDevCardAction.ADD_OLD) && (theGame.getGameState() == SOCGame.OVER))
         {
             return;
         }
@@ -2307,7 +2308,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         {
             for (final int ctype : ctypes)
             {
-                handleDEVCARDACTION( ga, player, act, ctype );
+                handleDEVCARDACTION( theGame, player, isClientPlayer, act, ctype );
             }
         }
         else
@@ -2320,7 +2321,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                 else if (ctype == SOCDevCardConstants.UNKNOWN_FOR_VERS_1_X)
                     ctype = SOCDevCardConstants.UNKNOWN;
             }
-            handleDEVCARDACTION(ga, player, isClientPlayer, act, ctype);
+            handleDEVCARDACTION( theGame, player, isClientPlayer, act, ctype );
         }
 
         if (pcl != null)
@@ -2348,6 +2349,7 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         switch (act)
         {
+        case SOCDevCardAction.ADD_NEW:
         case SOCDevCardAction.DRAW:
             player.getInventory().addDevCard( 1, SOCInventory.NEW, ctype );
             break;
@@ -2359,10 +2361,6 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         case SOCDevCardAction.ADD_OLD:
             player.getInventory().addDevCard( 1, SOCInventory.OLD, ctype );
-            break;
-
-        case SOCDevCardAction.ADD_NEW:
-            player.getInventory().addDevCard( 1, SOCInventory.NEW, ctype );
             break;
         }
     }

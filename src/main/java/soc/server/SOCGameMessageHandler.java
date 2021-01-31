@@ -118,9 +118,7 @@ public class SOCGameMessageHandler
      *     unless {@code message} implements {@link SOCMessageFromUnauthClient}.
      * @return true if processed, false if ignored or unknown message type
      */
-    public boolean dispatch(
-        SOCGame game, SOCMessageForGame message, Connection connection )
-            throws Exception
+    public boolean dispatch( SOCGame game, SOCMessageForGame message, Connection connection )
     {
         switch (message.getType())
         {
@@ -1374,7 +1372,7 @@ public class SOCGameMessageHandler
             if (!canOffer)
             {
                 final int seatNumber = player.getPlayerNumber();
-                SOCMessage msg = (c.getVersion() >= SOCRejectOffer.VERSION_FOR_REPLY_REASONS)
+                SOCMessage msg = (c.getRemoteVersion() >= SOCRejectOffer.VERSION_FOR_REPLY_REASONS)
                     ? new SOCRejectOffer(gaName, seatNumber, SOCRejectOffer.REASON_CANNOT_MAKE_OFFER)
                     : new SOCGameServerText( gaName, "You can't make that offer." );  // i18n OK: is fallback only
                 srv.messageToPlayer(c, gaName, seatNumber, msg);
