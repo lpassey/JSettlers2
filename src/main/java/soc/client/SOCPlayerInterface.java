@@ -1,7 +1,7 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
- * Portions of this file Copyright (C) 2007-2020 Jeremy D Monin <jeremy@nand.net>
+ * Portions of this file Copyright (C) 2007-2021 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012-2013 Paul Bilnoski <paul@bilnoski.net>
  *     - UI layer refactoring, GameStatistics, type parameterization, GUI API updates, etc
  *
@@ -48,7 +48,6 @@ import soc.game.SOCTradeOffer;
 import soc.game.SOCVillage;
 import soc.message.SOCMessage;
 import soc.message.SOCPlayerElement.PEType;
-import soc.message.SOCBankTrade;     // for reply code constant
 import soc.message.SOCPickResources;  // for reason code constants
 import soc.message.SOCSimpleAction;  // for action type constants
 import soc.message.SOCSimpleRequest;  // for request type constants
@@ -4551,7 +4550,7 @@ public class SOCPlayerInterface extends Frame
             ( final SOCPlayer player, final PlayerClientListener.UpdateType utype,
                 final boolean isGoodNews, final boolean isBadNews )
         {
-            final SOCHandPanel hpan = (player == null) ? null : pi.getPlayerHandPanel( player.getPlayerNumber() );  // null if no player
+            final SOCHandPanel hpan = (player == null) ? null : pi.getPlayerHandPanel(player.getPlayerNumber());
             int hpanUpdateRsrcType = 0;  // If not 0, update this type's amount display
 
             switch (utype)
@@ -4587,6 +4586,10 @@ public class SOCPlayerInterface extends Frame
 
             case Unknown:
                 hpan.updateValue( PlayerClientListener.UpdateType.Resources );
+                break;
+
+            case ResourceTotalAndDetails:
+                // avoid default-case warning print; is handled below like Clay, Ore, Sheep, Wheat, Wood
                 break;
 
             case VictoryPoints:
@@ -4633,7 +4636,7 @@ public class SOCPlayerInterface extends Frame
 
             final boolean isClientPlayer = hpan.isClientPlayer();
 
-            if (hpanUpdateRsrcType != 0)
+            if ((hpanUpdateRsrcType != 0) || (utype == PlayerClientListener.UpdateType.ResourceTotalAndDetails))
             {
                 if (isClientPlayer || pi.isGameFullyObservable)
                 {
@@ -4655,7 +4658,10 @@ public class SOCPlayerInterface extends Frame
                 }
                 else
                 {
-                    hpan.updateValue( PlayerClientListener.UpdateType.Resources );
+                    hpan.updateValue(
+                        (utype == PlayerClientListener.UpdateType.ResourceTotalAndDetails)
+                        ? utype
+                        : PlayerClientListener.UpdateType.Resources );
                 }
             }
 
@@ -5158,22 +5164,17 @@ public class SOCPlayerInterface extends Frame
         public void playerBankTrade( final SOCPlayer player, final SOCResourceSet give, final SOCResourceSet get )
         {
             requestedTradeClear( player, true );
+            playerElementUpdated
+                (player, PlayerClientListener.UpdateType.ResourceTotalAndDetails, false, false);
             pi.printTradeResources( player, give, get, false, null );
         }
 
         public void requestedTrade( final SOCPlayer offerer, final int fromPN )
         {
-            if (offerer != null)
-            {
-                pi.getPlayerHandPanel( offerer.getPlayerNumber() ).updateCurrentOffer( true, false );
-                final SOCTradeOffer offer = offerer.getCurrentOffer();
-                if (offer != null)
-                    pi.printTradeResources( offerer, offer.getGiveSet(), offer.getGetSet(), true, null );
-            }
-            else if (fromPN <= SOCBankTrade.PN_REPLY_CANNOT_MAKE_TRADE)
-            {
-                pi.printKeyed( "trade.msg.cant.make.offer" );  // "You can't make that offer."
-            }
+            pi.getPlayerHandPanel(offerer.getPlayerNumber()).updateCurrentOffer(true, false);
+            final SOCTradeOffer offer = offerer.getCurrentOffer();
+            if (offer != null)
+                pi.printTradeResources(offerer, offer.getGiveSet(), offer.getGetSet(), true, null);
         }
 
         public void requestedTradeClear( final SOCPlayer offerer, final boolean isBankTrade )
@@ -5200,12 +5201,14 @@ public class SOCPlayerInterface extends Frame
                 pi.printTradeResources( offerer, offer.getGiveSet(), offer.getGetSet(), false, acceptor );
         }
 
-        public void playerTradeDisallowed( final int offeringPN, final boolean isNotTurn )
+        public void playerTradeDisallowed(final int offeringPN, final boolean isOffer, final boolean isNotTurn)
         {
             pi.printKeyed
                 ( (isNotTurn)
                     ? "base.reply.not.your.turn"  // "It's not your turn."
-                    : "reply.common.trade.cannot_make" );  // "You can't make that trade."
+                 : ((isOffer)
+                    ? "trade.msg.cant.make.offer"  // "You can't make that offer."
+                    : "reply.common.trade.cannot_make"));  // "You can't make that trade."
         }
 
         public void requestedTradeReset( SOCPlayer playerToReset )
