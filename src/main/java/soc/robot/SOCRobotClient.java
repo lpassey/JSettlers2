@@ -1,7 +1,7 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
- * Portions of this file Copyright (C) 2007-2020 Jeremy D Monin <jeremy@nand.net>
+ * Portions of this file Copyright (C) 2007-2021 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
  *
  * This program is free software; you can redistribute it and/or
@@ -685,6 +685,14 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                 break;
 
             /**
+             * Update game data for bank trade. Added 2021-01-20 for v2.4.50
+             */
+            case SOCMessage.BANKTRADE:
+                if (super.handleBANKTRADE(games, (SOCBankTrade) mes))
+                    handlePutBrainQ((SOCMessageForGame) mes);
+                break;
+
+            /**
              * the server is requesting that we join a game
              */
             case SOCMessage.BOTJOINGAMEREQUEST:
@@ -748,7 +756,8 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                 handlePutBrainQ((SOCSetSpecialItem) mes);
                 break;
 
-            // These message types are handled entirely by SOCRobotBrain:
+            // These message types are handled entirely by SOCRobotBrain,
+            // which will update game data and do any bot-specific tracking or actions needed:
 
             case SOCMessage.ACCEPTOFFER:
             case SOCMessage.CANCELBUILDREQUEST:  // current player has cancelled an initial settlement
@@ -758,13 +767,13 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             case SOCMessage.DEVCARDACTION:  // either draw, play, or add to hand, or cannot play our requested dev card
             case SOCMessage.DICERESULT:
             case SOCMessage.DISCARDREQUEST:
-            case SOCMessage.BANKTRADE:
             case SOCMessage.MAKEOFFER:
             case SOCMessage.MOVEPIECE:   // move a previously placed ship; will update game data and player trackers
             case SOCMessage.MOVEROBBER:
             case SOCMessage.PLAYERELEMENT:
             case SOCMessage.PLAYERELEMENTS:  // apply multiple PLAYERELEMENT updates; added 2017-12-10 for v2.0.00
             case SOCMessage.REJECTOFFER:
+            case SOCMessage.REPORTROBBERY:  // added 2021-01-05 for v2.4.50
             case SOCMessage.RESOURCECOUNT:
             case SOCMessage.STARTGAME:  // added 2017-12-18 for v2.0.00 when gameState became a field of this message
             case SOCMessage.TIMINGPING:  // server's 1x/second timing ping

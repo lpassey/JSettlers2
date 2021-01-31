@@ -1,7 +1,7 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
- * Portions of this file Copyright (C) 2007-2020 Jeremy D Monin <jeremy@nand.net>
+ * Portions of this file Copyright (C) 2007-2021 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
  *
  * This program is free software; you can redistribute it and/or
@@ -753,6 +753,13 @@ public class SOCDisplaylessPlayerClient implements Runnable
              */
             case SOCMessage.CLEARTRADEMSG:
                 handleCLEARTRADEMSG((SOCClearTradeMsg) mes);
+                break;
+
+            /**
+             * Update game data for bank trade. Added 2021-01-20 for v2.4.50
+             */
+            case SOCMessage.BANKTRADE:
+                handleBANKTRADE(games, (SOCBankTrade) mes);
                 break;
 
             /**
@@ -1858,31 +1865,15 @@ public class SOCDisplaylessPlayerClient implements Runnable
             break;
 
         case SOCPlayerElement.LOSE:
-            if (rtype != SOCResourceConstants.UNKNOWN)
-            {
-                int playerAmt = pl.getResources().getAmount(rtype);
-                if (playerAmt >= amount)
-                {
-                    pl.getResources().subtract(amount, rtype);
-                }
-                else
-                {
-                    pl.getResources().subtract(amount - playerAmt, SOCResourceConstants.UNKNOWN);
-                    pl.getResources().setAmount(0, rtype);
-                }
-            }
-            else
-            {
-                SOCResourceSet rs = pl.getResources();
-
-                /**
-                 * first convert player's known resources to unknown resources,
-                 * then remove mes's unknown resources from player
-                 */
-                rs.convertToUnknown();
-                pl.getResources().subtract(amount, SOCResourceConstants.UNKNOWN);
-            }
-
+            /**
+             * If known resource type:
+             *   if amount to remove is greater than player's known amount,
+             *   remove the excess from unknown.
+             * Otherwise (unknown rtype):
+             *   first convert player's known resources to unknown resources,
+             *   then remove mes's unknown resources.
+             */
+            pl.getResources().subtract(amount, rtype, true);
             break;
         }
     }
@@ -2210,7 +2201,6 @@ public class SOCDisplaylessPlayerClient implements Runnable
 
     /**
      * handle the "make offer" message.
-     * Ignore "not allowed" replies from server ({@link SOCTradeOffer#getFrom()} &lt; 0).
      * @param mes  the message
      */
     protected void handleMAKEOFFER(SOCMakeOffer mes)
@@ -2220,9 +2210,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
             return;
 
         SOCTradeOffer offer = mes.getOffer();
-        int fromPN = offer.getFrom();
-        if (fromPN >= 0)
-            ga.getPlayer(fromPN).setCurrentOffer(offer);
+        ga.getPlayer(offer.getFrom()).setCurrentOffer(offer);
     }
 
     /**
@@ -2256,6 +2244,27 @@ public class SOCDisplaylessPlayerClient implements Runnable
      * @param mes  the message
      */
     protected void handleCLEARTRADEMSG(SOCClearTradeMsg mes) {}
+
+    /**
+     * Update a player's resource data from a "bank trade" announcement from the server.
+     *
+     * @param games  Games the client is playing, for method reuse by SOCPlayerClient
+     * @param mes  the message
+     * @return  True if updated, false if game name not found
+     * @since 2.4.50
+     */
+    public static boolean handleBANKTRADE(final Map<String, SOCGame> games, final SOCBankTrade mes)
+    {
+        final SOCGame ga = games.get(mes.getGame());
+        if (ga == null)
+            return false;
+
+        final SOCResourceSet plRes = ga.getPlayer(mes.getPlayerNumber()).getResources();
+        plRes.subtract(mes.getGiveSet(), true);
+        plRes.add(mes.getGetSet());
+
+        return true;
+    }
 
     /**
      * handle the "number of development cards" message
@@ -2293,7 +2302,27 @@ public class SOCDisplaylessPlayerClient implements Runnable
                 ctype = SOCDevCardConstants.UNKNOWN;
         }
 
-        switch (mes.getAction())
+        handleDEVCARDACTION(ga, player, mes.getAction(), ctype);
+    }
+
+    /**
+     * Handle one dev card's game data update for {@link #handleDEVCARDACTION(boolean, SOCDevCardAction)}.
+     * For {@link SOCDevCardAction#PLAY}, calls {@link SOCPlayer#updateDevCardsPlayed(int)}.
+     *
+     * @param ga  Game being updated
+     * @param player  Player in {@code ga} being updated
+     * @param act  Action being done: {@link SOCDevCardAction#DRAW}, {@link SOCDevCardAction#PLAY PLAY},
+     *     {@link SOCDevCardAction#ADD_OLD ADD_OLD}, or {@link SOCDevCardAction#ADD_NEW ADD_NEW}
+     * @param ctype  Type of development card from {@link SOCDevCardConstants}
+     * @see soc.client.MessageHandler#handleDEVCARDACTION(SOCGame, SOCPlayer, boolean, int, int)
+     * @since 2.4.50
+     */
+    protected void handleDEVCARDACTION
+        (final SOCGame ga, final SOCPlayer player, final int act, final int ctype)
+    {
+        // if you change this method, consider changing MessageHandler.handleDEVCARDACTION too
+
+        switch (act)
         {
         case SOCDevCardAction.DRAW:
             player.getInventory().addDevCard(1, SOCInventory.NEW, ctype);
@@ -3152,7 +3181,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void rejectOffer(SOCGame ga)
     {
-        put(SOCRejectOffer.toCmd(ga.getName(), ga.getPlayer(nickname).getPlayerNumber()));
+        put(new SOCRejectOffer(ga.getName(), 0).toCmd());
     }
 
     /**
@@ -3163,7 +3192,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void acceptOffer(SOCGame ga, int from)
     {
-        put(SOCAcceptOffer.toCmd(ga.getName(), ga.getPlayer(nickname).getPlayerNumber(), from));
+        put(SOCAcceptOffer.toCmd(ga.getName(), 0, from));
     }
 
     /**
@@ -3173,7 +3202,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      */
     public void clearOffer(SOCGame ga)
     {
-        put(SOCClearOffer.toCmd(ga.getName(), ga.getPlayer(nickname).getPlayerNumber()));
+        put(SOCClearOffer.toCmd(ga.getName(), 0));
     }
 
     /**

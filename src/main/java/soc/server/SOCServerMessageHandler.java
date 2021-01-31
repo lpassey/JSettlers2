@@ -1,6 +1,6 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
- * This file Copyright (C) 2016-2020 Jeremy D Monin <jeremy@nand.net>
+ * This file Copyright (C) 2016-2021 Jeremy D Monin <jeremy@nand.net>
  * Some contents were formerly part of SOCServer.java;
  * Portions of this file Copyright (C) 2003 Robert S. Thomas <thomas@infolab.northwestern.edu>
  * Portions of this file Copyright (C) 2007-2016 Jeremy D Monin <jeremy@nand.net>
@@ -1519,7 +1519,7 @@ public class SOCServerMessageHandler
             // ">>> This game will expire in 15 minutes."
             srv.messageToPlayerKeyed(c, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
                 ((isCheckTime) ? "stats.game.willexpire.urgent" : "stats.game.willexpire"),
-                (int) ((gameData.getExpiration() - System.currentTimeMillis()) / 60000) );
+                (int) ((gameData.getExpiration() - System.currentTimeMillis()) / 60000));
         }
     }
 
@@ -2558,10 +2558,6 @@ public class SOCServerMessageHandler
 
                     if ((robotCon != null) && gameList.isMember(robotCon, gaName))
                     {
-                        sentBotDismiss = true;
-                        srv.messageToPlayer(robotCon, gaName, pn,
-                            new SOCRobotDismiss(gaName));
-
                         /**
                          * this connection has to wait for the robot to leave,
                          * will then be told they've sat down
@@ -2572,12 +2568,17 @@ public class SOCServerMessageHandler
                         if (disRequests == null)
                         {
                             disRequests = new Vector<>();
-                            disRequests.addElement(req);
                             srv.robotDismissRequests.put(gaName, disRequests);
-                        } else {
-                            disRequests.addElement(req);
                         }
+                        disRequests.addElement(req);
+
+                        disRequests.addElement(req);
+                        sentBotDismiss = true;
+                        srv.messageToPlayer(robotCon, gaName, pn, new SOCRobotDismiss(gaName));
                     } else {
+
+                        sentBotDismiss = true;
+                        srv.messageToPlayer(robotCon, gaName, pn, new SOCRobotDismiss(gaName));
                         /**
                          * robotCon wasn't in the game.
                          * Is this a game being reloaded, where robotCon player was
