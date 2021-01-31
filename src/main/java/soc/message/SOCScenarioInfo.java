@@ -1,20 +1,20 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
- * This file Copyright (C) 2015,2017-2020 Jeremy D Monin <jeremy@nand.net>
- * <p>
+ * This file Copyright (C) 2015,2017-2021 Jeremy D Monin <jeremy@nand.net>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
+ *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.message;
@@ -133,14 +133,6 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     private static final long serialVersionUID = 2450L;  // last structural change v2.4.50
 
     /**
-     * If an older client is asking for any changed/new scenarios,
-     * server responds with set of SCENARIOINFOs. Mark end of this list with a
-     * SCENARIOINFO named "-". At the client this sets the {@link #noMoreScens} flag.
-     */
-    public static final SOCScenarioInfo SCENINFO_NO_MORE_SCENS
-        = new SOCScenarioInfo( null, null, null );
-
-    /**
      * {@link #scKey} marker {@code "?"} from client to ask for any new or changed scenarios
      * between the client and server versions. When present, this must be the last item in the parameter list.
      * The server will reply with a sequence of messages with scenario info, and a sequence-ending empty message
@@ -159,7 +151,12 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     public static final String MARKER_SCEN_NAME_LIST = "[";
 
     /**
-     * {@link #scKey} marker {@code "-"} from server to indicate this is the end of the list of SCENARIOINFOs.
+     * {@link #scKey} marker {@code "-"} from server to indicate this is the end of the list of SCENARIOINFOs:
+     * If an older client is asking for any changed/new scenarios,
+     * server responds with set of SCENARIOINFOs. Mark end of this list by sending a
+     * SCENARIOINFO named "-". At client this sets the {@link #noMoreScens} flag.
+     * Server can call {@link #SOCScenarioInfo(SOCScenario, String, String) SOCScenarioInfo(null, null, null)}
+     * constructor to create such a message.
      */
     public static final String MARKER_NO_MORE_SCENS = "-";
 
@@ -173,7 +170,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
      * Rendered {@link #MARKER_KEY_UNKNOWN} for known value in {@link #toString()}.
      * @since 2.4.50
      */
-    private static final String STR_MARKER_KEY_UNKNOWN = Integer.toString( MARKER_KEY_UNKNOWN );
+    private static final String STR_MARKER_KEY_UNKNOWN = Integer.toString(MARKER_KEY_UNKNOWN);
 
     /** True if this message is scenario info from server, not a request from client. */
     public final boolean isFromServer;
@@ -210,7 +207,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     /**
      * Constructor for server to tell client about a scenario, or mark the end of the list of scenarios.
      *
-     * @param sc  Scenario to send, or {@code null} to send the end-of-list marker {@link #SCENINFO_NO_MORE_SCENS}.
+     * @param sc  Scenario to send, or {@code null} to send the end-of-list marker {@link #MARKER_NO_MORE_SCENS}.
      *     Scenario key isn't checked here for {@link SOCMessage#isSingleLineAndSafe(String)}
      *     because the {@link SOCScenario} constructor already checked it against
      *     more restrictive {@link SOCVersionedItem#isAlphanumericUpcaseAscii(String)}.
@@ -227,7 +224,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
 
         isFromServer = true;
         isKeyUnknown = false;
-        noMoreScens = (sc != null);
+        noMoreScens = (sc == null);
 
         scen = sc;
         if (sc != null)
@@ -237,16 +234,11 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
             if (localDesc == null)
                 localDesc = sc.getDesc();
 
-            /* [0] */
-            pa.add( sc.key );
-            /* [1] */
-            pa.add( Integer.toString( sc.minVersion ) );
-            /* [2] */
-            pa.add( Integer.toString( sc.lastModVersion ) );
-            /* [3] */
-            pa.add( opts );
-            /* [4] */
-            pa.add( localDesc );
+            /* [0] */ pa.add(sc.key);
+            /* [1] */ pa.add(Integer.toString(sc.minVersion));
+            /* [2] */ pa.add(Integer.toString(sc.lastModVersion));
+            /* [3] */ pa.add(opts);
+            /* [4] */ pa.add(localDesc);
 
             if (localLongDesc == null)
                 localLongDesc = sc.getLongDesc();
@@ -256,8 +248,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
         else
         {
             scKey = MARKER_NO_MORE_SCENS;
-            /* [0] */
-            pa.add( MARKER_NO_MORE_SCENS );
+            /* [0] */ pa.add(MARKER_NO_MORE_SCENS);
         }
     }
 
@@ -276,7 +267,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     {
         super( SCENARIOINFO, new ArrayList<String>() );
 
-        if (!isSingleLineAndSafe( scKey ))
+        if (! isSingleLineAndSafe( scKey ))
             throw new IllegalArgumentException( "scKey: " + scKey );
 
         isFromServer = isServerReply;
@@ -284,18 +275,15 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
         isKeyUnknown = isServerReply;
         this.scKey = scKey;
 
-        if (!isServerReply)
+        if (! isServerReply)
             pa.add( MARKER_SCEN_NAME_LIST );
 
-        /* [0] */
-        pa.add( scKey );
-        if (!isServerReply)
+        /* [0] */ pa.add( scKey );
+        if (! isServerReply)
             return;  // <--- Early return: Sending request from client ---
 
-        /* [1] */
-        pa.add( "0" );  // minVersion
-        /* [2] */
-        pa.add( STR_MARKER_KEY_UNKNOWN );  // lastModVersion: Integer.toString(MARKER_KEY_UNKNOWN)
+        /* [1] */ pa.add("0");  // minVersion
+        /* [2] */ pa.add(STR_MARKER_KEY_UNKNOWN);  // lastModVersion: Integer.toString(MARKER_KEY_UNKNOWN)
     }
 
     /**
@@ -320,13 +308,13 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
 
         if ((scKeys == null) || scKeys.isEmpty())
         {
-            if (!addMarkerAnyChanged)
+            if (! addMarkerAnyChanged)
                 throw new IllegalArgumentException( "empty message" );
         }
         else
         {
             for (final String sc : scKeys)
-                if (!SOCMessage.isSingleLineAndSafe( sc ))
+                if (! SOCMessage.isSingleLineAndSafe( sc ))
                     throw new IllegalArgumentException();
             pa.add( 0, MARKER_SCEN_NAME_LIST );  // required at start of non-empty list
         }
@@ -360,9 +348,9 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
         final String s = pa.get( 0 );  // may throw IndexOutOfBoundsException if empty
         final boolean startswithCliListMarker = s.equals( MARKER_SCEN_NAME_LIST );
 
-        isFromServer = !(startswithCliListMarker || s.equals( MARKER_ANY_CHANGED ));
+        isFromServer = ! (startswithCliListMarker || s.equals( MARKER_ANY_CHANGED ));
 
-        if (!isFromServer)
+        if (! isFromServer)
         {
             // remove MARKER_SCEN_NAME_LIST marker from param list
             if (startswithCliListMarker)
@@ -380,12 +368,12 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
         {
             scKey = s;
             noMoreScens = (scKey.equals( MARKER_NO_MORE_SCENS ));
-            if (!noMoreScens)
+            if (! noMoreScens)
             {
                 final int minVers = Integer.parseInt( pa.get( 1 ) );
                 final int lastModVers = Integer.parseInt( pa.get( 2 ) );
                 isKeyUnknown = (lastModVers == MARKER_KEY_UNKNOWN);
-                if (!isKeyUnknown)
+                if (! isKeyUnknown)
                 {
                     final String longDesc = (L >= 6) ? pa.get( 5 ) : null;
                     scen = new SOCScenario( scKey, minVers, lastModVers, pa.get( 4 ), longDesc, pa.get( 3 ) );
@@ -403,10 +391,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
      * SCENARIOINFO introduced in 2.0.00.
      * @return Version number, 2000 for JSettlers 2.0.00
      */
-    public int getMinimumVersion()
-    {
-        return 2000;
-    }
+    public int getMinimumVersion() { return 2000; }
 
     /**
      * The scenario info, if any. Used in replies from server to client.
@@ -423,6 +408,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     /**
      * The scenario keyname this message is about. Used in replies from server to client.
      * If {@link #isKeyUnknown} flag is true, this field is set but {@link #getScenario()} is {@code null}.
+     *
      * @return Key name of a scenario, from {@link SOCVersionedItem#key sc.key}
      */
     public String getScenarioKey()
@@ -464,7 +450,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
             if (soleParam == null)
                 return null;
 
-            pa = new ArrayList<>();
+            pa = new ArrayList<String>();
             pa.add( soleParam );
         }
         else if (pa.isEmpty())
