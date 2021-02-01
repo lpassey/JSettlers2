@@ -99,7 +99,7 @@ public final class NetConnection
      * @return true if thread start was successful, false if an error occurred.
      */
     @Override
-    public boolean connect()
+    public boolean connect( boolean debugTraffic )
     {
         if (getData() != null)
         {
@@ -109,6 +109,7 @@ public final class NetConnection
 
         try
         {
+            this.debugTraffic = debugTraffic;
             socket.setSoTimeout( TIMEOUT_VALUE );
             in = new DataInputStream( socket.getInputStream() );
             out = new DataOutputStream( socket.getOutputStream() );

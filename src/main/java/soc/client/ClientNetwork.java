@@ -270,25 +270,30 @@ import soc.util.Version;
 
         // We only get here if the "Practice" button was pushed, so we can set the practice flag here.
         isPracticeGame = true;
-        Connection prCli = client.getConnection();
+        Connection clientConnection = client.getConnection();
 
-        if (prCli instanceof MemConnection)
+        if (clientConnection instanceof MemConnection)
         {
-            ((MemConnection) prCli).reset();
+            ((MemConnection) clientConnection).reset();
+        }
+        else
+        {
+            clientConnection.disconnect();
+            clientConnection = null;
         }
 
         try
         {
             // practice games always run with an in-memory connection, even if connected to a
             // local server supporting TCP connections.
-            prCli = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, (MemConnection) prCli );
+            clientConnection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT,
+                (MemConnection) clientConnection, client.debugTraffic );
             if (client.debugTraffic)
             {
-                prCli.setData( "client" );
-                prCli.setDebugTraffic( true );
+                clientConnection.setData( "client" );
             }
-            client.setConnection( prCli );
-            prCli.startMessageProcessing( client.getMessageHandler() );  // Reader will start its own thread
+            client.setConnection( clientConnection );
+            clientConnection.startMessageProcessing( client.getMessageHandler() );  // Reader will start its own thread
 
             // Send VERSION right away
             sendVersion();
@@ -305,9 +310,9 @@ import soc.util.Version;
 
         // Ask internal practice server to create the game
         if (gameOpts == null)
-            prCli.send(new SOCJoinGame(client.nickname, "", SOCMessage.EMPTYSTR, practiceGameName));
+            clientConnection.send(new SOCJoinGame(client.nickname, "", SOCMessage.EMPTYSTR, practiceGameName));
         else
-            prCli.send(new SOCNewGameWithOptionsRequest( client.nickname, "", SOCMessage.EMPTYSTR,
+            clientConnection.send(new SOCNewGameWithOptionsRequest( client.nickname, "", SOCMessage.EMPTYSTR,
                 practiceGameName, gameOpts.getAll()));
 
         return true;
@@ -390,16 +395,15 @@ import soc.util.Version;
         Connection memConnection;
         try
         {
-            memConnection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null );
+            memConnection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null, client.debugTraffic );
         }
         catch( ConnectException e )
         {
-            throw new IllegalStateException( "Could not connect to in-memory server" );
+            throw new IllegalStateException( "Could not connect to in-memory server", e );
         }
         if (client.debugTraffic)
         {
             memConnection.setData( "client" );
-            memConnection.setDebugTraffic( true );
         }
         serverConnectInfo = new ServerConnectInfo( Connection.JVM_STRINGPORT, null);
         client.setConnection( memConnection );
@@ -430,9 +434,7 @@ import soc.util.Version;
     {
         if (client.isConnected())
         {
-            throw new IllegalStateException
-                ("Already connected to " + (serverConnectInfo.hostname != null ? serverConnectInfo.hostname : "localhost")
-                 + ":" + serverConnectInfo.port);
+            client.disconnect();
         }
 
         if (Version.versionNumber() == 0)
@@ -463,7 +465,7 @@ import soc.util.Version;
             Socket sock = new Socket();
             sock.connect( srvAddr, CONNECT_TIMEOUT_MS );
             NetConnection connection = new NetConnection( sock );
-            connection.connect(); // wires up data streams to already connected socket.
+            connection.connect( client.debugTraffic ); // wires up data streams to already connected socket.
             client.setConnection( connection );
             connection.startMessageProcessing( client.getMessageHandler() );
             // send VERSION right away (1.1.06 and later)

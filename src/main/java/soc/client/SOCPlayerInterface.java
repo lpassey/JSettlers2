@@ -48,6 +48,7 @@ import soc.game.SOCTradeOffer;
 import soc.game.SOCVillage;
 import soc.message.SOCMessage;
 import soc.message.SOCPlayerElement.PEType;
+import soc.message.SOCBankTrade;     // for reply code constant
 import soc.message.SOCPickResources;  // for reason code constants
 import soc.message.SOCSimpleAction;  // for action type constants
 import soc.message.SOCSimpleRequest;  // for request type constants
@@ -2499,9 +2500,8 @@ public class SOCPlayerInterface extends Frame
      * @see SOCHandPanel#updateCurrentOffer(boolean, boolean)
      * @since 2.0.00
      */
-    public void printTradeResources
-    ( final SOCPlayer plFrom, final SOCResourceSet give, final SOCResourceSet get,
-        final boolean isOffer, final SOCPlayer plTo )
+    public void printTradeResources( final SOCPlayer plFrom, final SOCResourceSet give,
+        final SOCResourceSet get, final boolean isOffer, final SOCPlayer plTo )
     {
         final String plName = plFrom.getName();
 
@@ -3144,7 +3144,7 @@ public class SOCPlayerInterface extends Frame
     public void showScenarioInfoDialog()
     {
         NewGameOptionsFrame.showScenarioInfoDialog
-            ( game, client.gameOpts.knownOpts, getMainDisplay(), this );
+            ( game, client.serverGameOptions.knownOpts, getMainDisplay(), this );
     }
 
     /**

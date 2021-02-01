@@ -305,8 +305,9 @@ public class MemConnection extends Connection
      * @return Whether we've connected and been accepted by a SOCServerSocket.
      */
     @Override
-    public boolean connect()
+    public boolean connect( boolean debugTraffic )
     {
+        this.debugTraffic = debugTraffic;
         connectTime = new Date();
         return isAccepted();
     }

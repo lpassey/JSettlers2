@@ -28,8 +28,6 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
-import soc.game.SOCGameOption;
-import soc.server.SOCServer;  // for javadocs only
 import soc.communication.SOCClientData;
 import soc.server.savegame.SavedGameModel;  // for javadocs only
 import soc.util.SOCFeatureSet;
@@ -1131,8 +1129,9 @@ public class SOCGameOptionSet
             SOCGameOption optPLP = options.get( "PLP" );
             if (((opt != null) && (opt.getIntValue() > 4))
                 || ((optPLP != null) && optPLP.getBoolValue()))
+            {
                 setBoolOption( "PLB", knownOpts );
-
+            }
         }  // if(doServerPreadjust)
 
         // OTYPE_* - adj javadoc above (re dropIfUnused) if a string-type or bool-type is added.

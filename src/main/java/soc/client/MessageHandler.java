@@ -35,6 +35,7 @@ import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.communication.Connection;
 import soc.communication.SOCMessageDispatcher;
 import soc.disableDebug.D;
+import soc.game.SOCBoard;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCDevCardConstants;
 import soc.game.SOCFortress;
@@ -774,7 +775,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                 // (and any 3rd-party options).
                 // Ask it what it knows about them.
                 List<SOCGameOption> tooNewOpts =
-                    client.gameOpts.knownOpts.optionsNewerThanVersion(serverVersion, false, false);
+                    client.serverGameOptions.knownOpts.optionsNewerThanVersion(serverVersion, false, false);
 
                 if ((tooNewOpts != null) && (serverVersion < SOCGameOption.VERSION_FOR_LONGER_OPTNAMES))
                 {
@@ -788,7 +789,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                         //TODO i18n how to?
                         if ((op.key.length() > 3) || op.key.contains( "_" ))
                         {
-                            client.gameOpts.knownOpts.remove( op.key );
+                            client.serverGameOptions.knownOpts.remove( op.key );
                             opi.remove();
                         }
                     }
@@ -899,7 +900,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                     optNames.add( st.nextToken() );
 
                 StringBuilder opts = new StringBuilder();
-                final SOCGameOptionSet knowns = client.gameOpts.knownOpts;
+                final SOCGameOptionSet knowns = client.serverGameOptions.knownOpts;
                 for (String oname : optNames)
                 {
                     opts.append( '\n' );
@@ -1093,14 +1094,14 @@ public final class MessageHandler implements SOCMessageDispatcher
         List<String> gameNames = mes.getGames();
 
         if (client.serverGames == null)
-            client.serverGames = new SOCGameList( client.gameOpts.knownOpts );
+            client.serverGames = new SOCGameList( client.serverGameOptions.knownOpts );
         client.serverGames.addGames( gameNames, Version.versionNumber() );
 
         // No more game-option info will be received,
         // because that's always sent before game names are sent.
         // We may still ask for GAMEOPTIONGETDEFAULTS if asking to create a game,
         // but that will happen when user clicks that button, not yet.
-        client.gameOpts.noMoreOptions( false );
+        client.serverGameOptions.noMoreOptions( false );
 
         // update displayed list on AWT event thread, not network message thread,
         // to ensure right timing for repaint to avoid appearing empty.
@@ -1127,7 +1128,7 @@ public final class MessageHandler implements SOCMessageDispatcher
     {
         client.gotPassword = true;
 
-        final SOCGameOptionSet knownOpts = client.gameOpts.knownOpts;
+        final SOCGameOptionSet knownOpts = client.serverGameOptions.knownOpts;
         final String gaName = mes.getGame();
         SOCGameOptionSet gameOpts;
         {
@@ -1141,17 +1142,21 @@ public final class MessageHandler implements SOCMessageDispatcher
         if ((bh != 0) || (bw != 0))
         {
             // Encode board size to pass through game constructor.
-            // gameOpts won't be null, because bh, bw are from SOCBoardLarge which requires a gameopt to use.
+            // serverGameOptions won't be null, because bh, bw are from SOCBoardLarge which requires a gameopt to use.
             SOCGameOption opt = knownOpts.getKnownOption( "_BHW", true );
             if (opt == null)
-                throw new IllegalStateException( "Internal error: Game opt _BHW not known" );
+            {
+                opt = new SOCGameOption
+                ( "_BHW", 2000, 2000, 0, 0, 0xFFFF, SOCGameOption.FLAG_INTERNAL_GAME_PROPERTY,
+                    "Large board's height and width (0xRRCC) if not default (local to client only)" );
+            }
             opt.setIntValue( (bh << 8) | bw );
             if (gameOpts == null)
                 gameOpts = new SOCGameOptionSet();  // unlikely: no-opts board has 0 height,width in message
             gameOpts.put( opt );
         }
-
-        SOCGame ga = new SOCGame(gaName, gameOpts, knownOpts); // Constructors will never return null
+        // Constructors will never return null, no need to check
+        SOCGame ga = new SOCGame( gaName, gameOpts, knownOpts );
         ga.serverVersion = client.getConnection().getRemoteVersion();
 
             PlayerClientListener clientListener =
@@ -2050,7 +2055,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         if (pcl == null)
             return;
 
-        pcl.playerBankTrade(ga.getPlayer(mes.getPlayerNumber()), mes.getGiveSet(), mes.getGetSet());
+        pcl.playerBankTrade(ga.getPlayer( mes.getPlayerNumber() ), mes.getGiveSet(), mes.getGetSet());
     }
 
     /**
@@ -2475,12 +2480,12 @@ public final class MessageHandler implements SOCMessageDispatcher
         ServerGametypeInfo servOpts;
         final List<String> unknowns;
 
-        synchronized (client.gameOpts)
+        synchronized (client.serverGameOptions)
         {
             // receiveDefaults sets opts.defaultsReceived, may set opts.allOptionsReceived
-            unknowns = client.gameOpts.receiveDefaults(
-                SOCGameOption.parseOptionsToMap( mes.getOpts(), client.gameOpts.knownOpts ));
-            servOpts = client.gameOpts;
+            unknowns = client.serverGameOptions.receiveDefaults(
+                SOCGameOption.parseOptionsToMap( mes.getOpts(), client.serverGameOptions.knownOpts ));
+            servOpts = client.serverGameOptions;
         }
 
         if (unknowns != null)
@@ -2514,14 +2519,14 @@ public final class MessageHandler implements SOCMessageDispatcher
     /*package*/ void handleGAMEOPTIONINFO( SOCGameOptionInfo mes )
     {
         boolean hasAllNow = false;      // Unnecessary initialization, added to make it clear what the default value is.
-        synchronized (client.gameOpts)
+        synchronized (client.serverGameOptions)
         {
             // returns true is "mes" is the end-of-list message, so there's no need to
             // check for that flag explicitly
-            hasAllNow = client.gameOpts.receiveInfo( mes, client.strings );
+            hasAllNow = client.serverGameOptions.receiveInfo( mes, client.strings );
         }
 
-        client.getMainDisplay().optionsReceived( client.gameOpts, hasAllNow );
+        client.getMainDisplay().optionsReceived( client.serverGameOptions, hasAllNow );
     }
 
     /**
@@ -2534,17 +2539,16 @@ public final class MessageHandler implements SOCMessageDispatcher
         // in case client is about to be auth'd to join this game:
         // messages must take effect in the order sent
 
-        String gname = mes.getGame();
+        String gameName = mes.getGame();
         final String opts = mes.getOptionsString();
 
         boolean canJoin = (mes.getMinVersion() <= Version.versionNumber());
-        if (gname.charAt( 0 ) == SOCGames.MARKER_THIS_GAME_UNJOINABLE)
+        if (gameName.charAt( 0 ) == SOCGames.MARKER_THIS_GAME_UNJOINABLE)
         {
-            gname = gname.substring( 1 );
+            gameName = gameName.substring( 1 );
             canJoin = false;
         }
-
-        client.getMainDisplay().addToGameList( !canJoin, gname, opts, true );
+        client.getMainDisplay().addToGameList( !canJoin, gameName, opts, true );
     }
 
     /**
@@ -2557,7 +2561,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         // SOCGames.MARKER_THIS_GAME_UNJOINABLE.
         // This is recognized and removed in mes.createNewGameList.
 
-        final SOCGameList msgGames = mes.createNewGameList( client.gameOpts.knownOpts );
+        final SOCGameList msgGames = mes.createNewGameList( client.serverGameOptions.knownOpts );
         if (msgGames == null || msgGames.size() < 1)
             return;
 
@@ -2570,7 +2574,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         // because that's always sent before game names are sent.
         // We may still ask for GAMEOPTIONGETDEFAULTS if asking to create a game,
         // but that will happen when user clicks that button, not yet.
-        client.gameOpts.noMoreOptions( false );
+        client.serverGameOptions.noMoreOptions( false );
 
 
         // update displayed list on AWT event thread, not network message thread,
@@ -2598,7 +2602,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     private void handleLOCALIZEDSTRINGS( final SOCLocalizedStrings mes )
     {
-        final SOCGameOptionSet knownOpts = client.gameOpts.knownOpts;
+        final SOCGameOptionSet knownOpts = client.serverGameOptions.knownOpts;
         final List<String> strs = mes.getParams();
         final String type = strs.get( 0 );
 
@@ -2634,10 +2638,10 @@ public final class MessageHandler implements SOCMessageDispatcher
     private void handleSCENARIOINFO( final SOCScenarioInfo mes, Connection connection )
     {
         // Tell everyone we've received all the scenario info.
-        synchronized (client.gameOpts)
+        synchronized (client.serverGameOptions)
         {
-            client.gameOpts.allScenStringsReceived = true;
-            client.gameOpts.allScenInfoReceived = true;
+            client.serverGameOptions.allScenStringsReceived = true;
+            client.serverGameOptions.allScenInfoReceived = true;
         }
         if (mes.noMoreScens)
         {
@@ -2646,12 +2650,12 @@ public final class MessageHandler implements SOCMessageDispatcher
             List<String> unknowns = new ArrayList<>(  );
             for( SOCScenario scen : scens.values() )
             {
-                SOCGameOptionSet gos = SOCGameOption.parseOptionsToSet( scen.scOpts, client.gameOpts.knownOpts );
+                SOCGameOptionSet gos = SOCGameOption.parseOptionsToSet( scen.scOpts, client.serverGameOptions.knownOpts );
                 if (gos != null) for (SOCGameOption opt : gos )
                 {
-                    if (!client.gameOpts.knownOpts.contains( opt ))
+                    if (!client.serverGameOptions.knownOpts.contains( opt ))
                     {
-                        if (client.gameOpts.knownOpts.put( opt ) == null)  // always add, even if OTYPE_UNKNOWN
+                        if (client.serverGameOptions.knownOpts.put( opt ) == null)  // always add, even if OTYPE_UNKNOWN
                             unknowns.add( opt.key );
                     }
                 }
@@ -2660,7 +2664,7 @@ public final class MessageHandler implements SOCMessageDispatcher
             // open the "New Game" dialog.
             if ( ! unknowns.isEmpty())
             {
-                client.gameOpts.allOptionsReceived = false;
+                client.serverGameOptions.allOptionsReceived = false;
                 client.getMainDisplay().optionsRequested();
                 connection.send( new SOCGameOptionGetInfos( unknowns, false, false ) );
             }
@@ -2670,7 +2674,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                 {
                     public void run()
                     {
-                        client.getMainDisplay().optionsReceived( client.gameOpts, true );
+                        client.getMainDisplay().optionsReceived( client.serverGameOptions, true );
                     }
                 } );
             }
@@ -2684,9 +2688,9 @@ public final class MessageHandler implements SOCMessageDispatcher
             else
                 client.getNet().addValidScenario( mes.getScenario() );
 
-            synchronized (client.gameOpts)
+            synchronized (client.serverGameOptions)
             {
-                client.gameOpts.scenKeys.add( scKey );  // OK if was already present from received localized strings
+                client.serverGameOptions.scenKeys.add( scKey );  // OK if was already present from received localized strings
             }
         }
     }
@@ -2832,9 +2836,9 @@ public final class MessageHandler implements SOCMessageDispatcher
         // handle total counts here, visually updating any discrepancies
         final int n = mes.playerNum.size();
         for (int i = 0; i < n; ++i)
-            handlePLAYERELEMENT
-                ( client.getClientListener( mes.getGame() ), ga, null, mes.playerNum.get( i ),
-                 SOCPlayerElement.SET, PEType.RESOURCE_COUNT, mes.playerTotalResources.get(i), false);
+            handlePLAYERELEMENT( client.getClientListener( mes.getGame() ), ga, null,
+                mes.playerNum.get( i ), SOCPlayerElement.SET, PEType.RESOURCE_COUNT,
+                mes.playerTotalResources.get(i), false);
     }
 
     /**

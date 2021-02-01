@@ -919,6 +919,7 @@ public class TestLoadgame
         assertTrue(knownOpt.hasFlag(SOCGameOption.FLAG_INACTIVE_HIDDEN));
         assertFalse(knownOpt.hasFlag(SOCGameOption.FLAG_ACTIVATED));
 
+/*        // we no longer try to ensure that game options match known options on the client.
         try
         {
             final SavedGameModel sgm = load("bad-gameopt-inactive.game.json", srv);
@@ -930,6 +931,7 @@ public class TestLoadgame
                 ("IllegalArgExcep message text should contain: \"unknown option(s): _TESTACT: inactive\" but was: " + msg,
                  msg.contains("unknown option(s): _TESTACT: inactive"));
         }
+*/
 
         // activate the inactive game opt and try again; this is safe to do because
         // only this test method uses _TESTACT

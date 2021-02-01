@@ -1536,11 +1536,11 @@ public class SOCGameOption
                         copyOpt.optType = OTYPE_STR;
                     }
                 }
-                try
-                {
-                    knownOpts.add( (SOCGameOption) copyOpt.clone() );
-                }
-                catch( CloneNotSupportedException ignore ) { }
+//                try
+//                {
+//                    knownOpts.add( (SOCGameOption) copyOpt.clone() );
+//                }
+//                catch( CloneNotSupportedException ignore ) { }
             }
         }
         else

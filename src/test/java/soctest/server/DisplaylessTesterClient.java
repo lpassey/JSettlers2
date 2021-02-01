@@ -43,10 +43,8 @@ import soc.util.Version;
  *
  * @since 2.4.50
  */
-public class DisplaylessTesterClient
-    extends SOCDisplaylessPlayerClient
+public class DisplaylessTesterClient extends SOCDisplaylessPlayerClient
 {
-
     /**
      * Locale sent in {@link #init()}, or {@code null} for {@code "en_US"}
      */
@@ -110,7 +108,7 @@ public class DisplaylessTesterClient
     {
         try
         {
-            connection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null );
+            connection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null, false );
             connected = true;
             connection.startMessageProcessing( this );
 

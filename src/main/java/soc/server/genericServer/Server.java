@@ -584,9 +584,10 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
         // Set "up" _before_ starting message dispatcher (avoid race condition)
         up = true;
-        serverUp();  // Any processing for child class to do after server socket is bound, before the main loop begins
 
         multiplexQueue.startMessageProcessing();
+
+        serverUp();  // Any processing for child class to do after server socket is bound, before the main loop begins
 
         // Start a thread to listen for in-memory connection requests, primarily robots but
         // occasionally practice clients
@@ -943,7 +944,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
         synchronized (unnamedConns)
         {
-            if (c.connect())
+            if (c.connect( D.ebugIsEnabled() ))
             {
                 connAccepted = newConnection1( c );  // <-- App-specific #1 --
                 if (connAccepted)

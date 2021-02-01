@@ -34,8 +34,8 @@ import static org.junit.Assert.*;
 /**
  * A few tests for {@link SOCGameHandler}.
  *<P>
- * TODO: As of mid-2018, new functionality will come with unit tests but all existing {@code SOCGameHandler}
- * code still needs to have unit tests written.
+ * TODO: As of mid-2018, new functionality will come with unit tests but all existing
+ *  {@code SOCGameHandler} code still needs to have unit tests written.
  *
  * @since 2.0.00
  */

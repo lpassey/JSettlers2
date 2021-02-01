@@ -203,7 +203,7 @@ public abstract class Connection implements Runnable
      *
      * @return true if able to connect, false if an error occurred.
      */
-    public abstract boolean connect();
+    public abstract boolean connect( boolean debugTraffic );
 
     /** Are we currently connected and active? */
     public abstract boolean isConnected();

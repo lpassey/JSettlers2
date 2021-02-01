@@ -232,7 +232,6 @@ public class TestSavegame
      */
     @Test
     public void testSGM_playerDevCardStats()
-        throws IOException
     {
         SOCGame ga = new SOCGame("test");
         ga.addPlayer("p0", 0);

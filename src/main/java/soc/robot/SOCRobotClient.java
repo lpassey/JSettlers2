@@ -335,7 +335,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     {
         try
         {
-            connection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null );
+            connection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null, D.ebugIsEnabled() );
             if (D.ebugIsEnabled())
                 connection.setDebugTraffic( true );
             connection.setData( nickname );
@@ -379,7 +379,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                 connected = false;
                 {
                     connection.disconnect();
-                    connection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null );
+                    connection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null, D.ebugIsEnabled() );
                     connection.setData( nickname  );
                     connection.startMessageProcessing( this );
                 }

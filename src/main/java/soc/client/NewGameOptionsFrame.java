@@ -300,7 +300,7 @@ import soc.util.Version;
         SOCPlayerClient cli = md.getClient();
         forNewGame = (gameName == null);
         this.opts = opts;
-        knownOpts = cli.gameOpts.knownOpts;
+        knownOpts = cli.serverGameOptions.knownOpts;
         localPrefs = new HashMap<>();
         this.forPractice = forPractice;
         this.readOnly = readOnly;
@@ -727,13 +727,11 @@ import soc.util.Version;
             {
                 // Sort by description.
                 // Don't sort if readOnly and thus dropdown not enabled, probably not browsable.
-
                 ArrayList<SOCScenario> sl = new ArrayList<>( scens );
                 Collections.sort( sl, new Comparator<SOCScenario>()
                 {
                     // This method isn't part of SOCScenario because that class already has
                     // equals and compareTo methods comparing keys, not descriptions
-
                     public int compare( SOCScenario a, SOCScenario b )
                     {
                         return a.getDesc().compareTo( b.getDesc() );
@@ -742,8 +740,8 @@ import soc.util.Version;
                 scens = sl;
             }
 
-            final String currScen = op.getStringValue();  // or "" if none
-            for (final SOCScenario sc : scens)
+            String currScen = op.getStringValue();  // or "" if none
+            for (SOCScenario sc : scens)
             {
                 ++i;
                 jcb.addItem( sc );  // sc.toString() == sc.desc

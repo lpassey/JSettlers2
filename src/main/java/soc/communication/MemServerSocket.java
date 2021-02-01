@@ -102,7 +102,7 @@ public class MemServerSocket implements SOCServerSocket
      *                          or client is already peered/connected.
      * @return a new {@link MemConnection} object connected to the in-memory SOCServer instance.
      */
-    public static MemConnection connectTo( String name, MemConnection clientConnection )
+    public static MemConnection connectTo( String name, MemConnection clientConnection, boolean debugTraffic )
         throws ConnectException, IllegalArgumentException
     {
         if (name == null)
@@ -153,6 +153,7 @@ public class MemServerSocket implements SOCServerSocket
         if (clientConnection.isOutEOF())
             throw new ConnectException("Server at EOF, closed waiting to be accepted");
 
+        clientConnection.setDebugTraffic( debugTraffic );
         return clientConnection;
     }
 

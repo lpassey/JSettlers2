@@ -29,8 +29,6 @@ import soc.communication.Connection;
 import soc.message.SOCMessage;
 import soc.message.SOCServerPing;
 import soc.server.SOCServer;
-import soc.server.genericServer.Server;
-import soctest.server.TestRecorder;  // for javadocs only
 
 /**
  * Non-testing class: Server which records game events into {@link #records}

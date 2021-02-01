@@ -1447,7 +1447,10 @@ public class SOCGame implements Serializable, Cloneable
             // apply options from scenario, if any:
             final StringBuilder optProblems = op.adjustOptionsToKnown( knownOpts, false, null );
             if (optProblems != null)
-                throw new IllegalArgumentException( "op: unknown option(s): " + optProblems );
+            {
+                System.out.println( "new string output -- op: unknown option(s): " + optProblems );
+//                throw new IllegalArgumentException( "op: unknown option(s): " + optProblems );
+            }
 
             hasSeaBoard = op.isOptionSet( "SBL" );
             final boolean wants6board = op.isOptionSet( "PLB" );

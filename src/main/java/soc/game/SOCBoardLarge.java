@@ -722,7 +722,7 @@ public class SOCBoardLarge extends SOCBoard
     /**
      * Convenience method to get the board size required for constructor:
      * Default size {@link #BOARDHEIGHT_LARGE} by {@link #BOARDWIDTH_LARGE},
-     * unless {@code gameOpts} contains client-only option {@code "_BHW"} Board Height and Width.
+     * unless {@code serverGameOptions} contains client-only option {@code "_BHW"} Board Height and Width.
      * @param gameOpts  Game options, or null
      * @param maxPlayers  Maximum players; must be default 4, or 6 from game option "PL" &gt; 4 or "PLB".
      * @return a new IntPair(height, width)

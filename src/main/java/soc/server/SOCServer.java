@@ -7491,7 +7491,7 @@ public class SOCServer extends Server
      * That way, the requested game's window will appear last,
      * not hidden behind the others.
      *<P>
-     *<b>Process if gameOpts != null:</b>
+     *<b>Process if serverGameOptions != null:</b>
      *<UL>
      *  <LI> if game with this name already exists, respond with
      *      STATUSMESSAGE({@link SOCStatusMessage#SV_NEWGAME_ALREADY_EXISTS SV_NEWGAME_ALREADY_EXISTS})
@@ -7710,7 +7710,7 @@ public class SOCServer extends Server
             }
 
             // Make sure all requested options are known and active.
-            // If has game opt "SC" for scenarios, also adds that scenario's options into gameOpts.
+            // If has game opt "SC" for scenarios, also adds that scenario's options into serverGameOptions.
             // If has game opt "VP" but boolean part is false, uses server default (knownOpts) instead.
             // If any of new game's opts require client features limited/not supported by this client,
             // clips or rejects them.
@@ -7817,7 +7817,7 @@ public class SOCServer extends Server
         catch( SOCGameOptionVersionException e )
         {
             // Let them know they can't join; include the game's version.
-            // This cli asked to created it, otherwise gameOpts would be null.
+            // This cli asked to created it, otherwise serverGameOptions would be null.
             // I18N note: If localizing "Cannot create" text, can't use sep2_char in that localized text
             c.send( SOCStatusMessage.buildForVersion
                 ( SOCStatusMessage.SV_NEWGAME_OPTION_VALUE_TOONEW, cliVers,
@@ -10272,7 +10272,7 @@ public class SOCServer extends Server
                 {
                     name = arg.substring( 2, arg.length() );
                 }
-                String value = null;
+                String value;
                 int posEq = name.indexOf( "=" );
                 if (posEq > 0)
                 {

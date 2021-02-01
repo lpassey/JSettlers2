@@ -357,7 +357,7 @@ public class SOCPlayerClient
      * @see #sFeatures
      * @since 1.1.07
      */
-    protected final ServerGametypeInfo gameOpts = new ServerGametypeInfo();
+    protected final ServerGametypeInfo serverGameOptions = new ServerGametypeInfo();
 
     /**
      * For practice games, default game name ("Practice").
@@ -699,11 +699,11 @@ public class SOCPlayerClient
      */
     protected void checkGameoptsForUnknownScenario( final SOCGameOptionSet opts )
     {
-        if ((opts == null) || gameOpts.allScenInfoReceived || !opts.containsKey( "SC" ))
+        if ((opts == null) || serverGameOptions.allScenInfoReceived || !opts.containsKey( "SC" ))
             return;
 
         final String scKey = opts.get( "SC" ).getStringValue();
-        if ((scKey.length() == 0) || gameOpts.scenKeys.contains( scKey ))
+        if ((scKey.length() == 0) || serverGameOptions.scenKeys.contains( scKey ))
             return;
 
         if (serverConnection.getRemoteVersion() != Version.versionNumber())
@@ -715,7 +715,7 @@ public class SOCPlayerClient
         {
             // TODO: do all localization at client
             serverConnection.send(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey) );
-            gameOpts.scenKeys.add( scKey );  // don't ask again later
+            serverGameOptions.scenKeys.add( scKey );  // don't ask again later
         }
     }
 
@@ -735,7 +735,7 @@ public class SOCPlayerClient
     protected void localizeGameScenarios( final List<String> scStrs, final boolean skipFirst,
         final boolean sentAll )
     {
-        ServerGametypeInfo opts =  gameOpts;
+        ServerGametypeInfo opts = serverGameOptions;
 
         final int L = scStrs.size();
         int i = (skipFirst) ? 1 : 0;
