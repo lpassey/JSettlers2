@@ -162,9 +162,8 @@ public class SOCInventoryItem
      * @return  An inventory item named from this scenario's item types,
      *       or with generic name keys if {@code ga} doesn't have a scenario option recognized here
      */
-    public static SOCInventoryItem createForScenario
-        (final SOCGame ga, final int type, final boolean isPlayable, final boolean isKept,
-         final boolean isVP, final boolean canCancel)
+    public static SOCInventoryItem createForScenario( final SOCGame ga, final int type,
+        final boolean isPlayable, final boolean isKept, final boolean isVP, final boolean canCancel)
     {
         if (ga.isGameOptionSet(SOCGameOptionSet.K_SC_FTRI))
         {

@@ -527,9 +527,7 @@ public class SOCGameHandler extends GameHandler
                     }
                 }
             }
-            catch( NumberFormatException e )
-            {
-            }
+            catch( NumberFormatException ignore ) {}
             catch( NoSuchElementException e )
             {
                 parseOK = false;
@@ -1760,8 +1758,7 @@ public class SOCGameHandler extends GameHandler
             final SOCPotentialSettlements psMsg;
             if (lan == null)
             {
-                psMsg = new SOCPotentialSettlements
-                    ( gameName, -1, new ArrayList<>( psSet ) );
+                psMsg = new SOCPotentialSettlements( gameName, -1, new ArrayList<>( psSet ) );
             }
             else
             {

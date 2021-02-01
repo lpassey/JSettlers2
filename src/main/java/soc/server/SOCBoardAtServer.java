@@ -2,20 +2,20 @@
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * This file Copyright (C) 2012-2020 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012 Paul Bilnoski <paul@bilnoski.net>
- * <p>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
+ *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 
@@ -998,11 +998,11 @@ public class SOCBoardAtServer extends SOCBoardLarge
      *             or if <tt>number</tt> contains a negative value
      * @see #makeNewBoard_placeHexes(int[], int[], boolean, int[], boolean, boolean, int[], boolean, boolean, int, SOCGameOption, String, SOCGameOptionSet)
      */
-    private void makeNewBoard_placeHexes
-    ( int[] landHexType, final int[] landPath, final boolean placeRobberDesert,
-        final int[] number, final boolean shuffleDiceNumbers, final boolean shuffleLandHexes,
-        final int landAreaNumber, final boolean addToExistingLA, final boolean nodesAreInfill,
-        final int maxPl, final SOCGameOption optBC, final String scen, final SOCGameOptionSet opts )
+    private void makeNewBoard_placeHexes( int[] landHexType, final int[] landPath,
+        final boolean placeRobberDesert, final int[] number, final boolean shuffleDiceNumbers,
+        final boolean shuffleLandHexes, final int landAreaNumber, final boolean addToExistingLA,
+        final boolean nodesAreInfill, final int maxPl, final SOCGameOption optBC, final String scen,
+        final SOCGameOptionSet opts )
         throws IllegalStateException, IllegalArgumentException
     {
         final int[] pathRanges = {landAreaNumber, landPath.length};  // 1 range, uses all of landPath
@@ -1328,8 +1328,8 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @param scen  Game scenario, such as {@link SOCScenario#K_SC_TTD}, or "";
      *              some scenarios might want special distribution of certain hex types or dice numbers.
      */
-    private void makeNewBoard_placeHexes_arrangeGolds
-    ( final int[] hexCoords, final int[] landAreaPathRanges, final String scen )
+    private void makeNewBoard_placeHexes_arrangeGolds( final int[] hexCoords,
+        final int[] landAreaPathRanges, final String scen )
     {
         // map of gold hex coords to all their adjacent land hexes, if any;
         // golds with no adjacent land are left out of the map.
@@ -1485,8 +1485,8 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * @param hex1  Hex coordinate to add to <tt>hex0</tt>'s list
      * @return length of hex0's list after adding hex1
      */
-    private int makeNewBoard_placeHexes_arrGolds_addToAdjacList
-    ( HashMap<Integer, List<Integer>> goldAdjacGold, final Integer hex0, Integer hex1 )
+    private int makeNewBoard_placeHexes_arrGolds_addToAdjacList( HashMap<Integer,
+        List<Integer>> goldAdjacGold, final Integer hex0, Integer hex1 )
     {
         List<Integer> al = goldAdjacGold.get( hex0 );
         if (al == null)
@@ -5355,5 +5355,4 @@ public class SOCBoardAtServer extends SOCBoardLarge
         ( final SOCBoardAtServer board, final SOCGameOptionSet opts, final int step );
 
     }  // nested interface NewBoardProgressListener
-
 }

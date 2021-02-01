@@ -163,8 +163,8 @@ public abstract class SOCMessageTemplate3s extends SOCMessage
     protected static String toCmd(final int messageType, String ga, String param1, String param2, String param3)
     {
         return messageType + sep + ga + sep2 + param1
-        + sep2 + (param2 != null ? param2 : "")
-        + sep2 + (param3 != null ? param3 : "");
+            + sep2 + (param2 != null ? param2 : "")
+            + sep2 + (param3 != null ? param3 : "");
     }
 
     /**

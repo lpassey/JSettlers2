@@ -127,8 +127,7 @@ public class SOCBuildingSpeedEstimate
      *        where the resource type constant in [0] has the highest rolls per resource.
      * @since 2.0.00
      */
-    public static int[] getRollsForResourcesSorted(
-        final SOCPlayer pl, final SOCBuildingSpeedEstimateFactory bsef)
+    public static int[] getRollsForResourcesSorted( final SOCPlayer pl, final SOCBuildingSpeedEstimateFactory bsef)
     {
         final SOCPlayerNumbers nums = pl.getNumbers();
         SOCBuildingSpeedEstimate estimate =

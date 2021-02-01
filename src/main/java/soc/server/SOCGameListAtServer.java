@@ -1023,7 +1023,5 @@ public class SOCGameListAtServer extends SOCGameList
             handler = typeHandler;
             messageHandler = handler.getMessageHandler();
         }
-
     }
-
 }

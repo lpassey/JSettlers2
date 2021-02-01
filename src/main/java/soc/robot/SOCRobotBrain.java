@@ -5265,5 +5265,4 @@ public class SOCRobotBrain extends Thread
             }
         }
     }
-
 }

@@ -245,7 +245,7 @@ public class RobberStrategy
             * only check hexes that we're not touching,
             * and not the robber hex, and possibly not desert hexes
             */
-           if ((hex != prevRobberHex)
+           if (   (hex != prevRobberHex)
                && ourPlayerData.getNumbers().hasNoResourcesForHex( hex )
                && !(skipDeserts && (gboard.getHexTypeFromCoord( hex ) == SOCBoard.DESERT_HEX)))
            {

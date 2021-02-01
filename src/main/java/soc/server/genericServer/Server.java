@@ -98,7 +98,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
      */
     /**
      * in-memory socket surrogate which waits for connection requests to be placed into the
-     * "accept" queue, does appropriate setup, the returns a new MemConnection
+     * "accept" queue, does appropriate setup, then returns a new MemConnection
      */
     MemServerSocket localSocket;
 

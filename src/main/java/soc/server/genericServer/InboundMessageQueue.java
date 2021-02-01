@@ -21,7 +21,6 @@
  **/
 package soc.server.genericServer;
 
-import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import soc.communication.Connection;
@@ -267,6 +266,4 @@ public class InboundMessageQueue
         }
 
     }
-
-
 }

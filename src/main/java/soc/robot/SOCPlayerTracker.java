@@ -420,8 +420,9 @@ public class SOCPlayerTracker
                     }
                     else
                     {
-                        SOCPossibleSettlement conflictCopy = trackerCopy2.getPossibleSettlements().get
-                            ( conflict.getCoordinates() );
+                        SOCPossibleSettlement conflictCopy = trackerCopy2
+                            .getPossibleSettlements()
+                            .get( conflict.getCoordinates() );
 
                         if (conflictCopy == null)
                         {

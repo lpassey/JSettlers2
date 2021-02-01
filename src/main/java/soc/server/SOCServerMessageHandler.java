@@ -3100,5 +3100,4 @@ public class SOCServerMessageHandler
 
         server.resetBoardVoteNotifyOne(ga, reqPlayer.getPlayerNumber(), plName, mes.getPlayerVote());
     }
-
 }

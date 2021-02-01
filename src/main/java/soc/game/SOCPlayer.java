@@ -4,20 +4,20 @@
  * Portions of this file Copyright (C) 2007-2021 Jeremy D Monin <jeremy@nand.net>
  * Portions of this file Copyright (C) 2012-2013 Paul Bilnoski <paul@bilnoski.net>
  * Portions of this file Copyright (C) 2017-2018 Strategic Conversation (STAC Project) https://www.irit.fr/STAC/
- * <p>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
+ *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.game;
@@ -3250,8 +3250,8 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      *            game's {@link SOCGameEventListener}.
      * @since 2.0.00
      */
-    private void putPiece_settlement_checkScenarioSVPs
-    ( final SOCSettlement newSettle, final int newSettleArea, final boolean isTempPiece )
+    private void putPiece_settlement_checkScenarioSVPs( final SOCSettlement newSettle,
+        final int newSettleArea, final boolean isTempPiece )
     {
         if ((!hasPlayerEvent( SOCPlayerEvent.SVP_SETTLED_ANY_NEW_LANDAREA ))
             && game.isGameOptionSet( SOCGameOptionSet.K_SC_SANY ))

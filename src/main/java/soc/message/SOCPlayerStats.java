@@ -1,17 +1,17 @@
 /**
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
- * This file Copyright (C) 2010,2012,2014-2017,2020 Jeremy D Monin <jeremy@nand.net>
- * <p>
+ * Portions of this file Copyright (C) 2010,2012,2014-2017,2020 Jeremy D Monin <jeremy@nand.net>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
@@ -105,7 +105,6 @@ public class SOCPlayerStats extends SOCMessageTemplateMi
 
         pa[0] = stype;
 
-        // (stype < STYPE_MIN) || (stype > STYPE_MAX)
         if (stype == STYPE_RES_ROLL)
         {
             final int[] rstats = pl.getResourceRollStats();  // rstats[0] is unused
@@ -114,7 +113,7 @@ public class SOCPlayerStats extends SOCMessageTemplateMi
             if (pa.length > SOCResourceConstants.GOLD_LOCAL)
                 pa[SOCResourceConstants.GOLD_LOCAL] = rstats[SOCResourceConstants.GOLD_LOCAL];
         }
-        else
+        else    // (stype < STYPE_MIN) || (stype > STYPE_MAX)
         {
             throw new IllegalArgumentException( "stype out of range: " + stype );
         }
@@ -153,7 +152,6 @@ public class SOCPlayerStats extends SOCMessageTemplateMi
     private static int len( final SOCPlayer pl, final int stype )
         throws IllegalArgumentException, NullPointerException
     {
-        // (stype < STYPE_MIN) || (stype > STYPE_MAX)
         if (stype == STYPE_RES_ROLL)
         {
             final boolean hasGold =
@@ -161,6 +159,7 @@ public class SOCPlayerStats extends SOCMessageTemplateMi
 
             return 1 + 5 + ((hasGold) ? 1 : 0);
         }
+        // (stype < STYPE_MIN) || (stype > STYPE_MAX)
         throw new IllegalArgumentException( "stype out of range: " + stype );
     }
 

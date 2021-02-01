@@ -238,9 +238,8 @@ public class SOCJoinGameAuth extends SOCMessage
 
             return new SOCJoinGameAuth( gaName, bh, bw, vs );
         }
-        catch( Exception e )
-        {
-        }  // NoSuchElementException, NumberFormatException, etc
+        catch( Exception ignore )
+        { /* NoSuchElementException, NumberFormatException, etc */ }
 
         return null;
     }
