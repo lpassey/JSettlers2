@@ -3284,12 +3284,15 @@ public class SOCGameHandler extends GameHandler
         final String gaName = ga.getName();
         final int cpn = ga.getCurrentPlayerNumber();
 
-        if (ga.clientVersionLowest <= SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS)
+        // TODO: checking for versions relies on a client that is smart enough to update resources
+        //  on its own when a bank trade message comes in. This kind of breaks the Separation of
+        //  Concerns principal, and may make the code a bit more fragile. We may want to rethink this.
+//        if (game.clientVersionLowest <= SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS)
         {
-            reportRsrcGainLossForVersions( ga, give, true, false, cpn, -1, null,
-                SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS - 1);
-            reportRsrcGainLossForVersions( ga, get, false, false, cpn, -1, null,
-                SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS - 1);
+            reportRsrcGainLossForVersions( ga, give, true, false, cpn, -1, null, 0 );
+//                SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS );
+            reportRsrcGainLossForVersions( ga, get, false, false, cpn, -1, null, 0 );
+//                SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS );
         }
 
         SOCBankTrade bt = null;
