@@ -337,7 +337,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         {
             connection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null, D.ebugIsEnabled() );
             if (D.ebugIsEnabled())
-                connection.setDebugTraffic( true );
+                connection.setDebugTraffic( D.ebugIsEnabled() );
             connection.setData( nickname );
             connection.startMessageProcessing( this );
             connected = true;

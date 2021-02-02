@@ -45,7 +45,7 @@ import soc.communication.NetConnection;
 
 import soc.communication.SOCMessageDispatcher;
 import soc.communication.SOCServerSocket;
-import soc.debug.D; // JM
+import soc.disableDebug.D; // JM
 import soc.message.SOCMessage;
 import soc.server.SOCServer;
 

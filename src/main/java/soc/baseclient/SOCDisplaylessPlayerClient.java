@@ -2098,8 +2098,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @return  True if updated, false if game name not found
      * @since 2.4.50
      */
-    // TODO: move to correct spot in file
-    public static boolean handleBANKTRADE(final Map<String, SOCGame> games, final SOCBankTrade mes)
+    protected boolean handleBANKTRADE(final Map<String, SOCGame> games, final SOCBankTrade mes)
     {
         final SOCGame ga = games.get(mes.getGame());
         if (ga == null)

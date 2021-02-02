@@ -35,7 +35,6 @@ import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.communication.Connection;
 import soc.communication.SOCMessageDispatcher;
 import soc.disableDebug.D;
-import soc.game.SOCBoard;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCDevCardConstants;
 import soc.game.SOCFortress;
@@ -2047,11 +2046,18 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleBANKTRADE( final SOCBankTrade mes )
     {
-        final String gaName = mes.getGame();
-        final SOCGame ga = client.games.get( gaName );
+        String gameName = mes.getGame();
+        final SOCGame ga = client.games.get( gameName );
         if (ga == null)
             return;
-        PlayerClientListener pcl = client.getClientListener( gaName );
+
+//        if ( (client.getRemoteVersion() >= SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS))
+//        {
+//            final SOCResourceSet plRes = ga.getPlayer( mes.getPlayerNumber() ).getResources();
+//            plRes.subtract( mes.getGiveSet(), true );
+//            plRes.add( mes.getGetSet() );
+//        }
+        PlayerClientListener pcl = client.getClientListener( gameName );
         if (pcl == null)
             return;
 

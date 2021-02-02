@@ -3271,29 +3271,32 @@ public class SOCGameHandler extends GameHandler
      * using {@link SOCPlayerElement} and {@link SOCBankTrade} messages
      * (or {@link SOCGameTextMsg} to older clients).
      *
-     * @param ga        the game
+     * @param game      the game
      * @param give      the number of the player making the offer
      * @param get       the number of the player accepting the offer
      * @see #reportTrade(SOCGame, int, int)
      */
-    void reportBankTrade( SOCGame ga, SOCResourceSet give, SOCResourceSet get )
+    void reportBankTrade( SOCGame game, SOCResourceSet give, SOCResourceSet get )
     {
-        final String gaName = ga.getName();
-        final int cpn = ga.getCurrentPlayerNumber();
+        final String gaName = game.getName();
+        final int cpn = game.getCurrentPlayerNumber();
 
-        if (ga.clientVersionLowest <= SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS)
+        // TODO: checking for versions relies on a client that is smart enough to update resources
+        //  on its own when a bank trade message comes in. This kind of breaks the Separation of
+        //  concerns principal, and may make the code a bit more fragile. We may want to rethink this.
+//        if (game.clientVersionLowest <= SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS)
         {
-            reportRsrcGainLossForVersions( ga, give, true, false, cpn, -1, null,
-                SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS - 1);
-            reportRsrcGainLossForVersions( ga, get, false, false, cpn, -1, null,
-                SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS - 1);
+            reportRsrcGainLossForVersions( game, give, true, false, cpn, -1, null, 0 );
+//                SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS );
+            reportRsrcGainLossForVersions( game, get, false, false, cpn, -1, null, 0 );
+//                SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS );
         }
 
         SOCBankTrade bt = null;
-        if (ga.clientVersionHighest >= SOCStringManager.VERSION_FOR_I18N)
+        if (game.clientVersionHighest >= SOCStringManager.VERSION_FOR_I18N)
             bt = new SOCBankTrade( gaName, give, get, cpn );
 
-        if (ga.clientVersionLowest >= SOCStringManager.VERSION_FOR_I18N)
+        if (game.clientVersionLowest >= SOCStringManager.VERSION_FOR_I18N)
         {
             srv.messageToGame( gaName, true, bt );
         }
@@ -3301,7 +3304,7 @@ public class SOCGameHandler extends GameHandler
         {
             if (bt != null)
                 srv.messageToGameForVersions
-                    ( ga, SOCStringManager.VERSION_FOR_I18N, Integer.MAX_VALUE, bt, true );
+                    ( game, SOCStringManager.VERSION_FOR_I18N, Integer.MAX_VALUE, bt, true );
 
             if (srv.recordGameEventsIsActive())
             {
@@ -3332,9 +3335,9 @@ public class SOCGameHandler extends GameHandler
             // older clients need it sent from the server.
             // I18N OK: Pre-2.0.00 clients always use english
             final String txt = SOCStringManager.getFallbackServerManagerForClient().formatSpecial
-                ( ga, fmt.toString(), ga.getPlayer( cpn ).getName(), give, get );
+                ( game, fmt.toString(), game.getPlayer( cpn ).getName(), give, get );
             srv.messageToGameForVersions
-                ( ga, 0, SOCStringManager.VERSION_FOR_I18N - 1,
+                ( game, 0, SOCStringManager.VERSION_FOR_I18N - 1,
                     new SOCGameTextMsg( gaName, SOCServer.SERVERNAME, txt ), true );
         }
     }
