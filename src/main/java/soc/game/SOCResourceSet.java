@@ -45,7 +45,7 @@ public class SOCResourceSet implements ResourceSet, Serializable, Cloneable
      * 1 == {@link SOCResourceConstants#CLAY},
      * 2 == {@link SOCResourceConstants#ORE},
      * ...
-     * 5 = {@link SOCResourceConstants#WHEAT},
+     * 5 = {@link SOCResourceConstants#WOOD},
      * 6 = {@link SOCResourceConstants#UNKNOWN}.
      */
     private int[] resources;
@@ -334,20 +334,36 @@ public class SOCResourceSet implements ResourceSet, Serializable, Cloneable
         {
             convertToUnknown();
             resources[rtype] -= amt;
-        } else {
+        }
+        else
+        {
+            /**
+             * the number of each resource type.
+             * Indexes 1 to n are used:
+             * 1 == {@link SOCResourceConstants#CLAY},
+             * 2 == {@link SOCResourceConstants#ORE},
+             * 3 == {@link SOCResourceConstants#SHEEP},
+             * 4 == {@link SOCResourceConstants#WHEAT},
+             * 5 == {@link SOCResourceConstants#WOOD},
+             * 6 == {@link SOCResourceConstants#UNKNOWN}.
+             */
+
             final int ourAmt = resources[rtype];
             if (amt > ourAmt)
             {
                 resources[SOCResourceConstants.UNKNOWN] -= (amt - ourAmt);
                 resources[rtype] = 0;
-            } else {
+            }
+            else
+            {
                 resources[rtype] -= amt;
             }
         }
 
         if (resources[SOCResourceConstants.UNKNOWN] < 0)
         {
-            System.err.println("RESOURCE < 0 : RESOURCE TYPE=" + rtype);
+            System.err.println(String.format( "UKNOWN == %d : RESOURCE TYPE == %d",
+                resources[SOCResourceConstants.UNKNOWN], rtype ));
         }
     }
 

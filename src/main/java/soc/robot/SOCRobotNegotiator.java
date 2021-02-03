@@ -2351,11 +2351,15 @@ public class SOCRobotNegotiator
         ///
         int getRsrcIdx = neededRsrcCount - 1;
 
-        while (ourResources.getAmount(neededRsrc[getRsrcIdx]) >= targetResources.getAmount(neededRsrc[getRsrcIdx]))
+        while (   getRsrcIdx > -1
+               && ourResources.getAmount( neededRsrc[getRsrcIdx] ) >= targetResources.getAmount( neededRsrc[getRsrcIdx] ))
         {
             getRsrcIdx--;
         }
-
+        if (getRsrcIdx < 0)
+        {
+            return null;
+        }
         int giveRsrcIdx = 0;
 
         while (giveRsrcIdx < notNeededRsrcCount)
