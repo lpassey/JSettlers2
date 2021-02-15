@@ -55,10 +55,10 @@ import java.util.StringTokenizer;
  * The message data is sent over the network as type ID + data strings
  * built by each SOCMessage subclass's toCmd() method.
  * This is sent over TCP using {@link java.io.DataOutputStream#writeUTF(String)}.
- * Server-launched local AI bots use {@link soc.server.genericServer.StringConnection}
+ * Server-launched local AI bots use {@link soc.communication.MemConnection}
  * instead of TCP, and skip the UTF encoding/decoding overhead.
  *<P>
- * On the remote end, it's reconstructed to a new instance of the
+ * On the remote end, a message is reconstructed to a new instance of the
  * appropriate SOCMessage subclass, by the subclass' required method
  * static SOCMessageSubclass parseDataStr(String).
  * parseDataStr is called from {@link #toMsg(String)} in this class.
@@ -66,7 +66,7 @@ import java.util.StringTokenizer;
  *<P>
  * The client receives messages in {@link soc.client.MessageHandler#handle(SOCMessage, Connection)}.
  * The server receives messages in
- * {@link soc.server.SOCMessageDispatcher#dispatch(SOCMessage, Connection)}.
+ * {@link soc.server.SOCServerMessageDispatcher#dispatch(SOCMessage, Connection)}.
  *
  *<H3>Human-readable format:</H3>
  * For debugging purposes, {@link #toString()} should include all fields sent over the network
@@ -278,7 +278,7 @@ public abstract class SOCMessage implements Serializable, Cloneable
     // public static final int SETUPDONE = 1027;   // unused; SOCSetupDone removed in v2.0.00 cleanup
     public static final int DICERESULT = 1028;
     public static final int DISCARDREQUEST = 1029;
-    public static final int ROLLDICEREQUEST = 1030;
+//    public static final int ROLLDICEREQUEST = 1030;
     public static final int ROLLDICE = 1031;
     public static final int ENDTURN = 1032;
     public static final int DISCARD = 1033;
@@ -536,6 +536,18 @@ public abstract class SOCMessage implements Serializable, Cloneable
      * An ID identifying the type of message; see {@link #getType()}.
      */
     protected int messageType;
+
+    private boolean debugTraffic;
+
+    public boolean debugTraffic()
+    {
+        return debugTraffic;
+    }
+
+    public void setDebugTraffic( boolean debugTraffic )
+    {
+        this.debugTraffic = debugTraffic;
+    }
 
     /**
      * @return the message type number sent over the network, such as {@link #JOINGAMEAUTH} or {@link #PUTPIECE}
@@ -833,8 +845,8 @@ public abstract class SOCMessage implements Serializable, Cloneable
             case DISCARDREQUEST:
                 return SOCDiscardRequest.parseDataStr( data );
 
-            case ROLLDICEREQUEST:
-                return SOCRollDiceRequest.parseDataStr( data );
+//            case ROLLDICEREQUEST:
+//                return SOCRollDiceRequest.parseDataStr( data );
 
             case ROLLDICE:
                 return SOCRollDice.parseDataStr( data );
