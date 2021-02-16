@@ -89,11 +89,11 @@ public class TestScenarioOpts
         // add known
         assertNull(SOCServerScenario.getScenario("_TESTF"));
         final SOCScenario newKnown = new SOCScenario("_TESTF", 2100, -1, "desc", null, "-");
-        SOCServerScenario.getAllKnownScenarios().put( "_TESTF", newKnown );
+        SOCServerScenario.put( "_TESTF", newKnown );
         assertSame( newKnown, SOCServerScenario.getScenario( "_TESTF" ));
 
         // cleanup/remove known
-        SOCServerScenario.getAllKnownScenarios().remove( "_TESTF" );
+        SOCServerScenario.remove( "_TESTF" );
         assertNull(SOCServerScenario.getScenario("_TESTF"));
     }
 
@@ -107,7 +107,7 @@ public class TestScenarioOpts
         final SOCGameOptionSet knownOpts = SOCServerGameOptionSet.getAllKnownOptions();
         final TreeSet<String> badScens = new TreeSet<>(); // use TreeSet for sorted results
 
-        for (final SOCScenario sc : SOCServerScenario.getAllKnownScenarios().values())
+        for (final SOCScenario sc : SOCServerScenario.cloneAllKnownScenarios().values())
         {
             if (sc.scOpts.equals("-"))
                 continue;
@@ -122,7 +122,7 @@ public class TestScenarioOpts
                 // This same pre-check is done by TestBoardLayouts.testSingleLayout(..)
                 if (parsedOpts != null)
                 {
-                    sb = parsedOpts.adjustOptionsToKnown(knownOpts, true, null, SOCServerScenario.getAllKnownScenarios());
+                    sb = parsedOpts.adjustOptionsToKnown(knownOpts, true, null, SOCServerScenario.cloneAllKnownScenarios());
                     if (null != sb)
                     {
                         badScens.add(sc.key + ": Bad game options found by SGOSet.adjustOptionsToKnown: " + sb);
