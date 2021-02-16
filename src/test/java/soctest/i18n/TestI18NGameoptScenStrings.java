@@ -131,7 +131,7 @@ public class TestI18NGameoptScenStrings
     {
         // pre-test: Hardcoded string needed by SCD.localeHasGameScenarios
         {
-            final SOCScenario scWond = SOCScenario.getScenario(SOCScenario.K_SC_WOND);
+            final SOCScenario scWond = SOCServerScenario.getScenario(SOCScenario.K_SC_WOND);
             assertNotNull("missing required SOCScenario object SC_WOND", scWond);
             final String desc = scWond.getDesc();
             final int L = (desc != null) ? desc.length() : 0;
