@@ -27,13 +27,6 @@ import soc.message.SOCMessage;
 
 /**
  * Scenarios for game rules and options on the {@link SOCBoardLarge large sea board}.
- * Optional and chooseable at game creation.
- * This class holds the known scenarios, at the client or server,
- * in a static dictionary of known scenarios; see {@link #getAllKnownScenarios()}
- * for the current list of all known scenarios.
- *<P>
- * For information about adding or changing game scenarios in a
- * later version of JSettlers, please see {@link #initAllScenarios()}.
  *<P>
  * Scenarios use {@link SOCGameOption}s to change the game to the scenario's concept.
  * Each scenario's {@link #scOpts} field gives the scenario's option names and values.
@@ -49,9 +42,6 @@ import soc.message.SOCMessage;
  * For the same reason, descriptions must not contain
  * certain characters or span more than 1 line; this is checked by calling
  * {@link SOCMessage#isSingleLineAndSafe(String)} within constructors and setters.
- *<P>
- * The "known scenarios" are initialized via {@link #initAllScenarios()}.  See that
- * method's description for more details on adding or changing a scenario.
  *<P>
  * <B>Version negotiation:</B><br>
  * Game options were introduced in 1.1.07; check server, client versions against
@@ -78,38 +68,6 @@ public class SOCScenario extends SOCVersionedItem
 {
     /** Version 2.0.00 (2000) introduced game scenarios. */
     public static final int VERSION_FOR_SCENARIOS = 2000;
-
-    /**
-     * Set of "known scenarios".
-     * allScenarios must never be null, because other places assume it is filled.
-     * All scenarios here have their {@link SOCVersionedItem#isKnown isKnown} flag set true.
-     * To add or change a scenario, see {@link #initAllScenarios()}.
-     */
-    protected static Map<String, SOCScenario> allScenarios = new HashMap<>(); // = initAllScenarios();
-
-    /**
-     * The highest {@link SOCVersionedItem#minVersion} of all scenarios in {@link #getAllKnownScenarios()}, or 0.
-     * Value may change when a new JSettlers server version is released.
-     *<P>
-     * This is meant for use at the server, so its value won't be changed by calls to
-     * {@link #addKnownScenario(SOCScenario)} or {@link #removeUnknownScenario(String)};
-     * those methods aren't used at the server.
-     */
-    public static final int ALL_KNOWN_SCENARIOS_MIN_VERSION = findAllScenariosGreatestMinVersion();
-
-    /** Find max(minVersion) among {@link #allScenarios} for {@link #ALL_KNOWN_SCENARIOS_MIN_VERSION} init. */
-    private static int findAllScenariosGreatestMinVersion()
-    {
-        int min = 0;
-
-        for (SOCScenario sc : allScenarios.values())
-            if (sc.minVersion > min)
-                min = sc.minVersion;
-
-        return min;
-    }
-
-    // Game scenario keynames.
 
     /**
      * Scenario key {@code SC_NSHO} for New Shores.
@@ -365,54 +323,6 @@ public class SOCScenario extends SOCVersionedItem
         scLongDesc = longDesc;
     }
 
-
-    /**
-     * Get the key names for all known scenarios.
-     * This method avoids the copying overhead of {@link #getAllKnownScenarios()}.
-     * @return The set of all scenarios' key names, such as {@link #K_SC_4ISL SC_4ISL}.
-     *    Please treat the returned set as read-only.
-     * @see #getAllKnownScenarios()
-     */
-    public static Set<String> getAllKnownScenarioKeynames()
-    {
-        return allScenarios.keySet();
-    }
-
-    /**
-     * Add a new known scenario (received from a server having a newer or older version),
-     * or update the scenario's information.
-     *<P>
-     * Because this method is client-only, it won't update the {@link #ALL_KNOWN_SCENARIOS_MIN_VERSION}
-     * field used at the server.
-     *
-     * @param scNew New scenario, or a changed version of one we already know.
-     * @return true if it's new, false if we already had that key and it was updated
-     * @see #getAllKnownScenarios()
-     * @see #removeUnknownScenario(String)
-     */
-    public static boolean addKnownScenario( SOCScenario scNew)
-    {
-        final boolean hadOld = (null != allScenarios.put(scNew.key, scNew));
-
-        return ! hadOld;
-    }
-
-    /**
-     * Remove a scenario from known scenarios, based on info received from a server having an older or newer version.
-     * If {@code scKey} isn't a known scenario, does nothing.
-     *<P>
-     * Because this method is client-only, it won't update the {@link #ALL_KNOWN_SCENARIOS_MIN_VERSION}
-     * field used at the server.
-     *
-     * @param scKey  Scenario key marked as unknown by the server
-     * @see #getAllKnownScenarios()
-     * @see #addKnownScenario(SOCScenario)
-     */
-    public static void removeUnknownScenario(final String scKey)
-    {
-        allScenarios.remove(scKey);  // OK if scKey wasn't in map
-    }
-
     /**
      * Clone this scenario map and its contents.
      * @param scens  a map of {@link SOCScenario}s, or null
@@ -435,17 +345,6 @@ public class SOCScenario extends SOCVersionedItem
             catch (CloneNotSupportedException ignored) {} // required, but not expected to happen
         }
         return scens2;
-    }
-
-    /**
-     * Get the scenario information about this known scenario.
-     * Treat the returned value as read-only (is not cloned).
-     * @param key  Scenario key name, such as {@link #K_SC_4ISL SC_4ISL}, from {@link #getAllKnownScenarios()}
-     * @return information about a known scenario, or null if none with that key
-     */
-    public static SOCScenario getScenario(String key)
-    {
-        return allScenarios.get(key);  // null is ok
     }
 
     /**

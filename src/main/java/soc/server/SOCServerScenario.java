@@ -13,12 +13,40 @@ import soc.message.SOCMessage;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+/**
+ * This class holds the known scenarios at the server,
+ * in a static dictionary of known scenarios; see {@link #getAllKnownScenarios()}
+ * for the current list of all known scenarios.
+ *<P>
+ * For information about adding or changing game scenarios in a
+ * later version of JSettlers, please see {@link #initAllScenarios()}.
+ */
 public class SOCServerScenario extends SOCScenario
 {
+    protected static Map<String, SOCScenario> allScenarios =  initAllScenarios();
+
+    /**
+     * The highest {@link SOCVersionedItem#minVersion} of all scenarios in {@link #getAllKnownScenarios()}, or 0.
+     * Value may change when a new JSettlers server version is released.
+     *<P>
+     * This is meant for use at the server, so its value won't be changed by calls to
+     * {@link #addKnownScenario(SOCScenario)} or {@link #removeUnknownScenario(String)};
+     * those methods aren't used at the server.
+     */
+    public static final int ALL_KNOWN_SCENARIOS_MIN_VERSION;
+
+    /** Find max(minVersion) among {@link #allScenarios} for {@link #ALL_KNOWN_SCENARIOS_MIN_VERSION} init. */
     static
     {
-        allScenarios = initAllScenarios();
+        int min = 0;
+
+        for (SOCScenario sc : allScenarios.values())
+            if (sc.minVersion > min)
+                min = sc.minVersion;
+
+        ALL_KNOWN_SCENARIOS_MIN_VERSION = min;
     }
 
     /**
@@ -232,7 +260,7 @@ public class SOCServerScenario extends SOCScenario
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.setPrettyPrinting().disableHtmlEscaping().create();
 
-        String json = gson.toJson( allSc );
+//        String json = gson.toJson( allSc );
 
         return allSc;
 
@@ -266,4 +294,18 @@ public class SOCServerScenario extends SOCScenario
         // To add a new scenario, see initAllScenarios().
         return cloneScenarios(allScenarios);
     }
+
+    /**
+     * Get the key names for all known scenarios.
+     * This method avoids the copying overhead of {@link #getAllKnownScenarios()}.
+     * @return The set of all scenarios' key names, such as {@link #K_SC_4ISL SC_4ISL}.
+     *    Please treat the returned set as read-only.
+     * @see #getAllKnownScenarios()
+     */
+
+    public static Set<String> getAllKnownScenarioKeynames()
+    {
+        return allScenarios.keySet();
+    }
+
 }
