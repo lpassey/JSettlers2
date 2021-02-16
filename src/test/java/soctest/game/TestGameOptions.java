@@ -34,6 +34,7 @@ import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
 import soc.game.SOCVersionedItem;
 import soc.server.SOCServerGameOptionSet;
+import soc.server.SOCServerScenario;
 import soc.util.SOCFeatureSet;
 import soc.util.Version;
 
@@ -115,7 +116,7 @@ public class TestGameOptions
 
         // should remove VP when false and not present at "server" with a default
         newOpts.put(optVP);
-        StringBuilder sb = newOpts.adjustOptionsToKnown(testFewKnownOpts, true, null);
+        StringBuilder sb = newOpts.adjustOptionsToKnown(testFewKnownOpts, true, null, SOCServerScenario.getAllKnownScenarios() );
         assertNull(sb);
         assertFalse(newOpts.containsKey("VP"));
 
@@ -127,14 +128,14 @@ public class TestGameOptions
             testFewKnownOpts.put(srvVP);
         }
         newOpts.put(optVP);
-        sb = newOpts.adjustOptionsToKnown(testFewKnownOpts, true, null);
+        sb = newOpts.adjustOptionsToKnown(testFewKnownOpts, true, null, SOCServerScenario.getAllKnownScenarios() );
         assertNull(sb);
         assertFalse(newOpts.containsKey("VP"));
 
         // shouldn't remove if VP is true
         optVP.setBoolValue(true);
         newOpts.put(optVP);
-        sb = newOpts.adjustOptionsToKnown(testFewKnownOpts, true, null);
+        sb = newOpts.adjustOptionsToKnown(testFewKnownOpts, true, null, SOCServerScenario.getAllKnownScenarios() );
         assertNull(sb);
         assertTrue(newOpts.containsKey("VP"));
     }
@@ -216,7 +217,7 @@ public class TestGameOptions
         final SOCGameOption opt = knowns.getKnownOption("_TESTF", true);
         opt.setIntValue(0x2211);
         newGameOpts.put(opt);
-        newGameOpts.adjustOptionsToKnown(knowns, true, null);
+        newGameOpts.adjustOptionsToKnown(knowns, true, null, SOCServerScenario.getAllKnownScenarios() );
         assertNull(newGameOpts.get("_TESTF"));
 
         // cleanup
@@ -315,7 +316,7 @@ public class TestGameOptions
 
         SOCGameOptionSet newGameReqOpts = new SOCGameOptionSet();
         newGameReqOpts.put(optPlayVPO);
-        StringBuilder optProblems = newGameReqOpts.adjustOptionsToKnown(knowns, true, null);
+        StringBuilder optProblems = newGameReqOpts.adjustOptionsToKnown( knowns, true, null, SOCServerScenario.getAllKnownScenarios() );
         assertNotNull(optProblems);
         assertTrue(optProblems.toString().contains("PLAY_VPO: inactive"));
 
@@ -394,7 +395,7 @@ public class TestGameOptions
         }
 
         newGameReqOpts.put(activated);
-        optProblems = newGameReqOpts.adjustOptionsToKnown(knowns, true, null);
+        optProblems = newGameReqOpts.adjustOptionsToKnown(knowns, true, null, SOCServerScenario.getAllKnownScenarios() );
         assertNull(optProblems);
 
         // cleanup
@@ -792,17 +793,17 @@ public class TestGameOptions
         opts.add(optPL);
 
         // client has no features
-        StringBuilder optProblems = opts.adjustOptionsToKnown(knownOpts, true, new SOCFeatureSet(""));
+        StringBuilder optProblems = opts.adjustOptionsToKnown(knownOpts, true, new SOCFeatureSet(""), SOCServerScenario.getAllKnownScenarios() );
         assertNotNull(optProblems);
         assertTrue(optProblems.toString().contains("PLB: requires missing feature"));
 
         // client has some features, but not 6-player
-        optProblems = opts.adjustOptionsToKnown(knownOpts, true, new SOCFeatureSet(";sb;sc=2450;"));
+        optProblems = opts.adjustOptionsToKnown(knownOpts, true, new SOCFeatureSet(";sb;sc=2450;"), SOCServerScenario.getAllKnownScenarios() );
         assertNotNull(optProblems);
         assertTrue(optProblems.toString().contains("PLB: requires missing feature"));
 
         // client has that feature
-        optProblems = opts.adjustOptionsToKnown(knownOpts, true, new SOCFeatureSet(";6pl;"));
+        optProblems = opts.adjustOptionsToKnown(knownOpts, true, new SOCFeatureSet(";6pl;"), SOCServerScenario.getAllKnownScenarios() );
         assertNull(optProblems);
     }
 
