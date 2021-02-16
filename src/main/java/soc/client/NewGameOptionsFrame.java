@@ -2329,7 +2329,8 @@ import soc.util.Version;
         if (scKey == null)
             return;
 
-        SOCScenario sc = SOCScenario.getScenario( scKey );
+        SOCScenario sc = md.getClient().getNet().getValidScenarios().get( scKey );
+
         if (sc == null)
             return;
 
