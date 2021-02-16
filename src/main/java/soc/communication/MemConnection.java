@@ -133,8 +133,6 @@ public class MemConnection extends Connection
      */
     public boolean receive( SOCMessage receivedMessage )
     {
-        if (debugTraffic || D.ebugIsEnabled())
-            soc.debug.D.ebugPrintlnINFO("IN - " + data + " - " + receivedMessage.toString());
         try
         {
             waitQueue.put( receivedMessage );
@@ -183,8 +181,9 @@ public class MemConnection extends Connection
         }
         if (isInEOF())
             return;
-        if (debugTraffic || D.ebugIsEnabled())
-            soc.debug.D.ebugPrintlnINFO("OUT - " + data + " - " + socMessage.toString());
+        if (debugTraffic || D.ebugIsEnabled() || socMessage.debugTraffic())
+            soc.debug.D.ebugPrintlnINFO( String.format( "OUT - [%s] %s - %s",
+                Thread.currentThread().getName(), data, socMessage.toString() ));
 
         if (null != ourPeer)
             ourPeer.receive( socMessage );
@@ -214,6 +213,9 @@ public class MemConnection extends Connection
             while (! isInEOF())
             {
                 final SOCMessage msgObj = waitQueue.take();  // blocks until next message is available
+                if (debugTraffic || D.ebugIsEnabled() || msgObj.debugTraffic())
+                    soc.debug.D.ebugPrintlnINFO( String.format( " IN - [%d] %s - %s",
+                        Thread.currentThread().getId(), data, msgObj.toString()));
                 messageDispatcher.dispatch( msgObj, this );
             }
         }

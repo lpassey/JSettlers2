@@ -183,8 +183,11 @@ public final class NetConnection
                 // readUTF max message size is 65535 chars, modified utf-8 format
                 final String msgStr = in.readUTF();  // blocks until next message is available
                 SOCMessage socMessage = SOCMessage.toMsg(msgStr);
-                if (debugTraffic || D.ebugIsEnabled())
-                    soc.debug.D.ebugPrintlnINFO("IN - " + data + " - " + socMessage.toString());
+                if (debugTraffic || D.ebugIsEnabled() || socMessage.debugTraffic())
+                {
+                    soc.debug.D.ebugPrintlnINFO( String.format( " IN - [%s] %s - %s",
+                        Thread.currentThread().getName(), data, socMessage.toString() ));
+                }
                 if (socMessage instanceof SOCDisconnect)
                 {
                    disconnect();    // sets inputConnected = false, so this thread will now terminate
@@ -230,8 +233,9 @@ public final class NetConnection
     @Override
     public final void send( SOCMessage socMessage )
     {
-        if (debugTraffic || D.ebugIsEnabled())
-            soc.debug.D.ebugPrintlnINFO("OUT - " + data + " - " + socMessage.toString());
+        if (debugTraffic || D.ebugIsEnabled() || socMessage.debugTraffic())
+            soc.debug.D.ebugPrintlnINFO(String.format( "OUT [%s] - %s - %s",
+                Thread.currentThread().getName(), data, socMessage.toString() ));
         putForReal( socMessage.toCmd() );
     }
 
