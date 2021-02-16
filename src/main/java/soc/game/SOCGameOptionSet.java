@@ -1008,6 +1008,8 @@ public class SOCGameOptionSet
     }
 
     /**
+     * NOTE: only called by server
+     *
      * Compare this set of options with known-good values, and optionally apply options from
      * the set's scenario (game option <tt>"SC"</tt>) if present.
      *<P>
@@ -1060,8 +1062,8 @@ public class SOCGameOptionSet
      * @throws IllegalArgumentException if {@code knownOpts} is null
      * @since 1.1.07
      */
-    public StringBuilder adjustOptionsToKnown( final SOCGameOptionSet knownOpts, final boolean doServerPreadjust,
-        final SOCFeatureSet limitedCliFeats )
+    public StringBuilder adjustOptionsToKnown( SOCGameOptionSet knownOpts, boolean doServerPreadjust,
+        SOCFeatureSet limitedCliFeats, Map<String,SOCScenario> scenarioMap )
         throws IllegalArgumentException
     {
         if (knownOpts == null)
@@ -1094,7 +1096,7 @@ public class SOCGameOptionSet
                 final String scKey = opt.getStringValue();
                 if (scKey.length() > 0)
                 {
-                    SOCScenario sc = SOCScenario.getScenario( scKey );
+                    SOCScenario sc = scenarioMap.get( scKey );
                     if (sc == null)
                     {
                         unknownScenario = scKey;
