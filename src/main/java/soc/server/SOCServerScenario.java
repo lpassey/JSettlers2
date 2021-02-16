@@ -289,7 +289,7 @@ public class SOCServerScenario extends SOCScenario
      * @see #addKnownScenario(SOCScenario)
      * @see SOCGameOptionSet#getAllKnownOptions()
      */
-    public static Map<String, SOCScenario> getAllKnownScenarios()
+    public static Map<String, SOCScenario> cloneAllKnownScenarios()
     {
         // To add a new scenario, see initAllScenarios().
         return cloneScenarios(allScenarios);
@@ -308,4 +308,13 @@ public class SOCServerScenario extends SOCScenario
         return allScenarios.keySet();
     }
 
+    public static SOCScenario put( String scenarioKey, SOCScenario scenario )
+    {
+        return allScenarios.put( scenarioKey, scenario );
+    }
+
+    public static SOCScenario remove( String scenarioKey )
+    {
+        return allScenarios.remove( scenarioKey );
+    }
 }
