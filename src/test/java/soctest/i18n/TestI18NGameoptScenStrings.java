@@ -72,7 +72,7 @@ public class TestI18NGameoptScenStrings
     {
         sm = SOCStringManager.getServerManagerForClient(new Locale("en_US"));
         allOpts = SOCServerGameOptionSet.getAllKnownOptions();
-        allScens = SOCServerScenario.getAllKnownScenarios();
+        allScens = SOCServerScenario.cloneAllKnownScenarios();
     }
 
     /**
