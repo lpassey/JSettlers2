@@ -27,6 +27,7 @@ import soc.server.SOCBoardAtServer;
 import soc.server.SOCGameHandler;
 import soc.server.SOCGameListAtServer;
 import soc.server.SOCServerGameOptionSet;
+import soc.server.SOCServerScenario;
 
 import static org.junit.Assert.*;
 
@@ -74,7 +75,8 @@ public abstract class GameTestUtils
         final SOCGameOptionSet gaOpts = SOCGameOption.parseOptionsToSet(optsStr, knownOpts);
         assertNotNull("Unexpected problems with scenario option string: " + optsStr, gaOpts);
         assertNull("Unexpected problems with scenario options",
-            gaOpts.adjustOptionsToKnown(knownOpts, true, null));
+            gaOpts.adjustOptionsToKnown(knownOpts, true, null,
+                SOCServerScenario.cloneAllKnownScenarios() ));
                 // this same pre-check is done by TestScenarioOpts.testAllScenarios()
 
         gl.createGame(gaName, "test", "en_US", gaOpts, sgh);
