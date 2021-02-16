@@ -85,7 +85,9 @@ public class TestResourceSet
         rs.subtract(2, SOCResourceConstants.CLAY);
         assertEquals(3, rs.getTotal());
         assertEquals(0, rs.getAmount(SOCResourceConstants.CLAY));
-        assertEquals(-1, rs.getAmount(SOCResourceConstants.UNKNOWN));
+        // we tried to remove more (2) than we had (1). Everything should have been converted
+        // to unknown, and the amount removed should be subtracted from the previous total (5)
+        assertEquals(3, rs.getAmount(SOCResourceConstants.UNKNOWN));
     }
 
     @Test
@@ -144,13 +146,33 @@ public class TestResourceSet
     {
         SOCResourceSet rs = onePerType();
 
-        rs.subtract(1, SOCResourceConstants.CLAY);  // not too many
+        assertTrue( rs.subtract( 1, SOCResourceConstants.CLAY ));  // not too many
         assertEquals(4, rs.getTotal());
         assertArrayEquals(new int[]{0, 1, 1, 1, 1, 0}, rs.getAmounts(true));
 
-        rs.subtract(1, SOCResourceConstants.CLAY);  // now is too many
+        assertTrue( rs.subtract(1, SOCResourceConstants.CLAY ));  // now is too many
         assertEquals(3, rs.getTotal());
-        assertArrayEquals(new int[]{0, 1, 1, 1, 1, -1}, rs.getAmounts(true));
+        assertArrayEquals(new int[]{0, 0, 0, 0, 0, 3}, rs.getAmounts(true));
+    }
+
+    /**
+     * Test that {@link SOCResourceSet#subtract(int, int)} removes first from known resources
+     * then from unknown when more of a requested resource type is removed than is possessed.
+     * @see #removeUnknown_ConvertToUnknown()
+     * @since 2.4.50
+     */
+    @Test
+    public void removeFromKnown_ThenUnknown()
+    {
+        SOCResourceSet rs = new SOCResourceSet(2, 2, 2, 2, 2, 2);
+
+        assertTrue( rs.subtract( 1, SOCResourceConstants.CLAY ));  // not too many
+        assertEquals(11, rs.getTotal());
+        assertArrayEquals(new int[]{1, 2, 2, 2, 2, 2}, rs.getAmounts(true));
+
+        assertTrue( rs.subtract(2, SOCResourceConstants.CLAY ));  // now is too many
+        assertEquals(9, rs.getTotal());
+        assertArrayEquals(new int[]{0, 2, 2, 2, 2, 1}, rs.getAmounts(true));
     }
 
     /**
