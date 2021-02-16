@@ -51,6 +51,7 @@ import soc.server.SOCServerGameOptionSet;
 import soc.server.SOCServerScenario;
 
 import static org.junit.Assert.*;
+import static soc.game.GameState.*;
 
 /**
  * A few tests for {@link SOCMessage} formats and parsing:
@@ -516,7 +517,7 @@ public class TestToCmdToStringParse
             "1091|ga" + SOCGameServerText.UNLIKELY_CHAR1 + "You stole a wheat from robot 2.",
             "SOCGameServerText:game=ga|text=You stole a wheat from robot 2."
         },
-        {new SOCGameState("ga", 20), "1025|ga,20", "SOCGameState:game=ga|state=20"},
+        {new SOCGameState("ga", PLAY1 ), "1025|ga,20", "SOCGameState:game=ga|state=PLAY1", OPT_SKIP_PARSE},
         {new SOCGameStats("ga", new int[]{10,  4, 3, 2}, new boolean[]{false, true, true, true}), "1061|ga,10,4,3,2,false,true,true,true", "SOCGameStats:game=ga|10|4|3|2|false|true|true|true"},
         // TODO? SOCGamesWithOptions
         {
@@ -755,7 +756,7 @@ public class TestToCmdToStringParse
         {new SOCPutPiece("ga", 3, 0, 1034), "1009|ga,3,0,1034", "SOCPutPiece:game=ga|playerNumber=3|pieceType=0|coord=40a"},
         {new SOCRejectConnection("reason msg"), "1059|reason msg", "SOCRejectConnection:reason msg"},
         {new SOCRejectOffer("ga", 2), "1037|ga,2", "SOCRejectOffer:game=ga|playerNumber=2"},
-        {new SOCRejectOffer("ga", 2, -5), "1037|ga,2,-5", "SOCRejectOffer:game=ga|playerNumber=2|reasonCode=-5"},
+        {new SOCRejectOffer("ga", 2, 2), "1037|ga,2,2", "SOCRejectOffer:game=ga|playerNumber=2|reasonCode=REASON_NOT_YOUR_TURN", OPT_SKIP_PARSE},
         {new SOCRemovePiece("ga", 2, SOCPlayingPiece.SHIP, 0xe04), "1094|ga,2,3,3588", "SOCRemovePiece:game=ga|pn=2|pieceType=3|coord=3588"},
         {
             new SOCReportRobbery("ga", 2, 3, SOCResourceConstants.UNKNOWN, true, 1, 0, 0),
@@ -905,13 +906,14 @@ public class TestToCmdToStringParse
         {new SOCSimpleRequest("ga", 2, 1001, 2562), "1089|ga,2,1001,2562,0", "SOCSimpleRequest:game=ga|pn=2|reqType=1001|v1=2562|v2=0"},
         {new SOCSimpleRequest("ga", 2, 1001, 2562, 7), "1089|ga,2,1001,2562,7", "SOCSimpleRequest:game=ga|pn=2|reqType=1001|v1=2562|v2=7"},
         {new SOCSitDown("ga", "testp2", 2, false), "1012|ga,testp2,2,false", "SOCSitDown:game=ga|nickname=testp2|playerNumber=2|robotFlag=false"},
-        {new SOCStartGame("ga", SOCGame.START1A), "1018|ga,5", "SOCStartGame:game=ga|gameState=5"},
+        {new SOCStartGame("ga", START1A), "1018|ga,5", "SOCStartGame:game=ga|gameState=START1A", OPT_SKIP_PARSE},
         {new SOCStatusMessage("simple ok status"), "1069|simple ok status", "SOCStatusMessage:status=simple ok status"},
         {new SOCStatusMessage(11, "nonzero status text"), "1069|11,nonzero status text", "SOCStatusMessage:sv=11|status=nonzero status text"},
         {new SOCSVPTextMessage("ga", 3, 2, "settling a new island", true), "1097|ga,3,2,settling a new island", "SOCSVPTextMessage:game=ga|pn=3|svp=2|desc=settling a new island"},
         {new SOCTimingPing("ga"), "1088|ga", "SOCTimingPing:game=ga"},
-        {new SOCTurn("ga", 3, 0), "1026|ga,3", "SOCTurn:game=ga|playerNumber=3"},
-        {new SOCTurn("ga", 3, SOCGame.ROLL_OR_CARD), "1026|ga,3,15", "SOCTurn:game=ga|playerNumber=3|gameState=15"},
+        {new SOCTurn("ga", 3, NEW_GAME ), "1026|ga,3", "SOCTurn:game=ga|playerNumber=3"},
+        {new SOCTurn("ga", 3, ROLL_OR_CARD ), "1026|ga,3,15", "SOCTurn:game=ga|playerNumber=3|gameState=ROLL_OR_CARD",
+            OPT_SKIP_PARSE},
         {
             new SOCUpdateRobotParams(new soc.util.SOCRobotParameters(120, 35, 0.13f, 1.0f, 1.0f, 3.0f, 1.0f, 0, 1)),
             "1071|120,35,0.13,1.0,1.0,3.0,1.0,0,1",

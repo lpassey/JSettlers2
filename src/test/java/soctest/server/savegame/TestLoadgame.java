@@ -57,6 +57,7 @@ import soc.server.savegame.SavedGameModel.PlayerInfo;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static soc.game.GameState.*;
 
 /**
  * A few tests for {@link GameLoaderJSON} and {@link SavedGameModel},
@@ -320,8 +321,8 @@ public class TestLoadgame
         assertEquals("game name", sgm.gameName, ga.getName());
         assertEquals(1, ga.getCurrentPlayerNumber());
         assertEquals(9, ga.getCurrentDice());
-        assertEquals("gamestate", SOCGame.PLAY1, sgm.gameState);
-        assertEquals("gamestate", SOCGame.LOADING, ga.getGameState());
+        assertEquals("gamestate", PLAY1.getIntValue(), sgm.gameState );
+        assertEquals("gamestate", LOADING, ga.getGameState());
         assertEquals("BC=t4,N7=t7,PL=4,RD=f", sgm.gameOptions);
         {
             final SOCGameOptionSet opts = ga.getGameOptions();
@@ -406,7 +407,7 @@ public class TestLoadgame
 
         fillSeatsForResume(sgm);
         sgm.resumePlay(true);
-        assertEquals("gamestate", SOCGame.PLAY1, ga.getGameState());
+        assertEquals("gamestate", PLAY1, ga.getGameState());
     }
 
     /** When loading a game that's over, should call {@link SavedGameModel#resumePlay(boolean)} successfully */
@@ -418,10 +419,10 @@ public class TestLoadgame
         final SOCGame ga = sgm.getGame();
 
         assertEquals("game name", "classic", sgm.gameName);
-        assertEquals("gamestate", SOCGame.OVER, sgm.gameState);
+        assertEquals("gamestate", GAME_OVER.getIntValue(), sgm.gameState );
 
         sgm.resumePlay(true);
-        assertEquals("gamestate", SOCGame.OVER, ga.getGameState());
+        assertEquals("gamestate", GAME_OVER, ga.getGameState());
         assertEquals(2, ga.getPlayerWithWin().getPlayerNumber());
         assertNull(ga.savedGameModel);
     }
@@ -444,8 +445,8 @@ public class TestLoadgame
         final SavedGameModel sgm = load("modelversion-2300.game.json", srv);
         final SOCGame ga = sgm.getGame();
 
-        assertEquals("game name", "testmodel-2300-3h", sgm.gameName);
-        assertEquals("gamestate", SOCGame.PLAY1, sgm.gameState);
+        assertEquals( "game name", "testmodel-2300-3h", sgm.gameName);
+        assertEquals( "gamestate", PLAY1.getIntValue(), sgm.gameState );
         assertEquals(6, sgm.playerSeats.length);
         assertEquals(6, ga.maxPlayers);
 
@@ -520,7 +521,7 @@ public class TestLoadgame
 
         assertEquals("game name", "test6p-sbp", sgm.gameName);
         assertEquals(1, ga.getCurrentPlayerNumber());
-        assertEquals("gamestate", SOCGame.SPECIAL_BUILDING, sgm.gameState);
+        assertEquals("gamestate", SPECIAL_BUILDING.getIntValue(), sgm.gameState );
         assertEquals("should be 6 players", 6, sgm.playerSeats.length);
         assertEquals("should be 6 players", 6, ga.maxPlayers);
         assertFalse(ga.hasSeaBoard);
@@ -545,7 +546,7 @@ public class TestLoadgame
 
         fillSeatsForResume(sgm);
         sgm.resumePlay(true);
-        assertEquals("gamestate", SOCGame.SPECIAL_BUILDING, ga.getGameState());
+        assertEquals("gamestate", SPECIAL_BUILDING, ga.getGameState());
     }
 
     /** Test loading and resuming a Sea Board game, including open/closed ship routes ({@link SOCShip#isClosed()}). */
@@ -558,8 +559,8 @@ public class TestLoadgame
 
         assertEquals("game name", "testgame-sea-closedships", sgm.gameName);
         assertEquals(0, ga.getCurrentPlayerNumber());
-        assertEquals("gamestate", SOCGame.PLAY1, sgm.gameState);
-        assertEquals("oldgamestate", SOCGame.PLAY1, sgm.oldGameState);
+        assertEquals("gamestate", PLAY1.getIntValue(), sgm.gameState );
+        assertEquals("oldgamestate", PLAY1.getIntValue(), sgm.oldGameState );
         assertEquals(4, sgm.playerSeats.length);
         assertEquals(4, ga.maxPlayers);
         assertTrue(ga.hasSeaBoard);
@@ -618,7 +619,7 @@ public class TestLoadgame
 
         fillSeatsForResume(sgm);
         sgm.resumePlay(true);
-        assertEquals("gamestate", SOCGame.PLAY1, ga.getGameState());
+        assertEquals("gamestate", PLAY1, ga.getGameState());
     }
 
     /**
@@ -633,7 +634,7 @@ public class TestLoadgame
         final SOCGame ga = sgm.getGame();
 
         assertEquals("game name", "devcard-stats", sgm.gameName);
-        assertEquals("gamestate", SOCGame.PLAY1, sgm.gameState);
+        assertEquals("gamestate", PLAY1.getIntValue(), sgm.gameState );
         assertEquals(4, ga.maxPlayers);
 
         final String[] NAMES = {null, "robot 4", "robot 3", "debug"};
@@ -709,7 +710,7 @@ public class TestLoadgame
         final SOCGame ga = sgm.getGame();
 
         assertEquals("game name", "bad-field-contents", sgm.gameName);
-        assertEquals("gamestate", SOCGame.PLAY1, sgm.gameState);
+        assertEquals("gamestate", PLAY1.getIntValue(), sgm.gameState );
         assertEquals(4, sgm.playerSeats.length);
 
         // in file, playerSeatLocks[0] is "INVALID_SEATLOCK_STATE"
@@ -729,8 +730,8 @@ public class TestLoadgame
         assertEquals(1, ga.getFirstPlayer());
         assertEquals(1, ga.getCurrentPlayerNumber());
         assertEquals(2, ga.getRoundCount());
-        assertEquals(null, ga.getPlayerWithLargestArmy());
-        assertEquals(null, ga.getPlayerWithLongestRoad());
+        assertNull( ga.getPlayerWithLargestArmy() );
+        assertNull( ga.getPlayerWithLongestRoad() );
 
         // player 1 has some invalid/unknown elements; rest of elements should load OK
         final String[] NAMES = {null, "robot 4", "robot 2", "debug"};
@@ -765,7 +766,7 @@ public class TestLoadgame
         // can buy dev cards, including that unknown one
         fillSeatsForResume(sgm);
         sgm.resumePlay(true);
-        assertEquals("gamestate", SOCGame.PLAY1, ga.getGameState());
+        assertEquals("gamestate", PLAY1, ga.getGameState());
         assertEquals(SOCDevCardConstants.KNIGHT,  ga.buyDevCard());
         assertEquals(SOCDevCardConstants.UNKNOWN, ga.buyDevCard());
         assertEquals(SOCDevCardConstants.ROADS,   ga.buyDevCard());
@@ -781,8 +782,8 @@ public class TestLoadgame
 
         assertEquals("game name", "tradeoffers", sgm.gameName);
         assertEquals(0, ga.getCurrentPlayerNumber());
-        assertEquals("gamestate", SOCGame.PLAY1, sgm.gameState);
-        assertEquals("oldgamestate", SOCGame.PLAY1, sgm.oldGameState);
+        assertEquals("gamestate", PLAY1.getIntValue(), sgm.gameState );
+        assertEquals("oldgamestate", PLAY1.getIntValue(), sgm.oldGameState );
         assertEquals(4, sgm.playerSeats.length);
 
         SOCTradeOffer tr = ga.getPlayer(0).getCurrentOffer();
@@ -814,8 +815,8 @@ public class TestLoadgame
 
         assertEquals("game name", "testscen-simple-4isl", sgm.gameName);
         assertEquals(3, ga.getCurrentPlayerNumber());
-        assertEquals("gamestate", SOCGame.PLAY1, sgm.gameState);
-        assertEquals("oldgamestate", SOCGame.PLAY1, sgm.oldGameState);
+        assertEquals("gamestate", PLAY1.getIntValue(), sgm.gameState );
+        assertEquals("oldgamestate", PLAY1.getIntValue(), sgm.oldGameState );
         assertEquals(4, sgm.playerSeats.length);
         assertEquals(4, ga.maxPlayers);
         assertTrue(ga.hasSeaBoard);
@@ -866,7 +867,7 @@ public class TestLoadgame
 
         fillSeatsForResume(sgm);
         sgm.resumePlay(true);
-        assertEquals("gamestate", SOCGame.PLAY1, ga.getGameState());
+        assertEquals("gamestate", PLAY1, ga.getGameState());
 
         // Another ship & coastal settlement in a landarea we've already built to
         ga.putPiece(new SOCShip(plDebug, 0x505, board));

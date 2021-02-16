@@ -27,6 +27,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import soc.game.GameState;
 import soc.game.SOCGame;
 import soc.game.SOCGameOptionSet;  // for javadocs only
 import soc.game.SOCInventory;   // for javadocs only
@@ -181,7 +182,7 @@ public interface PlayerClientListener
      *
      * @param player  The player
      * @param addedPlayable  True if the update added a dev card or item that's playable now
-     *     ({@link SOCInventory#OLD}, not {@link SOCInventory#NEW NEW})
+     *     ({@link SOCInventory#OLD}, not {@link SOCInventory#NEW })
      * @see UpdateType#DevCards
      */
     void playerDevCardsUpdated(SOCPlayer player, final boolean addedPlayable);
@@ -486,7 +487,7 @@ public interface PlayerClientListener
      *</pre></code>
      * @param gameState One of the states from SOCGame, such as {@link soc.game.SOCGame#NEW}
      */
-    void gameStateChanged(int gameState);
+    void gameStateChanged( GameState gameState );
 
     /**
      * Update interface after game is over.

@@ -19,6 +19,7 @@
  **/
 package soc.client;
 
+import soc.game.GameState;
 import soc.game.SOCGame;
 
 
@@ -51,7 +52,7 @@ import soc.game.SOCGame;
         if ((md == null) || (gamePI == null))
             throw new IllegalArgumentException("no nulls");
         SOCGame ga = gamePI.getGame();
-        boolean gaOver = (ga.getGameState() >= SOCGame.OVER) || gamePI.gameHasErrorOrDeletion;
+        boolean gaOver = (ga.getGameState().gt( GameState.ALMOST_OVER )) || gamePI.gameHasErrorOrDeletion;
 
         SOCQuitConfirmDialog qcd = new SOCQuitConfirmDialog(md, gamePI, gaOver);
         qcd.setVisible(true);
@@ -76,7 +77,7 @@ import soc.game.SOCGame;
             strings.get(gameIsOver
                 ? "dialog.quit.dont"            // "Don't quit"
                 : "dialog.base.continue.playing"),  // "Continue playing"
-            (((gamePI.getGame().getGameState() != SOCGame.NEW) && ! gamePI.gameHasErrorOrDeletion)
+            (((gamePI.getGame().getGameState() != GameState.NEW_GAME) && ! gamePI.gameHasErrorOrDeletion)
                 ? strings.get("dialog.quit.reset.board")  // "Reset board"
                 : null),
             (gameIsOver ? 1 : 2));

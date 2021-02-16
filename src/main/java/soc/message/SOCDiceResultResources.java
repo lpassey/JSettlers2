@@ -137,7 +137,7 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
     /**
      * Constructor for server to tell clients about players' gained resources and new total counts.
      * The encoded int list will be built from {@code pn} and {@code rsrc}. The {@link #playerNum},
-     * {@link #playerRsrc}, and {@link #playerResTotal} list fields will be left blank,
+     * {@link #playerResourceList}, and {@link #playerTotalResources} list fields will be left blank;
      * we don't need them to send the ints to clients.
      *
      * @param gameName  Game name

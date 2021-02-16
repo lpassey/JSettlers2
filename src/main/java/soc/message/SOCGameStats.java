@@ -34,7 +34,7 @@ import java.util.StringTokenizer;
  *
  *<H3>Message sequence:</H3>
  *<UL>
- *<LI> {@link SOCGameState}({@link soc.game.SOCGame#OVER OVER})
+ *<LI> {@link SOCGameState}({@link soc.game.GameState#GAME_OVER})
  *<LI> Any other messages revealing hidden information about game's details
  *<LI> This message
  *</UL>

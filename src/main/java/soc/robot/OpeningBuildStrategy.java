@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
+ *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 package soc.robot;
@@ -196,14 +196,17 @@ public class OpeningBuildStrategy
             log.debug( "probTotal = " + probTotal );
             estimate.recalculateEstimates( playerNumbers );
             speed = 0;
-            allTheWay = false;
 
             try
             {
-                speed += estimate.calculateRollsAndRsrcFast( SOCResourceSet.EMPTY_SET, SOCSettlement.COST, 300, ports ).getRolls();
-                speed += estimate.calculateRollsAndRsrcFast( SOCResourceSet.EMPTY_SET, SOCCity.COST, 300, ports ).getRolls();
-                speed += estimate.calculateRollsAndRsrcFast( SOCResourceSet.EMPTY_SET, SOCDevCard.COST, 300, ports ).getRolls();
-                speed += estimate.calculateRollsAndRsrcFast( SOCResourceSet.EMPTY_SET, SOCRoad.COST, 300, ports ).getRolls();
+                speed += estimate.calculateRollsAndRsrcFast( SOCResourceSet.EMPTY_SET, SOCSettlement.COST,
+                    300, ports ).getRolls();
+                speed += estimate.calculateRollsAndRsrcFast( SOCResourceSet.EMPTY_SET, SOCCity.COST,
+                    300, ports ).getRolls();
+                speed += estimate.calculateRollsAndRsrcFast( SOCResourceSet.EMPTY_SET, SOCDevCard.COST,
+                    300, ports ).getRolls();
+                speed += estimate.calculateRollsAndRsrcFast( SOCResourceSet.EMPTY_SET, SOCRoad.COST,
+                    300, ports ).getRolls();
             }
             catch( CutoffExceededException e )
             {
@@ -613,8 +616,8 @@ public class OpeningBuildStrategy
          */
         SOCPlayer dummy = new SOCPlayer( ourPlayerData.getPlayerNumber(), game );
 
-        if ((game.getGameState() == SOCGame.START1B)
-            || (game.isGameOptionSet( SOCGameOptionSet.K_SC_3IP ) && (game.getGameState() == SOCGame.START2B)))
+        if (   (game.getGameState() == GameState.START1B)
+            || (game.isGameOptionSet( SOCGameOptionSet.K_SC_3IP ) && (game.getGameState() == GameState.START2B)))
         {
             /**
              * do a look ahead so we don't build toward a place
@@ -985,7 +988,7 @@ public class OpeningBuildStrategy
         /**
          * This is the clockwise direction
          */
-        if ((game.getGameState() == SOCGame.START1A) || (game.getGameState() == SOCGame.START1B))
+        if ((game.getGameState() == GameState.START1A) || (game.getGameState() == GameState.START1B))
         {
             do
             {

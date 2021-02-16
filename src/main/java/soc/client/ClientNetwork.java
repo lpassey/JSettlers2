@@ -38,6 +38,7 @@ import soc.baseclient.ServerConnectInfo;
 import soc.communication.Connection;
 import soc.communication.MemConnection;
 import soc.communication.NetConnection;
+import soc.game.GameState;
 import soc.game.SOCGame;
 import soc.game.SOCGameOptionSet;
 import soc.game.SOCScenario;
@@ -548,7 +549,7 @@ import soc.util.Version;
     }
 
     /**
-     * Look for active games that we're hosting (state >= START1A, not yet OVER).
+     * Look for active games that we're hosting (state >= START1A, not yet GAME_OVER).
      *
      * @return If any hosted games of ours are active
      * @see MainDisplay#hasAnyActiveGame(boolean)
@@ -564,8 +565,8 @@ import soc.util.Version;
 
         for (String tryGm : gameNames)
         {
-            int gs = localServer.getGameState(tryGm);
-            if ((gs < SOCGame.OVER) && (gs >= SOCGame.START1A))
+            GameState gs = localServer.getGameState( tryGm );
+            if ((gs.lt( GameState.GAME_OVER )) && (gs.gt( GameState.READY_RESET_WAIT_ROBOT_DISMISS )))
             {
                 return true;  // Active
             }

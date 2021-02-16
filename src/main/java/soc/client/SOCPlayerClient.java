@@ -42,6 +42,7 @@ import net.nand.util.i18n.mgr.StringManager;
 
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.communication.Connection;
+import soc.game.GameState;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
@@ -754,7 +755,7 @@ public class SOCPlayerClient
             String desc = scStrs.get( i );
             ++i;
 
-            SOCScenario sc = SOCScenario.getScenario( scKey );
+            SOCScenario sc = getNet().getValidScenarios().get( scKey );
             if ((sc != null) && (nm.length() > 0))
             {
                 if ((desc != null) && (desc.length() == 0))
@@ -819,7 +820,7 @@ public class SOCPlayerClient
         if (ga == null)
             return;  // Not playing in or observing that game
 
-        if (ga.getGameState() != SOCGame.OVER)
+        if (ga.getGameState() != GameState.GAME_OVER)
         {
             System.err.println( "L4044: pcli.updateGameEndStats called at state " + ga.getGameState() );
             return;  // Should not have been sent; game is not yet over.
@@ -1031,7 +1032,7 @@ public class SOCPlayerClient
         {
             String gaName = e.getKey();
             SOCGame game = games.get( gaName );
-            boolean isPractice = canPractice && (game != null) && game.isPractice;
+            boolean isPractice = canPractice && getNet().isPracticeGame;
             if (!isPractice)
             {
                 e.getValue().gameDisconnected( false, err );

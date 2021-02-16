@@ -458,12 +458,13 @@ public class SOCClientData
      */
     public final boolean localeHasGameScenarios(final Connection con)
     {
-        final SOCScenario scWond = SOCScenario.getScenario(SOCScenario.K_SC_WOND);
-        String i18n_scenario_SC_WOND_desc = (scWond != null) ? scWond.getDesc() : "";
-
-        return
-            wantsI18N
-            && ! i18n_scenario_SC_WOND_desc.equals( con.getLocalized("gamescen.SC_WOND.n" ));
+        return true;
+//        final SOCScenario scWond = SOCScenario.getScenario(SOCScenario.K_SC_WOND);
+//        String i18n_scenario_SC_WOND_desc = (scWond != null) ? scWond.getDesc() : "";
+//
+//        return
+//            wantsI18N
+//            && ! i18n_scenario_SC_WOND_desc.equals( con.getLocalized("gamescen.SC_WOND.n" ));
     }
 
     /**

@@ -21,7 +21,7 @@ package soctest.server;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +31,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static soc.game.GameState.*;
 
 import soc.game.SOCBoard;
 import soc.game.SOCBoardLarge;
@@ -178,7 +179,7 @@ public class TestActionsMessages
 
             try { Thread.sleep(60); }
             catch(InterruptedException e) {}
-            assertEquals(SOCGame.PLACING_SETTLEMENT, ga.getGameState());
+            assertEquals( PLACING_SETTLEMENT, ga.getGameState());
             assertArrayEquals(new int[]{2, 3, 2, 3, 3}, cliPl.getResources().getAmounts(false));
         }
         tcli.putPiece(ga, new SOCSettlement(cliPl, SETTLEMENT_NODE, board));
@@ -211,7 +212,7 @@ public class TestActionsMessages
 
             try { Thread.sleep(60); }
             catch(InterruptedException e) {}
-            assertEquals(SOCGame.PLACING_CITY, ga.getGameState());
+            assertEquals( PLACING_CITY, ga.getGameState());
             assertArrayEquals(new int[]{2, 0, 2, 1, 3}, cliPl.getResources().getAmounts(false));
         }
         tcli.putPiece(ga, new SOCCity(cliPl, SETTLEMENT_NODE, board));
@@ -247,7 +248,7 @@ public class TestActionsMessages
 
             try { Thread.sleep(60); }
             catch(InterruptedException e) {}
-            assertEquals(SOCGame.PLACING_SHIP, ga.getGameState());
+            assertEquals( PLACING_SHIP, ga.getGameState());
             assertArrayEquals(new int[]{2, 0, 1, 1, 2}, cliPl.getResources().getAmounts(false));
         }
         tcli.putPiece(ga, new SOCShip(cliPl, SHIP_EDGE, board));
@@ -479,7 +480,7 @@ public class TestActionsMessages
         final SOCPlayer cliPl = objs.clientPlayer;
         final Vector<QueueEntry> records = objs.records;
 
-        List<Integer> expectedCardsPlayed = new ArrayList<>(Arrays.asList(SOCDevCardConstants.KNIGHT));
+        List<Integer> expectedCardsPlayed = new ArrayList<>( Collections.singletonList( SOCDevCardConstants.KNIGHT ));
         assertEquals(expectedCardsPlayed, cliPl.getDevCardsPlayed());
         assertEquals(1, cliPl.getNumKnights());
         assertEquals(0, cliPl.numDISCCards);
@@ -494,7 +495,7 @@ public class TestActionsMessages
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
-        assertEquals(SOCGame.WAITING_FOR_MONOPOLY, ga.getGameState());
+        assertEquals( WAITING_FOR_MONOPOLY, ga.getGameState());
         assertEquals(1, cliPl.numMONOCards);
         expectedCardsPlayed.add(SOCDevCardConstants.MONO);
         assertEquals(expectedCardsPlayed, cliPl.getDevCardsPlayed());
@@ -502,7 +503,7 @@ public class TestActionsMessages
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
-        assertEquals(SOCGame.PLAY1, ga.getGameState());
+        assertEquals( PLAY1, ga.getGameState());
         assertArrayEquals(new int[]{3, 3, 6, 4, 4}, cliPl.getResources().getAmounts(false));
 
         StringBuilder comparesMono = TestRecorder.compareRecordsToExpected
@@ -532,7 +533,7 @@ public class TestActionsMessages
 
             try { Thread.sleep(60); }
             catch(InterruptedException e) {}
-            assertEquals(SOCGame.WAITING_FOR_DISCOVERY, ga.getGameState());
+            assertEquals( WAITING_FOR_DISCOVERY, ga.getGameState());
             assertEquals(1, cliPl.numDISCCards);
             expectedCardsPlayed.add(SOCDevCardConstants.DISC);
             assertEquals(expectedCardsPlayed, cliPl.getDevCardsPlayed());
@@ -540,7 +541,7 @@ public class TestActionsMessages
 
             try { Thread.sleep(60); }
             catch(InterruptedException e) {}
-            assertEquals(SOCGame.PLAY1, ga.getGameState());
+            assertEquals( PLAY1, ga.getGameState());
             assertArrayEquals(new int[]{3, 4, 6, 5, 4}, cliPl.getResources().getAmounts(false));
 
             comparesDisc = TestRecorder.compareRecordsToExpected
@@ -559,7 +560,7 @@ public class TestActionsMessages
 
         // because this increases VP, is tested in every observabilityMode even though it's public
         records.clear();
-        assertEquals(null, ga.getPlayerWithLongestRoad());
+        assertNull( ga.getPlayerWithLongestRoad() );
         assertEquals(2, cliPl.getPublicVP());
         assertTrue(board.roadOrShipAtEdge(0x609) instanceof SOCRoad);
         final int ROAD_EDGE_1 = 0x70a, ROAD_EDGE_2 = 0x809;
@@ -570,7 +571,7 @@ public class TestActionsMessages
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
-        assertEquals(SOCGame.PLACING_FREE_ROAD1, ga.getGameState());
+        assertEquals( PLACING_FREE_ROAD1, ga.getGameState());
         assertEquals(1, cliPl.numRBCards);
         expectedCardsPlayed.add(SOCDevCardConstants.ROADS);
         assertEquals(expectedCardsPlayed, cliPl.getDevCardsPlayed());
@@ -578,13 +579,13 @@ public class TestActionsMessages
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
-        assertEquals(SOCGame.PLACING_FREE_ROAD2, ga.getGameState());
+        assertEquals( PLACING_FREE_ROAD2, ga.getGameState());
         assertTrue(board.roadOrShipAtEdge(ROAD_EDGE_1) instanceof SOCRoad);
         tcli.putPiece(ga, new SOCRoad(cliPl, ROAD_EDGE_2, board));
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
-        assertEquals(SOCGame.PLAY1, ga.getGameState());
+        assertEquals( PLAY1, ga.getGameState());
         assertTrue(board.roadOrShipAtEdge(ROAD_EDGE_2) instanceof SOCRoad);
         assertEquals(cliPl, ga.getPlayerWithLongestRoad());
         assertEquals(4, cliPl.getPublicVP());
@@ -638,12 +639,12 @@ public class TestActionsMessages
         assertEquals(2, cliPl.getNumKnights());
         expectedCardsPlayed.add(SOCDevCardConstants.KNIGHT);
         assertEquals(expectedCardsPlayed, cliPl.getDevCardsPlayed());
-        assertEquals(SOCGame.WAITING_FOR_ROBBER_OR_PIRATE, ga.getGameState());
+        assertEquals( WAITING_FOR_ROBBER_OR_PIRATE, ga.getGameState());
         tcli.choosePlayer(ga, SOCChoosePlayer.CHOICE_MOVE_PIRATE);
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
-        assertEquals(SOCGame.PLACING_PIRATE, ga.getGameState());
+        assertEquals( PLACING_PIRATE, ga.getGameState());
         tcli.moveRobber(ga, cliPl, -PIRATE_HEX);
 
         try { Thread.sleep(60); }
@@ -724,12 +725,12 @@ public class TestActionsMessages
         assertEquals(expectedCardsPlayed, cliPl.getDevCardsPlayed());
         assertEquals(6, cliPl.getPublicVP());
         assertEquals(cliPl, ga.getPlayerWithLargestArmy());
-        assertEquals(SOCGame.WAITING_FOR_ROBBER_OR_PIRATE, ga.getGameState());
+        assertEquals( WAITING_FOR_ROBBER_OR_PIRATE, ga.getGameState());
         tcli.choosePlayer(ga, SOCChoosePlayer.CHOICE_MOVE_ROBBER);
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
-        assertEquals(SOCGame.PLACING_ROBBER, ga.getGameState());
+        assertEquals( PLACING_ROBBER, ga.getGameState());
         tcli.moveRobber(ga, cliPl, ROBBER_HEX);
 
         try { Thread.sleep(60); }
@@ -873,7 +874,7 @@ public class TestActionsMessages
         for (int pn = 0; pn < ga.maxPlayers; ++pn)
             savedRsrcs[pn] = new SOCResourceSet(ga.getPlayer(pn).getResources());  // make independent copy
 
-        sgm.gameState = SOCGame.ROLL_OR_CARD;
+        sgm.gameState  = ROLL_OR_CARD.getIntValue();
         TestRecorder.resumeLoadedGame(ga, srv, objs.tcliConn);
 
         // Validate expected resources gained by each player number for each dice number vs artifact's board layout:
@@ -911,7 +912,7 @@ public class TestActionsMessages
 
         while (! (testedRsrcs && testedNoRsrcs && tested7 && tested7Discard))
         {
-            ga.setGameState(SOCGame.ROLL_OR_CARD);
+            ga.setGameState( ROLL_OR_CARD);
             for (int pn = 0; pn < ga.maxPlayers; ++pn)
                 ga.getPlayer(pn).getResources().setAmounts(savedRsrcs[pn]);
 
@@ -924,7 +925,7 @@ public class TestActionsMessages
 
             if (diceNumber != 7)
             {
-                assertEquals(SOCGame.PLAY1, ga.getGameState());
+                assertEquals( PLAY1, ga.getGameState());
 
                 int nGainingPlayers = 0;
                 final int[] counts = RSRC_GAINED_COUNTS[diceNumber];
@@ -1033,7 +1034,7 @@ public class TestActionsMessages
 
                 if (! tested7)
                 {
-                    assertEquals(SOCGame.WAITING_FOR_ROBBER_OR_PIRATE, ga.getGameState());
+                    assertEquals( WAITING_FOR_ROBBER_OR_PIRATE, ga.getGameState());
 
                     try { Thread.sleep(60); }
                     catch(InterruptedException e) {}
@@ -1051,7 +1052,7 @@ public class TestActionsMessages
                 }
                 else if (! tested7Discard)
                 {
-                    assertEquals(SOCGame.WAITING_FOR_DISCARDS, ga.getGameState());
+                    assertEquals( WAITING_FOR_DISCARDS, ga.getGameState());
                     assertArrayEquals(new int[]{3, 3, 3, 4, 4}, cliPl.getResources().getAmounts(false));
 
                     try { Thread.sleep(60); }
@@ -1060,7 +1061,7 @@ public class TestActionsMessages
 
                     try { Thread.sleep(60); }
                     catch(InterruptedException e) {}
-                    assertEquals(SOCGame.WAITING_FOR_ROBBER_OR_PIRATE, ga.getGameState());
+                    assertEquals( WAITING_FOR_ROBBER_OR_PIRATE, ga.getGameState());
                     compares7DiscardMove = TestRecorder.moveRobberStealSequence
                         (tcli, ga, cliPl, observabilityMode, records,
                          new String[][]
@@ -1217,14 +1218,14 @@ public class TestActionsMessages
                      .getAmount(SOCResourceConstants.GOLD_LOCAL));
 
         // ready to resume
-        sgm.gameState = SOCGame.ROLL_OR_CARD;
+        sgm.gameState = ROLL_OR_CARD.getIntValue();
         TestRecorder.resumeLoadedGame(ga, srv, objs.tcliConn);
 
         StringBuilder compares = null;
 
         for (int diceNumber = 0; diceNumber != GOLD_DICE_NUM; )
         {
-            ga.setGameState(SOCGame.ROLL_OR_CARD);
+            ga.setGameState( ROLL_OR_CARD);
             cliPl.getResources().setAmounts(RS_KNOWN);
             cli2Pl.getResources().setAmounts(CLI2_RS_KNOWN);
 
@@ -1242,7 +1243,7 @@ public class TestActionsMessages
             assertEquals(1, cli2Pl.getNeedToPickGoldHexResources());
             assertArrayEquals(RS_KNOWN_AMOUNTS_ARR, cliPl.getResources().getAmounts(false));
             assertArrayEquals(CLI2_RS_KNOWN_AMOUNTS_ARR, cli2Pl.getResources().getAmounts(false));
-            assertEquals(SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE, ga.getGameState());
+            assertEquals( WAITING_FOR_PICK_GOLD_RESOURCE, ga.getGameState());
 
             tcli.pickResources(ga, new SOCResourceSet(1, 0, 0, 0, 0, 0));
 
@@ -1252,7 +1253,7 @@ public class TestActionsMessages
             assertEquals(1, cli2Pl.getNeedToPickGoldHexResources());
             assertArrayEquals(RS_KNOWN_PLUS_CLAY, cliPl.getResources().getAmounts(false));
             assertArrayEquals(CLI2_RS_KNOWN_AMOUNTS_ARR, cli2Pl.getResources().getAmounts(false));
-            assertEquals(SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE, ga.getGameState());
+            assertEquals( WAITING_FOR_PICK_GOLD_RESOURCE, ga.getGameState());
 
             tcli2.pickResources(ga, new SOCResourceSet(0, 0, 0, 1, 0, 0));
 
@@ -1261,7 +1262,7 @@ public class TestActionsMessages
             assertEquals(0, cliPl.getNeedToPickGoldHexResources());
             assertEquals(0, cli2Pl.getNeedToPickGoldHexResources());
             assertArrayEquals(CLI2_RS_KNOWN_PLUS_WHEAT, cli2Pl.getResources().getAmounts(false));
-            assertEquals(SOCGame.PLAY1, ga.getGameState());
+            assertEquals( PLAY1, ga.getGameState());
 
             compares = TestRecorder.compareRecordsToExpected
                 (records, new String[][]
@@ -1339,7 +1340,7 @@ public class TestActionsMessages
         assertArrayEquals(new int[]{3, 3, 3, 4, 4}, cliPl.getResources().getAmounts(false));
         assertTrue(ga.canMakeBankTrade(WHEAT_4, SHEEP_1));
         assertFalse(ga.canMakeBankTrade(WHEAT_2, SHEEP_1));
-        tcli.bankTrade(ga, WHEAT_4, SHEEP_1);
+        tcli.bankTrade(ga, WHEAT_4, SHEEP_1, -1);
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
@@ -1355,7 +1356,7 @@ public class TestActionsMessages
 
         records.clear();
         assertTrue(ga.canUndoBankTrade(WHEAT_4, SHEEP_1));
-        tcli.bankTrade(ga, SHEEP_1, WHEAT_4);
+        tcli.bankTrade(ga, SHEEP_1, WHEAT_4, -1);
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
@@ -1389,7 +1390,7 @@ public class TestActionsMessages
         /* 2:1 port trade */
 
         records.clear();
-        tcli.bankTrade(ga, WHEAT_2, SHEEP_1);
+        tcli.bankTrade(ga, WHEAT_2, SHEEP_1, -1);
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
@@ -1405,7 +1406,7 @@ public class TestActionsMessages
 
         records.clear();
         assertTrue(ga.canUndoBankTrade(WHEAT_2, SHEEP_1));
-        tcli.bankTrade(ga, SHEEP_1, WHEAT_2);
+        tcli.bankTrade(ga, SHEEP_1, WHEAT_2, -1);
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
@@ -1636,7 +1637,7 @@ public class TestActionsMessages
         /* pn 1 client 2 is next player, since pn 0 is vacant */
 
         assertEquals(PN_C2, ga.getCurrentPlayerNumber());
-        assertEquals(SOCGame.ROLL_OR_CARD, ga.getGameState());
+        assertEquals( ROLL_OR_CARD, ga.getGameState());
 
         // we don't need client 2 to do anything;
         // it's here so that a robot player won't take action
@@ -1694,7 +1695,7 @@ public class TestActionsMessages
         final SavedGameModel sgm = TestLoadgame.load("test6p-sbp.game.json", srv);
 
         // Test setup, slightly different than what's in artifact for TestLoadgame.testLoad6PlayerSBP:
-        sgm.gameState = SOCGame.PLAY1;
+        sgm.gameState = PLAY1.getIntValue();
         sgm.playerSeats[1].isRobot = true;  // needed for resumeLoadedGame
         sgm.getGame().setCurrentPlayerNumber(PN_C2);
 
@@ -1732,7 +1733,7 @@ public class TestActionsMessages
         // and client 1 has time to ask for SBP.
 
         TestRecorder.resumeLoadedGame(ga, srv, objs.tcliConn);
-        assertEquals(SOCGame.PLAY1, ga.getGameState());
+        assertEquals( PLAY1, ga.getGameState());
         assertFalse(clientPlayer.hasSpecialBuilt());
 
         try { Thread.sleep(60); }
@@ -1754,7 +1755,7 @@ public class TestActionsMessages
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
-        assertEquals(SOCGame.SPECIAL_BUILDING, ga.getGameState());
+        assertEquals( SPECIAL_BUILDING, ga.getGameState());
         assertEquals(PN_CLI, ga.getCurrentPlayerNumber());
 
         // cli1 try build something during SBP
@@ -1865,7 +1866,7 @@ public class TestActionsMessages
 
         TestRecorder.resumeLoadedGame(ga, srv, objs.tcliConn);
         assertEquals(PN_WIN, ga.getCurrentPlayerNumber());
-        assertEquals(SOCGame.PLAY1, ga.getGameState());
+        assertEquals( PLAY1, ga.getGameState());
 
         try { Thread.sleep(60); }
         catch(InterruptedException e) {}
@@ -1920,5 +1921,4 @@ public class TestActionsMessages
             fail(compares.toString());
         }
     }
-
 }

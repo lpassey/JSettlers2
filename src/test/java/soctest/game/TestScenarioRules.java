@@ -39,6 +39,7 @@ import org.junit.Test;
 import soc.server.SOCServerGameOptionSet;
 
 import static org.junit.Assert.*;
+import static soc.game.GameState.*;
 
 /**
  * A few tests for per-{@link SOCScenario} rules in {@link SOCGame}.
@@ -122,15 +123,15 @@ public class TestScenarioRules
 
         // - No settlement: no battle or robbery
         ga.setCurrentPlayerNumber(0);
-        ga.setGameState(SOCGame.ROLL_OR_CARD);
+        ga.setGameState( ROLL_OR_CARD);
         SOCMoveRobberResult robResult = ga.movePirate(0, pirHexAdjacP0, 6);  // 6 guarantees a strong fleet
         assertTrue((robResult.sc_piri_loot == null) || (robResult.sc_piri_loot.getTotal() == 0));
         assertTrue(robResult.getVictims().isEmpty());
 
         // - Has settlement there: player loses battle
-        ga.setGameState(SOCGame.PLACING_SETTLEMENT);
+        ga.setGameState( PLACING_SETTLEMENT);
         ga.putPiece(new SOCSettlement(pl0, player0Settle, board));
-        ga.setGameState(SOCGame.ROLL_OR_CARD);
+        ga.setGameState( ROLL_OR_CARD);
         robResult = ga.movePirate(0, pirHexAdjacP0, 6);
         assertEquals(1, robResult.sc_piri_loot.getTotal());
         List<SOCPlayer> v = robResult.getVictims();
@@ -141,9 +142,9 @@ public class TestScenarioRules
         robResult.getVictims().clear();
 
         // - Has city there: player still loses battle; with 1 city they lose 2 resources
-        ga.setGameState(SOCGame.PLACING_CITY);
+        ga.setGameState( PLACING_CITY);
         ga.putPiece(new SOCCity(pl0, player0Settle, board));
-        ga.setGameState(SOCGame.ROLL_OR_CARD);
+        ga.setGameState( ROLL_OR_CARD);
         robResult = ga.movePirate(0, pirHexAdjacP0, 6);
         assertEquals(2, robResult.sc_piri_loot.getTotal());
         v = robResult.getVictims();
@@ -155,14 +156,14 @@ public class TestScenarioRules
 
         // - Two players on nodes adjacent to same hex: No battle or robbery
         ga.setCurrentPlayerNumber(3);
-        ga.setGameState(SOCGame.PLACING_SETTLEMENT);
+        ga.setGameState( PLACING_SETTLEMENT);
         assertEquals(1, pl3.getSettlements().size());  // before tmpSett placement
         SOCSettlement tmpSett = new SOCSettlement(pl3, player0Settle + 0x0002, board);
             // player 3 can't really place there, but legal-coord checker is skipped in this test
         ga.putPiece(tmpSett);
         assertEquals(2, pl3.getSettlements().size());
         ga.setCurrentPlayerNumber(0);
-        ga.setGameState(SOCGame.ROLL_OR_CARD);
+        ga.setGameState( ROLL_OR_CARD);
         robResult = ga.movePirate(0, pirHexAdjacP0, 6);
         assertTrue((robResult.sc_piri_loot == null) || (robResult.sc_piri_loot.getTotal() == 0));
         assertTrue(robResult.getVictims().isEmpty());
@@ -175,7 +176,7 @@ public class TestScenarioRules
 
         // - If player's fleet is stronger, player gets a gold hex pick
         pl0.setNumWarships(7);
-        ga.setGameState(SOCGame.ROLL_OR_CARD);
+        ga.setGameState( ROLL_OR_CARD);
         robResult = ga.movePirate(0, pirHexAdjacP0, 6);
         assertEquals(1, robResult.sc_piri_loot.getTotal());
         assertEquals(1, robResult.sc_piri_loot.getAmount(SOCResourceConstants.GOLD_LOCAL));
@@ -188,9 +189,9 @@ public class TestScenarioRules
 
         // Steal nothing if adjacent to pl2 and pl3's location, even if only 1 of them has an actual settlement
         ga.setCurrentPlayerNumber(2);
-        ga.setGameState(SOCGame.PLACING_SETTLEMENT);
+        ga.setGameState( PLACING_SETTLEMENT);
         ga.putPiece(new SOCSettlement(pl2, pl2.getAddedLegalSettlement(), board));
-        ga.setGameState(SOCGame.ROLL_OR_CARD);
+        ga.setGameState( ROLL_OR_CARD);
         robResult = ga.movePirate(2, pirHexShared, 6);
         assertTrue((robResult.sc_piri_loot == null) || (robResult.sc_piri_loot.getTotal() == 0));
         assertTrue(robResult.getVictims().isEmpty());

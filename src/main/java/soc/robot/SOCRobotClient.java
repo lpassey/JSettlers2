@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 
+import static soc.game.GameState.*;
 
 /**
  * This is a robot client that can play Settlers of Catan.
@@ -336,8 +337,6 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         try
         {
             connection = MemServerSocket.connectTo( Connection.JVM_STRINGPORT, null, D.ebugIsEnabled() );
-            if (D.ebugIsEnabled())
-                connection.setDebugTraffic( D.ebugIsEnabled() );
             connection.setData( nickname );
             connection.startMessageProcessing( this );
             connected = true;
@@ -527,7 +526,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                             final int cpn = gm.getCurrentPlayerNumber();
                             SOCPlayer rpl = gm.getPlayer( nickname );
                             if ((rpl != null) && (cpn == rpl.getPlayerNumber())
-                                && (gm.getGameState() >= SOCGame.ROLL_OR_CARD))
+                                && (gm.getGameState().gt( STARTS_WAITING_FOR_PICK_GOLD_RESOURCE )))
                             {
                                 // we're current player, pause us
                                 debugRandomPauseActive = true;
@@ -672,7 +671,10 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
              * the server is requesting that we join a game
              */
             case SOCMessage.BOTJOINGAMEREQUEST:
-                handleBOTJOINGAMEREQUEST( (SOCBotJoinGameRequest) mes );
+                SOCBotJoinGameRequest botJoinGameRequestMsg = (SOCBotJoinGameRequest) mes;
+                // turn on debug traffic for a specific robot player.
+//                connection.setDebugTraffic( botJoinGameRequestMsg.getPlayerNumber() == 0 );
+                handleBOTJOINGAMEREQUEST( botJoinGameRequestMsg );
                 break;
 
             /**
@@ -1386,7 +1388,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
             if (ga != null)
             {
-                if (ga.getGameState() == SOCGame.OVER)
+                if (ga.getGameState() == GAME_OVER)
                 {
                     gamesFinished++;
 

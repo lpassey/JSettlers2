@@ -25,6 +25,7 @@ import soc.communication.Connection;
 import soc.communication.SOCMessageDispatcher;
 import soc.disableDebug.D;
 
+import soc.game.GameState;
 import soc.game.SOCBoard;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCCity;
@@ -804,6 +805,10 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             case SOCMessage.ROLLDICEPROMPT:
                 handleROLLDICEPROMPT( (SOCRollDicePrompt) mes );
                 break;
+
+            case SOCMessage.SVPTEXTMSG:
+                break;      // Displayless clients don't display text messages.
+
             default:
                 System.out.println( "Unrecognized message: " + mes.toString() );
             }
@@ -1099,8 +1104,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             pl.getResources().add(rs);
 
             if (! skipResourceCount)
-                handlePLAYERELEMENT_simple
-                    (ga, pl, pn, SOCPlayerElement.SET,
+                handlePLAYERELEMENT_simple( ga, pl, pn, SOCPlayerElement.SET,
                      PEType.RESOURCE_COUNT, mes.playerTotalResources.get(p), nickname);
         }
     }
@@ -1296,12 +1300,12 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @see #handleGAMESTATE(SOCGameState)
      * @since 2.0.00
      */
-    public static void handleGAMESTATE(final SOCGame ga, final int newState)
+    public static void handleGAMESTATE(final SOCGame ga, final GameState newState)
     {
-        if (newState == 0)
+        if (newState == GameState.NEW_GAME)
             return;
 
-        ga.setGameState(newState);
+        ga.setGameState( newState );
     }
 
     /**
@@ -1326,13 +1330,13 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * handle the "turn" message
      * @param mes  the message
      */
-    protected void handleTURN(SOCTurn mes)
+    protected void handleTURN( SOCTurn mes )
     {
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get( mes.getGame() );
         if (ga == null)
             return;
 
-        handleGAMESTATE(ga, mes.getGameState());
+        handleGAMESTATE( ga, mes.getGameState() );
 
         ga.setCurrentPlayerNumber(mes.getPlayerNumber());
         ga.updateAtTurn();
@@ -1933,8 +1937,10 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         if (ga == null)
             return;
 
-        final int sta = ga.getGameState();
-        if ((sta != SOCGame.START1B) && (sta != SOCGame.START2B) && (sta != SOCGame.START3B))
+        GameState gameState = ga.getGameState();
+        if (   (gameState != GameState.START1B)
+            && (gameState != GameState.START2B)
+            && (gameState != GameState.START3B))
         {
             // The human player gets a text message from the server informing
             // about the bad piece placement.  So, we can ignore this message type.
@@ -2104,10 +2110,13 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         if (ga == null)
             return false;
 
-        final SOCResourceSet plRes = ga.getPlayer(mes.getPlayerNumber()).getResources();
-        plRes.subtract(mes.getGiveSet(), true);
-        plRes.add(mes.getGetSet());
-
+        SOCPlayer player = ga.getPlayer( mes.getPlayerNumber() );
+        final SOCResourceSet plRes = player.getResources();
+        synchronized (plRes.semaphore)
+        {
+            plRes.subtract( mes.getGiveSet(), true );
+            plRes.add( mes.getGetSet() );
+        }
         return true;
     }
 
@@ -2422,7 +2431,6 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             return;  // Not one of our games
 
         SOCGame greset = game.resetAsCopy();
-        greset.isPractice = game.isPractice;
         games.put( gameName, greset);
         game.destroyGame();
     }
@@ -2942,7 +2950,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     public void startGame(SOCGame ga)
     {
-        connection.send( new SOCStartGame( ga.getName(), 0));
+        connection.send( new SOCStartGame( ga.getName(), GameState.NEW_GAME ));
     }
 
     /**
@@ -3027,15 +3035,18 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     }
 
     /**
-     * the user wants to trade with the bank or a port.
+     * the client wants to trade with the bank or a port. This does not actually execute the trade,
+     * but merely sends a trade request to the server.
      *
-     * @param ga    the game
+     * @param theGame    the game
      * @param give  what is being offered
      * @param get   what the player wants
+     * @param playerNumber the player number requesting the trade; the server can compare this to
+     *                     the current player to make sure he can request a trade.
      */
-    public void bankTrade(SOCGame ga, SOCResourceSet give, SOCResourceSet get)
+    public void bankTrade(SOCGame theGame, SOCResourceSet give, SOCResourceSet get, int playerNumber)
     {
-        connection.send( new SOCBankTrade(ga.getName(), give, get, -1) );
+        connection.send( new SOCBankTrade( theGame.getName(), give, get, playerNumber ));
     }
 
     /**

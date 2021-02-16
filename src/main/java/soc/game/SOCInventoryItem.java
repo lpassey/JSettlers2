@@ -109,13 +109,13 @@ public class SOCInventoryItem
 
     /**
      * Is this item playable this turn (state {@link SOCInventory#PLAYABLE PLAYABLE}),
-     * not newly given ({@link SOCInventory#NEW NEW})?
+     * not newly given ({@link SOCInventory#NEW NEW_GAME})?
      */
     private boolean playable;
 
     /**
      * Is this item to be kept in hand until end of game
-     * (never state {@link SOCInventory#NEW NEW})?
+     * (never state {@link SOCInventory#NEW NEW_GAME})?
      *<P>
      * Items with this flag can either be {@link #isPlayable()} before keeping, or not.
      * When the item is added to inventory, {@link #isPlayable()} is checked before {@link #isKept()}
@@ -202,7 +202,7 @@ public class SOCInventoryItem
      *
      * @param type  Item or card type code, to be stored in {@link #itype}
      * @param isPlayable  Is this item playable this turn (state {@link SOCInventory#PLAYABLE PLAYABLE}),
-     *            not newly given ({@link SOCInventory#NEW NEW})?
+     *            not newly given ({@link SOCInventory#NEW })?
      * @param isKept  Is this item to be kept in hand until end of game?  See {@link #isKept()}.
      * @param isVP  Is this item worth Victory Points when kept in inventory?
      * @param canCancel  Can this item's play or placement be canceled?  See {@link #canCancelPlay}.
@@ -223,7 +223,7 @@ public class SOCInventoryItem
     }
 
     /**
-     * Is this item newly given to a player (state {@link SOCInventory#NEW NEW}),
+     * Is this item newly given to a player (state {@link SOCInventory#NEW }),
      * not {@link #isPlayable()} or {@link #isKept()}?
      */
     public boolean isNew()
@@ -233,7 +233,7 @@ public class SOCInventoryItem
 
     /**
      * Is this item playable this turn (state {@link SOCInventory#PLAYABLE PLAYABLE}),
-     * not newly given ({@link SOCInventory#NEW NEW})?
+     * not newly given ({@link SOCInventory#NEW })?
      * @see #isNew()
      * @see #isKept()
      */
@@ -244,7 +244,7 @@ public class SOCInventoryItem
 
     /**
      * Is this item to be kept in hand until end of game
-     * (never state {@link SOCInventory#NEW NEW})?
+     * (never state {@link SOCInventory#NEW })?
      *<P>
      * Items with this flag can either be {@link #isPlayable()} before keeping, or not.
      * When the item is added to a {@link SOCInventory}, {@link #isPlayable()} is checked
@@ -272,7 +272,7 @@ public class SOCInventoryItem
 
     /**
      * At the start of the holding player's turn, change state from
-     * {@link SOCInventory#NEW NEW} to {@link SOCInventory#PLAYABLE PLAYABLE}.
+     * {@link SOCInventory#NEW } to {@link SOCInventory#PLAYABLE }.
      */
     public void newToOld()
     {

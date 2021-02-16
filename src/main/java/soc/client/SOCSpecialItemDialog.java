@@ -51,6 +51,8 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import static soc.game.GameState.*;
+
 
 /**
  * This is a modal dialog for info / actions related to known {@link SOCSpecialItem}s.
@@ -226,7 +228,7 @@ import javax.swing.border.EmptyBorder;
         }  // null item, etc
 
         final String buildStr = strings.get( "base.build" );
-        if (ga.getGameState() < SOCGame.START1A)
+        if (ga.getGameState().lt( START1A ))
             subtitle_prompt.setText( strings.get( "dialog.specitem.start_game" ) );  // "Must start the game to see this info."
         else if ((cliPlayer != null) && !playerOwnsWonder)
             subtitle_prompt.setText( strings.get
@@ -252,9 +254,9 @@ import javax.swing.border.EmptyBorder;
             final SOCPlayer owner = itm.getPlayer();
             final boolean playerOwnsThis = playerOwnsWonder && (owner == cliPlayer);
             final boolean playerCanBuildThis =
-                (ga.getGameState() >= SOCGame.PLAY1)
-                    && (ga.getGameState() < SOCGame.OVER)
-                    && (playerOwnsWonder)
+                (   ga.getGameState().gt( ROLL_OR_CARD ))
+                 && (ga.getGameState().lt( GAME_OVER ))
+                 && (playerOwnsWonder)
                     ? (playerOwnsThis && itm.checkCost( cliPlayer ))
                     : ((owner == null) && hasStartingCostShip && itm.checkRequirements( cliPlayer, true ));
             if (playerOwnsThis || !playerOwnsWonder)

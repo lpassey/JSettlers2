@@ -118,13 +118,21 @@ public class DiscardStrategy
             SOCResourceSet leftOvers = ourPlayerData.getResources().copy();
 
             if (targetResources != null)
+            {
                 for (int rsrc = SOCResourceConstants.CLAY;
-                         rsrc <= SOCResourceConstants.WOOD; rsrc++)
-                    if (leftOvers.getAmount(rsrc) > targetResources.getAmount(rsrc))
-                        leftOvers.subtract(targetResources.getAmount(rsrc), rsrc);
+                     rsrc <= SOCResourceConstants.WOOD; rsrc++)
+                {
+                    if (leftOvers.getAmount( rsrc ) > targetResources.getAmount( rsrc ))
+                    {
+                        if (!leftOvers.subtract( targetResources.getAmount( rsrc ), rsrc ))
+                        {
+                            ourPlayerData.resetResources();
+                        }
+                    }
                     else
-                        leftOvers.setAmount(0, rsrc);
-
+                        leftOvers.setAmount( 0, rsrc );
+                }
+            }
             SOCResourceSet neededRsrcs = ourPlayerData.getResources().copy();
             neededRsrcs.subtract(leftOvers);
 

@@ -22,6 +22,7 @@
 package soc.client;
 
 import soc.client.stats.GameStatisticsFrame;
+import soc.game.GameState;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCCity;
 import soc.game.SOCDevCard;
@@ -55,6 +56,8 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+
+import static soc.game.GameState.*;
 
 /**
  * This class is a panel that shows how much it costs
@@ -200,7 +203,7 @@ import javax.swing.SwingConstants;
      * Before v2.0.00 and i18n, button state was checked by comparing the button text to "Buy" or "Cancel".
      * @since 2.0.00
      */
-    private int pieceButtonsState;
+    private GameState pieceButtonsState;
 
     /**
      * "Game Options" window, from {@link #gameOptsBut} click, or null.
@@ -896,13 +899,13 @@ import javax.swing.SwingConstants;
             pi.getBoardPanel().popupClearBuildRequest();  // Just in case
 
         final boolean isCurrent = pi.isClientCurrentPlayer();
-        final int gstate = game.getGameState();
+        GameState gstate = game.getGameState();
         final boolean canAskSBP =
             game.canAskSpecialBuild( player.getPlayerNumber(), false )
                 && !sbIsHilight;
         final boolean stateBuyOK =        // same as in updateButtonStatus.
             (isCurrent)
-                ? ((gstate == SOCGame.PLAY1) || (gstate == SOCGame.SPECIAL_BUILDING))
+                ? ((gstate == PLAY1) || (gstate == SPECIAL_BUILDING))
                 : canAskSBP;
         final GameMessageSender messageSender = client.getGameMessageSender();
 
@@ -912,49 +915,49 @@ import javax.swing.SwingConstants;
 
         if (target == ROAD)
         {
-            if (pieceButtonsState == 0)
+            if (pieceButtonsState == NEW_GAME)
             {
                 if (stateBuyOK)
                     sendBuildRequest = SOCPlayingPiece.ROAD;
                 else if (canAskSBP)
                     sendBuildRequest = -1;
             }
-            else if ((pieceButtonsState == SOCGame.PLACING_ROAD) || (pieceButtonsState == SOCGame.PLACING_FREE_ROAD2))
+            else if ((pieceButtonsState == PLACING_ROAD) || (pieceButtonsState == PLACING_FREE_ROAD2))
             {
                 messageSender.cancelBuildRequest( game, SOCPlayingPiece.ROAD );
             }
         }
         else if (target == STLMT)
         {
-            if (pieceButtonsState == 0)
+            if (pieceButtonsState == NEW_GAME)
             {
                 if (stateBuyOK)
                     sendBuildRequest = SOCPlayingPiece.SETTLEMENT;
                 else if (canAskSBP)
                     sendBuildRequest = -1;
             }
-            else if (pieceButtonsState == SOCGame.PLACING_SETTLEMENT)
+            else if (pieceButtonsState == PLACING_SETTLEMENT)
             {
                 messageSender.cancelBuildRequest( game, SOCPlayingPiece.SETTLEMENT );
             }
         }
         else if (target == CITY)
         {
-            if (pieceButtonsState == 0)
+            if (pieceButtonsState == NEW_GAME)
             {
                 if (stateBuyOK)
                     sendBuildRequest = SOCPlayingPiece.CITY;
                 else if (canAskSBP)
                     sendBuildRequest = -1;
             }
-            else if (pieceButtonsState == SOCGame.PLACING_CITY)
+            else if (pieceButtonsState == PLACING_CITY)
             {
                 messageSender.cancelBuildRequest( game, SOCPlayingPiece.CITY );
             }
         }
         else if (target == CARD)
         {
-            if (pieceButtonsState == 0)
+            if (pieceButtonsState == NEW_GAME)
             {
                 if (stateBuyOK || canAskSBP)
                 {
@@ -965,14 +968,14 @@ import javax.swing.SwingConstants;
         }
         else if (target == SHIP)
         {
-            if (pieceButtonsState == 0)
+            if (pieceButtonsState == NEW_GAME)
             {
                 if (stateBuyOK)
                     sendBuildRequest = SOCPlayingPiece.SHIP;
                 else if (canAskSBP)
                     sendBuildRequest = -1;
             }
-            else if ((pieceButtonsState == SOCGame.PLACING_SHIP) || (pieceButtonsState == SOCGame.PLACING_FREE_ROAD2))
+            else if ((pieceButtonsState == PLACING_SHIP) || (pieceButtonsState == PLACING_FREE_ROAD2))
             {
                 messageSender.cancelBuildRequest( game, SOCPlayingPiece.SHIP );
             }
@@ -1029,7 +1032,7 @@ import javax.swing.SwingConstants;
     {
         SOCGame game = pi.getGame();
 
-        pieceButtonsState = 0;  // If placing a piece, if-statements here will set the right state
+        pieceButtonsState = NEW_GAME;  // If placing a piece, if-statements here will set the right state
 
         if (player != null)
         {
@@ -1037,18 +1040,18 @@ import javax.swing.SwingConstants;
             final boolean isDebugFreePlacement = game.isDebugFreePlacement();
             final boolean isCurrent = (!isDebugFreePlacement)
                 && (game.getCurrentPlayerNumber() == pnum);
-            final int gstate = game.getGameState();
+            GameState gstate = game.getGameState();
             boolean currentCanBuy = (!isDebugFreePlacement)
                 && game.canBuyOrAskSpecialBuild( pnum );
 
             if (   isCurrent
-                && (   (gstate == SOCGame.PLACING_ROAD)
-                    || (   (gstate == SOCGame.PLACING_FREE_ROAD2)
+                && (   (gstate == PLACING_ROAD)
+                    || (   (gstate == PLACING_FREE_ROAD2)
                         && (pi.getClient().getConnection().getRemoteVersion() >= SOCGame.VERSION_FOR_CANCEL_FREE_ROAD2))))
             {
                 roadBut.setEnabled( true );
                 roadBut.setText( strings.get( "base.cancel" ) );  // "Cancel"
-                pieceButtonsState = (gstate == SOCGame.PLACING_FREE_ROAD2) ? gstate : SOCGame.PLACING_ROAD;
+                pieceButtonsState = (gstate == PLACING_FREE_ROAD2) ? gstate : PLACING_ROAD;
             }
             else if (game.couldBuildRoad( pnum ))
             {
@@ -1062,12 +1065,12 @@ import javax.swing.SwingConstants;
             }
 
             if (isCurrent &&
-                ((gstate == SOCGame.PLACING_SETTLEMENT) || (gstate == SOCGame.START1B)
-                    || (gstate == SOCGame.START2B) || (gstate == SOCGame.START3B)))
+                ((gstate == PLACING_SETTLEMENT) || (gstate == START1B)
+                    || (gstate == START2B) || (gstate == START3B)))
             {
                 settlementBut.setEnabled( true );
                 settlementBut.setText( strings.get( "base.cancel" ) );
-                pieceButtonsState = SOCGame.PLACING_SETTLEMENT;
+                pieceButtonsState = PLACING_SETTLEMENT;
             }
             else if (game.couldBuildSettlement( pnum ))
             {
@@ -1080,11 +1083,11 @@ import javax.swing.SwingConstants;
                 settlementBut.setText( "---" );
             }
 
-            if (isCurrent && (gstate == SOCGame.PLACING_CITY))
+            if (isCurrent && (gstate == PLACING_CITY))
             {
                 cityBut.setEnabled( true );
                 cityBut.setText( strings.get( "base.cancel" ) );
-                pieceButtonsState = SOCGame.PLACING_CITY;
+                pieceButtonsState = PLACING_CITY;
             }
             else if (game.couldBuildCity( pnum ))
             {
@@ -1110,7 +1113,7 @@ import javax.swing.SwingConstants;
 
             if (shipBut != null)
             {
-                if (isCurrent && ((gstate == SOCGame.PLACING_SHIP) || (gstate == SOCGame.PLACING_FREE_ROAD2)))
+                if (isCurrent && ((gstate == PLACING_SHIP) || (gstate == PLACING_FREE_ROAD2)))
                 {
                     shipBut.setEnabled( true );
                     shipBut.setText( strings.get( "base.cancel" ) );
@@ -1147,7 +1150,7 @@ import javax.swing.SwingConstants;
 
                 final boolean enable =
                     (sbNeedsMorePlayers)
-                        ? ((!isCurrent) && (gstate >= SOCGame.ROLL_OR_CARD))
+                        ? ((!isCurrent) && (gstate.gt( STARTS_WAITING_FOR_PICK_GOLD_RESOURCE )))
                         : (game.canAskSpecialBuild( pnum, false ) && !askedSB);
                 sbBut.setEnabled( enable );
             }

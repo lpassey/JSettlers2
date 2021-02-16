@@ -20,6 +20,7 @@
 
 package soctest.game;
 
+import soc.game.GameState;
 import soc.game.SOCGame;
 
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class TestGame
     @SuppressWarnings("all")  // "Comparing identical expressions"
     public void test_gameState_startsVsRoll()
     {
-        assertTrue((SOCGame.ROLL_OR_CARD - 1) == SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE);
+        assertEquals((GameState.ROLL_OR_CARD.getIntValue() - 1), GameState.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE.getIntValue());
     }
 
     /**

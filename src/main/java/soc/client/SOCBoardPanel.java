@@ -22,6 +22,7 @@
  **/
 package soc.client;
 
+import soc.game.GameState;
 import soc.game.SOCBoard;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCCity;
@@ -77,6 +78,8 @@ import java.util.Set;
 import java.util.Timer;
 
 import javax.swing.JComponent;
+
+import static soc.game.GameState.*;
 
 /**
  * This is a component that can display a Settlers of Catan Board.
@@ -4398,7 +4401,7 @@ import javax.swing.JComponent;
         /**
          * Draw Arrow
          */
-        final int gameState = game.getGameState();
+        GameState gameState = game.getGameState();
         int[] scArrowX;
         if (arrowLeft)
             scArrowX = scaledArrowXL;
@@ -4407,7 +4410,7 @@ import javax.swing.JComponent;
 
         g.translate( aX, aY );
 
-        if (!(game.isSpecialBuilding() || (gameState == SOCGame.OVER)))
+        if (!(game.isSpecialBuilding() || (gameState == GameState.GAME_OVER)))
             g.setColor( ARROW_COLOR );
         else
             g.setColor( ARROW_COLOR_PLACING );
@@ -4420,7 +4423,7 @@ import javax.swing.JComponent;
         /**
          * Draw Dice result number
          */
-        if ((diceResult >= 2) && (gameState != SOCGame.ROLL_OR_CARD) && (gameState != SOCGame.SPECIAL_BUILDING))
+        if ((diceResult >= 2) && (gameState != ROLL_OR_CARD) && (gameState != SPECIAL_BUILDING))
         {
             final int boxSize = (isScaled) ? scaleToActual( DICE_SZ ) : DICE_SZ;  // bounding box for dice-number digit(s)
             final int fontSize = 4 * boxSize / 5;  // 80%
@@ -4643,15 +4646,15 @@ import javax.swing.JComponent;
         if (xlat)
             g.translate( panelMarginX, panelMarginY );
 
-        final int gameState = game.getGameState();
+        GameState gameState = game.getGameState();
 
         if (board.getRobberHex() != -1)
         {
-            drawRobber( g, board.getRobberHex(), (gameState != SOCGame.PLACING_ROBBER), true );
+            drawRobber( g, board.getRobberHex(), (gameState != PLACING_ROBBER), true );
         }
         if (board.getPreviousRobberHex() != -1)
         {
-            drawRobber( g, board.getPreviousRobberHex(), (gameState != SOCGame.PLACING_ROBBER), false );
+            drawRobber( g, board.getPreviousRobberHex(), (gameState != PLACING_ROBBER), false );
         }
 
         if (isLargeBoard)
@@ -4659,13 +4662,13 @@ import javax.swing.JComponent;
             int hex = ((SOCBoardLarge) board).getPirateHex();
             if (hex > 0)
             {
-                drawRoadOrShip( g, hex, -2, (gameState == SOCGame.PLACING_PIRATE), false, false );
+                drawRoadOrShip( g, hex, -2, (gameState == PLACING_PIRATE), false, false );
             }
 
             hex = ((SOCBoardLarge) board).getPreviousPirateHex();
             if (hex > 0)
             {
-                drawRoadOrShip( g, hex, -3, (gameState == SOCGame.PLACING_PIRATE), false, false );
+                drawRoadOrShip( g, hex, -3, (gameState == PLACING_PIRATE), false, false );
             }
         }
 
@@ -4730,16 +4733,16 @@ import javax.swing.JComponent;
          * edge of board. More likely on 6-player board for the
          * two players whose handpanels are vertically centered.
          */
-        if (gameState != SOCGame.NEW)
+        if (gameState != NEW_GAME)
         {
-            int cpn = game.getCurrentPlayerNumber();
-            if ((cpn < 0) && (gameState >= SOCGame.OVER))
+            int currentPlayerNumber = game.getCurrentPlayerNumber();
+            if ((currentPlayerNumber < 0) && (gameState.gt( ALMOST_OVER )))
             {
                 SOCPlayer wp = game.getPlayerWithWin();
                 if (wp != null)
-                    cpn = wp.getPlayerNumber();
+                    currentPlayerNumber = wp.getPlayerNumber();
             }
-            drawArrow( g, cpn, game.getCurrentDice() );
+            drawArrow( g, currentPlayerNumber, game.getCurrentDice() );
         }
 
         if (player != null)
@@ -5854,7 +5857,7 @@ import javax.swing.JComponent;
             {
                 topText = "DEBUG: Free Placement Mode";
 
-                if (game.getGameState() == SOCGame.PLACING_INV_ITEM)
+                if (game.getGameState() == PLACING_INV_ITEM)
                 {
                     if (game.isGameOptionSet( SOCGameOptionSet.K_SC_FTRI ))
                     {
@@ -5889,51 +5892,51 @@ import javax.swing.JComponent;
             {
                 switch (game.getGameState())
                 {
-                case SOCGame.START1A:
-                case SOCGame.START2A:
-                case SOCGame.START3A:
+                case START1A:
+                case START2A:
+                case START3A:
                     mode = PLACE_INIT_SETTLEMENT;
                     break;
 
-                case SOCGame.START1B:
-                case SOCGame.START2B:
-                case SOCGame.START3B:
+                case START1B:
+                case START2B:
+                case START3B:
                     mode = PLACE_INIT_ROAD;
                     break;
 
-                case SOCGame.PLACING_ROAD:
+                case PLACING_ROAD:
                     mode = PLACE_ROAD;
                     break;
 
-                case SOCGame.PLACING_FREE_ROAD1:
-                case SOCGame.PLACING_FREE_ROAD2:
+                case PLACING_FREE_ROAD1:
+                case PLACING_FREE_ROAD2:
                     if (isLargeBoard)
                         mode = PLACE_FREE_ROAD_OR_SHIP;
                     else
                         mode = PLACE_ROAD;
                     break;
 
-                case SOCGame.PLACING_SETTLEMENT:
+                case PLACING_SETTLEMENT:
                     mode = PLACE_SETTLEMENT;
                     break;
 
-                case SOCGame.PLACING_CITY:
+                case PLACING_CITY:
                     mode = PLACE_CITY;
                     break;
 
-                case SOCGame.PLACING_SHIP:
+                case PLACING_SHIP:
                     mode = PLACE_SHIP;
                     break;
 
-                case SOCGame.PLACING_ROBBER:
+                case PLACING_ROBBER:
                     mode = PLACE_ROBBER;
                     break;
 
-                case SOCGame.PLACING_PIRATE:
+                case PLACING_PIRATE:
                     mode = PLACE_PIRATE;
                     break;
 
-                case SOCGame.PLACING_INV_ITEM:
+                case PLACING_INV_ITEM:
                     if (game.isGameOptionSet( SOCGameOptionSet.K_SC_FTRI ))
                     {
                         mode = SC_FTRI_PLACE_PORT;
@@ -5945,16 +5948,16 @@ import javax.swing.JComponent;
                     }
                     break;
 
-                case SOCGame.NEW:
-                case SOCGame.READY:
+                case NEW_GAME:
+                case READY:
                     mode = GAME_FORMING;
                     break;
 
-                case SOCGame.OVER:
+                case GAME_OVER:
                     mode = GAME_OVER;
                     break;
 
-                case SOCGame.ROLL_OR_CARD:
+                case ROLL_OR_CARD:
                     mode = TURN_STARTING;
                     if (game.isGameOptionSet( "N7" ))
                     {
@@ -5982,7 +5985,7 @@ import javax.swing.JComponent;
                     }
                     break;
 
-                case SOCGame.SPECIAL_BUILDING:
+                case SPECIAL_BUILDING:
                     mode = NONE;
                     topText = strings.get( "board.msg.special.building", player.getName() );  // "Special Building: {0}"
                     break;
@@ -8833,7 +8836,7 @@ import javax.swing.JComponent;
                         return;  // <--- Early ret: No work needed ---
                     }
 
-                    if (game.getGameState() == SOCGame.PLACING_PIRATE)
+                    if (game.getGameState() == PLACING_PIRATE)
                         hoverMode = PLACE_PIRATE;
                     else
                         hoverMode = PLACE_ROBBER;  // const used for hovering-at-hex
@@ -9263,29 +9266,29 @@ import javax.swing.JComponent;
 
             if (menuPlayerIsCurrent)
             {
-                int gameState = game.getGameState();
+                GameState gameState = game.getGameState();
                 if (game.isDebugFreePlacement() && game.isInitialPlacement())
                 {
                     switch (player.getPieces().size())
                     {
                     case 0:
                     case 2:
-                        gameState = SOCGame.START1A;  // Settlement
+                        gameState = START1A;  // Settlement
                         break;
                     case 1:
                     case 3:
-                        gameState = SOCGame.START1B;  // Road
+                        gameState = START1B;  // Road
                         break;
                     default:
-                        gameState = SOCGame.PLAY1;  // any piece is okay
+                        gameState = PLAY1;  // any piece is okay
                     }
                 }
 
                 switch (gameState)
                 {
-                case SOCGame.START1A:
-                case SOCGame.START2A:
-                case SOCGame.START3A:
+                case START1A:
+                case START2A:
+                case START3A:
                     isInitialPlacement = true;  // Settlement
                     buildRoadItem.setEnabled( false );
                     buildSettleItem.setEnabled( hSe != 0 );
@@ -9294,9 +9297,9 @@ import javax.swing.JComponent;
                         buildShipItem.setEnabled( false );
                     break;
 
-                case SOCGame.START1B:
-                case SOCGame.START2B:
-                case SOCGame.START3B:
+                case START1B:
+                case START2B:
+                case START3B:
                     isInitialPlacement = true;  // Road
                     buildRoadItem.setEnabled( hR != 0 );
                     buildSettleItem.setEnabled( false );
@@ -9311,7 +9314,7 @@ import javax.swing.JComponent;
                     }
                     break;
 
-                case SOCGame.PLACING_FREE_ROAD2:
+                case PLACING_FREE_ROAD2:
                   if (playerInterface.getClient().getConnection().getRemoteVersion() >= SOCGame.VERSION_FOR_CANCEL_FREE_ROAD2)
                     {
                         cancelBuildItem.setEnabled( true );
@@ -9319,7 +9322,7 @@ import javax.swing.JComponent;
                     }
                     // Fall through to enable/disable building menu items
 
-                case SOCGame.PLACING_FREE_ROAD1:
+                case PLACING_FREE_ROAD1:
                     buildRoadItem.setEnabled( hR != 0 );
                     buildSettleItem.setEnabled( false );
                     upgradeCityItem.setEnabled( false );
@@ -9329,7 +9332,7 @@ import javax.swing.JComponent;
 
                 default:
                     didEnableDisable = false;  // must still check enable/disable
-                    if (gameState < SOCGame.PLAY1)
+                    if (gameState.lt( PLAY1 ))
                         menuPlayerIsCurrent = false;  // Not in a state to place items
                 }
             }
@@ -9537,10 +9540,10 @@ import javax.swing.JComponent;
 
             // If possible, send putpiece request right now.
             // Otherwise, multi-phase send (build request, receive gamestate, putpiece request).
-            final int gameState = game.getGameState();
+            GameState gameState = game.getGameState();
             final boolean sendNow = isInitialPlacement || wantsCancel || debugPP
-                || (gameState == SOCGame.PLACING_FREE_ROAD1) || (gameState == SOCGame.PLACING_FREE_ROAD2)
-                || (   ((gameState == SOCGame.PLAY1) || (gameState == SOCGame.SPECIAL_BUILDING))
+                || (gameState == PLACING_FREE_ROAD1) || (gameState == PLACING_FREE_ROAD2)
+                || (   ((gameState == PLAY1) || (gameState == SPECIAL_BUILDING))
                     && (playerInterface.client.getConnection().getRemoteVersion() >= 2000));
             final GameMessageSender messageSender = (sendNow)
                 ? playerInterface.getClient().getGameMessageSender()
@@ -9773,14 +9776,14 @@ import javax.swing.JComponent;
         @Override
         public void setEnabledIfCanTrade( boolean itemsOnly )
         {
-            int gs = hpan.getGame().getGameState();
+            GameState gs = hpan.getGame().getGameState();
             for (int i = 0; i < 5; ++i)
             {
                 int numNeeded = tradeFromTypes[i].getResourceCost();
                 tradeFromTypes[i].setEnabledIfCanTrade( itemsOnly );
-                tradeFromTypes[i].setEnabledIfCanTrade
-                    ( (gs == SOCGame.PLAY1)
-                        && (numNeeded <= hpan.getPlayer().getResources().getAmount( i + 1 )) );
+                tradeFromTypes[i].setEnabledIfCanTrade(
+                    (gs == PLAY1)
+                 && (numNeeded <= hpan.getPlayer().getResources().getAmount( i + 1 )) );
             }
         }
 
@@ -10153,5 +10156,4 @@ import javax.swing.JComponent;
         }
 
     }  // nested class ConfirmPlaceShipDialog
-
 }  // class SOCBoardPanel

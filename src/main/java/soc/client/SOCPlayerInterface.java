@@ -25,6 +25,7 @@ package soc.client;
 import soc.client.stats.SOCGameStatistics;
 import soc.debug.D;  // JM
 
+import soc.game.GameState;
 import soc.game.SOCBoard;
 import soc.game.SOCCity;
 import soc.game.SOCFortress;
@@ -48,7 +49,6 @@ import soc.game.SOCTradeOffer;
 import soc.game.SOCVillage;
 import soc.message.SOCMessage;
 import soc.message.SOCPlayerElement.PEType;
-import soc.message.SOCBankTrade;     // for reply code constant
 import soc.message.SOCPickResources;  // for reason code constants
 import soc.message.SOCSimpleAction;  // for action type constants
 import soc.message.SOCSimpleRequest;  // for request type constants
@@ -112,6 +112,8 @@ import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+import static soc.game.GameState.*;
 
 /**
  * Window with interface for a player in one game of Settlers of Catan.
@@ -843,7 +845,7 @@ public class SOCPlayerInterface extends Frame
         isGameFullyObservable = game.isGameOptionSet( SOCGameOptionSet.K_PLAY_FO );
         isGameObservableVP = isGameFullyObservable || game.isGameOptionSet( SOCGameOptionSet.K_PLAY_VPO );
 
-        knowsGameState = (game.getGameState() != 0);
+        knowsGameState = (game.getGameState() != NEW_GAME);
         this.layoutVS = layoutVS;
         gameStats = new SOCGameStatistics( game );
         clientListener = createClientListenerBridge();
@@ -1232,7 +1234,7 @@ public class SOCPlayerInterface extends Frame
             updatePlayerLimitDisplay( true, false, -1 );
             // Player data may not be received yet;
             // game is created empty, then SITDOWN messages are received from server.
-            // gameState is at default 0 (NEW) during JOINGAMEAUTH and SITDOWN.
+            // gameState is at default NEW_GAME during JOINGAMEAUTH and SITDOWN.
             // initUIElements is also called at board reset.
             // updatePlayerLimitDisplay will check the current gameState.
         }
@@ -1772,11 +1774,11 @@ public class SOCPlayerInterface extends Frame
      */
     private void updatePlayerLimitDisplay( final boolean show, boolean isGameStart, final int playerLeaving )
     {
-        final int gstate = game.getGameState();
+        GameState gstate = game.getGameState();
         final boolean clientSatAlready = (clientHand != null);
         boolean noTextOverlay = ((!show) || isGameStart
-            || (clientSatAlready && ((gstate >= SOCGame.READY) || game.isBoardReset())));
-        if (gstate == SOCGame.NEW)
+            || (clientSatAlready && ((gstate.gt( NEW_GAME )) || game.isBoardReset())));
+        if (gstate == NEW_GAME)
             isGameStart = true;  // change this param only after setting noTextOverlay
 
         final int maxPl = game.getGameOptionIntValue( "PL" );
@@ -2447,7 +2449,7 @@ public class SOCPlayerInterface extends Frame
      */
     public void resetBoardAskVote( int pnRequester )
     {
-        boolean gaOver = (game.getGameState() >= SOCGame.OVER);
+        boolean gaOver = (game.getGameState().gt( ALMOST_OVER ));
         try
         {
             game.resetVoteBegin( pnRequester );
@@ -2889,7 +2891,7 @@ public class SOCPlayerInterface extends Frame
      */
     public void updateAtOver( final int[] finalScores )
     {
-        if (game.getGameState() != SOCGame.OVER)
+        if (game.getGameState() != GAME_OVER)
         {
             System.err.println( "L1264: pi.updateAtOver called at state " + game.getGameState() );
             return;
@@ -2915,7 +2917,7 @@ public class SOCPlayerInterface extends Frame
         }
 
         setTitle( strings.get( "interface.title.game.over", game.getName() ) +
-            (game.isPractice ? "" : " [" + getClientNickname() + "]") );
+            " [" + getClientNickname() + "]" );
         // "Settlers of Catan Game Over: {0}"
 
         boardPanel.updateMode();
@@ -3303,7 +3305,7 @@ public class SOCPlayerInterface extends Frame
      */
     public void updateAtGameState()
     {
-        int gs = game.getGameState();
+        GameState gs = game.getGameState();
 
         if (!knowsGameState)
         {
@@ -3317,7 +3319,7 @@ public class SOCPlayerInterface extends Frame
                 for (int i = 0; i < game.maxPlayers; i++)
                     if (game.isSeatVacant( i ))
                     {
-                        if (gs < SOCGame.START2A)
+                        if (gs.lt( START2A ))
                             hands[i].addSitButton( false );
                         else
                             hands[i].removeSitBut();
@@ -3330,14 +3332,14 @@ public class SOCPlayerInterface extends Frame
         boardPanel.repaint();
 
         // Check for placement states (board panel popup, build via right-click)
-        if ((gs == SOCGame.PLACING_ROAD) || (gs == SOCGame.PLACING_SETTLEMENT)
-            || (gs == SOCGame.PLACING_CITY) || (gs == SOCGame.PLACING_SHIP))
+        if (   (gs == PLACING_ROAD) || (gs ==  PLACING_SETTLEMENT)
+            || (gs == PLACING_CITY) || (gs == PLACING_SHIP))
         {
             if (boardPanel.popupExpectingBuildRequest())
                 boardPanel.popupFireBuildingRequest();
         }
 
-        if ((gs == SOCGame.PLACING_INV_ITEM) && isClientCurrentPlayer()
+        if ((gs == PLACING_INV_ITEM ) && isClientCurrentPlayer()
             && game.isGameOptionSet( SOCGameOptionSet.K_SC_FTRI ))
         {
             printKeyed( "game.invitem.sc_ftri.prompt" );
@@ -3348,7 +3350,7 @@ public class SOCPlayerInterface extends Frame
         // Update our interface at start of first turn;
         // server doesn't send non-bot clients a TURN message after the
         // final road/ship is placed (state START2 -> ROLL_OR_CARD).
-        if (gameIsStarting && (gs >= SOCGame.ROLL_OR_CARD))
+        if (gameIsStarting && (gs.gt( STARTS_WAITING_FOR_PICK_GOLD_RESOURCE )))
         {
             gameIsStarting = false;
             if (clientHand != null)
@@ -3358,21 +3360,21 @@ public class SOCPlayerInterface extends Frame
 
         // React if waiting for players to discard,
         // or if we were waiting, and aren't anymore.
-        if (gs == SOCGame.WAITING_FOR_DISCARDS)
+        if (gs == WAITING_FOR_DISCARDS)
         {
             // Set timer.  If still waiting for discards after 2 seconds,
             // show balloons on-screen. (hands[i].setDiscardOrPickMsg)
             discardOrPickTimerSet( true );
         }
-        else if ((gs == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE)
-            || (gs == SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE))
+        else if ((gs == WAITING_FOR_PICK_GOLD_RESOURCE)
+            || (gs == STARTS_WAITING_FOR_PICK_GOLD_RESOURCE))
         {
             // Set timer.  If still waiting for resource picks after 2 seconds,
             // show balloons on-screen. (hands[i].setDiscardOrPickMsg)
             discardOrPickTimerSet( false );
         }
-        else if (showingPlayerDiscardOrPick
-                 && ((gs == SOCGame.PLAY1) || (gs == SOCGame.START2B) || (gs == SOCGame.START3B)))
+        else if (   showingPlayerDiscardOrPick
+                 && ((gs == PLAY1) || (gs == START2B) || (gs == START3B)))
         {
             // If not all players' discard status balloons were cleared by
             // PLAYERELEMENT messages, clean up now.
@@ -3387,15 +3389,15 @@ public class SOCPlayerInterface extends Frame
 
         switch (gs)
         {
-        case SOCGame.WAITING_FOR_DISCOVERY:
+        case WAITING_FOR_DISCOVERY:
             showDiscardOrGainDialog( 2, false );
             break;
 
-        case SOCGame.WAITING_FOR_MONOPOLY:
+        case WAITING_FOR_MONOPOLY:
             showMonopolyDialog();
             break;
 
-        case SOCGame.WAITING_FOR_ROBBER_OR_PIRATE:
+        case WAITING_FOR_ROBBER_OR_PIRATE:
             java.awt.EventQueue.invokeLater( new ChooseMoveRobberOrPirateDialog() );
             break;
 
@@ -3530,7 +3532,7 @@ public class SOCPlayerInterface extends Frame
         if (game.isDebugFreePlacement() && game.isInitialPlacement())
             boardPanel.updateMode();  // update here, since gamestate doesn't change to trigger update
 
-        if (hasCalledBegan && (game.getGameState() >= SOCGame.START1A))
+        if (hasCalledBegan && (game.getGameState().gt( READY_RESET_WAIT_ROBOT_DISMISS )))
             playSound( SOUND_PUT_PIECE );
 
         /**
@@ -3734,9 +3736,9 @@ public class SOCPlayerInterface extends Frame
         setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
 
         // Clear out old state (similar to constructor)
-        int oldGameState = game.getOldGameState();
+        GameState oldGameState = game.getOldGameState();
         game = newGame;
-        knowsGameState = (game.getGameState() != 0);
+        knowsGameState = (game.getGameState() != NEW_GAME);
         if (gameStats != null)
             gameStats.dispose();
         gameStats = new SOCGameStatistics( game );
@@ -3757,7 +3759,7 @@ public class SOCPlayerInterface extends Frame
 
         // Clear from possible "game over" titlebar
         setTitle( strings.get( "interface.title.game", game.getName() ) +
-            (game.isPractice ? "" : " [" + getClientNickname() + "]") );
+            " [" + getClientNickname() + "]" );
         // "Settlers of Catan Game: {0}"
         boardPanel.debugShowPotentials = boardDebugShow;
 
@@ -3771,7 +3773,7 @@ public class SOCPlayerInterface extends Frame
             requesterName = strings.get( "reset.player.who.left" );  // fall back to "player who left"
 
         final String resetMsg = "** "
-            + strings.get( ((oldGameState != SOCGame.OVER)
+            + strings.get( ((oldGameState != GAME_OVER)
                 ? "reset.board.was.reset"     // "The board was reset by {0}."
                 : "reset.new.game.started"),  // "New game started by {0}.
             requesterName )
@@ -4109,23 +4111,21 @@ public class SOCPlayerInterface extends Frame
         }
 
         int tdh, cdh;
-        if (game.isPractice)
+        // Game textarea larger than chat textarea
+        cdh = (int) (2.2f * tfh);
+        tdh = tah - cdh;
+        if (tdh < cdh)
         {
-            // Game textarea larger than chat textarea
-            cdh = (int) (2.2f * tfh);
-            tdh = tah - cdh;
-            if (tdh < cdh)
-            {
-                tdh = cdh;
-                cdh = tah - cdh;
-            }
+            tdh = cdh;
+            cdh = tah - cdh;
         }
-        else
+/*
         {
             // Equal-sized text, chat textareas
             tdh = tah / 2;
             cdh = tah - tdh;
         }
+*/
         if (textDisplaysLargerTemp_needsLayout && textDisplaysLargerTemp)
         {
             // expanded size (temporary)
@@ -4148,8 +4148,6 @@ public class SOCPlayerInterface extends Frame
             }
 
             textDisplay.setBounds( x, i.top + pix4, w, h );
-            if (!game.isPractice)
-                cdh += (20 * displayScale);
             chatDisplay.setBounds( x, i.top + pix4 + h, w, cdh );
             h += cdh;
             textInput.setBounds( x, i.top + pix4 + h, w, tfh );
@@ -4435,7 +4433,7 @@ public class SOCPlayerInterface extends Frame
         {
             final String msg = "*** " + strings.get( "interface.member.joined.game", nickname );  // "Joe has joined this game."
             pi.print( msg );
-            if ((pi.game != null) && (pi.game.getGameState() >= SOCGame.START1A))
+            if ((pi.game != null) && (pi.game.getGameState().gt( READY_RESET_WAIT_ROBOT_DISMISS )))
                 pi.chatPrint( msg );
         }
 
@@ -4450,7 +4448,7 @@ public class SOCPlayerInterface extends Frame
                 pi.removePlayer( player.getPlayerNumber() );
             }
 
-            if (pi.game.getGameState() >= SOCGame.START1A)
+            if (pi.game.getGameState().gt( READY_RESET_WAIT_ROBOT_DISMISS ))
             {
                 //  Server sends "left" message to print in the game text area.
                 //  If game is in progress, also print in the chat area (less clutter there).
@@ -4654,7 +4652,7 @@ public class SOCPlayerInterface extends Frame
                 }
             }
 
-            if (isClientPlayer && (pi.getGame().getGameState() != SOCGame.NEW))
+            if (isClientPlayer && (pi.getGame().getGameState() != NEW_GAME))
                 pi.buildingPanel.updateButtonStatus();
         }
 
@@ -4814,7 +4812,7 @@ public class SOCPlayerInterface extends Frame
             pi.startGame();
         }
 
-        public void gameStateChanged( int gameState )
+        public void gameStateChanged( GameState gameState )
         {
             pi.updateAtGameState();
         }
@@ -4872,7 +4870,7 @@ public class SOCPlayerInterface extends Frame
                 if (pn == -1)
                 {
                     // rejected
-                    if (pi.getGame().getGameState() == SOCGame.PLACING_INV_ITEM)
+                    if (pi.getGame().getGameState() == PLACING_INV_ITEM)
                         pi.printKeyed( "game.invitem.sc_ftri.need.coastal" );  // * "Requires a coastal settlement not adjacent to an existing port."
                     else
                         pi.printKeyed( "hpan.item.play.cannot" );  // * "Cannot play this item right now."
@@ -5788,13 +5786,13 @@ public class SOCPlayerInterface extends Frame
         @Override
         public void run()
         {
-            final int needState;
+            final GameState needState;
             if (isDiscard)
-                needState = SOCGame.WAITING_FOR_DISCARDS;
+                needState = WAITING_FOR_DISCARDS;
             else if (pi.game.isInitialPlacement())
-                needState = SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE;
+                needState = STARTS_WAITING_FOR_PICK_GOLD_RESOURCE;
             else
-                needState = SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE;
+                needState = WAITING_FOR_PICK_GOLD_RESOURCE;
 
             final int clientPN = pi.clientHandPlayerNum;
             boolean anyShowing = false;

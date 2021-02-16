@@ -68,6 +68,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
+import soc.game.GameState;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
@@ -85,6 +86,7 @@ import soc.util.SOCGameList;
 import soc.util.SOCStringManager;
 import soc.util.Version;
 
+import static soc.game.GameState.*;
 
 /**
  * A {@link MainDisplay} implementation for Swing.
@@ -1595,7 +1597,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             // So, it's OK to not check that here or in the dialog.
 
             // Is the game over yet?
-            if (pi.getGame().getGameState() == SOCGame.OVER)
+            if (pi.getGame().getGameState() == GAME_OVER)
             {
                 // No point joining, just get options to start a new one.
                 gameWithOptionsBeginSetup( true, false );
@@ -1950,7 +1952,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     protected SOCPlayerInterface findAnyActiveGame()
     {
         SOCPlayerInterface pi = null;
-        int gs;  // gamestate
+        GameState gs;  // gamestate
 
         Collection<String> gameNames;
         if (net.localServer != null)
@@ -1967,7 +1969,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             if (net.localServer != null)
             {
                 gs = net.localServer.getGameState( tryGm );
-                if (gs < SOCGame.OVER)
+                if (gs.lt( GAME_OVER ))
                 {
                     pi = playerInterfaces.get( tryGm );
                     if (pi != null)
@@ -1981,7 +1983,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 {
                     // we have a window with it
                     gs = pi.getGame().getGameState();
-                    if (gs < SOCGame.OVER)
+                    if (gs.lt( GAME_OVER ))
                         break;      // Active
 
                     pi = null;  // Avoid false positive
@@ -2557,7 +2559,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                             int newVP = SOCGame.VP_WINNER_STANDARD;
                             if (isScenPicked)
                             {
-                                final SOCScenario scen = SOCScenario.getScenario( newSC );
+                                final SOCScenario scen = client.getNet().getValidScenarios().get( newSC );
                                 if (scen != null)
                                 {
                                     final Map<String, SOCGameOption> scenOpts =

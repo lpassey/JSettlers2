@@ -26,6 +26,7 @@ package soc.robot;
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.disableDebug.D;
 
+import soc.game.GameState;
 import soc.game.SOCBoard;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCCity;
@@ -83,11 +84,11 @@ import soc.util.SOCRobotParameters;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
+import static soc.game.GameState.*;
 
 /**
  * AI for playing Settlers of Catan.
@@ -608,7 +609,7 @@ public class SOCRobotBrain extends Thread
      * True when we're waiting for the results of our requested bank trade.
      * @see #waitingForTradeResponse
      */
-    protected boolean waitingForTradeMsg;
+    protected boolean waitingForBankTradeMsg;
 
     /**
      * true when we're waiting to receive a dev card
@@ -628,7 +629,7 @@ public class SOCRobotBrain extends Thread
      * Max wait time is {@link #tradeResponseTimeoutSec}.
      * @see #makeOffer(SOCBuildPlan)
      * @see #doneTrading
-     * @see #waitingForTradeMsg
+     * @see #waitingForBankTradeMsg
      */
     protected boolean waitingForTradeResponse;
 
@@ -696,7 +697,7 @@ public class SOCRobotBrain extends Thread
     /**
      * the game state before the current one
      */
-    protected int oldGameState;
+    protected GameState oldGameState;
 
     /**
      * During START states, coordinate of our most recently placed road or settlement.
@@ -813,7 +814,7 @@ public class SOCRobotBrain extends Thread
         oldGameState = game.getGameState();
         waitingForGameState = false;
         waitingForOurTurn = false;
-        waitingForTradeMsg = false;
+        waitingForBankTradeMsg = false;
         waitingForDevCard = false;
         waitingForSpecialBuild = false;
         decidedIfSpecialBuild = false;
@@ -1142,7 +1143,7 @@ public class SOCRobotBrain extends Thread
             + ": gs=" + game.getGameState() );
         if (waitingForPickSpecialItem != null)
             rbSta.add( "  waitingForPickSpecialItem = " + waitingForPickSpecialItem );
-        if (game.getGameState() == SOCGame.WAITING_FOR_DISCARDS)
+        if (game.getGameState() == WAITING_FOR_DISCARDS)
             rbSta.add( "  bot resource count = " + ourPlayerData.getResources().getTotal() );
         if (rejectedPlayDevCardType != -1)
             rbSta.add( "  rejectedPlayDevCardType = " + rejectedPlayDevCardType );
@@ -1153,7 +1154,7 @@ public class SOCRobotBrain extends Thread
 
         final String[] s = {
             "ourTurn", "doneTrading",
-            "waitingForGameState", "waitingForOurTurn", "waitingForTurnMain", "waitingForTradeMsg", "waitingForDevCard",
+            "waitingForGameState", "waitingForOurTurn", "waitingForTurnMain", "waitingForBankTradeMsg", "waitingForDevCard",
             "waitingForTradeResponse", "waitingForSC_PIRI_FortressRequest",
             "moveRobberOnSeven", "expectSTART1A", "expectSTART1B", "expectSTART2A", "expectSTART2B", "expectSTART3A", "expectSTART3B",
             "expectROLL_OR_CARD", "expectPLAY1", "expectPLACING_ROAD", "expectPLACING_SETTLEMENT", "expectPLACING_CITY", "expectPLACING_SHIP",
@@ -1164,7 +1165,7 @@ public class SOCRobotBrain extends Thread
         };
         final boolean[] b = {
             ourTurn, doneTrading,
-            waitingForGameState, waitingForOurTurn, waitingForTurnMain, waitingForTradeMsg, waitingForDevCard,
+            waitingForGameState, waitingForOurTurn, waitingForTurnMain, waitingForBankTradeMsg, waitingForDevCard,
             waitingForTradeResponse, waitingForSC_PIRI_FortressRequest,
             moveRobberOnSeven, expectSTART1A, expectSTART1B, expectSTART2A, expectSTART2B, expectSTART3A, expectSTART3B,
             expectROLL_OR_CARD, expectPLAY1, expectPLACING_ROAD, expectPLACING_SETTLEMENT, expectPLACING_CITY, expectPLACING_SHIP,
@@ -1255,9 +1256,7 @@ public class SOCRobotBrain extends Thread
         {
             Thread.currentThread().setName( "robotBrain-" + client.getNickname() + "-" + game.getName() );
         }
-        catch( Throwable th )
-        {
-        }
+        catch (Throwable ignore) {}
 
         if (pinger != null)
         {
@@ -1281,18 +1280,21 @@ public class SOCRobotBrain extends Thread
 
                         mesType = mes.getType();
                         if (mesType != SOCMessage.TIMINGPING)
+                        {
                             turnEventsCurrent.addElement( mes );
-                        if (D.ebugOn)
-                            D.ebugPrintlnINFO( "mes - " + mes );
+                            if (D.ebugOn)
+                                D.ebugPrintlnINFO( String.format( "[%d] %s - %s",
+                                    Thread.currentThread().getId(), Thread.currentThread().getName(), mes ));
+                        }
                     }
                     else
                     {
                         mesType = -1;
                     }
 
-                    if (waitingForTradeMsg && (counter > 10))
+                    if (waitingForBankTradeMsg && (counter > 10))
                     {
-                        waitingForTradeMsg = false;
+                        waitingForBankTradeMsg = false;
                         counter = 0;
                     }
 
@@ -1332,11 +1334,11 @@ public class SOCRobotBrain extends Thread
                         // Start of a new player's turn.
                         // Update game and reset most of our state fields.
                         // See also below: if ((mesType == SOCMessage.TURN) && ourTurn).
-
-                        handleGAMESTATE( ((SOCTurn) mes).getGameState() );
+                        SOCTurn turnMessage = (SOCTurn) mes;
+                        handleGAMESTATE( turnMessage.getGameState() );
                         // clears waitingForGameState, updates oldGameState, calls ga.setGameState
 
-                        game.setCurrentPlayerNumber( ((SOCTurn) mes).getPlayerNumber() );
+                        game.setCurrentPlayerNumber( turnMessage.getPlayerNumber() );
                         game.updateAtTurn();
 
                         //
@@ -1370,7 +1372,7 @@ public class SOCRobotBrain extends Thread
                             doneTrading = true;
                         }
 
-                        waitingForTradeMsg = false;
+                        waitingForBankTradeMsg = false;
                         waitingForTradeResponse = false;
                         negotiator.resetIsSelling();
                         negotiator.resetOffersMade();
@@ -1382,7 +1384,15 @@ public class SOCRobotBrain extends Thread
                         // check or reset any special-building-phase decisions
                         //
                         decidedIfSpecialBuild = false;
-                        if (game.getGameState() == SOCGame.SPECIAL_BUILDING)
+                        if (game.getGameState() != SPECIAL_BUILDING)
+                        {
+                            //
+                            // reset any plans we had
+                            //
+                            resetBuildingPlan();
+                        }
+ /*
+                        else
                         {
                             if (waitingForSpecialBuild && !buildingPlan.isEmpty())
                             {
@@ -1398,13 +1408,7 @@ public class SOCRobotBrain extends Thread
                                 // will ask to build after planBuilding.
                             }
                         }
-                        else
-                        {
-                            //
-                            // reset any plans we had
-                            //
-                            resetBuildingPlan();
-                        }
+*/
                         negotiator.resetTargetPieces();
 
                         //
@@ -1607,6 +1611,12 @@ public class SOCRobotBrain extends Thread
                             }
                             // else, from another player; we can ignore it
                         }
+                        else if (((SOCSimpleAction) mes).getActionType() == SOCSimpleAction.DICE_RESULTS_FULLY_SENT)
+                        {
+                            if (ourTurn)
+                                // We can now take actions like trading, building etc. NOT BEFORE!
+                                waitingForTurnMain = true;
+                        }
                         break;
 
                     case SOCMessage.INVENTORYITEMACTION:
@@ -1626,7 +1636,10 @@ public class SOCRobotBrain extends Thread
 
                     debugInfo();
 
-                    if ((game.getGameState() == SOCGame.ROLL_OR_CARD) && !waitingForGameState)
+                    if (   (game.getGameState() == ROLL_OR_CARD)
+                        && !waitingForGameState
+                        && !waitingForBankTradeMsg
+                        && !waitingForTradeResponse)
                     {
                         rollOrPlayKnightOrExpectDice();
 
@@ -1636,7 +1649,7 @@ public class SOCRobotBrain extends Thread
                         // Sets either expectDICERESULT, or expectPLACING_ROBBER and waitingForGameState.
                     }
 
-                    if (ourTurn && (game.getGameState() == SOCGame.WAITING_FOR_ROBBER_OR_PIRATE) && !waitingForGameState)
+                    if (ourTurn && (game.getGameState() == WAITING_FOR_ROBBER_OR_PIRATE) && !waitingForGameState)
                     {
                         // TODO handle moving the pirate too
                         // For now, always decide to move the robber.
@@ -1648,7 +1661,7 @@ public class SOCRobotBrain extends Thread
                         pause( 200 );
                     }
 
-                    else if ((game.getGameState() == SOCGame.PLACING_ROBBER) && !waitingForGameState)
+                    else if ((game.getGameState() == PLACING_ROBBER) && !waitingForGameState)
                     {
                         if ((!waitingForOurTurn) && ourTurn)
                         {
@@ -1670,12 +1683,12 @@ public class SOCRobotBrain extends Thread
                                 {
                                     waitingForGameState = true;
 
-                                    if (oldGameState == SOCGame.ROLL_OR_CARD)
+                                    if (oldGameState == ROLL_OR_CARD)
                                     {
                                         // robber moved from playing knight card before dice roll
                                         expectROLL_OR_CARD = true;
                                     }
-                                    else if (oldGameState == SOCGame.PLAY1)
+                                    else if (oldGameState == PLAY1)
                                     {
                                         // robber moved from playing knight card after dice roll
                                         expectPLAY1 = true;
@@ -1687,7 +1700,7 @@ public class SOCRobotBrain extends Thread
                         expectPLACING_ROBBER = false;
                     }
 
-                    if ((game.getGameState() == SOCGame.WAITING_FOR_DISCOVERY) && !waitingForGameState)
+                    if ((game.getGameState() == WAITING_FOR_DISCOVERY) && !waitingForGameState)
                     {
                         expectWAITING_FOR_DISCOVERY = false;
 
@@ -1704,7 +1717,7 @@ public class SOCRobotBrain extends Thread
                         }
                     }
 
-                    if ((game.getGameState() == SOCGame.WAITING_FOR_MONOPOLY) && !waitingForGameState)
+                    if ((game.getGameState() == WAITING_FOR_MONOPOLY) && !waitingForGameState)
                     {
                         expectWAITING_FOR_MONOPOLY = false;
 
@@ -1722,12 +1735,12 @@ public class SOCRobotBrain extends Thread
                     }
 
                     if (ourTurn && (!waitingForOurTurn)
-                        && (game.getGameState() == SOCGame.PLACING_INV_ITEM) && (!waitingForGameState))
+                        && (game.getGameState() == PLACING_INV_ITEM) && (!waitingForGameState))
                     {
                         planAndPlaceInvItem();  // choose and send a placement location
                     }
 
-                    if (waitingForTradeMsg && (mesType == SOCMessage.BANKTRADE))
+                    if (mesType == SOCMessage.BANKTRADE && waitingForBankTradeMsg)
                     {
                         final int pn = ((SOCBankTrade) mes).getPlayerNumber();
 
@@ -1735,7 +1748,7 @@ public class SOCRobotBrain extends Thread
                             //
                             // This is the bank/port trade confirmation announcement we've been waiting for
                             //
-                            clearTradingFlags(true, true);
+                            clearTradingFlags( true, true );
                     }
 
                     if (waitingForDevCard && (mesType == SOCMessage.SIMPLEACTION)
@@ -1752,12 +1765,24 @@ public class SOCRobotBrain extends Thread
                      * Planning: If our turn and not waiting for something,
                      * it's time to decide to build or take other normal actions.
                      */
-                    if (((game.getGameState() == SOCGame.PLAY1) || (game.getGameState() == SOCGame.SPECIAL_BUILDING))
-                        && !(waitingForGameState || waitingForTradeMsg || waitingForTradeResponse || waitingForDevCard
-                        || expectPLACING_ROAD || expectPLACING_SETTLEMENT || expectPLACING_CITY
-                        || expectPLACING_SHIP || expectPLACING_FREE_ROAD1 || expectPLACING_FREE_ROAD2
-                        || expectPLACING_ROBBER || expectWAITING_FOR_DISCOVERY || expectWAITING_FOR_MONOPOLY
-                        || waitingForSC_PIRI_FortressRequest || (waitingForPickSpecialItem != null)))
+                    if (   ! waitingForTurnMain
+                        && (   (game.getGameState() == PLAY1)
+                            || (game.getGameState() == SPECIAL_BUILDING))
+                        && !(   waitingForGameState
+                             || waitingForBankTradeMsg
+                             || waitingForTradeResponse
+                             || waitingForDevCard
+                             || expectPLACING_ROAD
+                             || expectPLACING_SETTLEMENT
+                             || expectPLACING_CITY
+                             || expectPLACING_SHIP
+                             || expectPLACING_FREE_ROAD1
+                             || expectPLACING_FREE_ROAD2
+                             || expectPLACING_ROBBER
+                             || expectWAITING_FOR_DISCOVERY
+                             || expectWAITING_FOR_MONOPOLY
+                             || waitingForSC_PIRI_FortressRequest
+                             || (waitingForPickSpecialItem != null)))
                     {
                         expectPLAY1 = false;
 
@@ -1856,7 +1881,7 @@ public class SOCRobotBrain extends Thread
                      */
 
                     /*
-                       if (game.getGameState() == SOCGame.OVER) {
+                       if (game.getGameState() == GameState.GAME_OVER) {
                        client.leaveGame(game);
                        alive = false;
                        }
@@ -1903,10 +1928,10 @@ public class SOCRobotBrain extends Thread
                     case SOCMessage.DICERESULT:
                         if (expectDICERESULT)
                         {
-                            expectDICERESULT = false;
-
                             if (((SOCDiceResult) mes).getResult() == 7)
                             {
+                                expectDICERESULT = false;
+
                                 final boolean robWithoutRobber = game.isGameOptionSet( SOCGameOptionSet.K_SC_PIRI );
                                 // In scenario SC_PIRI there's no robber to be moved. Instead,
                                 // current player will be prompted soon to choose a player to rob on 7
@@ -1925,10 +1950,6 @@ public class SOCRobotBrain extends Thread
                                     else
                                         expectPLAY1 = true;
                                 }
-                            }
-                            else
-                            {
-                                expectPLAY1 = true;
                             }
                         }
                         break;
@@ -2081,7 +2102,7 @@ public class SOCRobotBrain extends Thread
                 catch( Exception e )
                 {
                     // Print exception; ignore errors due to game reset in another thread
-                    if (alive && ((game == null) || (game.getGameState() != SOCGame.RESET_OLD)))
+                    if (alive && ((game == null) || (game.getGameState() != RESET_OLD)))
                     {
                         ++turnExceptionCount;  // TODO end our turn if too many
 
@@ -2135,23 +2156,23 @@ public class SOCRobotBrain extends Thread
      * @param newState  New game state, like {@link SOCGame#ROLL_OR_CARD}; if 0, does nothing
      * @since 2.0.00
      */
-    protected void handleGAMESTATE(final int newState)
+    protected void handleGAMESTATE(final GameState newState)
     {
-        if (newState == 0)
+        if (newState == NEW_GAME)
             return;
 
-        waitingForGameState = ((newState == SOCGame.LOADING) || (newState == SOCGame.LOADING_RESUMING));  // almost always false
-        int currGS = game.getGameState();
+        waitingForGameState = ((newState == LOADING) || (newState == LOADING_RESUMING));  // almost always false
+        GameState currGS = game.getGameState();
         if (currGS != newState)
             oldGameState = currGS;  // if no actual change, don't overwrite previously known oldGameState
 
         SOCDisplaylessPlayerClient.handleGAMESTATE(game, newState);
 
-        if (newState == SOCGame.ROLL_OR_CARD)
+        if (newState == ROLL_OR_CARD)
         {
-            waitingForTurnMain = true;
+//            waitingForTurnMain = true;
         }
-        else if ((newState == SOCGame.PLAY1) && waitingForTurnMain)
+        else if ((newState == PLAY1) && waitingForTurnMain)
         {
             startTurnMainActions();
             waitingForTurnMain = false;
@@ -2291,7 +2312,7 @@ public class SOCRobotBrain extends Thread
          * it, someone else has resources, and we can
          * convert a ship to a warship.
          */
-        if ((game.getGameState() == SOCGame.PLAY1) && !ourPlayerData.hasPlayedDevCard())
+        if ((game.getGameState() == PLAY1) && !ourPlayerData.hasPlayedDevCard())
         {
             playKnightCardIfShould();  // might set expectPLACING_ROBBER and waitingForGameState
         }
@@ -2337,10 +2358,10 @@ public class SOCRobotBrain extends Thread
         /**
          * see if we're done with our turn
          */
-        if (!(expectPLACING_SETTLEMENT || expectPLACING_FREE_ROAD1 || expectPLACING_FREE_ROAD2
+        if (!( expectPLACING_SETTLEMENT || expectPLACING_FREE_ROAD1 || expectPLACING_FREE_ROAD2
             || expectPLACING_ROAD || expectPLACING_CITY || expectPLACING_SHIP
             || expectWAITING_FOR_DISCOVERY || expectWAITING_FOR_MONOPOLY
-            || expectPLACING_ROBBER || waitingForTradeMsg || waitingForTradeResponse
+            || expectPLACING_ROBBER || waitingForBankTradeMsg || waitingForTradeResponse
             || waitingForDevCard
             || waitingForGameState
             || (waitingForPickSpecialItem != null)))
@@ -2531,13 +2552,13 @@ public class SOCRobotBrain extends Thread
      *<P>
      * Looks for one of these game states:
      *<UL>
-     * <LI> {@link SOCGame#START1A} - {@link SOCGame#START3B}
-     * <LI> {@link SOCGame#PLACING_SETTLEMENT}
-     * <LI> {@link SOCGame#PLACING_ROAD}
-     * <LI> {@link SOCGame#PLACING_CITY}
-     * <LI> {@link SOCGame#PLACING_SHIP}
-     * <LI> {@link SOCGame#PLACING_FREE_ROAD1}
-     * <LI> {@link SOCGame#PLACING_FREE_ROAD2}
+     * <LI> {@link GameState#START1A} - {@link GameState#START3B}
+     * <LI> {@link GameState#PLACING_SETTLEMENT}
+     * <LI> {@link GameState#PLACING_ROAD}
+     * <LI> {@link GameState#PLACING_CITY}
+     * <LI> {@link GameState#PLACING_SHIP}
+     * <LI> {@link GameState#PLACING_FREE_ROAD1}
+     * <LI> {@link GameState#PLACING_FREE_ROAD2}
      *</UL>
      * Does nothing if {@link #waitingForGameState}, {@link #waitingForOurTurn}, <tt>! {@link #ourTurn}</tt>,
      * or if state's corresponding <tt>expectPLACING_&lt;piecetype&gt;</tt> flag isn't set.
@@ -2555,7 +2576,7 @@ public class SOCRobotBrain extends Thread
 
         switch (game.getGameState())
         {
-        case SOCGame.PLACING_SETTLEMENT:
+        case PLACING_SETTLEMENT:
             if (ourTurn && (!waitingForOurTurn) && (expectPLACING_SETTLEMENT))
             {
                 expectPLACING_SETTLEMENT = false;
@@ -2570,7 +2591,7 @@ public class SOCRobotBrain extends Thread
             }
             break;
 
-        case SOCGame.PLACING_ROAD:
+        case PLACING_ROAD:
             if (ourTurn && (!waitingForOurTurn) && (expectPLACING_ROAD))
             {
                 expectPLACING_ROAD = false;
@@ -2584,7 +2605,7 @@ public class SOCRobotBrain extends Thread
             }
             break;
 
-        case SOCGame.PLACING_CITY:
+        case PLACING_CITY:
             if (ourTurn && (!waitingForOurTurn) && (expectPLACING_CITY))
             {
                 expectPLACING_CITY = false;
@@ -2598,7 +2619,7 @@ public class SOCRobotBrain extends Thread
             }
             break;
 
-        case SOCGame.PLACING_SHIP:
+        case PLACING_SHIP:
             if (ourTurn && (!waitingForOurTurn) && (expectPLACING_SHIP))
             {
                 expectPLACING_SHIP = false;
@@ -2612,7 +2633,7 @@ public class SOCRobotBrain extends Thread
             }
             break;
 
-        case SOCGame.PLACING_FREE_ROAD1:
+        case PLACING_FREE_ROAD1:
             if (ourTurn && (!waitingForOurTurn) && (expectPLACING_FREE_ROAD1))
             {
                 expectPLACING_FREE_ROAD1 = false;
@@ -2627,7 +2648,7 @@ public class SOCRobotBrain extends Thread
             }
             break;
 
-        case SOCGame.PLACING_FREE_ROAD2:
+        case PLACING_FREE_ROAD2:
             if (ourTurn && (!waitingForOurTurn) && (expectPLACING_FREE_ROAD2))
             {
                 expectPLACING_FREE_ROAD2 = false;
@@ -2651,7 +2672,7 @@ public class SOCRobotBrain extends Thread
             }
             break;
 
-        case SOCGame.START1A:
+        case START1A:
         {
             if ((!waitingForOurTurn) && ourTurn && (!(expectPUTPIECE_FROM_START1A && (counter < 4000))))
             {
@@ -2666,7 +2687,7 @@ public class SOCRobotBrain extends Thread
         }
         break;
 
-        case SOCGame.START1B:
+        case START1B:
         {
             if ((!waitingForOurTurn) && ourTurn && (!(expectPUTPIECE_FROM_START1B && (counter < 4000))))
             {
@@ -2683,7 +2704,7 @@ public class SOCRobotBrain extends Thread
         }
         break;
 
-        case SOCGame.START2A:
+        case START2A:
         {
             if ((!waitingForOurTurn) && ourTurn && (!(expectPUTPIECE_FROM_START2A && (counter < 4000))))
             {
@@ -2699,7 +2720,7 @@ public class SOCRobotBrain extends Thread
         }
         break;
 
-        case SOCGame.START2B:
+        case START2B:
         {
             if ((!waitingForOurTurn) && ourTurn && (!(expectPUTPIECE_FROM_START2B && (counter < 4000))))
             {
@@ -2716,7 +2737,7 @@ public class SOCRobotBrain extends Thread
         }
         break;
 
-        case SOCGame.START3A:
+        case START3A:
         {
             if ((!waitingForOurTurn) && ourTurn && (!(expectPUTPIECE_FROM_START3A && (counter < 4000))))
             {
@@ -2732,7 +2753,7 @@ public class SOCRobotBrain extends Thread
         }
         break;
 
-        case SOCGame.START3B:
+        case START3B:
         {
             if ((!waitingForOurTurn) && ourTurn && (!(expectPUTPIECE_FROM_START3B && (counter < 4000))))
             {
@@ -2857,7 +2878,7 @@ public class SOCRobotBrain extends Thread
      * May set any of these flags:
      * <UL>
      *<LI> {@link #waitingForGameState}, and {@link #expectWAITING_FOR_DISCOVERY} or {@link #expectWAITING_FOR_MONOPOLY}
-     *<LI> {@link #waitingForTradeMsg} or {@link #waitingForTradeResponse} or {@link #doneTrading}
+     *<LI> {@link #waitingForBankTradeMsg} or {@link #waitingForTradeResponse} or {@link #doneTrading}
      *<LI> {@link #waitingForDevCard}, or {@link #waitingForGameState} and {@link #expectPLACING_SETTLEMENT} (etc).
      *<LI> {@link #waitingForPickSpecialItem}
      *<LI> Scenario actions such as {@link #waitingForSC_PIRI_FortressRequest}
@@ -2879,7 +2900,7 @@ public class SOCRobotBrain extends Thread
          * If we're in SPECIAL_BUILDING (not PLAY1),
          * can't trade or play development cards.
          */
-        final boolean gameStatePLAY1 = (game.getGameState() == SOCGame.PLAY1);
+        final boolean gameStatePLAY1 = (game.getGameState() == PLAY1);
 
         /**
          * check to see if this is a Road Building plan
@@ -3010,7 +3031,7 @@ public class SOCRobotBrain extends Thread
                     }
                 }
 
-                if (gameStatePLAY1 && !waitingForTradeResponse)
+                if (gameStatePLAY1 && !waitingForTradeResponse && !waitingForBankTradeMsg)
                 {
                     /**
                      * trade with the bank/ports
@@ -3018,7 +3039,7 @@ public class SOCRobotBrain extends Thread
                     if (tradeWithBank( buildingPlan ))
                     {
                         counter = 0;
-                        waitingForTradeMsg = true;
+                        waitingForBankTradeMsg = true;
                         pause( 1500 );
                     }
                 }
@@ -3026,7 +3047,7 @@ public class SOCRobotBrain extends Thread
                 ///
                 /// build if we can
                 ///
-                if ((!(waitingForTradeMsg || waitingForTradeResponse))
+                if ((!(waitingForBankTradeMsg || waitingForTradeResponse))
                     && ourPlayerData.getResources().contains( targetResources ))
                 {
                     // Remember that targetPiece == buildingPlan.peek().
@@ -3049,7 +3070,7 @@ public class SOCRobotBrain extends Thread
      * Call only when these conditions are all true:
      *<UL>
      * <LI> {@link #ourTurn} &amp;&amp; ! {@link #waitingForOurTurn}
-     * <LI> game state {@link SOCGame#PLACING_INV_ITEM PLACING_INV_ITEM}
+     * <LI> game state {@link GameState#PLACING_INV_ITEM PLACING_INV_ITEM}
      * <LI> ! {@link #waitingForGameState}
      *</UL>
      * If the piece can be planned and placed, will set {@link #waitingForGameState}
@@ -3126,7 +3147,7 @@ public class SOCRobotBrain extends Thread
         waitingForGameState = true;
         counter = 0;
 
-        if (game.getGameState() == SOCGame.PLACING_INV_ITEM)
+        if (game.getGameState() == PLACING_INV_ITEM)
         {
             // This is a first draft for overall functionality, not for the smartest placement strategy.
             // TODO smarter planning; consider settlement & dice number locations / hex types against
@@ -3214,21 +3235,20 @@ public class SOCRobotBrain extends Thread
      */
     protected void handleCANCELBUILDREQUEST( SOCCancelBuildRequest mes )
     {
-        final int gstate = game.getGameState();
-        switch (gstate)
+        switch (game.getGameState())
         {
-        case SOCGame.START1A:
-        case SOCGame.START2A:
-        case SOCGame.START3A:
+        case START1A:
+        case START2A:
+        case START3A:
             if (ourTurn)
             {
                 cancelWrongPiecePlacement( mes );
             }
             break;
 
-        case SOCGame.START1B:
-        case SOCGame.START2B:
-        case SOCGame.START3B:
+        case START1B:
+        case START2B:
+        case START3B:
             if (ourTurn)
             {
                 cancelWrongPiecePlacement( mes );
@@ -3254,14 +3274,14 @@ public class SOCRobotBrain extends Thread
             }
             break;
 
-        case SOCGame.PLAY1:  // asked to build, hasn't given location yet -> resources
-        case SOCGame.PLACING_ROAD:        // has given location -> is bad location
-        case SOCGame.PLACING_SETTLEMENT:
-        case SOCGame.PLACING_CITY:
-        case SOCGame.PLACING_SHIP:
-        case SOCGame.PLACING_FREE_ROAD1:  // JM TODO how to break out?
-        case SOCGame.PLACING_FREE_ROAD2:  // JM TODO how to break out?
-        case SOCGame.SPECIAL_BUILDING:
+        case PLAY1:  // asked to build, hasn't given location yet -> resources
+        case PLACING_ROAD:        // has given location -> is bad location
+        case PLACING_SETTLEMENT:
+        case PLACING_CITY:
+        case PLACING_SHIP:
+        case PLACING_FREE_ROAD1:  // JM TODO how to break out?
+        case PLACING_FREE_ROAD2:  // JM TODO how to break out?
+        case SPECIAL_BUILDING:
             //
             // We've asked for an illegal piece placement.
             // (Must be a bug.) Cancel and invalidate this
@@ -3284,10 +3304,9 @@ public class SOCRobotBrain extends Thread
             else
             {
                 // Should not occur
-                System.err.println
-                    ( "L2521 SOCRobotBrain: " + client.getNickname() + ": Unhandled CANCELBUILDREQUEST at state " + gstate );
+                System.err.println( "L2521 SOCRobotBrain: " + client.getNickname()
+                        + ": Unhandled CANCELBUILDREQUEST at state " + game.getGameState() );
             }
-
         }  // switch (gameState)
     }
 
@@ -3507,7 +3526,7 @@ public class SOCRobotBrain extends Thread
         if ((rejector < 0) || (reasonCode != 0))
         {
             if (reasonCode != SOCRejectOffer.REASON_CANNOT_MAKE_OFFER)
-                clearTradingFlags((rejector < 0), false);
+                clearTradingFlags( (rejector < 0), false );
             // else
                 // TODO: recover if needed from server rejection of our trade offer
 
@@ -3606,8 +3625,9 @@ public class SOCRobotBrain extends Thread
 
             SOCPlayer newSettlementPl = game.getPlayer( pn );
             SOCSettlement newSettlement = new SOCSettlement( newSettlementPl, coord, null );
-            if ((game.getGameState() == SOCGame.START1B) || (game.getGameState() == SOCGame.START2B)
-                || (game.getGameState() == SOCGame.START3B))
+            if (   (game.getGameState() == START1B)
+                || (game.getGameState() == START2B)
+                || (game.getGameState() == START3B))
             {
                 // Track it soon, after the road is placed
                 // (in handlePUTPIECE_updateGameData)
@@ -3720,7 +3740,7 @@ public class SOCRobotBrain extends Thread
      * Preconditions: Call only when:
      *<UL>
      * <LI> Gamestate is {@link SOCGame#PLAY1} or {@link SOCGame#SPECIAL_BUILDING}
-     * <LI> <tt>! ({@link #waitingForTradeMsg} || {@link #waitingForTradeResponse})</tt>
+     * <LI> <tt>! ({@link #waitingForBankTradeMsg} || {@link #waitingForTradeResponse})</tt>
      * <LI> ourPlayerData.getResources().{@link SOCResourceSet#contains(soc.game.ResourceSet) contains}(targetPieceResources)
      *</UL>
      *
@@ -3880,9 +3900,11 @@ public class SOCRobotBrain extends Thread
         final SOCPlayer pl = (pn != -1) ? game.getPlayer( pn ) : null;
         final int action = mes.getAction();
         final int[] etypes = mes.getElementTypes(), amounts = mes.getAmounts();
-
-        for (int i = 0; i < etypes.length; ++i)
-            handlePLAYERELEMENT( pl, pn, action, PEType.valueOf( etypes[i] ), amounts[i] );
+        if (null != pl) synchronized (pl.getResources().semaphore)
+        {
+            for (int i = 0; i < etypes.length; ++i)
+                handlePLAYERELEMENT( pl, pn, action, PEType.valueOf( etypes[i] ), amounts[i] );
+        }
     }
 
     /**
@@ -4037,7 +4059,7 @@ public class SOCRobotBrain extends Thread
         ///
         /// if this during the ROLL_OR_CARD state, then update the is selling flags
         ///
-        if (game.getGameState() == SOCGame.ROLL_OR_CARD)
+        if (game.getGameState() == ROLL_OR_CARD)
         {
             negotiator.resetIsSelling();
         }
@@ -4473,26 +4495,26 @@ public class SOCRobotBrain extends Thread
         }
         waitingForGameState = false;
 
-        final int gameState = game.getGameState();
+        GameState gameState = game.getGameState();
 
         /**
          * if true, server likely denied us due to resources, not due to building plan
          * being interrupted by another player's building before our special building phase.
          * (Could also be due to a bug in the chosen building plan.)
          */
-        final boolean gameStateIsPLAY1 = (gameState == SOCGame.PLAY1);
+        final boolean gameStateIsPLAY1 = (gameState == PLAY1);
 
         if (!(gameStateIsPLAY1 || cancelBuyDevCard))
         {
             int coord = -1;
-            switch (gameState)
+            switch (game.getGameState())
             {
-            case SOCGame.START1A:
-            case SOCGame.START1B:
-            case SOCGame.START2A:
-            case SOCGame.START2B:
-            case SOCGame.START3A:
-            case SOCGame.START3B:
+            case START1A:
+            case START1B:
+            case START2A:
+            case START2B:
+            case START3A:
+            case START3B:
                 coord = lastStartingPieceCoord;
                 break;
 
@@ -4531,7 +4553,6 @@ public class SOCRobotBrain extends Thread
                 default:
                     cancelPiece = null;  // To satisfy javac
                 }
-
                 cancelWrongPiecePlacementLocal( cancelPiece );
             }
         }
@@ -4574,36 +4595,36 @@ public class SOCRobotBrain extends Thread
                 client.cancelBuildRequest( game, mes.getPieceType() );
             }
         }
-        else if (gameState <= SOCGame.START3B)
+        else if (gameState.lt( STARTS_WAITING_FOR_PICK_GOLD_RESOURCE ))
         {
             switch (gameState)
             {
-            case SOCGame.START1A:
+            case START1A:
                 expectPUTPIECE_FROM_START1A = false;
                 expectSTART1A = true;
                 break;
 
-            case SOCGame.START1B:
+            case START1B:
                 expectPUTPIECE_FROM_START1B = false;
                 expectSTART1B = true;
                 break;
 
-            case SOCGame.START2A:
+            case START2A:
                 expectPUTPIECE_FROM_START2A = false;
                 expectSTART2A = true;
                 break;
 
-            case SOCGame.START2B:
+            case START2B:
                 expectPUTPIECE_FROM_START2B = false;
                 expectSTART2B = true;
                 break;
 
-            case SOCGame.START3A:
+            case START3A:
                 expectPUTPIECE_FROM_START3A = false;
                 expectSTART3A = true;
                 break;
 
-            case SOCGame.START3B:
+            case START3B:
                 expectPUTPIECE_FROM_START3B = false;
                 expectSTART3B = true;
                 break;
@@ -4666,7 +4687,7 @@ public class SOCRobotBrain extends Thread
                 break;
             }
 
-            if (game.getGameState() <= SOCGame.START3B)
+            if (game.getGameState().lt( STARTS_WAITING_FOR_PICK_GOLD_RESOURCE ))
                 openingBuildStrategy.cancelWrongPiecePlacement(cancelPiece);
         }
 
@@ -4850,19 +4871,22 @@ public class SOCRobotBrain extends Thread
      */
     protected boolean tradeWithBank( SOCBuildPlan buildPlan )
     {
-        if ((buildPlan == null)
+        if (  (buildPlan == null)
             || buildPlan.isEmpty()
             || ourPlayerData.getResources().contains( buildPlan.getFirstPieceResources() ))
             return false;
 
-        SOCTradeOffer bankTrade = negotiator.getOfferToBank( buildPlan, ourPlayerData.getResources() );
-
-        if ((bankTrade != null) && (ourPlayerData.getResources().contains( bankTrade.getGiveSet() )))
+        synchronized (ourPlayerData.getResources().semaphore )
         {
-            client.bankTrade( game, bankTrade.getGiveSet(), bankTrade.getGetSet() );
-            pause( 2000 );
+            SOCTradeOffer bankTrade = negotiator.getOfferToBank( buildPlan, ourPlayerData.getResources() );
+            if ((bankTrade != null) && (ourPlayerData.getResources().contains( bankTrade.getGiveSet() )))
+            {
+                waitingForBankTradeMsg = true;      // TODO: we won't act again while this is true, so be sure it gets cleared if the server rejects the trade!
+                client.bankTrade( game, bankTrade.getGiveSet(), bankTrade.getGetSet(), ourPlayerData.getPlayerNumber() );
+                pause( 2000 );
 
-            return true;
+                return true;
+            }
         }
         return false;
     }
@@ -4993,7 +5017,7 @@ public class SOCRobotBrain extends Thread
 
     /**
      * Clears all flags waiting for a bank or player trade message.
-     * {@link #waitingForTradeResponse}, {@link #waitingForTradeMsg},
+     * {@link #waitingForTradeResponse}, {@link #waitingForBankTradeMsg},
      * any flags added in a third-party robot brain.
      *
      * @param isBankTrade  True if was bank/port trade, not player trade
@@ -5003,12 +5027,13 @@ public class SOCRobotBrain extends Thread
      * @see #handleTradeResponse(int, boolean)
      * @since 2.4.50
      */
+    @SuppressWarnings("unused")
     public void clearTradingFlags( final boolean isBankTrade, final boolean wasAllowed )
     {
         // This method clears both fields regardless of isBankTrade,
         // but third-party bots might override it and use that parameter
 
-        waitingForTradeMsg = false;
+        waitingForBankTradeMsg = false;
         waitingForTradeResponse = false;
     }
 
@@ -5224,8 +5249,8 @@ public class SOCRobotBrain extends Thread
            //D.ebugPrintln("waitingForGameState");
            if (waitingForOurTurn)
            //D.ebugPrintln("waitingForOurTurn");
-           if (waitingForTradeMsg)
-           //D.ebugPrintln("waitingForTradeMsg");
+           if (waitingForBankTradeMsg)
+           //D.ebugPrintln("waitingForBankTradeMsg");
            if (waitingForDevCard)
            //D.ebugPrintln("waitingForDevCard");
            if (moveRobberOnSeven)

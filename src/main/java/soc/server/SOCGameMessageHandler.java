@@ -33,6 +33,7 @@ import java.util.NoSuchElementException;
 import soc.communication.Connection;
 import soc.communication.SOCClientData;
 import soc.debug.D;
+import soc.game.GameState;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCCity;
 import soc.game.SOCDevCard;
@@ -56,6 +57,8 @@ import soc.message.*;
 import soc.message.SOCGameElements.GEType;
 import soc.message.SOCPlayerElement.PEType;
 import soc.util.SOCStringManager;
+
+import static soc.game.GameState.*;
 
 /**
  * Game message handler for {@link SOCGameHandler}: Dispatches all messages received from the
@@ -373,26 +376,28 @@ public class SOCGameMessageHandler
     /**
      * handle "roll dice" message.
      *
+     * @param game the game object that this message is for
      * @param c  the connection that sent the message
-     * @param mes  the message
+     * @param rollDice  the SOCRollDice message
      * @since 1.0.0
      */
-    private void handleROLLDICE( SOCGame ga, Connection c, final SOCRollDice mes )
+    private void handleROLLDICE( SOCGame game, Connection c,
+        @SuppressWarnings("unused") SOCRollDice rollDiceMessage )
     {
-        final String gn = ga.getName();
+        final String gn = game.getName();
 
-        ga.takeMonitor();
+        game.takeMonitor();
 
         try
         {
             final String plName = c.getData();
-            final SOCPlayer pl = ga.getPlayer( plName );
-            if ((pl != null) && ga.canRollDice( pl.getPlayerNumber() ))
+            final SOCPlayer pl = game.getPlayer( plName );
+            if ((pl != null) && game.canRollDice( pl.getPlayerNumber() ))
             {
                 /**
-                 * Roll dice, distribute resources in game
+                 * Roll dice, distribute resources in game. Typically sets game state to GameState.PLAY1;
                  */
-                SOCGame.RollResult roll = ga.rollDice();
+                SOCGame.RollResult roll = game.rollDice();
 
                 /**
                  * Send roll results and then text to client.
@@ -405,28 +410,29 @@ public class SOCGameMessageHandler
                  * If a gold hex is rolled, sendGameState will also say who
                  * must pick resources to gain (in a GAMETEXTMSG).
                  */
-                srv.messageToGame( gn, true, new SOCDiceResult( gn, ga.getCurrentDice() ) );
-                if (ga.clientVersionLowest < SOCGameTextMsg.VERSION_FOR_DICE_RESULT_INSTEAD)
+                srv.messageToGame( gn, true, new SOCDiceResult( gn, game.getCurrentDice() ) );
+                if (game.clientVersionLowest < SOCGameTextMsg.VERSION_FOR_DICE_RESULT_INSTEAD)
                 {
                     // backwards-compat: this text message is redundant to v2.0.00 and newer clients
                     // because they print the roll results from SOCDiceResult.  Use SOCGameTextMsg
                     // because pre-2.0.00 clients don't understand SOCGameServerText messages.
-                    srv.messageToGameForVersions( ga, 0, SOCGameTextMsg.VERSION_FOR_DICE_RESULT_INSTEAD - 1,
+                    srv.messageToGameForVersions( game, 0, SOCGameTextMsg.VERSION_FOR_DICE_RESULT_INSTEAD - 1,
                         new SOCGameTextMsg
                             ( gn, SOCGameTextMsg.SERVERNAME,
                              plName + " rolled a " + roll.diceA + " and a " + roll.diceB + "."), // I18N OK: v1.x always english
                         true );
                 }
-                handler.sendGameState( ga );  // For 7, give visual feedback before sending discard request
+                if (game.getGameState() != PLAY1)
+                    handler.sendGameState( game );  // For 7, give visual feedback before sending discard request
 
-                /** if true but noPlayersGained, will change announcement wording from "No player gets anything". */
+                /* if true but noPlayersGained, will change announcement wording from "No player gets anything". */
                 boolean someoneWonFreeRsrc = false;
 
-                if (ga.isGameOptionSet( SOCGameOptionSet.K_SC_PIRI ))
+                if (game.isGameOptionSet( SOCGameOptionSet.K_SC_PIRI ))
                 {
                     // pirate moves on every roll
                     srv.messageToGame( gn, true, new SOCMoveRobber
-                        ( gn, ga.getCurrentPlayerNumber(), -(((SOCBoardLarge) ga.getBoard()).getPirateHex()) ) );
+                        ( gn, game.getCurrentPlayerNumber(), -(((SOCBoardLarge) game.getBoard()).getPirateHex()) ) );
 
                     if (roll.sc_piri_fleetAttackVictim != null)
                     {
@@ -449,16 +455,16 @@ public class SOCGameMessageHandler
                                 // Special form of SOCReportRobbery to notify newer clients of win
                                 SOCReportRobbery wonMsg = new SOCReportRobbery
                                     ( gn, -1, vpn, SOCResourceConstants.UNKNOWN, true, 0, 0, strength );
-                                if (ga.clientVersionLowest >= SOCReportRobbery.MIN_VERSION)
+                                if (game.clientVersionLowest >= SOCReportRobbery.MIN_VERSION)
                                 {
                                     srv.messageToGame( gn, true, wonMsg );
                                 }
                                 else
                                 {
                                     srv.messageToGameForVersions
-                                        ( ga, SOCReportRobbery.MIN_VERSION, Integer.MAX_VALUE, wonMsg, true );
+                                        ( game, SOCReportRobbery.MIN_VERSION, Integer.MAX_VALUE, wonMsg, true );
                                     srv.messageToGameForVersionsKeyed
-                                        ( ga, -1, SOCReportRobbery.MIN_VERSION - 1, true,
+                                        ( game, -1, SOCReportRobbery.MIN_VERSION - 1, true,
                                             false, "action.rolled.sc_piri.player.won.pick.free", vicName, strength );
                                     // "{0} won against the pirate fleet (strength {1}) and will pick a free resource."
                                     srv.recordGameEvent( gn, wonMsg );
@@ -475,9 +481,9 @@ public class SOCGameMessageHandler
                                     reportUnknown = new SOCReportRobbery
                                         ( gn, -1, vpn, SOCResourceConstants.UNKNOWN, true, lootTotal, 0, strength );
 
-                                if (ga.clientVersionLowest >= SOCReportRobbery.MIN_VERSION)
+                                if (game.clientVersionLowest >= SOCReportRobbery.MIN_VERSION)
                                 {
-                                    if (ga.isGameOptionSet( SOCGameOptionSet.K_PLAY_FO ))
+                                    if (game.isGameOptionSet( SOCGameOptionSet.K_PLAY_FO ))
                                     {
                                         srv.messageToGame( gn, true, reportDetails );
                                     }
@@ -489,16 +495,16 @@ public class SOCGameMessageHandler
                                 }
                                 else
                                 {
-                                    if (ga.isGameOptionSet( SOCGameOptionSet.K_PLAY_FO ))
+                                    if (game.isGameOptionSet( SOCGameOptionSet.K_PLAY_FO ))
                                     {
                                         srv.recordGameEvent( gn, reportDetails );
                                         srv.messageToGameForVersions
-                                            ( ga, SOCReportRobbery.MIN_VERSION, Integer.MAX_VALUE, reportDetails, true );
+                                            ( game, SOCReportRobbery.MIN_VERSION, Integer.MAX_VALUE, reportDetails, true );
                                         handler.reportRsrcGainLossForVersions
-                                            ( ga, loot, true, true, vpn, -1, null, SOCReportRobbery.MIN_VERSION - 1 );
+                                            ( game, loot, true, true, vpn, -1, null, SOCReportRobbery.MIN_VERSION - 1 );
                                         if (vVersion < SOCReportRobbery.MIN_VERSION)
                                             srv.messageToPlayerKeyedSpecial
-                                                ( vCon, ga, vpn, "action.rolled.sc_piri.you.lost.rsrcs.to.fleet", loot, strength );
+                                                ( vCon, game, vpn, "action.rolled.sc_piri.you.lost.rsrcs.to.fleet", loot, strength );
                                         // "You lost {0,rsrcs} to the pirate fleet (strength {1,number})."
                                     }
                                     else
@@ -512,25 +518,25 @@ public class SOCGameMessageHandler
                                         {
                                             srv.recordGameEventTo( gn, vpn, reportDetails );
                                             handler.reportRsrcGainLossForVersions
-                                                ( ga, loot, true, true, vpn, -1, vCon, SOCReportRobbery.MIN_VERSION - 1 );
+                                                ( game, loot, true, true, vpn, -1, vCon, SOCReportRobbery.MIN_VERSION - 1 );
                                             srv.messageToPlayerKeyedSpecial
-                                                ( vCon, ga, vpn, "action.rolled.sc_piri.you.lost.rsrcs.to.fleet", loot, strength );
+                                                ( vCon, game, vpn, "action.rolled.sc_piri.you.lost.rsrcs.to.fleet", loot, strength );
                                             // "You lost {0,rsrcs} to the pirate fleet (strength {1,number})."
                                         }
 
                                         // tell everyone else they lost unknown resources
                                         srv.recordGameEventNotTo( gn, vpn, reportUnknown );
                                         srv.messageToGameForVersionsExcept
-                                            ( ga, SOCReportRobbery.MIN_VERSION, Integer.MAX_VALUE, vCon, reportUnknown, true );
+                                            ( game, SOCReportRobbery.MIN_VERSION, Integer.MAX_VALUE, vCon, reportUnknown, true );
                                         srv.messageToGameForVersionsExcept
-                                            ( ga, -1, SOCReportRobbery.MIN_VERSION - 1, vCon,
+                                            ( game, -1, SOCReportRobbery.MIN_VERSION - 1, vCon,
                                                 new SOCPlayerElement
                                                     ( gn, vpn, SOCPlayerElement.LOSE, PEType.UNKNOWN_RESOURCE, lootTotal ),
                                                 true );
                                     }
 
                                     srv.messageToGameForVersionsKeyedExcept
-                                        ( ga, -1, SOCReportRobbery.MIN_VERSION - 1, true,
+                                        ( game, -1, SOCReportRobbery.MIN_VERSION - 1, true,
                                             Arrays.asList( vCon ), false,
                                             "action.rolled.sc_piri.player.lost.rsrcs.to.fleet", vicName, lootTotal, strength );
                                     // "Joe lost 1 resource to pirate fleet attack (strength 3)." or
@@ -545,7 +551,7 @@ public class SOCGameMessageHandler
                  * if the roll is not 7, tell players what they got
                  * (if 7, sendGameState already told them what they lost).
                  */
-                if (ga.getCurrentDice() != 7)
+                if (game.getCurrentDice() != 7)
                 {
                     boolean noPlayersGained = true;  // see also someoneWonFreeRsrc
 
@@ -556,50 +562,51 @@ public class SOCGameMessageHandler
                     String rollRsrcTxtOldCli = null;
                     SOCDiceResultResources rollRsrcMsgNewCli = null;
 
-                    if (ga.clientVersionHighest >= SOCDiceResultResources.VERSION_FOR_DICERESULTRESOURCES)
+                    if (game.clientVersionHighest >= SOCDiceResultResources.VERSION_FOR_DICERESULTRESOURCES)
                     {
-                        rollRsrcMsgNewCli = SOCDiceResultResources.buildForGame( ga );
+                        rollRsrcMsgNewCli = SOCDiceResultResources.buildForGame( game );
                         noPlayersGained = (rollRsrcMsgNewCli == null);
                     }
 
-                    if (ga.clientVersionLowest < SOCDiceResultResources.VERSION_FOR_DICERESULTRESOURCES)
-                    {
-                        // Build a string to announce to v1.x.xx clients
-                        StringBuilder gainsText = new StringBuilder();
-
-                        noPlayersGained = true;  // for string spacing; might be false due to loop for new clients in game
-                        for (int pn = 0; pn < ga.maxPlayers; ++pn)
-                        {
-                            if (!ga.isSeatVacant( pn ))
-                            {
-                                SOCPlayer pp = ga.getPlayer( pn );
-                                SOCResourceSet rsrcs = pp.getRolledResources();
-
-                                if (rsrcs.getKnownTotal() != 0)
-                                {
-                                    if (noPlayersGained)
-                                        noPlayersGained = false;
-                                    else
-                                        gainsText.append( " " );
-
-                                    gainsText.append
-                                        ( c.getLocalizedSpecial( ga, "_nolocaliz.roll.gets.resources", pp.getName(), rsrcs ) );
-                                    // "{0} gets {1,rsrcs}."
-                                    // get it from any connection's StringManager, because that string is never localized
-
-                                    // Announce SOCPlayerElement.GAIN messages
-                                    handler.reportRsrcGainLoss( ga, rsrcs, false, false, pn, -1, null );
-                                }
-                            }
-                        }
-
-                        if (!noPlayersGained)
-                            rollRsrcTxtOldCli = gainsText.toString();
-
-                    }
+//                    if (game.clientVersionLowest < SOCDiceResultResources.VERSION_FOR_DICERESULTRESOURCES)
+//                    {
+//                        // Build a string to announce to v1.x.xx clients
+//                        StringBuilder gainsText = new StringBuilder();
+//
+//                        noPlayersGained = true;  // for string spacing; might be false due to loop for new clients in game
+//                        for (int pn = 0; pn < game.maxPlayers; ++pn)
+//                        {
+//                            if (!game.isSeatVacant( pn ))
+//                            {
+//                                SOCPlayer pp = game.getPlayer( pn );
+//                                SOCResourceSet rsrcs = pp.getRolledResources();
+//
+//                                if (rsrcs.getKnownTotal() != 0)
+//                                {
+//                                    if (noPlayersGained)
+//                                        noPlayersGained = false;
+//                                    else
+//                                        gainsText.append( " " );
+//
+//                                    gainsText.append
+//                                        ( c.getLocalizedSpecial( game, "_nolocaliz.roll.gets.resources", pp.getName(), rsrcs ) );
+//                                    // "{0} gets {1,rsrcs}."
+//                                    // get it from any connection's StringManager, because that string is never localized
+//
+//                                    // Announce SOCPlayerElement.GAIN messages
+//                                    handler.reportRsrcGainLoss( game, rsrcs, false, false, pn, -1, null );
+//                                }
+//                            }
+//                        }
+//
+//                        if (!noPlayersGained)
+//                            rollRsrcTxtOldCli = gainsText.toString();
+//
+//                    }
 
                     if (noPlayersGained)
                     {
+                        // send text message
                         String key;
                         if (roll.cloth == null)
                             key = (someoneWonFreeRsrc)
@@ -610,7 +617,7 @@ public class SOCGameMessageHandler
                                 ? "action.rolled.no_other_player_gets.resources"  // "No other player gets resources."
                                 : "action.rolled.no_player_gets.resources";       // "No player gets resources."
                         // debug_printPieceDiceNumbers(ga, message);
-                        srv.messageToGameKeyed( ga, true, true, key );
+                        srv.messageToGameKeyed( game, true, true, key );
                     }
                     else
                     {
@@ -622,10 +629,10 @@ public class SOCGameMessageHandler
                         {
                             // neither is null: we have old and new clients
                             srv.messageToGameForVersions
-                                ( ga, 0, (SOCDiceResultResources.VERSION_FOR_DICERESULTRESOURCES - 1),
+                                ( game, 0, (SOCDiceResultResources.VERSION_FOR_DICERESULTRESOURCES - 1),
                                     new SOCGameTextMsg( gn, SOCGameTextMsg.SERVERNAME, rollRsrcTxtOldCli ), true );
                             srv.messageToGameForVersions
-                                ( ga, SOCDiceResultResources.VERSION_FOR_DICERESULTRESOURCES, Integer.MAX_VALUE,
+                                ( game, SOCDiceResultResources.VERSION_FOR_DICERESULTRESOURCES, Integer.MAX_VALUE,
                                     rollRsrcMsgNewCli, true );
 
                             srv.recordGameEvent( gn, rollRsrcMsgNewCli );
@@ -635,9 +642,9 @@ public class SOCGameMessageHandler
                         //  Send gaining players all their resource info for accuracy
                         //  and announce their new resource totals to game
                         //
-                        for (int pn = 0; pn < ga.maxPlayers; ++pn)
+                        for (int pn = 0; pn < game.maxPlayers; ++pn)
                         {
-                            final SOCPlayer pp = ga.getPlayer( pn );
+                            final SOCPlayer pp = game.getPlayer( pn );
                             if (pp.getRolledResources().getKnownTotal() == 0)
                                 continue;  // skip if player didn't gain; before v2.0.00 each player in game got these
                             final Connection playerCon = srv.getConnection( pp.getName() );
@@ -665,7 +672,7 @@ public class SOCGameMessageHandler
                                         ( gn, pn, SOCPlayerElement.SET, SOCGameHandler.ELEM_RESOURCES, counts ) );
                             }
 
-                            if (ga.clientVersionLowest < SOCDiceResultResources.VERSION_FOR_DICERESULTRESOURCES)
+                            if (game.clientVersionLowest < SOCDiceResultResources.VERSION_FOR_DICERESULTRESOURCES)
                                 srv.messageToGame( gn, false, new SOCResourceCount( gn, pn, resources.getTotal() ) );
                             // else, already-sent SOCDiceResultResources included players' new resource totals
 
@@ -690,7 +697,7 @@ public class SOCGameMessageHandler
                             // some taken from board general supply
                             srv.messageToGame( gn, true, new SOCPlayerElement
                                 ( gn, -1, SOCPlayerElement.SET, PEType.SCENARIO_CLOTH_COUNT,
-                                    ((SOCBoardLarge) ga.getBoard()).getCloth() ) );
+                                    ((SOCBoardLarge) game.getBoard()).getCloth() ) );
 
                         String clplName = null;   // name of first player to receive cloth
                         int clplAmount = 0;
@@ -701,7 +708,7 @@ public class SOCGameMessageHandler
                                 continue;  // this player didn't receive cloth
 
                             final int pn = i - 1;
-                            final SOCPlayer clpl = ga.getPlayer( pn );
+                            final SOCPlayer clpl = game.getPlayer( pn );
                             srv.messageToGame( gn, true, new SOCPlayerElement
                                 ( gn, pn, SOCPlayerElement.SET, PEType.SCENARIO_CLOTH_COUNT, clpl.getCloth() ) );
 
@@ -725,21 +732,21 @@ public class SOCGameMessageHandler
 
                         if (clpls == null)
                             srv.messageToGameKeyed
-                                ( ga, true, true, "action.rolled.sc_clvi.received.cloth.1", clplName, clplAmount );
+                                ( game, true, true, "action.rolled.sc_clvi.received.cloth.1", clplName, clplAmount );
                             // "{0} received {1} cloth from the villages."
                         else
                             srv.messageToGameKeyedSpecial
-                                ( ga, true, true, "action.rolled.sc_clvi.received.cloth.n", clpls );
+                                ( game, true, true, "action.rolled.sc_clvi.received.cloth.n", clpls );
                         // "{0,list} each received cloth from the villages."
                     }
 
-                    if (ga.getGameState() == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE)
+                    if (game.getGameState() == WAITING_FOR_PICK_GOLD_RESOURCE)
                         // gold picks text, PLAYERELEMENT, and SIMPLEREQUEST(PROMPT_PICK_RESOURCES)s
-                        handler.sendGameState_sendGoldPickAnnounceText( ga, gn, null, roll );
+                        handler.sendGameState_sendGoldPickAnnounceText( game, gn, null, roll );
 
                     /*
                        if (D.ebugOn) {
-                       for (int i=0; i < SOCGame.MAXPLAYERS; i++) {
+                       for (int i=0; i < GameState.MAXPLAYERS; i++) {
                        SOCResourceSet rsrcs = ga.getPlayer(i).getResources();
                        String resourceMessage = "PLAYER "+i+" RESOURCES: ";
                        resourceMessage += rsrcs.getAmount(SOCResourceConstants.CLAY)+" ";
@@ -759,18 +766,18 @@ public class SOCGameMessageHandler
                      * player rolled 7
                      * If anyone needs to discard, prompt them.
                      */
-                    if (ga.getGameState() == SOCGame.WAITING_FOR_DISCARDS)
+                    if (game.getGameState() == WAITING_FOR_DISCARDS)
                     {
-                        handler.sendGameState_sendDiscardRequests( ga, gn );
+                        handler.sendGameState_sendDiscardRequests( game, gn );
                     }
-                    else if (ga.getGameState() == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE)
+                    else if (game.getGameState() == WAITING_FOR_PICK_GOLD_RESOURCE)
                     {
                         // Used in _SC_PIRI, when 7 is rolled and a player wins against the pirate fleet
-                        for (int pn = 0; pn < ga.maxPlayers; ++pn)
+                        for (int pn = 0; pn < game.maxPlayers; ++pn)
                         {
-                            final SOCPlayer pp = ga.getPlayer( pn );
+                            final SOCPlayer pp = game.getPlayer( pn );
                             final int numPick = pp.getNeedToPickGoldHexResources();
-                            if ((!ga.isSeatVacant( pn )) && (numPick > 0))
+                            if ((!game.isSeatVacant( pn )) && (numPick > 0))
                             {
                                 Connection con = srv.getConnection( pp.getName() );
                                 if (con != null)
@@ -787,9 +794,10 @@ public class SOCGameMessageHandler
                     }
                 }
 
-                if (ga.clientRequestsDiceResultsFullySent)
-                    srv.messageToGame(gn, true, new SOCSimpleAction
-                        (gn, -1, SOCSimpleAction.DICE_RESULTS_FULLY_SENT));
+//                if (game.clientRequestsDiceResultsFullySent)
+                    srv.messageToGame( gn, true, new SOCSimpleAction
+                        ( gn, -1, SOCSimpleAction.DICE_RESULTS_FULLY_SENT ) );
+                handler.sendGameState( game );
             }
             else
             {
@@ -802,7 +810,7 @@ public class SOCGameMessageHandler
         }
         finally
         {
-            ga.releaseMonitor();
+            game.releaseMonitor();
         }
     }
 
@@ -862,10 +870,10 @@ public class SOCGameMessageHandler
                 /**
                  * send the new state, or end turn if was marked earlier as forced
                  */
-                final int gstate = ga.getGameState();
-                if ((gstate != SOCGame.PLAY1) || !ga.isForcingEndTurn())
+                final GameState gstate = ga.getGameState();
+                if ((gstate != PLAY1) || !ga.isForcingEndTurn())
                 {
-                    if (gstate == SOCGame.WAITING_FOR_DISCARDS)
+                    if (gstate == WAITING_FOR_DISCARDS)
                         handler.sendGameState( ga, true, false );  // send only text prompt, not redundant GAMESTATE
                     else
                         handler.sendGameState( ga );
@@ -876,7 +884,7 @@ public class SOCGameMessageHandler
                     handler.endGameTurn( ga, player, true );  // already did ga.takeMonitor()
                 }
             }
-            else
+            else if (ga.getGameState() == WAITING_FOR_DISCARDS)
             {
                 // shouldn't occur: client was told how many discards are needed, if any
 
@@ -946,7 +954,7 @@ public class SOCGameMessageHandler
                 final List<SOCPlayer> victims = result.getVictims();
 
                 /** only one possible victim */
-                if ((victims.size() == 1) && (ga.getGameState() != SOCGame.WAITING_FOR_ROB_CLOTH_OR_RESOURCE))
+                if ((victims.size() == 1) && (ga.getGameState() != WAITING_FOR_ROB_CLOTH_OR_RESOURCE))
                 {
                     /**
                      * report what was stolen
@@ -968,7 +976,7 @@ public class SOCGameMessageHandler
                          */
                         msgKey = "robberpirate.moved";  // "{0} moved the robber" or "{0} moved the pirate"
                     }
-                    else if (ga.getGameState() == SOCGame.WAITING_FOR_ROB_CLOTH_OR_RESOURCE)
+                    else if (ga.getGameState() == WAITING_FOR_ROB_CLOTH_OR_RESOURCE)
                     {
                         /**
                          * only one possible victim, they have both clay and resources
@@ -993,7 +1001,7 @@ public class SOCGameMessageHandler
                 // with victim info to prompt the client to choose.
                 // For WAITING_FOR_ROB_CLOTH_OR_RESOURCE, no need to recalculate
                 // victims there, just send the prompt from here:
-                if (ga.getGameState() == SOCGame.WAITING_FOR_ROB_CLOTH_OR_RESOURCE)
+                if (ga.getGameState() == WAITING_FOR_ROB_CLOTH_OR_RESOURCE)
                 {
                     final int vpn = victims.get( 0 ).getPlayerNumber();
                     srv.messageToPlayer( c, gaName, pn, new SOCChoosePlayer( gaName, vpn ) );
@@ -1024,62 +1032,62 @@ public class SOCGameMessageHandler
      * @since 1.0.0
      */
     @SuppressWarnings("fallthrough")
-    private void handleCHOOSEPLAYER( SOCGame ga, Connection c, final SOCChoosePlayer mes )
+    private void handleCHOOSEPLAYER( SOCGame game, Connection c, final SOCChoosePlayer mes )
     {
-        ga.takeMonitor();
+        game.takeMonitor();
 
         try
         {
-            final String gaName = ga.getName();
+            final String gaName = game.getName();
 
-            if (handler.checkTurn( c, ga ))
+            if (handler.checkTurn( c, game ))
             {
                 final int choice = mes.getChoice();
-                switch (ga.getGameState())
+                switch (game.getGameState())
                 {
-                case SOCGame.WAITING_FOR_ROBBER_OR_PIRATE:
-                    ga.chooseMovePirate( choice == SOCChoosePlayer.CHOICE_MOVE_PIRATE );
-                    handler.sendGameState( ga );
+                case WAITING_FOR_ROBBER_OR_PIRATE:
+                    game.chooseMovePirate( choice == SOCChoosePlayer.CHOICE_MOVE_PIRATE );
+                    handler.sendGameState( game );
                     break;
 
-                case SOCGame.WAITING_FOR_ROB_CHOOSE_PLAYER:
-                    if ((choice == SOCChoosePlayer.CHOICE_NO_PLAYER) && ga.canChoosePlayer( -1 ))
+                case WAITING_FOR_ROB_CHOOSE_PLAYER:
+                    if ((choice == SOCChoosePlayer.CHOICE_NO_PLAYER) && game.canChoosePlayer( -1 ))
                     {
-                        ga.choosePlayerForRobbery( -1 );  // state becomes PLAY1
+                        game.choosePlayerForRobbery( -1 );  // state becomes PLAY1
                         srv.messageToGameKeyed
-                            ( ga, true, true, "robber.declined", c.getData() );  // "{0} declined to steal."
-                        handler.sendGameState( ga );
+                            ( game, true, true, "robber.declined", c.getData() );  // "{0} declined to steal."
+                        handler.sendGameState( game );
                     }
-                    else if (ga.canChoosePlayer( choice ))
+                    else if (game.canChoosePlayer( choice ))
                     {
-                        final int rsrc = ga.choosePlayerForRobbery( choice );
+                        final int rsrc = game.choosePlayerForRobbery( choice );
                         final boolean waitingClothOrRsrc =
-                            (ga.getGameState() == SOCGame.WAITING_FOR_ROB_CLOTH_OR_RESOURCE);
+                            (game.getGameState() == WAITING_FOR_ROB_CLOTH_OR_RESOURCE);
                         if (!waitingClothOrRsrc)
                         {
                             handler.reportRobbery
-                                ( ga, ga.getPlayer( c.getData() ), ga.getPlayer( choice ), rsrc );
+                                ( game, game.getPlayer( c.getData() ), game.getPlayer( choice ), rsrc );
                         }
                         else
                         {
-                            srv.messageToGameKeyed( ga, true, true, "robber.moved.choose.cloth.rsrcs",
-                                c.getData(), ga.getPlayer( choice ).getName() );
+                            srv.messageToGameKeyed( game, true, true, "robber.moved.choose.cloth.rsrcs",
+                                c.getData(), game.getPlayer( choice ).getName() );
                             // "{0} moved the pirate, must choose to steal cloth or steal resources from {1}."
                         }
-                        handler.sendGameState( ga );
+                        handler.sendGameState( game );
                         if (waitingClothOrRsrc)
                             srv.messageToPlayer
-                                ( c, gaName, ga.getCurrentPlayerNumber(), new SOCChoosePlayer( gaName, choice ) );
+                                ( c, gaName, game.getCurrentPlayerNumber(), new SOCChoosePlayer( gaName, choice ) );
                     }
                     else
                     {
                         srv.messageToPlayerKeyed
-                            ( c, gaName, ga.getCurrentPlayerNumber(), "robber.cantsteal" );
+                            ( c, gaName, game.getCurrentPlayerNumber(), "robber.cantsteal" );
                         // "You can't steal from that player."
                     }
                     break;
 
-                case SOCGame.WAITING_FOR_ROB_CLOTH_OR_RESOURCE:
+                case WAITING_FOR_ROB_CLOTH_OR_RESOURCE:
                 {
                     final boolean stealCloth;
                     final int pn;
@@ -1093,12 +1101,12 @@ public class SOCGameMessageHandler
                         stealCloth = false;
                         pn = choice;
                     }
-                    if (ga.canChoosePlayer( pn ) && ga.canChooseRobClothOrResource( pn ))
+                    if (game.canChoosePlayer( pn ) && game.canChooseRobClothOrResource( pn ))
                     {
-                        final int rsrc = ga.stealFromPlayer( pn, stealCloth );
+                        final int rsrc = game.stealFromPlayer( pn, stealCloth );
                         handler.reportRobbery
-                            ( ga, ga.getPlayer( c.getData() ), ga.getPlayer( pn ), rsrc );
-                        handler.sendGameState( ga );
+                            ( game, game.getPlayer( c.getData() ), game.getPlayer( pn ), rsrc );
+                        handler.sendGameState( game );
                         break;
                     }
                     // else, fall through and send "can't steal" message
@@ -1106,7 +1114,7 @@ public class SOCGameMessageHandler
 
                 default:
                     srv.messageToPlayerKeyed
-                        ( c, gaName, ga.getCurrentPlayerNumber(), "robber.cantsteal" );
+                        ( c, gaName, game.getCurrentPlayerNumber(), "robber.cantsteal" );
                     // "You can't steal from that player."
                 }
             }
@@ -1122,7 +1130,7 @@ public class SOCGameMessageHandler
         }
         finally
         {
-            ga.releaseMonitor();
+            game.releaseMonitor();
         }
     }
 
@@ -1136,56 +1144,57 @@ public class SOCGameMessageHandler
      * On the 6-player board, it ends their placements during the
      * {@link SOCGame#SPECIAL_BUILDING Special Building Phase}.
      *
+     * @param game the SOCGame instance that this message is addressed to
      * @param c  the connection that sent the message
      * @param mes  the message
      * @since 1.0.0
      */
-    private void handleENDTURN( SOCGame ga, Connection c, final SOCEndTurn mes )
+    private void handleENDTURN( SOCGame game, Connection c, @SuppressWarnings("unused") SOCEndTurn endTurnMessage )
     {
-        final String gname = ga.getName();
+        final String gname = game.getName();
 
-        if (ga.isDebugFreePlacement())
+        if (game.isDebugFreePlacement())
         {
             // turn that off before ending current turn
-            handler.processDebugCommand_freePlace( c, ga, "0" );
+            handler.processDebugCommand_freePlace( c, game, "0" );
         }
 
-        ga.takeMonitor();
+        game.takeMonitor();
 
-        final int gaState = ga.getGameState();
+        final GameState gaState = game.getGameState();
 
         try
         {
             final String plName = c.getData();
-            if (gaState == SOCGame.OVER)
+            if (gaState == GAME_OVER)
             {
                 // Should not happen; is here just in case.
-                SOCPlayer pl = ga.getPlayer( plName );
+                SOCPlayer pl = game.getPlayer( plName );
                 if (pl != null)
                 {
-                    String msg = ga.gameOverMessageToPlayer( pl );
+                    String msg = game.gameOverMessageToPlayer( pl );
                     // msg = "The game is over; you are the winner!";
                     // msg = "The game is over; <someone> won.";
                     // msg = "The game is over; no one won.";
                     srv.messageToPlayer( c, gname, SOCServer.PN_REPLY_TO_UNDETERMINED, msg );
                 }
             }
-            else if (handler.checkTurn( c, ga ))
+            else if (handler.checkTurn( c, game ))
             {
-                SOCPlayer pl = ga.getPlayer( plName );
-                if ((pl != null) && ga.canEndTurn( pl.getPlayerNumber() ))
+                SOCPlayer pl = game.getPlayer( plName );
+                if ((pl != null) && game.canEndTurn( pl.getPlayerNumber() ))
                 {
-                    if (gaState == SOCGame.PLACING_FREE_ROAD1)
-                        srv.messageToGameKeyed( ga, true, true, "action.card.roadbuilding.cancel", pl.getName() );
+                    if (gaState == PLACING_FREE_ROAD1)
+                        srv.messageToGameKeyed( game, true, true, "action.card.roadbuilding.cancel", pl.getName() );
                         // "{0} cancelled the Road Building card."
-                    else if (gaState == SOCGame.PLACING_FREE_ROAD2)
-                        srv.messageToGameKeyed( ga, true, true, "action.card.roadbuilding.skip.r", pl.getName() );
+                    else if (gaState == PLACING_FREE_ROAD2)
+                        srv.messageToGameKeyed( game, true, true, "action.card.roadbuilding.skip.r", pl.getName() );
                     // "{0} skipped placing the second road."
 
-                    handler.endGameTurn( ga, pl, true );
+                    handler.endGameTurn( game, pl, true );
                 }
                 else
-                    srv.messageToPlayer( c, gname, pl.getPlayerNumber(), /*I*/"You can't end your turn yet."/*18N*/ );
+                    srv.messageToPlayer( c, gname, pl == null ? -1 : pl.getPlayerNumber(), /*I*/"You can't end your turn yet."/*18N*/ );
             }
             else
             {
@@ -1198,7 +1207,7 @@ public class SOCGameMessageHandler
         }
         finally
         {
-            ga.releaseMonitor();
+            game.releaseMonitor();
         }
     }
 
@@ -1208,17 +1217,17 @@ public class SOCGameMessageHandler
      * @param mes  the message
      * @since 1.1.18
      */
-    private void handleSIMPLEREQUEST( SOCGame ga, Connection c, final SOCSimpleRequest mes )
+    private void handleSIMPLEREQUEST( SOCGame game, Connection c, final SOCSimpleRequest mes )
     {
-        final String gaName = ga.getName();
-        SOCPlayer clientPl = ga.getPlayer( c.getData() );
+        final String gameName = game.getName();
+        SOCPlayer clientPl = game.getPlayer( c.getData() );
         if (clientPl == null)
             return;
 
         final int pn = mes.getPlayerNumber();
         final boolean clientIsPN = (pn == clientPl.getPlayerNumber());  // probably required for most request types
         final int reqtype = mes.getRequestType();
-        final int cpn = ga.getCurrentPlayerNumber();
+        final int cpn = game.getCurrentPlayerNumber();
 
         boolean replyDecline = false;  // if true, reply with generic decline (pn = -1, reqtype, 0, 0)
 
@@ -1226,59 +1235,59 @@ public class SOCGameMessageHandler
         {
         case SOCSimpleRequest.SC_PIRI_FORT_ATTACK:
         {
-            final SOCShip adjac = ga.canAttackPirateFortress();
+            final SOCShip adjac = game.canAttackPirateFortress();
             if ((!clientIsPN) || (pn != cpn) || (adjac == null) || (adjac.getPlayerNumber() != cpn))
             {
-                srv.messageToPlayer( c, gaName, pn, new SOCSimpleRequest( gaName, -1, reqtype, 0, 0 ) );
+                srv.messageToPlayer( c, gameName, pn, new SOCSimpleRequest( gameName, -1, reqtype, 0, 0 ) );
                 return;  // <--- early return: deny ---
             }
 
-            final int prevState = ga.getGameState();
-            final SOCPlayer cp = ga.getPlayer( cpn );
+            final GameState prevState = game.getGameState();
+            final SOCPlayer cp = game.getPlayer( cpn );
             final int prevNumWarships = cp.getNumWarships();  // in case some are lost, we'll announce that
             final SOCFortress fort = cp.getFortress();
 
-            final int[] res = ga.attackPirateFortress( adjac );
+            final int[] res = game.attackPirateFortress( adjac );
 
             if (res.length > 1)
             {
                 // lost 1 or 2 ships adjacent to fortress.  res[1] == adjac.coordinate
 
-                srv.messageToGame( gaName, true, new SOCRemovePiece( gaName, adjac ) );
+                srv.messageToGame( gameName, true, new SOCRemovePiece( gameName, adjac ) );
                 if (res.length > 2)
-                    srv.messageToGame( gaName, true, new SOCRemovePiece( gaName, cpn, SOCPlayingPiece.SHIP, res[2] ) );
+                    srv.messageToGame( gameName, true, new SOCRemovePiece( gameName, cpn, SOCPlayingPiece.SHIP, res[2] ) );
 
                 final int n = cp.getNumWarships();
                 if (n != prevNumWarships)
-                    srv.messageToGame( gaName, true, new SOCPlayerElement
-                        ( gaName, cpn, SOCPlayerElement.SET, PEType.SCENARIO_WARSHIP_COUNT, n ) );
+                    srv.messageToGame( gameName, true, new SOCPlayerElement
+                        ( gameName, cpn, SOCPlayerElement.SET, PEType.SCENARIO_WARSHIP_COUNT, n ) );
             }
             else
             {
                 // player won battle
 
                 final int fortStrength = fort.getStrength();
-                srv.messageToGame( gaName, true, new SOCPieceValue
-                    ( gaName, SOCPlayingPiece.FORTRESS, fort.getCoordinates(), fortStrength, 0 ) );
+                srv.messageToGame( gameName, true, new SOCPieceValue
+                    ( gameName, SOCPlayingPiece.FORTRESS, fort.getCoordinates(), fortStrength, 0 ) );
                 if (0 == fortStrength)
-                    srv.messageToGame( gaName, true, new SOCPutPiece
-                        ( gaName, cpn, SOCPlayingPiece.SETTLEMENT, fort.getCoordinates() ) );
+                    srv.messageToGame( gameName, true, new SOCPutPiece
+                        ( gameName, cpn, SOCPlayingPiece.SETTLEMENT, fort.getCoordinates() ) );
             }
 
-            srv.messageToGame( gaName, true, new SOCSimpleAction
-                ( gaName, cpn, SOCSimpleAction.SC_PIRI_FORT_ATTACK_RESULT, res[0], res.length - 1 ) );
+            srv.messageToGame( gameName, true, new SOCSimpleAction
+                ( gameName, cpn, SOCSimpleAction.SC_PIRI_FORT_ATTACK_RESULT, res[0], res.length - 1 ) );
 
             // check for end of player's turn
-            if (!handler.checkTurn( c, ga ))
+            if (!handler.checkTurn( c, game ))
             {
-                handler.endGameTurn( ga, cp, false );
+                handler.endGameTurn( game, cp, false );
             }
             else
             {
                 // still player's turn, even if they won
-                final int gstate = ga.getGameState();
+                final GameState gstate = game.getGameState();
                 if (gstate != prevState)
-                    handler.sendGameState( ga );  // might be OVER, if player won
+                    handler.sendGameState( game );  // might be GAME_OVER, if player won
             }
         }
         break;
@@ -1288,13 +1297,13 @@ public class SOCGameMessageHandler
             if (clientIsPN && (pn == cpn))
             {
                 final int edge = mes.getValue1();
-                if ((ga.getGameState() == SOCGame.PLACING_INV_ITEM) && ga.canPlacePort( clientPl, edge ))
+                if ((game.getGameState() == PLACING_INV_ITEM) && game.canPlacePort( clientPl, edge ))
                 {
-                    final int ptype = ga.placePort( edge );
+                    final int ptype = game.placePort( edge );
 
-                    handler.sendGameState( ga );  // PLAY1 or SPECIAL_BUILDING
-                    srv.messageToGame( gaName, true, new SOCSimpleRequest
-                        ( gaName, cpn, SOCSimpleRequest.TRADE_PORT_PLACE, edge, ptype ) );
+                    handler.sendGameState( game );  // PLAY1 or SPECIAL_BUILDING
+                    srv.messageToGame( gameName, true, new SOCSimpleRequest
+                        ( gameName, cpn, SOCSimpleRequest.TRADE_PORT_PLACE, edge, ptype ) );
                 }
                 else
                 {
@@ -1303,7 +1312,7 @@ public class SOCGameMessageHandler
             }
             else
             {
-                srv.messageToPlayerKeyed( c, gaName, pn, "base.reply.not.your.turn" );
+                srv.messageToPlayerKeyed( c, gameName, pn, "base.reply.not.your.turn" );
                 replyDecline = true;
             }
         }
@@ -1313,11 +1322,11 @@ public class SOCGameMessageHandler
             // deny unknown types
             replyDecline = true;
             System.err.println
-                ( "handleSIMPLEREQUEST: Unknown type " + reqtype + " from " + c.getData() + " in game " + ga );
+                ( "handleSIMPLEREQUEST: Unknown type " + reqtype + " from " + c.getData() + " in game " + game );
         }
 
         if (replyDecline)
-            srv.messageToPlayer( c, gaName, pn, new SOCSimpleRequest( gaName, -1, reqtype, 0, 0 ) );
+            srv.messageToPlayer( c, gameName, pn, new SOCSimpleRequest( gameName, -1, reqtype, 0, 0 ) );
     }
 
 
@@ -1403,11 +1412,12 @@ public class SOCGameMessageHandler
     /**
      * handle "clear offer" message.
      *
+     * @param ga the SOCGame instance that this message is addressed to
      * @param c  the connection that sent the message
-     * @param mes  the message
+     * @param clearOfferMessage  the message
      * @since 1.0.0
      */
-    private void handleCLEAROFFER( SOCGame ga, Connection c, final SOCClearOffer mes )
+    private void handleCLEAROFFER( SOCGame ga, Connection c, @SuppressWarnings("unused") SOCClearOffer clearOfferMessage )
     {
         ga.takeMonitor();
 
@@ -1458,29 +1468,29 @@ public class SOCGameMessageHandler
     /**
      * handle "reject offer" message.
      *
+     * @param game the SOCGame instance that this message is addressed to
      * @param c  the connection that sent the message
-     * @param mes  the message
+     * @param rejectOfferMessage  the message
      * @since 1.0.0
      */
-    private void handleREJECTOFFER( final SOCGame ga, final Connection c, final SOCRejectOffer mes )
+    private void handleREJECTOFFER( SOCGame game, Connection c, @SuppressWarnings("unused") SOCRejectOffer rejectOfferMessage )
     {
-        SOCPlayer player = ga.getPlayer( c.getData() );
+        SOCPlayer player = game.getPlayer( c.getData() );
         if (player == null)
             return;
         final int pn = player.getPlayerNumber();
 
         try
         {
-            ga.takeMonitor();
-            ga.rejectTradeOffersTo( pn );
+            game.takeMonitor();
+            game.rejectTradeOffersTo( pn );
         }
         finally
         {
-            ga.releaseMonitor();
+            game.releaseMonitor();
         }
 
-        final String gaName = ga.getName();
-        srv.messageToGame( gaName, true, new SOCRejectOffer( gaName, pn ) );
+        srv.messageToGame( game.getName(), true, new SOCRejectOffer( game.getName(), pn ));
     }
 
     /**
@@ -1618,13 +1628,18 @@ public class SOCGameMessageHandler
 
                     SOCClientData scd = (SOCClientData) connection.getAppData();
                     if ((scd != null) && scd.isRobot)
-                        D.ebugPrintlnINFO("ILLEGAL BANK TRADE: " + connection.getData()
-                            + ": give " + give + ", get " + get );
+                    {
+                        SOCResourceSet rsc = theGame.getPlayer( pn ).getResources();
+
+                        D.ebugPrintlnINFO(String.format( "[%s] ILLEGAL BANK TRADE: %s: "
+                            + "has %s  offered: %s, gets %s", Thread.currentThread().getName(),
+                            connection.getData(), rsc.toString(), give.toString(), get.toString() ));
+                    }
                 }
             }
             else
             {
-                if (connection.getRemoteVersion() >=SOCRejectOffer.VERSION_FOR_REPLY_REASONS)
+                if (connection.getRemoteVersion() >= SOCRejectOffer.VERSION_FOR_REPLY_REASONS)
                 {
                     srv.messageToPlayer( connection, gaName, SOCServer.PN_REPLY_TO_UNDETERMINED,
                         new SOCRejectOffer( gaName, -1, SOCRejectOffer.REASON_NOT_YOUR_TURN ));
@@ -1676,7 +1691,7 @@ public class SOCGameMessageHandler
 
             if (isCurrent)
             {
-                if ((ga.getGameState() == SOCGame.PLAY1) || (ga.getGameState() == SOCGame.SPECIAL_BUILDING))
+                if ((ga.getGameState() == PLAY1) || (ga.getGameState() == SPECIAL_BUILDING))
                 {
                     sendDenyReply = !handleBUILDREQUEST( ga, player, c, pieceType, true );
                 }
@@ -1962,7 +1977,7 @@ public class SOCGameMessageHandler
             {
                 final SOCPlayer player = ga.getPlayer( c.getData() );
                 final int pn = player.getPlayerNumber();
-                final int gstate = ga.getGameState();
+                final GameState gstate = ga.getGameState();
                 final boolean usePlayerElements = (ga.clientVersionLowest >= SOCPlayerElements.MIN_VERSION);
 
                 boolean noAction = false;  // If true, there was nothing cancelable: Don't call handler.sendGameState
@@ -1971,10 +1986,11 @@ public class SOCGameMessageHandler
                 {
                 case SOCPlayingPiece.ROAD:
 
-                    if ((gstate == SOCGame.PLACING_ROAD) || (gstate == SOCGame.PLACING_FREE_ROAD2))
+                    if (   (gstate == PLACING_ROAD)
+                        || (gstate == PLACING_FREE_ROAD2))
                     {
                         ga.cancelBuildRoad( pn );
-                        if (gstate == SOCGame.PLACING_ROAD)
+                        if (gstate == PLACING_ROAD)
                         {
                             if (usePlayerElements)
                             {
@@ -2009,7 +2025,7 @@ public class SOCGameMessageHandler
 
                 case SOCPlayingPiece.SETTLEMENT:
 
-                    if (gstate == SOCGame.PLACING_SETTLEMENT)
+                    if (gstate == PLACING_SETTLEMENT)
                     {
                         ga.cancelBuildSettlement( pn );
                         if (usePlayerElements)
@@ -2036,7 +2052,7 @@ public class SOCGameMessageHandler
 
                         }
                     }
-                    else if ((gstate == SOCGame.START1B) || (gstate == SOCGame.START2B) || (gstate == SOCGame.START3B))
+                    else if ((gstate == START1B) || (gstate == START2B) || (gstate == START3B))
                     {
                         SOCSettlement pp = new SOCSettlement( player, player.getLastSettlementCoord(), null );
                         ga.undoPutInitSettlement( pp );
@@ -2056,7 +2072,7 @@ public class SOCGameMessageHandler
 
                 case SOCPlayingPiece.CITY:
 
-                    if (gstate == SOCGame.PLACING_CITY)
+                    if (gstate == PLACING_CITY)
                     {
                         ga.cancelBuildCity( pn );
                         if (usePlayerElements)
@@ -2087,10 +2103,10 @@ public class SOCGameMessageHandler
 
                 case SOCPlayingPiece.SHIP:
 
-                    if ((gstate == SOCGame.PLACING_SHIP) || (gstate == SOCGame.PLACING_FREE_ROAD2))
+                    if ((gstate == PLACING_SHIP) || (gstate == PLACING_FREE_ROAD2))
                     {
                         ga.cancelBuildShip( pn );
-                        if (gstate == SOCGame.PLACING_SHIP)
+                        if (gstate == PLACING_SHIP)
                         {
                             if (usePlayerElements)
                             {
@@ -2125,7 +2141,7 @@ public class SOCGameMessageHandler
 
                 case SOCCancelBuildRequest.INV_ITEM_PLACE_CANCEL:
                     SOCInventoryItem item = null;
-                    if (gstate == SOCGame.PLACING_INV_ITEM)
+                    if (gstate == PLACING_INV_ITEM)
                         item = ga.cancelPlaceInventoryItem( false );
 
                     if (item != null)
@@ -2186,24 +2202,25 @@ public class SOCGameMessageHandler
      * {@link SOCGameHandler#endGameTurn(SOCGame, SOCPlayer, boolean)}
      * to detect and announce the new turn.
      *
+     * @param game the game where this piece is being placed.
      * @param c  the connection that sent the message
-     * @param mes  the message
+     * @param putPieceMessage  the message
      * @since 1.0.0
      */
-    private void handlePUTPIECE( SOCGame ga, Connection c, SOCPutPiece mes )
+    private void handlePUTPIECE( SOCGame game, Connection c, SOCPutPiece putPieceMessage )
     {
-        ga.takeMonitor();
+        game.takeMonitor();
 
         try
         {
-            final String gaName = ga.getName();
+            final String gaName = game.getName();
             final String plName = c.getData();
-            SOCPlayer player = ga.getPlayer( plName );
+            SOCPlayer player = game.getPlayer( plName );
 
             /**
              * make sure is current player and can place now, then do so
              */
-            if (handler.checkTurn( c, ga ))
+            if (handler.checkTurn( c, game ))
             {
                 boolean sendDenyReply = false;
                 /*
@@ -2220,38 +2237,38 @@ public class SOCGameMessageHandler
                    }
                  */
 
-                int gameState = ga.getGameState();
-                final int coord = mes.getCoordinates();
-                final int pieceType = mes.getPieceType();
+                GameState gameState = game.getGameState();
+                final int coord = putPieceMessage.getCoordinates();
+                final int pieceType = putPieceMessage.getPieceType();
                 final int pn = player.getPlayerNumber();
-                final boolean isBuyAndPut = (gameState == SOCGame.PLAY1) || (gameState == SOCGame.SPECIAL_BUILDING);
-                final SOCPlayer longestRoutePlayer = ga.getPlayerWithLongestRoad();
+                final boolean isBuyAndPut = (gameState == PLAY1) || (gameState == SPECIAL_BUILDING);
+                final SOCPlayer longestRoutePlayer = game.getPlayerWithLongestRoad();
 
                 if (isBuyAndPut)
                 {
                     // Handle combined buildrequest + putpiece message: (client v2.0.00 or newer)
 
-                    if (!handleBUILDREQUEST( ga, player, c, pieceType, false ))
+                    if (!handleBUILDREQUEST( game, player, c, pieceType, false ))
                     {
                         return;  // <--- Can't build right now ---
                         // will call ga.releaseMonitor() in finally-block before returning
                     }
 
-                    gameState = ga.getGameState();  // updated by handleBUILDREQUEST
+                    gameState = game.getGameState();  // updated by handleBUILDREQUEST
                 }
 
                 switch (pieceType)
                 {
                 case SOCPlayingPiece.ROAD:
 
-                    if ((gameState == SOCGame.START1B) || (gameState == SOCGame.START2B) || (gameState == SOCGame.START3B)
-                        || (gameState == SOCGame.PLACING_ROAD)
-                        || (gameState == SOCGame.PLACING_FREE_ROAD1) || (gameState == SOCGame.PLACING_FREE_ROAD2))
+                    if ((gameState == START1B) || (gameState == START2B) || (gameState == START3B)
+                        || (gameState == PLACING_ROAD)
+                        || (gameState == PLACING_FREE_ROAD1) || (gameState == PLACING_FREE_ROAD2))
                     {
                         if (player.isPotentialRoad( coord ) && (player.getNumPieces( SOCPlayingPiece.ROAD ) >= 1))
                         {
                             final SOCRoad rd = new SOCRoad( player, coord, null );
-                            ga.putPiece( rd );  // Changes game state and (if initial placement) player
+                            game.putPiece( rd );  // Changes game state and (if initial placement) player
 
                             // If placing this piece reveals a fog hex, putPiece will call srv.gameEvent
                             // which will send a SOCRevealFogHex message to the game.
@@ -2276,12 +2293,12 @@ public class SOCGameMessageHandler
                             try
                             {
                                 srv.messageToGameKeyed
-                                    ( ga, true, false, "action.built.road", plName );  // "Joe built a road."
+                                    ( game, true, false, "action.built.road", plName );  // "Joe built a road."
                                 srv.messageToGameWithMon
                                     ( gaName, true, new SOCPutPiece( gaName, pn, SOCPlayingPiece.ROAD, coord ) );
-                                handler.reportLongestRoadIfChanged( ga, longestRoutePlayer, true );
-                                if (!ga.pendingMessagesOut.isEmpty())
-                                    handler.sendGamePendingMessages( ga, false );
+                                handler.reportLongestRoadIfChanged( game, longestRoutePlayer, true );
+                                if (!game.pendingMessagesOut.isEmpty())
+                                    handler.sendGamePendingMessages( game, false );
                             }
                             finally
                             {
@@ -2289,14 +2306,14 @@ public class SOCGameMessageHandler
                             }
 
                             // If needed, call sendTurn or send SOCRollDicePrompt
-                            handler.sendTurnStateAtInitialPlacement( ga, player, c, gameState );
+                            handler.sendTurnStateAtInitialPlacement( game, player, c, gameState );
 
-                            int newState = ga.getGameState();
-                            if ((newState == SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE)
-                                || (newState == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE))
+                            GameState newState = game.getGameState();
+                            if (   (newState == STARTS_WAITING_FOR_PICK_GOLD_RESOURCE)
+                                || (newState == WAITING_FOR_PICK_GOLD_RESOURCE))
                             {
                                 // gold hex revealed from fog (scenario SC_FOG)
-                                handler.sendGameState_sendGoldPickAnnounceText( ga, gaName, c, null );
+                                handler.sendGameState_sendGoldPickAnnounceText( game, gaName, c, null );
                             }
                         }
                         else
@@ -2306,7 +2323,7 @@ public class SOCGameMessageHandler
                             if (player.isRobot() && D.ebugOn)
                             {
                                 D.ebugPrintlnINFO( " - pl.isPotentialRoad: " + player.isPotentialRoad( coord ) );
-                                SOCPlayingPiece pp = ga.getBoard().roadOrShipAtEdge( coord );
+                                SOCPlayingPiece pp = game.getBoard().roadOrShipAtEdge( coord );
                                 D.ebugPrintlnINFO( " - roadAtEdge: " + ((pp != null) ? pp : "none") );
                             }
 
@@ -2325,13 +2342,13 @@ public class SOCGameMessageHandler
 
                 case SOCPlayingPiece.SETTLEMENT:
 
-                    if ((gameState == SOCGame.START1A) || (gameState == SOCGame.START2A)
-                        || (gameState == SOCGame.START3A) || (gameState == SOCGame.PLACING_SETTLEMENT))
+                    if ((gameState == START1A) || (gameState == START2A)
+                        || (gameState == START3A) || (gameState == PLACING_SETTLEMENT))
                     {
                         if (player.canPlaceSettlement( coord ) && (player.getNumPieces( SOCPlayingPiece.SETTLEMENT ) >= 1))
                         {
                             final SOCSettlement se = new SOCSettlement( player, coord, null );
-                            ga.putPiece( se );   // Changes game state and (if initial placement) player
+                            game.putPiece( se );   // Changes game state and (if initial placement) player
 
                             // TODO refactor common netcode here with other piece types
 
@@ -2339,12 +2356,12 @@ public class SOCGameMessageHandler
                             try
                             {
                                 srv.messageToGameKeyed
-                                    ( ga, true, false, "action.built.stlmt", plName );  // "Joe built a settlement."
+                                    ( game, true, false, "action.built.stlmt", plName );  // "Joe built a settlement."
                                 srv.messageToGameWithMon
                                     ( gaName, true, new SOCPutPiece( gaName, pn, SOCPlayingPiece.SETTLEMENT, coord ) );
-                                handler.reportLongestRoadIfChanged( ga, longestRoutePlayer, true );
-                                if (!ga.pendingMessagesOut.isEmpty())
-                                    handler.sendGamePendingMessages( ga, false );
+                                handler.reportLongestRoadIfChanged( game, longestRoutePlayer, true );
+                                if (!game.pendingMessagesOut.isEmpty())
+                                    handler.sendGamePendingMessages( game, false );
                             }
                             finally
                             {
@@ -2352,15 +2369,15 @@ public class SOCGameMessageHandler
                             }
 
                             // Check player and send new game state
-                            if (!handler.checkTurn( c, ga ))
-                                handler.sendTurn( ga, false );  // Announce new state and new current player
+                            if (!handler.checkTurn( c, game ))
+                                handler.sendTurn( game, false );  // Announce new state and new current player
                             else
-                                handler.sendGameState( ga );
+                                handler.sendGameState( game );
 
-                            if (ga.hasSeaBoard && (ga.getGameState() == SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE))
+                            if (game.hasSeaBoard && (game.getGameState() == STARTS_WAITING_FOR_PICK_GOLD_RESOURCE))
                             {
                                 // Prompt to pick from gold: send text and SOCSimpleRequest(PROMPT_PICK_RESOURCES)
-                                handler.sendGameState_sendGoldPickAnnounceText( ga, gaName, c, null );
+                                handler.sendGameState_sendGoldPickAnnounceText( game, gaName, c, null );
                             }
                         }
                         else
@@ -2371,7 +2388,7 @@ public class SOCGameMessageHandler
                             {
                                 D.ebugPrintlnINFO( " - pl.isPotentialSettlement: "
                                     + player.isPotentialSettlement( coord ) );
-                                SOCPlayingPiece pp = ga.getBoard().settlementAtNode( coord );
+                                SOCPlayingPiece pp = game.getBoard().settlementAtNode( coord );
                                 D.ebugPrintlnINFO( " - settlementAtNode: " + ((pp != null) ? pp : "none") );
                             }
 
@@ -2390,13 +2407,13 @@ public class SOCGameMessageHandler
 
                 case SOCPlayingPiece.CITY:
 
-                    if (gameState == SOCGame.PLACING_CITY)
+                    if (gameState == PLACING_CITY)
                     {
                         if (player.isPotentialCity( coord ) && (player.getNumPieces( SOCPlayingPiece.CITY ) >= 1))
                         {
-                            boolean houseRuleFirstCity = ga.isGameOptionSet( "N7C" ) && !ga.hasBuiltCity();
-                            if (houseRuleFirstCity && ga.isGameOptionSet( "N7" )
-                                && (ga.getRoundCount() < ga.getGameOptionIntValue( "N7" )))
+                            boolean houseRuleFirstCity = game.isGameOptionSet( "N7C" ) && !game.hasBuiltCity();
+                            if (houseRuleFirstCity && game.isGameOptionSet( "N7" )
+                                && (game.getRoundCount() < game.getGameOptionIntValue( "N7" )))
                             {
                                 // If "No 7s for first # rounds" is active, and this isn't its last round, 7s won't
                                 // be rolled soon: Don't announce "Starting next turn, dice rolls of 7 may occur"
@@ -2404,19 +2421,19 @@ public class SOCGameMessageHandler
                             }
 
                             final SOCCity ci = new SOCCity( player, coord, null );
-                            ga.putPiece( ci );  // changes game state and maybe player
+                            game.putPiece( ci );  // changes game state and maybe player
 
                             srv.gameList.takeMonitorForGame( gaName );
                             try
                             {
                                 srv.messageToGameKeyed
-                                    ( ga, true, false, "action.built.city", plName );  // "Joe built a city."
+                                    ( game, true, false, "action.built.city", plName );  // "Joe built a city."
                                 srv.messageToGameWithMon
                                     ( gaName, true, new SOCPutPiece( gaName, pn, SOCPlayingPiece.CITY, coord ) );
-                                if (!ga.pendingMessagesOut.isEmpty())
-                                    handler.sendGamePendingMessages( ga, false );
+                                if (!game.pendingMessagesOut.isEmpty())
+                                    handler.sendGamePendingMessages( game, false );
                                 if (houseRuleFirstCity)
-                                    srv.messageToGameKeyed( ga, true, false, "action.built.nextturn.7.houserule" );
+                                    srv.messageToGameKeyed( game, true, false, "action.built.nextturn.7.houserule" );
                                 // "Starting next turn, dice rolls of 7 may occur (house rule)."
                             }
                             finally
@@ -2425,10 +2442,10 @@ public class SOCGameMessageHandler
                             }
 
                             // Check player and send new game state
-                            if (!handler.checkTurn( c, ga ))
-                                handler.sendTurn( ga, false );  // Announce new state and new current player
+                            if (!handler.checkTurn( c, game ))
+                                handler.sendTurn( game, false );  // Announce new state and new current player
                             else
-                                handler.sendGameState( ga );
+                                handler.sendGameState( game );
                         }
                         else
                         {
@@ -2437,7 +2454,7 @@ public class SOCGameMessageHandler
                             if (player.isRobot() && D.ebugOn)
                             {
                                 D.ebugPrintlnINFO( " - pl.isPotentialCity: " + player.isPotentialCity( coord ) );
-                                SOCPlayingPiece pp = ga.getBoard().settlementAtNode( coord );
+                                SOCPlayingPiece pp = game.getBoard().settlementAtNode( coord );
                                 D.ebugPrintlnINFO( " - city/settlementAtNode: " + ((pp != null) ? pp : "none") );
                             }
 
@@ -2456,26 +2473,26 @@ public class SOCGameMessageHandler
 
                 case SOCPlayingPiece.SHIP:
 
-                    if ((gameState == SOCGame.START1B) || (gameState == SOCGame.START2B) || (gameState == SOCGame.START3B)
-                        || (gameState == SOCGame.PLACING_SHIP)
-                        || (gameState == SOCGame.PLACING_FREE_ROAD1) || (gameState == SOCGame.PLACING_FREE_ROAD2))
+                    if ((gameState == START1B) || (gameState == START2B) || (gameState == START3B)
+                        || (gameState == PLACING_SHIP)
+                        || (gameState == PLACING_FREE_ROAD1) || (gameState == PLACING_FREE_ROAD2))
                     {
                         // Place it if we can; canPlaceShip checks potentials and pirate ship location
-                        if (ga.canPlaceShip( player, coord ) && (player.getNumPieces( SOCPlayingPiece.SHIP ) >= 1))
+                        if (game.canPlaceShip( player, coord ) && (player.getNumPieces( SOCPlayingPiece.SHIP ) >= 1))
                         {
                             final SOCShip sh = new SOCShip( player, coord, null );
-                            ga.putPiece( sh );  // Changes game state and (during initial placement) sometimes player
+                            game.putPiece( sh );  // Changes game state and (during initial placement) sometimes player
 
                             srv.gameList.takeMonitorForGame( gaName );
                             try
                             {
                                 srv.messageToGameKeyed
-                                    ( ga, true, false, "action.built.ship", plName );  // "Joe built a ship."
+                                    ( game, true, false, "action.built.ship", plName );  // "Joe built a ship."
                                 srv.messageToGameWithMon
                                     ( gaName, true, new SOCPutPiece( gaName, pn, SOCPlayingPiece.SHIP, coord ) );
-                                handler.reportLongestRoadIfChanged( ga, longestRoutePlayer, true );
-                                if (!ga.pendingMessagesOut.isEmpty())
-                                    handler.sendGamePendingMessages( ga, false );
+                                handler.reportLongestRoadIfChanged( game, longestRoutePlayer, true );
+                                if (!game.pendingMessagesOut.isEmpty())
+                                    handler.sendGamePendingMessages( game, false );
                             }
                             finally
                             {
@@ -2483,14 +2500,14 @@ public class SOCGameMessageHandler
                             }
 
                             // If needed, call sendTurn or send SOCRollDicePrompt
-                            handler.sendTurnStateAtInitialPlacement( ga, player, c, gameState );
+                            handler.sendTurnStateAtInitialPlacement( game, player, c, gameState );
 
-                            int newState = ga.getGameState();
-                            if ((newState == SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE)
-                                || (newState == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE))
+                            GameState newState = game.getGameState();
+                            if (   (newState == STARTS_WAITING_FOR_PICK_GOLD_RESOURCE)
+                                || (newState == WAITING_FOR_PICK_GOLD_RESOURCE))
                             {
                                 // gold hex revealed from fog (scenario SC_FOG)
-                                handler.sendGameState_sendGoldPickAnnounceText( ga, gaName, c, null );
+                                handler.sendGameState_sendGoldPickAnnounceText( game, gaName, c, null );
                             }
                         }
                         else
@@ -2500,7 +2517,7 @@ public class SOCGameMessageHandler
                             if (player.isRobot() && D.ebugOn)
                             {
                                 D.ebugPrintlnINFO( " - pl.isPotentialShip: " + player.isPotentialShip( coord ) );
-                                SOCPlayingPiece pp = ga.getBoard().roadOrShipAtEdge( coord );
+                                SOCPlayingPiece pp = game.getBoard().roadOrShipAtEdge( coord );
                                 D.ebugPrintlnINFO( " - ship/roadAtEdge: " + ((pp != null) ? pp : "none") );
                             }
 
@@ -2522,12 +2539,12 @@ public class SOCGameMessageHandler
                 if (sendDenyReply)
                 {
                     if (isBuyAndPut)
-                        handler.sendGameState( ga );  // is probably now PLACING_*, was PLAY1 or SPECIAL_BUILDING
-                    srv.messageToPlayer( c, gaName, pn, new SOCCancelBuildRequest( gaName, mes.getPieceType() ) );
+                        handler.sendGameState( game );  // is probably now PLACING_*, was PLAY1 or SPECIAL_BUILDING
+                    srv.messageToPlayer( c, gaName, pn, new SOCCancelBuildRequest( gaName, putPieceMessage.getPieceType() ) );
                     if (player.isRobot())
                     {
                         // Set the "force end turn soon" field
-                        ga.lastActionTime = 0L;
+                        game.lastActionTime = 0L;
                     }
                 }
             }
@@ -2543,7 +2560,7 @@ public class SOCGameMessageHandler
         }
         finally
         {
-            ga.releaseMonitor();
+            game.releaseMonitor();
         }
     }
 
@@ -2573,7 +2590,7 @@ public class SOCGameMessageHandler
             }
             else
             {
-                final int gstate = ga.getGameState();
+                final GameState gstate = ga.getGameState();
                 final SOCPlayer longestRoutePlayer = ga.getPlayerWithLongestRoad();
 
                 ga.moveShip( moveShip, toEdge );
@@ -2586,7 +2603,7 @@ public class SOCGameMessageHandler
                 if (!ga.pendingMessagesOut.isEmpty())
                     handler.sendGamePendingMessages( ga, true );
 
-                if (ga.getGameState() == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE)
+                if (ga.getGameState() == WAITING_FOR_PICK_GOLD_RESOURCE)
                 {
                     // If ship placement reveals a gold hex in _SC_FOG,
                     // the player gets to pick a free resource.
@@ -2596,7 +2613,7 @@ public class SOCGameMessageHandler
                 else if (gstate != ga.getGameState())
                 {
                     // announce new state (such as PLACING_INV_ITEM in _SC_FTRI),
-                    // or if state is now SOCGame.OVER, announce end of game
+                    // or if state is now GameState.GAME_OVER, announce end of game
                     handler.sendGameState( ga, false, false );
                 }
             }
@@ -2617,25 +2634,25 @@ public class SOCGameMessageHandler
      * Handle the client's debug Free Placement putpiece request.
      * @since 1.1.12
      */
-    private void handleDEBUGFREEPLACE( final SOCGame ga, final Connection c, final SOCDebugFreePlace mes )
+    private void handleDEBUGFREEPLACE( SOCGame game, Connection c, SOCDebugFreePlace debugFreePlaceMessage )
     {
-        if (!ga.isDebugFreePlacement())
+        if (!game.isDebugFreePlacement())
             return;
-        final String gaName = ga.getName();
-        final int gstate = ga.getGameState();
-        final SOCPlayer longestRoutePlayer = ga.getPlayerWithLongestRoad();
+        final String gaName = game.getName();
+        final GameState gstate = game.getGameState();
+        final SOCPlayer longestRoutePlayer = game.getPlayerWithLongestRoad();
 
-        final int coord = mes.getCoordinates();
-        final SOCPlayer player = ga.getPlayer( mes.getPlayerNumber() );
+        final int coord = debugFreePlaceMessage.getCoordinates();
+        final SOCPlayer player = game.getPlayer( debugFreePlaceMessage.getPlayerNumber() );
         if (player == null)
             return;
 
         boolean didPut = false;
-        final int pieceType = mes.getPieceType(),
+        final int pieceType = debugFreePlaceMessage.getPieceType(),
             pn = player.getPlayerNumber();
 
         final boolean initialDeny
-            = ga.isInitialPlacement() && !player.canBuildInitialPieceType( pieceType );
+            = game.isInitialPlacement() && !player.canBuildInitialPieceType( pieceType );
         boolean denyInSpecial = false;
 
         switch (pieceType)
@@ -2643,7 +2660,7 @@ public class SOCGameMessageHandler
         case SOCPlayingPiece.ROAD:
             if (player.isPotentialRoad( coord ) && !initialDeny)
             {
-                ga.putPiece( new SOCRoad( player, coord, null ) );
+                game.putPiece( new SOCRoad( player, coord, null ) );
                 didPut = true;
             }
             break;
@@ -2651,7 +2668,7 @@ public class SOCGameMessageHandler
         case SOCPlayingPiece.SETTLEMENT:
             if (player.canPlaceSettlement( coord ) && !initialDeny)
             {
-                ga.putPiece( new SOCSettlement( player, coord, null ) );
+                game.putPiece( new SOCSettlement( player, coord, null ) );
                 didPut = true;
             }
             break;
@@ -2659,17 +2676,17 @@ public class SOCGameMessageHandler
         case SOCPlayingPiece.CITY:
             if (player.isPotentialCity( coord ) && !initialDeny)
             {
-                ga.putPiece( new SOCCity( player, coord, null ) );
+                game.putPiece( new SOCCity( player, coord, null ) );
                 didPut = true;
             }
             break;
 
         case SOCPlayingPiece.SHIP:
-            if (ga.canPlaceShip( player, coord ) && !initialDeny)
+            if (game.canPlaceShip( player, coord ) && !initialDeny)
             {
                 if (player.canPlaceShip_debugFreePlace( coord ))
                 {
-                    ga.putPiece( new SOCShip( player, coord, null ) );
+                    game.putPiece( new SOCShip( player, coord, null ) );
                     didPut = true;
                 }
                 else
@@ -2688,35 +2705,33 @@ public class SOCGameMessageHandler
         {
             srv.messageToGame( gaName, true, new SOCPutPiece
                 ( gaName, pn, pieceType, coord ) );
-            handler.reportLongestRoadIfChanged( ga, longestRoutePlayer, false );
+            handler.reportLongestRoadIfChanged( game, longestRoutePlayer, false );
 
-            if (!(ga.pendingMessagesOut.isEmpty() && player.pendingMessagesOut.isEmpty()))
-                handler.sendGamePendingMessages( ga, true );
+            if (!(game.pendingMessagesOut.isEmpty() && player.pendingMessagesOut.isEmpty()))
+                handler.sendGamePendingMessages( game, true );
 
             // Check for initial settlement next to gold hex, or road/ship revealed gold from fog
             final int numGoldRes = player.getNeedToPickGoldHexResources();
+            final GameState newState = game.getGameState();
             if (numGoldRes > 0)
             {
-                final int newGS = ga.getGameState();
-
-                if (newGS == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE)
-                    srv.messageToGame( gaName, true, new SOCGameState( gaName, newGS ) );
+                if (newState == WAITING_FOR_PICK_GOLD_RESOURCE)
+                    srv.messageToGame( gaName, true, new SOCGameState( gaName, newState ));
                 // state not sent for STARTS_WAITING_FOR_PICK_GOLD_RESOURCE
                 srv.messageToPlayer( c, gaName, pn,
                     new SOCSimpleRequest
                         ( gaName, pn, SOCSimpleRequest.PROMPT_PICK_RESOURCES, numGoldRes ) );
             }
 
-            final int newState = ga.getGameState();
-            if (newState >= SOCGame.OVER)
+            if (newState.gt( ALMOST_OVER ))
             {
                 // exit debug mode, announce end of game
-                handler.processDebugCommand_freePlace( c, ga, "0" );
-                handler.sendGameState( ga, false, false );
+                handler.processDebugCommand_freePlace( c, game, "0" );
+                handler.sendGameState( game, false, false );
             }
             else if (newState != gstate)
             {
-                handler.sendGameState( ga, false, false );
+                handler.sendGameState( game, false, false );
             }
         }
         else
@@ -2752,35 +2767,37 @@ public class SOCGameMessageHandler
      *<P>
      * Before v2.0.00 this method was {@code handleBUYCARDREQUEST}.
      *
+     * @param game the SOCGame instance that this message is addressed to
      * @param c  the connection that sent the message
      * @param mes  the message
      * @since 1.0.0
      */
-    private void handleBUYDEVCARDREQUEST( SOCGame ga, Connection c, final SOCBuyDevCardRequest mes )
+    private void handleBUYDEVCARDREQUEST( SOCGame game, Connection c,
+        @SuppressWarnings("unused") SOCBuyDevCardRequest buyDevCardRequestMessage )
     {
-        ga.takeMonitor();
+        game.takeMonitor();
 
         try
         {
-            final String gaName = ga.getName();
-            SOCPlayer player = ga.getPlayer( c.getData() );
+            final String gaName = game.getName();
+            SOCPlayer player = game.getPlayer( c.getData() );
             final int pn = player.getPlayerNumber();
             boolean sendDenyReply = false;  // for robots' benefit
 
-            if (handler.checkTurn( c, ga ))
+            if (handler.checkTurn( c, game ))
             {
-                if (((ga.getGameState() == SOCGame.PLAY1) || (ga.getGameState() == SOCGame.SPECIAL_BUILDING))
-                    && (ga.couldBuyDevCard( pn )))
+                if (((game.getGameState() == PLAY1) || (game.getGameState() == SPECIAL_BUILDING))
+                    && (game.couldBuyDevCard( pn )))
                 {
-                    int card = ga.buyDevCard();
-                    final int devCount = ga.getNumDevCards();
+                    int card = game.buyDevCard();
+                    final int devCount = game.getNumDevCards();
 
                     // Note: If this message sequence changes, update SOCBuyDevCardRequest javadoc
 
                     srv.gameList.takeMonitorForGame( gaName );
                     try
                     {
-                        if (ga.clientVersionLowest >= SOCPlayerElements.MIN_VERSION)
+                        if (game.clientVersionLowest >= SOCPlayerElements.MIN_VERSION)
                         {
                             srv.messageToGameWithMon( gaName, true, new SOCPlayerElements
                                 ( gaName, pn, SOCPlayerElement.LOSE, SOCDevCard.COST ) );
@@ -2833,11 +2850,11 @@ public class SOCGameMessageHandler
 
                     // send as Unknown to other members of game, unless game/cards are Observable:
 
-                    if (ga.clientVersionLowest >= SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES)
+                    if (game.clientVersionLowest >= SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES)
                     {
                         final int ctypeToOthers =
-                            (ga.isGameOptionSet( SOCGameOptionSet.K_PLAY_FO )
-                                || ga.isGameOptionSet( SOCGameOptionSet.K_PLAY_VPO ))
+                            (game.isGameOptionSet( SOCGameOptionSet.K_PLAY_FO )
+                                || game.isGameOptionSet( SOCGameOptionSet.K_PLAY_VPO ))
                                 ? card
                                 : SOCDevCardConstants.UNKNOWN;
 
@@ -2847,11 +2864,11 @@ public class SOCGameMessageHandler
                     else
                     {
                         srv.messageToGameForVersionsExcept
-                            ( ga, -1, SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES - 1,
+                            ( game, -1, SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES - 1,
                                 c, new SOCDevCardAction
                                     ( gaName, pn, SOCDevCardAction.DRAW, SOCDevCardConstants.UNKNOWN_FOR_VERS_1_X ), true );
                         srv.messageToGameForVersionsExcept
-                            ( ga, SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES, Integer.MAX_VALUE,
+                            ( game, SOCDevCardConstants.VERSION_FOR_RENUMBERED_TYPES, Integer.MAX_VALUE,
                                 c, new SOCDevCardAction
                                     ( gaName, pn, SOCDevCardAction.DRAW, SOCDevCardConstants.UNKNOWN ), true );
 
@@ -2860,11 +2877,11 @@ public class SOCGameMessageHandler
                                 ( gaName, pn, SOCDevCardAction.DRAW, SOCDevCardConstants.UNKNOWN ) );
                     }
 
-                    final int remain = ga.getNumDevCards();
+                    final int remain = game.getNumDevCards();
                     final SOCSimpleAction actmsg = new SOCSimpleAction
                         ( gaName, pn, SOCSimpleAction.DEVCARD_BOUGHT, remain, 0 );
 
-                    if (ga.clientVersionLowest >= SOCSimpleAction.VERSION_FOR_SIMPLEACTION)
+                    if (game.clientVersionLowest >= SOCSimpleAction.VERSION_FOR_SIMPLEACTION)
                     {
                         srv.messageToGame( gaName, true, actmsg );
                     }
@@ -2877,7 +2894,7 @@ public class SOCGameMessageHandler
                         try
                         {
                             srv.messageToGameForVersions
-                                ( ga, SOCSimpleAction.VERSION_FOR_SIMPLEACTION, Integer.MAX_VALUE, actmsg, false );
+                                ( game, SOCSimpleAction.VERSION_FOR_SIMPLEACTION, Integer.MAX_VALUE, actmsg, false );
 
                             // Only pre-1.1.19 clients will see the game text messages. Since they're
                             // older than the i18n work: Skip text key lookups, always use english,
@@ -2885,7 +2902,7 @@ public class SOCGameMessageHandler
 
                             final String boughtTxt = MessageFormat.format
                                 ( "{0} bought a development card.", player.getName() );
-                            srv.messageToGameForVersions( ga, -1, SOCSimpleAction.VERSION_FOR_SIMPLEACTION - 1,
+                            srv.messageToGameForVersions( game, -1, SOCSimpleAction.VERSION_FOR_SIMPLEACTION - 1,
                                 new SOCGameTextMsg( gaName, SOCGameTextMsg.SERVERNAME, boughtTxt ), false );
 
                             final String remainTxt;
@@ -2898,10 +2915,10 @@ public class SOCGameMessageHandler
                                 remainTxt = "There is 1 card left.";
                                 break;
                             default:
-                                remainTxt = MessageFormat.format( "There are {0,number} cards left.", ga.getNumDevCards() );
+                                remainTxt = MessageFormat.format( "There are {0,number} cards left.", game.getNumDevCards() );
                                 // I18N OK: for old version compat
                             }
-                            srv.messageToGameForVersions( ga, -1, SOCSimpleAction.VERSION_FOR_SIMPLEACTION - 1,
+                            srv.messageToGameForVersions( game, -1, SOCSimpleAction.VERSION_FOR_SIMPLEACTION - 1,
                                 new SOCGameTextMsg( gaName, SOCGameTextMsg.SERVERNAME, remainTxt ), false );
                         }
                         finally
@@ -2910,13 +2927,13 @@ public class SOCGameMessageHandler
                         }
                     }
 
-                    handler.sendGameState( ga );
+                    handler.sendGameState( game );
                 }
                 else
                 {
                     // unlikely; client should know to not send request in those conditions
 
-                    final String denyText = (ga.getNumDevCards() == 0)
+                    final String denyText = (game.getNumDevCards() == 0)
                         ? /*I*/"There are no more Development cards."/*18N*/
                         : /*I*/"You can't buy a development card now."/*18N*/;
                     srv.messageToPlayer( c, gaName, pn, denyText );
@@ -2930,7 +2947,7 @@ public class SOCGameMessageHandler
 
                 sendDenyReply = true;
 
-                if (ga.maxPlayers <= 4)
+                if (game.maxPlayers <= 4)
                 {
                     srv.messageToPlayerKeyed( c, gaName, pn, "base.reply.not.your.turn" );  // "It's not your turn."
                 }
@@ -2939,7 +2956,7 @@ public class SOCGameMessageHandler
                     // 6-player board: Special Building Phase
                     try
                     {
-                        ga.askSpecialBuild( pn, true );
+                        game.askSpecialBuild( pn, true );
                         srv.messageToGame( gaName, true, new SOCPlayerElement
                             ( gaName, pn, SOCPlayerElement.SET, PEType.ASK_SPECIAL_BUILD, 1 ) );
                         sendDenyReply = false;
@@ -2956,7 +2973,7 @@ public class SOCGameMessageHandler
                 }
             }
 
-            if (sendDenyReply && ga.getPlayer( pn ).isRobot())
+            if (sendDenyReply && game.getPlayer( pn ).isRobot())
             {
                 srv.messageToPlayer( c, gaName, pn, new SOCCancelBuildRequest( gaName, -2 ) );  // == SOCPossiblePiece.CARD
             }
@@ -2967,7 +2984,7 @@ public class SOCGameMessageHandler
         }
         finally
         {
-            ga.releaseMonitor();
+            game.releaseMonitor();
         }
     }
 
@@ -3101,7 +3118,7 @@ public class SOCGameMessageHandler
                         srv.gameList.releaseMonitorForGame( gaName );
 
                         handler.sendGameState( ga );
-                        if (ga.getGameState() == SOCGame.PLACING_FREE_ROAD1)
+                        if (ga.getGameState() == PLACING_FREE_ROAD1)
                             srv.messageToPlayerKeyed
                                 ( c, gaName, pn, (ga.hasSeaBoard) ? "action.card.road.place.2s" : "action.card.road.place.2r" );
                             // "You may place 2 roads/ships." or "You may place 2 roads."
@@ -3249,8 +3266,8 @@ public class SOCGameMessageHandler
                 throw new IllegalArgumentException( "player not found in game" );
             }
 
-            final int gstate = ga.getGameState();
-            if (gstate == SOCGame.WAITING_FOR_DISCOVERY)
+            final GameState gstate = ga.getGameState();
+            if (gstate == WAITING_FOR_DISCOVERY)
             {
                 // Message is Discovery/Year of Plenty picks
 
@@ -3300,8 +3317,8 @@ public class SOCGameMessageHandler
                     final boolean fromInitPlace = ga.isInitialPlacement();
                     final boolean fromPirateFleet = ga.isPickResourceIncludingPirateFleet( pn );
 
-                    final int prevState = ga.pickGoldHexResources( pn, rsrcs );
-                    final int newState = ga.getGameState();
+                    GameState prevState = ga.pickGoldHexResources( pn, rsrcs );
+                    GameState newState = ga.getGameState();
 
                     /**
                      * tell everyone what the player gained
@@ -3312,14 +3329,14 @@ public class SOCGameMessageHandler
                      * send the new state, or end turn if was marked earlier as forced
                      * -- for gold during initial placement, current player might also change.
                      */
-                    if ((gstate != SOCGame.PLAY1) || (newState == SOCGame.WAITING_FOR_DISCARDS)
+                    if ((gstate != PLAY1) || (newState == WAITING_FOR_DISCARDS)
                         || !ga.isForcingEndTurn())
                     {
                         if (!fromInitPlace)
                         {
                             handler.sendGameState( ga );
 
-                            if (newState == SOCGame.WAITING_FOR_DISCARDS)
+                            if (newState == WAITING_FOR_DISCARDS)
                             {
                                 // happens only in scenario _SC_PIRI, when 7 is rolled, player wins against pirate fleet
                                 // and has picked their won resource, and then someone must discard
@@ -3332,17 +3349,17 @@ public class SOCGameMessageHandler
 
                             switch (newState)
                             {
-                            case SOCGame.START1B:
-                            case SOCGame.START2B:
-                            case SOCGame.START3B:
+                            case START1B:
+                            case START2B:
+                            case START3B:
                                 // pl not changed: previously placed settlement, now placing road or ship
                                 handler.sendGameState( ga );
                                 break;
 
-                            case SOCGame.START1A:
-                            case SOCGame.START2A:
-                            case SOCGame.START3A:
-                            case SOCGame.ROLL_OR_CARD:
+                            case START1A:
+                            case START2A:
+                            case START3A:
+                            case ROLL_OR_CARD:
                                 // Current player probably changed, announce new player if so
                                 // with sendTurn and/or SOCRollDicePrompt
                                 handler.sendTurnStateAtInitialPlacement( ga, player, c, prevState );
@@ -3365,7 +3382,7 @@ public class SOCGameMessageHandler
                     {
                         srv.messageToPlayerKeyed
                             ( c, gaName, pn, "reply.pick.gold.cannot.that_many" );  // "You can't pick that many resources."
-                        if ((npick > 0) && (gstate < SOCGame.OVER))
+                        if ((npick > 0) && (gstate.lt( GAME_OVER )))
                             srv.messageToPlayer( c, gaName, pn, new SOCSimpleRequest
                                 ( gaName, pn, SOCSimpleRequest.PROMPT_PICK_RESOURCES, npick ) );
                         else
@@ -3567,7 +3584,7 @@ public class SOCGameMessageHandler
             return;
         }
 
-        final int oldGameState = ga.getGameState();
+        GameState oldGameState = ga.getGameState();
 
         final SOCInventoryItem item = ga.playInventoryItem( mes.itemType );  // <--- Play the item ---
 
@@ -3584,12 +3601,10 @@ public class SOCGameMessageHandler
         // Item played.  Announce play and removal (or keep) from player's inventory.
         // Announce game state if changed.
         srv.messageToGame( gaName, true,
-            new SOCInventoryItemAction
-                ( gaName, pn, SOCInventoryItemAction.PLAYED, item.itype,
-                    item.isKept(), item.isVPItem(), item.canCancelPlay ) );
+            new SOCInventoryItemAction( gaName, pn, SOCInventoryItemAction.PLAYED, item.itype,
+                    item.isKept(), item.isVPItem(), item.canCancelPlay ));
 
-        final int gstate = ga.getGameState();
-        if (gstate != oldGameState)
+        if (ga.getGameState() != oldGameState)
             handler.sendGameState( ga );
     }
 
@@ -3624,11 +3639,10 @@ public class SOCGameMessageHandler
             if ((pl == null) || (op < SOCSetSpecialItem.OP_SET) || (op > SOCSetSpecialItem.OP_PICK))
             {
                 sendDenyReply = true;
-                paidCost = false;
             }
             else
             {
-                final int prevState = ga.getGameState();
+                GameState prevState = ga.getGameState();
 
                 if (op == SOCSetSpecialItem.OP_PICK)
                 {
@@ -3804,9 +3818,8 @@ public class SOCGameMessageHandler
                 }
 
                 // check game state, check for winner
-                final int gstate = ga.getGameState();
-                if (gstate != prevState)
-                    handler.sendGameState( ga );  // might be OVER, if player won
+                if (ga.getGameState() != prevState)
+                    handler.sendGameState( ga );  // might be GAME_OVER, if player won
             }
         }
         catch( IllegalStateException e )

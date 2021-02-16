@@ -175,7 +175,7 @@ public abstract class GameHandler
      * If state is {@link SOCGame#ROLL_OR_CARD}, sends game a {@link SOCRollDicePrompt}.
      *<P>
      * Be sure that callers to {@code sendGameState} don't assume the game will still
-     * exist after calling this method, if the game state was {@link SOCGame#OVER OVER}.
+     * exist after calling this method, if the game state was {@link GameState#GAME_OVER}.
      *<P>
      * This method has always been part of the server package.
      * v2.3.00 is the first version to expose it as part of {@code GameHandler}.
@@ -261,7 +261,7 @@ public abstract class GameHandler
      *          and release it before returning.
      * @return true if the turn was ended and game is still active;
      *          false if we find that all players have left and
-     *          the gamestate has been changed here to {@link SOCGame#OVER OVER}.
+     *          the gamestate has been changed here to {@link GameState#GAME_OVER}.
      * @since 2.4.50
      */
     public abstract boolean endGameTurnOrForce

@@ -22,6 +22,7 @@ package soc.message;
 
 import java.util.StringTokenizer;
 
+import soc.game.GameState;
 import soc.game.SOCGame;  // for javadocs only
 
 
@@ -70,7 +71,7 @@ public class SOCTurn extends SOCMessage
      * See {@link #getGameState()} for details.
      * @since 2.0.00
      */
-    private final int gameState;
+    private final GameState gameState;
 
     /**
      * Create a Turn message.
@@ -80,12 +81,12 @@ public class SOCTurn extends SOCMessage
      * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0.
      *     Values &lt; 0 are out of range and ignored (treated as 0).
      */
-    public SOCTurn( final String ga, final int pn, final int gs )
+    public SOCTurn( final String ga, final int pn, final GameState gs )
     {
         messageType = TURN;
         game = ga;
         playerNumber = pn;
-        gameState = (gs > 0) ? gs : 0;
+        gameState = gs;
     }
 
     /**
@@ -110,7 +111,7 @@ public class SOCTurn extends SOCMessage
      * @return Game State, such as {@link SOCGame#ROLL_OR_CARD}, or 0
      * @since 2.0.00
      */
-    public int getGameState()
+    public GameState getGameState()
     {
         return gameState;
     }
@@ -133,9 +134,9 @@ public class SOCTurn extends SOCMessage
      * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0 to omit that field
      * @return the command string
      */
-    public static String toCmd( final String ga, final int pn, final int gs )
+    public static String toCmd( final String ga, final int pn, final GameState gs )
     {
-        return TURN + sep + ga + sep2 + pn + ((gs > 0) ? sep2 + gs : "");
+        return TURN + sep + ga + sep2 + pn + ((gs !=  GameState.NEW_GAME) ? sep2 + gs.getIntValue() : "");
     }
 
     /**
@@ -150,14 +151,14 @@ public class SOCTurn extends SOCMessage
         {
             String ga;   // the game name
             int pn;  // the seat number
-            int gs = 0;  // the game state
+            GameState gs = GameState.NEW_GAME;  // the game state
 
             StringTokenizer st = new StringTokenizer( s, sep2 );
 
             ga = st.nextToken();
             pn = Integer.parseInt( st.nextToken() );
             if (st.hasMoreTokens())
-                gs = Integer.parseInt( st.nextToken() );
+                gs = GameState.forInt( Integer.parseInt( st.nextToken() ));
 
             return new SOCTurn( ga, pn, gs );
         }
@@ -173,7 +174,7 @@ public class SOCTurn extends SOCMessage
     public String toString()
     {
         return "SOCTurn:game=" + game + "|playerNumber=" + playerNumber
-            + ((gameState != 0) ? "|gameState=" + gameState : "");
+            + ((gameState != GameState.NEW_GAME) ? "|gameState=" + gameState : "");
     }
 
 }

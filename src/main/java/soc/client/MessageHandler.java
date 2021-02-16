@@ -41,6 +41,7 @@ import soc.game.SOCFortress;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
+import soc.game.GameState;
 import soc.game.SOCInventory;
 import soc.game.SOCPlayer;
 import soc.game.SOCPlayingPiece;
@@ -63,7 +64,7 @@ import soc.util.Version;
 /**
  * Nested class for processing incoming messages (treating).
  * {@link ClientNetwork}'s reader thread calls
- * {@link #handle(SOCMessage, boolean)} to dispatch messages to their
+ * {@link #handle(SOCMessage, Connection)} to dispatch messages to their
  * handler methods (such as {@link #handleBANKTRADE(SOCBankTrade)}).
  *<P>
  * Before v2.0.00, most of these fields and methods were part of the main {@link SOCPlayerClient} class.
@@ -1424,7 +1425,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         if ((pcl == null) || (ga == null))
             return;
 
-        if (ga.getGameState() == SOCGame.NEW)
+        if (ga.getGameState() == GameState.NEW_GAME)
             // skip gameStarted call if handleGAMESTATE already called it
             pcl.gameStarted();
     }
@@ -1446,8 +1447,8 @@ public final class MessageHandler implements SOCMessageDispatcher
      * Handle game state message: Update {@link SOCGame} and {@link PlayerClientListener} if any.
      * Call for any message type which contains a Game State field.
      *<P>
-     * Checks current {@link SOCGame#getGameState()}; if current state is {@link SOCGame#NEW NEW}
-     * and {@code newState != NEW}, calls {@link PlayerClientListener#gameStarted()} before
+     * Checks current {@link SOCGame#getGameState()}; if current state is {@link GameState#NEW_GAME}
+     * and {@code newState != NEW_GAME}, calls {@link PlayerClientListener#gameStarted()} before
      * its usual {@link PlayerClientListener#gameStateChanged(int)} call.
      *
      * @param ga  Game to update state; not null
@@ -1455,13 +1456,13 @@ public final class MessageHandler implements SOCMessageDispatcher
      * @see #handleGAMESTATE(SOCGameState)
      * @since 2.0.00
      */
-    protected void handleGAMESTATE( final SOCGame ga, final int newState )
+    protected void handleGAMESTATE( final SOCGame ga, GameState newState )
     {
-        if (newState == 0)
+        if (newState == GameState.NEW_GAME)
             return;
 
         //noinspection ConstantConditions
-        final boolean gameStarted = (ga.getGameState() == SOCGame.NEW) && (newState != SOCGame.NEW);
+        final boolean gameStarted = (ga.getGameState() == GameState.NEW_GAME) && (newState != GameState.NEW_GAME);
 
         ga.setGameState( newState );
 
@@ -1515,9 +1516,14 @@ public final class MessageHandler implements SOCMessageDispatcher
         final int action = mes.getAction();
         final int[] etypes = mes.getElementTypes(), amounts = mes.getAmounts();
 
-        for (int i = 0; i < etypes.length; ++i)
-            handlePLAYERELEMENT
-                ( pcl, ga, pl, pn, action, PEType.valueOf( etypes[i] ), amounts[i], false );
+        if (null != pl) synchronized (pl.getResources().semaphore)
+        {
+            for (int i = 0; i < etypes.length; ++i)
+            {
+                handlePLAYERELEMENT( pcl, ga, pl, pn, action, PEType.valueOf( etypes[i] ),
+                    amounts[i], false );
+            }
+        }
     }
 
     /**
@@ -1925,8 +1931,10 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         if (ptype >= SOCPlayingPiece.SETTLEMENT)
         {
-            final int sta = ga.getGameState();
-            if ((sta != SOCGame.START1B) && (sta != SOCGame.START2B) && (sta != SOCGame.START3B))
+            GameState gameState = ga.getGameState();
+            if (   (gameState != GameState.START1B)
+                && (gameState != GameState.START2B)
+                && (gameState != GameState.START3B))
             {
                 // The human player gets a text message from the server informing
                 // about the bad piece placement.  So, we can ignore this message type.
@@ -2051,12 +2059,12 @@ public final class MessageHandler implements SOCMessageDispatcher
         if (ga == null)
             return;
 
-//        if ( (client.getRemoteVersion() >= SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS))
-//        {
-//            final SOCResourceSet plRes = ga.getPlayer( mes.getPlayerNumber() ).getResources();
-//            plRes.subtract( mes.getGiveSet(), true );
-//            plRes.add( mes.getGetSet() );
-//        }
+        if ( (client.getRemoteVersion() >= SOCBankTrade.VERSION_FOR_SKIP_PLAYERELEMENTS))
+        {
+            final SOCResourceSet plRes = ga.getPlayer( mes.getPlayerNumber() ).getResources();
+            plRes.subtract( mes.getGiveSet(), true );
+            plRes.add( mes.getGetSet() );
+        }
         PlayerClientListener pcl = client.getClientListener( gameName );
         if (pcl == null)
             return;
@@ -2199,7 +2207,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         final boolean isClientPlayer = (pcl != null) && (pn >= 0) && (pn == pcl.getClientPlayerNumber());
         final int act = mes.getAction();
 
-        if (isClientPlayer && (act == SOCDevCardAction.ADD_OLD) && (theGame.getGameState() == SOCGame.OVER))
+        if (isClientPlayer && (act == SOCDevCardAction.ADD_OLD) && (theGame.getGameState() == GameState.GAME_OVER))
         {
             return;
         }
@@ -2244,8 +2252,8 @@ public final class MessageHandler implements SOCMessageDispatcher
      * @param ctype  Type of development card from {@link SOCDevCardConstants}
      * @see SOCDisplaylessPlayerClient#handleDEVCARDACTION(SOCGame, SOCPlayer, int, int)
      */
-    protected void handleDEVCARDACTION( final SOCGame ga, final SOCPlayer player,
-        final boolean isClientPlayer, final int act, final int ctype)
+    protected void handleDEVCARDACTION( @SuppressWarnings("unused") SOCGame ga, final SOCPlayer player,
+        @SuppressWarnings("unused") boolean isClientPlayer, final int act, final int ctype)
     {
         // if you change this method, consider changing SOCDisplaylessPlayerClient.handleDEVCARDACTION too
 
@@ -2524,7 +2532,8 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     /*package*/ void handleGAMEOPTIONINFO( SOCGameOptionInfo mes )
     {
-        boolean hasAllNow = false;      // Unnecessary initialization, added to make it clear what the default value is.
+        //noinspection UnusedAssignment Added just to make it clear what the default value is.
+        boolean hasAllNow = false;
         synchronized (client.serverGameOptions)
         {
             // returns true is "mes" is the end-of-list message, so there's no need to
@@ -2643,14 +2652,14 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     private void handleSCENARIOINFO( final SOCScenarioInfo mes, Connection connection )
     {
-        // Tell everyone we've received all the scenario info.
-        synchronized (client.serverGameOptions)
-        {
-            client.serverGameOptions.allScenStringsReceived = true;
-            client.serverGameOptions.allScenInfoReceived = true;
-        }
         if (mes.noMoreScens)
         {
+            // Tell everyone we've received all the scenario info.
+            synchronized (client.serverGameOptions)
+            {
+                client.serverGameOptions.allScenStringsReceived = true;
+                client.serverGameOptions.allScenInfoReceived = true;
+            }
             // collect all the unknown options from the scenarios, and ask for the info for them.
             Map<String, SOCScenario> scens = client.getNet().getValidScenarios();
             List<String> unknowns = new ArrayList<>(  );
@@ -2689,11 +2698,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         {
             final String scKey = mes.getScenarioKey();
 
-            if (mes.isKeyUnknown)
-                SOCScenario.removeUnknownScenario( scKey );
-            else
-                client.getNet().addValidScenario( mes.getScenario() );
-
+            client.getNet().addValidScenario( mes.getScenario() );
             synchronized (client.serverGameOptions)
             {
                 client.serverGameOptions.scenKeys.add( scKey );  // OK if was already present from received localized strings
@@ -2828,24 +2833,33 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleDICERESULTRESOURCES( final SOCDiceResultResources mes )
     {
-        SOCGame ga = client.games.get( mes.getGame() );
-        if (ga == null)
+        SOCGame game = client.games.get( mes.getGame() );
+        if (game == null)
             return;
 
         PlayerClientListener pcl = client.getClientListener( mes.getGame() );
         if (pcl == null)
             return;
 
-        SOCDisplaylessPlayerClient.handleDICERESULTRESOURCES( mes, ga, null, true );
+        SOCDisplaylessPlayerClient.handleDICERESULTRESOURCES( mes, game, null, true );
         pcl.diceRolledResources( mes.playerNum, mes.playerResourceList );
 
         // handle total counts here, visually updating any discrepancies
         final int n = mes.playerNum.size();
         for (int i = 0; i < n; ++i)
-            handlePLAYERELEMENT( client.getClientListener( mes.getGame() ), ga, null,
-                mes.playerNum.get( i ), SOCPlayerElement.SET, PEType.RESOURCE_COUNT,
-                mes.playerTotalResources.get(i), false);
-    }
+        {
+            int playerNumber = mes.playerNum.get( i );
+            SOCPlayer player = game.getPlayer( playerNumber );
+
+            // Update the total resource count for each player, according to the server's records.
+            handlePLAYERELEMENT( pcl, game, player, playerNumber, SOCPlayerElement.SET,
+                PEType.RESOURCE_COUNT, mes.playerTotalResources.get( i ), false );
+
+            // We should have an estimate of each player's resources at this point; print them to the
+            // console to aid in decision making.
+            System.out.println( String.format( "%s - %s", player.getName(), player.getResources().toFriendlyString() ));
+        }
+     }
 
     /**
      * Handle moving a piece (a ship) around on the board.

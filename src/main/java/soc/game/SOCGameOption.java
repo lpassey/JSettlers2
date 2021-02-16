@@ -958,7 +958,7 @@ public class SOCGameOption
         this.clientFeat = clientFeat;
     }
 
-    /**
+    /** NOTE: Called by client and server
      * Minimum game version supporting this option, given {@link #minVersion} and the option's current value.
      * The current value of an option can change its minimum version.
      * For example, option {@code "PL"}'s minVersion is -1 for 2- to 4-player games with any client version,
@@ -1017,12 +1017,12 @@ public class SOCGameOption
 
         // Any option value checking for minVers is done here.
 
-        if (key.equals( "SC" ))
-        {
-            SOCScenario sc = SOCScenario.getScenario( getStringValue() );
-            if ((sc != null) && (sc.minVersion > minVers))
-                minVers = sc.minVersion;
-        }
+//        if (key.equals( "SC" ))
+//        {
+//            SOCScenario sc = SOCScenario.getScenario( getStringValue() );
+//            if ((sc != null) && (sc.minVersion > minVers))
+//                minVers = sc.minVersion;
+//        }
 
         // None of the other current options change minVers based on their value.
 

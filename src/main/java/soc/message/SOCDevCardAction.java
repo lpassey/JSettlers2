@@ -43,11 +43,11 @@ import soc.game.SOCDevCardConstants;  // for javadocs only
  * Also sent to client when they sit down to play, to give the private details of their dev card inventory.
  * See {@link #VERSION_FOR_SITDOWN_CLEARS_INVENTORY} for related details.
  *<P>
- * At end of game (state {@link soc.game.SOCGame#OVER OVER}), server v2.0.00 and higher reveals players'
+ * At end of game (state {@link soc.game.GameState#GAME_OVER}), server v2.0.00 and higher reveals players'
  * hidden Victory Point cards by announcing a DevCardAction(pn, {@link #ADD_OLD}, cardtype [, cardtype, ...])
  * for each player that has them. (Older server versions used {@link SOCGameTextMsg} instead.)
  * Is sent to all game members; a client player should ignore messages about their own cards
- * in state {@code OVER} by checking {@link #getPlayerNumber()}.
+ * in state {@code GAME_OVER} by checking {@link #getPlayerNumber()}.
  * That multiple-cardtype form ({@link #getCardTypes()} != {@code null}) is currently used only at end of game.
  *<P>
  * Before v2.0.00, this message type was {@code DEVCARD} (class name {@code SOCDevCard}).
@@ -175,7 +175,7 @@ public class SOCDevCardAction extends SOCMessage
      * All these cards should have the same flag values ({@link soc.game.SOCDevCard#isVPCard(int)} etc)
      * to avoid client confusion.
      *<P>
-     * This form is currently used only at end of game (state {@link soc.game.SOCGame#OVER OVER})
+     * This form is currently used only at end of game (state {@link soc.game.GameState#GAME_OVER})
      * to reveal hidden Victory Point cards. So, bots ignore it.
      *
      * @param ga  name of the game

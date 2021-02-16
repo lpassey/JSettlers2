@@ -561,14 +561,14 @@ public class SOCPlayerElement extends SOCMessage
     /**
      * Create a PlayerElement message, optionally with the {@link #isNews()} flag set.
      *
-     * @param ga  name of the game
-     * @param pn  the player number; v1.1.19 and newer allow -1 for some elements (applies to board or to all players).
+     * @param gameName  name of the game
+     * @param seatNumber  the player number; v1.1.19 and newer allow -1 for some elements (applies to board or to all players).
      *            Earlier client versions will throw an exception accessing player -1.
      *            If the element type allows -1, its constant's javadoc will mention that.
-     * @param ac  the type of action: {@link #SET}, {@link #GAIN}, or {@link #LOSE}.
+     * @param actionType  the type of action: {@link #SET}, {@link #GAIN}, or {@link #LOSE}.
      *            Do not use {@link #GAIN_NEWS}, {@link #SET_NEWS}, or {@link #LOSE_NEWS} here,
      *            instead set {@code isNews} parameter.
-     * @param et  {@link PEType#getValue()} for the type of element,
+     * @param elementType  {@link PEType#getValue()} for the type of element,
      *            such as {@link PEType#SETTLEMENTS} or {@link PEType#WHEAT}.
      *            For playing pieces in general, see {@link #elementTypeForPieceType(int)}.
      * @param amt the amount to set or change the element
@@ -578,17 +578,17 @@ public class SOCPlayerElement extends SOCMessage
      * @throws IllegalArgumentException if {@code ac} is {@link #GAIN_NEWS}, {@link #SET_NEWS} or {@link #LOSE_NEWS}
      * @since 1.2.00
      */
-    public SOCPlayerElement(String ga, int pn, int ac, int et, int amt, boolean isNews)
+    public SOCPlayerElement( String gameName, int seatNumber, int actionType, int elementType, int amt, boolean isNews )
         throws IllegalArgumentException
     {
-        if ((ac == GAIN_NEWS) || (ac == SET_NEWS) || (ac == LOSE_NEWS))
+        if ((actionType == GAIN_NEWS) || (actionType == SET_NEWS) || (actionType == LOSE_NEWS))
             throw new IllegalArgumentException("use isNews instead");
 
         messageType = PLAYERELEMENT;
-        game = ga;
-        playerNumber = pn;
-        actionType = ac;
-        elementType = et;
+        game = gameName;
+        playerNumber = seatNumber;
+        this.actionType = actionType;
+        this.elementType = elementType;
         amount = amt;
         news = isNews;
     }

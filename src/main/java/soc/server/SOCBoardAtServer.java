@@ -39,12 +39,12 @@ import soc.game.SOCFortress;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
+import soc.game.GameState;
 import soc.game.SOCPlayer;
 import soc.game.SOCScenario;
 import soc.game.SOCSettlement;
 import soc.game.SOCShip;
 import soc.game.SOCVillage;
-import soc.game.SOCBoard.BoardFactory;
 import soc.util.IntPair;
 import soc.util.IntTriple;
 
@@ -2982,8 +2982,8 @@ public class SOCBoardAtServer extends SOCBoardLarge
         if (!ga.isGameOptionSet( SOCGameOptionSet.K_SC_PIRI ))
             return;
 
-        final int gstate = ga.getGameState();
-        ga.setGameState( SOCGame.READY );  // prevent ga.putPiece from advancing turn
+        GameState gstate = ga.getGameState();
+        ga.setGameState( GameState.READY );  // prevent ga.putPiece from advancing turn
 
         final int[] inits = PIR_ISL_INIT_PIECES[(ga.maxPlayers > 4) ? 1 : 0];
         int[] possiLoneSettles = new int[ga.maxPlayers];  // lone possible-settlement node on the way to the island.

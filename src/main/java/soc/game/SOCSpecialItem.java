@@ -24,6 +24,7 @@ import java.util.List;
 
 import soc.message.SOCMessage;  // strictly for isSingleLineAndSafe
 
+import static soc.game.GameState.*;
 
 /**
  * A Special Item in a game that uses Settlers scenarios or expansions.
@@ -322,7 +323,8 @@ public class SOCSpecialItem
         throws IllegalStateException
     {
         if ((pl.getPlayerNumber() != ga.getCurrentPlayerNumber())
-            || ((ga.getGameState() != SOCGame.PLAY1) && (ga.getGameState() != SOCGame.SPECIAL_BUILDING)))
+            || (   (ga.getGameState() != PLAY1)
+                && (ga.getGameState() != SPECIAL_BUILDING)))
             throw new IllegalStateException();
 
         if (!SOCGameOptionSet.K_SC_WOND.equals( typeKey ))

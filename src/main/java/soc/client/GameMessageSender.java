@@ -26,6 +26,7 @@ package soc.client;
 import java.util.Map;
 
 import soc.communication.Connection;
+import soc.game.GameState;
 import soc.game.SOCDevCardConstants;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
@@ -261,7 +262,7 @@ import soc.message.SOCStartGame;
      */
     public void startGame(SOCGame game)
     {
-        connection.send( new SOCStartGame(game.getName(), 0));
+        connection.send( new SOCStartGame(game.getName(), GameState.NEW_GAME ));
     }
 
     /**

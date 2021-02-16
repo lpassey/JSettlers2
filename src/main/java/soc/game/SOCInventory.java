@@ -53,7 +53,7 @@ public class SOCInventory implements Cloneable, Serializable
      * or is kept in hand until the end of the game (state {@link #KEPT}) such as a Victory Point card.<BR>
      * Other possible age is {@link #NEW}.
      *<P>
-     * For use in loops, age constants {@code OLD}, {@code NEW} have adjacent values: 0, 1.
+     * For use in loops, age constants {@code OLD}, {@code NEW_GAME} have adjacent values: 0, 1.
      */
     public static final int OLD = 0;
 
@@ -62,15 +62,15 @@ public class SOCInventory implements Cloneable, Serializable
      * Other possible age is {@link #OLD}.<BR>
      * Other possible item states are {@link #PLAYABLE} and {@link #KEPT}.
      *<P>
-     * For use in loops, age constants {@code OLD}, {@code NEW} have adjacent values: 0, 1.
-     * Item state constants {@code NEW}, {@code PLAYABLE}, {@code KEPT} are contiguous: 1, 2, 3.
+     * For use in loops, age constants {@code OLD}, {@code NEW_GAME} have adjacent values: 0, 1.
+     * Item state constants {@code NEW_GAME}, {@code PLAYABLE}, {@code KEPT} are contiguous: 1, 2, 3.
      */
     public static final int NEW = 1;
 
     /**
      * Item state constant: Playable this turn (not {@link #NEW} or {@link #KEPT}).
      *<P>
-     * For use in loops, state constants {@code NEW}, {@code PLAYABLE}, {@code KEPT} have contiguous values: 1, 2, 3.
+     * For use in loops, state constants {@code NEW_GAME}, {@code PLAYABLE}, {@code KEPT} have contiguous values: 1, 2, 3.
      *
      * @since 2.0.00
      */
@@ -80,7 +80,7 @@ public class SOCInventory implements Cloneable, Serializable
      * Item state constant: Kept in hand until end of game (not {@link #PLAYABLE}, was never {@link #NEW}).
      * Victory Point development cards have this state.
      *<P>
-     * For use in loops, state constants {@code NEW}, {@code PLAYABLE}, {@code KEPT} have contiguous values: 1, 2, 3.
+     * For use in loops, state constants {@code NEW_GAME}, {@code PLAYABLE}, {@code KEPT} have contiguous values: 1, 2, 3.
      *
      * @since 2.0.00
      */

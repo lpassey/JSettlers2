@@ -64,6 +64,8 @@ import soc.server.genericServer.Server;
 import soc.util.SOCRobotParameters;
 import soc.util.Version;
 
+import static soc.game.GameState.*;
+
 /**
  * Data model for a game saved to/loaded from a file.
  *<P>
@@ -249,14 +251,14 @@ public class SavedGameModel
     public int gameDurationSeconds;
 
     /**
-     * Current gameState, from {@link SOCGame#getGameState()}
-     * @see #oldGameState
+     * Integer value of the current gameState, from {@link SOCGame#getGameState()}
+     * @see #oldGameStateInt
      */
     public int gameState;
 
     /**
-     * Old gameState, from {@link SOCGame#getOldGameState()}
-     * @see #gameState
+     * Integer value of the old gameState, from {@link SOCGame#getOldGameState()}
+     * @see #gameStateInt
      */
     public int oldGameState;
 
@@ -421,7 +423,7 @@ public class SavedGameModel
 
         checkCanSave( ga );
 
-        if (ga.getGameState() < SOCGame.ROLL_OR_CARD)
+        if (ga.getGameState().lt( ROLL_OR_CARD ))
             throw new IllegalStateException( "gameState" );
 
         modelVersion = MODEL_VERSION;
@@ -434,8 +436,8 @@ public class SavedGameModel
         if (opts != null)
             gameOptions = SOCGameOption.packOptionsToString( opts.getAll(), false, true );
         gameDurationSeconds = ga.getDurationSeconds();
-        gameState = ga.getGameState();
-        oldGameState = ga.getOldGameState();
+        gameState  = ga.getGameState().getIntValue();
+        oldGameState = ga.getOldGameState().getIntValue();
         currentDice = ga.getCurrentDice();
         gameMinVersion = ga.getClientVersionMinRequired();
         devCardDeck = new ArrayList<>();
@@ -459,7 +461,7 @@ public class SavedGameModel
             elements.put( GEType.CURRENT_PLAYER, game.getCurrentPlayerNumber() );
             elements.put( GEType.LONGEST_ROAD_PLAYER, (lrPlayer != null) ? lrPlayer.getPlayerNumber() : -1 );
             elements.put( GEType.LARGEST_ARMY_PLAYER, (laPlayer != null) ? laPlayer.getPlayerNumber() : -1 );
-            if (gameState == SOCGame.SPECIAL_BUILDING)
+            if (gameState == SPECIAL_BUILDING.getIntValue())
                 elements.put( GEType.SPECIAL_BUILDING_AFTER_PLAYER, ga.getSpecialBuildingPlayerNumberAfter() );
         }
 
@@ -528,11 +530,11 @@ public class SavedGameModel
     public SOCGame resumePlay( final boolean ignoreConstraints )
         throws UnsupportedOperationException, MissingResourceException, IllegalStateException
     {
-        final int gstate = game.getGameState();
-        if ((gstate != SOCGame.LOADING) && (gstate != SOCGame.LOADING_RESUMING))
+        GameState gstate = game.getGameState();
+        if ((gstate != LOADING) && (gstate != LOADING_RESUMING))
             throw new UnsupportedOperationException( "gameState: " + gstate );
 
-        if (gameState != SOCGame.OVER)
+        if (gameState != GAME_OVER.getIntValue())
         {
             if (null != findSeatsNeedingBots())
                 throw new MissingResourceException( "Still need players to fill non-vacant seats", "unused", "unused" );
@@ -541,7 +543,7 @@ public class SavedGameModel
         }
 
         game.lastActionTime = System.currentTimeMillis();
-        game.setGameState( gameState );
+        game.setGameState( forInt( gameState ));
         game.savedGameModel = null;  // complex data structure no longer needed
 
         return game;
@@ -664,13 +666,13 @@ public class SavedGameModel
             final SOCGame ga = new SOCGame
                 ( gameName, SOCGameOption.parseOptionsToSet( gameOptions, srv.knownOpts ), srv.knownOpts );
             ga.initAtServer();
-            ga.setGameState( SOCGame.LOADING );
+            ga.setGameState( LOADING );
             if (ga.maxPlayers != playerSeats.length)
                 throw new IllegalArgumentException
                     ( "maxPlayers " + ga.maxPlayers + " != playerSeats.length " + playerSeats.length );
             game = ga;
             ga.savedGameModel = this;
-            if (gameState >= SOCGame.OVER)
+            if (gameState >= GAME_OVER.getIntValue())
                 ga.hasDoneGameOverTasks = true;
             ga.setTimeSinceCreated( gameDurationSeconds );
             ga.setCurrentDice( currentDice );
@@ -683,9 +685,8 @@ public class SavedGameModel
                         warnDevCardDeckHasUnknownType = true;
                         break;
                     }
-            ga.setFieldsForLoad
-                ( devCardDeck, oldGameState, shipsPlacedThisTurn,
-                    placingRobberForKnightCard, robberyWithPirateNotRobber, askedSpecialBuildPhase, movedShipThisTurn );
+            ga.setFieldsForLoad( devCardDeck, forInt( oldGameState ), shipsPlacedThisTurn,
+                placingRobberForKnightCard, robberyWithPirateNotRobber, askedSpecialBuildPhase, movedShipThisTurn );
             if (elements != null)
                 for (GEType elem : elements.keySet())
                     SOCDisplaylessPlayerClient.handleGAMEELEMENT( ga, elem, elements.get( elem ) );
@@ -988,7 +989,7 @@ public class SavedGameModel
                 {
                     if (pl.hasAskedSpecialBuild())
                         elements.put( PEType.ASK_SPECIAL_BUILD, 1 );
-                    if (ga.getGameState() == SOCGame.SPECIAL_BUILDING)
+                    if (ga.getGameState() == SPECIAL_BUILDING)
                         elements.put( PEType.HAS_SPECIAL_BUILT, (pl.hasSpecialBuilt()) ? 1 : 0 );
                 }
 

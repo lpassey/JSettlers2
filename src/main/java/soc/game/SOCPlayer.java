@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
+import static soc.game.GameState.*;
 
 /**
  * A class for holding and manipulating player data.
@@ -967,8 +968,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         inventory.newToOld();
         lastActionBankTrade_give = null;
         lastActionBankTrade_get = null;
-        if (needToPickGoldHexResources > 0)
-            needToPickGoldHexResources = 0;
+        needToPickGoldHexResources = 0;
     }
 
     /**
@@ -2246,6 +2246,14 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         return resources;
     }
 
+    public void resetResources()
+    {
+        int numTotal = resources.getTotal();
+        resources.clear();
+        resources.setAmount( numTotal, UNKNOWN );
+        // TODO: send a message to the server requesting a reset of my resources.
+    }
+
     /**
      * On server, get the current totals of resources received by dice rolls by this player.
      * Each resource type's total includes resources picked from a rolled {@link SOCBoardLarge#GOLD_HEX}.
@@ -2503,7 +2511,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      */
     public void forceFinalVP( int score )
     {
-        if (game.getGameState() != SOCGame.OVER)
+        if (game.getGameState() != GAME_OVER)
             return;  // Consider throw IllegalStateException
 
         finalTotalVP = score;
@@ -3093,7 +3101,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     ( final SOCShip newShip, final SOCBoardLarge board )
         throws IllegalArgumentException
     {
-        if (game.isAtServer && (game.getGameState() == SOCGame.LOADING))
+        if (game.isAtServer && (game.getGameState() == LOADING))
             return;  // <--- Early return ---
 
         final boolean boardHasVillages = game.isGameOptionSet( SOCGameOptionSet.K_SC_CLVI );
@@ -3413,7 +3421,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
             }
 
             if (ours &&
-                ((game.getGameState() == SOCGame.START2B) || (game.getGameState() == SOCGame.START3B)))
+                ((game.getGameState() == START2B) || (game.getGameState() == START3B)))
             {
                 resources.clear();
                 // resourceStats[] is 0 already, because nothing's been rolled yet
@@ -3516,10 +3524,9 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
                     //
                     //D.ebugPrintln(")))) legalSettlements["+Integer.toHexString(settlementNode)+"] = true");
                     //
-                    if (game.getGameState() < SOCGame.ROLL_OR_CARD)
+                    if (game.getGameState().lt( ROLL_OR_CARD ))
                     {
                         potentialSettlements.add( settleNodeInt );
-
                         //D.ebugPrintln(")))) potentialSettlements["+Integer.toHexString(settlementNode)+"] = true");
                     }
                     else
@@ -4375,7 +4382,8 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
         potentialSettlements.addAll( psList );
 
         hasPotentialSettlesInitInFog = false;
-        if (game.hasSeaBoard && (!psList.isEmpty()) && (game.getGameState() < SOCGame.ROLL_OR_CARD))
+        if (   game.hasSeaBoard && (!psList.isEmpty())
+            && (game.getGameState().lt( ROLL_OR_CARD )))
         {
             final SOCBoardLarge board = (SOCBoardLarge) game.getBoard();
             final HashSet<Integer> fogNodes = new HashSet<>();
@@ -4913,7 +4921,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     public boolean canBuildInitialPieceType( final int pieceType )
         throws IllegalStateException
     {
-        if (game.getGameState() > SOCGame.START3B)
+        if (game.getGameState().gt( START3B ))
             throw new IllegalStateException();
 
         final int pieceCountMax = game.isGameOptionSet( SOCGameOptionSet.K_SC_3IP ) ? 6 : 4;

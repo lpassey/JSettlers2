@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import static org.junit.Assert.*;
+import static soc.game.GameState.*;
 
 import soc.game.SOCDevCardConstants;
 import soc.game.SOCGame;
@@ -42,6 +43,7 @@ import soc.game.SOCScenario;
 import soc.game.SOCTradeOffer;
 import soc.message.SOCPlayerElement.PEType;
 import soc.server.SOCServer;
+import soc.server.SOCServerScenario;
 import soc.server.savegame.GameLoaderJSON;
 import soc.server.savegame.GameSaverJSON;
 import soc.server.savegame.SavedGameModel;
@@ -82,7 +84,7 @@ public class TestSavegame
         ga.addPlayer("third", 3);
 
         ga.startGame();  // create board layout
-        assertEquals(SOCGame.START1A, ga.getGameState());
+        assertEquals( START1A, ga.getGameState());
         GameSaverJSON.saveGame(ga, testTmpFolder.getRoot(), "wontsave.game.json", srv);
     }
 
@@ -95,7 +97,8 @@ public class TestSavegame
         SOCGameOption opt = srv.knownOpts.getKnownOption("SC", true);
         opt.setStringValue(SOCScenario.K_SC_PIRI);
         opts.put(opt);
-        opts.adjustOptionsToKnown(srv.knownOpts, true, null);  // apply SC's scenario game opts
+        opts.adjustOptionsToKnown(srv.knownOpts, true, null,
+            SOCServerScenario.cloneAllKnownScenarios() );  // apply SC's scenario game opts
         assertTrue(opts.containsKey(SOCGameOptionSet.K_SC_PIRI));
         final SOCGame ga = new SOCGame("scen", opts, srv.knownOpts);
 
@@ -129,12 +132,12 @@ public class TestSavegame
         gaSave.setSeatLock(3, SeatLockState.CLEAR_ON_RESET);
 
         gaSave.startGame();  // create board layout
-        assertEquals(SOCGame.START1A, gaSave.getGameState());
+        assertEquals( START1A, gaSave.getGameState());
         final int firstPN = gaSave.getCurrentPlayerNumber();
         assertEquals(firstPN, gaSave.getFirstPlayer());
 
         // no pieces placed, but can't save during initial placement
-        gaSave.setGameState(SOCGame.ROLL_OR_CARD);
+        gaSave.setGameState( ROLL_OR_CARD);
         gaSave.getPlayer(0).getResources().add(new SOCResourceSet(1, 3, 0, 2, 0, 0));
 
         File saveFile = testTmpFolder.newFile("basic.game.json");
@@ -172,10 +175,10 @@ public class TestSavegame
         gaSave.addPlayer("third", 3);
 
         gaSave.startGame();  // create board layout
-        assertEquals(SOCGame.START1A, gaSave.getGameState());
+        assertEquals( START1A, gaSave.getGameState());
 
         // no pieces placed, but can't save during initial placement
-        gaSave.setGameState(SOCGame.ROLL_OR_CARD);
+        gaSave.setGameState( ROLL_OR_CARD);
         final SOCPlayer pl0 = gaSave.getPlayer(0),
             pl3 = gaSave.getPlayer(3);
         pl0.getResources().add(new SOCResourceSet(1, 3, 0, 2, 0, 0));
@@ -237,7 +240,7 @@ public class TestSavegame
         ga.addPlayer("p0", 0);
         ga.addPlayer("third", 3);
         ga.startGame();  // create board layout
-        ga.setGameState(SOCGame.ROLL_OR_CARD);  // no pieces placed, but can't save during initial placement
+        ga.setGameState( ROLL_OR_CARD);  // no pieces placed, but can't save during initial placement
 
         SOCPlayer pl = ga.getPlayer(0);
         pl.updateDevCardsPlayed(SOCDevCardConstants.ROADS);

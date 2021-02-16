@@ -32,6 +32,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static soc.game.GameState.*;
 
 import soc.communication.Connection;
 import soc.game.SOCBoard;
@@ -84,7 +85,7 @@ public class TestRecorder
      * That would intermittently cause auth problems for a previously-stable test
      * if one logged out before/while the other was testing.
      */
-    private static Set<String> clientNamesUsed = new HashSet<>();
+    private static final Set<String> clientNamesUsed = new HashSet<>();
 
     /** Localized text for {@link #compareRecordsToExpected(List, String[][])} to ignore */
     private static final String GAME_RENAMED_LOCAL_TEXT
@@ -615,7 +616,7 @@ public class TestRecorder
         if (gameArtifactSGM == null)
         {
             assertTrue("game uses sea board", ga.getBoard() instanceof SOCBoardLarge);
-            assertEquals(SOCGame.PLAY1, sgm.gameState);
+            assertEquals( PLAY1.getIntValue(), sgm.gameState );
         }
 
         if (clientAsRobot && othersAsRobot)
@@ -684,7 +685,7 @@ public class TestRecorder
             resumeLoadedGame(ga, server, tcliConn);
             try { Thread.sleep(180); } catch(InterruptedException e) {}
 
-            assertEquals(SOCGame.PLAY1, ga.getGameState());
+            assertEquals( PLAY1, ga.getGameState());
         }
 
         final Vector<QueueEntry> records = server.records.get(loadedName);
@@ -741,7 +742,7 @@ public class TestRecorder
                 {"p3:SOCDevCardAction:", "|playerNum=3|actionType=DRAW|cardType=5"},  // type known from savegame devCardDeck
                 {"!p3:SOCDevCardAction:", "|playerNum=3|actionType=DRAW|cardType=0"},
                 {"all:SOCSimpleAction:", "|pn=3|actType=1|v1=22|v2=0"},
-                {"all:SOCGameState:", "|state=20"}
+                {"all:SOCGameState:", "|state=PLAY1"}
             });
 
         /* sequence recording: choose and move robber, steal from 1 player */
@@ -831,7 +832,7 @@ public class TestRecorder
 
             try { Thread.sleep(500); }
             catch(InterruptedException e) {}
-            assertEquals(SOCGame.PLACING_ROAD, ga.getGameState());
+            assertEquals( PLACING_ROAD, ga.getGameState());
             assertArrayEquals(new int[]{2, 3, 3, 4, 3}, cliPl.getResources().getAmounts(false));
         }
 
@@ -851,7 +852,7 @@ public class TestRecorder
                 ((withBuildRequest) ? new String[]{"all:SOCGameState:", "|state=30"} : null),
                 {"all:SOCGameServerText:", "|text=" + clientName + " built a road."},
                 {"all:SOCPutPiece:", "|playerNumber=3|pieceType=0|coord=40a"},
-                {"all:SOCGameState:", "|state=20"}
+                {"all:SOCGameState:", "|state=PLAY1"}
             });
     }
 
@@ -909,12 +910,12 @@ public class TestRecorder
                 assertNull(board.settlementAtNode(node));
         }
 
-        assertEquals(SOCGame.WAITING_FOR_ROBBER_OR_PIRATE, ga.getGameState());
+        assertEquals( WAITING_FOR_ROBBER_OR_PIRATE, ga.getGameState());
         tcli.choosePlayer(ga, SOCChoosePlayer.CHOICE_MOVE_ROBBER);
 
         try { Thread.sleep(500); }
         catch(InterruptedException e) {}
-        assertEquals(SOCGame.PLACING_ROBBER, ga.getGameState());
+        assertEquals( PLACING_ROBBER, ga.getGameState());
 
         tcli.moveRobber(ga, cliPl, MOVE_ROBBER_STEAL_SEQUENCE_NEW_HEX);
 
@@ -929,9 +930,9 @@ public class TestRecorder
 
         final String[][] SEQ = new String[][]
             {
-                {"all:SOCGameState:", "|state=54"},
+                {"all:SOCGameState:", "|state=WAITING_FOR_ROBBER_OR_PIRATE"},
                 {"all:SOCGameServerText:", "|text=" + clientName + " must choose to move the robber or the pirate."},
-                {"all:SOCGameState:", "|state=33"},
+                {"all:SOCGameState:", "|state=PLACING_ROBBER"},
                 {"all:SOCGameServerText:", "|text=" + clientName + " will move the robber."},
                 {"all:SOCMoveRobber:", "|playerNumber=3|coord=305"},
                 {
@@ -944,7 +945,7 @@ public class TestRecorder
                 (observabilityMode != 2)
                     ? new String[]{"!p[3, 1]:SOCReportRobbery:", "|perp=3|victim=1|resType=6|amount=1|isGainLose=true"}
                     : null,
-                {"all:SOCGameState:", "|state=20"}
+                {"all:SOCGameState:", "|state=PLAY1"}
             };
         final String[][] expectedSeq;
         if (seqPrefix == null)

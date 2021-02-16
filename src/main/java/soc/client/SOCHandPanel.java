@@ -21,6 +21,7 @@
  **/
 package soc.client;
 
+import soc.game.GameState;
 import soc.game.SOCBoard;
 import soc.game.SOCDevCard;
 import soc.game.SOCDevCardConstants;
@@ -71,6 +72,8 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+
+import static soc.game.GameState.*;
 
 
 /**
@@ -404,7 +407,7 @@ import javax.swing.UIManager;
     /**
      * Play Card button for {@link #inventory}.
      *<P>
-     * v2.0.00+: In state {@link SOCGame#PLACING_INV_ITEM} only, this button's label
+     * v2.0.00+: In state {@link GameState#PLACING_INV_ITEM} only, this button's label
      * becomes {@link #CANCEL}, and {@link #inventory} is disabled, while the player
      * places an item on the board.  They can hit Cancel to return the item to their
      * inventory instead.  In any other state, label text is {@link #CARD}.
@@ -413,7 +416,7 @@ import javax.swing.UIManager;
     protected JButton playCardBut;
 
     /**
-     * Flag for {@link #playCardBut} in state {@link SOCGame#PLACING_INV_ITEM}.
+     * Flag for {@link #playCardBut} in state {@link GameState#PLACING_INV_ITEM}.
      * Checked in {@link #updateRollDoneBankButtons()}.
      * For details, see {@link #setCanCancelInvItemPlay(boolean)}.
      */
@@ -1329,7 +1332,7 @@ import javax.swing.UIManager;
             {
                 if (target == LOCKSEAT)
                 {
-                    // Seat Lock while game forming (gamestate NEW); see below for ROBOTLOCKBUT_L etc
+                    // Seat Lock while game forming (gamestate NEW_GAME); see below for ROBOTLOCKBUT_L etc
                     messageSender.setSeatLock( game, playerNumber, SOCGame.SeatLockState.LOCKED );
                 }
                 else if (target == UNLOCKSEAT)
@@ -1376,27 +1379,28 @@ import javax.swing.UIManager;
                 }
                 else if (target == DONE_RESTART)
                 {
-                    playerInterface.resetBoardRequest( game.isPractice && !game.isInitialPlacement() );
+                    playerInterface.resetBoardRequest(
+                        client.getNet().isPracticeGame && !game.isInitialPlacement() );
                 }
                 else if (target == CLEAR)
                 {
                     clearOffer( true );    // Zero the square panel numbers, unless board-reset vote in progress
-                    if (game.getGameState() == SOCGame.PLAY1)
+                    if (game.getGameState() == PLAY1)
                     {
                         messageSender.clearOffer( game );
                     }
                 }
                 else if (target == BANK)
                 {
-                    int gstate = game.getGameState();
-                    if (gstate == SOCGame.PLAY1)
+                    GameState gstate = game.getGameState();
+                    if (gstate == PLAY1)
                     {
                         int[] give = new int[5];
                         int[] get = new int[5];
                         sqPanel.getValues( give, get );
                         createSendBankTradeRequest( give, get, true );
                     }
-                    else if (gstate == SOCGame.OVER)
+                    else if (gstate == GAME_OVER)
                     {
                         String msg = game.gameOverMessageToPlayer( player );
                         // msg = "The game is over; you are the winner!";
@@ -1433,7 +1437,7 @@ import javax.swing.UIManager;
                     if (playerTradingDisabled)
                         return;
 
-                    if (game.getGameState() == SOCGame.PLAY1)
+                    if (game.getGameState() == PLAY1)
                     {
                         int[] give = new int[5];
                         int[] get = new int[5];
@@ -1670,7 +1674,7 @@ import javax.swing.UIManager;
             break;
 
         default:  // == case LOCKED:
-            if (game.isPractice || (client.getConnection().getRemoteVersion() >= 2000))
+            if ((client.getConnection().getRemoteVersion() >= 2000))
                 slNext = SOCGame.SeatLockState.CLEAR_ON_RESET;
             else
                 slNext = SOCGame.SeatLockState.UNLOCKED;  // old servers don't support CLEAR_ON_RESET
@@ -1697,7 +1701,7 @@ import javax.swing.UIManager;
     public void clickPlayCardButton()
     {
         // Check first for "Cancel"
-        if (game.getGameState() == SOCGame.PLACING_INV_ITEM)
+        if (game.getGameState() == PLACING_INV_ITEM)
         {
             messageSender.cancelBuildRequest( game, SOCCancelBuildRequest.INV_ITEM_PLACE_CANCEL );
             return;
@@ -1982,7 +1986,7 @@ import javax.swing.UIManager;
 
         final SOCPlayer cliPlayer = playerInterface.getClientPlayer();
 
-        if (game.getGameState() != SOCGame.PLAY1)
+        if (game.getGameState() != PLAY1)
             return;  // send button should've been disabled
 
         final SOCResourceSet giveSet, getSet;  // what client player gives and gets in the counter-offer
@@ -2075,7 +2079,7 @@ import javax.swing.UIManager;
         {
         case LOCKED:
             lbl = ROBOTLOCKBUT_L;
-            if (game.isPractice || ( sVersion >= 2000))
+            if ( sVersion >= 2000)
                 tipText = ROBOTLOCKBUTTIP_L;
             else
                 tipText = ROBOTLOCKBUTTIP_L_OLD;
@@ -2088,7 +2092,7 @@ import javax.swing.UIManager;
 
         default:  // == case UNLOCKED:
             lbl = ROBOTLOCKBUT_U;
-            if (game.isPractice || ( sVersion >= 2000))
+            if (sVersion >= 2000)
                 tipText = ROBOTLOCKBUTTIP_U;
             else
                 tipText = ROBOTLOCKBUTTIP_U_OLD;
@@ -2113,7 +2117,7 @@ import javax.swing.UIManager;
      * a "lock" button to keep out a robot, revert the label to "Sit Here"
      * unless clientHasSatAlready.
      *<P>
-     * If the game's already started (state {@link SOCGame#START2A} or later),
+     * If the game's already started (state {@link GameState#START2A} or later),
      * the player can't sit there; this method will hide the Sit button
      * if {@code ! clientHasSatAlready}.
      *<P>
@@ -2130,7 +2134,7 @@ import javax.swing.UIManager;
     {
         if (!clientHasSatAlready)
         {
-            if (game.getGameState() >= SOCGame.START2A)
+            if (game.getGameState().gt( START1B ))
             {
                 sitBut.setVisible( false );
                 return;  // <--- Early return ---
@@ -2259,7 +2263,7 @@ import javax.swing.UIManager;
             playerIsClient = false;
             faceImg.clearFacePopupPreviousChooser();
         }
-        else if (game.getGameState() == SOCGame.NEW)
+        else if (game.getGameState() == NEW_GAME)
         {
             // Un-hide "Sit Here" or "Lock" button
             boolean clientAlreadySitting = (playerInterface.getClientHand() != null);
@@ -2520,7 +2524,7 @@ import javax.swing.UIManager;
             vpSq.setToolTipText( strings.get( "hpan.points.total.yours" ) );  // "Your victory point total"
 
             // show 'Victory Points' and hide "Start Button" if game in progress
-            if (game.getGameState() == SOCGame.NEW)
+            if (game.getGameState() == NEW_GAME)
             {
                 startBut.setVisible( true );
             }
@@ -2566,7 +2570,7 @@ import javax.swing.UIManager;
 
             clearOfferBut.setVisible( true );
             bankBut.setVisible( true );
-            if (game.isPractice || (client.getConnection().getRemoteVersion() >= 1113))  // server version 1.1.13 and up
+            if ( client.getConnection().getRemoteVersion() >= 1113)  // server version 1.1.13 and up
                 bankUndoBut.setVisible( true );
 
             if (!playerTradingDisabled)
@@ -2580,8 +2584,8 @@ import javax.swing.UIManager;
                 }
             }
             rollBut.setVisible( true );
-            doneButIsRestart = ((game.getGameState() <= SOCGame.START3B)
-                || (game.getGameState() == SOCGame.OVER));
+            doneButIsRestart = ((game.getGameState().lt( STARTS_WAITING_FOR_PICK_GOLD_RESOURCE ))
+                || (game.getGameState() == GAME_OVER));
             if (doneButIsRestart)
                 doneBut.setText( DONE_RESTART );
             else
@@ -2591,7 +2595,7 @@ import javax.swing.UIManager;
 
             // Remove all of the sit and take over buttons.
             // If game still forming, can lock seats (for fewer players/robots).
-            boolean gameForming = (game.getGameState() == SOCGame.NEW);
+            boolean gameForming = (game.getGameState() == NEW_GAME);
             for (int pn = 0; pn < game.maxPlayers; ++pn)
             {
                 final SOCHandPanel hpan = playerInterface.getPlayerHandPanel( pn );
@@ -2766,8 +2770,8 @@ import javax.swing.UIManager;
         updateTakeOverButton();
         if (playerIsClient)
         {
-            final int gs = game.getGameState();
-            boolean normalTurnStarting = (gs == SOCGame.ROLL_OR_CARD || gs == SOCGame.PLAY1);
+            GameState gs = game.getGameState();
+            boolean normalTurnStarting = (gs == ROLL_OR_CARD || gs == PLAY1);
             clearOffer( normalTurnStarting );  // Zero the square panel numbers, etc. (TODO) better descr.
             // at any player's turn, not just when playerIsCurrent.
             if (!playerIsCurrent)
@@ -2873,12 +2877,12 @@ import javax.swing.UIManager;
      */
     public void sqPanelZerosChange( boolean notAllZero )
     {
-        int gs = game.getGameState();
+        GameState gs = game.getGameState();
         clearOfferBut.setEnabled( notAllZero );
         if (playerTradingDisabled)
             return;
 
-        final boolean enaOfferBut = notAllZero && ((gs == SOCGame.ROLL_OR_CARD) || (gs == SOCGame.PLAY1));
+        final boolean enaOfferBut = notAllZero && ((gs == ROLL_OR_CARD) || (gs == PLAY1));
         offerBut.setEnabled( enaOfferBut );
         offerBut.setToolTipText( (enaOfferBut) ? (OFFERBUTTIP_ENA) : OFFERBUTTIP_DIS );
     }
@@ -2939,7 +2943,7 @@ import javax.swing.UIManager;
      * Calls {@link #updateValue(soc.client.PlayerClientListener.UpdateType) updateValue}
      * ({@link soc.client.PlayerClientListener.UpdateType#DevCards DevCards}).
      *<P>
-     * If game state is {@link SOCGame#OVER}, show a list of the player's revealed VP cards.
+     * If game state is {@link GameState#GAME_OVER}, show a list of the player's revealed VP cards.
      *
      *<H3>For client player:</H3>
      *
@@ -2960,7 +2964,7 @@ import javax.swing.UIManager;
         {
             updateValue( PlayerClientListener.UpdateType.DevCards );
 
-            if (game.getGameState() == SOCGame.OVER)
+            if (game.getGameState() == GAME_OVER)
             {
                 StringBuilder sb = new StringBuilder();
 
@@ -3080,7 +3084,7 @@ import javax.swing.UIManager;
     }
 
     /**
-     * If game is still forming (state NEW), and player has
+     * If game is still forming (state NEW_GAME), and player has
      * just chosen a seat, can lock empty seats for a game
      * with fewer players/robots. This uses the same server-interface as
      * the "lock" button shown when robot is playing in the position,
@@ -3091,8 +3095,8 @@ import javax.swing.UIManager;
      */
     public void renameSitButLock()
     {
-        if (game.getGameState() != SOCGame.NEW)
-            return;  // TODO consider IllegalStateException
+        if (game.getGameState() != NEW_GAME)
+            return;  // TODO: consider IllegalStateException
 
         final String buttonText, ttipText;
         if (game.getSeatLock( playerNumber ) == SOCGame.SeatLockState.LOCKED)
@@ -3641,8 +3645,8 @@ import javax.swing.UIManager;
     {
         if ((game.getSeatLock( playerNumber ) != SOCGame.SeatLockState.LOCKED) &&
             ((game.getCurrentPlayerNumber() != playerNumber)
-                || (game.getGameState() == SOCGame.NEW)
-                || (game.getGameState() == SOCGame.LOADING)))
+                || (game.getGameState() == NEW_GAME)
+                || (game.getGameState() == LOADING)))
         {
             takeOverBut.setText( TAKEOVER );
         }
@@ -3657,7 +3661,7 @@ import javax.swing.UIManager;
      * {@link #rollBut}, {@link #doneBut}, {@link #bankBut}.
      * Call only if {@link #playerIsCurrent} and {@link #playerIsClient}.
      *<P>
-     * v2.0.00+: In game state {@link SOCGame#PLACING_INV_ITEM}, the Play Card button's label
+     * v2.0.00+: In game state {@link GameState#PLACING_INV_ITEM}, the Play Card button's label
      * becomes {@link #CANCEL}, and {@link #inventory} is disabled, while the player places
      * an item on the board.  They can hit Cancel to return the item to their inventory instead.
      * (Checks the flag set in {@link #setCanCancelInvItemPlay(boolean)}.)
@@ -3669,15 +3673,17 @@ import javax.swing.UIManager;
      */
     private void updateRollDoneBankButtons()
     {
-        final int gs = game.getGameState();
-        rollBut.setEnabled( gs == SOCGame.ROLL_OR_CARD );
+        GameState gs = game.getGameState();
+        rollBut.setEnabled( gs == ROLL_OR_CARD );
         doneBut.setEnabled
-            ( (gs <= SOCGame.START3B) || doneButIsRestart || game.canEndTurn( playerNumber ) );
-        bankBut.setEnabled( gs == SOCGame.PLAY1 );
+            (   (gs.lt( STARTS_WAITING_FOR_PICK_GOLD_RESOURCE ))
+             || doneButIsRestart
+             || game.canEndTurn( playerNumber ));
+        bankBut.setEnabled( gs == PLAY1 );
 
         if (game.hasSeaBoard)
         {
-            if (gs == SOCGame.PLACING_INV_ITEM)
+            if (gs == PLACING_INV_ITEM)
             {
                 // in this state only, "Play Card" becomes "Cancel"
                 SOCInventoryItem placing = game.getPlacingItem();
@@ -3721,7 +3727,7 @@ import javax.swing.UIManager;
         {
         case LOCKED:
             lbl = ROBOTLOCKBUT_L;
-            if (game.isPractice || (sVersion >= 2000))
+            if (sVersion >= 2000)
                 tipText = ROBOTLOCKBUTTIP_L;
             else
                 tipText = ROBOTLOCKBUTTIP_L_OLD;
@@ -3734,7 +3740,7 @@ import javax.swing.UIManager;
 
         default:  // == case UNLOCKED:
             lbl = ROBOTLOCKBUT_U;
-            if (game.isPractice || (sVersion >= 2000))
+            if (sVersion >= 2000)
                 tipText = ROBOTLOCKBUTTIP_U;
             else
                 tipText = ROBOTLOCKBUTTIP_U_OLD;
@@ -3811,7 +3817,7 @@ import javax.swing.UIManager;
      *<P>
      * Should be called only for our own client player, not other players.
      *<P>
-     * Should be called before entering game state {@link SOCGame#PLACING_INV_ITEM PLACING_INV_ITEM}.
+     * Should be called before entering game state {@link GameState#PLACING_INV_ITEM PLACING_INV_ITEM}.
      * In that state, {@link #updateRollDoneBankButtons()} checks this flag to see if the
      * "Cancel" button should be enabled.
      *
@@ -3829,7 +3835,7 @@ import javax.swing.UIManager;
      * update the value of a player element.
      * Call this after updating game data.
      *<P>
-     * If {@link #VICTORYPOINTS} is updated, and game state is {@link SOCGame#OVER}, check for winner
+     * If {@link #VICTORYPOINTS} is updated, and game state is {@link GameState#GAME_OVER}, check for winner
      * and update (player name label, victory-points tooltip, disable bank/trade btn)
      *
      * @param utype  the type of value update, such as {@link #VICTORYPOINTS}
@@ -3852,7 +3858,7 @@ import javax.swing.UIManager;
         {
             int newVP = player.getTotalVP();
             vpSq.setIntValue( newVP );
-            if (game.getGameState() == SOCGame.OVER)
+            if (game.getGameState() == GAME_OVER)
             {
                 if (game.getPlayerWithWin() == player)
                 {
@@ -4016,8 +4022,8 @@ import javax.swing.UIManager;
 
             if (messageIsDiscardOrPick)
             {
-                final int gs = game.getGameState();
-                if (gs != SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE)
+                GameState gs = game.getGameState();
+                if (gs != WAITING_FOR_PICK_GOLD_RESOURCE)
                 {
                     clearDiscardOrPickMsg();
                 }
@@ -4994,7 +5000,7 @@ import javax.swing.UIManager;
         public void createBankTradeRequest( SOCHandPanel hp )
         {
             // Code like actionPerformed for BANK button
-            if (game.getGameState() != SOCGame.PLAY1)
+            if (game.getGameState() != PLAY1)
             {
                 hp.getPlayerInterface().print( "* " + strings.get( "hpan.trade.msg.notnow" ) + "\n" );
                 // "You cannot trade at this time."
@@ -5138,7 +5144,7 @@ import javax.swing.UIManager;
         public void setEnabledIfCanTrade( boolean itemsOnly )
         {
             final SOCPlayer p = hpan.player;
-            boolean canTrade = (hpan.getGame().getGameState() == SOCGame.PLAY1)
+            boolean canTrade = (hpan.getGame().getGameState() == PLAY1)
                 && (hpan.getGame().getCurrentPlayerNumber() == hpan.playerNumber)
                 && (costFrom <= p.getResources().getAmount( resTypeFrom ));
             if (itemsOnly)
@@ -5276,5 +5282,4 @@ import javax.swing.UIManager;
         }
 
     }  /* static nested class ResourceTradeTypeMenu */
-
 }  // class SOCHandPanel

@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import soc.debug.D;
+import soc.game.GameState;
 import soc.game.SOCGame;
 import soc.game.SOCPlayer;
 import soc.communication.Connection;
@@ -52,7 +53,7 @@ public class SOCGameBoardReset
     /** gamestate of old game at reset time
      * @since 1.1.06
      */
-    public final int oldGameState;
+    public GameState oldGameState;
 
     /**
      * Were there robots in the old game?
@@ -151,7 +152,7 @@ public class SOCGameBoardReset
         if (hadRobots)
         {
             newGame.boardResetOngoingInfo = this;
-            newGame.setGameState(SOCGame.READY_RESET_WAIT_ROBOT_DISMISS);
+            newGame.setGameState( GameState.READY_RESET_WAIT_ROBOT_DISMISS );
         }
     }
 

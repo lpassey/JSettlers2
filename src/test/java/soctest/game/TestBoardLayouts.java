@@ -35,6 +35,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import soc.game.GameState;
 import soc.game.SOCBoard;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCGame;
@@ -119,7 +120,7 @@ public class TestBoardLayouts
     @BeforeClass
     public static void setup()
     {
-        allScens = SOCServerScenario.getAllKnownScenarios();
+        allScens = SOCServerScenario.cloneAllKnownScenarios();
         sgh = new SOCGameHandler(null);
         gl = new SOCGameListAtServer(new Random(), SOCServerGameOptionSet.getAllKnownOptions());
     }
@@ -368,7 +369,7 @@ public class TestBoardLayouts
 
         // Ensure known starting conditions:
         board.setPirateHex(0, false);
-        ga.setGameState(SOCGame.PLACING_PIRATE);
+        ga.setGameState( GameState.PLACING_PIRATE);
 
         final ArrayList<String> noMove = new ArrayList<>();
 

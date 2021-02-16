@@ -89,6 +89,8 @@ import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static soc.game.GameState.*;
+
 /**
  * A server for Settlers of Catan
  *
@@ -1359,7 +1361,7 @@ public class SOCServer extends Server
 
     static
     {
-        final SOCScenario scWond = SOCScenario.getScenario( SOCScenario.K_SC_WOND );
+        final SOCScenario scWond = SOCServerScenario.getScenario( SOCScenario.K_SC_WOND );
         i18n_scenario_SC_WOND_desc = (scWond != null) ? scWond.getDesc() : "";
     }
 
@@ -3839,13 +3841,13 @@ public class SOCServer extends Server
      * @return Game's state, or -1 if no game with that name on this server
      * @since 1.1.00
      */
-    public int getGameState( String gm )
+    public GameState getGameState( String gm )
     {
         SOCGame g = gameList.getGameData( gm );
         if (g != null)
             return g.getGameState();
         else
-            return -1;
+            return INVALID;
     }
 
     /**
@@ -6534,7 +6536,7 @@ public class SOCServer extends Server
                 return true;
             }
 
-            if (ga.getGameState() != SOCGame.NEW)
+            if (ga.getGameState() != NEW_GAME)
             {
                 messageToPlayer( debugCli, gaName, PN_REPLY_TO_UNDETERMINED,
                     "This game has already started; you must create a new one." );
@@ -6551,7 +6553,7 @@ public class SOCServer extends Server
                 catch( NumberFormatException ignored ) {}
             }
 
-            srvMsgHandler.handleSTARTGAME( debugCli, new SOCStartGame( gaName, 0 ), maxBots );
+            srvMsgHandler.handleSTARTGAME( debugCli, new SOCStartGame( gaName, NEW_GAME ), maxBots );
             return true;
         }
         else
@@ -7079,7 +7081,7 @@ public class SOCServer extends Server
         }
         else
         {
-            hasLimitedFeats = (scenVers != cvers) && (scenVers < SOCScenario.ALL_KNOWN_SCENARIOS_MIN_VERSION);
+            hasLimitedFeats = (scenVers != cvers) && (scenVers < SOCServerScenario.ALL_KNOWN_SCENARIOS_MIN_VERSION);
             // If scenVers >= that MIN_VERSION, there should be no new scenario-related info missing from it
         }
 
@@ -7597,9 +7599,8 @@ public class SOCServer extends Server
      * @see #createAndJoinReloadedGame(SavedGameModel, Connection, String)
      * @since 1.2.00
      */
-    /*package*/ boolean createOrJoinGame
-    ( final Connection c, final int cliVers, final String connGaName, final SOCGameOptionSet gameOpts,
-        final SOCGame loadedGame, final int authResult )
+    /*package*/ boolean createOrJoinGame( final Connection c, final int cliVers, final String connGaName,
+        final SOCGameOptionSet gameOpts, final SOCGame loadedGame, final int authResult )
         throws IllegalStateException
     {
         final boolean isTakingOver = (0 != (authResult & AUTH_OR_REJECT__TAKING_OVER));
@@ -7609,8 +7610,8 @@ public class SOCServer extends Server
         String gameName;  // game name to check
         if (loadedGame != null)
         {
-            final int gs = loadedGame.getGameState();
-            if ((gs != SOCGame.LOADING) && (gs != SOCGame.OVER))
+            GameState gs = loadedGame.getGameState();
+            if ((gs != LOADING) && (gs != GAME_OVER))
                 throw new IllegalStateException( "gameState" );
 
             gameName = loadedGame.getName();
@@ -7719,7 +7720,8 @@ public class SOCServer extends Server
             if ((limitedCliFeats == null) && scd.hasLimitedFeats)
                 limitedCliFeats = scd.feats;
 
-            final StringBuilder optProblems = gameOpts.adjustOptionsToKnown( knownOpts, true, limitedCliFeats );
+            final StringBuilder optProblems = gameOpts.adjustOptionsToKnown( knownOpts, true,
+                limitedCliFeats, SOCServerScenario.cloneAllKnownScenarios() );
             if (optProblems != null)
             {
                 final String txt = "Unknown game option(s) were requested, cannot create this game. " + optProblems;
@@ -7789,8 +7791,8 @@ public class SOCServer extends Server
                 if (ga != null)
                 {
                     boolean sendLikeTakingOver = false;
-                    if ((ga.getGameState() == SOCGame.LOADING)
-                        && !((SOCClientData) c.getAppData()).isRobot)
+                    if (   (ga.getGameState() == LOADING)
+                        && ! ((SOCClientData) c.getAppData()).isRobot)
                     {
                         // If game was saved with a player with same name as joining human client,
                         // that client will assume they're sitting down and taking over.
@@ -7884,7 +7886,7 @@ public class SOCServer extends Server
      *<P>
      * Before v2.4.50, this code was part of <tt>{@link SOCServerMessageHandler}.processDebugCommand_loadGame</tt>.
      *
-     * @param sgm  Loaded game data
+     * @param savedGameModel  Loaded game data
      * @param c  Client to have join game, as observer or player depending on nickname; not null
      * @param connGaName  Client's current game in which the command was sent, for sending response messages.
      *     Can be null; see {@link #createOrJoinGame(Connection, int, String, SOCGameOptionSet, SOCGame, int)}.
@@ -7894,9 +7896,9 @@ public class SOCServer extends Server
      * @since 2.4.50
      */
     public String createAndJoinReloadedGame
-    ( final SavedGameModel sgm, final Connection c, final String connGaName )
+    ( final SavedGameModel savedGameModel, final Connection c, final String connGaName )
     {
-        final SOCGame ga = sgm.getGame();
+        final SOCGame ga = savedGameModel.getGame();
 
         // Validate name and opts, add to gameList, announce "new" game, have client join;
         // sends error text if validation fails. Might rename loaded game if its name is already taken
@@ -7912,9 +7914,9 @@ public class SOCServer extends Server
         // Must tell debug/admin player to sit down at this point if they're a player,
         // since PI will show as seated if nickname matches player name
         int clientPN = -1;
-        for (int pn = 0; pn < sgm.playerSeats.length; ++pn)
+        for (int pn = 0; pn < savedGameModel.playerSeats.length; ++pn)
         {
-            final SavedGameModel.PlayerInfo pi = sgm.playerSeats[pn];
+            final SavedGameModel.PlayerInfo pi = savedGameModel.playerSeats[pn];
             if (pi.isSeatVacant || !pi.name.equals( c.getData() ))
                 continue;
 
@@ -7926,14 +7928,14 @@ public class SOCServer extends Server
         final String gaName = ga.getName();
 
         boolean foundNoRobots = false;
-        if (sgm.gameState < SOCGame.OVER)
+        if (savedGameModel.gameState < GAME_OVER.getIntValue() )
         {
             // look for bots, ask them to join like in handleSTARTGAME/SGH.leaveGame
 
             final GameHandler gh = gameList.getGameTypeHandler( gaName );
-            for (int pn = 0; pn < sgm.playerSeats.length; ++pn)
+            for (int pn = 0; pn < savedGameModel.playerSeats.length; ++pn)
             {
-                final SavedGameModel.PlayerInfo pi = sgm.playerSeats[pn];
+                final SavedGameModel.PlayerInfo pi = savedGameModel.playerSeats[pn];
                 if (pi.isSeatVacant || !pi.isRobot)
                     continue;
 
@@ -7956,17 +7958,17 @@ public class SOCServer extends Server
         {
             public void run()
             {
-                if (!gaName.equals( sgm.gameName ))
+                if (!gaName.equals( savedGameModel.gameName ))
                     messageToPlayerKeyed
                         ( c, gaName, PN_REPLY_TO_UNDETERMINED,
-                            "admin.loadgame.ok.game_renamed", sgm.gameName );
+                            "admin.loadgame.ok.game_renamed", savedGameModel.gameName );
                 // "Game was renamed: Original name {0} is already used."
 
-                if (sgm.warnDevCardDeckHasUnknownType)
+                if (savedGameModel.warnDevCardDeckHasUnknownType)
                     messageToGameKeyed
                         ( ga, true, true, "admin.resumegame.warn.dev_card_deck_contains_unknown_card_type" );
                 // ">>> Warning: Dev card deck contains an unknown card type"
-                if (sgm.warnHasHumanPlayerWithBotName)
+                if (savedGameModel.warnHasHumanPlayerWithBotName)
                     messageToGameKeyed
                         ( ga, true, true, "admin.resumegame.warn.human_with_bot_name" );
                 // ">>> Warning: At least 1 player is named like a robot, but isRobot flag is false. Can cause problems when resuming game."
@@ -7978,7 +7980,7 @@ public class SOCServer extends Server
                             "admin.resumegame.err.not_enough_robots" );
                     // ">>> Cannot resume: Not enough robots to fill non-vacant seats."
                 }
-                else if (sgm.gameState < SOCGame.OVER)
+                else if (savedGameModel.gameState < GAME_OVER.getIntValue())
                 {
                     messageToGameKeyed
                         ( ga, false, true, "admin.loadgame.ok.to_continue_resumegame" );
@@ -7986,7 +7988,7 @@ public class SOCServer extends Server
                 }
                 else
                 {
-                    sgm.resumePlay( true );
+                    savedGameModel.resumePlay( true );
                     final GameHandler hand = gameList.getGameTypeHandler( gaName );
                     if (hand != null)
                         hand.sendGameState( ga );
@@ -8040,16 +8042,18 @@ public class SOCServer extends Server
     public String resumeReloadedGame( final Connection c, final SOCGame ga )
         throws IllegalStateException
     {
-        if (((ga.getGameState() != SOCGame.LOADING) && (ga.getGameState() != SOCGame.LOADING_RESUMING))
-            || !(ga.savedGameModel instanceof SavedGameModel))
+        if (   (  (ga.getGameState() != LOADING )
+               && (ga.getGameState() != LOADING_RESUMING))
+            || ! (ga.savedGameModel instanceof SavedGameModel))
+        {
             throw new IllegalStateException( "game not waiting to be resumed" );
-
+        }
         final SavedGameModel sgm = (SavedGameModel) ga.savedGameModel;
         final String gaName = ga.getName();
         final boolean[] botsNeeded = sgm.findSeatsNeedingBots();
         if (botsNeeded != null)
         {
-            ga.setGameState( SOCGame.LOADING_RESUMING );
+            ga.setGameState( LOADING_RESUMING );
             final GameHandler hand = gameList.getGameTypeHandler( gaName );
             if (hand != null)
                 hand.sendGameState( ga );
@@ -8073,7 +8077,7 @@ public class SOCServer extends Server
             else
             {
                 // recover, so human players can try and fill those seats
-                ga.setGameState( SOCGame.LOADING );
+                ga.setGameState( LOADING );
                 if (hand != null)
                     hand.sendGameState( ga );
 
@@ -8219,11 +8223,11 @@ public class SOCServer extends Server
 
                 gaName = newGame.getName();  // in case was changed to avoid duplicate
                 System.out.println( "Started bot-only game: " + gaName + desc.toString() );
-                newGame.setGameState( SOCGame.READY );
+                newGame.setGameState( READY );
                 if (!readyGameAskRobotsJoin( newGame, null, null, 0 ))
                 {
                     System.out.println( "Bot-only game " + gaName + ": Not enough bots can join, not starting" );
-                    newGame.setGameState( SOCGame.OVER );
+                    newGame.setGameState( GAME_OVER );
                 }
             }
 /*
@@ -8282,8 +8286,8 @@ public class SOCServer extends Server
     ( final SOCGame ga, final boolean[] forSeats, final Connection[] robotSeats, final int maxBots )
         throws IllegalStateException, IllegalArgumentException
     {
-        final int gstate = ga.getGameState();
-        if ((gstate != SOCGame.READY) && (gstate != SOCGame.LOADING_RESUMING))
+        GameState gstate = ga.getGameState();
+        if ((gstate != READY) && (gstate != LOADING_RESUMING))
             throw new IllegalStateException( "SOCGame state not READY or LOADING_RESUMING: " + gstate );
 
         if (ga.getClientVersionMinRequired() > Version.versionNumber())
@@ -8707,7 +8711,7 @@ public class SOCServer extends Server
     {
         if (localizeAllKnown || (scKeys == null))
         {
-            scKeys = SOCScenario.getAllKnownScenarioKeynames();
+            scKeys = SOCServerScenario.getAllKnownScenarioKeynames();
             checkUnknowns_skipFirst = false;
         }
 
@@ -8743,7 +8747,7 @@ public class SOCServer extends Server
             if ((scensSent != null) && !scensSent.containsKey( scKey ))
                 scensSent.put( scKey, SOCClientData.SENT_SCEN_STRINGS );
 
-            final SOCScenario sc = SOCScenario.getScenario( scKey );
+            final SOCScenario sc = SOCServerScenario.getScenario( scKey );
             String nm = null, desc = null;
 
             if (!(checkUnknowns_skipFirst && (sc == null)))
@@ -8873,7 +8877,7 @@ public class SOCServer extends Server
         }
         else if (!stringsOnly)
         {
-            SOCScenario sc = SOCScenario.getScenario( scKey );
+            SOCScenario sc = SOCServerScenario.getScenario( scKey );
             if ((sc != null) && ((sc.lastModVersion > cliVers) || alwaysSend))
                 scSend = sc;
         }
@@ -8941,7 +8945,7 @@ public class SOCServer extends Server
                     // If not localized, don't send fallback text: Client already has it
                     // (See also similar logic in localizeGameScenarios)
 
-                    final SOCScenario sc = SOCScenario.getScenario( scKey );
+                    final SOCScenario sc = SOCServerScenario.getScenario( scKey );
                     if (sc != null)
                     {
                         if (nm.equals( sc.getDesc() ))
@@ -9247,8 +9251,7 @@ public class SOCServer extends Server
      * @see #createOrJoinGameIfUserOK(Connection, String, String, String, SOCGameOptionSet)
      * @since 1.1.00
      */
-    private void joinGame
-    ( final SOCGame gameData, final Connection c,
+    private void joinGame( final SOCGame gameData, final Connection c,
         final boolean isReset, final boolean isLoading, final boolean isRejoinOrLoadgame )
     {
         final String gameName = gameData.getName();
@@ -9347,9 +9350,9 @@ public class SOCServer extends Server
             {
                 robotJoinRequests.remove( gaName );
 
-                final int gstate = ga.getGameState();
-                willStartGame = (gstate < SOCGame.START1A);
-                willFinishResuming = (gstate == SOCGame.LOADING_RESUMING);
+                GameState gstate = ga.getGameState();
+                willStartGame = (gstate.lt( START1A ));
+                willFinishResuming = (gstate == LOADING_RESUMING);
             }
             else
             {
@@ -9457,7 +9460,7 @@ public class SOCServer extends Server
 
         // If game is still initial-placing or was over, we'll shuffle the robots
         final boolean resetWithShuffledBots =
-            (reBoard.oldGameState < SOCGame.ROLL_OR_CARD) || (reBoard.oldGameState == SOCGame.OVER);
+            (reBoard.oldGameState.lt( ROLL_OR_CARD )) || (reBoard.oldGameState == GAME_OVER);
 
         /**
          * Player connection data:
@@ -9515,14 +9518,14 @@ public class SOCServer extends Server
      * after any robots have left the old game.
      * @param reBoard  Board reset data, from {@link SOCGameListAtServer#resetBoard(String)}
      *                   or {@link SOCGame#boardResetOngoingInfo reGame.boardResetOngoingInfo}
-     * @param reGame   The new game created by the reset, with gamestate {@link SOCGame#NEW NEW}
+     * @param reGame   The new game created by the reset, with gamestate {@link GameState#NEW_GAME}
      *                   or {@link SOCGame#READY_RESET_WAIT_ROBOT_DISMISS READY_RESET_WAIT_ROBOT_DISMISS}
      * @since 1.1.07
      */
     void resetBoardAndNotify_finish( SOCGameBoardReset reBoard, SOCGame reGame )
     {
         final boolean resetWithShuffledBots =
-            (reBoard.oldGameState < SOCGame.ROLL_OR_CARD) || (reBoard.oldGameState == SOCGame.OVER);
+            (reBoard.oldGameState.lt( ROLL_OR_CARD )) || (reBoard.oldGameState == GAME_OVER);
         Connection[] huConns = reBoard.humanConns;
 
         /**
@@ -9564,13 +9567,13 @@ public class SOCServer extends Server
              *     Once all robots have re-joined, the game will begin.
              */
 
-            reGame.setGameState( SOCGame.READY );
+            reGame.setGameState( READY );
             if (!readyGameAskRobotsJoin
                 ( reGame, null, resetWithShuffledBots ? null : reBoard.robotConns, 0 ))
             {
                 // Unlikely, since we were just playing this game with bots
 
-                reGame.setGameState( SOCGame.OVER );
+                reGame.setGameState( GAME_OVER );
                 final GameHandler hand = gameList.getGameTypeHandler( reGame.getName() );
                 if (hand != null)
                     hand.sendGameState( reGame );
@@ -9680,7 +9683,7 @@ public class SOCServer extends Server
             return;
 
         //D.ebugPrintln("allOriginalPlayers for "+ga.getName()+" : "+ga.allOriginalPlayers());
-        if (!((ga.getGameState() == SOCGame.OVER)
+        if (   !((ga.getGameState() == GAME_OVER)
             && (ga.allOriginalPlayers() || ga.hasHumanPlayers())))
             return;
 
@@ -9843,9 +9846,6 @@ public class SOCServer extends Server
         {
             for (SOCGame gameData : gameList.getGamesData())
             {
-                if (gameData.isPractice)
-                    continue;  // <--- Skip practice games, they don't expire ---
-
                 long gameExpir = gameData.getExpiration();
                 final boolean hasWarned = gameData.hasWarnedExpiration();
 
@@ -9950,8 +9950,8 @@ public class SOCServer extends Server
                 if (lastActionTime > (ga.isCurrentPlayerStubbornRobot() ? inactiveTimeStubborn : inactiveTime))
                     continue;
 
-                final int gs = ga.getGameState();
-                if (gs >= SOCGame.LOADING)  // includes >= SOCGame.OVER
+                GameState gs = ga.getGameState();
+                if (gs.gt( SPECIAL_BUILDING ))  // includes >= GameState.GAME_OVER
                 {
                     // nothing to do.
                     // bump out that time, so we don't see it again every few seconds
@@ -10666,7 +10666,7 @@ public class SOCServer extends Server
     public static List<Triple> checkScenarioOpts
     ( Map<?, ?> opts, final boolean optsAreProps, String scName )
     {
-        List<Triple> scenConflictWarns = null;
+        List<Triple> scenConflictWarns;
 
         if (scName == null)
         {
@@ -10687,7 +10687,7 @@ public class SOCServer extends Server
 
         scenConflictWarns = new ArrayList<>();
 
-        final SOCScenario sc = SOCScenario.getScenario( scName );
+        final SOCScenario sc = SOCServerScenario.getScenario( scName );
         if (sc == null)
         {
             scenConflictWarns.add( new Triple( "SC", scName, null ) );

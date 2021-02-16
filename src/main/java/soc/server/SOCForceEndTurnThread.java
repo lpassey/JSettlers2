@@ -25,6 +25,7 @@ package soc.server;
 
 import soc.communication.SOCClientData;
 import soc.disableDebug.D;
+import soc.game.GameState;
 import soc.game.SOCGame;
 import soc.game.SOCPlayer;
 import soc.robot.SOCRobotClient;
@@ -72,15 +73,15 @@ import soc.communication.Connection;
     {
         final String rname = pl.getName();
         final int plNum = pl.getPlayerNumber();
-        final int gs = ga.getGameState();
+        GameState gs = ga.getGameState();
         final boolean notCurrentPlayer = (ga.getCurrentPlayerNumber() != plNum);
 
         // Ignore if not current player, unless game is
         // waiting for the bot to discard or gain resources.
-        if (notCurrentPlayer
-             && (gs != SOCGame.WAITING_FOR_DISCARDS)
-             && (gs != SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE)
-             && (gs != SOCGame.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE))
+        if (    notCurrentPlayer
+             && (gs != GameState.WAITING_FOR_DISCARDS)
+             && (gs != GameState.WAITING_FOR_PICK_GOLD_RESOURCE)
+             && (gs != GameState.STARTS_WAITING_FOR_PICK_GOLD_RESOURCE))
         {
             return;
         }
@@ -91,9 +92,9 @@ import soc.communication.Connection;
              + ((notCurrentPlayer) ? ": force discard/pick" : ": force end turn")
              + " in game " + ga.getName() + " pn=" + plNum + " state " + gs
              + (pl.isStubbornRobot() ? " (stubborn)" : ""));
-        if (gs == SOCGame.WAITING_FOR_DISCARDS)
+        if (gs == GameState.WAITING_FOR_DISCARDS)
             System.err.println("  srv resource count = " + pl.getResources().getTotal());
-        else if (gs == SOCGame.WAITING_FOR_PICK_GOLD_RESOURCE)
+        else if (gs == GameState.WAITING_FOR_PICK_GOLD_RESOURCE)
             System.err.println("  pl's gold pick count = " + pl.getNeedToPickGoldHexResources());
 
         pl.addForcedEndTurn();

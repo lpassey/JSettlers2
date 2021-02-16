@@ -22,12 +22,13 @@ package soc.message;
 
 import java.util.StringTokenizer;
 
+import soc.game.GameState;
 import soc.game.SOCGame;
 
 
 /**
  * From client, this message means that a player wants to start the game;
- * from server, it means that a game has just started, leaving state {@code NEW}.
+ * from server, it means that a game has just started, leaving state {@code NEW_GAME}.
  *<P>
  * Server v1.x sends the game's new {@link SOCGameState} before sending {@code SOCStartGame}.
  * In v2.0.00 and newer, this message optionally includes a {@link #getGameState()} field
@@ -54,7 +55,7 @@ public class SOCStartGame extends SOCMessage
      * See {@link #getGameState()} for details.
      * @since 2.0.00
      */
-    private final int gameState;
+    private final GameState gameState;
 
     /**
      * Create a StartGame message.
@@ -64,11 +65,11 @@ public class SOCStartGame extends SOCMessage
      *     Ignored from client. Values &lt; 0 are out of range and ignored (treated as 0).
      *     Must not send {@code gs} to a client older than {@link SOCGameState#VERSION_FOR_GAME_STATE_AS_FIELD}.
      */
-    public SOCStartGame( final String ga, final int gs )
+    public SOCStartGame( final String ga, final GameState gs )
     {
         messageType = STARTGAME;
         game = ga;
-        gameState = (gs > 0) ? gs : 0;
+        gameState = gs;
     }
 
     /**
@@ -87,7 +88,7 @@ public class SOCStartGame extends SOCMessage
      * @return Game State, such as {@link SOCGame#ROLL_OR_CARD}, or 0
      * @since 2.0.00
      */
-    public int getGameState()
+    public GameState getGameState()
     {
         return gameState;
     }
@@ -109,9 +110,9 @@ public class SOCStartGame extends SOCMessage
      * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0 to omit that field
      * @return the command string
      */
-    public static String toCmd( final String ga, final int gs )
+    public static String toCmd( final String ga, final GameState gs )
     {
-        return STARTGAME + sep + ga + ((gs > 0) ? sep2 + gs : "");
+        return STARTGAME + sep + ga + ((gs != GameState.NEW_GAME) ? sep2 + gs.getIntValue() : "");
     }
 
     /**
@@ -125,18 +126,19 @@ public class SOCStartGame extends SOCMessage
         try
         {
             String ga;   // the game name
-            int gs = 0;  // the game state
+            GameState gs = GameState.NEW_GAME;  // the game state
 
             StringTokenizer st = new StringTokenizer( s, sep2 );
 
             ga = st.nextToken();
             if (st.hasMoreTokens())
-                gs = Integer.parseInt( st.nextToken() );
+                gs = GameState.forInt( Integer.parseInt( st.nextToken() ));
 
             return new SOCStartGame( ga, gs );
         }
         catch( Exception e )
         {
+            e.printStackTrace();
             return null;
         }
     }
@@ -146,7 +148,6 @@ public class SOCStartGame extends SOCMessage
      */
     public String toString()
     {
-        return "SOCStartGame:game=" + game + ((gameState != 0) ? "|gameState=" + gameState : "");
+        return "SOCStartGame:game=" + game + ((gameState != GameState.NEW_GAME) ? "|gameState=" + gameState : "");
     }
-
 }

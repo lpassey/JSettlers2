@@ -113,6 +113,8 @@ public class SOCRejectOffer extends SOCMessage
      */
     public static final int REASON_CANNOT_MAKE_OFFER = 3;
 
+    public enum Reason {NO_REASON, REASON_CANNOT_MAKE_TRADE, REASON_NOT_YOUR_TURN, REASON_CANNOT_MAKE_OFFER }
+
     /**
      * Name of game
      */
@@ -124,11 +126,11 @@ public class SOCRejectOffer extends SOCMessage
     private int playerNumber;
 
     /**
-     * Optional reason code for why an offer was rejected by server or declined by a player, or 0;
+     * Optional reason code for why an offer was rejected by server or declined by a player;
      * see {@link #getReasonCode()}.
      * @since 2.4.50
      */
-    private int reasonCode;
+    private Reason reasonCode;
 
     /**
      * Create a typical RejectOffer message without a reason code.
@@ -147,7 +149,7 @@ public class SOCRejectOffer extends SOCMessage
      * Create a SOCRejectOffer message which may have a reason code.
      * Clients older than v2.4.50 will ignore that field.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the player number rejecting offer(s), or -1 with some reason codes.
      *     Sent from server, always ignored when sent from client.
      *     Will be the client's own player number, unless otherwise noted in
@@ -156,12 +158,12 @@ public class SOCRejectOffer extends SOCMessage
      * @see #SOCRejectOffer(String, int)
      * @since 2.4.50
      */
-    public SOCRejectOffer(String ga, int pn, final int reasonCode)
+    public SOCRejectOffer(String gameName, int pn, final int reasonCode)
     {
         messageType = REJECTOFFER;
-        game = ga;
+        game = gameName;
         playerNumber = pn;
-        this.reasonCode = reasonCode;
+        this.reasonCode = Reason.values()[reasonCode];
     }
 
     /**
@@ -197,7 +199,7 @@ public class SOCRejectOffer extends SOCMessage
      */
     public int getReasonCode()
     {
-        return reasonCode;
+        return reasonCode.ordinal();
     }
 
     /**
@@ -208,7 +210,7 @@ public class SOCRejectOffer extends SOCMessage
     public String toCmd()
     {
         return REJECTOFFER + sep + game + sep2 + playerNumber
-           + ((reasonCode != 0) ? sep2 + reasonCode : "");
+           + ((reasonCode.ordinal() != 0) ? sep2 + reasonCode.ordinal() : "");
     }
 
     /**
@@ -246,7 +248,7 @@ public class SOCRejectOffer extends SOCMessage
     public String toString()
     {
         return "SOCRejectOffer:game=" + game + "|playerNumber=" + playerNumber
-            + ((reasonCode != 0) ? "|reasonCode=" + reasonCode : "");
+            + ((reasonCode.ordinal() != 0) ? "|reasonCode=" + reasonCode : "");
     }
 
 }

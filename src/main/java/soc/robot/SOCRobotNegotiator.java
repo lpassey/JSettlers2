@@ -318,14 +318,14 @@ public class SOCRobotNegotiator
 
         if (ourResources.contains(targetResources))
         {
-            return offer;
+            return null;
         }
 
         if (ourResources.contains(SOCResourceConstants.UNKNOWN))
         {
             D.ebugPrintlnINFO("AGG WE HAVE UNKNOWN RESOURCES !!!! %%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 
-            return offer;
+            return null;
         }
 
         SOCTradeOffer batna = getOfferToBank(targetResources);
@@ -694,39 +694,36 @@ public class SOCRobotNegotiator
                 ///
                 /// give one unneeded
                 ///
-                if (offer == null)
+                int giveRsrcIdx1 = 0;
+
+                while ((giveRsrcIdx1 < notNeededRsrcCount) && (offer == null))
                 {
-                    int giveRsrcIdx1 = 0;
-
-                    while ((giveRsrcIdx1 < notNeededRsrcCount) && (offer == null))
+                    if (leftovers.contains( notNeededRsrc[giveRsrcIdx1] ) && (notNeededRsrc[giveRsrcIdx1] != notNeededRsrc[getRsrcIdx2]))
                     {
-                        if (leftovers.contains(notNeededRsrc[giveRsrcIdx1]) && (notNeededRsrc[giveRsrcIdx1] != notNeededRsrc[getRsrcIdx2]))
+                        leftovers.subtract( 1, notNeededRsrc[giveRsrcIdx1] );
+
+                        if (getOfferToBank( targetResources, leftovers ) != null)
                         {
-                            leftovers.subtract(1, notNeededRsrc[giveRsrcIdx1]);
+                            giveResourceSet.clear();
+                            giveResourceSet.add( 1, notNeededRsrc[giveRsrcIdx1] );
 
-                            if (getOfferToBank(targetResources, leftovers) != null)
+                            ///
+                            /// make sure the offer is better than our BATNA
+                            ///
+                            int offerBuildingTime = getETAToTargetResources( ourPlayerData, targetResources, giveResourceSet, getResourceSet, estimate );
+
+                            if (offerBuildingTime < batnaBuildingTime)
                             {
-                                giveResourceSet.clear();
-                                giveResourceSet.add(1, notNeededRsrc[giveRsrcIdx1]);
-
-                                ///
-                                /// make sure the offer is better than our BATNA
-                                ///
-                                int offerBuildingTime = getETAToTargetResources(ourPlayerData, targetResources, giveResourceSet, getResourceSet, estimate);
-
-                                if (offerBuildingTime < batnaBuildingTime)
-                                {
-                                    offer = makeOfferAux(giveResourceSet, getResourceSet, notNeededRsrc[getRsrcIdx2]);
-                                    D.ebugPrintlnINFO("*** offer = " + offer);
-                                    D.ebugPrintlnINFO("*** offerBuildingTime = " + offerBuildingTime);
-                                }
+                                offer = makeOfferAux( giveResourceSet, getResourceSet, notNeededRsrc[getRsrcIdx2] );
+                                D.ebugPrintlnINFO( "*** offer = " + offer );
+                                D.ebugPrintlnINFO( "*** offerBuildingTime = " + offerBuildingTime );
                             }
-
-                            leftovers.add(1, notNeededRsrc[giveRsrcIdx1]);
                         }
 
-                        giveRsrcIdx1++;
+                        leftovers.add( 1, notNeededRsrc[giveRsrcIdx1] );
                     }
+
+                    giveRsrcIdx1++;
                 }
 
                 ///
@@ -734,7 +731,7 @@ public class SOCRobotNegotiator
                 ///
                 if (offer == null)
                 {
-                    int giveRsrcIdx1 = 0;
+                    giveRsrcIdx1 = 0;
 
                     while ((giveRsrcIdx1 < neededRsrcCount) && (offer == null))
                     {
@@ -2300,7 +2297,7 @@ public class SOCRobotNegotiator
 
         if (neededRsrcCount == 0)
         {
-            return bankTrade;  // <--- Early return bankTrade (null): nothing needed ---
+            return null;  // <--- Early return bankTrade (null): nothing needed ---
         }
 
         for (int j = neededRsrcCount - 1; j >= 0; j--)
@@ -2351,9 +2348,13 @@ public class SOCRobotNegotiator
         ///
         int getRsrcIdx = neededRsrcCount - 1;
 
-        while (   getRsrcIdx > -1
-               && ourResources.getAmount( neededRsrc[getRsrcIdx] ) >= targetResources.getAmount( neededRsrc[getRsrcIdx] ))
+        while ( getRsrcIdx > -1 )
         {
+            int mostNeededResource = neededRsrc[getRsrcIdx];
+            int ourResourceAmount = ourResources.getAmount( mostNeededResource );
+            int targetResourceAmount = targetResources.getAmount( mostNeededResource );
+            if (ourResourceAmount < targetResourceAmount)
+                break;
             getRsrcIdx--;
         }
         if (getRsrcIdx < 0)
@@ -2367,7 +2368,7 @@ public class SOCRobotNegotiator
             ///
             /// find the ratio at which we can trade
             ///
-            int tradeRatio;
+            int tradeRatio = 4;
 
             if (ports[notNeededRsrc[giveRsrcIdx]])
             {
@@ -2377,12 +2378,9 @@ public class SOCRobotNegotiator
             {
                 tradeRatio = 3;
             }
-            else
-            {
-                tradeRatio = 4;
-            }
 
-            if (ourResources.getAmount(notNeededRsrc[giveRsrcIdx]) >= tradeRatio)
+            int amountNotNeeded = ourResources.getAmount( notNeededRsrc[giveRsrcIdx] );
+            if (amountNotNeeded >= tradeRatio)
             {
                 ///
                 /// make the trade
@@ -2422,7 +2420,7 @@ public class SOCRobotNegotiator
             ///
             /// find the ratio at which we can trade
             ///
-            int tradeRatio;
+            int tradeRatio = 4;
 
             if (ports[neededRsrc[giveRsrcIdx]])
             {
@@ -2432,17 +2430,18 @@ public class SOCRobotNegotiator
             {
                 tradeRatio = 3;
             }
-            else
-            {
-                tradeRatio = 4;
-            }
 
-            if (rollsPerResource[neededRsrc[giveRsrcIdx]] >= rollsPerResource[neededRsrc[getRsrcIdx]])
+            int neededToGive = neededRsrc[giveRsrcIdx];
+            int neededToGet = neededRsrc[getRsrcIdx];
+            int giveRsrcChance = rollsPerResource[neededToGive];
+            int getRsrcChance = rollsPerResource[neededToGet];
+            if (giveRsrcChance >= getRsrcChance)
             {
                 ///
                 /// Don't want to trade unless we have extra of this resource
                 ///
-                if ((ourResources.getAmount(neededRsrc[giveRsrcIdx]) - targetResources.getAmount(neededRsrc[giveRsrcIdx])) >= tradeRatio)
+                int excess = ourResources.getAmount(neededToGive) - targetResources.getAmount(neededToGive);
+                if (excess >= tradeRatio)
                 {
                     ///
                     /// make the trade
@@ -2474,7 +2473,7 @@ public class SOCRobotNegotiator
                 /// We can trade this even though we need it because
                 /// we're betting that we'll get it by our next turn
                 ///
-                if (ourResources.getAmount(neededRsrc[giveRsrcIdx]) >= tradeRatio)
+                if (ourResources.getAmount( neededToGive ) >= tradeRatio)
                 {
                     ///
                     /// make the trade
@@ -2500,10 +2499,8 @@ public class SOCRobotNegotiator
                     return bankTrade;
                 }
             }
-
             giveRsrcIdx++;
         }
-
         return bankTrade;
     }
 
