@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        td:first-child { width: 4em }
+        td:first-child + td { text-align: right; padding-right: .5em }
+    </style>
+</head>
+<body>
+    <table>
+        <tr><td><img height="24" src="arrow-right-all.png" />&nbsp;</td><td>SOCPlayerElement:</td><td>SET dev card played flag to false</td></tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCTurn:</td><td>Indicates the seat number whose turn it is and sets game state to ROLL_OR_CARD</td></tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCRollDicePrompt:</td><td>Prompts a seat number to roll the dice</td></tr>
+        <tr><td><img height="24" src="arrow-left-server.png" /></td><td>SOCRollDice:</td><td>Ask the server to roll the dice</td></tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCDiceResult:</td><td>The number rolled</td></tr>
+    </table><br/>
+    <table>
+        <thead>
+        <tr><td colspan="3" style="text-align: center"><STRONG>BEGIN -- SEVEN WAS ROLLED</STRONG></td>
+        <tr><td colspan="3" style="text-align: center"><STRONG>BEGIN -- DISCARD REQUIRED</STRONG></td> </tr></thead>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCGameState:</td><td>state=WAITING_FOR_DISCARDS
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCGameServerText:</td><td>text=player one and player two need to discard.</td></tr>
+        <tr><td><img height="24" src="arrow-right-one.png" /></td><td>SOCDiscardRequest:</td><td>number of discards required of player one</td></tr>
+        <tr><td><img height="24" src="arrow-right-one.png" /></td><td>SOCDiscardRequest:</td><td>number of discards required of player two</td></tr>
+        <tr><td><img height="24" src="arrow-left-server.png" /></td><td>SOCDiscard::</td><td>Resources discarded by player one</td></tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCPlayerElement:</td><td>number of resource lost by player one; type is unknown</td></tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCGameServerText:</td><td>text=player one discarded 4 resources.</td></tr>
+        <tr><td><img height="24" src="arrow-left-server.png" /></td><td>SOCDiscard::</td><td>Resources discarded by player two</td></tr>
+        <tr><td><img height="24" src="arrow-right-one.png" /></td><td>SOCPlayerElement:</td><td> number of discards of one type lost by player two</td></tr>
+        <tr><td><img height="24" src="arrow-right-one.png" /></td><td>SOCPlayerElement:</td><td> number of discards of another type lost by player two</td></tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCPlayerElement:</td><td>number of resource lost by player two; type is unknown</td></tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCGameServerText:</td><td>text=player two discarded X resources.</td></tr>
+        <tr><td colspan="3" style="text-align: center"><STRONG>END -- DISCARD REQUIRED</STRONG></td> </tr>
+
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCGameState:</td><td>state=PLACING_ROBBER</td></tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCGameServerText:</td><td>text=player two will move the robber.</td></tr>
+
+        <tr><td><img height="24" src="arrow-left-server.png" /></td><td>SOCMoveRobber:</td><td>player owning turn moves robber to coordinates</td></tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCMoveRobber:</td><td>player owning turn moved robber to coordinates</td></tr>
+
+        <tr><td colspan="3" style="text-align: center"><STRONG>BEGIN -- PLAYER MUST CHOOSE VICTIM</STRONG></td> </tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCGameServerText:</td><td>text=player two moved the robber. Must choose a victim.</td></tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCGameState:</td><td>state=WAITING_FOR_ROB_CHOOSE_PLAYER</td></tr>
+
+        <!-- choices are players touching this hex -->
+        <tr><td><img height="24" src="arrow-right-one.png" /></td><td>SOCChoosePlayerRequest:</td><td>choices=[false, false, true, true]</td></tr>
+        <tr><td><img height="24" src="arrow-left-server.png" /></td><td>SOCChoosePlayer:</td><td>choice = index into choices array</td></tr>
+        <tr><td colspan="3" style="text-align: center"><STRONG>END -- PLAYER MUST CHOOSE VICTIM</STRONG></td> </tr>
+
+        <tr><td><img height="24" src="arrow-right-one.png" /></td><td>SOCReportRobbery:</td><td>resources stolen; thief and victim are told type </td></tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCReportRobbery::</td><td>resources stolen; type is unknown</td></tr>
+        <tr><td colspan="3" style="text-align: center"><STRONG>END -- SEVEN WAS ROLLED</STRONG></td> </tr>
+    </table><br />
+    <table>
+        <tr><td colspan="3" style="text-align: center"><STRONG>BEGIN -- NON-SEVEN WAS ROLLED</STRONG></td>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCGameState:</td><td>state=SENDING_DICE_RESULT_RESOURCES</td></tr>
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCDiceResultResources:</td><td>Everyone learns what everyone else received.</td></tr>
+        <tr><td colspan="3" style="text-align: center"><STRONG>END -- NON-SEVEN WAS ROLLED</STRONG></td> </tr>
+
+        <tr><td><img height="24" src="arrow-right-all.png" /></td><td>SOCGameState:</td><td>state=PLAY1 &mdash; you are now free to move about the island</td> </tr>
+    </table>
+</body>
+</html>
