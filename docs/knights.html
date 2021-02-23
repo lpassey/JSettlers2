@@ -4,7 +4,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Sequence diagram for dice rolls</title>
+    <title>Sequence diagram for playing "Soldier" development cards</title>
     <base href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/" target="_self">
     <style>
         td:first-child { width: 5em }
@@ -12,84 +12,54 @@
     </style>
 </head>
 <body>
-    <p>This is a sequence diagram for the messages passed between clients and the server at the beginning
-        of a player's turn.</p><p>Arrows labeled "ONE" represent messages going to a single client; other
+    <p>This is a sequence diagram for the messages passed between clients and the server when a
+        "Soldier" type development card is played, either before the dice are rolled, or afterwards.</p>
+    <p>Arrows labeled "ONE" represent messages going to a single client; other
         clients will not be aware of these messages. Individual messages typically contain a data field
         indicating the intended player number; this is not always the case.</p>
-    <p>Arrows labeled "ALL"
-        represent messages going from the game server to every client, except in those instances where
-        an identical message is sent to clients separately. In this case, the message is sent to all
-        clients that did not receive an individual message.</p>
+    <p>Arrows labeled "ALL" represent messages going from the game server to every client, except in
+        those instances where an identical message is sent to a client separately. In the case where
+        individual messages are sent separately to clients, this message is sent only to clients
+        that did not receive an individual message.</p>
     <p>Arrows labeled "SERVER" represent messages going from a single client to the game server,
         typically in response to a message from the server. The server may or may not share the
         contents of that message with other clients.</p>
-    <h2 style="text-align: center">Messaging sequence for the beginning of turns.</h2>
+    <h2 style="text-align: center">Messaging sequence for playing "Soldier" cards.</h2>
     <table>
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
             <td><a href="SOCPlayerElement.html">SOCPlayerElement:</a></td>
-            <td>SET dev card played flag to false</td><td>&nbsp;</td></tr>
+            <td>SET dev card played flag to <em>false</em></td></tr>
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
             <td><a href="SOCTurn.html">SOCTurn:</a></td>
             <td>Indicates the seat number whose turn it is and sets game state to <em>ROLL_OR_CARD</em></td></tr>
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
             <td><a href="SOCRollDicePrompt.html">SOCRollDicePrompt:</a></td>
             <td>Prompts a seat number to roll the dice</td></tr>
-        <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
-            <td><a href="SOCRollDice.html">SOCRollDice:</a></td>
-            <td>The specified client asks the server to roll the dice</td></tr>
-        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
-            <td><a href="SOCDiceResult.html">SOCDiceResult:</a></td>
-            <td>The number rolled</td></tr>
     </table><br/>
-    <h3 style="padding-left: 5em">IF SEVEN WAS ROLLED — BEGIN</h3>
-    <h4 style="padding-left: 10em"><STRONG>IF ONE OR MORE PLAYERS MUST DISCARD &mdash; BEGIN</STRONG></h4>
+    <h3 style="padding-left: 5em">IF SOLDIER IS PLAYED BEFORE THE ROLL — BEGIN</h3>
     <table>
-        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
-            <td><a href="SOCGameState.html">SOCGameState:</a></td>
-            <td>state=<em>WAITING_FOR_DISCARDS</em>
+        <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
+            <td><a href="SOCPlayDevCardRequest.html">SOCPlayDevCardRequest:</a></td>
+            <td>devCard=9</td></tr>
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
             <td><a href="SOCGameServerText.html">SOCGameServerText:</a></td>
-            <td>text=player one and player two need to discard.</td></tr>
-        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
-            <td><a href="SOCDiscardRequest.html">SOCDiscardRequest:</a></td>
-            <td>number of discards required of player one</td></tr>
-        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
-            <td><a href="SOCDiscardRequest.html">SOCDiscardRequest:</a></td>
-            <td>number of discards required of player two</td></tr>
-        <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
-            <td><a href="SOCDiscard.html">SOCDiscard:</a></td>
-            <td>Resources discarded by player one</td></tr>
+            <td>text=player one played a Soldier card.</td></tr>
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
-            <td><a href="SOCPlayerElement">SOCPlayerElement:</a></td>
-            <td>number of resource lost by player one; type is unknown</td></tr>
+            <td><a href="SOCDevCardAction.html">SOCDevCardAction:</a></td>
+            <td>card type 9 played by player</td></tr>
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
-            <td><a href="SOCGameServerText.html">SOCGameServerText:</a></td
-            ><td>text=player one discarded 4 resources.</td></tr>
-        <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
-            <td><a href="SOCDiscard.html">SOCDiscard:</a></td>
-            <td>Resources discarded by player two</td></tr>
-        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
-            <td><a href="SOCPlayerElement">SOCPlayerElement:</a></td>
-            <td> number of discards of one type lost by player two</td></tr>
-        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
-            <td><a href="SOCPlayerElement">SOCPlayerElement:</a></td>
-            <td> number of discards of another type lost by player two</td></tr>
+            <td><a href="SOCPlayerElement.html">SOCPlayerElement:</a></td>
+            <td>SET dev card played flag to <em>true</em> for the specific player</td> </tr>
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
-            <td><a href="SOCPlayerElement">SOCPlayerElement:</a></td>
-            <td>number of resource lost by player two; type is unknown</td></tr>
-        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
-            <td><a href="SOCGameServerText.html">SOCGameServerText:</a></td>
-            <td>text=player two discarded X resources.</td></tr>
-    </table>
-        <h4 style="padding-left: 10em"><STRONG>END -- DISCARD REQUIRED</STRONG></h4>
-
-    <table>
+            <td><a href="SOCPlayerElement.html">SOCPlayerElement:</a></td>
+            <td>Soldier card count increased by one for the specific player</td></tr>
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
             <td><a href="SOCGameState.html">SOCGameState:</a></td>
             <td>state=<em>PLACING_ROBBER</em></td></tr>
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
             <td><a href="SOCGameServerText.html">SOCGameServerText:</a></td>
             <td>text=player will move the robber.</td></tr>
+
         <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
             <td><a href="SOCMoveRobber.html">SOCMoveRobber:</a></td>
             <td>player owning turn moves robber to coordinates</td></tr>
@@ -123,26 +93,33 @@
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
             <td><a href="SOCReportRobbery.html">SOCReportRobbery:</a></td>
             <td>resources stolen; all other player are told type is unknown</td></tr>
-    </table>
-    <h3 style="padding-left: 5em"><STRONG>END &mdash; SEVEN WAS ROLLED</STRONG></h3>
-    <h3 style="padding-left: 5em"><STRONG>ELSE BEGIN &mdash; NON-SEVEN WAS ROLLED</STRONG></h3>
-    <table>
+
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
             <td><a href="SOCGameState.html">SOCGameState:</a></td>
-            <td>state=<em>SENDING_DICE_RESULT_RESOURCES</em></td></tr>
+            <td>state=<em>ROLL_OR_CARD</em> - resets to pre-roll state.</td></tr>
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
-            <td><a href="">SOCDiceResultResources:</a></td>
-            <td>Everyone learns what everyone else received.</td></tr>
-        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
-            <td><a href="SOCPlayerElements.html">SOCPlayerElements</a></td>
-            <td>Each player is informed of the full extent of his resources, according to server records.</td></tr>
+            <td><a href="SOCRollDicePrompt.html">SOCRollDicePrompt:</a></td>
+            <td>Again prompts the player to roll the dice</td></tr>
     </table>
-    <h3 style="padding-left: 5em"><STRONG>END &mdash; NON-SEVEN WAS ROLLED</STRONG></h3>
-
+    <h3 style="padding-left: 5em"><STRONG>END &mdash; SOLDIER IS PLAYED BEFORE THE ROLL</STRONG></h3>
     <table>
+        <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
+            <td><a href="SOCRollDice.html">SOCRollDice:</a></td>
+            <td>The specified client asks the server to roll the dice</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCDiceResult.html">SOCDiceResult:</a></td>
+            <td>The number rolled</td></tr>
+        <tr><td style="padding-left: 5em" colspan="3">&nbsp;&mdash;&nbsp;For messaging sequences in the case of a dice result of '7', see the
+            <a href="https://lpassey.github.io/JSettlers2/rolls.html">Sequence Diagram for Dice Rolls</a>.</td></tr>
         <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
             <td><a href="SOCGameState.html">SOCGameState:</a></td>
             <td>state=<em>PLAY1</em> &mdash; you are now free to move about the island</td></tr>
     </table>
+    <p>During the <em>PLAY1</em> state a player may play a Soldier card if and only if s/he has not
+        yet played any other development card during this turn. In this case, the messaging sequence
+        is identical to that specified in the section "IF SOLDIER IS PLAYED BEFORE THE ROLL", above,
+        except that neither an SOCGameState nor an SOCRollDicePrompt message will be sent when the
+        Soldier is done being played.
+    </p>
 </body>
 </html>
