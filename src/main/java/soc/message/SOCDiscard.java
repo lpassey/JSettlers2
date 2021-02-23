@@ -42,7 +42,7 @@ import java.util.StringTokenizer;
  * If no other players need to discard, server will then send the new {@link SOCGameState}.
  * If waiting for others to discard, server sends the game a {@link SOCGameServerText} that lists
  * who we're still waiting for. Before v2.0.00, in that case server also sent a redundant
- * {@link SOCGameState}({@link soc.game.SOCGame#WAITING_FOR_DISCARDS WAITING_FOR_DISCARDS}).
+ * {@link SOCGameState}({@link soc.game.GameState#WAITING_FOR_DISCARDS WAITING_FOR_DISCARDS}).
  * Client v1.x.xx correctly displays progress of the discards without that SOCGameState.
  *
  * @author Robert S. Thomas

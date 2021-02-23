@@ -21,6 +21,7 @@ package soc.message;
 
 import java.util.StringTokenizer;
 
+import soc.game.GameState;
 import soc.game.SOCGame;
 import soc.game.SOCGameOptionSet;
 import soc.game.SOCInventoryItem;     // for javadoc's use
@@ -61,11 +62,11 @@ import soc.game.SOCInventoryItem;     // for javadoc's use
  * <H5>Usage for specific scenarios' special items:</H5>
  *<UL>
  * <LI> {@link SOCGameOptionSet#K_SC_FTRI _SC_FTRI}: Trade ports received as gifts. <BR>
- *   In state {@link SOCGame#PLAY1} or {@link SOCGame#SPECIAL_BUILDING}, current player sends this when they
+ *   In state {@link GameState#PLAY1} or {@link GameState#SPECIAL_BUILDING}, current player sends this when they
  *   have a port in their inventory.  {@code itemType} is the negative of the port type to play.
  *  <P>
  *   If they can place now, server broadcasts SOCInventoryItemAction({@link #PLAYED}) to the game to remove
- *   it from player's inventory, then sends {@link SOCGameState}({@link SOCGame#PLACING_INV_ITEM PLACING_INV_ITEM}).
+ *   it from player's inventory, then sends {@link SOCGameState}({@link GameState#PLACING_INV_ITEM PLACING_INV_ITEM}).
  *   (Player's client UI shouldn't let them place before the new game state is sent.)
  *   When the requesting client receives this PLAYED message, it will call {@link SOCGame#setPlacingItem(SOCInventoryItem)}
  *   because {@link SOCInventoryItem#isPlayForPlacement(SOCGame, int)} is true for {@code _SC_FTRI}.

@@ -28,9 +28,9 @@ import soc.game.SOCGameOptionSet;  // for javadocs only
 /**
  * This message from client means that the client player wants to buy a development card.
  *<P>
- * During game state {@link soc.game.SOCGame#PLAY1 PLAY1}, this is a normal buy request.
+ * During game state {@link soc.game.GameState#PLAY1 PLAY1}, this is a normal buy request.
  * When sent during other game states, and other players' turns, this is a request
- * to start the 6-player {@link soc.game.SOCGame#SPECIAL_BUILDING Special Building Phase}.
+ * to start the 6-player {@link soc.game.GameState#SPECIAL_BUILDING Special Building Phase}.
  *<P>
  * If the player can buy a card, the server responds with:
  *<UL>

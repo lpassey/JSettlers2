@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
  * In 1.1.07, moved from soc.server to soc.util package for client's use.
  * Some methods moved to new subclass {@link soc.server.SOCGameListAtServer}.
  * That subclass also tracks each game's {@link SOCGame} object and
- * its client {@link soc.server.genericServer.Connection Connection}s.
+ * its client {@link soc.communication.Connection Connection}s.
  *<P>
  * The client-side addGame methods allow game names to have a prefix which marks them
  * as unjoinable by the client ({@link SOCGames#MARKER_THIS_GAME_UNJOINABLE}).
@@ -61,7 +61,7 @@ public class SOCGameList
      * Before v1.1.13, the default maximum was 20 characters.<BR>
      * From v1.1.07 through 1.2.00, this field was {@code SOCServer.GAME_NAME_MAX_LENGTH}.
      *
-     * @see soc.server.SOCServer#createOrJoinGameIfUserOK(soc.server.genericServer.Connection, String, String, String, SOCGameOptionSet)
+     * @see soc.server.SOCServer#createOrJoinGameIfUserOK( soc.communication.Connection, String, String, String, SOCGameOptionSet)
      * @since 1.2.01
      */
     public static final int GAME_NAME_MAX_LENGTH = 30;

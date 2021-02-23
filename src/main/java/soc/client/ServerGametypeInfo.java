@@ -51,7 +51,8 @@ import static soc.game.SOCGameOption.FLAG_DROP_IF_UNUSED;
  *<OL>
  *<LI> First, this object is created; <tt>allOptionsReceived</tt> false,
  *     <tt>newGameWaitingForOpts</tt> false.
- *     <tt>knownOpts</tt> is set at client from {@link SOCGameOptionSet#getAllKnownOptions()}.
+ *     <tt>{@link #knownOpts knownOpts}</tt> is initialized to a single <tt>_SC</tt> option,
+ *     awaiting messages from the server.
  *<LI> At server connect, ask and receive info about options, if our version and the
  *     server's version differ.  Once this is done, <tt>allOptionsReceived</tt> == true.
  *     If server is older than 1.1.07, <tt>knownOpts</tt> becomes null here
@@ -177,7 +178,7 @@ public class ServerGametypeInfo
      */
     public ServerGametypeInfo()
     {
-        knownOpts = new SOCGameOptionSet(  );
+        knownOpts = new SOCGameOptionSet();
         knownOpts.put( new SOCGameOption( "SC", 2000, 2000, 8, false,
             FLAG_DROP_IF_UNUSED, "Game Scenario: #" ));
         scenKeys = new HashSet<>();
@@ -241,7 +242,7 @@ public class ServerGametypeInfo
      * Calls {@link SOCGameOptionSet#addKnownOption(SOCGameOption)}.
      * May update {@code allOptionsReceived} flag.
      * If client already had information about this game option, that old info is discarded
-     * but any {@link SOCGameOption.ChangeListener} is copied to the message's new {@link SOCGameOption}.
+     * but any {@link soc.game.SOCGameOption.ChangeListener} is copied to the message's new {@link SOCGameOption}.
      *
      * @param optionInfo  Message from server with info on one parameter, or end-of-list marker
      *     {@link SOCGameOptionInfo#OPTINFO_NO_MORE_OPTS}

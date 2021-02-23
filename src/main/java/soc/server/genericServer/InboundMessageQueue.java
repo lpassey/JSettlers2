@@ -35,7 +35,7 @@ import soc.message.SOCMessage;
  *<P>
  * That dispatch is done through this class's single internal {@link Treater} thread, which de-queues
  * the received messages from the queue and forwards them to the {@link Server} by calling
- * {@link Server.InboundMessageDispatcher#dispatch(SOCMessage, Connection)}
+ * {@link SOCMessageDispatcher#dispatch(SOCMessage, Connection)}
  * for each inbound message.
  *<P>
  * Some dispatched message handlers may want to do work in other Threads without tying up the Treater thread,
@@ -56,7 +56,7 @@ import soc.message.SOCMessage;
  * <LI> See {@link Server} class javadoc for an overall picture of inbound processing.
  * <LI> See {@link SOCMessage} for details of the client/server protocol messaging.
  * <LI> See {@link Connection} for details of the client/server communication.
- * <LI> See {@link Server.InboundMessageDispatcher#dispatch(SOCMessage, Connection)}
+ * <LI> See {@link SOCMessageDispatcher#dispatch(SOCMessage, Connection)}
  *      for details on further message processing.
  *</UL>
  *

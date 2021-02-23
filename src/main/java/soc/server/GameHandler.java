@@ -20,6 +20,7 @@
 package soc.server;
 
 import soc.communication.Connection;
+import soc.game.GameState;
 import soc.game.SOCGame;
 import soc.game.SOCGameOptionSet;
 import soc.game.SOCPlayer;
@@ -116,7 +117,7 @@ public abstract class GameHandler
 
     /**
      * Client has been approved to join game; send JOINGAMEAUTH and the entire state of the game to client.
-     * Unless {@code isRejoinOrLoadgame}, announce {@link SOCJoinGame} client join event to other players.
+     * Unless {@code isRejoinOrLoadgame}, announce {@link soc.message.SOCJoinGame} client join event to other players.
      *<P>
      * Assumes {@link SOCServer#connectToGame(Connection, String, SOCGameOptionSet, SOCGame)} was already called.
      * Assumes NEWGAME (or NEWGAMEWITHOPTIONS) has already been sent out.
@@ -125,7 +126,7 @@ public abstract class GameHandler
      * Among other messages, player names are sent via SITDOWN, and pieces on board
      * sent by PUTPIECE. See comments here for further details. The group of messages
      * sent here to the client ends with GAMEMEMBERS, SETTURN and GAMESTATE.
-     * If game has started (state &gt;= {@link SOCGame#START2A START2A}), they're
+     * If game has started (state &gt;= {@link GameState#START2A START2A}), they're
      * then prompted with a GAMESERVERTEXT to take over a bot in order to play.
      *<P>
      * If {@code isRejoinOrLoadgame}, assume the game already started and also include any details
@@ -136,7 +137,7 @@ public abstract class GameHandler
      * @param isReset  Game is a board-reset of an existing game.  This is always false when
      *                 called from SOCServer instead of from inside the GameHandler.
      *                 Not all game types may be reset.
-     * @param isLoading  Game is being reloaded from snapshot by {@code c}'s request; state is {@link SOCGame#LOADING}
+     * @param isLoading  Game is being reloaded from snapshot by {@code c}'s request; state is {@link GameState#LOADING}
      * @param isRejoinOrLoadgame  If true, client is re-joining; {@code c} replaces an earlier connection which
      *          is defunct/frozen because of a network problem. Also true when a human player joins a
      *          game being reloaded and has the same nickname as a player there.
@@ -144,8 +145,8 @@ public abstract class GameHandler
      * @see SOCServer#createOrJoinGameIfUserOK(Connection, String, String, String, SOCGameOptionSet)
      * @since 1.1.00
      */
-    public abstract void joinGame
-        (SOCGame gameData, Connection c, boolean isReset, boolean isLoading, boolean isRejoinOrLoadgame);
+    public abstract void joinGame( SOCGame gameData, Connection c, boolean isReset,
+        boolean isLoading, boolean isRejoinOrLoadgame);
 
     /**
      * When player has just sat down at a seat, send them all the private information.
@@ -172,7 +173,7 @@ public abstract class GameHandler
      * Send all game members the current state of the game with a {@link SOCGameState} message.
      * Assumes current player does not change during this state.
      * May also send other messages to the current player.
-     * If state is {@link SOCGame#ROLL_OR_CARD}, sends game a {@link SOCRollDicePrompt}.
+     * If state is {@link GameState#ROLL_OR_CARD}, sends game a {@link SOCRollDicePrompt}.
      *<P>
      * Be sure that callers to {@code sendGameState} don't assume the game will still
      * exist after calling this method, if the game state was {@link GameState#GAME_OVER}.
@@ -193,7 +194,7 @@ public abstract class GameHandler
      * set up and send the board layout, game state, and finally send the {@link soc.message.SOCStartGame STARTGAME}
      * and {@link soc.message.SOCTurn TURN} messages.
      *<P>
-     * Set game state to {@link SOCGame#READY} or higher, from an earlier/lower state.
+     * Set game state to {@link GameState#READY} or higher, from an earlier/lower state.
      *
      * @param ga  the game
      */
@@ -220,7 +221,7 @@ public abstract class GameHandler
      *<P>
      * The server checks {@link SOCGame#lastActionTime} to decide inaction.
      * The game could also seem inactive if we're waiting for another human player to decide something.
-     * Games with state &gt;= {@link SOCGame#OVER}, and games which haven't started yet
+     * Games with state &gt;= {@link GameState#GAME_OVER}, and games which haven't started yet
      * ({@link SOCGame#getCurrentPlayerNumber()} == -1), are ignored.
      *<P>
      * The default timeout is {@link SOCServer#ROBOT_FORCE_ENDTURN_SECONDS}.  You may calculate and use

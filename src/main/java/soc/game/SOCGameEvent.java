@@ -79,7 +79,7 @@ public enum SOCGameEvent
      *<P>
      * Checked in private method <tt>SOCGame.checkForWinner_SC_CLVI()</tt>
      *<P>
-     * Before firing this method, game at server sets state to {@link SOCGame#OVER}
+     * Before firing this method, game at server sets state to {@link GameState#GAME_OVER}
      * and updates {@link SOCGame#getPlayerWithWin()}.
      *<P>
      * Triggered by game on server only, not sent to client.

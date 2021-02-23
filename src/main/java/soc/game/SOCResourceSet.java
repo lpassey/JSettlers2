@@ -104,12 +104,12 @@ public class SOCResourceSet implements ResourceSet, Serializable, Cloneable
      * Construct a new resource set from an immutable resource set (copy constructor)
      * @param other instance to copy contents from
      *
-     * @implNote This constructor does not support {@link #UNKNOWN}
+     * @implNote This constructor does not support {@link SOCResourceConstants#UNKNOWN}
      */
     public SOCResourceSet(ResourceSet other)
     {
         this();
-        resources[CLAY] = other.getAmount( CLAY);
+        resources[CLAY] = other.getAmount(CLAY);
         resources[ORE] = other.getAmount(ORE);
         resources[SHEEP] = other.getAmount(SHEEP);
         resources[WHEAT] = other.getAmount(WHEAT);

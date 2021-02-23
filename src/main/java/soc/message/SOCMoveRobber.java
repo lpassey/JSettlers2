@@ -23,7 +23,7 @@ package soc.message;
 
 import java.util.StringTokenizer;
 
-import soc.game.SOCGame;  // for javadocs only
+import soc.game.GameState;  // for javadocs only
 
 
 /**
@@ -32,8 +32,8 @@ import soc.game.SOCGame;  // for javadocs only
  * or (from server to all players) a player has moved the robber or pirate ship.
  *<P>
  * When sent from current player's client, is in response to server's
- * {@link SOCGameState}({@link SOCGame#PLACING_ROBBER PLACING_ROBBER}
- * or {@link SOCGame#PLACING_PIRATE PLACING_PIRATE}).
+ * {@link SOCGameState}({@link GameState#PLACING_ROBBER}
+ * or {@link GameState#PLACING_PIRATE}).
  *<P>
  * When sent from server, this message will be followed by other messages
  * about gaining/losing resources: {@link SOCReportRobbery} or {@link SOCPlayerElement}.

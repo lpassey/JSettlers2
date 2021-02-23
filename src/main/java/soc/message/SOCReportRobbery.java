@@ -155,10 +155,9 @@ public class SOCReportRobbery extends SOCMessage
      * @throws IllegalArgumentException if {@code amount}, {@code victimAmount}, or {@code resType} &lt; 0,
      *     or {@code isGainLose} but {@code victimAmount} != 0
      * @see #SOCReportRobbery(String, int, int, SOCResourceSet, int)
-     * @see #SOCReportRobbery(String, int, int, PEType, boolean, int, int, int)
+     * @see #SOCReportRobbery(String, int, int, int, SOCResourceSet, SOCPlayerElement.PEType, boolean, int, int, int)
      */
-    public SOCReportRobbery
-    ( final String gaName, final int perpPN, final int victimPN, final int resType,
+    public SOCReportRobbery( final String gaName, final int perpPN, final int victimPN, final int resType,
         final boolean isGainLose, final int amount, final int victimAmount, final int extraValue )
         throws IllegalArgumentException
     {
@@ -178,10 +177,10 @@ public class SOCReportRobbery extends SOCMessage
      * @param extraValue  Optional information related to the robbery, or 0; see {@link #extraValue}
      * @throws IllegalArgumentException if {@link SOCResourceSet#isEmpty()}
      * @see #SOCReportRobbery(String, int, int, int, boolean, int, int, int)
-     * @see #SOCReportRobbery(String, int, int, PEType, boolean, int, int, int)
+     * @see #SOCReportRobbery(String, int, int, int, SOCResourceSet, SOCPlayerElement.PEType, boolean, int, int, int)
      */
-    public SOCReportRobbery
-    ( final String gaName, final int perpPN, final int victimPN, final SOCResourceSet resSet, final int extraValue )
+    public SOCReportRobbery( final String gaName, final int perpPN, final int victimPN,
+        final SOCResourceSet resSet, final int extraValue )
         throws IllegalArgumentException
     {
         this( gaName, perpPN, victimPN, -1, resSet, null, true, 0, 0, extraValue );
@@ -204,16 +203,14 @@ public class SOCReportRobbery extends SOCMessage
      * @see #SOCReportRobbery(String, int, int, int, boolean, int, int, int)
      * @see #SOCReportRobbery(String, int, int, SOCResourceSet, int)
      */
-    public SOCReportRobbery
-    ( final String gaName, final int perpPN, final int victimPN, final PEType peType,
+    public SOCReportRobbery( final String gaName, final int perpPN, final int victimPN, final PEType peType,
         final boolean isGainLose, final int amount, final int victimAmount, final int extraValue )
         throws IllegalArgumentException
     {
         this( gaName, perpPN, victimPN, -1, null, peType, isGainLose, amount, victimAmount, extraValue );
     }
 
-    private SOCReportRobbery
-        ( final String gaName, final int perpPN, final int victimPN,
+    private SOCReportRobbery( final String gaName, final int perpPN, final int victimPN,
             final int resType, final SOCResourceSet resSet, final PEType peType,
             final boolean isGainLose, final int amount, final int victimAmount, final int extraValue )
         throws IllegalArgumentException

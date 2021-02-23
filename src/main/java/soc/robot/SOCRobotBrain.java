@@ -429,26 +429,26 @@ public class SOCRobotBrain extends Thread
     protected boolean expectSTART2B;
 
     /**
-     * true if we're expecting the {@link SOCGame#START3A START3A} state.
+     * true if we're expecting the {@link GameState#START3A START3A} state.
      * @since 2.0.00
      */
     protected boolean expectSTART3A;
 
     /**
-     * true if we're expecting the {@link SOCGame#START3B START3B} state.
+     * true if we're expecting the {@link GameState#START3B START3B} state.
      * @since 2.0.00
      */
     protected boolean expectSTART3B;
 
     /**
-     * true if we're expecting the {@link SOCGame#ROLL_OR_CARD ROLL_OR_CARD} state.
+     * true if we're expecting the {@link GameState#ROLL_OR_CARD ROLL_OR_CARD} state.
      *<P>
      * Before v2.0.00 this field was {@code expectPLAY} because that state was named {@code PLAY}.
      */
     protected boolean expectROLL_OR_CARD;
 
     /**
-     * true if we're expecting the {@link SOCGame#PLAY1 PLAY1} state.
+     * true if we're expecting the {@link GameState#PLAY1 PLAY1} state.
      */
     protected boolean expectPLAY1;
 
@@ -497,7 +497,7 @@ public class SOCRobotBrain extends Thread
     protected boolean expectPLACING_FREE_ROAD2;
 
     /**
-     * true if we're expecting the {@link SOCGame#PLACING_INV_ITEM PLACING_INV_ITEM} state.
+     * true if we're expecting the {@link GameState#PLACING_INV_ITEM PLACING_INV_ITEM} state.
      * @since 2.0.00
      */
     protected boolean expectPLACING_INV_ITEM;
@@ -528,14 +528,14 @@ public class SOCRobotBrain extends Thread
 
     /**
      * true if were expecting a PUTPIECE message after
-     * a {@link SOCGame#START3A START3A} game state.
+     * a {@link GameState#START3A START3A} game state.
      * @since 2.0.00
      */
     protected boolean expectPUTPIECE_FROM_START3A;
 
     /**
      * true if were expecting a PUTPIECE message after
-     * a {@link SOCGame#START3B START3B} game state.
+     * a {@link GameState#START3B START3B} game state.
      * @since 2.0.00
      */
     protected boolean expectPUTPIECE_FROM_START3B;
@@ -562,7 +562,7 @@ public class SOCRobotBrain extends Thread
 
     /**
      * True if we're expecting to pick a monopoly.
-     * When game state {@link SOCGame#WAITING_FOR_MONOPOLY} arrives,
+     * When game state {@link GameState#WAITING_FOR_MONOPOLY} arrives,
      * will send a resource type and set {@link #expectPLAY1}.
      */
     protected boolean expectWAITING_FOR_MONOPOLY;
@@ -592,18 +592,17 @@ public class SOCRobotBrain extends Thread
     /**
      * true if we're waiting for a {@link SOCTurn TURN} message from the server
      * when it's our turn
-     * @see #waitingForTurnMain
-     */
+      */
     protected boolean waitingForOurTurn;
 
     /**
-     * True if it's a new turn and game state is or was recently {@link SOCGame#ROLL_OR_CARD},
-     * not yet {@link SOCGame#PLAY1}. When this flag is true and state becomes {@code PLAY1},
+     * True if it's a new turn and game state is or was recently {@link GameState#ROLL_OR_CARD},
+     * not yet {@link GameState#PLAY1}. When this flag is true and state becomes {@code PLAY1},
      * brain will set it false and call {@link #startTurnMainActions()}.
      * @see #waitingForOurTurn
      * @since 2.4.50
      */
-    protected boolean waitingForTurnMain;
+//    protected boolean waitingForTurnMain;
 
     /**
      * True when we're waiting for the results of our requested bank trade.
@@ -620,7 +619,7 @@ public class SOCRobotBrain extends Thread
      * True when the robber will move because a seven was rolled.
      * Used to help bot remember why the robber is moving (Knight dev card, or 7).
      * Set true when {@link SOCMessage#DICERESULT} received.
-     * Read in gamestate {@link SOCGame#PLACING_ROBBER PLACING_ROBBER}.
+     * Read in gamestate {@link GameState#PLACING_ROBBER PLACING_ROBBER}.
      */
     protected boolean moveRobberOnSeven;
 
@@ -1154,7 +1153,8 @@ public class SOCRobotBrain extends Thread
 
         final String[] s = {
             "ourTurn", "doneTrading",
-            "waitingForGameState", "waitingForOurTurn", "waitingForTurnMain", "waitingForBankTradeMsg", "waitingForDevCard",
+            "waitingForGameState", "waitingForOurTurn", // "waitingForTurnMain",
+            "waitingForBankTradeMsg", "waitingForDevCard",
             "waitingForTradeResponse", "waitingForSC_PIRI_FortressRequest",
             "moveRobberOnSeven", "expectSTART1A", "expectSTART1B", "expectSTART2A", "expectSTART2B", "expectSTART3A", "expectSTART3B",
             "expectROLL_OR_CARD", "expectPLAY1", "expectPLACING_ROAD", "expectPLACING_SETTLEMENT", "expectPLACING_CITY", "expectPLACING_SHIP",
@@ -1165,7 +1165,8 @@ public class SOCRobotBrain extends Thread
         };
         final boolean[] b = {
             ourTurn, doneTrading,
-            waitingForGameState, waitingForOurTurn, waitingForTurnMain, waitingForBankTradeMsg, waitingForDevCard,
+            waitingForGameState, waitingForOurTurn, // waitingForTurnMain,
+            waitingForBankTradeMsg, waitingForDevCard,
             waitingForTradeResponse, waitingForSC_PIRI_FortressRequest,
             moveRobberOnSeven, expectSTART1A, expectSTART1B, expectSTART2A, expectSTART2B, expectSTART3A, expectSTART3B,
             expectROLL_OR_CARD, expectPLAY1, expectPLACING_ROAD, expectPLACING_SETTLEMENT, expectPLACING_CITY, expectPLACING_SHIP,
@@ -1611,12 +1612,12 @@ public class SOCRobotBrain extends Thread
                             }
                             // else, from another player; we can ignore it
                         }
-                        else if (((SOCSimpleAction) mes).getActionType() == SOCSimpleAction.DICE_RESULTS_FULLY_SENT)
-                        {
-                            if (ourTurn)
-                                // We can now take actions like trading, building etc. NOT BEFORE!
-                                waitingForTurnMain = true;
-                        }
+//                        else if (((SOCSimpleAction) mes).getActionType() == SOCSimpleAction.DICE_RESULTS_FULLY_SENT)
+//                        {
+//                            if (ourTurn)
+//                                // We can now take actions like trading, building etc. NOT BEFORE!
+//                                waitingForTurnMain = true;
+//                        }
                         break;
 
                     case SOCMessage.INVENTORYITEMACTION:
@@ -1765,9 +1766,9 @@ public class SOCRobotBrain extends Thread
                      * Planning: If our turn and not waiting for something,
                      * it's time to decide to build or take other normal actions.
                      */
-                    if (   ! waitingForTurnMain
+                    if (   ourTurn // ! waitingForTurnMain
                         && (   (game.getGameState() == PLAY1)
-                            || (game.getGameState() == SPECIAL_BUILDING))
+                         || (game.getGameState() == SPECIAL_BUILDING))
                         && !(   waitingForGameState
                              || waitingForBankTradeMsg
                              || waitingForTradeResponse
@@ -2143,17 +2144,17 @@ public class SOCRobotBrain extends Thread
     /**
      * Handle a game state change from {@link SOCGameState} or another message
      * which has a Game State field. Clears {@link #waitingForGameState}
-     * (unless {@code gs} is {@link SOCGame#LOADING} or {@link SOCGame#LOADING_RESUMING}),
+     * (unless {@code newState} is {@link GameState#LOADING} or {@link GameState#LOADING_RESUMING}),
      * updates {@link #oldGameState} if state value is actually changing, then calls
-     * {@link SOCDisplaylessPlayerClient#handleGAMESTATE(SOCGame, int)}.
-     *<P>
-     * When state moves from {@link SOCGame#ROLL_OR_CARD} to {@link SOCGame#PLAY1},
+     * {@link SOCDisplaylessPlayerClient#handleGAMESTATE(SOCGame, GameState)}.
+     *<P></P>
+     * When state moves from {@link GameState#ROLL_OR_CARD} to {@link GameState#PLAY1},
      * calls {@link #startTurnMainActions()}.
      *<P>
      * If overriding this method, please call {@code super.handleGAMESTATE(newState)}
      * so game data is updated and {@code startTurnMainActions()} is called when it should be.
      *
-     * @param newState  New game state, like {@link SOCGame#ROLL_OR_CARD}; if 0, does nothing
+     * @param newState  New game state, like {@link GameState#ROLL_OR_CARD}; if 0, does nothing
      * @since 2.0.00
      */
     protected void handleGAMESTATE(final GameState newState)
@@ -2162,9 +2163,9 @@ public class SOCRobotBrain extends Thread
             return;
 
         waitingForGameState = ((newState == LOADING) || (newState == LOADING_RESUMING));  // almost always false
-        GameState currGS = game.getGameState();
-        if (currGS != newState)
-            oldGameState = currGS;  // if no actual change, don't overwrite previously known oldGameState
+        GameState currGameState = game.getGameState();
+        if (currGameState != newState)
+            oldGameState = currGameState;  // if no actual change, don't overwrite previously known oldGameState
 
         SOCDisplaylessPlayerClient.handleGAMESTATE(game, newState);
 
@@ -2172,10 +2173,10 @@ public class SOCRobotBrain extends Thread
         {
 //            waitingForTurnMain = true;
         }
-        else if ((newState == PLAY1) && waitingForTurnMain)
+        else if ((newState == PLAY1)/* && waitingForTurnMain*/)
         {
             startTurnMainActions();
-            waitingForTurnMain = false;
+//            waitingForTurnMain = false;
         }
     }
 
@@ -2798,7 +2799,7 @@ public class SOCRobotBrain extends Thread
      * On our turn, ask client to roll dice or play a knight;
      * on other turns, update flags to expect dice result.
      *<P>
-     * Call when gameState {@link SOCGame#ROLL_OR_CARD} && ! {@link #waitingForGameState}.
+     * Call when gameState {@link GameState#ROLL_OR_CARD} && ! {@link #waitingForGameState}.
      *<P>
      * Clears {@link #expectROLL_OR_CARD} to false.
      * Sets either {@link #expectDICERESULT}, or {@link #expectPLACING_ROBBER} and {@link #waitingForGameState}.
@@ -2867,7 +2868,7 @@ public class SOCRobotBrain extends Thread
      *<LI> {@link #ourTurn}
      *<LI> {@link #planBuilding()} already called
      *<LI> ! {@link #buildingPlan}.empty()
-     *<LI> gameState {@link SOCGame#PLAY1} or {@link SOCGame#SPECIAL_BUILDING}
+     *<LI> gameState {@link GameState#PLAY1} or {@link GameState#SPECIAL_BUILDING}
      *<LI> <tt>waitingFor...</tt> flags all false ({@link #waitingForGameState}, etc)
      *     except possibly {@link #waitingForSpecialBuild}
      *<LI> <tt>expect...</tt> flags all false ({@link #expectPLACING_ROAD}, etc)
@@ -3118,7 +3119,7 @@ public class SOCRobotBrain extends Thread
      * and:
      *<UL>
      * <LI> {@link #ourTurn}
-     * <LI> game state {@link SOCGame#PLACING_INV_ITEM PLACING_INV_ITEM} or {@link SOCGame#PLAY1 PLAY1}
+     * <LI> game state {@link GameState#PLACING_INV_ITEM PLACING_INV_ITEM} or {@link GameState#PLAY1 PLAY1}
      * <LI> ! {@link #waitingForGameState}
      *</UL>
      *
@@ -3739,7 +3740,7 @@ public class SOCRobotBrain extends Thread
      *<P>
      * Preconditions: Call only when:
      *<UL>
-     * <LI> Gamestate is {@link SOCGame#PLAY1} or {@link SOCGame#SPECIAL_BUILDING}
+     * <LI> Gamestate is {@link GameState#PLAY1} or {@link GameState#SPECIAL_BUILDING}
      * <LI> <tt>! ({@link #waitingForBankTradeMsg} || {@link #waitingForTradeResponse})</tt>
      * <LI> ourPlayerData.getResources().{@link SOCResourceSet#contains(soc.game.ResourceSet) contains}(targetPieceResources)
      *</UL>
@@ -3891,7 +3892,7 @@ public class SOCRobotBrain extends Thread
 
     /**
      * Handle a PLAYERELEMENTS for this game.
-     * See {@link #handlePLAYERELEMENT(SOCPlayer, int, int, PEType, int)} for actions taken.
+     * See {@link #handlePLAYERELEMENT(SOCPlayer, int, int, SOCPlayerElement.PEType, int)} for actions taken.
      * @since 2.0.00
      */
     protected void handlePLAYERELEMENTS( SOCPlayerElements mes )
@@ -3909,7 +3910,7 @@ public class SOCRobotBrain extends Thread
 
     /**
      * Handle a PLAYERELEMENT for this game.
-     * See {@link #handlePLAYERELEMENT(SOCPlayer, int, int, PEType, int)} for actions taken.
+     * See {@link #handlePLAYERELEMENT(SOCPlayer, int, int, SOCPlayerElement.PEType, int)} for actions taken.
      * @since 1.1.08
      */
     protected void handlePLAYERELEMENT( SOCPlayerElement mes )
@@ -3925,7 +3926,7 @@ public class SOCRobotBrain extends Thread
      * Handle a player information update from a {@link SOCPlayerElement} or {@link SOCPlayerElements} message:
      * Update a player's amount of a resource or a building type.
      *<P>
-     * If this during the {@link SOCGame#ROLL_OR_CARD} state, then update the
+     * If this during the {@link GameState#ROLL_OR_CARD} state, then update the
      * {@link SOCRobotNegotiator}'s is-selling flags.
      *<P>
      * If our player is losing a resource needed for the {@link #buildingPlan},
@@ -3944,8 +3945,8 @@ public class SOCRobotBrain extends Thread
      * @since 2.0.00
      */
     @SuppressWarnings("fallthrough")
-    protected void handlePLAYERELEMENT
-    ( SOCPlayer pl, final int pn, final int action, final PEType etype, final int amount )
+    protected void handlePLAYERELEMENT( SOCPlayer pl, final int pn, final int action,
+        final PEType etype, final int amount )
     {
         if (etype == null)
             return;
@@ -4461,13 +4462,13 @@ public class SOCRobotBrain extends Thread
      *  Also handles illegal requests to buy development cards
      *  (piece type -2 in {@link SOCCancelBuildRequest}).
      *<P>
-     *  Must update game data by calling {@link SOCGame#setGameState(int)} before calling this method.
+     *  Must update game data by calling {@link SOCGame#setGameState(GameState)} before calling this method.
      *<P>
      *  This method increments {@link #failedBuildingAttempts},
      *  but won't leave the game if we've failed too many times.
      *  The brain's run loop should make that decision.
      *<UL>
-     * <LI> If {@link SOCGame#getGameState()} is {@link SOCGame#PLAY1},
+     * <LI> If {@link SOCGame#getGameState()} is {@link GameState#PLAY1},
      *   server likely denied us due to resources, not due to building plan
      *   being interrupted by another player's building before our special building phase.
      *   (Could also be due to a bug in the chosen building plan.)
@@ -4653,7 +4654,7 @@ public class SOCRobotBrain extends Thread
      * Calls {@link #resetBuildingPlan()}.
      * Also calls {@link SOCPlayer#clearPotentialSettlement(int)},
      * clearPotentialRoad, or clearPotentialCity.
-     * During Initial Placement states &lt;= {@link SOCGame#START3B},
+     * During Initial Placement states &lt;= {@link GameState#START3B},
      * calls {@link OpeningBuildStrategy#cancelWrongPiecePlacement(SOCPlayingPiece)}.
      *
      * @param cancelPiece Type and coordinates of the piece to cancel; null is allowed but not very useful.
@@ -4770,8 +4771,7 @@ public class SOCRobotBrain extends Thread
     /**
      * Place planned initial settlement after first one.
      * @param initSettlement  Second or third settlement's node coordinate,
-     *   from {@link OpeningBuildStrategy#planSecondSettlement()} or
-     *   from {@link OpeningBuildStrategy#planThirdSettlement()};
+     *   from {@link OpeningBuildStrategy#planSecondSettlement()}
      *   should not be -1
      * @see #placeFirstSettlement(int)
      */
@@ -4798,7 +4798,7 @@ public class SOCRobotBrain extends Thread
 
     /**
      * Plan and place a road attached to our most recently placed initial settlement,
-     * in game states {@link SOCGame#START1B START1B}, {@link SOCGame#START2B START2B}, {@link SOCGame#START3B START3B}.
+     * in game states {@link GameState#START1B START1B}, {@link GameState#START2B START2B}, {@link GameState#START3B START3B}.
      * Calls {@link OpeningBuildStrategy#planInitRoad()}.
      *<P>
      * Road choice is based on the best nearby potential settlements, and doesn't
@@ -5114,7 +5114,7 @@ public class SOCRobotBrain extends Thread
 
     /**
      * Perform any specific actions needed by this brain at start of the main part of any player's turn:
-     * Dice roll actions are done, game state just became {@link SOCGame#PLAY1}.
+     * Dice roll actions are done, game state just became {@link GameState#PLAY1}.
      *<P>
      * Default behaviour: No special actions. Third-party bots may override this stub.
      *

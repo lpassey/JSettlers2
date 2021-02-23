@@ -111,7 +111,7 @@ public final class SOCChatRecentBuffer
         buf[newest] = ent;  // evicts oldest if needed
     }
 
-    /** One entry in a buffer; see {@link Entry#Entry(String, String) constructor} */
+    /** One entry in a buffer; see {@link SOCChatRecentBuffer.Entry#Entry(String, String) constructor} */
     public static final class Entry
     {
         public final String nickname;

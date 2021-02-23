@@ -70,7 +70,7 @@ import soc.util.SOCStringManager;
  *      at {@link soc.message.SOCInventoryItemAction}.
  * <LI> Not all items are placed on the board, and not all of those allow placement to be canceled: check and update
  *      {@link #isPlayForPlacement(SOCGame, int)}, {@link SOCGame#cancelPlaceInventoryItem(boolean)}, SOCGame's javadocs
- *      for {@code gameState}, {@code oldGameState}, and {@link SOCGame#PLACING_INV_ITEM PLACING_INV_ITEM}.
+ *      for {@code gameState}, {@code oldGameState}, and {@link GameState#PLACING_INV_ITEM PLACING_INV_ITEM}.
  *      For cancelable items, set the {@link #canCancelPlay} flag when calling the constructor.
  * <LI> If the item is playable, update {@link SOCGame#forceEndTurn()} and
  *      {@link soc.server.SOCGameHandler#forceEndGameTurn(SOCGame, String)} to return it to the player's inventory if
@@ -79,7 +79,7 @@ import soc.util.SOCStringManager;
  *      {@link soc.robot.SOCRobotBrain#considerScenarioTurnFinalActions()}
  *      and/or {@link soc.robot.SOCRobotBrain#planAndPlaceInvItem()}
  * <LI> Consider adding debug commands about this kind of item to
- *      {@link soc.server.SOCGameHandler#processDebugCommand_scenario(soc.server.genericServer.Connection, String, String)}
+ *      {@link soc.server.SOCGameHandler#processDebugCommand_scenario(soc.communication.Connection, SOCGame, String)}
  * <LI> If there's already a similar kind of item, search where-used for its SOCGameOption or related constants,
  *      and decide if your new kind should be checked at the same places in the code
  *</UL>
@@ -179,7 +179,7 @@ public class SOCInventoryItem
     }
 
     /**
-     * Does this type of item require placement on the board (state {@link SOCGame#PLACING_INV_ITEM}) when played?
+     * Does this type of item require placement on the board (state {@link GameState#PLACING_INV_ITEM}) when played?
      * If so, when the item is played, caller should call {@link SOCGame#setPlacingItem(SOCInventoryItem)}.
      * @param ga  Game, to check scenario options and determine kind of item being played
      * @param type  Item or card type code, from {@link #itype}

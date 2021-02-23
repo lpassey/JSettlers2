@@ -51,7 +51,7 @@ import soc.game.SOCResourceSet;
  * The player count parameter helps delimit in case of future expansion of this message's fields.
  *<P>
  * Client constructor parses that int parameter list into usable fields like
- * {@link #playerNum} and {@link #playerResTotal}.
+ * {@link #playerNum} and {@link #playerTotalResources}.
  *<P>
  * Before v2.0.00 this info was sent as {@link SOCPlayerElement SOCPlayerElement(GAIN)}
  * and {@link SOCGameTextMsg}, followed by {@link SOCResourceCount}.
@@ -72,7 +72,7 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
     private static final long serialVersionUID = 2000L;
 
     /**
-     * {@code playerNum(i)} is the player number gaining the resources in {@link #playerRsrc playerRsrc(i)}.
+     * {@code playerNum(i)} is the player number gaining the resources in {@link #playerResourceList playerResourceList(i)}.
      * Used at client only, null at server.
      */
     public List<Integer> playerNum;
@@ -80,14 +80,14 @@ public class SOCDiceResultResources extends SOCMessageTemplateMi
     /**
      * {@code playerRsrc(i)} is the resource set gained by player {@link #playerNum playerNum(i)}.
      * Used at client only, null at server.
-     * @see #playerResTotal
+     * @see #playerTotalResources
      */
     public List<SOCResourceSet> playerResourceList;
 
     /**
      * {@code playerResTotal(i)} is the new resource total count held by player {@link #playerNum playerNum(i)}.
      * Used at client only, null at server.
-     * @see #playerRsrc
+     * @see #playerResourceList
      */
     public List<Integer> playerTotalResources;
 

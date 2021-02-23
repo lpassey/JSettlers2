@@ -61,6 +61,8 @@ import soc.util.SOCGameList;
 import soc.util.SOCStringManager;
 import soc.util.Version;
 
+import static soc.message.SOCPlayerElement.ACTION_STRINGS;
+
 /**
  * Nested class for processing incoming messages (treating).
  * {@link ClientNetwork}'s reader thread calls
@@ -1431,7 +1433,7 @@ public final class MessageHandler implements SOCMessageDispatcher
     }
 
     /**
-     * Handle the "game state" message; calls {@link #handleGAMESTATE(SOCGame, int)}.
+     * Handle the "game state" message; calls {@link #handleGAMESTATE(SOCGame, GameState)}.
      * @param mes  the message
      */
     protected void handleGAMESTATE( SOCGameState mes )
@@ -1449,24 +1451,24 @@ public final class MessageHandler implements SOCMessageDispatcher
      *<P>
      * Checks current {@link SOCGame#getGameState()}; if current state is {@link GameState#NEW_GAME}
      * and {@code newState != NEW_GAME}, calls {@link PlayerClientListener#gameStarted()} before
-     * its usual {@link PlayerClientListener#gameStateChanged(int)} call.
+     * its usual {@link PlayerClientListener#gameStateChanged(GameState)} call.
      *
-     * @param ga  Game to update state; not null
-     * @param newState  New state from message, like {@link SOCGame#ROLL_OR_CARD}, or 0. Does nothing if 0.
+     * @param game  Game to update state; not null
+     * @param newState  New state from message, like {@link GameState#ROLL_OR_CARD}, or 0. Does nothing if 0.
      * @see #handleGAMESTATE(SOCGameState)
      * @since 2.0.00
      */
-    protected void handleGAMESTATE( final SOCGame ga, GameState newState )
+    protected void handleGAMESTATE( final SOCGame game, GameState newState )
     {
         if (newState == GameState.NEW_GAME)
             return;
 
         //noinspection ConstantConditions
-        final boolean gameStarted = (ga.getGameState() == GameState.NEW_GAME) && (newState != GameState.NEW_GAME);
+        final boolean gameStarted = (game.getGameState() == GameState.NEW_GAME) && (newState != GameState.NEW_GAME);
 
-        ga.setGameState( newState );
+        game.setGameState( newState );
 
-        PlayerClientListener pcl = client.getClientListener( ga.getName() );
+        PlayerClientListener pcl = client.getClientListener( game.getName() );
         if (pcl == null)
             return;
 
@@ -1500,7 +1502,7 @@ public final class MessageHandler implements SOCMessageDispatcher
 
     /**
      * handle the "player information" message: Finds game and its {@link PlayerClientListener} by name
-     * and calls {@link #handlePLAYERELEMENT(PlayerClientListener, SOCGame, SOCPlayer, int, int, PEType, int, boolean)}
+     * and calls {@link #handlePLAYERELEMENT(PlayerClientListener, SOCGame, SOCPlayer, int, int, SOCPlayerElement.PEType, int, boolean)}
      * @param mes  the message
      * @since 2.0.00
      */
@@ -1523,12 +1525,17 @@ public final class MessageHandler implements SOCMessageDispatcher
                 handlePLAYERELEMENT( pcl, ga, pl, pn, action, PEType.valueOf( etypes[i] ),
                     amounts[i], false );
             }
+            // client
+            final boolean isClientPlayer = (pcl != null) && (pn >= 0) && (pn == pcl.getClientPlayerNumber());
+            if (!isClientPlayer)
+                System.out.println( String.format( "%s: %s - %s ",
+                    ACTION_STRINGS[ mes.getAction() - 100], pl.getName(), pl.getResources().toFriendlyString() ));
         }
     }
 
     /**
      * handle the "player information" message: Finds game and its {@link PlayerClientListener} by name
-     * and calls {@link #handlePLAYERELEMENT(PlayerClientListener, SOCGame, SOCPlayer, int, int, PEType, int, boolean)}
+     * and calls {@link #handlePLAYERELEMENT(PlayerClientListener, SOCGame, SOCPlayer, int, int, SOCPlayerElement.PEType, int, boolean)}
      * @param mes  the message
      */
     protected void handlePLAYERELEMENT( SOCPlayerElement mes )
@@ -1541,8 +1548,8 @@ public final class MessageHandler implements SOCMessageDispatcher
         final int action = mes.getAction(), amount = mes.getAmount();
         final PEType etype = PEType.valueOf( mes.getElementType() );
 
-        handlePLAYERELEMENT
-            ( client.getClientListener( mes.getGame() ), ga, null, pn, action, etype, amount, mes.isNews() );
+        handlePLAYERELEMENT( client.getClientListener( mes.getGame() ), ga, null, pn, action,
+            etype, amount, mes.isNews() );
     }
 
     /**
@@ -1567,9 +1574,8 @@ public final class MessageHandler implements SOCMessageDispatcher
      *     {@link PlayerClientListener#playerElementUpdated(SOCPlayer, soc.client.PlayerClientListener.UpdateType, boolean, boolean)}
      * @since 2.0.00
      */
-    private void handlePLAYERELEMENT
-    ( final PlayerClientListener pcl, final SOCGame ga, SOCPlayer pl, final int pn,
-        final int action, final PEType etype, final int amount, final boolean isNews )
+    private void handlePLAYERELEMENT( final PlayerClientListener pcl, final SOCGame ga, SOCPlayer pl,
+        final int pn, final int action, final PEType etype, final int amount, final boolean isNews )
     {
         if ((ga == null) || (etype == null))
             return;
@@ -1737,7 +1743,7 @@ public final class MessageHandler implements SOCMessageDispatcher
 
     /**
      * Handle the GameElements message: Finds game by name, and loops calling
-     * {@link #handleGAMEELEMENT(SOCGame, GEType, int)}.
+     * {@link #handleGAMEELEMENT(SOCGame, SOCGameElements.GEType, int)}.
      * @param mes  the message
      * @since 2.0.00
      */
@@ -1757,7 +1763,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      * then update game's {@link PlayerClientListener} display if appropriate.
      *<P>
      * To update game information, calls
-     * {@link SOCDisplaylessPlayerClient#handleGAMEELEMENT(SOCGame, GEType, int)}.
+     * {@link SOCDisplaylessPlayerClient#handleGAMEELEMENT(SOCGame, SOCGameElements.GEType, int)}.
      *
      * @param ga   Game to update; does nothing if null
      * @param etype  Element type, such as {@link GEType#ROUND_COUNT} or {@link GEType#DEV_CARD_COUNT}.
@@ -2190,7 +2196,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      * then calls {@link PlayerClientListener#playerDevCardsUpdated(SOCPlayer, boolean)}.
      *<P>
      * If message is about the player's own cards at end of game when server reveals all VP cards
-     * ({@link SOCDevCardAction#ADD_OLD} in state {@link SOCGame#OVER}),
+     * ({@link SOCDevCardAction#ADD_OLD} in state {@link GameState#GAME_OVER}),
      * returns immediately and doesn't call those methods.
      *
      * @param mes  the message
@@ -2239,7 +2245,7 @@ public final class MessageHandler implements SOCMessageDispatcher
     }
 
     /**
-     * Handle one dev card's game data update for {@link #handleDEVCARDACTION(boolean, SOCDevCardAction)}.
+     * Handle one dev card's game data update for {@link #handleDEVCARDACTION(soc.message.SOCDevCardAction)}.
      * In case this is part of a list of cards, does not call
      * {@link PlayerClientListener#playerDevCardsUpdated(SOCPlayer, boolean)}: Caller must do so afterwards.
      * For {@link SOCDevCardAction#PLAY}, calls {@link SOCPlayer#updateDevCardsPlayed(int)}.
@@ -2846,6 +2852,7 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         // handle total counts here, visually updating any discrepancies
         final int n = mes.playerNum.size();
+        System.out.println( "Dice result resources:");
         for (int i = 0; i < n; ++i)
         {
             int playerNumber = mes.playerNum.get( i );
@@ -2857,8 +2864,11 @@ public final class MessageHandler implements SOCMessageDispatcher
 
             // We should have an estimate of each player's resources at this point; print them to the
             // console to aid in decision making.
-            System.out.println( String.format( "%s - %s", player.getName(), player.getResources().toFriendlyString() ));
+            final boolean isClientPlayer = (playerNumber >= 0) && (playerNumber == pcl.getClientPlayerNumber());
+            if (!isClientPlayer)
+                System.out.println( String.format( "%s - %s", player.getName(), player.getResources().toFriendlyString() ));
         }
+        System.out.println();
      }
 
     /**

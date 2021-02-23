@@ -214,7 +214,7 @@ public class PropertiesTranslatorEditor
      *           source will be the same filename without the "_xx" part.
      *           (The "_xx" part can be any length, not limited to 2 letters.)
      *           This constructor will call
-     *           {@link #makeParentFilename(String) makeParentFilename}({@link File#getPath() dest.getPath()).
+     *           {@link #makeParentFilename(String) makeParentFilename}({@link File#getPath() dest.getPath()}).
      * @throws IllegalArgumentException  Unless destFilename ends with _xx.properties
      *     (xx = any code 2 or more chars long)
      * @throws FileNotFoundException  if no existing parent of {@code dest} can be found on disk

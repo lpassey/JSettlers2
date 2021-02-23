@@ -462,7 +462,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     }
 
     /**
-     * Field names for {@link #toString()} when {@link #isFromServer}.
+     * Field names for {@link #toString()} when {@code isFromServer}.
      * @since 2.4.50
      */
     private final String[] FIELD_NAMES = {"key", "minVers", "lastModVers", "opts", "title", "desc"};
@@ -470,7 +470,7 @@ public class SOCScenarioInfo extends SOCMessageTemplateMs
     /**
      * Build a human-readable form of the message.
      *<UL>
-     * <LI> When {@link #isFromServer}, this is info about 1 scenario, and fields are named/labeled.
+     * <LI> When {@code isFromServer}, this is info about 1 scenario, and fields are named/labeled.
      *    {@code lastModVers} will show {@code "MARKER_KEY_UNKNOWN"} if {@link #isKeyUnknown}
      *    (field value sent as {@link #MARKER_KEY_UNKNOWN}).
      * <LI> Otherwise, is from client and this is a list of keys, possibly with a leading or trailing marker.

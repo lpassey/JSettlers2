@@ -3252,7 +3252,7 @@ public class SOCDBHelper
      *     Upgrade to schema 2.0.00 for {@code DBTYPE_ORA} isn't yet implemented: Upgrade attempts
      *     on that DB type will throw {@code MissingResourceException}.
      * @throws SQLException  if any unexpected database problem during the upgrade
-     * @see {@link #isSchemaLatestVersion()}
+     * @see #isSchemaLatestVersion()
      * @since 1.2.00
      */
     public void upgradeSchema( final Set<String> userAdmins )

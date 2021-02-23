@@ -70,14 +70,14 @@ import soc.message.SOCSitDown;
 import soc.message.SOCStartGame;
 
 /**
- * Client class to form outgoing messages and call {@link ClientNetwork} methods to send them to the server.
+ * Client class to form outgoing messages and call {@link Connection} methods to send them to the server.
  * In-game actions and requests each have their own methods, such as {@link #buyDevCard(SOCGame)}.
- * General messages can be sent using {@link #connection.send( String, boolean)}.
+ * General messages can be sent using {@link Connection#send(SOCMessage)}.
  *<P>
  * Before v2.0.00, most of these fields and methods were part of the main {@link SOCPlayerClient} class.
  *
  * @author paulbilnoski
- * @since 2.0.00
+ * @since 3.0.00
  */
 /*package*/ class GameMessageSender
 {
@@ -297,7 +297,7 @@ import soc.message.SOCStartGame;
 
     /**
      * The user has picked these resources to gain from a gold hex,
-     * or in game state {@link SOCGame#WAITING_FOR_DISCOVERY} has picked these
+     * or in game state {@link GameState#WAITING_FOR_DISCOVERY} has picked these
      * 2 free resources from a Discovery/Year of Plenty card.
      *
      * @param game  the game
@@ -311,9 +311,9 @@ import soc.message.SOCStartGame;
 
     /**
      * The user chose a player to steal from,
-     * or (game state {@link SOCGame#WAITING_FOR_ROBBER_OR_PIRATE})
+     * or (game state {@link GameState#WAITING_FOR_ROBBER_OR_PIRATE})
      * chose whether to move the robber or the pirate,
-     * or (game state {@link SOCGame#WAITING_FOR_ROB_CLOTH_OR_RESOURCE})
+     * or (game state {@link GameState#WAITING_FOR_ROB_CLOTH_OR_RESOURCE})
      * chose whether to steal a resource or cloth.
      *
      * @param game  the game
@@ -512,7 +512,7 @@ import soc.message.SOCStartGame;
      * {@link soc.message.SOCResetBoardAuth} message,
      * or will tell other players to vote yes/no on the request.
      *
-     * @param ga Game to vote on
+     * @param game Game to vote on
      * @param voteYes If true, this player votes yes; if false, no
      * @since 1.1.00
      */

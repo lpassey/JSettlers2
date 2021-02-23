@@ -33,6 +33,7 @@ import java.util.Stack;
 import java.util.Vector;
 
 import soc.disableDebug.D;
+import soc.game.GameState;      // for Javadocs only
 import soc.game.SOCBoard;
 import soc.game.SOCBoardLarge;
 import soc.game.SOCCity;
@@ -300,7 +301,7 @@ public class SOCRobotDM
    * Adds to {@link #buildingPlan}, sets {@link #favoriteSettlement}, etc.
    * Calls either {@link #smartGameStrategy(int[])} or {@link #dumbFastGameStrategy(int[])}.
    * Both of those will check whether this is our normal turn, or if
-   * it's the 6-player board's {@link SOCGame#SPECIAL_BUILDING Special Building Phase}.
+   * it's the 6-player board's {@link GameState#SPECIAL_BUILDING Special Building Phase}.
    * Both strategies also call
    * {@link #scenarioGameStrategyPlan(float, float, boolean, boolean, SOCBuildingSpeedEstimate, int, boolean) scenarioGameStrategyPlan(..)}
    * if the game has an applicable scenario such as {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI}.
@@ -2057,7 +2058,7 @@ public class SOCRobotDM
    * @param ourBSE  Our player's current {@link SOCBuildingSpeedEstimate} with our {@link SOCPlayer#getNumbers()}
    * @param leadersCurrentWGETA  For {@code SMART_STRATEGY}, the game leader's Win Game ETA from
    *          {@link SOCPlayerTracker#getWinGameETA()}.  Unused here (0) for {@code FAST_STRATEGY}.
-   * @param forSpecialBuildingPhase  True if we're in the {@link SOCGame#SPECIAL_BUILDING} Phase, not our full turn
+   * @param forSpecialBuildingPhase  True if we're in the {@link GameState#SPECIAL_BUILDING} Phase, not our full turn
    * @return  True if a Scenario-specific buildingPlan was pushed
    * @throws IllegalArgumentException if {@code smartGameStrategy} didn't calculate {@code cardScoreOrETA} and it's -1
    * @since 2.0.00
@@ -3128,7 +3129,7 @@ public class SOCRobotDM
   /**
    * Should the player play a knight for the purpose of working towards largest army?
    * If we already have largest army, should we now defend it if another player is close to taking it from us?
-   * Called during game state {@link SOCGame#PLAY1} when we have at least 1 {@link SOCDevCardConstants#KNIGHT}
+   * Called during game state {@link GameState#PLAY1} when we have at least 1 {@link SOCDevCardConstants#KNIGHT}
    * available to play, and haven't already played a dev card this turn.
    * @return  true if knight should be played now, not kept for when it's needed later
    * @since 2.4.50

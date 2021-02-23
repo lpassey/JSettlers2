@@ -121,7 +121,7 @@ public class SOCClientData
      *  <LI> Client has sent a {@link SOCGameOptionGetInfos} request with
      *     {@link SOCGameOptionGetInfos#hasTokenGetI18nDescs msg.hasTokenGetI18nDescs}
      *  <LI> {@link Connection#getI18NLocale() c.getI18NLocale()} != {@code null}
-     *  <LI> {@link Connection#getVersion() c.getVersion()} &gt;= {@link SOCStringManager#VERSION_FOR_I18N};
+     *  <LI> {@link Connection#getRemoteVersion() c.getRemoteVersion()} &gt;= {@link SOCStringManager#VERSION_FOR_I18N};
      *     this is already implied by the client sending a message with {@code hasTokenGetI18nDescs}.
      * </UL>
      * @see #locale

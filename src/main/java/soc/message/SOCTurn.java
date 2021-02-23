@@ -78,7 +78,7 @@ public class SOCTurn extends SOCMessage
      *
      * @param ga  the name of the game
      * @param pn  the seat number
-     * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0.
+     * @param gs  the new turn's optional Game State such as {@link GameState#ROLL_OR_CARD}, or 0.
      *     Values &lt; 0 are out of range and ignored (treated as 0).
      */
     public SOCTurn( final String ga, final int pn, final GameState gs )
@@ -108,7 +108,7 @@ public class SOCTurn extends SOCMessage
     /**
      * Get the the new turn's optional {@link SOCGame} State.
      * Ignored by clients older than v2.0.00 ({@link SOCGameState#VERSION_FOR_GAME_STATE_AS_FIELD}).
-     * @return Game State, such as {@link SOCGame#ROLL_OR_CARD}, or 0
+     * @return Game State, such as {@link GameState#ROLL_OR_CARD}, or 0
      * @since 2.0.00
      */
     public GameState getGameState()
@@ -131,7 +131,7 @@ public class SOCTurn extends SOCMessage
      *
      * @param ga  the name of the game
      * @param pn  the seat number
-     * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0 to omit that field
+     * @param gs  the new turn's optional Game State such as {@link GameState#ROLL_OR_CARD}, or 0 to omit that field
      * @return the command string
      */
     public static String toCmd( final String ga, final int pn, final GameState gs )

@@ -25,7 +25,7 @@ package soc.game;
  * The resulting action type, and possibly list of discarded
  * or returned resources or dev card/inventory item.
  *<P>
- * {@code forceEndTurn()} may also set the game state to {@link SOCGame#OVER}.
+ * {@code forceEndTurn()} may also set the game state to {@link GameState#GAME_OVER}.
  * Check for that; it's not reported as part of this object.
  *<P>
  * This result object isn't intended to be conveyed over a network to clients; the server
@@ -73,22 +73,22 @@ public class SOCForceEndTurnResult
      */
     public static final int FORCE_ENDTURN_MIN               = 1;  // Lowest possible
 
-    /** Since state is already {@link SOCGame#PLAY1}, already OK to end turn. No action was taken by forceEndTurn. */
+    /** Since state is already {@link GameState#PLAY1}, already OK to end turn. No action was taken by forceEndTurn. */
     public static final int FORCE_ENDTURN_NONE              = 1;
 
     /**
-     * Skip an initial road or settlement; current player has advanced forward, state changes to {@link SOCGame#START1A} or {@link SOCGame#START3A}.
+     * Skip an initial road or settlement; current player has advanced forward, state changes to {@link GameState#START1A} or {@link GameState#START3A}.
      * May have changed game's firstPlayer or lastPlayer; check {@link #didUpdateFP()} and {@link #didUpdateLP()}.
      */
     public static final int FORCE_ENDTURN_SKIP_START_ADV    = 2;
 
     /**
-     * Skip an initial road or settlement; current player has advanced backward, state changes to {@link SOCGame#START2A}.
+     * Skip an initial road or settlement; current player has advanced backward, state changes to {@link GameState#START2A}.
      * May have changed game's firstPlayer or lastPlayer; check {@link #didUpdateFP()} and {@link #didUpdateLP()}.
      */
     public static final int FORCE_ENDTURN_SKIP_START_ADVBACK = 3;
 
-    /** Skip an initial road or settlement; state changes to {@link SOCGame#PLAY1}, and {@link SOCGame#endTurn()} should be called. */
+    /** Skip an initial road or settlement; state changes to {@link GameState#PLAY1}, and {@link SOCGame#endTurn()} should be called. */
     public static final int FORCE_ENDTURN_SKIP_START_TURN   = 4;
 
     /** Sent both for placement of bought pieces, and for "free" pieces from road-building cards.
@@ -152,7 +152,7 @@ public class SOCForceEndTurnResult
      * @param updateFirstPlayer Was {@link SOCGame#getFirstPlayer()} changed?
      * @param updateLastPlayer  Was game's lastPlayer changed?
      * @param rsrcGained  null, or randomly picked resources from gold hex
-     *            from state {@link SOCGame#STARTS_WAITING_FOR_PICK_GOLD_RESOURCE STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}
+     *            from state {@link GameState#STARTS_WAITING_FOR_PICK_GOLD_RESOURCE STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}
      * @throws IllegalArgumentException If res is not in the range
      *            {@link #FORCE_ENDTURN_MIN} to {@link #FORCE_ENDTURN_MAX}.
      * @since 1.1.09

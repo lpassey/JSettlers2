@@ -23,20 +23,7 @@
  **/
 package soc.client;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.GraphicsConfiguration;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.SystemColor;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -141,7 +128,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * The classic JSettlers goldenrod dialog background color; pale yellow-orange tint #FFE6A2.
      * Typically used with foreground {@link Color#BLACK}, like in game/chat text areas,
      * {@link TradePanel}, {@link MessagePanel}, and {@link AskDialog}.
-     * @see #getForegroundBackgroundColors(boolean)
+     * @see #getForegroundBackgroundColors(boolean,boolean)
      * @see #JSETTLERS_BG_GREEN
      * @since 2.0.00
      */
@@ -152,7 +139,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * Typically used with foreground color {@link Color#BLACK},
      * like in {@link SwingMainDisplay}'s main panel.
      * Occasionally used with {@link #MISC_LABEL_FG_OFF_WHITE}.
-     * @see #getForegroundBackgroundColors(boolean)
+     * @see #getForegroundBackgroundColors(boolean,boolean)
      * @see #DIALOG_BG_GOLDENROD
      * @since 2.0.00
      */
@@ -161,7 +148,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     /**
      * For miscellaneous labels, off-white foreground color #FCFBF3.
      * Typically used on {@link #JSETTLERS_BG_GREEN}.
-     * @see #getForegroundBackgroundColors(boolean)
+     * @see #getForegroundBackgroundColors(boolean,boolean)
      * @since 2.0.00
      */
     public static final Color MISC_LABEL_FG_OFF_WHITE = new Color( 252, 251, 243 );
@@ -439,7 +426,6 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
     /**
      * Practice Game button: Create game to play against
-     * {@link ClientNetwork#practiceServer}, not {@link ClientNetwork#localTCPServer}.
      * @since 1.1.00
      */
     protected JButton practiceButton;
@@ -454,7 +440,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
     /**
      * Local Server indicator in main panel: blank, or 'server is running' if
-     * {@link ClientNetwork#localTCPServer} has been started.
+     * {@link ClientNetwork#localServer} has been started.
      * If so, localTCPServer's port number is shown in {@link #versionOrlocalTCPPortLabel}.
      * @since 1.1.00
      */
@@ -462,7 +448,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
     /**
      * When connected to a remote server, shows its version number.
-     * When running {@link ClientNetwork#localTCPServer}, shows that
+     * When running {@link ClientNetwork#localServer}, shows that
      * server's port number (see also {@link #localTCPServerLabel}).
      * In either mode, has a tooltip with more info.
      *<P>
@@ -818,7 +804,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     /**
      * {@inheritDoc}
      *<P>
-     * Uses {@link NotifyDialog#createAndShow(SwingMainDisplay, Frame, String, String, boolean)}
+     * Uses {@link NotifyDialog#createAndShow(MainDisplay, Window, String, String, boolean)}
      * which calls {@link EventQueue#invokeLater(Runnable)} to ensure it displays from the proper thread.
      */
     public void showErrorDialog( final String errMessage, final String buttonText )
@@ -1758,8 +1744,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
     /**
      * Validate and return the password textfield contents; may be 0-length, or {@code null} if invalid.
-     * Also set {@link #password} field to the value returned from this method.
-     * If {@link #gotPassword} already, return current password without checking textfield.
+     * Also set {@link SOCPlayerClient#password} field to the value returned from this method.
+     * If {@link SOCPlayerClient#gotPassword} already, return current password without checking textfield.
      * If text is too long, sets status text and sets focus to password textfield.
      * @return The trimmed password field text (may be ""), or {@code null} if invalid or too long
      * @see #readValidNicknameAndPassword()
@@ -1912,7 +1898,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * {@inheritDoc}
      *<P>
      * Assumes {@link #getValidNickname(boolean) getValidNickname(false)}, {@link #getPassword()},
-     * {@link ClientNetwork#connect(String, int)}, and {@link #gotPassword} are already called and valid.
+     * {@link ClientNetwork#netConnect(String, int)}, and {@link SOCPlayerClient#gotPassword}
+     * are already called and valid.
      *
      * @since 1.1.07
      */
@@ -1922,7 +1909,6 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         client.putGameReqLocalPrefs( gameName, localPrefs );
 
         client.requestNewGameWithOptions( gameName, opts );
-        System.out.flush();  // for debug print output (temporary)
         status.setText( client.strings.get( "pcli.message.talkingtoserv" ) );  // "Talking to server..."
         setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
     }
@@ -1944,7 +1930,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     /**
      * Look for active games that we're playing
      *
-     * @return Any found game of ours which is active (state &lt; {@link SOCGame#OVER}), or null if none.
+     * @return Any found game of ours which is active (state &lt; {@link GameState#GAME_OVER}), or null if none.
      * @see #hasAnyActiveGame(boolean)
      * @see ClientNetwork#anyHostedActiveGames()
      * @since 1.1.00

@@ -42,7 +42,7 @@ public interface SOCMessageDispatcher
      * bugs in server or gameName code it calls.
      *<P>
      * The first message from a peer is dispatched by
-     * {@link dispatchFirst(SOCMessage, Connection)}.
+     * {@link #dispatchFirst(SOCMessage, Connection)}.
      *<P>
      *<B>Security Note:</B> When there is a choice, always use local information
      * over information from the message.  For example, use the nickname from the connection to get the player

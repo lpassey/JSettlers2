@@ -493,7 +493,7 @@ public class ColorSquare extends JComponent implements MouseListener
      * more than once.
      *
      * @param inter  True for interactive, false for read-only
-     * @see 2.0.00
+     * @since 2.0.00
      */
     public void setInteractive(final boolean inter)
     {

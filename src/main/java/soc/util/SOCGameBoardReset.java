@@ -33,7 +33,7 @@ import soc.communication.Connection;
  * This class holds data the server needs to coordinate and complete
  * a "board reset" of a game being played.
  *<P>
- * If the game is in state {@link SOCGame#READY_RESET_WAIT_ROBOT_DISMISS},
+ * If the game is in state {@link GameState#READY_RESET_WAIT_ROBOT_DISMISS},
  * this object is referenced within the newly created game object.
  *<P>
  * Before v1.1.07 this class was in the {@code soc.server} package.
@@ -58,7 +58,7 @@ public class SOCGameBoardReset
     /**
      * Were there robots in the old game?
      * If so, this reset object's constructor set new game's {@link SOCGame#boardResetOngoingInfo} field,
-     * and set its state to {@link SOCGame#READY_RESET_WAIT_ROBOT_DISMISS}.
+     * and set its state to {@link GameState#READY_RESET_WAIT_ROBOT_DISMISS}.
      * When our {@link #oldRobotCount} is 0, {@link #newGame} can begin.
      * @see #hasRobots
      */
@@ -66,7 +66,7 @@ public class SOCGameBoardReset
 
     /**
      * Will there be robots in the new game?
-     * If so, this reset object's constructor and set its state to {@link SOCGame#READY}
+     * If so, this reset object's constructor and set its state to {@link GameState#READY}
      * until they have all joined.
      * @see #hadRobots
      * @since 1.2.01
@@ -93,7 +93,7 @@ public class SOCGameBoardReset
     /** Create a SOCGameReset: Extract data, reset the old game, and gather new data.
      *  Adjust game member list to remove robots.
      *  If there were robots, the <b>new</b> game's state is set to
-     *  {@link SOCGame#READY_RESET_WAIT_ROBOT_DISMISS}.
+     *  {@link GameState#READY_RESET_WAIT_ROBOT_DISMISS}.
      *
      * @param oldGame Game to reset - {@link soc.game.SOCGame#resetAsCopy()}
      *   will be called.  The old game's state will be changed to RESET_OLD.

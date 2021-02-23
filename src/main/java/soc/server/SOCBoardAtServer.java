@@ -264,7 +264,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
      *
      * @param game  Game with this board
      * @param rollRes  {@code game}'s roll results, to add cloth distribution into:
-     *   Updates {@link SOCGame.RollResult#cloth}, {@link SOCGame.RollResult#clothVillages} fields
+     *   Updates {@link soc.game.SOCGame.RollResult#cloth}, {@link soc.game.SOCGame.RollResult#clothVillages} fields
      * @param dice  Rolled dice number
      * @return true if any cloth was distributed
      */
@@ -2599,7 +2599,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
      * To prevent leaking information about the hex being hidden if it's a {@link #WATER_HEX} which is in
      * {@link #landHexLayout}, adds all its non-coastal nodes and edges to {@code nodesOnLand},
      * {@code landAreasLegalNodes}, and {@link #legalRoadEdges} as if it was a land hex.
-     * (Ignores Added Layout Part "AL".) When revealed later during game play, {@link #revealFogHiddenHex(int)}
+     * (Ignores Added Layout Part "AL".) When revealed later during game play, {@link #revealFogHiddenHex(int, int, int)}
      * will remove those nodes/edges.
      *<P>
      * To simplify the bot, client, and network, hexes can be hidden only during makeNewBoard,
@@ -5220,7 +5220,7 @@ public class SOCBoardAtServer extends SOCBoardLarge
 
 
     /**
-     * Server-side implementation of {@link BoardFactory} to create {@link SOCBoardAtServer}s.
+     * Server-side implementation of {@link soc.game.SOCBoard.BoardFactory} to create {@link SOCBoardAtServer}s.
      * Called by game constructor via <tt>static {@link SOCGame#boardFactory}</tt>.
      * @author Jeremy D Monin
      * @since 2.0.00

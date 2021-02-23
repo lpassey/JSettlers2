@@ -156,7 +156,7 @@ import soc.game.SOCResourceSet;
      * Set this panel to interactive or read-only mode.
      * If read-only, user can't click the resource amounts to change them.
      * @param inter  True for interactive, false for read-only
-     * @see 2.0.00
+     * @since 2.0.00
      */
     public void setInteractive(final boolean inter)
     {

@@ -35,7 +35,7 @@ import java.util.StringTokenizer;
  *<P>
  *   The special inventory items in PLACING_INV_ITEM each have a different placement message, but if item placement
  *   can be canceled, use this common message type, with {@code pieceType} == -3 ({@link #INV_ITEM_PLACE_CANCEL}).
- *   See {@link SOCInventoryItem} for when this is allowed.
+ *   See {@link soc.game.SOCInventoryItem} for when this is allowed.
  *   If placement can't be canceled, server will reply with {@link SOCGameServerText}.
  *
  *<LI> While placing the second free road or ship (PLACING_FREE_ROAD2), means

@@ -95,7 +95,7 @@ public class SOCBankTrade extends SOCMessage
      * Create a BankTrade message.
      *
      * @param ga   the name of the game
-     * @param give the set of resources being given to the bank/port: see {@link #getGiveSet()
+     * @param give the set of resources being given to the bank/port: see {@link #getGiveSet()}
      * @param get  the set of resources being taken from the bank/port: see {@link #getGetSet()}
      * @param pn   the player number making the trade,
      *     or -1 to send a request from client.

@@ -97,7 +97,7 @@ import static soc.game.GameState.*;
  *    no other player can pick the same one.  If they are able to pick that wonder, doing so builds its first level.
  *    When sending a PICK request, the wonder's game item index and player item index must meet the requirements
  *    of {@link SOCScenario#K_SC_WOND}.
- * <LI> Game state must be {@link SOCGame#PLAY1 PLAY1}
+ * <LI> Game state must be {@link GameState#PLAY1 PLAY1}
  * <LI> There are requirements ({@link #req}) to pick each wonder; different wonders have different requirements
  * <LI> There is a resource cost to build each level; different wonders have different costs
  * <LI> When the player first picks a Wonder to build its first level, player loses 1 ship.
@@ -284,7 +284,7 @@ public class SOCSpecialItem
      * Called at server, not at client.
      *<P>
      * In some scenarios, calls {@link SOCGame#checkForWinner()}; after calling
-     * this method, check {@link SOCGame#getGameState()} &gt;= {@link SOCGame#OVER}.
+     * this method, check {@link SOCGame#getGameState()} &gt;= {@link GameState#GAME_OVER}.
      *<P>
      * When both {@code gi} and {@code pi} are specified, the item is retrieved
      * by calling {@link SOCGame#getSpecialItem(String, int, int, int)} before
@@ -388,7 +388,7 @@ public class SOCSpecialItem
      * Called at server, not at client.
      *<P>
      * In some scenarios, calls {@link SOCGame#checkForWinner()}; after calling
-     * this method, check {@link SOCGame#getGameState()} &gt;= {@link SOCGame#OVER}.
+     * this method, check {@link SOCGame#getGameState()} &gt;= {@link GameState#GAME_OVER}.
      *<P>
      * To see which scenario and option {@code typeKey}s use this method, and scenario-specific usage details,
      * see the {@link SOCSpecialItem} class javadoc.

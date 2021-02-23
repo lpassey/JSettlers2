@@ -40,7 +40,7 @@ import java.util.TimerTask;
  * After that, daily summaries are appended every 24 hours at 00:01 local time
  * (from server's timezone via {@link Calendar#getInstance()}).
  *<P>
- * The actual {@link TimerTask}s here are {@link FirstRun} and {@link DailyRun}.
+ * The actual { @link TimerTask}s here are { @link FirstRun} and { @link DailyRun}.
  *
  * @since 2.3.00
  */

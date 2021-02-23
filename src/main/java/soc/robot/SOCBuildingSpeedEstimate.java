@@ -472,7 +472,7 @@ public class SOCBuildingSpeedEstimate
      * @param ports               a list of port flags
      *
      * @return  the number of rolls, or {@code cutoff} if that maximum is reached.
-     *     If {@link SOCResourceSet#contains(SOCResourceSet) startingResources.contains(targetResources)},
+     *     If {@link SOCResourceSet#contains(ResourceSet) startingResources.contains(targetResources)},
      *     returns 0.
      * @since 2.0.00
      */
@@ -503,10 +503,10 @@ public class SOCBuildingSpeedEstimate
      * @param ports               a list of port flags
      *
      * @return the number of rolls, and startingResources after any trading.
-     *     If {@link SOCResourceSet#contains(SOCResourceSet) startingResources.contains(targetResources)},
+     *     If {@link SOCResourceSet#contains(ResourceSet) startingResources.contains(targetResources)},
      *     returns 0 rolls and a copy of {@code startingResources} with identical amounts.
      * @throws CutoffExceededException  if total number of rolls &gt; {@code cutoff}
-     * @see #calculateRollsFast(SOCResourceSet, SOCResourceSet, int, boolean[])
+     * @see #calculateRollsFast(ResourceSet, SOCResourceSet, int, boolean[])
      */
     protected SOCResSetBuildTimePair calculateRollsAndRsrcFast
         (final ResourceSet startingResources, final SOCResourceSet targetResources, final int cutoff, final boolean[] ports)
@@ -766,7 +766,7 @@ public class SOCBuildingSpeedEstimate
      * @param ports               a list of port flags
      *
      * @return the number of rolls and our resources when the target is reached.
-     *    If {@link SOCResourceSet#contains(SOCResourceSet) startingResources.contains(targetResources)},
+     *    If {@link SOCResourceSet#contains( ResourceSet) startingResources.contains(targetResources)},
      *    returns 0 rolls and a {@code null} resource set.
      * @throws CutoffExceededException if estimate more than {@code cutoff} turns to obtain {@code targetResources}
      */

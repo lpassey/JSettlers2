@@ -34,7 +34,7 @@ import soc.util.DataUtils;
  * about any player's pieces on the board (see {@link SOCPutPiece PUTPIECE}).
  *<P>
  * This message sends the classic board layout for the original
- * 4-player game, {@link #BOARD_ENCODING_ORIGINAL}.
+ * 4-player game, {@link SOCBoard#BOARD_ENCODING_ORIGINAL}.
  * As of version 1.1.08 there are newer board layouts for game expansions
  * and 6-player extensions: {@link SOCBoardLayout2} is sent instead
  * for games with those features.
@@ -53,7 +53,7 @@ import soc.util.DataUtils;
  *<H4>Optimization:</H4>
  * For v2.0.00 and newer servers and clients ({@link #VERSION_FOR_OMIT_IF_EMPTY_NEW_GAME}):
  *<P>
- * If the game is still forming (state {@link SOCGame#NEW}),
+ * If the game is still forming (state {@link soc.game.GameState#NEW_GAME}),
  * client already has data for the empty board. If so, no board layout message
  * is sent to the client.
  *
@@ -66,7 +66,7 @@ public class SOCBoardLayout extends SOCMessage
 
     /**
      * First version number (2.0.00) where client isn't sent this message
-     * when joining a {@link SOCGame#NEW} game, because the board is empty
+     * when joining a {@link soc.game.GameState#NEW_GAME} game, because the board is empty
      * and client already has data for an empty board.
      */
     public static final int VERSION_FOR_OMIT_IF_EMPTY_NEW_GAME = 2000;
@@ -360,7 +360,7 @@ public class SOCBoardLayout extends SOCMessage
      * In version 1.1.09 and later, the hexLayout and numberLayout contents are included,
      * and for convenience robberHex is in hexadecimal instead of base-10.
      * Returns the same remapped "network" values for WATER_HEX, DESERT_HEX, and dice numbers as {@link #toCmd()},
-     * not the "standard" ones returned by {@link #getHexLayout() and {@link #getNumberLayout()}.
+     * not the "standard" ones returned by {@link #getHexLayout()} and {@link #getNumberLayout()}.
      * @return a human readable form of the message
      */
     public String toString()

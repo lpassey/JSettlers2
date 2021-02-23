@@ -31,7 +31,7 @@ import java.util.StringTokenizer;
  * see {@link soc.game.SOCPlayer#canPlaceShip_debugFreePlace(int)}.
  * Other conditions might cause server to send additional messages when replying
  * to a successful request, like {@link SOCInventoryItemAction} and
- * {@link SOCGameState}({@link soc.game.SOCGame#PLACING_INV_ITEM PLACING_INV_ITEM})
+ * {@link SOCGameState}({@link soc.game.GameState#PLACING_INV_ITEM PLACING_INV_ITEM})
  * for port placement in scenario {@link soc.game.SOCGameOptionSet#K_SC_FTRI SC_FTRI}.
  *<P>
  * If placement leads to Longest Route player changing, server sends that after its SOCPutPiece message:

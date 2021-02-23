@@ -31,8 +31,7 @@ import soc.robot.SOCRobotClient;
 /**
  * Each local robot in the {@link SOCServer} gets its own client thread.
  * Equivalent to main thread used in {@link SOCRobotClient} when connected
- * over the TCP network. Create by calling convenience method
- * {@link #createAndStartRobotClientThread(String, ServerConnectInfo, SOCGameOptionSet, Constructor)}.
+ * over the TCP network.
  *<P>
  * This class was originally SOCPlayerClient.SOCPlayerLocalRobotRunner,
  * then moved in 1.1.09 to SOCServer.SOCPlayerLocalRobotRunner.
@@ -82,7 +81,6 @@ import soc.robot.SOCRobotClient;
      *
      * @param rname  Name of robot
      * @param sci  Server connect info (TCP or local) with {@code robotCookie}; not {@code null}
-     * @param Set of Known Options to deep-copy for robot client, or {@code null} to use defaults
      * @param cliConstruc3p  For a third-party bot client, its constructor with same parameters and
      *     behavior as {@link SOCRobotClient#SOCRobotClient(ServerConnectInfo, String, String)};
      *     {@code null} for built-in bots

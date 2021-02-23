@@ -40,7 +40,7 @@ import soc.game.SOCVersionedItem;
  * introduced in versions newer than the client's version, but which
  * may be applicable to their version or all versions.
  * Client should have a {@link SOCGameOptionSet} to hold its "Known Options",
- * initialized from {@link SOCGameOptionSet#getAllKnownOptions()} and updated by this message.
+ * initialized from {@link soc.server.SOCServerGameOptionSet#getAllKnownOptions()} and updated by this message.
  *<P>
  * If the server doesn't know this option, the returned option type is
  * {@link SOCGameOption#OTYPE_UNKNOWN}.

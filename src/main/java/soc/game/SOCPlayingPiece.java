@@ -416,7 +416,7 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
 
     /**
      * For game items which have different type constants ({@link SOCPlayingPiece}, {@link SOCDevCard}, etc),
-     * get an item type's constant value from its unique technical name returned by {@link #getType(String, String[])}.
+     * get an item type's constant value from its unique technical name returned by {@link #getType(String, String[],int)}.
      *
      * @param typeName Type's technical name, as returned by {@link #getTypeName(int, String[])},
      *     or a numeric string like {@code "42"} for any recognized or unrecognized type's numeric value

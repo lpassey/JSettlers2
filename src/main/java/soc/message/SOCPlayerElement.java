@@ -22,9 +22,10 @@ package soc.message;
 
 import java.util.StringTokenizer;
 
-import soc.game.SOCGame;    // for javadocs only
-import soc.game.SOCGameOptionSet;  // for javadocs only
-import soc.game.SOCPlayer;  // for javadocs only
+import soc.game.GameState;      // for javadocs only
+import soc.game.SOCGame;        // for javadocs only
+import soc.game.SOCGameOptionSet;   // for javadocs only
+import soc.game.SOCPlayer;      // for javadocs only
 import soc.game.SOCPlayingPiece;
 import soc.game.SOCResourceConstants; // for javadocs only
 
@@ -163,7 +164,7 @@ public class SOCPlayerElement extends SOCMessage
 
         /**
          * For the 6-player board, player element type for asking to build
-         * during the {@link SOCGame#SPECIAL_BUILDING Special Building Phase}.
+         * during the {@link GameState#SPECIAL_BUILDING Special Building Phase}.
          * This element is {@link #SET} to 1 or 0.
          *<P>
          * Also used by {@link soc.server.savegame.SavedGameModel}, omitted when value is 0.
@@ -227,7 +228,7 @@ public class SOCPlayerElement extends SOCMessage
          * This element is 1 or 0.
          *<P>
          * Not sent to clients over network; used only by {@link soc.server.savegame.SavedGameModel}
-         * when gameState is {@link SOCGame#SPECIAL_BUILDING}.
+         * when gameState is {@link GameState#SPECIAL_BUILDING}.
          *
          * @see #ASK_SPECIAL_BUILD
          * @since 2.3.00
@@ -266,7 +267,7 @@ public class SOCPlayerElement extends SOCMessage
          * For the {@link soc.game.SOCBoardLarge large sea board},
          * player element type for asking to choose
          * resources from the gold hex after a dice roll,
-         * during the {@link SOCGame#WAITING_FOR_PICK_GOLD_RESOURCE WAITING_FOR_PICK_GOLD_RESOURCE}
+         * during the {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE WAITING_FOR_PICK_GOLD_RESOURCE}
          * game state.
          * This element is {@link #SET} to 0 or to the number of resources to choose.
          * Call {@link SOCPlayer#setNeedToPickGoldHexResources(int)}.

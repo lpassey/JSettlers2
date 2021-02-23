@@ -59,8 +59,8 @@ import static soc.game.GameState.*;
  * "Legal" locations are where pieces can be placed, according to the game rules.
  * "Potential" locations are where pieces can be placed <em>soon</em>, based on the
  * current state of the game board.  For example, every legal settlement location is
- * also a potential settlement during initial placement (game state {@link SOCGame#START1A START1A}
- * through {@link SOCGame#START3A START3A}.  Once the player's final initial settlement is placed,
+ * also a potential settlement during initial placement (game state {@link GameState#START1A START1A}
+ * through {@link GameState#START3A START3A}.  Once the player's final initial settlement is placed,
  * all potential settlement locations are cleared.  Only when they build 2 connected road
  * segments, will another potential settlement location be set.
  *<P>
@@ -80,7 +80,7 @@ import static soc.game.GameState.*;
  * Some fields are for use at the server only, and are null at the client:
  * {@link #resourceStats}, {@link #pendingMessagesOut}, etc.
  * To get the {@code Connection} to a SOCPlayer's client, use
- * {@code SOCServer.getConnection(player.{@link #getName()}).
+ * {@code SOCServer.getConnection(player.{@link #getName()}}).
  *
  * @author Robert S Thomas
  */
@@ -255,7 +255,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * For use at server by SOCGame, if the player's previous action this turn was a
      * bank trade, the resources involved.  Used to decide if they can undo the trade.
      *<P>
-     * Ignore unless {@link SOCGame#canUndoBankTrade(SOCResourceSet, SOCResourceSet)} is true.
+     * Ignore unless {@link SOCGame#canUndoBankTrade( ResourceSet, ResourceSet)} is true.
      *
      * @since 1.1.13
      */
@@ -378,8 +378,8 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * When setting this field, also increment {@link #resourceStats}
      * [{@link SOCResourceConstants#GOLD_LOCAL GOLD_LOCAL}].
      *<P>
-     * Game state {@link SOCGame#WAITING_FOR_PICK_GOLD_RESOURCE}
-     * or {@link SOCGame#STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}.
+     * Game state {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}
+     * or {@link GameState#STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}.
      * @see #needToDiscard
      * @since 2.0.00
      */
@@ -912,7 +912,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
     /**
      * At start of normal game play, set all nodes to not be potential settlements.
      * Called by {@code SOCGame.updateAtGameFirstTurn()}
-     * in state {@link SOCGame#START2A} or {@link SOCGame#START3A} after final initial settlement placement.
+     * in state {@link GameState#START2A} or {@link GameState#START3A} after final initial settlement placement.
      *<P>
      * Once they have placed another road, that road's
      * {@link #putPiece(SOCPlayingPiece, boolean)} call will call
@@ -954,12 +954,12 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * May be called during initial placement.
      * Is called at the end of initial placement, before the first player's first roll.
      * On the 6-player board, is called at the start of
-     * the player's {@link SOCGame#SPECIAL_BUILDING Special Building Phase}.
+     * the player's {@link GameState#SPECIAL_BUILDING Special Building Phase}.
      *<UL>
      *<LI> Mark our new dev cards as old
      *<LI> Set {@link #getNeedToPickGoldHexResources()} to 0
      *<LI> Clear the "last-action bank trade" flag/list
-     *     used by {@link SOCGame#canUndoBankTrade(SOCResourceSet, SOCResourceSet) game.canUndoBankTrade}
+     *     used by {@link SOCGame#canUndoBankTrade( ResourceSet, ResourceSet ) game.canUndoBankTrade}
      *</UL>
      * @since 1.1.14
      */
@@ -1235,7 +1235,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * after a dice roll or placing their 2nd initial settlement.
      * 0 unless {@link SOCGame#hasSeaBoard} and player is adjacent
      * to a {@link SOCBoardLarge#GOLD_HEX}.
-     * Game state should be {@link SOCGame#WAITING_FOR_PICK_GOLD_RESOURCE}.
+     * Game state should be {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}.
      * Once the player has picked their resources, returns to 0.
      *
      * @return number of resources to pick, or 0 for no pick
@@ -2201,7 +2201,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
 
     /**
      * set the Longest Paths list.
-     * @param vec  the list of Longest Paths to use
+     * @param lrList  the list of Longest Paths to use
      */
     public void setLRPaths( List<SOCLRPathData> lrList )
     {
@@ -3088,7 +3088,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      *<H5>Saving and Loading Game:</H5>
      * When reloading a game at the server, its pieces' fields (including {@link SOCShip#isClosed()})
      * already have been calculated during gameplay before game was saved, and then reloaded as part of the game model.
-     * So if game state is {@link SOCGame#LOADING} and we're at the server, won't re-check them here
+     * So if game state is {@link GameState#LOADING} and we're at the server, won't re-check them here
      * or throw exceptions for already-closed ship routes.
      *
      * @param newShip  Our new ship being placed in {@link #putPiece(SOCPlayingPiece, boolean)};
@@ -4915,7 +4915,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * @param pieceType  Piece type, such as {@link SOCPlayingPiece#SETTLEMENT}
      * @since 1.1.12
      * @return true if this piece type is the next to be placed
-     * @throws IllegalStateException if gameState is past initial placement (> {@link SOCGame#START3B})
+     * @throws IllegalStateException if gameState is past initial placement (> {@link GameState#START3B})
      */
     @SuppressWarnings("fallthrough")
     public boolean canBuildInitialPieceType( final int pieceType )

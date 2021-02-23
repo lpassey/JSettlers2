@@ -55,13 +55,13 @@ import java.util.List;
  * Receiving end automatically translates {@link SOCMessage#EMPTYSTR} elements to "".
  *<P>
  * <B>Max Length:</B> When sending a long list, watch for the 65535-character limit mentioned at
- * {@link soc.server.genericServer.Connection#MAX_MESSAGE_SIZE_UTF8}. Remember that limit is
+ * {@link soc.communication.Connection#MAX_MESSAGE_SIZE_UTF8}. Remember that limit is
  * against the strings' {@code UTF-8} encoding, not the internal encoding used with {@link String#length()}.
  * If unsure, you can test length of the final message string with code like:
  * <pre><code>
  *   final String msg = {@link SOCLocalizedStrings#SOCLocalizedStrings(String, int, List) new SOCLocalizedStrings(...)}{@link #toCmd() .toCmd()};
  *   final int len = msg.{@link String#getBytes(String) getBytes("utf-8")}.length;
- *   if (len > {@link soc.server.genericServer.Connection#MAX_MESSAGE_SIZE_UTF8 Connection.MAX_MESSAGE_SIZE_UTF8})
+ *   if (len > {@link soc.communication.Connection#MAX_MESSAGE_SIZE_UTF8 Connection.MAX_MESSAGE_SIZE_UTF8})
  *   {
  *       ....
  *   }
@@ -110,7 +110,7 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
      * flag.
      *<P>
      * If the client has requested all scenarios ({@link #FLAG_REQ_ALL}), server responds with a list
-     * including all localized scenarios in {@link soc.game.SOCScenario#getAllKnownScenarioKeynames()} and
+     * including all localized scenarios in {@link soc.server.SOCServerScenario#getAllKnownScenarioKeynames()} and
      * the {@link #FLAG_SENT_ALL} flag.
      *<P>
      * When client sends a {@link SOCJoinGame} request, if that game has a scenario and the client hasn't yet

@@ -1786,7 +1786,7 @@ public class SOCServerMessageHandler
     /**
      * Process the {@code *RESUMEGAME*} debug/admin command: Resume the current game,
      * which was recently loaded with {@code *LOADGAME*}.
-     * Must be in state {@link SOCGame#LOADING} or {@link SOCGame#LOADING_RESUMING}.
+     * Must be in state {@link GameState#LOADING} or {@link GameState#LOADING_RESUMING}.
      * Calls {@link SOCServer#resumeReloadedGame(Connection, SOCGame)}.
      *
      * @param c  Client sending the command, game owner if being called by server after last bot has sat down,
@@ -2484,7 +2484,7 @@ public class SOCServerMessageHandler
      * Handle an unattached robot saying it is leaving the game,
      * from {@link #handleLEAVEGAME(Connection, SOCLeaveGame)}.
      * Ignore the robot (since it's not a member of the game) unless
-     * gamestate is {@link SOCGame#READY_RESET_WAIT_ROBOT_DISMISS}.
+     * gamestate is {@link GameState#READY_RESET_WAIT_ROBOT_DISMISS}.
      *
      * @since 1.1.07
      */

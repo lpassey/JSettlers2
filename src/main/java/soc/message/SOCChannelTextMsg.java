@@ -71,7 +71,6 @@ public class SOCChannelTextMsg extends SOCMessage
      * @param tm  message text, which may contain {@link SOCMessage#sep2} but not {@link SOCMessage#sep}.
      *     For expected format when {@code nn} is {@link SOCGameTextMsg#SERVER_FOR_CHAT},
      *     see that constant's javadoc.
-     * @param tm  text message
      */
     public SOCChannelTextMsg(String ch, String nn, String tm)
     {

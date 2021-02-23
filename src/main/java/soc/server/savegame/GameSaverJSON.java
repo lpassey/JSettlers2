@@ -32,7 +32,7 @@ import soc.server.SOCServer;
 
 /**
  * Save a game and its board's current state to a JSON file.
- * Game state must be {@link SOCGame#ROLL_OR_CARD} or higher.
+ * Game state must be {@link soc.game.GameState#ROLL_OR_CARD} or higher.
  * Uses {@link SavedGameModel}, including some custom field serializers
  * declared through its {@code @JsonAdapter} field annotations.
  *
@@ -60,7 +60,7 @@ public class GameSaverJSON
      * @throws IllegalArgumentException  if {@code saveDir} isn't a currently existing directory
      * @throws SavedGameModel.UnsupportedSGMOperationException  if game has an option or feature not yet supported
      *     by {@link SavedGameModel}; see {@link SavedGameModel#checkCanSave(SOCGame)} for details.
-     * @throws IllegalStateException if game state &lt; {@link SOCGame#ROLL_OR_CARD}
+     * @throws IllegalStateException if game state &lt; {@link soc.game.GameState#ROLL_OR_CARD}
      * @throws IOException  if a problem occurs while saving
      */
     public static void saveGame

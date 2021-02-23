@@ -37,7 +37,7 @@ import static soc.game.SOCGameOption.FLAG_DROP_IF_UNUSED;  // for convenience in
 
 /**
  * A set of {@link SOCGameOption}s, either those of a game,
- * or all possible Known Options at a server or client: {@link #getAllKnownOptions()}.
+ * or all possible Known Options at a server or client: {@link soc.server.SOCServerGameOptionSet#getAllKnownOptions()}.
  *<P>
  * Internally this is a {@code Map} whose keys are the options' {@link SOCVersionedItem#key}s.
  *<P>
@@ -55,7 +55,7 @@ import static soc.game.SOCGameOption.FLAG_DROP_IF_UNUSED;  // for convenience in
  *<UL>
  * <LI> {@link #optionsForVersion(int)}
  * <LI> {@link #optionsNewerThanVersion(int, boolean, boolean)}
- * <LI> {@link #adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
+ * <LI> {@link #adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet,Map)}
  * <LI> {@link SOCGameOption#packKnownOptionsToString(SOCGameOptionSet, boolean, boolean)}
  * <LI> {@link SOCGameOption#parseOptionsToSet(String, SOCGameOptionSet)}
  * <LI> {@link SOCGameOption#getMaxIntValueForVersion(String, int)}
@@ -185,7 +185,7 @@ public class SOCGameOptionSet
      * Can hold a string of data which is sent to all robot clients joining a game,
      * entered on the server command line or properties file. A third-party bot might
      * want to use this option's value to configure its behavior or debug settings.
-     * Maximum length of this option's value is {@link #TEXT_OPTION_MAX_LENGTH}.
+     * Maximum length of this option's value is {@link SOCGameOption#TEXT_OPTION_MAX_LENGTH}.
      * @see #K__EXT_CLI
      * @see #K__EXT_GAM
      * @since 2.0.00
@@ -197,7 +197,7 @@ public class SOCGameOptionSet
      * Available for third-party developers: Not used by JSettlers core itself.
      * Can hold a string of data which is sent to all clients,
      * entered on the server command line or properties file.
-     * Maximum length of this option's value is {@link #TEXT_OPTION_MAX_LENGTH}.
+     * Maximum length of this option's value is {@link SOCGameOption#TEXT_OPTION_MAX_LENGTH}.
      * @see #K__EXT_BOT
      * @see #K__EXT_GAM
      * @since 2.0.00
@@ -209,7 +209,7 @@ public class SOCGameOptionSet
      * Available for third-party developers: Not used by JSettlers core itself.
      * Can hold a string of data which is sent to the game at all clients,
      * entered on the server command line or properties file.
-     * Maximum length of this option's value is {@link #TEXT_OPTION_MAX_LENGTH}.
+     * Maximum length of this option's value is {@link SOCGameOption#TEXT_OPTION_MAX_LENGTH}.
      * @see #K__EXT_BOT
      * @see #K__EXT_CLI
      * @since 2.0.00
@@ -368,7 +368,7 @@ public class SOCGameOptionSet
      * @return Map of options in the set, or an empty Map
      * @see #keySet()
      * @see #values()
-     * @see #getAllKnownOptions()
+     * @see soc.server.SOCServerGameOptionSet#getAllKnownOptions()
      */
     public Map<String, SOCGameOption> getAll()
     {
@@ -491,7 +491,7 @@ public class SOCGameOptionSet
      * @param knownOpts  Set of Known Options, if needed for adding the option
      * @throws NullPointerException  if {@code ioKey} isn't in the set and doesn't exist in {@code knownOpts}
      * @see #getOptionIntValue(String)
-     * @see #setBoolOption(Map, String)
+     * @see #setBoolOption(String, SOCGameOptionSet)
      * @since 1.1.17
      */
     public void setIntOption
@@ -581,7 +581,7 @@ public class SOCGameOptionSet
      * @return Option's current {@link SOCGameOption#getStringValue() getStringValue}
      *     or null if not defined in this set of options
      * @see #isOptionSet(String)
-     * @see #getOptionIntValue(Map, String)
+     * @see #getOptionIntValue( String )
      * @since 1.1.07
      */
     public String getOptionStringValue( final String optKey )
@@ -597,8 +597,9 @@ public class SOCGameOptionSet
     // For Known Options:
 
     /**
-     * Get information about a known option. See {@link #getAllKnownOptions()} for a summary of each known option.
-     * Will return the info if known, even if option has {@link #FLAG_INACTIVE_HIDDEN}.
+     * Get information about a known option. See {@link soc.server.SOCServerGameOptionSet#getAllKnownOptions()}
+     * for a summary of each known option.
+     * Will return the info if known, even if option has {@link SOCGameOption#FLAG_INACTIVE_HIDDEN}.
      *<P>
      * Before v2.4.50 this method was {@code SOCGameOption.getOption(key, clone)}.
      *
@@ -647,8 +648,7 @@ public class SOCGameOptionSet
      *     If this option is already known and the old copy has a {@link SOCGameOption#getChangeListener()},
      *     that listener is copied to {@code onew}.
      * @return true if it's new, false if we already had that key and it was updated
-     * @see #getKnownOption(String, boolean)
-     * @see #getAllKnownOptions()
+     * @see soc.server.SOCServerGameOptionSet#getKnownOption(String, boolean)
      * @see #setKnownOptionCurrentValue(SOCGameOption)
      * @since 1.1.07
      */
@@ -693,8 +693,8 @@ public class SOCGameOptionSet
      * call {@link #optionsWithFlag(int, int) knownOpts.optionsWithFlag(FLAG_ACTIVATED, cliVersion)}.
      *<P>
      * At the server, activate needed options before any clients connect.
-     * Do so by editing/overriding {@link SOCServer#serverUp()} to call this method,
-     * or setting property {@link SOCServer#PROP_JSETTLERS_GAMEOPTS_ACTIVATE}.
+     * Do so by editing/overriding {@link soc.server.SOCServer#serverUp()} to call this method,
+     * or setting property {@link soc.server.SOCServer#PROP_JSETTLERS_GAMEOPTS_ACTIVATE}.
      *
      * @param optKey  Known game option's alphanumeric keyname
      * @throws IllegalArgumentException if {@code optKey} isn't a known game option, or if that option
@@ -782,7 +782,7 @@ public class SOCGameOptionSet
      *     call on game's proposed Set of game opts instead of Known Opts.
      *    <BR>
      *     Before calling this method, server should call
-     *     {@link #adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
+     *     {@link #adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet,Map)}
      *     to help validate option values.
      *</UL>
      * See <tt>checkValues</tt> for method's behavior in each mode.
@@ -816,7 +816,7 @@ public class SOCGameOptionSet
      *     If true, any returned items are in this Set but too new for client {@code vers}:
      *     Game creation should be rejected.
      *     Does not check {@link SOCGameOption#FLAG_INACTIVE_HIDDEN} in this mode; use
-     *     {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)} for that check.
+     *     {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet,Map)} for that check.
      * @param trimEnums  For enum-type options where minVersion changes based on current value,
      *     should we remove too-new values from the returned option info?
      *     This lets us send only the permitted values to an older client.
@@ -1029,7 +1029,7 @@ public class SOCGameOptionSet
      *<P>
      * Before any other adjustments when <tt>doServerPreadjust</tt>, will check for
      * the game scenario option <tt>"SC"</tt>. If that option is set, call
-     * {@link SOCScenario#getScenario(String)}; the scenario name must be known.
+     * {@link soc.server.SOCServerScenario#getScenario(String)}; the scenario name must be known.
      * Then, add that scenario's {@link SOCScenario#scOpts .scOpts} into this set.
      * Scenario option values always overwrite those already in the set, except for <tt>"VP"</tt>
      * where current value (if any) is kept.
@@ -1040,12 +1040,12 @@ public class SOCGameOptionSet
      * Before v2.4.50 this method was {@code SOCGameOption.adjustOptionsToKnown(newOpts, knownOpts, boolean)}.
      *
      * @param knownOpts Set of known {@link SOCGameOption}s to check against; not null.
-     *     Caller can use {@link #getAllKnownOptions()} if they don't already have such a set.
+     *     Caller can use {@link soc.server.SOCServerGameOptionSet#getAllKnownOptions()} if they don't already have such a set.
      * @param doServerPreadjust  If true, we're calling from the server before creating a game;
      *     pre-adjust any values for consistency.
      *     This is a server-side equivalent to the client-side {@link SOCGameOption.ChangeListener}s.
      *     (Added in 1.1.13)
-     * @param limitedCliFeats For {@link doServerPreadjust}, client's set of features if limited compared to
+     * @param limitedCliFeats For {@code doServerPreadjust}, client's set of features if limited compared to
      *     the standard client; null if client doesn't have limited feats.
      *     See {@link SOCClientData#hasLimitedFeats} for details.
      * @return <tt>null</tt> if all are known; or, a human-readable problem description if:
@@ -1057,7 +1057,7 @@ public class SOCGameOptionSet
      *       <LI> or an opt requires a {@link SOCGameOption#getClientFeature()} which the client doesn't have
      *            (checked only if {@code limitedCliFeats} != null and {@code doServerPreadjust})
      *       <LI> set has option {@code "SC"} but its scenario keyname isn't known
-     *            by {@link SOCScenario#getScenario(String)}
+     *            by {@link soc.server.SOCServerScenario#getScenario(String)}
      *     </UL>
      * @throws IllegalArgumentException if {@code knownOpts} is null
      * @since 1.1.07
@@ -1296,7 +1296,7 @@ public class SOCGameOptionSet
     /**
      * In a set of options or Known Options, do any require client features
      * not supported by a limited client's {@link SOCFeatureSet}?
-     * Checks each option having a {@link #getClientFeature()}.
+     * Checks each option having a {@link SOCGameOption#getClientFeature()}.
      *<P>
      * Doesn't check integer value of features like {@code sc} ({@link SOCFeatureSet#getValue(String, int)}):
      * Use {@link SOCGame#checkClientFeatures(SOCFeatureSet, boolean)} for that.
@@ -1377,12 +1377,12 @@ public class SOCGameOptionSet
      * called {@link #optionsNotSupported(SOCFeatureSet)} and {@link #optionsTrimmedForSupport(SOCFeatureSet)}.
      * So this method filters only by minVersion, not by feature requirement or any other field.
      *
-     * @param flagMask  Flag(s) to check for; {@link #hasFlag(int)} return value is the filter
+     * @param flagMask  Flag(s) to check for; {@link SOCGameOption#hasFlag(int)} return value is the filter
      * @param minVers  Minimum compatible version to look for, same format as {@link Version#versionNumber()},
      *     or 0 to ignore {@link SOCVersionedItem#minVersion opt.minVersion}
      * @return Map of found options compatible with {@code minVers}, or {@code null} if none.
      *     Each map key is its option value's {@link SOCVersionedItem#key key}.
-     * @see SOCGameOption#activate()
+     * @see #activate(String)
      */
     public SOCGameOptionSet optionsWithFlag( final int flagMask, final int minVers )
     {

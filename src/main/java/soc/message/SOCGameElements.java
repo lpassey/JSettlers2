@@ -126,7 +126,7 @@ public class SOCGameElements extends SOCMessageTemplateMi
          * the value of {@link SOCGame#getSpecialBuildingPlayerNumberAfter()}.
          *<P>
          * Not sent to clients over network; used only by {@link soc.server.savegame.SavedGameModel}
-         * when gameState is {@link SOCGame#SPECIAL_BUILDING}.
+         * when gameState is {@link soc.game.GameState#SPECIAL_BUILDING}.
          *
          * @since 2.3.00
          */
@@ -164,7 +164,7 @@ public class SOCGameElements extends SOCMessageTemplateMi
 
         /**
          * Get a type array's integer values. Calls {@link #getValue()} for each element.
-         * @param pe Element array, or {@code null}
+         * @param ge Element array, or {@code null}
          * @return Int value array of same size as {@code ge}, or {@code null}
          * @throws NullPointerException if {@code ge} contains null values
          */

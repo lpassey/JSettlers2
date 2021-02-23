@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Vector;
@@ -475,7 +476,7 @@ public class SOCGameListAtServer extends SOCGameList
      * @param gaLocaleStr  the game creator's locale, to later set {@link SOCGame#hasMultiLocales} if needed (added in 2.0.00)
      * @param gaOpts  if game has options, its {@link SOCGameOption}s; otherwise null.
      *                Must already be validated, by calling
-     *                {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
+     *                {@link SOCServerGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet, Map)}
      *                with <tt>doServerPreadjust</tt> true.
      *                That call is also needed to add any {@code "SC"} options into {@code gaOpts}.
      * @param handler  game type handler for this game; not null
@@ -633,7 +634,7 @@ public class SOCGameListAtServer extends SOCGameList
      * If the game had robots, they must leave the old game before any players can
      * join the new game; the new game's {@link SOCGame#boardResetOngoingInfo} field
      * is set to the object returned by this method, and its gameState will be
-     * {@link SOCGame#READY_RESET_WAIT_ROBOT_DISMISS} instead of {@link SOCGame#NEW}.
+     * {@link soc.game.GameState#READY_RESET_WAIT_ROBOT_DISMISS} instead of {@link soc.game.GameState#NEW_GAME}.
      *<P>
      * <b>Locking:</b>
      * Takes game monitor.

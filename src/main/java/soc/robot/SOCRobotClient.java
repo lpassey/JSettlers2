@@ -57,7 +57,7 @@ import static soc.game.GameState.*;
  *<P>
  * When ready, call {@link #init()} to start the bot's threads and connect to the server.
  * (Built-in bots should set {@link #printedInitialWelcome} beforehand to reduce console clutter.)
- * Once connected, messages from the server are processed in {@link #treat(SOCMessage)}.
+ * Once connected, messages from the server are processed in {@link #dispatch(SOCMessage, Connection)}.
  * For each game this robot client plays, there is a {@link SOCRobotBrain}.
  *<P>
  * The built-in robots must be the same version as the server, to simplify things.
@@ -150,7 +150,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * The pause goes on until {@link #debugRandomPauseUntil} arrives
      * and then {@code debugRandomPauseActive} becomes {@code false}
      * until the next random float below {@link #DEBUGRANDOMPAUSE_FREQ}.
-     * This is all handled within {@link #treat(SOCMessage)}.
+     * This is all handled within {@link #dispatch(SOCMessage, Connection)}.
      * @since 1.1.11
      */
     protected boolean debugRandomPauseActive = false;
@@ -158,7 +158,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     /**
      * When {@link #debugRandomPauseActive} is true, store incoming messages
      * from the server into this queue until {@link #debugRandomPauseUntil}.
-     * Initialized in {@link #treat(SOCMessage)}.
+     * Initialized in {@link #dispatch(SOCMessage, Connection)}.
      * @since 1.1.11
      */
     protected Vector<SOCMessage> debugRandomPauseQueue = null;
@@ -488,9 +488,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * Messages of unknown type are ignored. All {@link SOCGameServerText} messages are ignored
      * ({@code mes} will be null from {@link SOCMessage#toMsg(String)}).
      *<P>
-     *<B>Note:</B> If a message doesn't need any robot-specific handling,
-     * and doesn't appear as a specific case in this method's switch,
-     * this method calls {@link SOCDisplaylessPlayerClient#treat(SOCMessage)} for it.
+     *<B>Note:</B> If a message doesn't need any robot-specific handling, and
+     * doesn't appear as a specific case in this method's switch, this method
+     * calls {@link SOCDisplaylessPlayerClient#dispatch(SOCMessage, Connection)} for it.
      *
      * @param mes A generic SOCMessage to be handled. This method must figure out
      *                   what kind of message it is to dispatch it correctly
@@ -954,7 +954,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * handle the "status message" message by printing it to System.err;
      * messages with status value 0 are ignored (no problem is being reported)
      * once the initial welcome message has been printed.
-     * Status {@link SOCStatusMessage#SV_SERVER_SHUTDOWN} calls {@link #disconnect()}
+     * Status {@link SOCStatusMessage#SV_SERVER_SHUTDOWN} calls {@link Connection#disconnect()}
      * so as to not print futile reconnect attempts on the terminal.
      * @param mes  the message
      * @since 1.1.00
@@ -1512,14 +1512,14 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
 
     /**
-     * Call sendText on each string element of a record
-     * from {@link SOCRobotBrain#getDRecorder()} or {@link SOCRobotBrain#getOldDRecorder() .getOldDRecorder()}.
+     * Call sendText on each string element of a record from
+     * {@link SOCRobotBrain#getDRecorder()} or {@link SOCRobotBrain#getOldDRecorder()}.
      * If no records found or ! {@link DebugRecorder#isOn()}, sends text to let the user know.
      *
      * @param gaName  Game name; if no brain found for game, does nothing
      * @param key  Recorder key for strings to send; not {@code null}
-     * @param oldNotCurrent  True if should use {@link SOCRobotBrain#getOldDRecorder()
-     *     instead of {@link SOCRobotBrain#getDRecorder() .getDRecorder()}
+     * @param oldNotCurrent  True if should use {@link SOCRobotBrain#getOldDRecorder()}
+     *     instead of {@link SOCRobotBrain#getDRecorder() getDRecorder()}
      * @since 1.1.00
      */
     protected void sendRecordsText

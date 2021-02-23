@@ -23,7 +23,7 @@ package soc.message;
 
 import java.util.StringTokenizer;
 
-import soc.game.SOCGame;  // for javadocs only
+import soc.game.GameState;  // for javadocs only
 import soc.game.SOCPlayingPiece;  // for javadocs only
 
 /**
@@ -31,7 +31,7 @@ import soc.game.SOCPlayingPiece;  // for javadocs only
  * Also used when joining a new game or a game in progress, to send the game state so far.
  *<P>
  * If message is from server for a {@link SOCPlayingPiece#ROAD} or {@link SOCPlayingPiece#SHIP}:
- * After updating game data with the new piece, client should call {@link SOCGame#getPlayerWithLongestRoad()}
+ * After updating game data with the new piece, client should call {@link soc.game.SOCGame#getPlayerWithLongestRoad()}
  * and update displays if needed.
  *<P>
  * If message is from server for a {@link SOCPlayingPiece#CITY} while client is joining a game, must precede by sending
@@ -55,19 +55,19 @@ import soc.game.SOCPlayingPiece;  // for javadocs only
  *<P>
  * Some scenarios like {@link soc.game.SOCScenario#K_SC_PIRI SC_PIRI} include some pieces
  * as part of the initial board layout while the game is starting. These will all be sent to
- * the clients while game state is &lt; {@link SOCGame#START1A START1A} and before
+ * the clients while game state is &lt; {@link GameState#START1A START1A} and before
  * sending them {@link SOCStartGame}. Scenario {@link soc.game.SOCScenario#K_SC_CLVI SC_CLVI}
  * sends its neutral villages before {@code START1A} but as part {@code "CV"} of the board layout
  * message, not as {@code SOCPutPiece}s.
  *<P>
  * In v2.0.00 and newer: On their own turn, player clients can optionally request PutPiece in gamestate
- * {@link SOCGame#PLAY1 PLAY1} or {@link SOCGame#SPECIAL_BUILDING SPECIAL_BUILDING}
+ * {@link GameState#PLAY1 PLAY1} or {@link GameState#SPECIAL_BUILDING SPECIAL_BUILDING}
  * which implies a {@link SOCBuildRequest} for that piece type, without needing to first send that
  * {@code SOCBuildRequest} and wait for a gamestate response. If request is allowed, the server
  * announces {@link SOCPlayerElement} messages for the resources spent, and then its usual
  * response to a successful {@code SOCPutPiece}. Otherwise the rejection response is sent as
  * described above, and after rejection the gamestate may be a placement state such as
- * {@link SOCGame#PLACING_ROAD PLACING_ROAD}.
+ * {@link GameState#PLACING_ROAD PLACING_ROAD}.
  *
  * @author Robert S Thomas
  */

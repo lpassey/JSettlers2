@@ -61,7 +61,7 @@ public class SOCStartGame extends SOCMessage
      * Create a StartGame message.
      *
      * @param ga  the name of the game
-     * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0.
+     * @param gs  the new turn's optional Game State such as {@link GameState#ROLL_OR_CARD}, or 0.
      *     Ignored from client. Values &lt; 0 are out of range and ignored (treated as 0).
      *     Must not send {@code gs} to a client older than {@link SOCGameState#VERSION_FOR_GAME_STATE_AS_FIELD}.
      */
@@ -85,7 +85,7 @@ public class SOCStartGame extends SOCMessage
      * Ignored if sent from client. Must not be sent by server to clients older
      * than v2.0.00 ({@link SOCGameState#VERSION_FOR_GAME_STATE_AS_FIELD}) because they
      * won't parse it out and instead will treat state as part of the game name.
-     * @return Game State, such as {@link SOCGame#ROLL_OR_CARD}, or 0
+     * @return Game State, such as {@link GameState#ROLL_OR_CARD}, or 0
      * @since 2.0.00
      */
     public GameState getGameState()
@@ -107,7 +107,7 @@ public class SOCStartGame extends SOCMessage
      * STARTGAME sep game [sep2 gameState]
      *
      * @param ga  the name of the game
-     * @param gs  the new turn's optional Game State such as {@link SOCGame#ROLL_OR_CARD}, or 0 to omit that field
+     * @param gs  the new turn's optional Game State such as {@link GameState#ROLL_OR_CARD}, or 0 to omit that field
      * @return the command string
      */
     public static String toCmd( final String ga, final GameState gs )

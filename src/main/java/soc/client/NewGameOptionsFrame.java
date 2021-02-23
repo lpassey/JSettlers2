@@ -87,7 +87,7 @@ import soc.util.Version;
  * user preferences such as {@link SOCPlayerClient#PREF_SOUND_ON}
  * and per-game preferences such as {@link SOCPlayerInterface#PREF_SOUND_MUTE}.
  * When "Create" button is clicked, validates fields and calls
- * {@link MainDisplay#askStartGameWithOptions(String, boolean, SOCGameOptionSet, Map)}.
+ * {@link MainDisplay#askStartGameWithOptions(String, SOCGameOptionSet, Map)}
  *<P>
  * Also used for showing a game's options (read-only) during game play.
  *<P>
@@ -101,7 +101,7 @@ import soc.util.Version;
  *<P>
  * Game option "SC" (Scenarios) gets special rendering. Internally it's {@link SOCGameOption#OTYPE_STR},
  * but it's presented as a checkbox and {@link JComboBox}. When a scenario is picked in the JComboBox,
- * related options are updated by "SC"'s {@link SOCGameOption.ChangeListener}.
+ * related options are updated by "SC"'s {@link soc.game.SOCGameOption.ChangeListener}.
  *<P>
  * This class also contains the "Scenario Info" popup window, called from
  * this dialog's Scenario Info button, and from {@link SOCPlayerInterface}
@@ -2020,14 +2020,14 @@ import soc.util.Version;
      * <LI>
      * Set {@link SOCGameOption#userChanged}
      * <LI>
-     * Check JComboBoxes or JCheckboxes to see if their game option has a {@link SOCGameOption.ChangeListener ChangeListener}.
+     * Check JComboBoxes or JCheckboxes to see if their game option has a {@link soc.game.SOCGameOption.ChangeListener ChangeListener}.
      * <LI>
      * Set the checkbox when the popup-menu JComboBox value is changed for a
      * {@link SOCGameOption#OTYPE_INTBOOL} or {@link SOCGameOption#OTYPE_ENUMBOOL}.
      * <LI>
      * Update game option {@code "SC"} and the {@link #scenInfo} button when a scenario is picked
      * from {@link #scenDropdown}. Other scenario-related updates are handled by this method calling
-     * {@link SOCGameOption.ChangeListener#valueChanged(SOCGameOption, Object, Object, SOCGameOptionSet, SOCGameOptionSet)}.
+     * {@link soc.game.SOCGameOption.ChangeListener#valueChanged(SOCGameOption, Object, Object, SOCGameOptionSet, SOCGameOptionSet)}.
      *</UL>
      * @param e itemevent from a JComboBox or JCheckbox in {@link #controlsOpts}
      */

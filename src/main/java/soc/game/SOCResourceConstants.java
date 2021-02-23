@@ -123,6 +123,8 @@ public class SOCResourceConstants
             tname = "wheat"; break;
         case WOOD:
             tname = "wood";  break;
+        case UNKNOWN:
+            tname = "unknown"; break;
         default:
             // Should not happen
             tname = null;

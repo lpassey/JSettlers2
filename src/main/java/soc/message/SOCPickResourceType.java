@@ -31,7 +31,7 @@ import soc.game.SOCResourceConstants;  // for javadocs only
  * pick for a game action, such as using a Monopoly development card.
  *<P>
  * Sent as a request from current player's client, in response to server's
- * {@link SOCGameState}({@link SOCGame#WAITING_FOR_MONOPOLY WAITING_FOR_MONOPOLY}).
+ * {@link SOCGameState}({@link soc.game.GameState#WAITING_FOR_MONOPOLY WAITING_FOR_MONOPOLY}).
  *<P>
  * For a Monopoly card, the server responds by announcing {@link SOCSimpleAction}
  * ({@link SOCSimpleAction#RSRC_TYPE_MONOPOLIZED RSRC_TYPE_MONOPOLIZED}).

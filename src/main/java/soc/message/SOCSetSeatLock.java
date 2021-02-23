@@ -87,16 +87,16 @@ public class SOCSetSeatLock extends SOCMessage
     /**
      * Create a SetSeatLock message for one seat.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the number of the changing player
      * @param st  the state of the lock; remember that versions before v2.0.00 won't recognize
      *    {@link SeatLockState#CLEAR_ON_RESET} and should be sent {@link SeatLockState#UNLOCKED UNLOCKED}
-     * @see #SOCSetSeatLock(String, SeatLockState[])
+     * @see #SOCSetSeatLock(String, soc.game.SOCGame.SeatLockState[])
      */
-    public SOCSetSeatLock( String ga, int pn, SeatLockState st )
+    public SOCSetSeatLock( String gameName, int pn, SeatLockState st )
     {
         messageType = SETSEATLOCK;
-        game = ga;
+        game = gameName;
         playerNumber = pn;
         state = st;
         states = null;
@@ -106,20 +106,20 @@ public class SOCSetSeatLock extends SOCMessage
      * Create a SetSeatLock message for all seats.
      * This message form is recognized only by client v2.0.00 and newer ({@link #VERSION_FOR_ALL_SEATS}).
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param st  the state of each seat's lock, indexed by player number
      * @throws IllegalArgumentException if {@code st.length} is not 4 or 6
-     * @see #SOCSetSeatLock(String, int, SeatLockState)
+     * @see #SOCSetSeatLock(String, int, soc.game.SOCGame.SeatLockState)
      * @since 2.0.00
      */
-    public SOCSetSeatLock( final String ga, final SeatLockState[] st )
+    public SOCSetSeatLock( final String gameName, final SeatLockState[] st )
         throws IllegalArgumentException
     {
         if ((st.length != 4) && (st.length != 6))
             throw new IllegalArgumentException( "length" );
 
         messageType = SETSEATLOCK;
-        game = ga;
+        game = gameName;
         playerNumber = -1;
         states = st;
     }

@@ -37,7 +37,7 @@ import soc.message.SOCStatusMessage;
  *<P>
  * For more details, see main handler method {@link #dispatch(SOCMessage, Connection)}.
  *<P>
- * Once server is initialized, call {@link #setServer(SOCServer, SOCGameListAtServer)}
+ * Once server is initialized, call {@link #setServer(SOCServer, SOCServerMessageHandler, SOCGameListAtServer)}
  * before calling {@link #dispatch(SOCMessage, Connection)}.
  *
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
@@ -68,7 +68,7 @@ import soc.message.SOCStatusMessage;
     /**
      * Create a new SOCServerMessageDispatcher. Takes no parameters because the
      * server and dispatcher constructors can't both call each other.
-     * Be sure to call {@link #setServer(SOCServer, SOCGameListAtServer)}
+     * Be sure to call {@link #setServer(SOCServer, SOCServerMessageHandler, SOCGameListAtServer)}
      * before dispatching.
      */
     public SOCServerMessageDispatcher()
@@ -82,7 +82,7 @@ import soc.message.SOCStatusMessage;
      * @param srv  This dispatcher's server
      * @param srvHandler  Server message handler for {@code srv}
      * @param gameList  Game list for {@code srv}
-     * @throws IllegalArgumentException  If {@code srv}, {@code srvHandler}, or {@link gameList} are null
+     * @throws IllegalArgumentException  If {@code srv}, {@code srvHandler}, or {@code gameList} are null
      * @throws IllegalStateException  If {@code setServer(..)} has already been called
      */
     public void setServer
@@ -120,7 +120,7 @@ import soc.message.SOCStatusMessage;
      * {@inheritDoc}
      *
      * @throws IllegalStateException if not ready to dispatch because
-     *    {@link #setServer(SOCServer, SOCGameListAtServer)} hasn't been called.
+     *    {@link #setServer(SOCServer, SOCServerMessageHandler, SOCGameListAtServer)} hasn't been called.
      */
     public void dispatch(final SOCMessage mes, final Connection con)
         throws IllegalStateException

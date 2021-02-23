@@ -79,16 +79,16 @@ import static soc.game.GameState.*;
  *<P>
  * Game play begins with the server calling {@link #startGame()}, then sending messages to clients
  * with the starting game state and player data and a board layout.
- * After initial placement, normal play begins with the first player's turn, in state {@link #ROLL_OR_CARD};
+ * After initial placement, normal play begins with the first player's turn, in state {@link GameState#ROLL_OR_CARD};
  * {@link #updateAtGameFirstTurn()} is called for any work needed.
  *<P>
  * During game play, {@link #putPiece(SOCPlayingPiece)} and other game-action methods update {@code gameState}.
  * {@link #updateAtTurn()}, <tt>putPiece</tt> and some other game-action methods update {@link #lastActionTime}.
  *<P>
  * The game's current plays and actions are tracked through game states, such as
- * {@value #START1A} or {@link #WAITING_FOR_DISCARDS}.  A normal turn starts at {@link #ROLL_OR_CARD};
- * after dice are rolled, the turn will spend most of its time in {@link #PLAY1}.  If you need to
- * add a state, please see the instructions at {@link #NEW}.
+ * {@link GameState#START1A} or {@link GameState#WAITING_FOR_DISCARDS}.  A normal turn starts at {@link GameState#ROLL_OR_CARD};
+ * after dice are rolled, the turn will spend most of its time in {@link GameState#PLAY1}.  If you need to
+ * add a state, please see the instructions at {@link GameState#NEW_GAME}.
  *<P>
  * The winner is the player who has {@link #vp_winner} or more victory points (typically 10)
  * on their own turn.  Some optional game scenarios have special win conditions, see {@link #checkForWinner()}.
@@ -251,8 +251,7 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * For use at client, version of the server hosting this game;
      * same format as {@link soc.util.Version#versionNumber()}.
-     * If {@link #isPractice}, holds same version as client.
-     *<P>
+      *<P>
      * Unused if {@link #isAtServer}.
      *<P>
      * Needed because some versions have a different balance of which game-data tasks are done at the server,
@@ -371,7 +370,7 @@ public class SOCGame implements Serializable, Cloneable
      * Not sent over the network: Must be set at server, or set at bot client at start of game.
      *<P>
      * This flag should be set by the server when creating the game.  If a human observer exits
-     * a game with this flag, the game should continue play unless its state is {@link #OVER}.
+     * a game with this flag, the game should continue play unless its state is {@link GameState#GAME_OVER}.
      * @since 2.0.00
      * @see soc.robot.SOCRobotBrain#BOTS_ONLY_FAST_PAUSE_FACTOR
      * @see soc.server.SOCGameHandler#DESTROY_BOT_ONLY_GAMES_WHEN_OVER
@@ -468,7 +467,7 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * For the server's use, if a reset is in progress, this holds the reset data
-     * until all robots have left (new game state is {@link #READY_RESET_WAIT_ROBOT_DISMISS}).
+     * until all robots have left (new game state is {@link GameState#READY_RESET_WAIT_ROBOT_DISMISS}).
      * This field is null except within the newly-created game object during reset.
      * @since 1.1.07
      */
@@ -592,13 +591,13 @@ public class SOCGame implements Serializable, Cloneable
      * or other board types/expansions; one doesn't imply or exclude the other.
      *<P>
      * In most scenarios the sea board has a pirate ship that can be moved instead of
-     * the robber.  See game states {@link #WAITING_FOR_ROBBER_OR_PIRATE} and {@link #PLACING_PIRATE}.
+     * the robber.  See game states {@link GameState#WAITING_FOR_ROBBER_OR_PIRATE} and {@link GameState#PLACING_PIRATE}.
      * @since 2.0.00
      */
     public final boolean hasSeaBoard;
 
     /**
-     * the current dice result. -1 at start of game, 0 during player's turn before roll (state {@link #ROLL_OR_CARD}).
+     * the current dice result. -1 at start of game, 0 during player's turn before roll (state {@link GameState#ROLL_OR_CARD}).
      * @see #getCurrentDice()
      * @see #currentRoll
      * @see #hasRolledSeven
@@ -607,7 +606,7 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * The current dice result, including any scenario items such as
-     * {@link SOCVillage#distributeCloth(SOCGame, RollResult)} results.
+     * {@link SOCVillage#distributeCloth(SOCGame, SOCGame.RollResult)} results.
      * This is the object returned from {@link #rollDice()} each turn.
      * @since 2.0.00
      * @see #currentDice
@@ -632,7 +631,7 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * the current game state
      *<P>
-     * Instead of directly setting <tt>gameState = {@link #OVER}</tt>,
+     * Instead of directly setting <tt>gameState = {@link GameState#GAME_OVER}</tt>,
      * code should call {@link #setGameStateOVER()}
      * to also set {@link #finalDurationSeconds}.
      */
@@ -644,28 +643,30 @@ public class SOCGame implements Serializable, Cloneable
      *<P>
      * oldGameState is read in these states:
      *<UL>
-     *<LI> {@link #STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}:
+     *<LI> {@link GameState#STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}:
      *        After the resource is picked, oldGameState will be the starting state for
      *        {@link #advanceTurnStateAfterPutPiece()}.
-     *<LI> {@link #PLACING_ROAD}, {@link #PLACING_SETTLEMENT}, {@link #PLACING_CITY}, {@link #PLACING_SHIP}:
-     *        Unless <tt>oldGameState</tt> is {@link #SPECIAL_BUILDING},
-     *        {@link #advanceTurnStateAfterPutPiece()} will set the state to {@link #PLAY1}.
+     *<LI> {@link GameState#PLACING_ROAD}, {@link GameState#PLACING_SETTLEMENT}, {@link GameState#PLACING_CITY},
+     *       {@link GameState#PLACING_SHIP}:
+     *        Unless <tt>oldGameState</tt> is {@link GameState#SPECIAL_BUILDING},
+     *        {@link #advanceTurnStateAfterPutPiece()} will set the state to {@link GameState#PLAY1}.
      *        So will {@link #cancelBuildRoad(int)}, {@link #cancelBuildSettlement(int)}, etc.
-     *<LI> {@link #PLACING_INV_ITEM}:
-     *        {@code oldGameState} == {@link #PLAY1} or {@link #SPECIAL_BUILDING},
+     *<LI> {@link GameState#PLACING_INV_ITEM}:
+     *        {@code oldGameState} == {@link GameState#PLAY1} or {@link GameState#SPECIAL_BUILDING},
      *        same advance/cancel logic as other {@code PLACING_} states mentioned above.
-     *<LI> {@link #PLACING_ROBBER}, {@link #WAITING_FOR_ROBBER_OR_PIRATE}:
-     *        <tt>oldGameState</tt> = {@link #PLAY1} or {@link #OVER}
-     *<LI> {@link #WAITING_FOR_ROB_CHOOSE_PLAYER}, {@link #PLACING_PIRATE}, {@link #WAITING_FOR_ROB_CLOTH_OR_RESOURCE}
-     *<LI> {@link #WAITING_FOR_DISCOVERY} in {@link #playDiscovery()}, {@link #doDiscoveryAction(SOCResourceSet)}
-     *<LI> {@link #WAITING_FOR_MONOPOLY} in {@link #playMonopoly()}, {@link #doMonopolyAction(int)}
-     *<LI> {@link #WAITING_FOR_PICK_GOLD_RESOURCE}:
+     *<LI> {@link GameState#PLACING_ROBBER}, {@link GameState#WAITING_FOR_ROBBER_OR_PIRATE}:
+     *        <tt>oldGameState</tt> = {@link GameState#PLAY1} or {@link GameState#GAME_OVER}
+     *<LI> {@link GameState#WAITING_FOR_ROB_CHOOSE_PLAYER}, {@link GameState#PLACING_PIRATE},
+     *      {@link GameState#WAITING_FOR_ROB_CLOTH_OR_RESOURCE}
+     *<LI> {@link GameState#WAITING_FOR_DISCOVERY} in {@link #playDiscovery()}, {@link #doDiscoveryAction(SOCResourceSet)}
+     *<LI> {@link GameState#WAITING_FOR_MONOPOLY} in {@link #playMonopoly()}, {@link #doMonopolyAction(int)}
+     *<LI> {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}:
      *        oldGameState holds the <B>next</B> state to go to when all players are done picking resources.
-     *        After picking gold from a dice roll, this will usually be {@link #PLAY1}.
-     *        Sometimes will be {@link #PLACING_FREE_ROAD2} or {@link #SPECIAL_BUILDING}.
-     *        Can be {@link #ROLL_OR_CARD} in scenario {@link SOCGameOptionSet#K_SC_PIRI SC_PIRI}:
+     *        After picking gold from a dice roll, this will usually be {@link GameState#PLAY1}.
+     *        Sometimes will be {@link GameState#PLACING_FREE_ROAD2} or {@link GameState#SPECIAL_BUILDING}.
+     *        Can be {@link GameState#ROLL_OR_CARD} in scenario {@link SOCGameOptionSet#K_SC_PIRI SC_PIRI}:
      *        See {@link #pickGoldHexResources(int, SOCResourceSet)} and {@link #rollDice_update7gameState()}.
-     *<LI> {@link #LOADING}, {@link #LOADING_RESUMING}:
+     *<LI> {@link GameState#LOADING}, {@link GameState#LOADING_RESUMING}:
      *        Holds the actual game state, to be resumed once optional constraints are met and all bots have joined.
      *</UL>
      * Also used if the game board was reset: Holds the state before the reset.
@@ -673,8 +674,8 @@ public class SOCGame implements Serializable, Cloneable
     private GameState oldGameState;
 
     /**
-     * If true, and if state is {@link #PLACING_ROBBER}, {@link #PLACING_PIRATE},
-     * or {@link #WAITING_FOR_ROBBER_OR_PIRATE},
+     * If true, and if state is {@link GameState#PLACING_ROBBER}, {@link GameState#PLACING_PIRATE},
+     * or {@link GameState#WAITING_FOR_ROBBER_OR_PIRATE},
      * the robber or pirate is being moved because a knight card
      * has just been played: {@link #playKnight()}.
      * If {@link #forceEndTurn()} is called, the knight card
@@ -689,7 +690,7 @@ public class SOCGame implements Serializable, Cloneable
      * If true, this turn is being ended. Controller of game (server) should call {@link #endTurn()}
      * whenever possible.  Usually set when we have called {@link #forceEndTurn()}, and
      * forced the current player to discard randomly, and are waiting for other players
-     * to discard in gamestate {@link #WAITING_FOR_DISCARDS}.  Once all players have
+     * to discard in gamestate {@link GameState#WAITING_FOR_DISCARDS}.  Once all players have
      * discarded, the turn should be ended.
      * @see #forceEndTurn()
      * @since 1.1.00
@@ -707,7 +708,7 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * During the 6-player board's Special Building Phase, the player number whose
      * normal turn (roll, place, etc) has just ended.
-     * Game state is {@link #SPECIAL_BUILDING}.
+     * Game state is {@link GameState#SPECIAL_BUILDING}.
      * See {@link #getSpecialBuildingPlayerNumberAfter()} for gameplay details.
      * @see #askedSpecialBuildPhase
      * @since 1.1.08
@@ -787,7 +788,7 @@ public class SOCGame implements Serializable, Cloneable
     Date startTime;
 
     /**
-     * If game is {@link SOCGame#OVER}, its {@link #getDurationSeconds()} when state became {@code GAME_OVER}.
+     * If game is {@link GameState#GAME_OVER}, its {@link #getDurationSeconds()} when state became {@link GameState#GAME_OVER}.
      * Otherwise 0.
      * @since 2.3.00
      */
@@ -844,7 +845,7 @@ public class SOCGame implements Serializable, Cloneable
      * Is the current robbery using the pirate ship, not the robber?
      * If true, victims will be based on adjacent ships, not settlements/cities.
      * Set in {@link #chooseMovePirate(boolean)}, {@link #movePirate(int, int)}, {@link #moveRobber(int, int)},
-     * and other places that set gameState to {@link #PLACING_ROBBER} or {@link #PLACING_PIRATE}.
+     * and other places that set gameState to {@link GameState#PLACING_ROBBER} or {@link GameState#PLACING_PIRATE}.
      *
      * @see #getRobberyPirateFlag()
      * @see #placingRobberForKnightCard
@@ -870,7 +871,7 @@ public class SOCGame implements Serializable, Cloneable
     private Vector<Integer> shipsPlacedThisTurn;
 
     /**
-     * The special inventory item currently being placed in state {@link #PLACING_INV_ITEM}, or null.
+     * The special inventory item currently being placed in state {@link GameState#PLACING_INV_ITEM}, or null.
      * Can be set with {@link #setPlacingItem(SOCInventoryItem)} before or during that state.
      * @since 2.0.00
      */
@@ -913,13 +914,13 @@ public class SOCGame implements Serializable, Cloneable
      *           This is enforced by calling {@link SOCMessage#isSingleLineAndSafe(String)}.
      * @param op game's {@link SOCGameOption}s if any; otherwise null.
      *           Will validate options and include optional scenario's {@link SOCScenario#scOpts} by calling
-     *           {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
+     *           {@link soc.server.SOCServerGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet,Map)}
      *           with <tt>doServerPreadjust</tt> false,
      *           and set game's minimum version by calling
      *           {@link SOCVersionedItem#itemsMinimumVersion(Map)}.
      *           <P>
      *           When creating a game at the server, {@code op} must already be validated by calling
-     *           {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
+     *           {@link soc.server.SOCServerGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet, Map)}
      *           with <tt>doServerPreadjust</tt> true.
      *           That call is also needed to add any game options from scenario ({@code "SC"}) if present.
      * @param knownOpts  All Known Options, for {@code op} validation and adding options from scenario if present;
@@ -960,7 +961,7 @@ public class SOCGame implements Serializable, Cloneable
      * @param isActive  true if this is an active game, false for inactive
      * @param op if game has options, its set of {@link SOCGameOption}s; otherwise null.
      *           Will validate options and include optional scenario's {@link SOCScenario#scOpts} by calling
-     *           {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
+     *           {@link soc.server.SOCServerGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet,Map)}
      *           with <tt>doServerPreadjust</tt> false,
      *           and set game's minimum version by calling
      *           {@link SOCVersionedItem#itemsMinimumVersion(Map)}.
@@ -968,7 +969,7 @@ public class SOCGame implements Serializable, Cloneable
      *           New game will use {@code op}, not make a copy of {@code op}.
      *           <P>
      *           When creating a game at the server, {@code op} must already be validated by calling
-     *           {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
+     *           {@link soc.server.SOCServerGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet,Map)}
      *           with <tt>doServerPreadjust</tt> true.
      *           That call is also needed to add any game options from scenario ({@code "SC"}) if present.
      * @param knownOpts  All Known Options, for {@code op} validation and adding options from scenario if present;
@@ -1119,7 +1120,7 @@ public class SOCGame implements Serializable, Cloneable
      * <LI> movedShipThisTurn
      *</UL>
      * For some other fields to save, see
-     * {@link #setFieldsForLoad(List, int, List, boolean, boolean, boolean, boolean)}.
+     * {@link #setFieldsForLoad(List, GameState, List, boolean, boolean, boolean, boolean)}
      *
      * @return an array with the current values of those fields, in the order listed here
      * @since 2.3.00
@@ -1398,13 +1399,13 @@ public class SOCGame implements Serializable, Cloneable
      * Called at server and at client.
      *<P>
      * If the game just started, players are placing their first settlement and road
-     * (gamestate &lt; {@link #START2A}), and the new player sits at a vacant seat,
+     * (gamestate &lt; {@link GameState#START2A}), and the new player sits at a vacant seat,
      * check and update the first player number or last player number if necessary.
      * If the new player's {@code pn} is less than {@link #getCurrentPlayerNumber()},
      * they already missed their first settlement and road placement but will get their second one.
      *<P>
      * <B>Note:</B> Once the game has started and everyone already has placed their
-     * first settlement and road (gamestate &gt;= {@link #START2A}), no one new
+     * first settlement and road (gamestate &gt;= {@link GameState#START2A}), no one new
      * should sit down at a vacant seat, they won't have initial placements to receive
      * resources.  This method doesn't know if the seat has always been vacant, or if
      * a robot has just left the game to vacate the seat. So this restriction must be
@@ -1506,7 +1507,7 @@ public class SOCGame implements Serializable, Cloneable
      * option "PL" (maximum players) or {@link #maxPlayers}.
      *<P>
      * <B>Note:</B> Once the game has started and everyone already has placed their
-     * first settlement and road (gamestate &gt;= {@link #START2A}), no one new
+     * first settlement and road (gamestate &gt;= {@link GameState#START2A}), no one new
      * should sit down at a vacant seat; see {@link #addPlayer(String, int)}.
      *
      * @return number of available vacant seats
@@ -1554,7 +1555,7 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * Lock or unlock a seat, or mark a bot's seat to be cleared on reset.
      * The meaning of "locked" is different when the game is still forming
-     * (gameState {@link #NEW}) versus when the game is active.
+     * (gameState {@link GameState#NEW_GAME}) versus when the game is active.
      * For details, see the javadocs for {@link SeatLockState#LOCKED},
      * {@link SeatLockState#UNLOCKED UNLOCKED} and {@link SeatLockState#CLEAR_ON_RESET CLEAR_ON_RESET}.
      *<P>
@@ -1593,7 +1594,8 @@ public class SOCGame implements Serializable, Cloneable
      *
      * @param sls  All seats' lock states; an array indexed by player number, containing all seats in this game
      * @throws IllegalArgumentException if {@code sls.length} is not {@link #maxPlayers}
-     * @see {@link #setSeatLock(int, SeatLockState)}
+     *
+     * @see #getPlayerCount()
      * @since 2.0.00
      */
     public void setSeatLocks( final SeatLockState[] sls )
@@ -1696,7 +1698,7 @@ public class SOCGame implements Serializable, Cloneable
      * Rename this game. Useful for reloading a saved game snapshot.
      * Should do so only before adding to server's game list.
      * @param newName  New name for this game
-     * @throws IllegalStateException if {@link #getGameState()} != {@link #LOADING}
+     * @throws IllegalStateException if {@link #getGameState()} != {@link GameState#LOADING}
      * @throws IllegalArgumentException if {@code newName} fails {@link SOCMessage#isSingleLineAndSafe(String)}
      * @since 2.3.00
      */
@@ -1800,9 +1802,9 @@ public class SOCGame implements Serializable, Cloneable
      *         or <tt>defValue</tt> if not defined in the set of options;
      *         OTYPE_ENUM's and _ENUMBOOL's choices give an intVal in range 1 to n.
      * @since 2.4.50
-     * @see #isOptionSet(String)
-     * @see #getOptionIntValue(String)
-     * @see #getOptionStringValue(String)
+     * @see SOCGameOptionSet#isOptionSet(String)
+     * @see SOCGameOptionSet#getOptionIntValue(String)
+     * @see SOCGameOptionSet#getOptionStringValue(String)
      */
     public int getGameOptionIntValue
     ( final String optKey, final int defValue, final boolean onlyIfBoolSet )
@@ -1977,13 +1979,13 @@ public class SOCGame implements Serializable, Cloneable
      * If you want to update other game status, call {@link #updateAtTurn()} afterwards.
      * Called only at client: Server instead calls {@link #endTurn()}
      * or {@link #advanceTurn()}.
-     * Check for gamestate {@link #OVER} after calling setCurrentPlayerNumber.
+     * Check for gamestate {@link GameState#GAME_OVER} after calling setCurrentPlayerNumber.
      * This is needed because a player can win only during their own turn;
      * if they reach winning points ({@link #vp_winner} or more) during another
      * player's turn, they don't win immediately.  When it later becomes their turn,
-     * and setCurrentPlayerNumber is called, gamestate may become {@link #OVER}.
+     * and setCurrentPlayerNumber is called, gamestate may become {@link GameState#GAME_OVER}.
      *
-     * @param pn  the player number; -1 is permitted at client in state {@link #OVER}
+     * @param pn  the player number; -1 is permitted at client in state {@link GameState#GAME_OVER}
      *     or if game deleted or connection to server lost
      * @see #endTurn()
      * @see #checkForWinner()
@@ -2010,7 +2012,7 @@ public class SOCGame implements Serializable, Cloneable
      * At that point, the Special Building Phase is over
      * and it's the next player's turn as usual.
      *
-     * @return that player number if game state is {@link #SPECIAL_BUILDING}, -1 otherwise
+     * @return that player number if game state is {@link GameState#SPECIAL_BUILDING}, -1 otherwise
      * @since 2.3.00
      */
     public int getSpecialBuildingPlayerNumberAfter()
@@ -2020,7 +2022,7 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * For use while reloading a saved game, sets {@link #getSpecialBuildingPlayerNumberAfter()}.
-     * This field is ignored except during gameState {@link #SPECIAL_BUILDING}.
+     * This field is ignored except during gameState {@link GameState#SPECIAL_BUILDING}.
      * @param pn  Player number, or -1 to do nothing
      * @throws IllegalArgumentException if {@code pn} &lt; -1 or >= {@link #maxPlayers}
      * @since 2.3.00
@@ -2077,7 +2079,7 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * Get the current dice total from the most recent roll.
-     *  -1 at start of game, 0 during player's turn before roll (state {@link #ROLL_OR_CARD}).
+     *  -1 at start of game, 0 during player's turn before roll (state {@link GameState#ROLL_OR_CARD}).
      * @return the current dice result
      * @see #rollDice()
      * @see SOCPlayer#getRolledResources()
@@ -2137,19 +2139,19 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * set the current game state.
      * For general information about what states are expected when,
-     * please see the javadoc for {@link #NEW}.
+     * please see the javadoc for {@link GameState#NEW_GAME}.
      *<P>
-     * If the new state is {@link #OVER} and no playerWithWin yet determined, calls {@link #checkForWinner()};
+     * If the new state is {@link GameState#GAME_OVER} and no playerWithWin yet determined, calls {@link #checkForWinner()};
      * caller should check {@link #getPlayerWithWin()} afterwards.
      *<P>
      * This method is generally called at the client, due to messages from the server
      * based on the server's complete game data.
      *<P>
-     * At the client if this is the first time {@code gs) == {@link #ROLL_OR_CARD} during this game,
-     * and state is currently in initial placement ({@link #START1A} to {@link #START3B}),
+     * At the client if this is the first time {@code gs} == {@link GameState#ROLL_OR_CARD} during this game,
+     * and state is currently in initial placement ({@link GameState#START1A} to {@link GameState#START3B}),
      * calls {@link #updateAtGameFirstTurn()}.
      *
-     * @param gs  the game state
+     * @param newGameState  the game state
      */
     public void setGameState( final GameState newGameState )
     {
@@ -2177,7 +2179,7 @@ public class SOCGame implements Serializable, Cloneable
     }
 
     /**
-     * Set game state to {@link #OVER} and set {@link #finalDurationSeconds} if 0,
+     * Set game state to {@link GameState#GAME_OVER} and set {@link #finalDurationSeconds} if 0,
      * but don't call {@link #checkForWinner()} like {@link #setGameState(int)} does.
      * This should be called instead of setting <tt>{@link #gameState} = GAME_OVER</tt>.
      * @since 2.3.00
@@ -2210,7 +2212,7 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * Get the old game state, for saving the game while state is temporarily changed
-     * or reference at old copy of game (having current state {@link #RESET_OLD}) after a game reset.
+     * or reference at old copy of game (having current state {@link GameState#RESET_OLD}) after a game reset.
      * @return the old {@link #getGameState()}
      * @since 2.3.00
      */
@@ -2221,15 +2223,15 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * Are we in the Initial Placement part of the game?
-     * Includes game states {@link #START1A} - {@link #START3B}
-     * and {@link #STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}.
+     * Includes game states {@link GameState#START1A} - {@link GameState#START3B}
+     * and {@link GameState#STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}.
      *<P>
-     * Returns false if game hasn't started yet (state &lt; {@link #START1A}),
-     * or is in normal gameplay or over (state &gt;= {@link #ROLL_OR_CARD}).
+     * Returns false if game hasn't started yet (state &lt; {@link GameState#START1A}),
+     * or is in normal gameplay or over (state &gt;= {@link GameState#ROLL_OR_CARD}).
      *
      * @return true if in Initial Placement
      * @since 1.1.12
-     * @see #isInitialPlacementRoundDone(int)
+     * @see #isInitialPlacementRoundDone(GameState)
      */
     public final boolean isInitialPlacement()
     {
@@ -2242,15 +2244,15 @@ public class SOCGame implements Serializable, Cloneable
      * First round goes clockwise to place each player's first settlement and road/ship.
      * Second round reverses the direction of play to go counterclockwise for the second
      * settlements and roads/ships. (In some scenarios there's a third round going clockwise again.)
-     * Then, the first turn of normal play starts with state {@link #ROLL_OR_CARD}.
+     * Then, the first turn of normal play starts with state {@link GameState#ROLL_OR_CARD}.
      *<P>
      * Useful for prompting a robot player to place its next settlement
      * or roll its first normal turn.
      *<P>
-     * True at state change from {@link #START1B} to {@link #START2A},
-     * {@link #START2B} to {@link #START3A} or to {@link #ROLL_OR_CARD},
-     * {@link #START3B} to {@link #ROLL_OR_CARD}.
-     * @param prevState Previous game state, such as {@link #START1B}
+     * True at state change from {@link GameState#START1B} to {@link GameState#START2A},
+     * {@link GameState#START2B} to {@link GameState#START3A} or to {@link GameState#ROLL_OR_CARD},
+     * {@link GameState#START3B} to {@link GameState#ROLL_OR_CARD}.
+     * @param prevState Previous game state, such as {@link GameState#START1B}
      * @return True if a round has finished
      * @since 2.0.00
      */
@@ -2266,7 +2268,7 @@ public class SOCGame implements Serializable, Cloneable
      * If true, this turn is being ended. Controller of game should call {@link #endTurn()}
      * whenever possible.  Usually set if we have called {@link #forceEndTurn()}, and
      * forced the current player to discard randomly, and are waiting for other players
-     * to discard in gamestate {@link #WAITING_FOR_DISCARDS}.  Once all players have
+     * to discard in gamestate {@link GameState#WAITING_FOR_DISCARDS}.  Once all players have
      * discarded, the turn should be ended.
      * @see #forceEndTurn()
      * @since 1.1.00
@@ -2278,7 +2280,7 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * For scenario option {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI}, if true and
-     * {@link #canPickGoldHexResources(int, ResourceSet)} in state {@link #WAITING_FOR_PICK_GOLD_RESOURCE},
+     * {@link #canPickGoldHexResources(int, ResourceSet)} in state {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE},
      * this player's "gold hex" free resources include victory over a pirate fleet attack at a dice roll.
      * @param pn  Player number
      * @since 2.0.00
@@ -2482,7 +2484,7 @@ public class SOCGame implements Serializable, Cloneable
     }
 
     /**
-     * Get the special Inventory Item to be placed by the current player in state {@link #PLACING_INV_ITEM},
+     * Get the special Inventory Item to be placed by the current player in state {@link GameState#PLACING_INV_ITEM},
      * if any, from the most recent call to {@link #setPlacingItem(SOCInventoryItem)}.
      * See that method for lifecycle details.
      * @return The item being placed, or {@code null}
@@ -2494,12 +2496,12 @@ public class SOCGame implements Serializable, Cloneable
     }
 
     /**
-     * Set or clear the special Inventory Item to be placed by the current player in state {@link #PLACING_INV_ITEM}.
+     * Set or clear the special Inventory Item to be placed by the current player in state {@link GameState#PLACING_INV_ITEM}.
      * Can be set before or during that state, either for convenience or because the server must send multiple messages.
      *<P>
      * The item can't be held between turns, and is lost if not placed on the current player's turn.
      * Inventory Item placement methods such as {@link #placePort(SOCPlayer, int, int)} will clear the item
-     * to {@code null} when called in {@link #PLACING_INV_ITEM}.
+     * to {@code null} when called in {@link GameState#PLACING_INV_ITEM}.
      *
      * @param item  The item being placed, or {@code null} to clear
      * @since 2.0.00
@@ -2653,7 +2655,7 @@ public class SOCGame implements Serializable, Cloneable
      * unless all players have left the game.
      * Clears the {@link #forcingEndTurn} flag.
      * @return true if the turn advances, false if all players have left and
-     *          the gamestate has been changed here to {@link #OVER}.
+     *          the gamestate has been changed here to {@link GameState#GAME_OVER}.
      * @see #advanceTurn()
      */
     protected boolean advanceTurnBackwards()
@@ -2690,7 +2692,7 @@ public class SOCGame implements Serializable, Cloneable
      * unless all players have left the game.
      * Clears the {@link #forcingEndTurn} flag.
      * @return true if the turn advances, false if all players have left and
-     *          the gamestate has been changed here to {@link #OVER}.
+     *          the gamestate has been changed here to {@link GameState#GAME_OVER}.
      * @see #advanceTurnBackwards()
      */
     protected boolean advanceTurn()
@@ -2723,13 +2725,13 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * For the 6-player board, check whether we should either start
-     * or continue the {@link #SPECIAL_BUILDING Special Building Phase}.
+     * or continue the {@link GameState#SPECIAL_BUILDING Special Building Phase}.
      * This method does 1 of 4 possible things:
      *<UL>
      *<LI> A: If this isn't a 6-player board, or no player has asked
      *     to Special Build this turn, do nothing.
-     *<LI> B: If we haven't started Special Building yet (gameState not {@link #SPECIAL_BUILDING})
-     *     but it's asked for: Set gameState to {@link #SPECIAL_BUILDING}.
+     *<LI> B: If we haven't started Special Building yet (gameState not {@link GameState#SPECIAL_BUILDING})
+     *     but it's asked for: Set gameState to {@link GameState#SPECIAL_BUILDING}.
      *     Set {@link #specialBuildPhase_afterPlayerNumber} to current player number,
      *     because their turn is ending.
      *     (Special case: if current player wants to special build at start of
@@ -2738,10 +2740,10 @@ public class SOCGame implements Serializable, Cloneable
      *     (it may be unchanged).
      *<LI> C: If we already did some players' Special Build this turn,
      *     and some remain, set current player to the next player
-     *     who wants to Special Build.  gameState remains {@link #SPECIAL_BUILDING}.
+     *     who wants to Special Build.  gameState remains {@link GameState#SPECIAL_BUILDING}.
      *<LI> D: If we already did some players' Special Build this turn,
      *     and no more players are left to special build, prepare to
-     *     end the turn normally: Set gameState to {@link #PLAY1}.
+     *     end the turn normally: Set gameState to {@link GameState#PLAY1}.
      *     Set current player to the player whose turn is ending
      *     ({@link #specialBuildPhase_afterPlayerNumber}).
      *</UL>
@@ -2757,7 +2759,7 @@ public class SOCGame implements Serializable, Cloneable
      *     The board game does not allow this out-of-order building.
      *</UL>
      *
-     * @return true if gamestate is now {@link #SPECIAL_BUILDING}
+     * @return true if gamestate is now {@link GameState#SPECIAL_BUILDING}
      * @since 1.1.08
      */
     private boolean advanceTurnToSpecialBuilding()
@@ -2876,7 +2878,7 @@ public class SOCGame implements Serializable, Cloneable
      *<UL>
      * <LI> {@link #hasSeaBoard} is true
      * <LI> Player is current player
-     * <LI> Game state is {@link #PLACING_SHIP}, {@link #PLACING_FREE_ROAD1} or {@link #PLACING_FREE_ROAD2}
+     * <LI> Game state is {@link GameState#PLACING_SHIP}, {@link GameState#PLACING_FREE_ROAD1} or {@link GameState#PLACING_FREE_ROAD2}
      * <LI> {@code edge} has a port
      * <LI> Port must be in no land area (LA == 0), or in {@link SOCBoardLarge#getPlayerExcludedLandAreas()}
      *</UL>
@@ -2921,12 +2923,12 @@ public class SOCGame implements Serializable, Cloneable
      * to determine if immediate placement is possible and thus required.
      *<P>
      * In the PlayerEvent handler or after this method returns, check
-     * {@link #getGameState()} == {@link #PLACING_INV_ITEM} to see whether the port must immediately
+     * {@link #getGameState()} == {@link GameState#PLACING_INV_ITEM} to see whether the port must immediately
      * be placed, or was instead added to the player's inventory.
      *<P>
      * <b>At the client:</b> Call this method to update the board data and player port flags.
      * The server will send other messages about game state and player inventory.  If those set
-     * {@link #getGameState()} to {@link #PLACING_INV_ITEM}, the current player must choose a location for
+     * {@link #getGameState()} to {@link GameState#PLACING_INV_ITEM}, the current player must choose a location for
      * port placement: Call
      * {@link SOCPlayer#getPortMovePotentialLocations(boolean) SOCPlayer.getPortMovePotentialLocations(true)}
      * to present options to the user.  The user will choose an edge and send a request to the server. The server
@@ -3029,9 +3031,9 @@ public class SOCGame implements Serializable, Cloneable
     }
 
     /**
-     * For scenario option {@link SOCGameOptionSet#K_SC_FTRI _SC_FTRI} in game state {@link #PLACING_INV_ITEM}, place
+     * For scenario option {@link SOCGameOptionSet#K_SC_FTRI _SC_FTRI} in game state {@link GameState#PLACING_INV_ITEM}, place
      * the "gift" port at this edge.  The port in {@link #getPlacingItem()} will be placed.  State becomes previous state
-     * ({@link #PLAY1} or {@link #SPECIAL_BUILDING}).  Calls {@link #setPlacingItem(SOCInventoryItem) setPlacingItem(null)}.
+     * ({@link GameState#PLAY1} or {@link GameState#SPECIAL_BUILDING}).  Calls {@link #setPlacingItem(SOCInventoryItem) setPlacingItem(null)}.
      *<P>
      * Assumes {@link #canPlacePort(SOCPlayer, int)} has already been called to validate.
      *
@@ -3039,7 +3041,7 @@ public class SOCGame implements Serializable, Cloneable
      *          which should be checked with {@link #canPlacePort(SOCPlayer, int)}
      * @return ptype  The type of port placed (in range {@link SOCBoard#MISC_PORT MISC_PORT}
      *          to {@link SOCBoard#WOOD_PORT WOOD_PORT})
-     * @throws IllegalStateException if not state {@link #PLACING_INV_ITEM}, or (internal error) {@link #placingItem} is null
+     * @throws IllegalStateException if not state {@link GameState#PLACING_INV_ITEM}, or (internal error) {@link #placingItem} is null
      * @throws IllegalArgumentException if {@code ptype} is out of range, or
      *           if {@code edge} is not coastal (is between 2 land hexes or 2 water hexes)
      * @throws UnsupportedOperationException if ! {@link #hasSeaBoard}
@@ -3066,7 +3068,7 @@ public class SOCGame implements Serializable, Cloneable
      * Through that validation, assumes {@code edge} is a coastal edge and {@code pl} has
      * an adjacent settlement or city.
      *<P>
-     * Any port placement in state {@link #PLACING_INV_ITEM} calls
+     * Any port placement in state {@link GameState#PLACING_INV_ITEM} calls
      * {@link #setPlacingItem(SOCInventoryItem) setPlacingItem(null)}.
      *<P>
      * Solely for debugging, a port can be placed at coordinates "off the side of the board"
@@ -3161,14 +3163,14 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * Put this piece on the board and update all related game state.
      * May change current player (at server) and gamestate.
-     * Calls {@link #checkForWinner()}; gamestate may become {@link #OVER}.
+     * Calls {@link #checkForWinner()}; gamestate may become {@link GameState#GAME_OVER}.
      *<P>
-     * For example, if game state when called is {@link #START2A} (or {@link #START3A} in
+     * For example, if game state when called is {@link GameState#START2A} (or {@link GameState#START3A} in
      * some scenarios), this is their final initial settlement, so it gives the player
      * some resources.
      *<P>
      * If {@link #hasSeaBoard} and {@link SOCGameOptionSet#K_SC_FOG _SC_FOG},
-     * you should check for gamestate {@link #WAITING_FOR_PICK_GOLD_RESOURCE}
+     * you should check for gamestate {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}
      * after calling, to see if they placed next to a gold hex revealed from fog
      * (see paragraph below).
      *
@@ -3190,10 +3192,10 @@ public class SOCGame implements Serializable, Cloneable
      * See that method's javadoc for details.
      * putPiece's caller should check {@link SOCPlayer#getNeedToPickGoldHexResources()} != 0.
      * Revealing a gold hex from fog will set that player field and also
-     * sets gamestate to {@link #WAITING_FOR_PICK_GOLD_RESOURCE}.
+     * sets gamestate to {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}.
      *<P>
      * Calls {@link #checkForWinner()} and otherwise advances turn or state,
-     * unless gamestate is {@link #LOADING}.
+     * unless gamestate is {@link GameState#LOADING}.
      * At the client, {@link #advanceTurnStateAfterPutPiece()} won't change the current player;
      * the server will send a message when the current player changes.
      *<P>
@@ -3217,7 +3219,7 @@ public class SOCGame implements Serializable, Cloneable
      *<P>
      * Some scenarios use extra initial pieces in fixed locations, placed in
      * {@link SOCBoardAtServer#startGame_putInitPieces(SOCGame)}.  To prevent the state or current player from
-     * advancing, temporarily set game state {@link #READY} before calling putPiece for these.
+     * advancing, temporarily set game state {@link GameState#READY} before calling putPiece for these.
      *<P>
      * During {@link #isDebugFreePlacement()}, the gamestate is not changed,
      * unless the current player gains enough points to win.
@@ -3531,7 +3533,7 @@ public class SOCGame implements Serializable, Cloneable
      * followed by a GAMESTATE message to confirm the new state.
      *<P>
      * During {@link #isInitialPlacement()}, only the server advances game state; when client's game calls
-     * this method it returns immediately. In {@link #START2B} or {@link #START3B} after the last initial
+     * this method it returns immediately. In {@link GameState#START2B} or {@link GameState#START3B} after the last initial
      * road/ship placement, this method calls {@link #updateAtGameFirstTurn()} which includes {@link #updateAtTurn()}.
      *<P>
      * If {@link #debugFreePlacement}, does nothing unless current player's
@@ -3539,14 +3541,14 @@ public class SOCGame implements Serializable, Cloneable
      * change to one where they're prompted to pick their gains.
      *<P>
      * Also used in {@link #forceEndTurn()} to continue the game
-     * after a cancelled piece placement in {@link #START1A}..{@link #START3B} .
+     * after a cancelled piece placement in {@link GameState#START1A}..{@link GameState#START3B} .
      * If the current player number changes here, {@link #isForcingEndTurn()} is cleared.
      *<P>
      * This method is not called after placing a {@link SOCInventoryItem} on the board, which
      * happens only with some scenario options such as {@link SOCGameOptionSet#K_SC_FTRI _SC_FTRI}.
      *
      * @return true if game is still active, false if all players have left and
-     *          the gamestate has been changed here to {@link #OVER}.
+     *          the gamestate has been changed here to {@link GameState#GAME_OVER}.
      * @since 1.1.00
      */
     private boolean advanceTurnStateAfterPutPiece()
@@ -3850,7 +3852,7 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * Can this player currently move this ship, based on game state and
      * their trade routes and settlements/cities?
-     * Must be current player.  Game state must be {@link #PLAY1}.
+     * Must be current player.  Game state must be {@link GameState#PLAY1}.
      *<P>
      * Use this method to check a specific move-from location.
      * Use {@link #canMoveShip(int, int, int)} to also check a specific move-to location.
@@ -3901,7 +3903,7 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * Can this player currently move this ship to this new coordinate,
      * based on game state and their trade routes and settlements/cities?
-     * Must be current player.  Game state must be {@link #PLAY1}.
+     * Must be current player.  Game state must be {@link GameState#PLAY1}.
      *<P>
      * Use this method to check a specific move-from and move-to location pair.
      * Use {@link #canMoveShip(int, int)} to check only the move-from.
@@ -3955,7 +3957,7 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * Move this ship on the board and update all related game state.
-     * Calls {@link #checkForWinner()}; gamestate may become {@link #OVER}
+     * Calls {@link #checkForWinner()}; gamestate may become {@link GameState#GAME_OVER}
      * if a player gets the longest trade route.
      *<P>
      * Calls {@link #undoPutPieceCommon(SOCPlayingPiece, boolean, boolean) undoPutPieceCommon(sh, false, true)}
@@ -3977,7 +3979,7 @@ public class SOCGame implements Serializable, Cloneable
      * <B>Scenario option {@link SOCGameOptionSet#K_SC_FOG _SC_FOG}:</B><br>
      * moveShip's caller should check {@link SOCPlayer#getNeedToPickGoldHexResources()} != 0.
      * Revealing a gold hex from fog will set that player field and also
-     * sets gamestate to {@link #WAITING_FOR_PICK_GOLD_RESOURCE}.
+     * sets gamestate to {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}.
      *
      * @param sh the ship to move on the board; its coordinate must be
      *           the edge to move from. Must not be a temporary ship.
@@ -4129,7 +4131,7 @@ public class SOCGame implements Serializable, Cloneable
      * shuffle the tiles and cards, make a board,
      * set players' legal and potential piece locations,
      * choose first player.
-     * gameState becomes {@link #START1A}.
+     * gameState becomes {@link GameState#START1A}.
      * Updates {@link #lastActionTime}.
      *<P>
      * <B>Note:</B> This method requires at least 1 seated player, or it will loop forever.
@@ -4336,7 +4338,7 @@ public class SOCGame implements Serializable, Cloneable
      *  year-of-plenty card, or discard if a 7 is rolled).
      *<P>
      * v1.2.01 and newer allow player to end their turn during
-     * {@link #PLACING_FREE_ROAD1} and {@link #PLACING_FREE_ROAD2}
+     * {@link GameState#PLACING_FREE_ROAD1} and {@link GameState#PLACING_FREE_ROAD2}
      * if they rolled the dice before playing the Road Building card:
      * In some situations or scenarios, player may not want to or be able to
      * place both free roads. They also can call {@link #cancelBuildRoad(int)}
@@ -4344,8 +4346,8 @@ public class SOCGame implements Serializable, Cloneable
      *
      * @param pn  player number of the player who wants to end the turn
      * @return true if okay for this player to end the turn
-     *    (They are current player; game state is {@link #PLAY1} or {@link #SPECIAL_BUILDING};
-     *    or is {@link #PLACING_FREE_ROAD1} or {@link #PLACING_FREE_ROAD2} and
+     *    (They are current player; game state is {@link GameState#PLAY1} or {@link GameState#SPECIAL_BUILDING};
+     *    or is {@link GameState#PLACING_FREE_ROAD1} or {@link GameState#PLACING_FREE_ROAD2} and
      *    {@link #getCurrentDice()} != 0).
      *
      * @see #endTurn()
@@ -4378,7 +4380,7 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * At server, end the turn for the current player, and check for winner.
      * If no winner yet, set up for the next player's turn (see below).
-     * Check for gamestate >= {@link #OVER} after calling endTurn.
+     * Check for gamestate >= {@link GameState#GAME_OVER} after calling endTurn.
      *<P>
      * endTurn() is called <b>only at server</b> - client instead calls
      * {@link #setCurrentPlayerNumber(int)}, then client calls {@link #updateAtTurn()}.
@@ -4387,7 +4389,7 @@ public class SOCGame implements Serializable, Cloneable
      * endTurn() is not called before the first dice roll.
      * endTurn() will call {@link #updateAtTurn()}.
      * In the 6-player game, calling endTurn() may begin or
-     * continue the {@link #SPECIAL_BUILDING Special Building Phase}.
+     * continue the {@link GameState#SPECIAL_BUILDING Special Building Phase}.
      * Does not clear any player's {@link SOCPlayer#hasAskedSpecialBuild()} flag.
      *<P>
      * The winner check is needed because a player can win only
@@ -4470,7 +4472,7 @@ public class SOCGame implements Serializable, Cloneable
      *</UL>
      *<P>
      * Called at server by {@link #advanceTurnStateAfterPutPiece()}, and at client by first
-     * {@link #setGameState(int) setGameState}({@link #ROLL_OR_CARD}).
+     * {@link #setGameState(int) setGameState}({@link GameState#ROLL_OR_CARD}).
      *<P>
      * Before v2.0.00, this was in various places.  The players' potential settlements were cleared by
      * {@code putPiece} after placing their last initial road.  If a bot's initial placement turn was
@@ -4550,7 +4552,7 @@ public class SOCGame implements Serializable, Cloneable
      *  a message to call <tt>updateAtTurn</tt> whenever the current player changes.)
      * Is called at the end of initial placement, before the first player's first roll.
      * On the 6-player board, is called at the start of
-     * each player's {@link #SPECIAL_BUILDING Special Building Phase}.
+     * each player's {@link GameState#SPECIAL_BUILDING Special Building Phase}.
      *<UL>
      *<LI> Set first player and last player, if they're currently -1
      *<LI> Set current dice to 0
@@ -4559,11 +4561,11 @@ public class SOCGame implements Serializable, Cloneable
      *     to mark their new dev cards as old and clear other flags
      *<LI> Clear any "x happened this turn" flags/lists
      *<LI> Clear any votes to reset the board
-     *<LI> If game state is {@link #ROLL_OR_CARD}, increment turnCount (and roundCount if necessary).
+     *<LI> If game state is {@link GameState#ROLL_OR_CARD}, increment turnCount (and roundCount if necessary).
      *     These include the current turn; they both are 1 during the first player's first turn.
      *</UL>
      * Called by server and client.
-     * At client, call this after {@link #setGameState(int)} and {@link #setCurrentPlayerNumber(int)}.
+     * At client, call this after {@link #setGameState(GameState)} and {@link #setCurrentPlayerNumber(int)}.
      * At server, this is called from within {@link #endTurn()}.
      * @since 1.1.07
      */
@@ -4615,9 +4617,9 @@ public class SOCGame implements Serializable, Cloneable
      *<P>
      * May be used if player loses connection, or robot does not respond.
      * Takes whatever action needed to force current player to end their turn,
-     * and if possible, sets state to {@link #PLAY1}, but does not call {@link #endTurn()}.
-     * If player was placing for {@link #SPECIAL_BUILDING}, will cancel that
-     * placement and set state to {@link #SPECIAL_BUILDING}.
+     * and if possible, sets state to {@link GameState#PLAY1}, but does not call {@link #endTurn()}.
+     * If player was placing for {@link GameState#SPECIAL_BUILDING}, will cancel that
+     * placement and set state to {@link GameState#SPECIAL_BUILDING}.
      *<P>
      * Called by controller of game (server).  The results are then reported to
      * the other players as if the player had manually taken actions to
@@ -4630,29 +4632,29 @@ public class SOCGame implements Serializable, Cloneable
      * Does not clear any player's {@link SOCPlayer#hasAskedSpecialBuild()} flag;
      * do that at the server, and report it out to other players.
      *<P>
-     * After calling forceEndTurn, usually the gameState will be {@link #PLAY1},
+     * After calling forceEndTurn, usually the gameState will be {@link GameState#PLAY1},
      * and the caller should call {@link #endTurn()}.  The {@link #isForcingEndTurn()}
      * flag is also set.  The return value in this case is
      * {@link SOCForceEndTurnResult#FORCE_ENDTURN_NONE FORCE_ENDTURN_NONE}.
-     * The state in this case could also be {@link #SPECIAL_BUILDING}.
+     * The state in this case could also be {@link GameState#SPECIAL_BUILDING}.
      *<P>
      * Exceptions (where caller should not call endTurn) are these return types:
      * <UL>
      * <LI> {@link SOCForceEndTurnResult#FORCE_ENDTURN_RSRC_DISCARD_WAIT}
      *       - Have forced current player to discard or gain resources randomly,
      *         must now wait for other players to pick their discards or gains.
-     *         gameState is {@link #WAITING_FOR_DISCARDS}, current player
+     *         gameState is {@link GameState#WAITING_FOR_DISCARDS}, current player
      *         as yet unchanged.
      * <LI> {@link SOCForceEndTurnResult#FORCE_ENDTURN_SKIP_START_ADV}
      *       - During initial placement, have skipped placement of
      *         a player's first or third settlement or road.  gameState is
-     *         {@link #START1A} or {@link #START3A}, current player has changed.
+     *         {@link GameState#START1A} or {@link GameState#START3A}, current player has changed.
      *         Game's first or last player may have changed.
      * <LI> {@link SOCForceEndTurnResult#FORCE_ENDTURN_SKIP_START_ADVBACK}
      *       - During initial placement, have skipped placement of
      *         a player's second settlement or road. (Or, final player's
      *         first _and_ second settlement or road.)
-     *         gameState is {@link #START2A}, current player has changed.
+     *         gameState is {@link GameState#START2A}, current player has changed.
      *         Game's first or last player may have changed.
      *       <P>
      *       Note that for the very last initial road placed, during normal
@@ -4677,7 +4679,7 @@ public class SOCGame implements Serializable, Cloneable
      *     <LI> {@link SOCForceEndTurnResult#FORCE_ENDTURN_LOST_CHOICE}
      *     </UL>
      * @throws IllegalStateException if game is not active
-     *     (gamestate < {@link #START1A} or >= {@link #OVER})
+     *     (gamestate < {@link GameState#START1A} or >= {@link GameState#GAME_OVER})
      * @see #canEndTurn(int)
      * @see #endTurn()
      * @since 1.1.00
@@ -4717,6 +4719,8 @@ public class SOCGame implements Serializable, Cloneable
         // FORCE_ENDTURN_SKIP_START_ADVBACK,
         // or FORCE_ENDTURN_SKIP_START_TURN
 
+        case DICE_ROLLED:
+        case SENDING_DICE_RESULT_RESOURCES:
         case ROLL_OR_CARD:
             gameState = PLAY1;
             return new SOCForceEndTurnResult
@@ -4827,10 +4831,10 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * Special forceEndTurn() treatment for start-game states.
      * Changes gameState and usually {@link #currentPlayerNumber}.
-     * Handles {@link #START1A} - {@link #START3B} and {@link #STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}.
+     * Handles {@link GameState#START1A} - {@link GameState#START3B} and {@link GameState#STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}.
      * See {@link #forceEndTurn()} for description.
      *<P>
-     * Check for gamestate >= {@link #OVER} after calling this method,
+     * Check for gamestate >= {@link GameState#GAME_OVER} after calling this method,
      * in case all players have left the game.
      *
      * @param advTurnForward Should the next player be normal (placing first settlement),
@@ -4892,7 +4896,7 @@ public class SOCGame implements Serializable, Cloneable
 
             /**
              * Set the state we're advancing "from";
-             * this is needed because {@link #START1A}, {@link #START2A}, {@link #START3A}
+             * this is needed because {@link GameState#START1A}, {@link GameState#START2A}, {@link GameState#START3A}
              * don't change player number after placing their piece.
              */
             if (advTurnForward)
@@ -4982,9 +4986,9 @@ public class SOCGame implements Serializable, Cloneable
      * Then, looks at other players' hand size. If no one else must discard or pick,
      * ready to end turn, sets state {@link #PLAY1}.
      * Otherwise must wait for them; sets game state to wait
-     * ({@link #WAITING_FOR_DISCARDS} or {@link #WAITING_FOR_PICK_GOLD_RESOURCE}).
+     * ({@link GameState#WAITING_FOR_DISCARDS} or {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}).
      *<P>
-     * Not called for {@link #STARTS_WAITING_FOR_PICK_GOLD_RESOURCE},
+     * Not called for {@link GameState#STARTS_WAITING_FOR_PICK_GOLD_RESOURCE},
      * which has different result types and doesn't need to check other players.
      *<P>
      * In version 1.x.xx this method was {@code forceEndTurnChkDiscards}.
@@ -5146,11 +5150,11 @@ public class SOCGame implements Serializable, Cloneable
      *<P>
      * On return, gameState will be:
      *<UL>
-     * <LI> {@link #WAITING_FOR_DISCARDS} if other players still must discard
-     * <LI> {@link #WAITING_FOR_PICK_GOLD_RESOURCE} if other players still must pick their resources
-     * <LI> {@link #PLAY1} if everyone has picked (gained) resources
-     * <LI> {@link #PLAY1} if everyone has discarded, and {@link #isForcingEndTurn()} is set
-     * <LI> {@link #PLACING_ROBBER} or {@link #WAITING_FOR_ROBBER_OR_PIRATE},
+     * <LI> {@link GameState#WAITING_FOR_DISCARDS} if other players still must discard
+     * <LI> {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE} if other players still must pick their resources
+     * <LI> {@link GameState#PLAY1} if everyone has picked (gained) resources
+     * <LI> {@link GameState#PLAY1} if everyone has discarded, and {@link #isForcingEndTurn()} is set
+     * <LI> {@link GameState#PLACING_ROBBER} or {@link GameState#WAITING_FOR_ROBBER_OR_PIRATE},
      *      if everyone has discarded and {@link #isForcingEndTurn()} is not set
      *</UL>
      * Before v2.0.00 this method was {@code playerDiscardRandom}.
@@ -5159,8 +5163,8 @@ public class SOCGame implements Serializable, Cloneable
      *           must not be current player (use {@link #forceEndTurn()} for that)
      * @param isDiscard  True to discard resources, false to gain (pick from gold hex)
      * @return Set of resource cards which were discarded or gained
-     * @throws IllegalStateException If the gameState isn't {@link #WAITING_FOR_DISCARDS}
-     *                               or {@link #WAITING_FOR_PICK_GOLD_RESOURCE},
+     * @throws IllegalStateException If the gameState isn't {@link GameState#WAITING_FOR_DISCARDS}
+     *                               or {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE},
      *                               or if pn's {@link SOCPlayer#getNeedToDiscard()} is false
      *                                  and their {@link SOCPlayer#getNeedToPickGoldHexResources()} == 0,
      *                               or if pn == currentPlayer.
@@ -5203,12 +5207,16 @@ public class SOCGame implements Serializable, Cloneable
     }
 
     /**
+     * NOTE: only called by server!
+     * <p></p>
+     * <p>
      * roll the dice.  Distribute resources, or (for 7) set gamestate to
      * move robber or to wait for players to discard.
      * {@link #getGameState()} will usually become {@link GameState#PLAY1}.
      * If the board contains gold hexes, it may become {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}.
      * For 7, gameState becomes either {@link GameState#WAITING_FOR_DISCARDS},
      * {@link GameState#WAITING_FOR_ROBBER_OR_PIRATE}, or {@link GameState#PLACING_ROBBER}.
+     * </p>
      *<P>
      * For dice roll total, see returned {@link RollResult} or call {@link #getCurrentDice()} afterwards.
      * You can call each player's {@link SOCPlayer#getRolledResources()} for their resources gained, if any,
@@ -5218,21 +5226,21 @@ public class SOCGame implements Serializable, Cloneable
      * and N7C: Roll no 7s until a city is built.
      *<P>
      * For scenario option {@link SOCGameOptionSet#K_SC_CLVI}, calls
-     * {@link SOCBoardAtServer#distributeClothFromRoll(SOCGame, RollResult, int)}.
-     * Cloth are worth VP, so check for game state {@link #OVER} if results include {@link RollResult#cloth}.
+     * {@link SOCBoardAtServer#distributeClothFromRoll(SOCGame, SOCGame.RollResult, int)}.
+     * Cloth are worth VP, so check for game state {@link GameState#GAME_OVER} if results include {@link RollResult#cloth}.
      *<P>
      * For scenario option {@link SOCGameOptionSet#K_SC_PIRI}, calls {@link SOCBoardLarge#movePirateHexAlongPath(int)}
      * and then {@link #movePirate(int, int, int)}:
      * Check {@link RollResult#sc_piri_fleetAttackVictim} and {@link RollResult#sc_piri_fleetAttackRsrcs}.
      * Note that if player's warships are stronger than the pirate fleet, {@link SOCMoveRobberResult#sc_piri_loot}
      * will contain {@link SOCResourceConstants#GOLD_LOCAL}, that player's {@link SOCPlayer#setNeedToPickGoldHexResources(int)}
-     * will be set to include the free pick, and game state becomes {@link #WAITING_FOR_PICK_GOLD_RESOURCE}.
+     * will be set to include the free pick, and game state becomes {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}.
      * If a 7 was rolled, the free pick happens before any discards.
      *<P>
      * Called at server only.
      *
      * @return The roll results: Dice numbers, and any scenario-specific results
-     *         such as {@link RollResult#cloth}.  The game reuses the same instance
+     *         such as {@link soc.game.SOCGame.RollResult#cloth}.  The game reuses the same instance
      *         each turn, so its field contents will change when <tt>rollDice()</tt>
      *         is called again.
      * @see #getResourcesGainedFromRoll(SOCPlayer, int)
@@ -5317,7 +5325,8 @@ public class SOCGame implements Serializable, Cloneable
         }
 
         /**
-         * handle the seven case
+         * handle the seven case. Will set game state to PLAY1 only if the pirate moved but there
+         * was no victim, so no resources changed hands.
          */
         if (currentDice == 7)
         {
@@ -5334,9 +5343,9 @@ public class SOCGame implements Serializable, Cloneable
             {
                 if (!isSeatVacant( i ))
                 {
-                    SOCPlayer pl = players[i];
-                    pl.addRolledResources( getResourcesGainedFromRoll( pl, currentDice ) );
-                    if (hasSeaBoard && pl.getNeedToPickGoldHexResources() > 0)
+                    SOCPlayer socPlayer = players[i];
+                    socPlayer.addRolledResources( getResourcesGainedFromRoll( socPlayer, currentDice ) );
+                    if (hasSeaBoard && socPlayer.getNeedToPickGoldHexResources() > 0)
                         anyGoldHex = true;
                 }
             }
@@ -5362,13 +5371,10 @@ public class SOCGame implements Serializable, Cloneable
              */
             if (gameState != GAME_OVER)
             {
-                if (!anyGoldHex)
+                gameState = SENDING_DICE_RESULT_RESOURCES;
+                if (anyGoldHex)
                 {
-                    gameState = PLAY1;
-                }
-                else
-                {
-                    oldGameState = PLAY1;
+                    oldGameState = gameState;
                     gameState = WAITING_FOR_PICK_GOLD_RESOURCE;
                 }
             }
@@ -5379,15 +5385,15 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * When a 7 is rolled, update the {@link #gameState}:
-     * Always {@link #WAITING_FOR_DISCARDS} if any {@link SOCPlayer#getResources()} total &gt; 7.
-     * Otherwise {@link #PLACING_ROBBER}, {@link #WAITING_FOR_ROBBER_OR_PIRATE}, or (for
+     * Always {@link GameState#WAITING_FOR_DISCARDS} if any {@link SOCPlayer#getResources()} total &gt; 7.
+     * Otherwise {@link GameState#PLACING_ROBBER}, {@link GameState#WAITING_FOR_ROBBER_OR_PIRATE}, or (for
      * scenario option {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI})
-     * {@link #WAITING_FOR_ROB_CHOOSE_PLAYER} or {@link #PLAY1}.
-     *<P>
-     * For state {@link #WAITING_FOR_DISCARDS}, also sets {@link SOCPlayer#setNeedToDiscard(boolean)}.
-     * For state {@link #PLACING_ROBBER}, also clears {@link #robberyWithPirateNotRobber}.
+     * {@link GameState#WAITING_FOR_ROB_CHOOSE_PLAYER} or {@link GameState#PLAY1}.
+     *<P></p>
+     * For state {@link GameState#WAITING_FOR_DISCARDS}, also sets {@link SOCPlayer#setNeedToDiscard(boolean)}.
+     * For state {@link GameState#PLACING_ROBBER}, also clears {@link #robberyWithPirateNotRobber}.
      * For <tt>_SC_PIRI</tt>, sets <tt>currentRoll.sc_robPossibleVictims</tt>.
-     *<P>
+     *<P></p>
      * This is a separate method from {@link #rollDice()} because for <tt>_SC_PIRI</tt>, if a player wins against
      * the pirate fleet, this "7 update" happens only after they pick and gain their free resource.
      * @since 2.0.00
@@ -5410,8 +5416,7 @@ public class SOCGame implements Serializable, Cloneable
         }
 
         /**
-         * if no one needs to discard, then wait for
-         * the robber to move
+         * if no one needs to discard, then wait for the robber to move
          */
         if (gameState != WAITING_FOR_DISCARDS)
         {
@@ -5419,13 +5424,14 @@ public class SOCGame implements Serializable, Cloneable
             // if you update this method, check those ones
 
             placingRobberForKnightCard = false;
-            oldGameState = PLAY1;
+            // This is the state we should return to after the player has robbed everyone.
+            oldGameState = SENDING_DICE_RESULT_RESOURCES;
             if (isGameOptionSet( SOCGameOptionSet.K_SC_PIRI ))
             {
                 robberyWithPirateNotRobber = false;
                 currentRoll.sc_robPossibleVictims = getPossibleVictims();
                 if (currentRoll.sc_robPossibleVictims.isEmpty())
-                    gameState = PLAY1;  // no victims
+                    gameState = PLAY1;  // no victims, no SOCPlayerElements messages, proceed right to play?
                 else
                     gameState = WAITING_FOR_ROB_CHOOSE_PLAYER;  // 1 or more victims; could choose to not steal anything
             }
@@ -5568,21 +5574,21 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * A player is discarding resources. Discard, check if other players
-     * must still discard, and set gameState to {@link #WAITING_FOR_DISCARDS}
-     * or {@link #WAITING_FOR_ROBBER_OR_PIRATE}
-     * or {@link #PLACING_ROBBER} accordingly.
+     * must still discard, and set gameState to {@link GameState#WAITING_FOR_DISCARDS}
+     * or {@link GameState#WAITING_FOR_ROBBER_OR_PIRATE}
+     * or {@link GameState#PLACING_ROBBER} accordingly.
      *<P>
      * Assumes {@link #canDiscard(int, ResourceSet)} already called to validate.
      *<P>
      * In scenario option <tt>_SC_PIRI</tt>, there is no robber
      * to move, but the player will choose their robbery victim
-     * (state {@link #WAITING_FOR_ROB_CHOOSE_PLAYER}) after any discards.
-     * If there are no possible victims, state becomes {@link #PLAY1}.
+     * (state {@link GameState#WAITING_FOR_ROB_CHOOSE_PLAYER}) after any discards.
+     * If there are no possible victims, state becomes {@link GameState#PLAY1}.
      * Check for those game states after calling this method.
      *<P>
      * Special case:
      * If {@link #isForcingEndTurn()}, and no one else needs to discard,
-     * gameState becomes {@link #PLAY1} but the caller must call
+     * gameState becomes {@link GameState#PLAY1} but the caller must call
      * {@link #endTurn()} as soon as possible.
      *
      * @param pn   the number of the player
@@ -5653,8 +5659,8 @@ public class SOCGame implements Serializable, Cloneable
      * Can the player pick these resources from the gold hex?
      * <tt>rs.</tt>{@link SOCResourceSet#getTotal() getTotal()}
      * must == {@link SOCPlayer#getNeedToPickGoldHexResources()}.
-     * Game state must be {@link #WAITING_FOR_PICK_GOLD_RESOURCE}
-     * or {@link #STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}.
+     * Game state must be {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}
+     * or {@link GameState#STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}.
      *
      * @param pn  the number of the player that is picking
      * @param rs  the resources that the player is picking
@@ -5676,15 +5682,15 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * A player is picking which resources to gain from the gold hex.
      * Gain them, check if other players must still pick, and set
-     * gameState to {@link #WAITING_FOR_PICK_GOLD_RESOURCE}
-     * or oldGameState (usually {@link #PLAY1}) accordingly.
-     * (Or, during initial placement, usually {@link #START2B} or {@link #START3B} after initial settlement at gold,
-     * or {@link #START1A} or {@link #START2A} after placing a ship to a fog hex reveals gold.)
-     * During normal play, the oldGameState might sometimes be {@link #PLACING_FREE_ROAD2} or {@link #SPECIAL_BUILDING}.
-     *<P>
+     * gameState to {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}
+     * or oldGameState (usually {@link GameState#PLAY1}) accordingly.
+     * (Or, during initial placement, usually {@link GameState#START2B} or {@link GameState#START3B} after initial settlement at gold,
+     * or {@link GameState#START1A} or {@link GameState#START2A} after placing a ship to a fog hex reveals gold.)
+     * During normal play, the oldGameState might sometimes be {@link GameState#PLACING_FREE_ROAD2} or {@link GameState#SPECIAL_BUILDING}.
+     *<P></p>
      * Assumes {@link #canPickGoldHexResources(int, ResourceSet)} was already called to validate.
      *<P>
-     * During initial placement from {@link #STARTS_WAITING_FOR_PICK_GOLD_RESOURCE},
+     * During initial placement from {@link GameState#STARTS_WAITING_FOR_PICK_GOLD_RESOURCE},
      * calls {@link #advanceTurnStateAfterPutPiece()}.
      * The current player won't change if the gold pick was for the player's final initial settlement.
      * If the gold pick was for placing a road or ship that revealed a gold hex from {@link SOCBoardLarge#FOG_HEX fog},
@@ -5701,8 +5707,8 @@ public class SOCGame implements Serializable, Cloneable
      * @param pn   the number of the player
      * @param rs   the resources that are being picked
      * @return  {@link #getGameState()} from before the gold-revealing placement if called during initial placement
-     *     ({@link #START1A}, START2A, etc; can be {@link #START1B} or START2B if ship was placed to a fog hex),
-     *     otherwise {@link #PLAY1}
+     *     ({@link GameState#START1A}, START2A, etc; can be {@link GameState#START1B} or START2B if ship was placed to a fog hex),
+     *     otherwise {@link GameState#PLAY1}
      * @since 2.0.00
      */
     public GameState pickGoldHexResources( final int pn, final SOCResourceSet rs )
@@ -5732,11 +5738,12 @@ public class SOCGame implements Serializable, Cloneable
                 resourceStats[rtype] += rs.getAmount( rtype );
         }
 
+        gameState = oldGameState;  // Restore the game state to what it was before we started
+            // waiting of the gold pick; nearly always PLAY1, after a roll
+
         /**
          * check if we're still waiting for players to pick
          */
-        gameState = oldGameState;  // nearly always PLAY1, after a roll
-
         if ((gameState == ROLL_OR_CARD) && (currentDice == 7))
         {
             rollDice_update7gameState();  // from win vs pirate fleet at dice roll (SC_PIRI)
@@ -5754,7 +5761,7 @@ public class SOCGame implements Serializable, Cloneable
             }
         }
 
-        return PLAY1;
+        return PLAY1;   // This is what the state should become once the waiting is done.
     }
 
     /**
@@ -5769,7 +5776,7 @@ public class SOCGame implements Serializable, Cloneable
      *<LI> Scenario option {@link SOCGameOptionSet#K_SC_WOND _SC_WOND} does not use the pirate ship.
      *</UL>
      * @return true if the pirate ship can be moved
-     * @see #WAITING_FOR_ROBBER_OR_PIRATE
+     * @see GameState#WAITING_FOR_ROBBER_OR_PIRATE
      * @see #chooseMovePirate(boolean)
      * @since 2.0.00
      */
@@ -5791,14 +5798,14 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * Choose to move the pirate or the robber, from game state
-     * {@link #WAITING_FOR_ROBBER_OR_PIRATE}.
-     * Game state becomes {@link #PLACING_ROBBER} or {@link #PLACING_PIRATE}.
+     * {@link GameState#WAITING_FOR_ROBBER_OR_PIRATE}.
+     * Game state becomes {@link GameState#PLACING_ROBBER} or {@link GameState#PLACING_PIRATE}.
      * {@link #getRobberyPirateFlag()} is set or cleared accordingly.
      *<P>
      * Called from server's game handler and also from {@link #forceEndTurn()} if necessary.
      *
      * @param pirateNotRobber  True to move pirate, false to move robber
-     * @throws IllegalStateException if gameState != {@link #WAITING_FOR_ROBBER_OR_PIRATE}
+     * @throws IllegalStateException if gameState != {@link GameState#WAITING_FOR_ROBBER_OR_PIRATE}
      * @since 2.0.00
      */
     public void chooseMovePirate( final boolean pirateNotRobber )
@@ -5819,7 +5826,7 @@ public class SOCGame implements Serializable, Cloneable
      * Must be different from current robber coordinates.
      * Must not be a desert if {@link SOCGameOption game option} RD is set to true
      * ("Robber can't return to the desert").
-     * Must be current player.  Game state must be {@link #PLACING_ROBBER}.
+     * Must be current player.  Game state must be {@link GameState#PLACING_ROBBER}.
      *
      * @return true if the player can move the robber to the coordinates
      *
@@ -5885,10 +5892,10 @@ public class SOCGame implements Serializable, Cloneable
      *<P>
      * If no victims (players to possibly steal from): State becomes oldGameState.
      * If just one victim: call stealFromPlayer, State becomes oldGameState.
-     * If multiple possible victims: Player must choose a victim: State becomes {@link #WAITING_FOR_ROB_CHOOSE_PLAYER}.
+     * If multiple possible victims: Player must choose a victim: State becomes {@link GameState#WAITING_FOR_ROB_CHOOSE_PLAYER}.
      *<P>
      * Assumes {@link #canMoveRobber(int, int)} has been called already to validate the move.
-     * Assumes gameState {@link #PLACING_ROBBER}.
+     * Assumes gameState {@link GameState#PLACING_ROBBER}.
      * Also updates {@link #getRobberyResult()}.
      *
      * @param pn  the number of the player that is moving the robber
@@ -5926,7 +5933,7 @@ public class SOCGame implements Serializable, Cloneable
         else if (victims.size() == 1)
         {
             final SOCPlayer victim = victims.get( 0 );
-            final int loot = stealFromPlayer( victim.getPlayerNumber(), false );
+            final int loot = stealFromPlayer( victim.getPlayerNumber(), false );    // gameState changes to oldGameState
             robberResult.setLoot( loot );
         }
         else
@@ -5947,7 +5954,7 @@ public class SOCGame implements Serializable, Cloneable
      * Must be a water hex, per {@link SOCBoardLarge#isHexOnWater(int)}.
      * Must be different from current pirate coordinates.
      * Game must have {@link #hasSeaBoard}.
-     * Must be current player.  Game state must be {@link #PLACING_PIRATE}.
+     * Must be current player.  Game state must be {@link GameState#PLACING_PIRATE}.
      * For scenario option {@link SOCGameOptionSet#K_SC_CLVI _SC_CLVI}, the player
      * must have {@link SOCPlayerEvent#CLOTH_TRADE_ESTABLISHED_VILLAGE}.
      *
@@ -5986,18 +5993,18 @@ public class SOCGame implements Serializable, Cloneable
      *<P>
      * If no victims (players to possibly steal from): State becomes oldGameState.
      *<br>
-     * If multiple possible victims: Player must choose a victim: State becomes {@link #WAITING_FOR_ROB_CHOOSE_PLAYER}.
+     * If multiple possible victims: Player must choose a victim: State becomes {@link GameState#WAITING_FOR_ROB_CHOOSE_PLAYER}.
      *    Once chosen, call {@link #choosePlayerForRobbery(int)} to choose a victim.
      *<br>
      * If just one victim: call stealFromPlayer, State becomes oldGameState.
-     * If cloth robbery gives player enough VP to win, sets gameState to {@link #OVER}.
+     * If cloth robbery gives player enough VP to win, sets gameState to {@link GameState#GAME_OVER}.
      *<br>
      *    Or: If just one victim but {@link #canChooseRobClothOrResource(int)},
-     *    state becomes {@link #WAITING_FOR_ROB_CLOTH_OR_RESOURCE}.
+     *    state becomes {@link GameState#WAITING_FOR_ROB_CLOTH_OR_RESOURCE}.
      *    Once chosen, call {@link #stealFromPlayer(int, boolean)}.
      *<P>
      * Assumes {@link #canMovePirate(int, int)} has been called already to validate the move.
-     * Assumes gameState {@link #PLACING_PIRATE}.
+     * Assumes gameState {@link GameState#PLACING_PIRATE}.
      * Also updates {@link #getRobberyResult()}.
      *<P>
      * In <b>game scenario {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI},</b> the pirate is moved not by the player,
@@ -6124,13 +6131,13 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * When moving the robber or pirate, can this player be chosen to be robbed?
-     * Game state must be {@link #WAITING_FOR_ROB_CHOOSE_PLAYER} or {@link #WAITING_FOR_PICK_GOLD_RESOURCE}.
+     * Game state must be {@link GameState#WAITING_FOR_ROB_CHOOSE_PLAYER} or {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}.
      * To choose the player and rob, call {@link #choosePlayerForRobbery(int)}.
      *
      * @return true if the current player can choose this player to rob
      * @param pn  the number of the player to rob, or -1 to rob no one
      *           in game scenario <tt>_SC_PIRI</tt> as described in
-     *           {@link #WAITING_FOR_ROB_CHOOSE_PLAYER}.
+     *           {@link GameState#WAITING_FOR_ROB_CHOOSE_PLAYER}.
      *
      * @see #getRobberyPirateFlag()
      * @see #getPossibleVictims()
@@ -6169,9 +6176,9 @@ public class SOCGame implements Serializable, Cloneable
      * Calls {@link #canChooseRobClothOrResource(int)} to check that.
      *<P>
      * Calls {@link #stealFromPlayer(int, boolean)} to perform the robbery and set gameState back to oldGameState.
-     * If cloth robbery gives player enough VP to win, sets gameState to {@link #OVER}.
+     * If cloth robbery gives player enough VP to win, sets gameState to {@link GameState#GAME_OVER}.
      *<P>
-     * If they must choose what to steal, instead sets gameState to {@link #WAITING_FOR_ROB_CLOTH_OR_RESOURCE}.
+     * If they must choose what to steal, instead sets gameState to {@link GameState#WAITING_FOR_ROB_CLOTH_OR_RESOURCE}.
      * Once chosen, call {@link #stealFromPlayer(int, boolean)}.
      *<P>
      * Does not validate <tt>pn</tt>; assumes {@link #canChoosePlayer(int)} has been called already.
@@ -6179,11 +6186,11 @@ public class SOCGame implements Serializable, Cloneable
      * In scenario option <tt>_SC_PIRI</tt>, the player can
      * choose to not steal from anyone after rolling a 7.
      * In that case, call with <tt>pn == -1</tt>.
-     * State becomes {@link #PLAY1}.
+     * State becomes {@link GameState#PLAY1}.
      *
      * @param pn  the number of the player being robbed
      * @return the type of resource that was stolen, as in {@link SOCResourceConstants}, or 0
-     *     if must choose first (state {@link #WAITING_FOR_ROB_CLOTH_OR_RESOURCE}),
+     *     if must choose first (state {@link GameState#WAITING_FOR_ROB_CLOTH_OR_RESOURCE}),
      *     or {@link SOCResourceConstants#CLOTH_STOLEN_LOCAL} for cloth.
      * @since 2.0.00
      */
@@ -6232,7 +6239,7 @@ public class SOCGame implements Serializable, Cloneable
      * Can the current player attack their pirate fortress, and try to conquer and recapture it?
      * This method is validation before calling {@link #attackPirateFortress(SOCShip)}.
      *<P>
-     * To attack, game state must be {@link #PLAY1}.
+     * To attack, game state must be {@link GameState#PLAY1}.
      * The current player must have a {@link SOCPlayer#getFortress()} != {@code null},
      * and a ship on an edge adjacent to that {@link SOCFortress}'s node.
      *<P>
@@ -6739,12 +6746,12 @@ public class SOCGame implements Serializable, Cloneable
      * Set gameState back to {@code oldGameState}. The current player gets the stolen item.
      *<P>
      * For the cloth game scenario, can steal cloth, and can gain victory points from having
-     * cloth. If cloth robbery gives player enough VP to win, sets gameState to {@link #OVER}.
+     * cloth. If cloth robbery gives player enough VP to win, sets gameState to {@link GameState#GAME_OVER}.
      *<P>
      * Does not validate <tt>pn</tt>; assumes {@link #canChoosePlayer(int)}
      * and {@link #choosePlayerForRobbery(int)} have been called already.
-     * Assumes current game state is {@link #PLACING_ROBBER} or
-     * {@link #WAITING_FOR_ROB_CHOOSE_PLAYER}.
+     * Assumes current game state is {@link GameState#PLACING_ROBBER} or
+     * {@link GameState#WAITING_FOR_ROB_CHOOSE_PLAYER}.
      *
      * @param pn  the number of the player being robbed
      * @param choseCloth  player has both resources and {@link SOCPlayer#getCloth() cloth},
@@ -6804,7 +6811,12 @@ public class SOCGame implements Serializable, Cloneable
          * unless player just won from cloth VP
          */
         if (gameState != GAME_OVER)
-            gameState = oldGameState;
+        {
+            if (gameState == SENDING_DICE_RESULT_RESOURCES)
+                gameState = PLAY1;
+            else
+                gameState = oldGameState;
+        }
 
         return rpick;
     }
@@ -7384,9 +7396,9 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * Can the current player cancel building a piece in this game state?
-     * True for each piece's normal placing state ({@link #PLACING_ROAD}, etc),
+     * True for each piece's normal placing state ({@link GameState#PLACING_ROAD}, etc),
      * and for initial settlement placement.
-     * In v1.1.17+, also true in {@link #PLACING_FREE_ROAD2} to skip the second placement.
+     * In v1.1.17+, also true in {@link GameState#PLACING_FREE_ROAD2} to skip the second placement.
      *
      * @param buildType  Piece type ({@link SOCPlayingPiece#ROAD}, {@link SOCPlayingPiece#CITY CITY}, etc)
      * @return true if current game state allows it
@@ -7420,14 +7432,14 @@ public class SOCGame implements Serializable, Cloneable
      * (or SPECIAL_BUILDING)
      *<P>
      * In version 1.1.17 and newer ({@link #VERSION_FOR_CANCEL_FREE_ROAD2}),
-     * can also use to skip placing the second free road in {@link #PLACING_FREE_ROAD2};
+     * can also use to skip placing the second free road in {@link GameState#PLACING_FREE_ROAD2};
      * sets gameState to ROLL_OR_CARD or PLAY1 as if the free road was placed.<BR>
      * In v1.2.01 and newer, player can also end their turn from state
-     * {@link #PLACING_FREE_ROAD1} or {@link #PLACING_FREE_ROAD2}.<BR>
+     * {@link GameState#PLACING_FREE_ROAD1} or {@link GameState#PLACING_FREE_ROAD2}.<BR>
      * In v2.0.00 and newer, can similarly call {@link #cancelBuildShip(int)} in that state.
      *
      * @param pn  the number of the player
-     * @return true if resources were returned (false if {@link #PLACING_FREE_ROAD2})
+     * @return true if resources were returned (false if {@link GameState#PLACING_FREE_ROAD2})
      */
     public boolean cancelBuildRoad( final int pn )
     {
@@ -7490,12 +7502,12 @@ public class SOCGame implements Serializable, Cloneable
      * a player is UNbuying a ship; return resources, set gameState PLAY1
      * (or SPECIAL_BUILDING)
      *<P>
-     * Can also use to skip placing the second free ship in {@link #PLACING_FREE_ROAD2};
+     * Can also use to skip placing the second free ship in {@link GameState#PLACING_FREE_ROAD2};
      * sets gameState to ROLL_OR_CARD or PLAY1 as if the free ship was placed.
      * Can similarly call {@link #cancelBuildRoad(int)} in that state.
      *
      * @param pn  the number of the player
-     * @return true if resources were returned (false if {@link #PLACING_FREE_ROAD2})
+     * @return true if resources were returned (false if {@link GameState#PLACING_FREE_ROAD2})
      * @since 2.0.00
      */
     public boolean cancelBuildShip( final int pn )
@@ -7517,8 +7529,8 @@ public class SOCGame implements Serializable, Cloneable
     }
 
     /**
-     * In state {@link #PLACING_INV_ITEM}, the current player is canceling special {@link SOCInventoryItem} placement.
-     * Return it to their hand, and set gameState back to {@link #PLAY1} or {@link #SPECIAL_BUILDING}
+     * In state {@link GameState#PLACING_INV_ITEM}, the current player is canceling special {@link SOCInventoryItem} placement.
+     * Return it to their hand, and set gameState back to {@link GameState#PLAY1} or {@link GameState#SPECIAL_BUILDING}
      * based on oldGameState.
      *<P>
      * If ! {@link SOCInventoryItem#canCancelPlay}, does nothing unless {@code forceEndTurn}.
@@ -7636,7 +7648,7 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * Can this player currently play a knight card?
-     * gameState must be {@link #ROLL_OR_CARD} or {@link #PLAY1}.
+     * gameState must be {@link GameState#ROLL_OR_CARD} or {@link GameState#PLAY1}.
      * Must have a {@link SOCDevCardConstants#KNIGHT} and must
      * not have already played a dev card this turn.
      *<P>
@@ -7784,12 +7796,12 @@ public class SOCGame implements Serializable, Cloneable
      * <H5>Recognized scenario game options with special items:</H5>
      *<UL>
      * <LI> {@link SOCGameOptionSet#K_SC_FTRI _SC_FTRI}: Trade ports received as gifts.
-     *   Playable in state {@link #PLAY1} or {@link #SPECIAL_BUILDING} and only when player has a
+     *   Playable in state {@link GameState#PLAY1} or {@link GameState#SPECIAL_BUILDING} and only when player has a
      *   coastal settlement/city with no adjacent existing port.  Returns 4 if
      *   {@link SOCPlayer#getPortMovePotentialLocations(boolean)} == {@code null}.
      *   (See "returns" section below for the standard other return codes.)
      *   Because the rules require building a coastal settlement/city before placing
-     *   the new port, which is done during {@link #PLAY1} or {@link #SPECIAL_BUILDING}, the port can't be placed
+     *   the new port, which is done during {@link GameState#PLAY1} or {@link GameState#SPECIAL_BUILDING}, the port can't be placed
      *   before the dice roll or in other game states.
      *</UL>
      *
@@ -7834,7 +7846,7 @@ public class SOCGame implements Serializable, Cloneable
      * <H5>Recognized scenario game options with special items:</H5>
      *<UL>
      * <LI> {@link SOCGameOptionSet#K_SC_FTRI _SC_FTRI}: Trade ports received as gifts.
-     *   Game state becomes {@link #PLACING_INV_ITEM}.  Player must now choose and validate a location
+     *   Game state becomes {@link GameState#PLACING_INV_ITEM}.  Player must now choose and validate a location
      *   and then call {@link #placePort(int)}.
      *</UL>
      *
@@ -7865,9 +7877,9 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * The current player plays a Knight card.
      * Assumes {@link #canPlayKnight(int)} already called, and the play is allowed.
-     * gameState becomes either {@link #PLACING_ROBBER}
-     * or {@link #WAITING_FOR_ROBBER_OR_PIRATE}.
-     *<P>
+     * gameState becomes either {@link GameState#PLACING_ROBBER}
+     * or {@link GameState#WAITING_FOR_ROBBER_OR_PIRATE}.
+     *<P></p>
      * <b>In scenario {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI},</b> instead the player
      * converts a normal ship to a warship.  There is no robber piece in this scenario.
      * Call {@link SOCPlayer#getNumWarships()} afterwards to get the current player's new count.
@@ -8209,7 +8221,7 @@ public class SOCGame implements Serializable, Cloneable
 
     /**
      * check current player's vp total to see if the
-     * game is over.  If so, set game state to {@link #OVER},
+     * game is over.  If so, set game state to {@link GameState#GAME_OVER},
      * set player with win.
      *<P>
      * This method is called from other game methods which may award VPs or may cause a win,
@@ -8224,7 +8236,7 @@ public class SOCGame implements Serializable, Cloneable
      *<P>
      * The win is determined not by who has the highest point total, but
      * solely by reaching enough victory points ({@link #vp_winner}) during your own turn.
-     * Does nothing if gameState is {@link #SPECIAL_BUILDING} or {@link #LOADING}.
+     * Does nothing if gameState is {@link GameState#SPECIAL_BUILDING} or {@link GameState#LOADING}.
      *<P>
      * Some game scenarios have other special win conditions ({@link #hasScenarioWinCondition}):
      *<UL>
@@ -8329,7 +8341,7 @@ public class SOCGame implements Serializable, Cloneable
      * have cloth ({@link SOCScenario#SC_CLVI_VILLAGES_CLOTH_REMAINING_MIN}).
      * Otherwise, returns false without changing game state.
      *<P>
-     * Sets state to {@link #OVER}. Returns true.
+     * Sets state to {@link GameState#GAME_OVER}. Returns true.
      * Caller should fire {@link SOCGameEvent#SGE_CLVI_WIN_VILLAGE_CLOTH_EMPTY}.
      *
      * @return true if game has ended with a winner under this special condition
@@ -8443,8 +8455,8 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * Create a new game with same players and name, new board;
      * like calling constructor otherwise.
-     * State of current game can be any state. State of copy is {@link #NEW},
-     * or if there are robots, it will be set to {@link #READY_RESET_WAIT_ROBOT_DISMISS}
+     * State of current game can be any state. State of copy is {@link GameState#NEW_GAME},
+     * or if there are robots, it will be set to {@link GameState#READY_RESET_WAIT_ROBOT_DISMISS}
      * by the {@link SOCGameBoardReset} constructor.
      * Deep copy: Player names, faceIDs, and robot-flag are copied from
      * old game, but all other fields set as new Player and Board objects.
@@ -8452,7 +8464,7 @@ public class SOCGame implements Serializable, Cloneable
      * (This simplifies the robot client.)
      * Any vacant seats will be locked, so a robot won't sit there.
      *<P>
-     * Old game's state becomes {@link #RESET_OLD}.
+     * Old game's state becomes {@link GameState#RESET_OLD}.
      * Old game's previous state is saved to {@link #getOldGameState()}.
      * Please call destroyGame() on old game when done examining its state.
      *<P>
@@ -8727,8 +8739,8 @@ public class SOCGame implements Serializable, Cloneable
     }
 
     /**
-     * During game play, are we in the {@link #SPECIAL_BUILDING Special Building Phase}?
-     * Includes game state {@link #SPECIAL_BUILDING}, and placement game states during this phase.
+     * During game play, are we in the {@link GameState#SPECIAL_BUILDING Special Building Phase}?
+     * Includes game state {@link GameState#SPECIAL_BUILDING}, and placement game states during this phase.
      *
      * @return true if in Special Building Phase
      * @since 1.1.08
@@ -8741,7 +8753,7 @@ public class SOCGame implements Serializable, Cloneable
     }
 
     /**
-     * For 6-player mode's {@link #SPECIAL_BUILDING Special Building Phase},
+     * For 6-player mode's {@link GameState#SPECIAL_BUILDING Special Building Phase},
      * can the player currently request to special build?
      * See 'throws' for the conditions checked.
      *<P>
@@ -8756,7 +8768,7 @@ public class SOCGame implements Serializable, Cloneable
      * @throws IllegalStateException  if game is not 6-player, or pn is current player,
      *            or {@link SOCPlayer#hasAskedSpecialBuild() pn.hasAskedSpecialBuild()}
      *            or {@link SOCPlayer#hasSpecialBuilt() pn.hasSpecialBuilt()} is true,
-     *            or if gamestate is earlier than {@link #ROLL_OR_CARD}, or >= {@link #OVER},
+     *            or if gamestate is earlier than {@link GameState#ROLL_OR_CARD}, or >= {@link GameState#GAME_OVER},
      *            or if the first player is asking before completing their first turn.
      * @throws NoSuchElementException  if house rule game option {@code "PLP"} is active
      *            and {@link #getPlayerCount()} returns fewer then 5 sitting players.
@@ -8842,7 +8854,7 @@ public class SOCGame implements Serializable, Cloneable
      * @param onlyIfCan  Check if player can do so, before setting player and game flags.
      *            Should always be <tt>true</tt> for server calls.
      * @throws IllegalStateException  if game is not 6-player, or is currently this player's turn,
-     *            or if gamestate is earlier than {@link #ROLL_OR_CARD}, or >= {@link #OVER}.
+     *            or if gamestate is earlier than {@link GameState#ROLL_OR_CARD}, or >= {@link GameState#GAME_OVER}.
      * @throws NoSuchElementException  if {@code onlyIfCan}, and house rule game option {@code "PLP"} is active,
      *     and {@link #getPlayerCount()} returns fewer then 5 sitting players.
      * @throws IllegalArgumentException  if pn is not a valid player (vacant seat, etc).
@@ -8878,7 +8890,7 @@ public class SOCGame implements Serializable, Cloneable
      * Turn the "free placement" debug mode on or off, if possible.
      *<P>
      * Should only be turned on during the debugging human player's turn,
-     * in game state {@link #PLAY1} or during {@link #isInitialPlacement()} states.
+     * in game state {@link GameState#PLAY1} or during {@link #isInitialPlacement()} states.
      *<P>
      * When turning it off during initial placement, all players must have
      * either 1 settlement and road, or at least 2 settlements and roads.
@@ -8892,8 +8904,8 @@ public class SOCGame implements Serializable, Cloneable
      * For more details, see {@link #isDebugFreePlacement()} javadoc.
      *
      * @param debugOn  Should the mode be on?
-     * @throws IllegalStateException  if turning on when gameState is not {@link #PLAY1}
-     *    or an initial placement state ({@link #START1A} - {@link #START3B}),
+     * @throws IllegalStateException  if turning on when gameState is not {@link GameState#PLAY1}
+     *    or an initial placement state ({@link GameState#START1A} - {@link GameState#START3B}),
      *    or turning off during initial placement with an unequal number of pieces placed.
      * @since 1.1.12
      */
@@ -9055,8 +9067,8 @@ public class SOCGame implements Serializable, Cloneable
          *   [ Cloth amount taken from general supply,
          *     Cloth amount given to player 0, to player 1, ..., to player n ].
          * Any {@link SOCVillage}s with matching dice numbers which took part are in {@link #clothVillages}.
-         * @see SOCBoardAtServer#distributeClothFromRoll(SOCGame, RollResult, int)
-         */
+         * @see SOCBoardAtServer#distributeClothFromRoll(SOCGame, SOCGame.RollResult, int)
+            */
         public int[] cloth;
 
         /**
@@ -9075,7 +9087,7 @@ public class SOCGame implements Serializable, Cloneable
          * When a 7 is rolled in game scenario {@link SOCScenario#K_SC_PIRI SC_PIRI},
          * there is no robber piece to move; the current player immediately picks another
          * player with resources to steal from.  In that situation, this field holds
-         * the list of possible victims, and gameState is {@link #WAITING_FOR_ROB_CHOOSE_PLAYER}.
+         * the list of possible victims, and gameState is {@link GameState#WAITING_FOR_ROB_CHOOSE_PLAYER}.
          *<P>
          * Moving the pirate fleet might also have a different victim:
          * See {@link #sc_piri_fleetAttackVictim}, {@link #sc_piri_fleetAttackRsrcs},
@@ -9107,7 +9119,7 @@ public class SOCGame implements Serializable, Cloneable
          *<P>
          * If the victim wins against the attack, they must soon be prompted to gain a resource of their choice.
          * This resource set contains {@link SOCResourceConstants#GOLD_LOCAL} to indicate the win.
-         * State became {@link SOCGame#WAITING_FOR_PICK_GOLD_RESOURCE} and the caller of {@link SOCGame#rollDice()}
+         * State became {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE} and the caller of {@link SOCGame#rollDice()}
          * must prompt the player to choose their free resource.
          */
         public SOCResourceSet sc_piri_fleetAttackRsrcs;
@@ -9127,5 +9139,4 @@ public class SOCGame implements Serializable, Cloneable
         }
 
     }  // nested class RollResult
-
 }

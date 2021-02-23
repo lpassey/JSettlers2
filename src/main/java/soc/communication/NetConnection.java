@@ -62,7 +62,7 @@ public final class NetConnection
     private DataInputStream in = null;
     private DataOutputStream out = null;
 
-    /** Hostname of the remote end of the connection, for {@link #host()} */
+    /** Hostname of the remote end of the connection, for {@link #getHost()} */
     private String hst;
 
     private boolean connected = false;
@@ -163,7 +163,7 @@ public final class NetConnection
      * Inbound reading thread: continuously read from the net.
      *<P>
      * When starting the thread, {@link #getData()} must be null;
-     * {@link #connect()} mentions and checks that, but {@code connect()} is a different thread.
+     * {@link #connect(boolean)} mentions and checks that, but {@code connect()} is a different thread.
      */
     @Override
     public void run()
@@ -219,16 +219,15 @@ public final class NetConnection
     }
 
     /**
-     * Send this data over the connection.  Adds it to the {@link #outQueue}
-     * to be sent by the Putter thread.
+     * Send this message over a network socket connection.
      *<P>
      * Because the connection protocol uses {@link DataOutputStream#writeUTF(String)},
      * {@code str} must be no longer than 65535 bytes when encoded into {@code UTF-8}
      * (which is not Java's internal string encoding): See {@link Connection#MAX_MESSAGE_SIZE_UTF8}.
      *<P>
-     * <B>Threads:</B> Safe to call from any thread; synchronizes on internal {@code outQueue}.
+     * <B>Threads:</B> Safe to call from any thread.
      *
-     * @param str Data to send
+     * @param socMessage Data to send
      */
     @Override
     public final void send( SOCMessage socMessage )
@@ -240,9 +239,7 @@ public final class NetConnection
     }
 
     /**
-     * Data is added asynchronously (sitting in {@link #outQueue}).
-     * This method is called when it's dequeued and sent over
-     * the connection to the remote end.
+     * writes a string as UTF8 to a network socket
      *
      * @param str Data to send
      *
@@ -276,7 +273,6 @@ public final class NetConnection
 
         try
         {
-            //D.ebugPrintln("trying to put "+str+" to "+data);
             out.writeUTF(str);
                 // throws UTFDataFormatException (an IOException) if string length > 65535 in UTF-8
         }

@@ -75,7 +75,7 @@ public interface MainDisplay
      * Stores the given username and password in the user interface.
      *<P>
      * Does not make a network connection.
-     * Call {@link ClientNetwork#connect(String, int)} when ready to make the connection.
+     * Call {@link ClientNetwork#netConnect(String, int)} when ready to make the connection.
      *<P>
      * User login and authentication don't occur until a game or channel join is requested;
      * at that time, the user interface will read the name and password stored here.
@@ -87,10 +87,10 @@ public interface MainDisplay
 
     /**
      * Setup for locally hosting a TCP server.
-     * If needed, a {@link ClientNetwork#localTCPServer local server} and robots are started, and client
+     * If needed, a {@link ClientNetwork#localServer local server} and robots are started, and client
      * connects to it, then visually indicate we are in Server Mode and port number.
-     * If the {@link ClientNetwork#localTCPServer} is already created, does nothing.
-     * If {@link ClientNetwork#connected connected} already, does nothing.
+     * If the {@link ClientNetwork#localServer} is already created, it is stopped and restarted.
+     * TODO: validate If {@link Connection#connected connected} already, does nothing.
      *
      * @param tport  TCP port number to host on
      * @throws IllegalArgumentException If port is 0 or negative
@@ -105,7 +105,7 @@ public interface MainDisplay
      * If username is invalid or empty, or we aren't ready to connect in some other way,
      * let the user know what to change.
      * @return true if OK, false if blank or not ready
-     * @see #askStartGameWithOptions(String, boolean, SOCGameOptionSet, Map)
+     * @see #askStartGameWithOptions(String, SOCGameOptionSet, Map)
      */
     boolean readValidNicknameAndPassword();
 
@@ -113,9 +113,9 @@ public interface MainDisplay
      * Are there any active games that we're playing?
      *
      * @param fromPracticeServer  If true, only look through practice server's games,
-     *     instead of all games with {@link PlayerInterface}s
-     * @return True if there are games found which are active (state &lt; {@link SOCGame#OVER})
-     * @see SwingMainDisplay#findAnyActiveGame(boolean)
+     *     instead of all games with {@link soc.client.SOCPlayerInterface}s
+     * @return True if there are games found which are active (state &lt; {@link soc.game.GameState#GAME_OVER})
+     * @see SwingMainDisplay#findAnyActiveGame()
      * @see ClientNetwork#anyHostedActiveGames()
      * @since 2.4.00
      */
@@ -306,7 +306,7 @@ public interface MainDisplay
      * and the client/server interaction about their values, see
      * {@link ServerGametypeInfo}.
      *
-     * @param forPracticeServer  Ask {@link ClientNetwork#practiceServer}, instead of TCP server?
+     * @param forPracticeServer  Ask {@link ClientNetwork#localServer}, instead of TCP server?
      * @param didAuth  If true, the server has authenticated our username and password;
      *     set those input fields read-only.
      */
@@ -355,7 +355,7 @@ public interface MainDisplay
      * @param addToSrvList Should this game be added to the list of remote-server games?
      *            True except for practice games, which should not be added.
      * @see SOCPlayerClient#addToGameList(String, String, boolean)
-     * @see #deleteFromGameList(String, boolean, boolean)
+     * @see #deleteFromGameList(String, boolean)
      * @see #repaintGameAndChannelLists()
      */
     void addToGameList(final boolean cannotJoin, String gameName, String gameOptsStr, final boolean addToSrvList);

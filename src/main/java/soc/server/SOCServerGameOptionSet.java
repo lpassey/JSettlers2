@@ -117,7 +117,7 @@ public class SOCServerGameOptionSet extends SOCGameOptionSet
      *   If this is the case and your option type
      *   is {@link SOCGameOption#OTYPE_ENUM} or {@link SOCGameOption#OTYPE_ENUMBOOL}, also update
      *   {@link SOCGameOption#getMaxEnumValueForVersion(String, int)}.
-     *   Otherwise, update {@link #getMaxIntValueForVersion(String, int)}.
+     *   Otherwise, update {@link SOCGameOption#getMaxIntValueForVersion(String, int)}.
      *<LI> If the new option can be used by old clients by changing the values of
      *   <em>other</em> related options when game options are sent to those versions,
      *   add code to {@link SOCGameOption#getMinVersion(Map)}. <BR>
@@ -212,7 +212,7 @@ public class SOCServerGameOptionSet extends SOCGameOptionSet
      *     or {@link SOCGameOption#FLAG_3RD_PARTY}.
      * @see #getKnownOption(String, boolean)
      * @see #addKnownOption(SOCGameOption)
-     * @see SOCScenario#getAllKnownScenarios()
+     * @see SOCServerScenario#cloneAllKnownScenarios()
      * @since 1.1.07
      */
     public static SOCGameOptionSet getAllKnownOptions()

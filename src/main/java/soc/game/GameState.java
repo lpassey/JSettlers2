@@ -30,9 +30,9 @@ public enum GameState
      * <LI> {@link soc.client.SOCBoardPanel#updateMode()}
      * <LI> {@link soc.client.SOCBuildingPanel#updateButtonStatus()}
      * <LI> {@link soc.client.SOCPlayerInterface#updateAtGameState()}
-     * <LI> {@link #putPiece(SOCPlayingPiece)}
-     * <LI> {@link #advanceTurnStateAfterPutPiece()}
-     * <LI> {@link #forceEndTurn()}
+     * <LI> {@link SOCGame#putPiece(SOCPlayingPiece)}
+     * <LI> {@link SOCGame#advanceTurnStateAfterPutPiece()}
+     * <LI> {@link SOCGame#forceEndTurn()}
      * <LI> {@link soc.robot.SOCRobotBrain#run()}
      * <LI> {@link soc.server.SOCGameHandler#sendGameState(SOCGame)}
      * <LI> {@link soc.message.SOCGameState} javadoc list of states with related messages and client responses
@@ -72,7 +72,7 @@ public enum GameState
      * This game object has just been created by a reset, but the old game contains robot players,
      * so we must wait for them to leave before re-inviting anyone to continue the reset process.
      * Once they have all left, state becomes {@link #READY}.
-     * See {@link #boardResetOngoingInfo} and (private) SOCServer.resetBoardAndNotify.
+     * See {@link SOCGame#boardResetOngoingInfo} and (private) SOCServer.resetBoardAndNotify.
      * @since 1.1.07
      */
     READY_RESET_WAIT_ROBOT_DISMISS( 4 ),
@@ -146,13 +146,13 @@ public enum GameState
      * If game scenario option {@link SOCGameOptionSet#K_SC_3IP _SC_3IP} is set,
      * next game state can be {@link #START3B}.
      *<P>
-     * Valid only when {@link #hasSeaBoard}, settlement adjacent to {@link SOCBoardLarge#GOLD_HEX},
+     * Valid only when {@link SOCGame#hasSeaBoard}, settlement adjacent to {@link SOCBoardLarge#GOLD_HEX},
      * or gold revealed from {@link SOCBoardLarge#FOG_HEX} by a placed road, ship, or settlement.
      *<P>
      * This is the highest-numbered possible starting state; value is {@link #ROLL_OR_CARD} - 1.
      *
      * @see #WAITING_FOR_PICK_GOLD_RESOURCE
-     * @see #pickGoldHexResources(int, SOCResourceSet)
+     * @see SOCGame#pickGoldHexResources(int, SOCResourceSet)
      * @since 2.0.00
      */
     STARTS_WAITING_FOR_PICK_GOLD_RESOURCE( 14 ),  // value must be 1 less than ROLL_OR_CARD
@@ -189,9 +189,12 @@ public enum GameState
      */
     DICE_ROLLED( 16 ),
 
+    SENDING_DICE_RESULT_RESOURCES( 18 ),
+
     /**
-     * Done rolling (or moving robber on 7).  Time for other turn actions,
-     * such as building or buying or trading, or playing a card if not already done.
+     * Done rolling (or moving robber on 7) and all additional resources have been gained
+     * (or lost) Time for other turn actions, such as building or buying or trading, or playing
+     * a dev card if not already done.
      * Next state depends on what's done, but usually is the next player's {@link #ROLL_OR_CARD}.
      */
     PLAY1( 20 ),	// Done rolling
@@ -202,7 +205,7 @@ public enum GameState
 
     /**
      * Player is placing the robber on a new land hex.
-     * May follow state {@link #WAITING_FOR_ROBBER_OR_PIRATE} if the game {@link #hasSeaBoard}.
+     * May follow state {@link #WAITING_FOR_ROBBER_OR_PIRATE} if the game {@link SOCGame#hasSeaBoard}.
      *<P>
      * Possible next game states:
      *<UL>
@@ -214,49 +217,49 @@ public enum GameState
      *   (when there aren't multiple possible victims or another robber-related choice to make)
      *</UL>
      * @see #PLACING_PIRATE
-     * @see #canMoveRobber(int, int)
-     * @see #moveRobber(int, int)
+     * @see SOCGame#canMoveRobber(int, int)
+     * @see SOCGame#moveRobber(int, int)
      */
     PLACING_ROBBER( 33 ),
 
     /**
      * Player is placing the pirate ship on a new water hex,
-     * in a game which {@link #hasSeaBoard}.
+     * in a game which {@link SOCGame#hasSeaBoard}.
      * May follow state {@link #WAITING_FOR_ROBBER_OR_PIRATE}.
      * Has the same possible next game states as {@link #PLACING_ROBBER}.
-     * @see #canMovePirate(int, int)
-     * @see #movePirate(int, int)
+     * @see SOCGame#canMovePirate(int, int)
+     * @see SOCGame#movePirate(int, int)
      * @since 2.0.00
      */
     PLACING_PIRATE( 34 ),
 
     /**
-     * This game {@link #hasSeaBoard}, and a player has bought and is placing a ship.
+     * This game {@link SOCGame#hasSeaBoard}, and a player has bought and is placing a ship.
      * @since 2.0.00
      */
     PLACING_SHIP( 35 ),
 
     /**
      * Player is placing their first free road/ship.
-     * If {@link #getCurrentDice()} == 0, the Road Building card was
+     * If {@link SOCGame#getCurrentDice()} == 0, the Road Building card was
      * played before rolling the dice.
      */
     PLACING_FREE_ROAD1( 40 ),
 
     /**
      * Player is placing their second free road/ship.
-     * If {@link #getCurrentDice()} == 0, the Road Building card was
+     * If {@link SOCGame#getCurrentDice()} == 0, the Road Building card was
      * played before rolling the dice.
      */
     PLACING_FREE_ROAD2( 41 ),
 
     /**
-     * Player is placing the special {@link SOCInventoryItem} held in {@link #getPlacingItem()}. For some kinds
-     * of item, placement can sometimes be canceled by calling {@link #cancelPlaceInventoryItem(boolean)}.
+     * Player is placing the special {@link SOCInventoryItem} held in {@link SOCGame#getPlacingItem()}. For some kinds
+     * of item, placement can sometimes be canceled by calling {@link SOCGame#cancelPlaceInventoryItem(boolean)}.
      *<P>
      * The placement method depends on the scenario and item type; for example,
      * {@link SOCGameOptionSet#K_SC_FTRI _SC_FTRI} has trading port items and would
-     * call {@link #placePort(int)}.
+     * call {@link SOCGame#placePort(int)}.
      *<P>
      * Placement requires its own game state (not {@code PLAY1}) because sometimes
      * it's triggered by the game after another action, not initiated by player request.
@@ -267,10 +270,8 @@ public enum GameState
      */
     PLACING_INV_ITEM( 42 ),
 
-    WAITING_FOR_DICE_RESULT_RESOURCES( 49 ),
-
     /**
-     * Waiting for player(s) to discard, after 7 is rolled in {@link #rollDice()}.
+     * Waiting for player(s) to discard, after 7 is rolled in {@link SOCGame#rollDice()}.
      * Next game state is {@link #WAITING_FOR_DISCARDS}
      * (if other players still need to discard),
      * {@link #WAITING_FOR_ROBBER_OR_PIRATE},
@@ -281,7 +282,7 @@ public enum GameState
      * ({@link #WAITING_FOR_ROB_CHOOSE_PLAYER}) after any discards.
      * If there are no possible victims, next state is {@link #PLAY1}.
      *
-     * @see #discard(int, ResourceSet)
+     * @see SOCGame#discard(int, ResourceSet)
      */
     WAITING_FOR_DISCARDS( 50 ),
 
@@ -292,27 +293,27 @@ public enum GameState
      * Next game state is {@link #PLAY1}, {@link #WAITING_FOR_ROB_CLOTH_OR_RESOURCE},
      * or {@link #GAME_OVER} if player just won by gaining Largest Army.
      *<P>
-     * To see whether we're moving the robber or the pirate, use {@link #getRobberyPirateFlag()}.
-     * To choose the player, call {@link #choosePlayerForRobbery(int)}.
+     * To see whether we're moving the robber or the pirate, use {@link SOCGame#getRobberyPirateFlag()}.
+     * To choose the player, call {@link SOCGame#choosePlayerForRobbery(int)}.
      *<P>
      * In scenario option <tt>_SC_PIRI</tt>, there is no robber
      * to move, but the player will choose their robbery victim.
-     * <tt>{@link #currentRoll}.sc_clvi_robPossibleVictims</tt>
+     * <tt>{@link SOCGame#currentRoll}.sc_clvi_robPossibleVictims</tt>
      * holds the list of possible victims.  In that scenario,
      * the player also doesn't control the pirate ships, and
      * never has Knight cards to move the robber and steal.
      *<P>
      * So in that scenario, the only time the game state is {@code WAITING_FOR_ROB_CHOOSE_PLAYER}
      * is when the player must choose to steal from a possible victim, or choose to steal
-     * from no one, after a 7 is rolled.  To choose the victim, call {@link #choosePlayerForRobbery(int)}.
-     * To choose no one, call {@link #choosePlayerForRobbery(int) choosePlayerForRobbery(-1)}.
+     * from no one, after a 7 is rolled.  To choose the victim, call {@link SOCGame#choosePlayerForRobbery(int)}.
+     * To choose no one, call {@link SOCGame#choosePlayerForRobbery(int) choosePlayerForRobbery(-1)}.
      *<P>
      * Before v2.0.00, this game state was called {@code WAITING_FOR_CHOICE}.
      *
-     * @see #playKnight()
-     * @see #canChoosePlayer(int)
-     * @see #canChooseRobClothOrResource(int)
-     * @see #stealFromPlayer(int, boolean)
+     * @see SOCGame#playKnight()
+     * @see SOCGame#canChoosePlayer(int)
+     * @see SOCGame#canChooseRobClothOrResource(int)
+     * @see SOCGame#stealFromPlayer(int, boolean)
      */
     WAITING_FOR_ROB_CHOOSE_PLAYER( 51 ),
 
@@ -330,13 +331,13 @@ public enum GameState
 
     /**
      * Waiting for player to choose the robber or the pirate ship,
-     * after {@link #rollDice()} or {@link #playKnight()}.
+     * after {@link SOCGame#rollDice()} or {@link SOCGame#playKnight()}.
      * Next game state is {@link #PLACING_ROBBER} or {@link #PLACING_PIRATE}.
      *<P>
      * Moving from {@code WAITING_FOR_ROBBER_OR_PIRATE} to those states preserves {@code oldGameState}.
      *
-     * @see #canChooseMovePirate()
-     * @see #chooseMovePirate(boolean)
+     * @see SOCGame#canChooseMovePirate()
+     * @see SOCGame#chooseMovePirate(boolean)
      * @see #WAITING_FOR_DISCARDS
      * @since 2.0.00
      */
@@ -345,14 +346,14 @@ public enum GameState
     /**
      * Waiting for player to choose whether to rob cloth or rob a resource.
      * Previous game state is {@link #PLACING_PIRATE} or {@link #WAITING_FOR_ROB_CHOOSE_PLAYER}.
-     * Next step: Call {@link #stealFromPlayer(int, boolean)} with result of that player's choice.
+     * Next step: Call {@link SOCGame#stealFromPlayer(int, boolean)} with result of that player's choice.
      *<P>
      * Next game state is {@link #PLAY1}, or {@link #GAME_OVER} if player just won by gaining Largest Army.
      *<P>
      * Used with scenario option {@link SOCGameOptionSet#K_SC_CLVI _SC_CLVI}.
      *
-     * @see #movePirate(int, int)
-     * @see #canChooseRobClothOrResource(int)
+     * @see SOCGame#movePirate(int, int)
+     * @see SOCGame#canChooseRobClothOrResource(int)
      * @since 2.0.00
      */
     WAITING_FOR_ROB_CLOTH_OR_RESOURCE( 55 ),
@@ -361,9 +362,9 @@ public enum GameState
      * Waiting for player(s) to choose which Gold Hex resources to receive.
      * Next game state is usually {@link #PLAY1}, sometimes
      * {@link #PLACING_FREE_ROAD2} or {@link #SPECIAL_BUILDING}.
-     * ({@link #oldGameState} holds the <b>next</b> state after this WAITING state.)
+     * ({@link SOCGame#oldGameState} holds the <b>next</b> state after this WAITING state.)
      *<P>
-     * Valid only when {@link #hasSeaBoard}, settlements or cities
+     * Valid only when {@link SOCGame#hasSeaBoard}, settlements or cities
      * adjacent to {@link SOCBoardLarge#GOLD_HEX}.
      *<P>
      * When receiving this state from server, a client shouldn't immediately check their user player's
@@ -372,12 +373,12 @@ public enum GameState
      *<P>
      * If scenario option {@link SOCGameOptionSet#K_SC_PIRI _SC_PIRI} is active,
      * this state is also used when a 7 is rolled and the player has won against a
-     * pirate fleet attack.  They must choose a free resource.  {@link #oldGameState} is {@link #ROLL_OR_CARD}.
+     * pirate fleet attack.  They must choose a free resource.  {@link SOCGame#oldGameState} is {@link #ROLL_OR_CARD}.
      * Then, the 7 is resolved as normal.  See {@link #ROLL_OR_CARD} javadoc for details.
      * That's the only time free resources are picked on rolling 7.
      *
      * @see #STARTS_WAITING_FOR_PICK_GOLD_RESOURCE
-     * @see #pickGoldHexResources(int, SOCResourceSet)
+     * @see SOCGame#pickGoldHexResources(int, SOCResourceSet)
      * @since 2.0.00
      */
     WAITING_FOR_PICK_GOLD_RESOURCE( 56 ),
@@ -385,10 +386,10 @@ public enum GameState
     /**
      * The 6-player board's Special Building Phase.
      * Takes place at the end of any player's normal turn (roll, place, etc).
-     * The Special Building Phase changes {@link #currentPlayerNumber}.
-     * So, it begins by calling {@link #advanceTurn()} to
+     * The Special Building Phase changes {@link SOCGame#currentPlayerNumber}.
+     * So, it begins by calling {@link SOCGame#advanceTurn()} to
      * the next player, and continues clockwise until
-     * {@link #currentPlayerNumber} == {@link #specialBuildPhase_afterPlayerNumber}.
+     * {@link SOCGame#currentPlayerNumber} == {@link SOCGame#specialBuildPhase_afterPlayerNumber}.
      * At that point, the Special Building Phase is over,
      * and it's the next player's turn as usual.
      * @since 1.1.08
@@ -431,18 +432,18 @@ public enum GameState
     ALMOST_OVER( 999 ),
 
     /**
-     * The game is over.  A player has accumulated enough ({@link #vp_winner}) victory points,
+     * The game is over.  A player has accumulated enough ({@link SOCGame#vp_winner}) victory points,
      * or all players have left the game.
-     * The winning player, if any, is {@link #getPlayerWithWin()}.
-     * @see #checkForWinner()
+     * The winning player, if any, is {@link SOCGame#getPlayerWithWin()}.
+     * @see SOCGame#checkForWinner()
      */
     GAME_OVER( 1000 ),	// The game is over
 
     /**
      * This game is an obsolete old copy of a new (reset) game with the same name.
      * To assist logic, numeric constant value is greater than {@link #GAME_OVER}.
-     * @see #resetAsCopy()
-     * @see #getOldGameState()
+     * @see SOCGame#resetAsCopy()
+     * @see SOCGame#getOldGameState()
      * @since 1.1.00
      */
     RESET_OLD( 1001 ),

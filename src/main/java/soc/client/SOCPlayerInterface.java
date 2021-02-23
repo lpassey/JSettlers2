@@ -129,7 +129,7 @@ import static soc.game.GameState.*;
  * ready for interaction, the client calls {@link #began(List)}.
  *<P>
  * Has keyboard shortcuts for Accept/Reject/Counter trade offers, since v2.3.00.
- * See {@link TradeHotkeyActionListener} for details if adding others.
+ * See {@link SOCPlayerInterface.TradeHotkeyActionListener} for details if adding others.
  *<P>
  * <B>Chat text history:</B>
  * Remembers chat text sent by client player to the game/server, including local debug commands.
@@ -146,7 +146,7 @@ import static soc.game.GameState.*;
  *
  * <B>Local preferences:</B>
  * For optional per-game preferences like {@link #PREF_SOUND_MUTE}, see {@code localPrefs} parameter in
- * the {@link #SOCPlayerInterface(String, MainDisplay, SOCGame, Map)} constructor javadoc.
+ * the {@link #SOCPlayerInterface(String, MainDisplay, SOCGame, int[], Map)} constructor javadoc.
  * The current game's prefs are shown and changed with {@link NewGameOptionsFrame}.
  * Local prefs are not saved persistently like client preferences
  * ({@link SOCPlayerClient#PREF_SOUND_ON} etc) are.
@@ -287,7 +287,7 @@ public class SOCPlayerInterface extends Frame
      *<P>
      * Reminder: When starting a new game, some PUTPIECE messages
      * may be sent after {@code began(..)}, but these will all be sent
-     * while game state is &lt; {@link SOCGame#START1A}.
+     * while game state is &lt; {@link GameState#START1A}.
      * @since 1.2.00
      */
     private boolean hasCalledBegan;
@@ -431,7 +431,7 @@ public class SOCPlayerInterface extends Frame
      * In the {@link #is6player 6-player} layout, the text display fields
      * ({@link #textDisplay}, {@link #chatDisplay}) aren't as large.
      * When this flag is set, they've temporarily been made larger.
-     * @see SOCPITextDisplaysLargerTask
+     * @see SOCPlayerInterface.SOCPITextDisplaysLargerTask
      * @see #textDisplaysLargerWhen
      * @since 1.1.08
      */
@@ -448,7 +448,7 @@ public class SOCPlayerInterface extends Frame
      * Mouse hover flags, for use on 6-player board with {@link #textDisplaysLargerTemp}.
      *<P>
      * Set/cleared in {@link #mouseEntered(MouseEvent)}, {@link #mouseExited(MouseEvent)}.
-     * @see SOCPITextDisplaysLargerTask
+     * @see SOCPlayerInterface.SOCPITextDisplaysLargerTask
      * @since 1.1.08
      */
     private boolean textInputHasMouse, textDisplayHasMouse, chatDisplayHasMouse;
@@ -470,7 +470,7 @@ public class SOCPlayerInterface extends Frame
      * considered part of the textarea and triggers a mouseExited.
      *<P>
      * Set/cleared in {@link #mouseEntered(MouseEvent)}, {@link #mouseExited(MouseEvent)}.
-     * @see SOCPITextDisplaysLargerTask
+     * @see SOCPlayerInterface.SOCPITextDisplaysLargerTask
      * @since 1.1.08
      */
     private boolean sbFixLHasMouse, sbFixRHasMouse, sbFixBHasMouse;
@@ -560,9 +560,9 @@ public class SOCPlayerInterface extends Frame
 
     /**
      * Flag to ensure interface will be updated later when the first actual turn
-     * begins (state changes from {@link SOCGame#START2B} or {@link SOCGame#START3B}
-     * to {@link SOCGame#ROLL_OR_CARD}). Initially set in {@link #startGame()} while leaving
-     * state {@link SOCGame#NEW}. Checked/cleared in {@link #updateAtGameState()}.
+     * begins (state changes from {@link GameState#START2B} or {@link GameState#START3B}
+     * to {@link GameState#ROLL_OR_CARD}). Initially set in {@link #startGame()} while leaving
+     * state {@link GameState#NEW_GAME}. Checked/cleared in {@link #updateAtGameState()}.
      * @since 1.1.00
      */
     protected boolean gameIsStarting;
@@ -807,7 +807,7 @@ public class SOCPlayerInterface extends Frame
      *
      * @param title  title for this interface - game name
      * @param md     the client main display that spawned us
-     * @param ga     the game associated with this interface; must not be {@code null}
+     * @param game   the game associated with this interface; must not be {@code null}
      * @param layoutVS  Optional board layout "visual shift and trim" (Added Layout Part "VS")
      *     to use when sizing and laying out the new game's {@link SOCBoardPanel}, or {@code null}
      * @param localPrefs  optional map of per-game local preferences to use in this {@code SOCPlayerInterface},
@@ -1768,7 +1768,8 @@ public class SOCPlayerInterface extends Frame
      * will not show this display (it overlays the board, which is in use).
      * It will still hide/show sit-here buttons if needed.
      * @param show show the text, or clear the display (at game start)?
-     * @param isGameStart  True if calling from {@link #startGame()}; will be set true if gameState is {@link SOCGame#NEW}
+     * @param isGameStart  True if calling from {@link #startGame()}; will be set true if gameState
+     *                    is {@link GameState#NEW_GAME}
      * @param playerLeaving The player number if a player is leaving the game, otherwise -1.
      * @since 1.1.07
      */
@@ -1958,11 +1959,10 @@ public class SOCPlayerInterface extends Frame
     }
 
     /**
-     * Client player's nickname used on the remote/TCP server or practice server,
-     * depending on this game's {@link SOCGame#isPractice} flag.
+     * Client player's nickname used on the game server,
      * Unlike {@link #getClientHand()} or {@link #getClientPlayer()},
      * this return value doesn't change before/after client player sits down.
-     * @return Client player's nickname, from {@link SOCPlayerClient#getNickname(boolean)}
+     * @return Client player's nickname, from {@link SOCPlayerClient#getNickname()}
      * @since 2.3.00
      */
     public final String getClientNickname()
@@ -2577,7 +2577,7 @@ public class SOCPlayerInterface extends Frame
     /**
      * Get and print a localized string (with special SoC-specific parameters) in the text window,
      * followed by a new line (<tt>'\n'</tt>). Equivalent to {@link #print(String) print}("* " +
-     * {@link SOCStringManager#getSpecial(String, String, Object...) strings.getSpecial}({@code game, key, params})).
+     * {@link SOCStringManager#getSpecial(SOCGame, String, Object...)} strings.getSpecial}({@code game, key, params})).
      * @param key  Key to use for string retrieval
      * @param params  Objects to use with <tt>{0}</tt>, <tt>{1}</tt>, etc in the localized string by
      *                calling {@code SOCStringManager.getSpecial(game, key, params...)}. The localized string should not
@@ -2629,7 +2629,7 @@ public class SOCPlayerInterface extends Frame
 
     /**
      * Queue a sound to play soon but not in this thread.
-     * Uses {@link PIPlaySound} to call {@link Sounds#playPCMBytes(byte[])}.
+     * Uses {@link SOCPlayerInterface.PIPlaySound} to call {@link Sounds#playPCMBytes(byte[])}.
      * No sound is played if preference {@link SOCPlayerClient#PREF_SOUND_ON} is false
      * or if {@link #isSoundMuted()}.
      *<P>
@@ -2861,11 +2861,11 @@ public class SOCPlayerInterface extends Frame
     }
 
     /**
-     * Game play is starting (leaving state {@link SOCGame#NEW}).
+     * Game play is starting (leaving state {@link GameState#NEW_GAME}).
      * Remove the start buttons and robot-lockout buttons.
      * Next move is for players to make their starting placements.
      *<P>
-     * Call {@link SOCGame#setGameState(int)} before calling this method.
+     * Call {@link SOCGame#setGameState(GameState)} before calling this method.
      * Call this method before calling {@link #updateAtGameState()}.
      */
     public void startGame()
@@ -3118,7 +3118,7 @@ public class SOCPlayerInterface extends Frame
     }
 
     /**
-     * Show the {@link ChooseRobClothOrResourceDialog} to choose what to rob from a player.
+     * Show the {@link SOCPlayerInterface.ChooseRobClothOrResourceDialog} to choose what to rob from a player.
      * @param vpn  Victim player number
      * @since 2.0.00
      * @see #showChoosePlayerDialog(int, int[], boolean)
@@ -3294,7 +3294,7 @@ public class SOCPlayerInterface extends Frame
      * Or, if the player must discard resources or pick free resources from the gold hex,
      * calls {@link #discardOrPickTimerSet(boolean)}.
      *<P>
-     * Please call {@link SOCGame#setGameState(int)} first. <BR>
+     * Please call {@link SOCGame#setGameState(GameState)} first. <BR>
      * If the game is now starting, please call in this order:
      *<code><pre>
      *   game.setGameState(newState);
@@ -3574,7 +3574,6 @@ public class SOCPlayerInterface extends Frame
      * The robber or pirate has been moved onto a hex. Repaints board.
      * @param newHex  The new robber/pirate hex coordinate, or 0 to take the pirate off the board
      * @param isPirate  True if the pirate, not the robber, was moved
-     * @see SOCGame#doesRobberLocationAffectPlayer(int, boolean)
      * @since 1.2.00
      */
     public void updateAtRobberMoved( final int newHex, final boolean isPirate )
@@ -3658,8 +3657,8 @@ public class SOCPlayerInterface extends Frame
     }
 
     /**
-     * Gamestate just became {@link SOCGame#WAITING_FOR_DISCARDS}
-     * or {@link SOCGame#WAITING_FOR_PICK_GOLD_RESOURCE}.
+     * Gamestate just became {@link GameState#WAITING_FOR_DISCARDS}
+     * or {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}.
      * Set up a timer to wait 1 second before showing "Discarding..."
      * or "Picking Resources..." balloons in players' handpanels.
      * Uses {@link SOCPIDiscardOrPickMsgTask}.

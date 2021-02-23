@@ -55,20 +55,19 @@ public class SOCGamesWithOptions extends SOCMessageTemplateMs
      *<P>
      * Before v2.4.50 this was a static {@code toCmd(..)} method.
      *
-     * @param ga  the list of games, as a mixed-content list of Strings and/or {@link SOCGame}s;
+     * @param gameList  the list of games, as a mixed-content list of Strings and/or {@link SOCGame}s;
      *            if a client can't join a game, it should be a String prefixed with
      *            {@link SOCGames#MARKER_THIS_GAME_UNJOINABLE}.
      * @param cliVers  Client version; assumed >= {@link SOCNewGameWithOptions#VERSION_FOR_NEWGAMEWITHOPTIONS}.
      *            If any game's options need adjustment for an older client, cliVers triggers that.
-     * @return    the command string
      * @since 2.4.50
      */
-    public SOCGamesWithOptions(List<?> ga, final int cliVers)
+    public SOCGamesWithOptions(List<?> gameList, final int cliVers)
     {
         this(null);
         pa = new ArrayList<>();
 
-        for (Object ob : ga)
+        for (Object ob : gameList)
         {
             if (ob instanceof SOCGame)
             {

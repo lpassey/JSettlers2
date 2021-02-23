@@ -508,7 +508,7 @@ public abstract class SOCBoard implements Serializable, Cloneable
      *
      *<LI> v2: On the 6-player (v2 layout) board, each port's type.
      * Same value range as in {@link #hexLayout}.
-     * 1 element per port. Same ordering as {@link #PORTS_FACING_V2}.
+     * 1 element per port. Same ordering as {@link SOCBoard6p#PORTS_FACING_V2}.
      *
      *<LI> v3: {@link #BOARD_ENCODING_LARGE} stores more information
      * within the port layout array.  <em>n</em> = {@link #getPortsCount()}.
@@ -645,7 +645,7 @@ public abstract class SOCBoard implements Serializable, Cloneable
     /**
      * Maximum land hex type value for the robber; can be used for array sizing.
      * Same value range as {@link #getHexTypeFromCoord(int)} for the current board encoding.
-     * ({@link #BOARD_ENCODING_LARGE adds values {@link SOCBoardLarge#GOLD_HEX}
+     * ({@link #BOARD_ENCODING_LARGE} adds values {@link SOCBoardLarge#GOLD_HEX}
      * and {@link SOCBoardLarge#FOG_HEX}, for example.)
      * @see SOCGame#canMoveRobber(int, int)
      * @since 2.0.00

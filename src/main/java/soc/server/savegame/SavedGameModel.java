@@ -153,9 +153,9 @@ public class SavedGameModel
      *<UL>
      * <LI> Model version is still 2400
      * <LI> Adds dev card stats to {@link PlayerInfo#elements}:
-     *      {@link SOCPlayerElement.PEType#NUM_PLAYED_DEV_CARD_DISC NUM_PLAYED_DEV_CARD_DISC},
-     *      {@link SOCPlayerElement.PEType#NUM_PLAYED_DEV_CARD_MONO NUM_PLAYED_DEV_CARD_MONO},
-     *      {@link SOCPlayerElement.PEType#NUM_PLAYED_DEV_CARD_ROADS NUM_PLAYED_DEV_CARD_ROADS}
+     *      {@link soc.message.SOCPlayerElement.PEType#NUM_PLAYED_DEV_CARD_DISC NUM_PLAYED_DEV_CARD_DISC},
+     *      {@link soc.message.SOCPlayerElement.PEType#NUM_PLAYED_DEV_CARD_MONO NUM_PLAYED_DEV_CARD_MONO},
+     *      {@link soc.message.SOCPlayerElement.PEType#NUM_PLAYED_DEV_CARD_ROADS NUM_PLAYED_DEV_CARD_ROADS}
      * <LI> Adds per-player list of dev cards played: {@link PlayerInfo#playedDevCards}
      * <LI> Adds {@link TradeOffer#offeredAtDurationMillis}
      * <LI> Earlier server versions will ignore these added fields while loading a savegame
@@ -252,13 +252,13 @@ public class SavedGameModel
 
     /**
      * Integer value of the current gameState, from {@link SOCGame#getGameState()}
-     * @see #oldGameStateInt
+     * @see #oldGameState
      */
     public int gameState;
 
     /**
      * Integer value of the old gameState, from {@link SOCGame#getOldGameState()}
-     * @see #gameStateInt
+     * @see #gameState
      */
     public int oldGameState;
 
@@ -276,7 +276,7 @@ public class SavedGameModel
      * In 2.4.00 and higher, dev card types in each array are written as strings ({@code "ROADS"},
      * {@code "UNIV"}, etc) from {@link SOCDevCard#getCardTypeName(int)}. For compatibility, unknown types
      * are written as integer strings ({@code "42"}), and the adapter can read both integers and strings.
-     * See {@link DevCardEnumListAdapter} code for details.
+     * See {@link SavedGameModel.DevCardEnumListAdapter} code for details.
      *
      * @see PlayerInfo#playedDevCards
      */
@@ -394,24 +394,22 @@ public class SavedGameModel
     /**
      * Create an empty SavedGameModel to load a game file into.
      * Once data is loaded and {@link #createLoadedGame(SOCServer)} is called,
-     * state will temporarily be {@link SOCGame#LOADING}
+     * state will temporarily be {@link GameState#LOADING}
      * and {@link SOCGame#savedGameModel} will be this SGM.
      * Call {@link #resumePlay(boolean)} to continue play.
      */
-    public SavedGameModel()
-    {
-    }
+    public SavedGameModel() {}
 
     /**
      * Create a SavedGameModel to save as a game file.
-     * Game state must be {@link SOCGame#ROLL_OR_CARD} or higher.
+     * Game state must be {@link GameState#ROLL_OR_CARD} or higher.
      * @param ga  Game data to save; not null
      * @param srv  Server, for game/player info lookups; not null.
      *     Not retained in object fields, used only during construction.
      *     Sets {@link #glas} from {@link SOCServer#getGameList() srv.createNewGameList()}.
      * @throws UnsupportedSGMOperationException  if game has an option or feature not yet supported
      *     by {@link SavedGameModel}; see {@link #checkCanSave(SOCGame)} for details.
-     * @throws IllegalStateException if game state &lt; {@link SOCGame#ROLL_OR_CARD}
+     * @throws IllegalStateException if game state &lt; {@link GameState#ROLL_OR_CARD}
      * @throws IllegalArgumentException if {@link SOCGameHandler#getBoardLayoutMessage(SOCGame)}
      *     returns an unexpected layout message type
      */
@@ -519,11 +517,11 @@ public class SavedGameModel
      * Calls {@link #findSeatsNeedingBots()} to check if the game still needs bots or human players
      * at any seat before resuming. Clears {@link SOCGame#savedGameModel} field to null.
      *<P>
-     * If model's game state is {@link SOCGame#OVER}, skips constraint and seat/bot checks.
+     * If model's game state is {@link GameState#GAME_OVER}, skips constraint and seat/bot checks.
      *
      * @param ignoreConstraints  If true, don't check any {@link Constraint}s in the model
      * @return game ready to play, with {@link SOCGame#getGameState()} same as when it was saved
-     * @throws UnsupportedOperationException if gameState != {@link SOCGame#LOADING} or {@link SOCGame#LOADING_RESUMING}
+     * @throws UnsupportedOperationException if gameState != {@link GameState#LOADING} or {@link GameState#LOADING_RESUMING}
      * @throws MissingResourceException if non-vacant seats still need a bot or human player
      * @throws IllegalStateException if a constraint is not met
      */
@@ -623,7 +621,7 @@ public class SavedGameModel
     /**
      * Try to create the {@link SOCGame} and its objects based on data loaded into this SGM.
      * Calls {@link #checkCanLoad(SOCGameOptionSet)}.
-     * If successful (no exception thrown), game state will be {@link SOCGame#LOADING}.
+     * If successful (no exception thrown), game state will be {@link GameState#LOADING}.
      *<P>
      * Doesn't add to game list {@link #glas} or check whether game name is already taken, because
      * {@link soc.server.SOCServer#createOrJoinGame(Connection, int, String, SOCGameOptionSet, SOCGame, int)}
@@ -912,7 +910,6 @@ public class SavedGameModel
 
         /**
          * Player's pieces in chronological order, from {@link SOCPlayer#getPieces()}.
-         * @see #fortressPiece
          */
         public ArrayList<SOCPlayingPiece> pieces = new ArrayList<>();
 
@@ -925,9 +922,9 @@ public class SavedGameModel
          */
 
         /**
-         * The details behind this player's {@link #getSpecialVP()} total,
+         * The details behind this player's {@link SOCPlayer#getSpecialVP()} total,
          * from {@link SOCPlayer#getSpecialVPInfo()}, or {@code null} if none.
-         * Because game is saved at server, each {@link SOCPlayer.SpecialVPInfo#desc desc}
+         * Because game is saved at server, each {@link soc.game.SOCPlayer.SpecialVPInfo#desc desc}
          * field will be an unlocalized i18n string key.
          * @since 2.4.00
          */

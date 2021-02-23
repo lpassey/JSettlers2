@@ -58,7 +58,7 @@ import soc.message.SOCMessage;
  * Game scenario names and descriptions are also stored as {@code gamescen.*.n}, {@code .d}
  * in {@code server/strings/toClient_*.properties} to be sent to clients if needed.
  * At the client, scenario's text can be localized with {@link #setDesc(String, String)}.
- * See unit test {@link soctest.TestI18NGameoptScenStrings}.
+ * See unit test {@link soctest.i18n.TestI18NGameoptScenStrings}.
  *<P>
  * @author Jeremy D. Monin &lt;jeremy@nand.net&gt;
  * @since 2.0.00
@@ -105,7 +105,7 @@ public class SOCScenario extends SOCVersionedItem
      * Winner is player with most VP, or most cloth if tied.
      *<P>
      * While starting a new game, the neutral villages are placed and sent to clients as part {@code "CV"}
-     * of the board layout message while game state is still &lt; {@link SOCGame#START1A START1A}.
+     * of the board layout message while game state is still &lt; {@link GameState#START1A START1A}.
      */
     public static final String K_SC_CLVI = "SC_CLVI";
 
@@ -130,7 +130,7 @@ public class SOCScenario extends SOCVersionedItem
      * only extend from their ends.
      *<P>
      * Each player starts with an initial coastal settlement and ship. While starting a new game these
-     * are placed and sent to clients while game state is still &lt; {@link SOCGame#START1A START1A}.
+     * are placed and sent to clients while game state is still &lt; {@link GameState#START1A START1A}.
      *<P>
      * The pirate fleet moves with every dice roll, and battles whenever 1 player's settlement/city is
      * adjacent. See {@link SOCGame.RollResult#sc_piri_fleetAttackVictim} javadoc and fields linked there.
@@ -160,7 +160,7 @@ public class SOCScenario extends SOCVersionedItem
      *<P>
      * When a player reaches a "gift" trade port, either the port is added to their inventory
      * as a {@link SOCInventoryItem} for later placement, or they must immediately place it:
-     * {@link SOCGame#setPlacingItem(SOCInventoryItem)} is called, state becomes {@link SOCGame#PLACING_INV_ITEM}.
+     * {@link SOCGame#setPlacingItem(SOCInventoryItem)} is called, state becomes {@link GameState#PLACING_INV_ITEM}.
      */
     public static final String K_SC_FTRI = "SC_FTRI";
 
@@ -242,7 +242,8 @@ public class SOCScenario extends SOCVersionedItem
      *                use {@link SOCVersionedItem#itemsMinimumVersion(Map) SOCVersionedItem.itemsMinimumVersion(opts)}.
      *                That calculation won't be done automatically by this constructor.
      * @param lastModVers Last-modified version for this scenario, or version which added it.
-     *             This is the last change to the scenario itself as declared in {@link #getAllKnownScenarios()}:
+     *             This is the last change to the scenario itself as declared in
+     *             {@link soc.server.SOCServerScenario#cloneAllKnownScenarios()}:
      *             Ignore changes to {@code opts} last-modified versions, because changed option info
      *             is sent separately and automatically when the client connects.
      * @param desc    Descriptive brief text, to appear in the scenarios dialog.

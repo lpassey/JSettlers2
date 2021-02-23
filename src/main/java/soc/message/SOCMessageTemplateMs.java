@@ -111,7 +111,6 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
      * MESSAGETYPE [sep game] sep param1 sep param2 sep ...
      *
      * @param messageType The message type id
-     * @param gaName  the game name, or null
      * @param pal  The parameter list, or null if no additional parameters.
      *     Blank or null values in this list are automatically sent as the {@link SOCMessage#EMPTYSTR} token
      *     and must be converted back on the receiving end: See {@link #parseData_FindEmptyStrs(List)}.

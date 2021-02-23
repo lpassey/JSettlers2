@@ -58,7 +58,7 @@ import soc.util.SOCStringManager;
 import soc.util.Version;
 
 /**
- * Standalone client for connecting to the SOCServer. (For applet see {@link SOCApplet}.)
+ * Standalone client for connecting to the SOCServer.
  * The main user interface class {@link SwingMainDisplay} prompts for name and password,
  * then connects and displays the lists of games and channels available.
  * An actual game is played in a separate {@link SOCPlayerInterface} window.
@@ -67,23 +67,22 @@ import soc.util.Version;
  * argument in the html source. If you run this as a stand-alone, the port can be
  * specified on the command line or typed into {@code SwingMainDisplay}'s connect dialog.
  *<P>
- * At startup or init, will try to connect to server via {@link ClientNetwork#connect(String, int)}.
+ * At startup or init, will try to connect to server via
+ * {@link ClientNetwork#netConnect(String, int)}
  * See that method for more details.
  *<P>
  * There are three possible servers to which a client can be connected:
  *<UL>
  *  <LI>  A remote server, running on the other end of a TCP connection
  *  <LI>  A local TCP server, for hosting games, launched by this client:
- *        {@link ClientNetwork#localTCPServer}
+ *        {@link ClientNetwork#localServer}
  *  <LI>  A "practice game" server, not bound to any TCP port, for practicing
- *        locally against robots: {@link ClientNetwork#practiceServer}
- *        launched by {@link #startPracticeGame()}
+ *        locally against robots: launched by {@link ClientNetwork#startPracticeGame(String, SOCGameOptionSet)}
  *</UL>
- * A running client can be connected to at most one TCP server at a time, plus the practice server.
+ * TODO: A running client can be connected to at most one server at a time.
  * Its single shared list of games shows those on the server and any practice games.
- * Each game's {@link SOCGame#isPractice} flag determines which connection to use.
  *<P>
- * Once connected, messages from the server are processed in {@link MessageHandler#handle(SOCMessage, boolean)}.
+ * Once connected, messages from the server are processed in {@link MessageHandler#handle(SOCMessage,Connection)}.
  *<P>
  * Messages to the server are formed and sent using {@link GameMessageSender}.
  *<P>
@@ -337,8 +336,7 @@ public class SOCPlayerClient
 
     /**
      * Server's active optional features, sent soon after connect, or null if unknown.
-     * Not used with a local practice server, so always check {@link SOCGame#isPractice} before checking this field.
-     * @see #tcpServGameOpts
+     * @see #serverGameOptions
      * @since 1.1.19
      */
     protected SOCFeatureSet sFeatures;
@@ -353,7 +351,7 @@ public class SOCPlayerClient
      * and the client/server interaction about their values, see
      * {@link ServerGametypeInfo}'s javadoc.
      *<P>
-     * Scenario strings are localized by {@link #localizeGameScenarios(List, boolean, boolean, boolean)}.
+     * Scenario strings are localized by {@link #localizeGameScenarios(List, boolean, boolean)}.
      *
      * @see #sFeatures
      * @since 1.1.07
@@ -370,12 +368,12 @@ public class SOCPlayerClient
     /**
      * Client nickname as a player; null until validated and set by
      * {@link SwingMainDisplay#getValidNickname(boolean)}.
-     * Returned by {@link #getNickname(boolean)}.
+     * Returned by {@link #getNickname()}.
      */
     protected String nickname = null;
 
     /**
-     * the password for {@link #nickname} from {@link #pass}, or {@code null} if no valid password yet.
+     * the password for {@link #nickname} from {@link #password}, or {@code null} if no valid password yet.
      * May be empty (""). If server has authenticated this password, the {@link #gotPassword} flag is set.
      */
     protected String password = null;
@@ -389,8 +387,6 @@ public class SOCPlayerClient
     /**
      * true if user clicked "new game" and, before showing {@link NewGameOptionsFrame}, we've
      * sent the nickname (username) and password to the server and are waiting for a response.
-     *<P>
-     * Used only with TCP servers, not with {@link ClientNetwork#practiceServer}.
      * @since 1.1.19
      */
     protected boolean isNGOFWaitingForAuthStatus;
@@ -426,10 +422,10 @@ public class SOCPlayerClient
      * we're in) which we can join (version is not higher than our version).
      *<P>
      * Key is the game name, without the UNJOINABLE prefix.
-     * This field is null until {@link MessageHandler#handleGAMES(SOCGames, boolean) handleGAMES},
-     *   {@link MessageHandler#handleGAMESWITHOPTIONS(SOCGamesWithOptions, boolean) handleGAMESWITHOPTIONS},
-     *   {@link MessageHandler#handleNEWGAME(SOCNewGame, boolean) handleNEWGAME}
-     *   or {@link MessageHandler#handleNEWGAMEWITHOPTIONS(SOCNewGameWithOptions, boolean) handleNEWGAMEWITHOPTIONS}
+     * This field is null until {@link MessageHandler#handleGAMES(SOCGames) handleGAMES},
+     *   {@link MessageHandler#handleGAMESWITHOPTIONS(SOCGamesWithOptions) handleGAMESWITHOPTIONS},
+     *   {@link MessageHandler#handleNEWGAME(SOCNewGame) handleNEWGAME}
+     *   or {@link MessageHandler#handleNEWGAMEWITHOPTIONS(SOCNewGameWithOptions) handleNEWGAMEWITHOPTIONS}
      *   is called.
      * @see #games
      * @see #gamesUnjoinableOverride
@@ -479,10 +475,10 @@ public class SOCPlayerClient
      * The locale will be the current user's default locale, unless overridden by setting the
      * {@link I18n#PROP_JSETTLERS_LOCALE PROP_JSETTLERS_LOCALE} JVM property {@code "jsettlers.locale"}.
      *<P>
-     * Must call {@link SOCApplet#init()}, or {@link #setMainDisplay(MainDisplay)} and then
+     * Must call {@link #setMainDisplay(MainDisplay)} and then
      * {@link MainDisplay#initVisualElements()}, to start up and do layout.
      *<P>
-     * Must then call {@link #connect(String, int, String, String)} or {@link ClientNetwork#connect(String, int)}
+     * Must then call {@link #connect(String, int, String, String)} or {@link ClientNetwork#netConnect(String, int)}
      * to join a TCP server, or {@link MainDisplay#clickPracticeButton()}
      * or {@link MainDisplay#startLocalTCPServer(int)} to start a server locally.
      */
@@ -545,7 +541,7 @@ public class SOCPlayerClient
     /**
      * Connect and give feedback by showing MESSAGE_PANEL.
      * Calls {@link MainDisplay#connect(String, String)} to set username and password,
-     * then {@link ClientNetwork#connect(String, int)} to make the connection.
+     * then {@link ClientNetwork#netConnect(String, int)} to make the connection.
      *
      * @param chost Hostname to connect to, or null for localhost
      * @param cport Port number to connect to
@@ -722,7 +718,7 @@ public class SOCPlayerClient
 
     /**
      * Localize {@link SOCScenario} names and descriptions with strings from the server.
-     * Updates scenario data in {@link #practiceServGameOpts} or {@link #tcpServGameOpts}:
+     * Updates scenario data in {@link #serverGameOptions}:
      * Add each scenario in {@code scStrs}, add its keyname to {@link ServerGametypeInfo#scenKeys},
      * and call {@link SOCScenario#setDesc(String, String)} unless it's marked
      * as {@link SOCLocalizedStrings#MARKER_KEY_UNKNOWN} within {@code scStrs}.
@@ -795,7 +791,7 @@ public class SOCPlayerClient
      * @param addToSrvList Should this game be added to the list of remote-server games?
      *            Practice games should not be added.
      *            The {@link #serverGames} list also has a flag for cannotJoin.
-     * @see #doesGameExist(String, boolean)
+     * @see #doesGameExist(String)
      * @see MainDisplay#addToGameList(boolean, String, String, boolean)
      */
     public void addToGameList( String gameName, String gameOptsStr, final boolean addToSrvList )
@@ -903,10 +899,9 @@ public class SOCPlayerClient
 
     /**
      * Setup for practice game (on the non-tcp server).
-     * If needed, a (stringport, not tcp) {@link ClientNetwork#practiceServer}, client, and robots are started.
+     * If needed, a (stringport, not tcp) {@link ClientNetwork#localServer}, client, and robots are started.
      *
-     * @param practiceGameName Unique name to give practice game; if name unknown, call
-     *         {@link #startPracticeGame()} instead
+     * @param practiceGameName Unique name to give practice game;
      * @param gameOpts Set of {@link SOCGameOption game options} to use, or null
      * @param mainPanelIsActive Is the SOCPlayerClient main panel active?
      *         False if we're being called from elsewhere, such as
@@ -916,7 +911,7 @@ public class SOCPlayerClient
      * @since 1.1.00
      */
     public boolean startPracticeGame( String practiceGameName, final SOCGameOptionSet gameOpts,
-        final boolean mainPanelIsActive )
+        @SuppressWarnings("unused") final boolean mainPanelIsActive )
     {
         ++numPracticeGames;
 
@@ -959,8 +954,7 @@ public class SOCPlayerClient
 
     /**
      * Server version, for checking feature availability.
-     * Returns -1 if unknown. Checks {@link SOCGame#isPractice}:
-     * practice games always return this client's own {@link soc.util.Version#versionNumber()}.
+     * Returns -1 if unknown
      *<P>
      * Instead of calling this method, some client code checks a game's version like:<BR>
      * {@code (game.isPractice || (client.sVersion >= VERSION_FOR_AUTHREQUEST))}
@@ -986,7 +980,7 @@ public class SOCPlayerClient
      * Since no other state variables are set, call this only right before
      * discarding this object or calling System.exit.
      *</em>
-     * @return Can we still start practice games? (No local exception yet in {@link #ex_P})
+     * @return Can we still start practice games?
      * @since 1.1.00
      */
     boolean putLeaveAll()
@@ -1006,8 +1000,6 @@ public class SOCPlayerClient
      * Otherwise, go ahead and shut down. Either way, calls {@link MainDisplay#showErrorPanel(String, boolean)}
      * to show an error message or network exception detail.
      * Removes server's games and channels from MainDisplay's lists.
-     *<P>
-     * "If possible" is determined from return value of {@link ClientNetwork#putLeaveAll()}.
      *<P>
      * Before v1.2.01 this method was {@code destroy()}.
      */

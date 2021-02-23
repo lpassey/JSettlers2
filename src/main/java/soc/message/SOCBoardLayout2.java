@@ -83,7 +83,7 @@ import soc.util.DataUtils;
  *
  *<H4>Optimization:</H4>
  * For v2.0.00 and newer servers and clients ({@link SOCBoardLayout#VERSION_FOR_OMIT_IF_EMPTY_NEW_GAME}):
- * If the game is still forming (state {@link soc.game.SOCGame#NEW}),
+ * If the game is still forming (state {@link soc.game.GameState#NEW_GAME}),
  * client already has data for the empty board. If so, no board layout message
  * is sent to the client while joining the game.
  *

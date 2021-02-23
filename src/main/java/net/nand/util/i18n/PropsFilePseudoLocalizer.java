@@ -71,16 +71,16 @@ public class PropsFilePseudoLocalizer
      * @param destPropFilename  Pseudo filename to localize to, from {@link #makePseudoPropFilename(String)}
      * @throws IOException  if an error occurs reading or writing the files
      */
-    public static void pseudoLocalizeFile(final File srcPropFile, final String destPropFilename)
+    public static void pseudoLocalizeFile(final File srcPropFilename, final String destPropFilename)
         throws IOException
     {
-        List<PropsFileParser.KeyPairLine> pairs = PropsFileParser.parseOneFile(srcPropFile);
+        List<PropsFileParser.KeyPairLine> pairs = PropsFileParser.parseOneFile(srcPropFilename);
 
         for (PropsFileParser.KeyPairLine pair : pairs)
             pair.value = StringUtil.pseudolocalise(pair.value);
 
         PropsFileWriter pfw = new PropsFileWriter(new File(destPropFilename));
-        pfw.write(pairs, "This is a generated file: Pseudolocalized from " + srcPropFile.getName() + " on " + new Date());
+        pfw.write(pairs, "This is a generated file: Pseudolocalized from " + srcPropFilename.getName() + " on " + new Date());
         pfw.close();
     }
 

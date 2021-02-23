@@ -128,7 +128,7 @@ import static soc.game.GameState.*;
  *<UL>
  *<LI> {@code SOCServer} manages the overall lifecycle of the server
  *     and its games; game creation occurs in
- *     {@link SOCGameListAtServer#createGame(String, String, String, Map, GameHandler)}.
+ *     {@link SOCGameListAtServer#createGame(String, String, String, SOCGameOptionSet, GameHandler)}.
  *<LI> See {@link Server} for details of the server threading and processing.
  *     After constructing a {@code SOCServer} instance, the caller must
  *     call {@link Thread#start()} to run the server's main thread.
@@ -721,7 +721,7 @@ public class SOCServer extends Server
      * If game will expire in this or fewer minutes, warn the players. Default is 15.
      * Must be at least twice the sleep-time in {@link SOCGameTimeoutChecker#run()}.
      * The game expiry time is set at game creation in
-     * {@link SOCGameListAtServer#createGame(String, String, String, Map, GameHandler)}.
+     * {@link SOCGameListAtServer#createGame(String, String, String, SOCGameOptionSet, GameHandler)}.
      *<P>
      * If you update this field, also update {@link #GAME_TIME_EXPIRE_CHECK_MINUTES}.
      *<P>
@@ -882,7 +882,7 @@ public class SOCServer extends Server
     static final int AUTH_OR_REJECT__SET_USERNAME = 0x4;
 
     /**
-     * All the Known Game Options, from {@link SOCGameOptionSet#getAllKnownOptions()},
+     * All the Known Game Options, from {@link SOCServerGameOptionSet#getAllKnownOptions()},
      * to be copied at server startup to {@link #knownOpts}.
      *<P>
      * Before v2.4.50, {@link SOCGameOption} relied on an internal static map and this field wasn't needed.
@@ -908,7 +908,7 @@ public class SOCServer extends Server
      *<P>
      * Note that all practice games are debug mode, for ease of debugging;
      * to determine this, {@link SOCServerMessageHandler#handleGAMETEXTMSG(Connection, SOCGameTextMsg)}
-     * checks if the client is using {@link StringConnection} to talk to the server.
+     * checks if the client is using {@link soc.communication.MemConnection} to talk to the server.
      *<P>
      * Publicly visible via {@link #isDebugUserEnabled()}.
      *
@@ -1058,7 +1058,7 @@ public class SOCServer extends Server
     private List<Constructor<? extends SOCRobotClient>> robots3pCliConstrucs;
 
     /**
-     * The limited-feature clients' connections: Those with the {@link SOCClientData#hasLimitedFeatures} flag set.
+     * The limited-feature clients' connections: Those with the {@link SOCClientData#hasLimitedFeats} flag set.
      * These may be named or unnamed.
      *<BR>
      * <B>Locks:</B> All adding/removing of connections synchronizes on {@link Server#unnamedConns}.
@@ -1156,7 +1156,7 @@ public class SOCServer extends Server
      * Number of seconds before a connection is considered disconnected, and
      * its nickname can be "taken over" by a new connection with the right password.
      * Used only when a password is given by the new connection.
-     * @see #checkNickname(String, Connection, boolean)
+     * @see #checkNickname(String, Connection, boolean, boolean)
      * @since 1.1.08
      */
     public static final int NICKNAME_TAKEOVER_SECONDS_SAME_PASSWORD = 15;
@@ -1165,7 +1165,7 @@ public class SOCServer extends Server
      * Number of seconds before a connection is considered disconnected, and
      * its nickname can be "taken over" by a new connection from the same IP.
      * Used when no password is given by the new connection.
-     * @see #checkNickname(String, Connection, boolean)
+     * @see #checkNickname(String, Connection, boolean, boolean)
      * @since 1.1.08
      */
     public static final int NICKNAME_TAKEOVER_SECONDS_SAME_IP = 30;
@@ -1174,7 +1174,7 @@ public class SOCServer extends Server
      * Number of seconds before a connection is considered disconnected, and
      * its nickname can be "taken over" by a new connection from a different IP.
      * Used when no password is given by the new connection.
-     * @see #checkNickname(String, Connection, boolean)
+     * @see #checkNickname(String, Connection, boolean, boolean)
      * @since 1.1.08
      */
     public static final int NICKNAME_TAKEOVER_SECONDS_DIFFERENT_IP = 150;
@@ -1260,13 +1260,13 @@ public class SOCServer extends Server
     /**
      * The total number of games that have been started:
      * {@link GameHandler#startGame(SOCGame)} has been called
-     * and game play has begun. Game state became {@link SOCGame#READY}
+     * and game play has begun. Game state became {@link GameState#READY}
      * or higher from an earlier/lower state.
      */
     protected int numberOfGamesStarted;
 
     /**
-     * The total number of games finished: Game state became {@link SOCGame#OVER} or higher
+     * The total number of games finished: Game state became {@link GameState#GAME_OVER} or higher
      * from an earlier/lower state. Incremented in {@link #gameOverIncrGamesFinishedCount(SOCGame)}.
      *<P>
      * Before v1.1.20 this was the number of games destroyed, and {@code *STATS*}
@@ -1333,7 +1333,7 @@ public class SOCServer extends Server
      * practice server will localize the Known Option descriptions in its {@link SOCGameOptionSet}.
      * @since 2.0.00
      * @see #i18n_scenario_SC_WOND_desc
-     * @see soctest.TestI18NGameoptScenStrings
+     * @see soctest.i18n.TestI18NGameoptScenStrings
      */
     static final String i18n_gameopt_PL_desc;
 
@@ -1354,7 +1354,7 @@ public class SOCServer extends Server
      *
      * @see SOCClientData#localeHasGameScenarios(Connection)
      * @see #i18n_gameopt_PL_desc
-     * @see soctest.TestI18NGameoptScenStrings
+     * @see soctest.i18n.TestI18NGameoptScenStrings
      * @since 2.0.00
      */
     final static String i18n_scenario_SC_WOND_desc;
@@ -1367,7 +1367,7 @@ public class SOCServer extends Server
 
     /**
      * Timer for delaying auth replies for consistency with {@code BCrypt} timing. Used when
-     * {@code ! hadDelay} in {@link SOCDBHelper.AuthPasswordRunnable#authResult(String, boolean)} callbacks.
+     * {@code ! hadDelay} in {@link soc.server.database.SOCDBHelper.AuthPasswordRunnable#authResult(String, boolean)} callbacks.
      * @since 1.2.00
      */
     private Timer replyAuthTimer = new Timer( true );  // use daemon thread
@@ -1540,11 +1540,7 @@ public class SOCServer extends Server
      *
      * @param stringport    the stringport that the server listens on.
      *             If this is a "practice game" server on the user's local computer,
-     *             please use {@link #PRACTICE_STRINGPORT}.
-     * @param mc   the maximum number of connections allowed;
-     *            remember that robots count against this limit.
-     * @param databaseUserName  the user name for accessing the database
-     * @param databasePassword  the password for the user
+     *             please use {@link Connection#JVM_STRINGPORT}.
      * @throws SocketException  If a network setup problem occurs
      * @throws EOFException   If db setup script ran successfully and server should exit now
      * @throws SQLException   If db setup script or upgrade fails,
@@ -1571,13 +1567,13 @@ public class SOCServer extends Server
      *
      * @param s  the stringport that the server listens on.
      *             If this is a "practice game" server on the user's local computer,
-     *             please use {@link #PRACTICE_STRINGPORT}.
+     *             please use {@link Connection#JVM_STRINGPORT}.
      * @param props  null, or properties containing {@link #PROP_JSETTLERS_CONNECTIONS}
      *       and any other desired properties.
      *       <P>
      *       Property names are held in PROP_* and SOCDBHelper.PROP_* constants; see {@link #PROPS_LIST}.
      * @throws IllegalStateException  If {@link Version#versionNumber()} returns 0 (packaging error)
-     * @see {@link #SOCServer(String, int, String, String)}
+     * see {link #SOCServer(int, int, String, String)}
      * @since 2.4.50
      */
     public SOCServer( String s, Properties props )
@@ -2837,7 +2833,7 @@ public class SOCServer extends Server
      *             {@link #createOrJoinGameIfUserOK(Connection, String, String, String, SOCGameOptionSet)} for that.
      * @param gaOpts  if creating a game with options, its {@link SOCGameOption}s; otherwise null.
      *                Must already be validated, by calling
-     *                {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
+     *                {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean,SOCFeatureSet,Map )}
      *                with <tt>doServerPreadjust</tt> true.
      * @param loadedGame  Game being reloaded, or {@code null} when joining an existing game or creating a new one.
      *          Should not be in server's gameList yet.
@@ -2857,11 +2853,11 @@ public class SOCServer extends Server
      *           and an unused name couldn't be generated.
      * @throws IllegalArgumentException if client's version is too low to join for any
      *           other reason. (this exception was added in 1.1.06)
-     * @see SOCServerMessageHandler#handleSTARTGAME(Connection, SOCStartGame)
+     * @see SOCServerMessageHandler#handleSTARTGAME(Connection, SOCStartGame, int)
      * @see SOCServerMessageHandler#handleJOINGAME(Connection, SOCJoinGame)
      */
-    public boolean connectToGame
-    ( Connection c, final String gaName, SOCGameOptionSet gaOpts, final SOCGame loadedGame )
+    public boolean connectToGame( Connection c, final String gaName, SOCGameOptionSet gaOpts,
+        final SOCGame loadedGame )
         throws SOCGameOptionVersionException, MissingResourceException, NoSuchElementException,
                IllegalArgumentException, RuntimeException
     {
@@ -3586,7 +3582,8 @@ public class SOCServer extends Server
      * (Some will be SOCRobotDM.FAST_STRATEGY, some SMART_STRATEGY).
      *<P>
      * The bots will start up and connect in separate threads, then be given their
-     * {@code FAST} or {@code SMART} strategy params in {@link #handleIMAROBOT(Connection, SOCImARobot)}
+     * {@code FAST} or {@code SMART} strategy params in
+     * {@link SOCLocalRobotClient#createAndStartRobotClientThread(String, ServerConnectInfo, Constructor)}
      * based on their name prefixes ("droid " or "robot " respectively):
      * See {@link #getRobotParameters(String)}.
      *<P>
@@ -3603,7 +3600,7 @@ public class SOCServer extends Server
      * @param numSmart number of smart robots, with {@link soc.robot.SOCRobotDM#SMART_STRATEGY SMART_STRATEGY}
      * @return True if robots were set up, false if an exception occurred.
      *     This typically happens if a third-party robot class can't be loaded.
-     * @see soc.client.SOCPlayerClient#startPracticeGame()
+     * @see soc.client.SOCPlayerClient#startPracticeGame(String, SOCGameOptionSet, boolean)
      * @see soc.client.MainDisplay#startLocalTCPServer(int)
      * @see #startRobotOnlyGames(boolean, boolean)
      * @see SOCLocalRobotClient
@@ -3627,7 +3624,7 @@ public class SOCServer extends Server
             }
 
             // Make a few smarter ones now:
-            // handleIMAROBOT will give them SOCServer.ROBOT_PARAMS_SMARTER
+            // createAndStartRobotClientThread will give them SOCServer.ROBOT_PARAMS_SMARTER
             // based on their name prefixes being "robot " not "droid ".
 
             for (int i = 0; i < numSmart; ++i)
@@ -3966,7 +3963,7 @@ public class SOCServer extends Server
      *          <tt>smgr.get("gameopt." + {@link SOCVersionedItem#key SOCGameOption.key})</tt>
      * @param updateStaticKnownOpts  If true, localize each {@link SOCVersionedItem#getDesc() SOCGameOption.desc} in
      *          this server class's static set of known options; for use only by client's practice-game server
-     * @return Known Options from {@link SOCGameOptionSet#getAllKnownOptions()},
+     * @return Known Options from {@link SOCServerGameOptionSet#getAllKnownOptions()},
      *          with descriptions localized if available
      * @since 2.0.00
      */
@@ -4946,7 +4943,7 @@ public class SOCServer extends Server
      * @see #messageToGameKeyedSpecial(SOCGame, boolean, boolean, String, Object...)
      * @see #messageToGameKeyedSpecialExcept(SOCGame, int, boolean, Connection, String, Object...)
      * @see #messageToGameKeyedType(SOCGame, boolean, SOCKeyedMessage, boolean)
-     * @see #messageToGameForVersionsKeyed(SOCGame, int, int, boolean, String, Object...)
+     * @see #messageToGameForVersionsKeyed(SOCGame, int, int, boolean, boolean, String, Object...)
      * @since 2.4.50
      */
     public void messageToGameKeyed
@@ -4993,7 +4990,7 @@ public class SOCServer extends Server
      * @throws IllegalArgumentException if the localized pattern string has a parse error (closing '}' brace without opening '{' brace, etc)
      * @see #messageToGameKeyedSpecialExcept(SOCGame, int, boolean, Connection, String, Object...)
      * @see #messageToGameKeyed(SOCGame, boolean, boolean, String)
-     * @see #messageToGameForVersionsKeyed(SOCGame, int, int, boolean, String, Object...)
+     * @see #messageToGameForVersionsKeyed(SOCGame, int, int, boolean, boolean, String, Object...)
      * @since 2.0.00
      */
     public final void messageToGameKeyedSpecial
@@ -5017,8 +5014,6 @@ public class SOCServer extends Server
      * @param ga  the game object
      * @param eventExclPN  If this is an event that should be recorded, {@code ex}'s player number;
      *     otherwise {@link #PN_NON_EVENT}
-     * @param isEvent  if true, calls {@link #recordGameEvent(String, SOCMessage)};
-     *     see that method for its message version requirements
      * @param takeMon Should this method take and release
      *                game's monitor via {@link SOCGameList#takeMonitorForGame(String)} ?
      *                True unless caller already holds that monitor.
@@ -5039,9 +5034,8 @@ public class SOCServer extends Server
      * @see #messageToGameForVersionsKeyedExcept(SOCGame, int, int, boolean, List, boolean, String, Object...)
      * @since 2.0.00
      */
-    public final void messageToGameKeyedSpecialExcept
-    ( SOCGame ga, final int eventExclPN, final boolean takeMon,
-        Connection ex, final String key, final Object... params )
+    public final void messageToGameKeyedSpecialExcept( SOCGame ga, final int eventExclPN,
+        final boolean takeMon, Connection ex, final String key, final Object... params )
         throws MissingResourceException, IllegalArgumentException
     {
         int[] excl = (eventExclPN != PN_NON_EVENT) ? new int[]{eventExclPN} : null;
@@ -5449,14 +5443,14 @@ public class SOCServer extends Server
      *
      * @param ga  the game
      * @param vmin  Minimum version to send to, or -1.  Same format as
-     *                {@link Version#versionNumber()} and {@link Connection#getVersion()}.
+     *                {@link Version#versionNumber()} and {@link Connection#getRemoteVersion()}.
      * @param vmax  Maximum version to send to, or {@link Integer#MAX_VALUE}
      * @param mes  the message
      * @param takeMon Should this method take and release
      *                game's monitor via {@link SOCGameList#takeMonitorForGame(String)} ?
      *                If the game's clients are all older than <tt>vmin</tt> or
      *                newer than <tt>vmax</tt>, nothing happens and the monitor isn't taken.
-     * @see #messageToGameForVersionsKeyed(SOCGame, int, int, boolean, String, Object...)
+     * @see #messageToGameForVersionsKeyed(SOCGame, int, int, boolean, boolean, String, Object...)
      * @since 1.1.19
      */
     public final void messageToGameForVersions
@@ -5475,7 +5469,7 @@ public class SOCServer extends Server
      *
      * @param ga  the game
      * @param vmin  Minimum version to send to, or -1.  Same format as
-     *                {@link Version#versionNumber()} and {@link Connection#getVersion()}.
+     *                {@link Version#versionNumber()} and {@link Connection#getRemoteVersion()}.
      * @param vmax  Maximum version to send to, or {@link Integer#MAX_VALUE}
      * @param ex  the excluded connection, or null
      * @param mes  the message
@@ -5516,7 +5510,7 @@ public class SOCServer extends Server
      *
      * @param ga  the game
      * @param vmin  Minimum version to send to, or -1.  Same format as
-     *                {@link Version#versionNumber()} and {@link Connection#getVersion()}.
+     *                {@link Version#versionNumber()} and {@link Connection#getRemoteVersion()}.
      * @param vmax  Maximum version to send to, or {@link Integer#MAX_VALUE}
      * @param ex  the excluded connections, or null
      * @param mes  the message
@@ -5597,7 +5591,7 @@ public class SOCServer extends Server
      *
      * @param ga  The game
      * @param vmin  Minimum version to send to, or -1. Same format as
-     *            {@link Version#versionNumber()} and {@link Connection#getVersion()}.
+     *            {@link Version#versionNumber()} and {@link Connection#getRemoteVersion()}.
      * @param vmax  Maximum version to send to, or {@link Integer#MAX_VALUE}
      * @param takeMon  Should this method take and release
      *            game's monitor via {@link SOCGameList#takeMonitorForGame(String)} ?
@@ -5617,7 +5611,7 @@ public class SOCServer extends Server
      * @see #messageToGameKeyed(SOCGame, boolean, boolean, String, Object...)
      * @see #messageToGameKeyedSpecial(SOCGame, boolean, boolean, String, Object...)
      * @see #messageToGameForVersions(SOCGame, int, int, SOCMessage, boolean)
-     * @see #messageToGameForVersionsKeyedExcept(SOCGame, int, int, boolean, List, boolean, String, Object...)
+     * @see #messageToGameForVersionsKeyed(SOCGame, int, int, boolean, boolean, String, Object...)
      * @since 2.4.50
      */
     public final void messageToGameForVersionsKeyed
@@ -5648,7 +5642,7 @@ public class SOCServer extends Server
      *
      * @param ga  The game
      * @param vmin  Minimum version to send to, or -1. Same format as
-     *            {@link Version#versionNumber()} and {@link Connection#getVersion()}.
+     *            {@link Version#versionNumber()} and {@link Connection#getRemoteVersion()}.
      * @param vmax  Maximum version to send to, or {@link Integer#MAX_VALUE}
      * @param takeMon  Should this method take and release
      *            game's monitor via {@link SOCGameList#takeMonitorForGame(String)} ?
@@ -5755,7 +5749,7 @@ public class SOCServer extends Server
      *<P>
      * <b>Locks:</b> Like {@link #messageToGame(String, boolean, String)}, will take and release the game's monitor.
      *
-     * @param ga  the name of the game
+     * @param gaName  the name of the game
      * @param isEvent  if true, calls {@link #recordGameEvent(String, SOCMessage)};
      *     see that method for its message version requirements
      * @param mes the message to send. If mes does not begin with ">>>",
@@ -6345,8 +6339,7 @@ public class SOCServer extends Server
      * Look for VERSION message; if none is received, set up a timer to wait
      * for version and (if never received) send out the game list soon.
      *
-     * @param str Contents of first message from the client.
-     *         Will be parsed with {@link SOCMessage#toMsg(String)}.
+     * @param mes The first message to be processed.
      * @param con Connection (client) sending this message.
      * @return true if processed here (VERSION), false if this message should be
      *         queued up and processed as normal by
@@ -6689,11 +6682,11 @@ public class SOCServer extends Server
      * @param msgUser  Client username (nickname) to validate and authenticate; will be {@link String#trim() trim()med}.
      *     Ignored if connection is already authenticated
      *     ({@link Connection#getData() c.getData()} != {@code null}).
-     * @param msgPass  Password to supply to {@code SOCDBHelper.authenticateUserPassword(..), or "";
+     * @param msgPass  Password to supply to {@code SOCDBHelper.authenticateUserPassword(..)}, or "";
      *     will be {@link String#trim() trim()med}. If {@code msgUser} is in the optional DB, the trimmed
      *     {@code msgPass} must match their password there. If {@code msgPass != ""} but {@code msgUser} isn't found
      *     in the DB or there is no DB, rejects authentication.
-     * @param cliVers  Client version, from {@link Connection#getVersion()}
+     * @param cliVers  Client version, from {@link Connection#getRemoteVersion()}
      * @param doNameConnection  True if successful auth of an unnamed connection should have this method call
      *     {@link Connection#setData(String) c.setData(nickname)} and
      *     {@link #nameConnection(Connection, boolean) nameConnection(c, isTakingOver)}.
@@ -7036,11 +7029,11 @@ public class SOCServer extends Server
      * {@link #authOrRejectClientRobot(Connection, String, String, String)} when the bot sends {@link SOCImARobot}.
      *<P>
      *<b>Locks:</b> To set the version, will synchronize briefly on {@link Server#unnamedConns unnamedConns}.
-     * If {@link Connection#getVersion() c.getRemoteVersion()} is already == cvers,
+     * If {@link Connection#getRemoteVersion() c.getRemoteVersion()} is already == cvers,
      * don't bother to lock and set it.
      *<P>
      * Package access (not private) is strictly for use of {@link SOCServerMessageHandler}
-     * and {@link SOCClientData.SOCCDCliVersionTask#run()}.
+     * and {@link soc.communication.SOCClientData.SOCCDCliVersionTask#run()}.
      *
      * @param c     Client's connection
      * @param cvers Version reported by client, or assumed version if no report
@@ -7305,7 +7298,7 @@ public class SOCServer extends Server
     /**
      * Handle robot authentication (the "I'm a robot" message).
      * Robots send their {@link SOCVersion} before sending that message.
-     * Their version is checked here (from {@link Connection#getVersion() c.getRemoteVersion()}),
+     * Their version is checked here (from {@link Connection#getRemoteVersion() c.getRemoteVersion()}),
      * must equal server's version. For stability and control, the cookie contents sent by the bot must
      * match this server's {@link #robotCookie}.
      *<P>
@@ -7503,7 +7496,8 @@ public class SOCServer extends Server
      *        STATUSMESSAGE({@link SOCStatusMessage#SV_NEWGAME_OPTION_UNKNOWN SV_NEWGAME_OPTION_UNKNOWN}) <br>
      *      - if any are too new for client's version, resp with
      *        STATUSMESSAGE({@link SOCStatusMessage#SV_NEWGAME_OPTION_VALUE_TOONEW SV_NEWGAME_OPTION_VALUE_TOONEW}) <br>
-     *      Comparison is done by {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}.
+     *      Comparison is done by {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean,
+     *      SOCFeatureSet, Map)}.
      *  <LI> if ok: create new game with params;
      *      socgame will calc game's minCliVersion,
      *      and this method will check that against cli's version.
@@ -7528,13 +7522,12 @@ public class SOCServer extends Server
      * @param gameOpts  if game has options, contains {@link SOCGameOption} to create new game;
      *                  if not null, will not join an existing game.
      *                  Will validate and adjust by calling
-     *                  {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
+     *                  {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet, Map)}
      *                  with <tt>doServerPreadjust</tt> true.
      *
      * @since 1.1.07
      */
-    void createOrJoinGameIfUserOK
-    ( Connection c, String msgUser, String msgPass,
+    void createOrJoinGameIfUserOK( Connection c, String msgUser, String msgPass,
         String gameName, final SOCGameOptionSet gameOpts )
     {
         if (gameName != null)
@@ -7573,7 +7566,7 @@ public class SOCServer extends Server
      * {@link #createOrJoinGameIfUserOK(Connection, String, String, String, SOCGameOptionSet)}.
      *<P>
      * Can also be used with a {@code loadedGame} being reloaded
-     * (having current state {@link SOCGame#LOADING}); will check its name and game options,
+     * (having current state {@link GameState#LOADING}); will check its name and game options,
      * add it to game list, and generally act as if a new game is being created.
      * If {@code c} isn't a player in {@code loadedGame}, they'll be given the option to
      * sit down and take over any seat as if all players were bots.
@@ -7592,10 +7585,10 @@ public class SOCServer extends Server
      * @param authResult  Auth check result flags: {@link SOCServer#AUTH_OR_REJECT__OK AUTH_OR_REJECT__OK},
      *     {@link SOCServer#AUTH_OR_REJECT__SET_USERNAME AUTH_OR_REJECT__SET_USERNAME}, etc. See
      *     {@link SOCServer#authOrRejectClientUser(Connection, String, String, int, boolean, boolean, AuthSuccessRunnable)}
-     *     for details. If user is already auth'd, use {@link {@link SOCServer#AUTH_OR_REJECT__OK AUTH_OR_REJECT__OK}.
+     *     for details. If user is already auth'd, use {@link SOCServer#AUTH_OR_REJECT__OK AUTH_OR_REJECT__OK}.
      * @return True if succeeded, false if failed and a message was sent to user {@code c}.
-     * @throws IllegalStateException if {@code loadedGame != null} but its gameState isn't {@link SOCGame#LOADING}
-     *     or {@link SOCGame#OVER}
+     * @throws IllegalStateException if {@code loadedGame != null} but its gameState isn't {@link GameState#LOADING}
+     *     or {@link GameState#GAME_OVER}
      * @see #createAndJoinReloadedGame(SavedGameModel, Connection, String)
      * @since 1.2.00
      */
@@ -7892,7 +7885,7 @@ public class SOCServer extends Server
      *     Can be null; see {@link #createOrJoinGame(Connection, int, String, SOCGameOptionSet, SOCGame, int)}.
      * @return Name of loaded game, which might have been renamed if conflicts with another game on the server,
      *     or {@code null} if game could not be created
-     * @see #resumeReloadedGame()
+     * @see #resumeReloadedGame(Connection, SOCGame)
      * @since 2.4.50
      */
     public String createAndJoinReloadedGame
@@ -8018,11 +8011,11 @@ public class SOCServer extends Server
      * Resume the current game, which was recently loaded with {@code *LOADGAME*},
      * or start that process by inviting bots if possible to fill unclaimed human player seats.
      *<P>
-     * Must be in state {@link SOCGame#LOADING} or {@link SOCGame#LOADING_RESUMING}.
+     * Must be in state {@link GameState#LOADING} or {@link GameState#LOADING_RESUMING}.
      *<P>
      * If no problems, sets game state to the regular game state saved within {@link SavedGameModel#gameState}.
      * If game had unclaimed human seats (game has no member with that player name),
-     * sets game state to {@link SOCGame#LOADING_RESUMING} and tries to invite bots
+     * sets game state to {@link GameState#LOADING_RESUMING} and tries to invite bots
      * if available to join and sit down. If enough bots are available, once they've
      * all sat down the game will resume automatically.
      *
@@ -8034,7 +8027,7 @@ public class SOCServer extends Server
      *     (or "fetching a robot" etc); same text is returned from here
      *     in case it's useful for debug logs/unit test output.
      *     If bots were available and invited, returns {@link #RESUME_RELOADED_FETCHING_ROBOTS}.
-     * @throws IllegalStateException if game state isn't {@link SOCGame#LOADING} or {@link SOCGame#LOADING_RESUMING},
+     * @throws IllegalStateException if game state isn't {@link GameState#LOADING} or {@link GameState#LOADING_RESUMING},
      *     or {@link SOCGame#savedGameModel} is null or not a {@link SavedGameModel}
      * @see #createAndJoinReloadedGame(SavedGameModel, Connection, String)
      * @since 2.4.50
@@ -8245,7 +8238,7 @@ public class SOCServer extends Server
      *<P>
      * Builds a set of the {@link Connection}s of robots asked to join,
      * and adds it to the {@code robotJoinRequests} table.
-     * Game state should be {@link SOCGame#READY READY} or {@link SOCGame#LOADING_RESUMING LOADING_RESUMING}.
+     * Game state should be {@link GameState#READY READY} or {@link GameState#LOADING_RESUMING LOADING_RESUMING}.
      *<P>
      * if {@code forSeats} is null:
      *<UL>
@@ -8257,7 +8250,7 @@ public class SOCServer extends Server
      * set a goal for the minimum percentage of third-party bots in
      * the game; see its javadoc.
      *<P>
-     * Called by {@link SOCServerMessageHandler#handleSTARTGAME(Connection, SOCStartGame) handleSTARTGAME},
+     * Called by {@link SOCServerMessageHandler#handleSTARTGAME(Connection, SOCStartGame, int ) handleSTARTGAME},
      * {@link #resetBoardAndNotify(String, int) resetBoardAndNotify}.
      *<P>
      * Once the robots have all responded (from their own threads/clients)
@@ -8275,8 +8268,8 @@ public class SOCServer extends Server
      *                   Other indexes should be null, and won't be used.
      * @param maxBots Maximum number of bots to add, or 0 to fill all empty seats
      * @return True if some bots were found and invited, false if none could be invited
-     * @throws IllegalStateException if {@link SOCGame#getGameState() ga.gamestate} is not {@link SOCGame#READY}
-     *         or {@link SOCGame#LOADING_RESUMING}, or if {@link SOCGame#getClientVersionMinRequired()} is
+     * @throws IllegalStateException if {@link SOCGame#getGameState() ga.gamestate} is not {@link GameState#READY}
+     *         or {@link GameState#LOADING_RESUMING}, or if {@link SOCGame#getClientVersionMinRequired()} is
      *         somehow newer than server's version (which is assumed to be robots' version).
      * @throws IllegalArgumentException if robotSeats is not null but wrong length,
      *           or if a robotSeat element is null but that seat wants a robot (vacant non-locked).
@@ -8672,22 +8665,22 @@ public class SOCServer extends Server
      * @param loc  Client's locale for StringManager i18n lookups.  This is passed instead of the client connection
      *    to simplify SOCPlayerClient's localizations before starting its practice server.
      * @param scKeys  Scenario keynames to localize, such as a {@link List} of keynames or the {@link Set}
-     *    returned from {@link SOCScenario#getAllKnownScenarioKeynames()}.
+     *    returned from {@link SOCServerScenario#getAllKnownScenarioKeynames()}.
      *    If is {@code null} or if {@code localizeAllKnown} true,
-     *    this method will call {@link SOCScenario#getAllKnownScenarioKeynames()}.
+     *    this method will call {@link SOCServerScenario#getAllKnownScenarioKeynames()}.
      * @param localizeAllKnown  If true, localize all known scenarios,
      *    ignoring contents of {@code scKeys} as if it was {@code null}.
      * @param checkUnknowns_skipFirst  Switch to allow calling this method from multiple places:
      *    <UL>
      *    <LI> If false, assumes {@code scKeys} has no unknown keys, will not call
-     *         {@link SOCScenario#getScenario(String)} to verify them.
-     *         {@code scKeys} could be {@link SOCScenario#getAllKnownScenarioKeynames()}, for example.
+     *         {@link SOCServerScenario#getScenario(String)} to verify them.
+     *         {@code scKeys} could be {@link SOCServerScenario#getAllKnownScenarioKeynames()}, for example.
      *         The localized strings for each scKey are looked up and added to the list if found.
      *         If any {@code scKey} is missing localized string(s), that key won't be in the returned list.
      *    <LI> If true, assumes {@code scKeys} is a {@link List} of keys from a client, and may have
      *         scenario names unknown at this server version. Will ignore the first entry because in the
      *         client message, the first list entry isn't a scenario key.  Will call
-     *         {@link SOCScenario#getScenario(String)} on each key to verify it exists.  The localized strings
+     *         {@link SOCServerScenario#getScenario(String)} on each key to verify it exists.  The localized strings
      *         for each known scKey are looked up and added to the list.  If the scenario is unknown or its
      *         strings aren't localized, the key and {@link SOCLocalizedStrings#MARKER_KEY_UNKNOWN} are added instead.
      *    <LI> If {@code localizeAllKnown} is true, treats this param as false
@@ -8811,7 +8804,7 @@ public class SOCServer extends Server
      *     {@link SOCGame#getGameOptionStringValue(String) game.getGameOptionStringValue("SC")}, or null.
      *     Sends nothing if {@code scKey} and {@code scData} are both null.
      * @param scData  Scenario data if known, or null to use
-     *     {@link SOCScenario#getScenario(String) SOCScenario.getScenario(scKey)}.
+     *     {@link SOCServerScenario#getScenario(String) SOCServerScenario.getScenario(scKey)}.
      *     When {@code scData != null}, will always send a {@link SOCScenarioInfo} message
      *     even if {@link SOCClientData#sentAllScenarioInfo} is set, unless client version is too old
      *     to recognize scenarios.
@@ -9004,7 +8997,7 @@ public class SOCServer extends Server
      * @param pw  the new account's password; must not be null or ""
      * @param em  the new accout's contact email; optional, can use null or ""
      * @param c  the connection requesting the account creation.
-     *     If the account is created, {@link Connection#host() c.host()} is written to the db
+     *     If the account is created, {@link Connection#getHost() c.getHost()} is written to the db
      *     as the requesting hostname.
      */
     final void createAccount
@@ -9241,7 +9234,7 @@ public class SOCServer extends Server
      * @param c        The connection of joining client
      * @param isReset  Game is a board-reset of an existing game; should always be false when server is calling,
      *                 board resets are up to the GameHandler.
-     * @param isLoading Game is being reloaded from snapshot by {@code c}'s request; state is {@link SOCGame#LOADING}
+     * @param isLoading Game is being reloaded from snapshot by {@code c}'s request; state is {@link GameState#LOADING}
      * @param isRejoinOrLoadgame  Client is re-joining; {@code c} replaces and takes over an earlier connection which
      *          is defunct/frozen because of a network problem. Also true when a human player joins a
      *          game being reloaded and has the same nickname as a player there.
@@ -9401,7 +9394,7 @@ public class SOCServer extends Server
      *<OL>
      * <LI value=1> Reset the board, remember player positions.
      *              If there are robots, set game state to
-     *              {@link SOCGame#READY_RESET_WAIT_ROBOT_DISMISS}.
+     *              {@link GameState#READY_RESET_WAIT_ROBOT_DISMISS}.
      * <LI value=2a> Send ResetBoardAuth to each client (like sending JoinGameAuth at new game)
      *    Humans will reset their copy of the game.
      *    Robots will leave the game, and soon be requested to re-join.
@@ -9519,7 +9512,7 @@ public class SOCServer extends Server
      * @param reBoard  Board reset data, from {@link SOCGameListAtServer#resetBoard(String)}
      *                   or {@link SOCGame#boardResetOngoingInfo reGame.boardResetOngoingInfo}
      * @param reGame   The new game created by the reset, with gamestate {@link GameState#NEW_GAME}
-     *                   or {@link SOCGame#READY_RESET_WAIT_ROBOT_DISMISS READY_RESET_WAIT_ROBOT_DISMISS}
+     *                   or {@link GameState#READY_RESET_WAIT_ROBOT_DISMISS READY_RESET_WAIT_ROBOT_DISMISS}
      * @since 1.1.07
      */
     void resetBoardAndNotify_finish( SOCGameBoardReset reBoard, SOCGame reGame )
@@ -9584,7 +9577,7 @@ public class SOCServer extends Server
 
     /**
      * Increment {@link #numberOfGamesFinished} and related server-statistics fields.
-     * Call when a game's state becomes {@link SOCGame#OVER} (or higher)
+     * Call when a game's state becomes {@link GameState#GAME_OVER} (or higher)
      * from a lower/earlier state.
      *<P>
      * Thread-safe; synchronizes on an internal object.
@@ -9675,7 +9668,7 @@ public class SOCServer extends Server
      * If property {@code jsettlers.db.save.games} is false ({@link SOCDBHelper#PROP_JSETTLERS_DB_SAVE_GAMES}),
      * will only update users' win-loss counts, not store game details.
      *
-     * @param ga  the game; state should be {@link SOCGame#OVER}
+     * @param ga  the game; state should be {@link GameState#GAME_OVER}
      */
     protected void storeGameScores( SOCGame ga )
     {
@@ -9729,7 +9722,7 @@ public class SOCServer extends Server
      * If {@code event}'s format or fields vary depending on client version, use the latest version here.
      * If they vary by locale, use fallback locale {@code "en_US"} for consistency.
      *<P>
-     * Before v2.0.00, {@link event} parameter was a String from {@link SOCMessage#toCmd()}.
+     * Before v2.0.00, {@code event} parameter was a String from {@link SOCMessage#toCmd()}.
      *
      * @param gameName   the game name
      * @param event      the event data
@@ -9825,7 +9818,6 @@ public class SOCServer extends Server
     /**
      * check for games that have expired and destroy them.
      * If games are about to expire, send a warning.
-     * As of version 1.1.09, practice games ({@link SOCGame#isPractice} flag set) don't expire.
      * Is callback method every few minutes from {@link SOCGameTimeoutChecker#run()}.
      *
      * @param currentTimeMillis  The time when called, from {@link System#currentTimeMillis()}
@@ -10618,7 +10610,7 @@ public class SOCServer extends Server
      * in the properties or command line.
      *<P>
      * The scenario named in {@code opts.get("SC")} or {@code scName} is retrieved with
-     * {@link SOCScenario#getScenario(String)}; an empty scenario name "" is treated as an unknown scenario.
+     * {@link SOCServerScenario#getScenario(String)}; an empty scenario name "" is treated as an unknown scenario.
      *<P>
      * The scenario will be the default scenario, but its option values aren't set as default at server startup.
      * When a new game begins using that scenario, at that time scenario options override any other options
@@ -10635,7 +10627,7 @@ public class SOCServer extends Server
      *    If <B>false</B>, keys and values are from command line parsing:
      *    key = uppercase optname, value = optkey + "=" + option value.
      * @param scName  Scenario name to check against, or {@code null} to use value of {@code opts.get("SC"}); never ""
-     * @returns A list of game option names and value strings from {@code opts} which would be overwritten by
+     * @return A list of game option names and value strings from {@code opts} which would be overwritten by
      *     those from opts' {@code "SC"} scenario, or {@code null} if no potential conflicts.
      *    <P>
      *     For ease of use by caller, the extracted default scenario is the first item in the list.
@@ -10663,8 +10655,7 @@ public class SOCServer extends Server
      *     </UL>
      * @since 2.0.00
      */
-    public static List<Triple> checkScenarioOpts
-    ( Map<?, ?> opts, final boolean optsAreProps, String scName )
+    public static List<Triple> checkScenarioOpts( Map<?, ?> opts, final boolean optsAreProps, String scName )
     {
         List<Triple> scenConflictWarns;
 
@@ -10950,7 +10941,7 @@ public class SOCServer extends Server
      * @param msg  Message text
      * @param obj  Object affected by the action, or {@code null} if none
      * @param at   Timestamp, or {@code null} to use current time
-     * @param reqHost  Requester client's hostname, from {@link Connection#host()}
+     * @param reqHost  Requester client's hostname, from {@link Connection#getHost()}
      * @since 1.1.20
      */
     void printAuditMessage

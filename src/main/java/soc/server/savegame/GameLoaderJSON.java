@@ -45,7 +45,7 @@ import soc.server.SOCServer;
 
 /**
  * Load a game and board's current state from a JSON file into a {@link SavedGameModel}.
- * Once loaded, game's {@link SOCGame#getGameState()} will temporarily have state {@link SOCGame#LOADING};
+ * Once loaded, game's {@link SOCGame#getGameState()} will temporarily have state {@link GameState#LOADING};
  * its actual gameState will be in game's {@code oldGameState} field.
  * Once the debug user has connected necessary bots or otherwise satisfied possible constraints,
  * must call {@link SavedGameModel#resumePlay(boolean)} to check constraints and resume game play.
@@ -83,7 +83,7 @@ public class GameLoaderJSON
      * @throws NoSuchElementException if file's model schema version is newer than the
      *     current {@link SavedGameModel#MODEL_VERSION}; see {@link SavedGameModel#checkCanLoad(SOCGameOptionSet)}
      *     for details
-     * @throws SOCGameOptionVersionException if loaded data's {@link #gameMinVersion} field
+     * @throws SOCGameOptionVersionException if loaded data's {@link SavedGameModel#gameMinVersion} field
      *     is newer than the server's {@link soc.util.Version#versionNumber()};
      *     see {@link SavedGameModel#checkCanLoad(SOCGameOptionSet)} for details
      * @throws SavedGameModel.UnsupportedSGMOperationException if loaded game model has an option or feature

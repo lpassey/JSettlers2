@@ -125,7 +125,7 @@ import static soc.game.GameState.*;
  * Pixel coordinates can be transformed between actual (scaled/rotated) and
  * unscaled/un-rotated "internal" pixel coordinates with
  * {@link #scaleFromActual(int)}, {@link #scaleToActual(int)},
- * {@link #scaleFromActual(int[])}, {@link #scaleToActual(int[])}.
+ * {@link #scaleToActual(int[])}.
  *<P>
  * The panel can in some cases be stretched wider than the board requires, with a built-in x-margin:
  * {@link SOCPlayerInterface#doLayout()} checks for the necessary conditions.
@@ -3212,7 +3212,7 @@ import static soc.game.GameState.*;
      * Rescale to actual screen coordinates - Create a copy
      * of array, and scale up the copy's elements as X or Y coordinates.
      *<P>
-     * Before v2.0.00 this method was {@code scaleCopyToActualX(x[])} and {@link scaleCopyToActualY(y[])}.
+     * Before v2.0.00 this method was {@code scaleCopyToActualX(x[])} and {@code scaleCopyToActualY(y[])}.
      *
      * @param orig Int array to be scaled up; each member is an x-coordinate or y-coordinate.
      * @return Scaled copy of orig
@@ -5841,7 +5841,7 @@ import static soc.game.GameState.*;
      * update the type of interaction mode, and trigger a repaint.
      * Also calls {@link #updateHoverTipToMode()} and
      * (for 6-player board's Special Building Phase) updates top-center text.
-     * For {@link soc.game.SOCGameOptionSet#getAllKnownOptions() Game Option "N7"},
+     * For {@link soc.server.SOCServerGameOptionSet#getAllKnownOptions() Game Option "N7"},
      * updates the top-center countdown of rounds from {@link SOCGame#getRoundCount()}.
      * For the {@link SOCGame#debugFreePlacement Free Placement debug mode},
      * indicates that in the top center.

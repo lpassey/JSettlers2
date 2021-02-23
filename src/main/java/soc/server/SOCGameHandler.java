@@ -42,6 +42,7 @@ import soc.communication.Connection;
 import soc.communication.SOCClientData;
 import soc.debug.D;
 import soc.game.*;
+import soc.game.GameState;
 import soc.message.SOCAcceptOffer;  // for javadocs only
 import soc.message.SOCBankTrade;
 import soc.message.SOCBoardLayout;
@@ -342,7 +343,7 @@ public class SOCGameHandler extends GameHandler
     /**
      * Process the <tt>*FREEPLACE*</tt> Free Placement debug command.
      * Can turn it off at any time, but can only turn it on during
-     * your own turn after rolling (during game state {@link SOCGame#PLAY1}).
+     * your own turn after rolling (during game state {@link GameState#PLAY1}).
      * @param c   Connection (client) sending this message
      * @param ga  Game to which this applies; not null
      * @param arg  1 or 0, to turn on or off, or empty string or
@@ -473,8 +474,7 @@ public class SOCGameHandler extends GameHandler
      *     Returns immediately if "".
      * @since 2.0.00
      */
-    private void processDebugCommand_scenario
-    ( final Connection c, final SOCGame ga, final String argStr )
+    private void processDebugCommand_scenario( final Connection c, final SOCGame ga, final String argStr )
     {
         if (argStr.isEmpty())
             return;
@@ -671,7 +671,7 @@ public class SOCGameHandler extends GameHandler
      * (Clear all the Ask Special Building, Reset Board Request, and Trade Offer flags; send Game State; send Turn).
      *<P>
      * Calls {@link SOCGame#endTurn()}, which may also end the game.
-     * On the 6-player board, this may begin the {@link SOCGame#SPECIAL_BUILDING Special Building Phase},
+     * On the 6-player board, this may begin the {@link GameState#SPECIAL_BUILDING Special Building Phase},
      * or end a player's placements during that phase.
      * Otherwise, calls {@link #sendTurn(SOCGame, boolean)} and begins
      * the next player's turn.
@@ -793,7 +793,7 @@ public class SOCGameHandler extends GameHandler
      *          their name within game object is already null.
      * @return true if the turn was ended and game is still active;
      *          false if we find that all players have left and
-     *          the gamestate has been changed here to {@link SOCGame#OVER}.
+     *          the gamestate has been changed here to {@link GameState#OVER}.
      *
      * @see #endGameTurnOrForce(SOCGame, int, String, Connection, boolean)
      * @see SOCGame#forceEndTurn()
@@ -1022,7 +1022,7 @@ public class SOCGameHandler extends GameHandler
      * If {@code isRejoinOrLoadgame}, some details are sent by calling
      * {@link #sitDown_sendPrivateInfo(SOCGame, Connection, int, boolean)}.
      * The group of messages sent here ends with GAMEMEMBERS, SETTURN and GAMESTATE.
-     * If state is {@link SOCGame#OVER}: Right after sending GAMESTATE, calls
+     * If state is {@link GameState#GAME_OVER}: Right after sending GAMESTATE, calls
      * {@link #sendGameStateOVER(SOCGame, Connection) sendGameStateOver(gameData, c)}.
      *<P>
      * After all that is sent, the entire game is sent a JOINGAME for the new game member.
@@ -1036,7 +1036,7 @@ public class SOCGameHandler extends GameHandler
      * @param c        The connection of joining client
      * @param isReset  Game is a board-reset of an existing game.  This is always false when
      *          called from SOCServer instead of from inside the SOCGameHandler.
-     * @param isLoading  Game is being reloaded from snapshot by {@code c}'s request; state is {@link SOCGame#LOADING}
+     * @param isLoading  Game is being reloaded from snapshot by {@code c}'s request; state is {@link GameState#LOADING}
      * @param isRejoinOrLoadgame  If true, client is re-joining; {@code c} replaces an earlier connection which
      *          is defunct/frozen because of a network problem. Also true when a human player joins a
      *          game being reloaded and has the same nickname as a player there.
@@ -2619,7 +2619,7 @@ public class SOCGameHandler extends GameHandler
 
     /**
      * If any player needs to discard, prompt them to discard half (round down);
-     * call in game state {@link SOCGame#WAITING_FOR_DISCARDS} after calling {@link #sendGameState(SOCGame)}.
+     * call in game state {@link GameState#WAITING_FOR_DISCARDS} after calling {@link #sendGameState(SOCGame)}.
      * This method sends only {@link SOCDiscardRequest}s, not the prompt text "Joe and Lily must discard"
      * sent by {@code sendGameState}.
      *<P>
@@ -2656,8 +2656,8 @@ public class SOCGameHandler extends GameHandler
      * To prompt the specific players to choose a resource, also sends their clients a
      * {@link SOCSimpleRequest}({@link SOCSimpleRequest#PROMPT_PICK_RESOURCES PROMPT_PICK_RESOURCES}).
      *<P>
-     * Used in game state {@link SOCGame#STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}
-     * and {@link SOCGame#WAITING_FOR_PICK_GOLD_RESOURCE}.
+     * Used in game state {@link GameState#STARTS_WAITING_FOR_PICK_GOLD_RESOURCE}
+     * and {@link GameState#WAITING_FOR_PICK_GOLD_RESOURCE}.
      *<P>
      * The text and SOCPlayerElement messages are sent to the entire game.
      * Any {@code PROMPT_PICK_RESOURCES} are sent to those player clients only.
@@ -2769,7 +2769,7 @@ public class SOCGameHandler extends GameHandler
      *  for more games to run: The bots don't know on their own to leave, it's easier for the
      *  server to dismiss them within {@code destroyGame}.
      *<P>
-     *  Make sure {@link SOCGameState}({@link SOCGame#OVER GAME_OVER}) is sent before calling this method.
+     *  Make sure {@link SOCGameState}({@link GameState#GAME_OVER GAME_OVER}) is sent before calling this method.
      *
      * @param ga This game is over; state should be GAME_OVER
      * @param joiningConn  Send the messages only to this connection, not all game members, if not {@code null}
@@ -2980,23 +2980,23 @@ public class SOCGameHandler extends GameHandler
      * Send messages saying what was stolen.
      * Use {@link SOCReportRobbery} if clients are compatible.
      *
-     * @param ga  the game
-     * @param pe  the perpetrator
-     * @param vi  the victim
+     * @param game  the game
+     * @param perp  the perpetrator
+     * @param victim  the victim
      * @param rsrc  type of resource stolen, as in {@link SOCResourceConstants#SHEEP},
      *          or {@link SOCResourceConstants#CLOTH_STOLEN_LOCAL} for cloth
      *          (scenario option {@link SOCGameOptionSet#K_SC_CLVI _SC_CLVI}).
      */
-    void reportRobbery( SOCGame ga, SOCPlayer pe, SOCPlayer vi, final int rsrc )
+    void reportRobbery( SOCGame game, SOCPlayer perp, SOCPlayer victim, final int rsrc )
     {
-        if (ga == null)
+        if (game == null)
             return;
 
-        final String gaName = ga.getName();
-        final String peName = pe.getName();
-        final String viName = vi.getName();
-        final int pePN = pe.getPlayerNumber();
-        final int viPN = vi.getPlayerNumber();
+        final String gameName = game.getName();
+        final String perpName = perp.getName();
+        final String victimName = victim.getName();
+        final int perpSeatNumber = perp.getPlayerNumber();
+        final int victimSeatNumber = victim.getPlayerNumber();
 
         if (rsrc == SOCResourceConstants.CLOTH_STOLEN_LOCAL)
         {
@@ -3004,64 +3004,66 @@ public class SOCGameHandler extends GameHandler
             // Client's game will recalculate players' VP based on
             // the cloth counts, so we don't need to also send VP.
 
-            final int peAmt = pe.getCloth(), viAmt = vi.getCloth();
-            final SOCReportRobbery rrMsg = new SOCReportRobbery
-                ( gaName, pePN, viPN, PEType.SCENARIO_CLOTH_COUNT, false, peAmt, viAmt, 0 );
+            final int peAmt = perp.getCloth(), viAmt = victim.getCloth();
+            final SOCReportRobbery rrMsg = new SOCReportRobbery( gameName, perpSeatNumber,
+                victimSeatNumber, PEType.SCENARIO_CLOTH_COUNT, false, peAmt, viAmt, 0 );
 
-            if (ga.clientVersionLowest >= SOCReportRobbery.MIN_VERSION)
+            if (game.clientVersionLowest >= SOCReportRobbery.MIN_VERSION)
             {
-                srv.messageToGame( gaName, true, rrMsg );
+                srv.messageToGame( gameName, true, rrMsg );
             }
             else
             {
-                srv.recordGameEvent( gaName, rrMsg );
+                srv.recordGameEvent( gameName, rrMsg );
 
-                srv.messageToGameForVersions
-                    ( ga, SOCReportRobbery.MIN_VERSION, Integer.MAX_VALUE, rrMsg, true );
+                srv.messageToGameForVersions( game, SOCReportRobbery.MIN_VERSION, Integer.MAX_VALUE,
+                    rrMsg, true );
 
-                srv.messageToGameForVersions
-                    ( ga, 0, SOCReportRobbery.MIN_VERSION - 1,
-                        new SOCPlayerElement( gaName, viPN, SOCPlayerElement.SET, PEType.SCENARIO_CLOTH_COUNT, viAmt, true ),
-                        true );
-                srv.messageToGameForVersions
-                    ( ga, 0, SOCReportRobbery.MIN_VERSION - 1,
-                        new SOCPlayerElement( gaName, pePN, SOCPlayerElement.SET, PEType.SCENARIO_CLOTH_COUNT, peAmt ),
-                        true );
-                srv.messageToGameForVersionsKeyed
-                    ( ga, 0, SOCReportRobbery.MIN_VERSION - 1, true, false,
-                        "robber.common.stole.cloth.from", peName, viName );  // "{0} stole a cloth from {1}."
+                srv.messageToGameForVersions( game, 0, SOCReportRobbery.MIN_VERSION - 1,
+                    new SOCPlayerElement( gameName, victimSeatNumber, SOCPlayerElement.SET,
+                        PEType.SCENARIO_CLOTH_COUNT, viAmt, true ), true );
+                srv.messageToGameForVersions( game, 0, SOCReportRobbery.MIN_VERSION - 1,
+                    new SOCPlayerElement( gameName, perpSeatNumber, SOCPlayerElement.SET,
+                            PEType.SCENARIO_CLOTH_COUNT, peAmt ), true );
+                srv.messageToGameForVersionsKeyed( game, 0, SOCReportRobbery.MIN_VERSION - 1,
+                true, false, "robber.common.stole.cloth.from", perpName, victimName );
+                // "{0} stole a cloth from {1}."
             }
 
             return;  // <--- early return: cloth is announced to entire game ---
         }
 
-        final boolean isFullyObservable = ga.isGameOptionSet( SOCGameOptionSet.K_PLAY_FO );
+        final boolean isFullyObservable = game.isGameOptionSet( SOCGameOptionSet.K_PLAY_FO );
 
-        final SOCReportRobbery gainLoseRsrc = new SOCReportRobbery( gaName, pePN, viPN, rsrc, true, 1, 0, 0 ),
+        final SOCReportRobbery gainLoseRsrc = new SOCReportRobbery( gameName, perpSeatNumber, victimSeatNumber,
+            rsrc, true, 1, 0, 0 ),
             gainLoseUnknown = (isFullyObservable)
                 ? null
-                : new SOCReportRobbery( gaName, pePN, viPN, SOCResourceConstants.UNKNOWN, true, 1, 0, 0 );
+                : new SOCReportRobbery( gameName, perpSeatNumber, victimSeatNumber,
+                SOCResourceConstants.UNKNOWN, true, 1, 0, 0 );
 
-        Connection peCon = srv.getConnection( peName );
-        Connection viCon = srv.getConnection( viName );
-        int[] notToPNs = {pePN, viPN};
-        List<Connection> sendNotTo = new ArrayList<>( 2 );
-        sendNotTo.add( peCon );
-        sendNotTo.add( viCon );
+        Connection peCon = srv.getConnection( perpName );
+        Connection viCon = srv.getConnection( victimName );
+        int[] excludedPlayers = {perpSeatNumber, victimSeatNumber};
+        List<Connection> excludedConnections = new ArrayList<>( 2 );
+        excludedConnections.add( peCon );
+        excludedConnections.add( viCon );
 
-        if (ga.clientVersionLowest >= SOCReportRobbery.MIN_VERSION)
+        if (game.clientVersionLowest >= SOCReportRobbery.MIN_VERSION)
         {
             if (isFullyObservable)
             {
-                srv.messageToGame( gaName, true, gainLoseRsrc );
+                srv.messageToGame( gameName, true, gainLoseRsrc );
             }
             else
             {
-                srv.messageToPlayer( peCon, gaName, pePN, gainLoseRsrc );
-                srv.messageToPlayer( viCon, gaName, viPN, gainLoseRsrc );
-                srv.messageToGameExcept( gaName, sendNotTo, notToPNs, gainLoseUnknown, true );
+                srv.messageToPlayer( peCon, gameName, perpSeatNumber, gainLoseRsrc );
+                srv.messageToPlayer( viCon, gameName, victimSeatNumber, gainLoseRsrc );
+                srv.messageToGameExcept( gameName, excludedConnections, excludedPlayers, gainLoseUnknown, true );
             }
-
+            // Robberies can happen before the dice roll, so don't reset the game state if we haven't yet rolled.
+            if (ROLL_OR_CARD != game.getGameState())
+                game.setGameState( PLAY1 );     // We've sent all gain/loss messages so play can now resume.
             return;  // <--- early return: no further messages needed here ---
         }
 
@@ -3071,13 +3073,13 @@ public class SOCGameHandler extends GameHandler
 
         if (isFullyObservable)
         {
-            srv.recordGameEvent( gaName, gainLoseRsrc );
+            srv.recordGameEvent( gameName, gainLoseRsrc );
         }
         else
         {
-            srv.recordGameEventTo( gaName, pePN, gainLoseRsrc );
-            srv.recordGameEventTo( gaName, viPN, gainLoseRsrc );
-            srv.recordGameEventNotTo( gaName, notToPNs, gainLoseUnknown );
+            srv.recordGameEventTo( gameName, perpSeatNumber, gainLoseRsrc );
+            srv.recordGameEventTo( gameName, victimSeatNumber, gainLoseRsrc );
+            srv.recordGameEventNotTo( gameName, excludedPlayers, gainLoseUnknown );
         }
 
         SOCPlayerElement gainRsrc = null;
@@ -3086,8 +3088,8 @@ public class SOCGameHandler extends GameHandler
         SOCPlayerElement loseUnknown;
 
         // This works because SOCPlayerElement.SHEEP == SOCResourceConstants.SHEEP.
-        gainRsrc = new SOCPlayerElement( gaName, pePN, SOCPlayerElement.GAIN, rsrc, 1 );
-        loseRsrc = new SOCPlayerElement( gaName, viPN, SOCPlayerElement.LOSE, rsrc, 1, true );
+        gainRsrc = new SOCPlayerElement( gameName, perpSeatNumber, SOCPlayerElement.GAIN, rsrc, 1 );
+        loseRsrc = new SOCPlayerElement( gameName, victimSeatNumber, SOCPlayerElement.LOSE, rsrc, 1, true );
 
         /**
          * send the game data messages
@@ -3098,18 +3100,16 @@ public class SOCGameHandler extends GameHandler
 
         if (isFullyObservable)
         {
-            srv.messageToGameForVersions( ga, SOCReportRobbery.MIN_VERSION, Integer.MAX_VALUE, gainLoseRsrc, true );
-            srv.messageToGameForVersions( ga, -1, SOCReportRobbery.MIN_VERSION - 1, gainRsrc, true );
-            srv.messageToGameForVersions( ga, -1, SOCReportRobbery.MIN_VERSION - 1, loseRsrc, true );
+            srv.messageToGameForVersions( game, SOCReportRobbery.MIN_VERSION, Integer.MAX_VALUE, gainLoseRsrc, true );
+            srv.messageToGameForVersions( game, -1, SOCReportRobbery.MIN_VERSION - 1, gainRsrc, true );
+            srv.messageToGameForVersions( game, -1, SOCReportRobbery.MIN_VERSION - 1, loseRsrc, true );
 
             if (peCon.getRemoteVersion() < SOCReportRobbery.MIN_VERSION)
-                srv.messageToPlayerKeyedSpecial
-                    ( peCon, ga, SOCServer.PN_NON_EVENT,
-                        "robber.common.you.stole.resource.from", -1, rsrc, viName );  // "You stole {0,rsrcs} from {2}."
+                srv.messageToPlayerKeyedSpecial( peCon, game, SOCServer.PN_NON_EVENT,
+                    "robber.common.you.stole.resource.from", -1, rsrc, victimName );  // "You stole {0,rsrcs} from {2}."
             if (viCon.getRemoteVersion() < SOCReportRobbery.MIN_VERSION)
-                srv.messageToPlayerKeyedSpecial
-                    ( viCon, ga, SOCServer.PN_NON_EVENT,
-                        "robber.common.stole.resource.from.you", peName, -1, rsrc );  // "{0} stole {1,rsrcs} from you."
+                srv.messageToPlayerKeyedSpecial( viCon, game, SOCServer.PN_NON_EVENT,
+                    "robber.common.stole.resource.from.you", perpName, -1, rsrc );  // "{0} stole {1,rsrcs} from you."
         }
         else
         {
@@ -3117,9 +3117,8 @@ public class SOCGameHandler extends GameHandler
             {
                 srv.messageToPlayer( peCon, null, SOCServer.PN_NON_EVENT, gainRsrc );
                 srv.messageToPlayer( peCon, null, SOCServer.PN_NON_EVENT, loseRsrc );
-                srv.messageToPlayerKeyedSpecial
-                    ( peCon, ga, SOCServer.PN_NON_EVENT,
-                        "robber.common.you.stole.resource.from", -1, rsrc, viName );  // "You stole {0,rsrcs} from {2}."
+                srv.messageToPlayerKeyedSpecial( peCon, game, SOCServer.PN_NON_EVENT,
+                        "robber.common.you.stole.resource.from", -1, rsrc, victimName );  // "You stole {0,rsrcs} from {2}."
             }
             else
             {
@@ -3131,8 +3130,8 @@ public class SOCGameHandler extends GameHandler
                 srv.messageToPlayer( viCon, null, SOCServer.PN_NON_EVENT, gainRsrc );
                 srv.messageToPlayer( viCon, null, SOCServer.PN_NON_EVENT, loseRsrc );
                 srv.messageToPlayerKeyedSpecial
-                    ( viCon, ga, SOCServer.PN_NON_EVENT,
-                        "robber.common.stole.resource.from.you", peName, -1, rsrc );  // "{0} stole {1,rsrcs} from you."
+                    ( viCon, game, SOCServer.PN_NON_EVENT,
+                        "robber.common.stole.resource.from.you", perpName, -1, rsrc );  // "{0} stole {1,rsrcs} from you."
             }
             else
             {
@@ -3142,21 +3141,25 @@ public class SOCGameHandler extends GameHandler
             // generic message to all except pe or vi
 
             srv.messageToGameForVersionsExcept
-                ( ga, SOCReportRobbery.MIN_VERSION, Integer.MAX_VALUE, sendNotTo, gainLoseUnknown, true );
+                ( game, SOCReportRobbery.MIN_VERSION, Integer.MAX_VALUE, excludedConnections, gainLoseUnknown, true );
 
-            if (ga.clientVersionLowest < SOCReportRobbery.MIN_VERSION)
+            if (game.clientVersionLowest < SOCReportRobbery.MIN_VERSION)
             {
-                gainUnknown = new SOCPlayerElement( gaName, pePN, SOCPlayerElement.GAIN, PEType.UNKNOWN_RESOURCE, 1 );
-                loseUnknown = new SOCPlayerElement( gaName, viPN, SOCPlayerElement.LOSE, PEType.UNKNOWN_RESOURCE, 1 );
-                srv.messageToGameForVersionsExcept
-                    ( ga, 0, SOCReportRobbery.MIN_VERSION - 1, sendNotTo, gainUnknown, true );
-                srv.messageToGameForVersionsExcept
-                    ( ga, 0, SOCReportRobbery.MIN_VERSION - 1, sendNotTo, loseUnknown, true );
+                gainUnknown = new SOCPlayerElement( gameName, perpSeatNumber, SOCPlayerElement.GAIN,
+                    PEType.UNKNOWN_RESOURCE, 1 );
+                loseUnknown = new SOCPlayerElement( gameName, victimSeatNumber, SOCPlayerElement.LOSE,
+                    PEType.UNKNOWN_RESOURCE, 1 );
+                srv.messageToGameForVersionsExcept( game, 0, SOCReportRobbery.MIN_VERSION - 1,
+                    excludedConnections, gainUnknown, true );
+                srv.messageToGameForVersionsExcept( game, 0, SOCReportRobbery.MIN_VERSION - 1,
+                    excludedConnections, loseUnknown, true );
             }
         }
-        srv.messageToGameForVersionsKeyedExcept
-            ( ga, 0, SOCReportRobbery.MIN_VERSION - 1, true, sendNotTo,
-                true, "robber.common.stole.resource.from", peName, viName );  // "{0} stole a resource from {1}."
+        // "{0} stole a resource from {1}."
+        srv.messageToGameForVersionsKeyedExcept( game, 0, SOCReportRobbery.MIN_VERSION - 1,
+            true, excludedConnections, true, "robber.common.stole.resource.from",
+            perpName, victimName );
+        game.setGameState( PLAY1 );
     }
 
     /**
@@ -3426,7 +3429,7 @@ public class SOCGameHandler extends GameHandler
      *                there instead of sending to all players in game.  Because trades are public, there is no
      *                such parameter for tradingPlayer.
      * @param vmax  Maximum client version to send to.
-     *                Same format as {@link Version#versionNumber()} and {@link Connection#getVersion()}.
+     *                Same format as {@link Version#versionNumber()} and {@link Connection#getRemoteVersion()}.
      *
      * @see #reportRsrcGainLoss(SOCGame, ResourceSet, boolean, boolean, int, int, Connection)
      * @since 2.4.50
@@ -3544,7 +3547,7 @@ public class SOCGameHandler extends GameHandler
 
     /**
      * Check whether game's Longest Road/Longest Route player has changed, announce to game if so: Sends
-     * {@link SOCGameElements}({@link SOCGameElements.GEType#LONGEST_ROAD_PLAYER LONGEST_ROAD_PLAYER})
+     * {@link SOCGameElements}({@link soc.message.SOCGameElements.GEType#LONGEST_ROAD_PLAYER LONGEST_ROAD_PLAYER})
      * or (for v1.x clients) {@link SOCLongestRoad}.
      * @param ga  Game to check
      * @param prevLongestRoadPlayer  Previous {@link SOCGame#getPlayerWithLongestRoad()}, might be null,
@@ -3771,7 +3774,7 @@ public class SOCGameHandler extends GameHandler
 
     /**
      * After a player action during initial placement: Send new game state.
-     * If current player changed, an initial-placement round ended ({@link SOCGame#isInitialPlacementRoundDone(int)}),
+     * If current player changed, an initial-placement round ended ({@link SOCGame#isInitialPlacementRoundDone(GameState)}),
      * or regular game play started, announce the new player with
      * {@link #sendTurn(SOCGame, boolean)} or send {@link SOCRollDicePrompt}
      * to trigger auto-roll for the new player's client.
@@ -3842,20 +3845,20 @@ public class SOCGameHandler extends GameHandler
         sendRollPrompt |= sendGameState( theGame, useGSField, false );
 
         String gameName = theGame.getName();
-        GameState gs = theGame.getGameState();
+        GameState gameState = theGame.getGameState();
 
         int currentPlayer = theGame.getCurrentPlayerNumber();
 
         if (theGame.clientVersionLowest >= SOCPlayerElement.VERSION_FOR_CARD_ELEMENTS)
-            srv.messageToGame( gameName, true, new SOCPlayerElement
-                ( gameName, currentPlayer, SOCPlayerElement.SET, PEType.PLAYED_DEV_CARD_FLAG, 0 ) );
+            srv.messageToGame( gameName, true, new SOCPlayerElement( gameName, currentPlayer,
+                SOCPlayerElement.SET, PEType.PLAYED_DEV_CARD_FLAG, 0 ));
         else
             srv.messageToGame( gameName, true, new SOCSetPlayedDevCard( gameName, currentPlayer, false ) );
 
-        SOCTurn turnMessage = new SOCTurn( gameName, currentPlayer, gs );
+        SOCTurn turnMessage = new SOCTurn( gameName, currentPlayer, gameState );
         srv.recordGameEvent( gameName, turnMessage );
         if (!useGSField)
-            turnMessage = new SOCTurn( gameName, currentPlayer, NEW_GAME );
+            turnMessage = new SOCTurn( gameName, currentPlayer, INVALID );
         srv.messageToGame( gameName, false, turnMessage );
 
         if (sendRollPrompt)
@@ -4381,7 +4384,7 @@ public class SOCGameHandler extends GameHandler
      * and report resources to all players. Does not send gameState, which may have changed when
      * this method called {@link SOCGame#playerDiscardOrGainRandom(int, boolean)}.
      *<P>
-     * Discards if {@link SOCGame#getGameState() cg.getGameState()} == {@link SOCGame#WAITING_FOR_DISCARDS},
+     * Discards if {@link SOCGame#getGameState() cg.getGameState()} == {@link GameState#WAITING_FOR_DISCARDS},
      * otherwise picks enough random resources for {@link SOCPlayer#getNeedToPickGoldHexResources()}.
      *<P>
      * Also calls {@code pn}'s {@link SOCPlayer#addForcedEndTurn()} because we're forcing an action they

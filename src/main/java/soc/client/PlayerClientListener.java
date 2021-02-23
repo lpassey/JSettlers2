@@ -103,8 +103,9 @@ public interface PlayerClientListener
      * Receive a notification that the dice roll resulted in players gaining resources.
      * Call this after updating player resources with the gains.
      * Often follows a call to {@link #diceRolled(SOCPlayer, int)}.
-     * @param pnum  Player numbers, same format as {@link soc.message.SOCDiceResultResources#playerNum}
-     * @param rsrc Resources gained by each {@code pn}, same format as {@link soc.message.SOCDiceResultResources#playerRsrc}
+     * @param pnum Player numbers, same format as {@link soc.message.SOCDiceResultResources#playerNum}
+     * @param rsrc Resources gained by each {@code pn}, same format as
+     * {@link soc.message.SOCDiceResultResources#playerResourceList}
      */
     void diceRolledResources(List<Integer> pnum, List<SOCResourceSet> rsrc);
 
@@ -147,7 +148,7 @@ public interface PlayerClientListener
     /**
      * A player has moved a piece on the board; update game data and displays.
      * Most pieces are not movable.  {@link soc.game.SOCShip SOCShip} pieces can sometimes be moved.
-     * Not used when the robber or pirate is moved; see {@link #robberMoved()}.
+     * Not used when the robber or pirate is moved; see {@link #robberMoved(int,boolean)}.
      * @param pieceType A piece type identifier, such as {@link SOCPlayingPiece#CITY}
      */
     void playerPieceMoved(SOCPlayer player, int sourceCoordinate, int targetCoordinate, int pieceType);
@@ -263,7 +264,7 @@ public interface PlayerClientListener
      * Update displays accordingly. This method is informational only: Do not ask
      * the client player to pick resources, {@link #promptPickResources(int)} is used for that.
      * @param player  The player
-     * @param countToSelect  Number of free resources they must pick, or 0 if they've just picked them
+     * @param countToPick  Number of free resources they must pick, or 0 if they've just picked them
      */
     void requestedGoldResourceCountUpdated(SOCPlayer player, int countToPick);
 
@@ -467,25 +468,25 @@ public interface PlayerClientListener
     boolean isNonBlockingDialogVisible();
 
     /**
-     * Game play is starting (leaving state {@link SOCGame#NEW}).
+     * Game play is starting (leaving state {@link GameState#NEW_GAME}).
      * Next move is for players to make their starting placements.
      *<P>
-     * Call {@link SOCGame#setGameState(int)} before calling this method.
-     * Call this method before calling {@link #gameStateChanged(int)}.
+     * Call {@link SOCGame#setGameState(GameState)} before calling this method.
+     * Call this method before calling {@link #gameStateChanged(GameState)}.
      */
     void gameStarted();
 
     /**
      * Update interface after game state has changed.
-     * Please call {@link SOCGame#setGameState(int)} first.
+     * Please call {@link SOCGame#setGameState(GameState)} first.
      *<P>
      * If the game is now starting, please call in this order:
      *<code><pre>
      *   game.setGameState(newState);
      *   {@link #gameStarted()};
-     *   {@link #gameStateChanged(int)};
+     *   {@link #gameStateChanged(GameState)};
      *</pre></code>
-     * @param gameState One of the states from SOCGame, such as {@link soc.game.SOCGame#NEW}
+     * @param gameState One of the states from SOCGame, such as {@link soc.game.GameState#NEW_GAME}
      */
     void gameStateChanged( GameState gameState );
 
@@ -635,7 +636,8 @@ public interface PlayerClientListener
     void debugFreePlaceModeToggled(boolean isEnabled);
 
     /**
-     * Player data update types for {@link PlayerClientListener#playerElementUpdated(SOCPlayer, UpdateType)}.
+     * Player data update types for
+     * {@link PlayerClientListener#playerElementUpdated(SOCPlayer, PlayerClientListener.UpdateType, boolean, boolean)}
      */
     enum UpdateType
     {

@@ -80,21 +80,13 @@ public abstract class Connection implements Runnable
      */
     public final static int MAX_MESSAGE_SIZE_UTF8 = 0xFFFF;
 
-    /**
-     * Default maximum number of connected clients (40; {@link #maxConnections} field;
-     * {@link #PROP_JSETTLERS_CONNECTIONS} property).
-     * Always at least 20 more than {@link #SOC_STARTROBOTS_DEFAULT}.
-     * @since 1.1.15
-     */
-    public static final int SOC_MAXCONN_DEFAULT = Math.max( 40, 20 + SOCServer.SOC_STARTROBOTS_DEFAULT );
-
     public static String JVM_STRINGPORT = "JVM";
+
     /**
      * The key (client "name") associated with this connection, or {@code null}.
      *<P>
      * Before v1.2.0, this field was an Object and could contain any arbitrary key data.
      */
-
     protected String data;
 
     /** Active connection, server has called accept, and not disconnected yet */
@@ -285,7 +277,7 @@ public abstract class Connection implements Runnable
     /**
      * Have we closed our outbound side?
      *
-     * @see #setEOF()
+     * @see #out_setEOF
      */
     public boolean isOutEOF()
     {
@@ -472,7 +464,7 @@ public abstract class Connection implements Runnable
     /**
      * @return Time of connection to server, or of object creation if that time's not available
      * @since 1.0.1
-     * @see #connect()
+     * @see #connect( boolean )
      */
     public Date getConnectTime()
     {

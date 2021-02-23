@@ -33,8 +33,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Symmetric buffered connection sending strings between two local peers.
  * Uses vectors and thread synchronization, no actual network traffic.
- * When using this class from the server (not client), after the constructor
- * call {@link #setServer(Server)}.
  *<P>
  * This class has a run method, but you must start the thread yourself.
  * Constructors will not create or start a thread.
@@ -110,7 +108,7 @@ public class MemConnection extends Connection
 
     /**
      *
-     * @return
+     * @return true if reset was successful
      */
     public boolean reset()
     {
@@ -155,14 +153,14 @@ public class MemConnection extends Connection
     }
 
      /**
-     * Send data over the connection.  Does not block.
-     * Ignored if setEOF() has been called.
+     * Adds a message to the peer's input queue.  Does not block.
+     * Ignored if out_setEOF has been set to true.
      *<P>
      * <B>Threads:</B> Safe to call from any thread; synchronizes on internal {@code out} queue.
      *
-     * @param dat Data to send
+     * @param socMessage Data to send
      *
-     * @throws IllegalArgumentException if {@code dat} is {@code null}
+     * @throws IllegalArgumentException if {@code socMessage} is {@code null}
      * @throws IllegalStateException if not yet accepted by server
      */
     @Override
@@ -276,8 +274,6 @@ public class MemConnection extends Connection
 
     /**
      * Have we closed our outbound side?
-     *
-     * @see #setEOF()
      */
     @Override
     public boolean isOutEOF()
@@ -302,7 +298,7 @@ public class MemConnection extends Connection
      * Local version; nothing special to do to start reading messages.
      * Call connect(serverSocketName) instead of this method.
      *
-     * @see #connect(String)
+     * @see Connection#connect( boolean )
      *
      * @return Whether we've connected and been accepted by a SOCServerSocket.
      */

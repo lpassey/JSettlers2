@@ -31,7 +31,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Clients who want to connect, call connectTo and are queued.
- * Server-side calls {@Link #accept()} to retrieve them.
+ * Server-side calls {@link #accept()} to retrieve them.
  *
  *<PRE>
  *  1.0.0 - 2007-11-18 - initial release, becoming part of jsettlers v1.1.00
@@ -236,7 +236,7 @@ public class MemServerSocket implements SOCServerSocket
      *
      * @see #close()
      * @see MemConnection#disconnect()
-     * @see MemConnection#setEOF()
+     * @see MemConnection#out_setEOF
      */
     protected void setEOF(boolean forceDisconnect)
     {
@@ -259,7 +259,7 @@ public class MemServerSocket implements SOCServerSocket
      * Have we closed our outbound side?
      *
      * @see #close()
-     * @see #setEOF()
+     * @see #setEOF(boolean)
      */
     public boolean isOutEOF()
     {
@@ -277,7 +277,7 @@ public class MemServerSocket implements SOCServerSocket
      * Like java.net.ServerSocket, any thread currently blocked in
      * accept() will throw a SocketException.
      *
-     * @see #setEOF()
+     * @see #setEOF(boolean)
      */
     public void close()
     {

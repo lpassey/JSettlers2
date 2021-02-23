@@ -49,7 +49,7 @@ import java.util.StringTokenizer;
  * then will each choose a position and sit down. Any client can then send {@link SOCStartGame}
  * to start the game. Server responds with the newly generated board layout and
  * other game and board details, any scenario-specific {@link SOCPutPiece}s, then
- * {@link SOCGameState}({@link soc.game.SOCGame#START1A START1A}), then finally {@link SOCStartGame}.
+ * {@link SOCGameState}({@link soc.game.GameState#START1A START1A}), then finally {@link SOCStartGame}.
  *
  * @author Robert S Thomas
  * @see SOCChannelMembers

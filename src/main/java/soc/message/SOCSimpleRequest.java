@@ -21,6 +21,7 @@ package soc.message;
 
 import java.util.StringTokenizer;
 
+import soc.game.GameState;  // for javadocs only
 import soc.game.SOCGame;  // for javadocs only
 import soc.game.SOCGameOptionSet;  // for javadocs only
 
@@ -112,11 +113,11 @@ public class SOCSimpleRequest extends SOCMessageTemplate4i
      * This typically happens at some point after {@link SOCSimpleAction#TRADE_PORT_REMOVED}
      * in scenario {@link SOCGameOptionSet#K_SC_FTRI _SC_FTRI}.
      *<P>
-     * In state {@link SOCGame#PLACING_INV_ITEM}, player sends this with an edge coordinate where
+     * In state {@link GameState#PLACING_INV_ITEM}, player sends this with an edge coordinate where
      * they want to place the port. {@code value1} = the edge coordinate, value2 is unused.
      *<P>
-     * If they can place there now, server will do so and broadcast the resulting game state ({@link SOCGame#PLAY1} or
-     * {@link SOCGame#SPECIAL_BUILDING}), then broadcast a SOCSimpleRequest to the game with
+     * If they can place there now, server will do so and broadcast the resulting game state ({@link GameState#PLAY1} or
+     * {@link GameState#SPECIAL_BUILDING}), then broadcast a SOCSimpleRequest to the game with
      * {@code value1} = the placed port's edge, {@code value2} = port type.  All clients should call
      * {@link SOCGame#placePort(soc.game.SOCPlayer, int, int)}.
      *<P>

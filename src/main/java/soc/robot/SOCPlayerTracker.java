@@ -78,7 +78,8 @@ import java.util.TreeMap;
  *  keeping track of which pieces support the building of others."
  *</blockquote>
  *<p>
- *  To output a legible overview of the data in a SOCPlayerTracker, use {@link #playerTrackersDebug(HashMap)}.
+ *  To output a legible overview of the data in a SOCPlayerTracker, use
+ *  {@link #playerTrackersDebug(SOCPlayerTracker[])}.
  *
  * @author Robert S Thomas
  */
@@ -1479,7 +1480,7 @@ public class SOCPlayerTracker
      * a roads {@literal <->} ships transition.
      *<P>
      * Newly possible roads or ships next to the settlement are expanded by calling
-     * {@link #expandRoadOrShip(SOCPossibleRoad, SOCPlayer, SOCPlayer, HashMap, int)}.
+     * {@link #expandRoadOrShip(SOCPossibleRoad, SOCPlayer, SOCPlayer, SOCPlayerTracker[], int)}.
      * {@link #EXPAND_LEVEL} is the basic expansion length, and ships add
      * {@link #EXPAND_LEVEL_SHIP_EXTRA} to that for crossing the sea to nearby islands.
      *<P>

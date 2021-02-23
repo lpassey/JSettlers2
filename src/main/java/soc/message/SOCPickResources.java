@@ -39,7 +39,7 @@ import java.util.StringTokenizer;
  *<H3>Sent from Client:</H3>
  *
  * For <B>Discovery/Year of Plenty,</B> this is the client response to server's
- * {@link SOCGameState GAMESTATE}({@link SOCGame#WAITING_FOR_DISCOVERY WAITING_FOR_DISCOVERY}).
+ * {@link SOCGameState GAMESTATE}({@link soc.game.GameState#WAITING_FOR_DISCOVERY WAITING_FOR_DISCOVERY}).
  *<P>
  * For <B>Gold Hex</B> picks or other Sea Board scenarios, this is the Client response to server's
  * {@link SOCSimpleRequest}({@link SOCSimpleRequest#PROMPT_PICK_RESOURCES PROMPT_PICK_RESOURCES}).
@@ -54,7 +54,7 @@ import java.util.StringTokenizer;
  *<H3>Sent from Server:</H3>
  *
  * A player has chosen their two free Discovery/Year of Plenty resources
- * in state {@link soc.game.SOCGame#WAITING_FOR_DISCOVERY}, or free Gold Hex resources.
+ * in state {@link soc.game.GameState#WAITING_FOR_DISCOVERY}, or free Gold Hex resources.
  * Announced by server to update game data and have the client indicate that the trade has happened,
  * as if they were sent a {@code SOCGameServerText} about it, based on {@link #getReasonCode()} value.
  * When reason code is 0, print no text: Server might follow this message with a {@link SOCGameServerText}

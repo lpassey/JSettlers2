@@ -44,7 +44,7 @@ import java.util.StringTokenizer;
  * sending the game a {@link SOCResourceCount} with their new total resource count.)
  *<P>
  * Afterwards each gaining player (any client version) is sent their currently
- * held amounts for each resource as a group of <tt>SOCPlayerElement(pn, {@link #SET}, ...)</tt>
+ * held amounts for each resource as a group of <tt>SOCPlayerElement(pn, {@link SOCPlayerElement#SET}, ...)</tt>
  * messages.
  *
  * @author Robert S. Thomas

@@ -132,7 +132,7 @@ public enum SOCPlayerEvent
      * An {@link soc.util.IntPair IntPair} with the port's edge coordinate and type (in range
      * {@link SOCBoard#MISC_PORT MISC_PORT} to {@link SOCBoard#WOOD_PORT WOOD_PORT}) will be passed as {@code obj} to
      * {@link SOCGameEventListener#playerEvent(SOCGame, SOCPlayer, SOCPlayerEvent, boolean, Object)}.
-     * If the game state became {@link SOCGame#PLACING_INV_ITEM}, the player must now pick a coastal edge with an adjacent
+     * If the game state became {@link GameState#PLACING_INV_ITEM}, the player must now pick a coastal edge with an adjacent
      * settlement to place the port.  Otherwise the port's been added to their inventory as a {@link SOCInventoryItem}
      * to be placed later when possible.  Placement is done (now or later) by calling {@link SOCGame#placePort(int)}.
      *<P>

@@ -17,7 +17,7 @@ import java.util.Set;
 
 /**
  * This class holds the known scenarios at the server,
- * in a static dictionary of known scenarios; see {@link #getAllKnownScenarios()}
+ * in a static dictionary of known scenarios; see {@link #cloneAllKnownScenarios()}
  * for the current list of all known scenarios.
  *<P>
  * For information about adding or changing game scenarios in a
@@ -25,15 +25,13 @@ import java.util.Set;
  */
 public class SOCServerScenario extends SOCScenario
 {
-    protected static Map<String, SOCScenario> allScenarios =  initAllScenarios();
+    protected static Map<String, SOCScenario> allScenarios = initAllScenarios();
 
     /**
-     * The highest {@link SOCVersionedItem#minVersion} of all scenarios in {@link #getAllKnownScenarios()}, or 0.
+     * The highest {@link SOCVersionedItem#minVersion} of all scenarios in {@link #cloneAllKnownScenarios()}, or 0.
      * Value may change when a new JSettlers server version is released.
      *<P>
-     * This is meant for use at the server, so its value won't be changed by calls to
-     * {@link #addKnownScenario(SOCScenario)} or {@link #removeUnknownScenario(String)};
-     * those methods aren't used at the server.
+     * This is meant for use at the server.
      */
     public static final int ALL_KNOWN_SCENARIOS_MIN_VERSION;
 
@@ -52,7 +50,7 @@ public class SOCServerScenario extends SOCScenario
     /**
      * Get the scenario information about this known scenario.
      * Treat the returned value as read-only (is not cloned).
-     * @param key  Scenario key name, such as {@link #K_SC_4ISL SC_4ISL}, from {@link #getAllKnownScenarios()}
+     * @param key  Scenario key name, such as {@link #K_SC_4ISL SC_4ISL}, from {@link #cloneAllKnownScenarios()}
      * @return information about a known scenario, or null if none with that key
      */
     public static SOCScenario getScenario(String key)
@@ -72,7 +70,7 @@ public class SOCServerScenario extends SOCScenario
      *                use {@link SOCVersionedItem#itemsMinimumVersion(Map) SOCVersionedItem.itemsMinimumVersion(opts)}.
      *                That calculation won't be done automatically by this constructor.
      * @param lastModVers Last-modified version for this scenario, or version which added it.
-     *             This is the last change to the scenario itself as declared in {@link #getAllKnownScenarios()}:
+     *             This is the last change to the scenario itself as declared in {@link #cloneAllKnownScenarios()}:
      *             Ignore changes to {@code opts} last-modified versions, because changed option info
      *             is sent separately and automatically when the client connects.
      * @param desc    Descriptive brief text, to appear in the scenarios dialog.
@@ -96,7 +94,7 @@ public class SOCServerScenario extends SOCScenario
     /**
      * Create a set of the known scenarios.
      * This method creates and returns a Map, but does not set the static {@link #allScenarios} field.
-     * See {@link #getAllKnownScenarios()} for the current list of known scenarios.
+     * See {@link #cloneAllKnownScenarios()} for the current list of known scenarios.
      *
      * <h3>If you want to add a game scenario:</h3>
      *<UL>
@@ -109,7 +107,7 @@ public class SOCServerScenario extends SOCScenario
      *   minimum version is >= those options' minimum versions; this won't be validated at runtime.
      *<LI> If your scenario requires new {@link SOCGameOption}s to change the rules or game behavior,
      *   create and test those; scenario game options all start with "_SC_".
-     *   See {@link SOCGameOptionSet#getAllKnownOptions()} for details.
+     *   See {@link SOCServerGameOptionSet#getAllKnownOptions()} for details.
      *   If the new scenario has a new game option just for itself, instead of a reusable one like
      *   {@link SOCGameOptionSet#K_SC_SANY _SC_SANY}, the option name is "_" + scenario name:
      *   {@code "_SC_PIRI"} for scenario {@link #K_SC_PIRI SC_PIRI}.
@@ -124,7 +122,7 @@ public class SOCServerScenario extends SOCScenario
      *   and doesn't change any game behavior from standard, so there is no {@code "_SC_TTD"} SOCGameOption.
      *<LI> Add the scenario's key to the list of "game scenario keynames"
      *   as a public static final String, such as {@link #K_SC_FOG}.
-     *   Put a short description in the javadoc there and in {@link #getAllKnownScenarios()} javadoc's scenario list.
+     *   Put a short description in the javadoc there and in {@link #cloneAllKnownScenarios()} javadoc's scenario list.
      *<LI> Create the scenario by calling {@code allSc.put} here in {@code initAllScenarios()}.
      *   Use the current version for the "last modified" field.
      *<LI> Create the board layout; see {@link soc.server.SOCBoardAtServer} javadoc.
@@ -161,7 +159,7 @@ public class SOCServerScenario extends SOCScenario
      * be done without a very good reason.  That said, the server is authoritative on scenarios.
      * If a scenario isn't in its known list ({@link #initAllScenarios()}), the client won't be
      * allowed to ask for it.  Any obsolete scenario should be kept around as commented-out code.
-     * See {@link SOCGameOptionSet#getAllKnownOptions()} for things to think about when removing
+     * See {@link SOCServerGameOptionSet#getAllKnownOptions()} for things to think about when removing
      * game options used only in the obsolete scenario.
      *
      * @return a fresh copy of the "known" scenarios, with their hardcoded default values
@@ -286,8 +284,8 @@ public class SOCServerScenario extends SOCScenario
      *
      * @return a deep copy of all known scenario objects
      * @see #getAllKnownScenarioKeynames()
-     * @see #addKnownScenario(SOCScenario)
-     * @see SOCGameOptionSet#getAllKnownOptions()
+//     * @see #addKnownScenario(SOCScenario)
+     * @see SOCServerGameOptionSet#getAllKnownOptions()
      */
     public static Map<String, SOCScenario> cloneAllKnownScenarios()
     {
@@ -297,10 +295,10 @@ public class SOCServerScenario extends SOCScenario
 
     /**
      * Get the key names for all known scenarios.
-     * This method avoids the copying overhead of {@link #getAllKnownScenarios()}.
+     * This method avoids the copying overhead of {@link #cloneAllKnownScenarios()}.
      * @return The set of all scenarios' key names, such as {@link #K_SC_4ISL SC_4ISL}.
      *    Please treat the returned set as read-only.
-     * @see #getAllKnownScenarios()
+     * @see #cloneAllKnownScenarios()
      */
 
     public static Set<String> getAllKnownScenarioKeynames()

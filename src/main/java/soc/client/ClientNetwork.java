@@ -61,18 +61,18 @@ import soc.util.Version;
  * Local practice server (if any) is started in {@link #startPracticeGame(String, SOCGameOptionSet)}.
  * Local tcp server (if any) is started in {@link #initLocalServer(int)}.
  *<br>
- * Messages from server to client are received in either {@link NetReadTask} or {@link LocalStringReaderTask},
- * which call the client's {@link MessageHandler#handle(SOCMessage, boolean)}.
+ * Messages from server to client are received in either {@link MemConnection#run()} or {@link NetConnection#run()},
+ * which call the client's {@link MessageHandler#handle(SOCMessage, Connection)}.
  *<br>
  * Messages from client to server are formed in {@link GameMessageSender} or other classes,
- * which call back here to send to the server via {@link #putNet(String)} or {@link #putPractice(String)}.
+ * which call back here to send to the server via {@link Connection#send(SOCMessage)}.
  *<br>
  * Network shutdown is {@link #disconnect()} or {@link #dispose()}.
  *<P>
  * Before v2.0.00, most of these fields and methods were part of the main {@link SOCPlayerClient} class.
  *
  * @author Paul Bilnoski &lt;paul@bilnoski.net&gt;
- * @since 2.0.00
+ * @since 3.0.00
  * @see SOCPlayerClient#getNet()
  */
 /*package*/ class ClientNetwork
@@ -104,7 +104,7 @@ import soc.util.Version;
     private MainDisplay mainDisplay;
 
     /**
-     * Server connection info. {@code null} until {@link #connect(String, int)} is called.
+     * Server connection info. {@code null} until {@link Connection#connect( boolean )} is called.
      * Unlike {@code connect} params, localhost is not represented here as {@code null}:
      * see {@link ServerConnectInfo#hostname} javadoc.
      *<P>
@@ -114,11 +114,10 @@ import soc.util.Version;
     protected ServerConnectInfo serverConnectInfo;
 
     /**
-     * Client-hosted TCP server. If client is running this server, it's also connected
-     * as a client, instead of being client of a remote server.
-     * Started via {@link SwingMainDisplay#startLocalTCPServer(int)}.
-     * {@link #practiceServer} may still be activated at the user's request.
-     * Note that {@link SOCGame#isPractice} is false for localTCPServer's games.
+     * Client-hosted server. It may be a TCP server ({@link SOCServer#SOCServer(int,int,String,String)}
+     * Started via {@link SwingMainDisplay#startLocalTCPServer(int)}, or an intra-JVM server
+     * {@link SOCServer#SOCServer(String)} started via {@link #startPracticeServer()}. Clients referencing
+     * field need not be aware of its underlying implementation.
      * @since 1.1.00
      */
     SOCServer localServer = null;
@@ -141,7 +140,7 @@ import soc.util.Version;
 
     /**
      * Any network error (TCP communication) received while connecting
-     * or sending messages in {@link #putNet(String)}, or null.
+     * or sending messages in {@link #netConnect(String, int)}, or null.
      * If {@code ex != null}, putNet will refuse to send.
      *<P>
      * The exception's {@link Throwable#toString() toString()} including its
@@ -171,7 +170,7 @@ import soc.util.Version;
      * Create our client's ClientNetwork.
      * Before using the ClientNetwork, caller client must construct their GUI
      * and call {@link #setMainDisplay(MainDisplay)}.
-     * Then, call {@link #connect(String, int)}.
+     * Then, call {@link Connection#connect( boolean )}.
      */
     public ClientNetwork( SOCPlayerClient playerClient )
     {
@@ -182,16 +181,16 @@ import soc.util.Version;
 
     /**
      * Set our MainDisplay; must be done after construction.
-     * @param md  MainDisplay to use
+     * @param mainDisplay  MainDisplay to use
      * @throws IllegalArgumentException if {@code md} is {@code null}
      */
-    public void setMainDisplay(final MainDisplay md)
+    public void setMainDisplay(final MainDisplay mainDisplay)
         throws IllegalArgumentException
     {
-        if (md == null)
+        if (mainDisplay == null)
             throw new IllegalArgumentException("null");
 
-        mainDisplay = md;
+        this.mainDisplay = mainDisplay;
     }
 
     /** Shut down the local TCP server (if any) and disconnect from the network. */
@@ -254,7 +253,7 @@ import soc.util.Version;
     }
 
     /**
-     * Start a practice game.  If needed, create and start {@link #practiceServer}.
+     * Start a practice game.  If needed, create and start {@link #localServer}.
      * @param practiceGameName  Game name
      * @param gameOpts  Game options, or {@code null}
      * @return True if the practice game request was sent, false if there was a problem
@@ -269,7 +268,7 @@ import soc.util.Version;
                 return false;
         }
 
-        // We only get here if the "Practice" button was pushed, so we can set the practice flag here.
+        // We only get here if the "Practice" button was pushed, so it's OK to set the practice flag here.
         isPracticeGame = true;
         Connection clientConnection = client.getConnection();
 
@@ -356,7 +355,7 @@ import soc.util.Version;
 
     /**
      * Port number of the tcp server we're a client of,
-     * or default {@link #SOC_PORT_DEFAULT} if not {@link #isConnected()}.
+     * or default {@link #SOC_PORT_DEFAULT} if not {@link SOCPlayerClient#isConnected()}.
      * @see #getHost()
      */
     public int getPort()
@@ -367,7 +366,7 @@ import soc.util.Version;
     /**
      * Hostname of the tcp server we're a client of,
      * from {@link ServerConnectInfo#hostname},
-     * or {@code null} if not {@link #isConnected()}.
+     * or {@code null} if not {@link SOCPlayerClient#isConnected()}.
      * @see #getPort()
      */
     public String getHost()
@@ -376,11 +375,12 @@ import soc.util.Version;
     }
 
     /**
-     * Attempts to connect to a local server. See {@link #isConnected()} for success or
+     * Attempts to connect to a local server. See {@link SOCPlayerClient#isConnected()} for success or
      * failure. Once connected, starts a client {@link MessageHandler} thread.
      * The first message sent from client to server is our {@link SOCVersion}.
      * Upon connection, if server is full, it sends a {@link SOCRejectConnection} message,
-     * otherwise it sends {@code SOCVersion} and current channels and games ({@link SOCChannels}, {@link SOCGames}).
+     * otherwise it sends {@code SOCVersion} and current channels and games ({@link soc.message.SOCChannels},
+     * {@link soc.message.SOCGames}).
      *
      * @throws IllegalStateException if already connected or otherwise unable to connect
      * @see soc.server.SOCServer#newConnection1(Connection)
@@ -415,11 +415,12 @@ import soc.util.Version;
     }
 
     /**
-     * Attempts to connect to a TCP server. See {@link #isConnected()} for success or
+     * Attempts to connect to a TCP server. See {@link SOCPlayerClient#isConnected()} for success or
      * failure. Once connected, starts a client {@link MessageHandler} thread.
      * The first message sent from client to server is our {@link SOCVersion}.
      * Upon connection, if server is full, it sends a {@link SOCRejectConnection} message,
-     * otherwise it sends {@code SOCVersion} and current channels and games ({@link SOCChannels}, {@link SOCGames}).
+     * otherwise it sends {@code SOCVersion} and current channels and games
+     * ({@link soc.message.SOCChannels}, {@link soc.message.SOCGames}).
      *<P>
      * Since user login and authentication don't occur until a game or channel join is requested,
      * no username or password is needed here.
@@ -539,7 +540,6 @@ import soc.util.Version;
 
     /**
      * Are we running a local server?
-     * @see #getLocalServerPort()
      * @see #anyHostedActiveGames()
      * @since 1.1.00
      */
@@ -553,7 +553,7 @@ import soc.util.Version;
      *
      * @return If any hosted games of ours are active
      * @see MainDisplay#hasAnyActiveGame(boolean)
-     * @see SwingMainDisplay#findAnyActiveGame(boolean)
+     * @see SwingMainDisplay#findAnyActiveGame()
      * @since 1.1.00
      */
     public boolean anyHostedActiveGames()

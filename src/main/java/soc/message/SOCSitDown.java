@@ -34,7 +34,7 @@ import java.util.StringTokenizer;
  * they should clear their inventory contents: See that constant's javadoc for details.
  *<P>
  * If human clients are joining a game which was reloaded from a saved snapshot
- * (game state {@link soc.game.SOCGame#LOADING}), the game might have unclaimed non-vacant seats
+ * (game state {@link soc.game.GameState#LOADING}), the game might have unclaimed non-vacant seats
  * which were a human player when game was saved, but no client is currently connected to.
  * SOCSitDown for those seats is sent with {@link #isRobot()} true so the client will show
  * a "Take Over" button for them.

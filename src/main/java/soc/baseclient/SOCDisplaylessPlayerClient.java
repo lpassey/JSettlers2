@@ -134,7 +134,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
     /**
      * This client's set of Known Options.
-     * Initialized from {@link SOCGameOptionSet#getAllKnownOptions()}, updated by
+     * Initialized from {@link soc.server.SOCServerGameOptionSet#getAllKnownOptions()}, updated by
      * {@link SOCGameOptionInfo} messages.
      * @see #allOptsReceived
      * @see #handleGAMEOPTIONINFO(SOCGameOptionInfo)
@@ -159,7 +159,6 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
     /**
      * Local server connection, if {@link ServerConnectInfo#memSocketName} != null.
-     * @see #sLocalVersion
      * @since 1.1.00
      */
     protected Connection connection;
@@ -211,7 +210,6 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * subclass methods such as {@link soc.robot.SOCRobotClient#init()} must do so.
      * 
      * @param sci  Server connect info (TCP or stringPort); not {@code null}
-     * @param visual  true if this client is visual
      * @throws IllegalArgumentException if {@code sci == null}
      * @since 2.2.00
      */
@@ -249,8 +247,8 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * For message types relevant to robots and automated clients, update our data from the
      * message contents. Other types will be ignored. Messages of unknown type are ignored.
      *<P>
-     *<B>Note:</B> <tt>{@link SOCRobotClient.dispatch( SOCMessage )}</tt> calls this method as its
-     * default case, for message types which have no robot-specific handling. For those that do,
+     *<B>Note:</B> <tt>{@link soc.robot.SOCRobotClient#dispatch( SOCMessage, Connection )}</tt> calls this method
+     * as its default case, for message types which have no robot-specific handling. For those that do,
      * the robot dispatch's switch case can call <tt>treat(mes)</tt> before or after any
      * robot-specific handling. (Before v2.0.00, the bot didn't call this method by default.)
      *<P>
@@ -929,7 +927,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     /**
      * Handle the "status message" message.
      * This stub does nothing except for {@link SOCStatusMessage#SV_SERVER_SHUTDOWN},
-     * which calls {@link #disconnect()}.
+     * which calls {@link Connection#disconnect()}.
      * @param mes  the message
      */
     protected void handleSTATUSMESSAGE(SOCStatusMessage mes)
@@ -1066,7 +1064,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
     /**
      * Handle all players' dice roll result resources.  Looks up the game and calls
-     * {@link #handleDICERESULTRESOURCES(SOCDiceResultResources, SOCGame)}
+     * {@link #handleDICERESULTRESOURCES(SOCDiceResultResources, SOCGame, String, boolean)}
      * so the players gain resources.
      * @since 2.0.00
      */
@@ -1086,13 +1084,13 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @param ga  Game to update
      * @param nickname  Our client player's nickname, needed only if {@code skipResourceCount} is false.
      *     Can be {@code null} otherwise.
-     *     See {@link #handlePLAYERELEMENT_simple(SOCGame, SOCPlayer, int, int, PEType, int, String)}.
+     *     See {@link #handlePLAYERELEMENT_simple(SOCGame, SOCPlayer,int, int, SOCPlayerElement.PEType, int, String )}.
      * @param skipResourceCount  If true, ignore the resource part of the message
      *     because caller will handle that separately; {@code nickname} can be {@code null}
      * @since 2.0.00
      */
-    public static void handleDICERESULTRESOURCES
-        (final SOCDiceResultResources mes, final SOCGame ga, final String nickname, final boolean skipResourceCount)
+    public static void handleDICERESULTRESOURCES( final SOCDiceResultResources mes, final SOCGame ga,
+        final String nickname, final boolean skipResourceCount )
     {
         final int n = mes.playerNum.size();
         for (int p = 0; p < n; ++p)  // current index reading from playerNum and playerRsrc
@@ -1280,7 +1278,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     }
 
     /**
-     * Handle the "game state" message; calls {@link #handleGAMESTATE(SOCGame, int)}.
+     * Handle the "game state" message; calls {@link #handleGAMESTATE(SOCGame, GameState)}.
      * @param mes  the message
      */
     protected void handleGAMESTATE(SOCGameState mes)
@@ -1296,7 +1294,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * Although this method is simple, it's useful as a central place to update that state.
      *
      * @param ga  Game to update state; not null
-     * @param newState  New state from message, like {@link SOCGame#ROLL_OR_CARD}, or 0. Does nothing if 0.
+     * @param newState  New state from message, like {@link GameState#ROLL_OR_CARD}, or 0. Does nothing if 0.
      * @see #handleGAMESTATE(SOCGameState)
      * @since 2.0.00
      */
@@ -1344,7 +1342,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
     /**
      * Handle the PlayerElements message: Finds game by name, and loops calling
-     * {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, int, int)}.
+     * {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, SOCPlayerElement.PEType, int, String)}
      * @param mes  the message
      * @since 2.0.00
      */
@@ -1365,7 +1363,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
     /**
      * handle the "player information" message: Finds game by name and calls
-     * {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, int, int)}.
+     * {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, SOCPlayerElement.PEType, int, String)}.
      * @param mes  the message
      */
     protected void handlePLAYERELEMENT(SOCPlayerElement mes)
@@ -1396,9 +1394,8 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      *     {@link PEType#RESOURCE_COUNT}. Can be {@code null} otherwise.
      * @since 2.0.00
      */
-    public static void handlePLAYERELEMENT
-        (final SOCGame ga, SOCPlayer pl, final int pn, final int action,
-         final PEType etype, final int amount, final String nickname)
+    public static void handlePLAYERELEMENT( final SOCGame ga, SOCPlayer pl, final int pn,
+        final int action, final PEType etype, final int amount, final String nickname)
     {
         if ((ga == null) || (etype == null))
             return;
@@ -1466,7 +1463,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
     /**
      * Update game data for a simple player element or flag, for
-     * {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, int, int)}.
+     * {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, SOCPlayerElement.PEType, int, String)}.
      * Handles ASK_SPECIAL_BUILD, NUM_PICK_GOLD_HEX_RESOURCES, SCENARIO_CLOTH_COUNT, etc.
      *<P>
      * To avoid code duplication, also called from
@@ -1489,9 +1486,8 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      *     {@link PEType#RESOURCE_COUNT}. Can be {@code null} otherwise.
      * @since 2.0.00
      */
-    public static void handlePLAYERELEMENT_simple
-        (SOCGame ga, SOCPlayer pl, final int pn, final int action,
-         final PEType etype, final int val, final String nickname)
+    public static void handlePLAYERELEMENT_simple( SOCGame ga, SOCPlayer pl, final int pn,
+        final int action, final PEType etype, final int val, final String nickname)
     {
         if (etype == null)
             return;
@@ -1613,7 +1609,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
     /**
      * Update a player's amount of a playing piece, for
-     * {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, int, int)}.
+     * {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, SOCPlayerElement.PEType, int, String)}.
      * To avoid code duplication, also called from
      * {@link soc.client.MessageHandler#handlePLAYERELEMENT(SOCPlayerElement)}
      * and {@link soc.robot.SOCRobotBrain#run()}.
@@ -1628,8 +1624,8 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @param amount    The new value to set, or the delta to gain/lose
      * @since 1.1.00
      */
-    public static void handlePLAYERELEMENT_numPieces
-        (final SOCPlayer pl, final int action, final int pieceType, final int amount)
+    public static void handlePLAYERELEMENT_numPieces( final SOCPlayer pl, final int action,
+        final int pieceType, final int amount)
     {
         switch (action)
         {
@@ -1649,7 +1645,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
     /**
      * Update a player's amount of knights, and game's largest army,
-     * for {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, int, int)}.
+     * for {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, SOCPlayerElement.PEType, int, String)}.
      * Calls {@link SOCGame#updateLargestArmy() ga.updateLargestArmy()}.
      * To avoid code duplication, also called from
      * {@link soc.client.MessageHandler#handlePLAYERELEMENT(SOCPlayerElement)}
@@ -1665,8 +1661,8 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @param amount    The new value to set, or the delta to gain/lose
      * @since 1.1.00
      */
-    public static void handlePLAYERELEMENT_numKnights
-        (final SOCGame ga, final SOCPlayer pl, final int action, final int amount)
+    public static void handlePLAYERELEMENT_numKnights( final SOCGame ga, final SOCPlayer pl,
+        final int action, final int amount)
     {
         switch (action)
         {
@@ -1687,7 +1683,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     }
 
     /**
-     * Update a player's amount of a resource, for {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, int, int)}.
+     * Update a player's amount of a resource, for {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, SOCPlayerElement.PEType, int, String)}.
      *<ul>
      *<LI> If this is a {@link SOCPlayerElement#LOSE} action, and the player does not have enough of that type,
      *     the rest are taken from the player's UNKNOWN amount.
@@ -1711,8 +1707,8 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @param amount    The new value to set, or the delta to gain/lose
      * @since 1.1.00
      */
-    public static void handlePLAYERELEMENT_numRsrc
-        (final SOCPlayer pl, final int action, final int rtype, final int amount)
+    public static void handlePLAYERELEMENT_numRsrc( final SOCPlayer pl, final int action,
+        final int rtype, final int amount)
     {
         switch (action)
         {
@@ -1733,14 +1729,18 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
              *   first convert player's known resources to unknown resources,
              *   then remove mes's unknown resources.
              */
-            pl.getResources().subtract(amount, rtype, true);
+            if (!pl.getResources().subtract(amount, rtype, true))
+            {
+                System.out.println( String.format( "failed to subtract %d resources of type %d from %s",
+                    amount, rtype, pl.getName() ));
+            }
             break;
         }
     }
 
     /**
      * Handle the GameElements message: Finds game by name, and loops calling
-     * {@link #handleGAMEELEMENT(SOCGame, GEType, int)}.
+     * static {@link #handleGAMEELEMENT( SOCGame, SOCGameElements.GEType, int )}.
      * @param mes  the message
      * @since 2.0.00
      */
@@ -1763,8 +1763,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * @param value  The new value to set
      * @since 2.0.00
      */
-    public static void handleGAMEELEMENT
-        (final SOCGame ga, final GEType etype, final int value)
+    public static void handleGAMEELEMENT( final SOCGame ga, final GEType etype, final int value )
     {
         if ((ga == null) || (etype == null))
             return;
@@ -1980,7 +1979,8 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     /**
      * Handle the "report robbery" message.
      * Updates game data by calling {@link #handlePLAYERELEMENT_numRsrc(SOCPlayer, int, int, int)}
-     * or {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, PEType, int, String)}.
+     * or {@link #handlePLAYERELEMENT(SOCGame, SOCPlayer, int, int, SOCPlayerElement.PEType, int, String)}.
+     *
      * Does nothing if {@link SOCReportRobbery#isGainLose mes.isGainLose} but
      * {@link SOCReportRobbery#amount mes.amount} == 0 and {@link SOCReportRobbery#resSet} is null.
      *<P>
@@ -2011,7 +2011,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
                 if (perp != null)
                     handlePLAYERELEMENT( ga, perp, perpPN, SOCPlayerElement.GAIN, peType, mes.amount, null );
                 if (victim != null)
-                    handlePLAYERELEMENT(ga, victim, victimPN, SOCPlayerElement.LOSE, peType, mes.amount, null);
+                    handlePLAYERELEMENT( ga, victim, victimPN, SOCPlayerElement.LOSE, peType, mes.amount, null);
             }
             else
             {
@@ -2159,34 +2159,35 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     }
 
     /**
-     * Handle one dev card's game data update for {@link #handleDEVCARDACTION(boolean, SOCDevCardAction)}.
+     * Handle one dev card's game data update for {@link #handleDEVCARDACTION( SOCDevCardAction)}.
      * For {@link SOCDevCardAction#PLAY}, calls {@link SOCPlayer#updateDevCardsPlayed(int)}.
      *
      * @param ga  Game being updated
      * @param player  Player in {@code ga} being updated
-     * @param act  Action being done: {@link SOCDevCardAction#DRAW}, {@link SOCDevCardAction#PLAY PLAY},
+     * @param action  Action being done: {@link SOCDevCardAction#DRAW}, {@link SOCDevCardAction#PLAY PLAY},
      *     {@link SOCDevCardAction#ADD_OLD ADD_OLD}, or {@link SOCDevCardAction#ADD_NEW ADD_NEW}
-     * @param ctype  Type of development card from {@link SOCDevCardConstants}
+     * @param devCardType  Type of development card from {@link SOCDevCardConstants}
      * @see soc.client.MessageHandler#handleDEVCARDACTION(SOCGame, SOCPlayer, boolean, int, int)
      * @since 2.4.50
      */
-    protected void handleDEVCARDACTION( final SOCGame ga, final SOCPlayer player, final int act, final int ctype)
+    protected void handleDEVCARDACTION( final SOCGame ga, final SOCPlayer player, final int action,
+        final int devCardType)
     {
         // if you change this method, consider changing MessageHandler.handleDEVCARDACTION too
-        switch (act)
+        switch (action)
         {
         case SOCDevCardAction.ADD_NEW:
         case SOCDevCardAction.DRAW:
-            player.getInventory().addDevCard(1, SOCInventory.NEW, ctype);
+            player.getInventory().addDevCard(1, SOCInventory.NEW, devCardType);
             break;
 
         case SOCDevCardAction.PLAY:
-            player.getInventory().removeDevCard(SOCInventory.OLD, ctype);
-            player.updateDevCardsPlayed(ctype);
+            player.getInventory().removeDevCard(SOCInventory.OLD, devCardType);
+            player.updateDevCardsPlayed(devCardType);
             break;
 
         case SOCDevCardAction.ADD_OLD:
-            player.getInventory().addDevCard(1, SOCInventory.OLD, ctype);
+            player.getInventory().addDevCard(1, SOCInventory.OLD, devCardType);
             break;
         }
     }
@@ -2986,9 +2987,9 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
 
     /**
      * The user chose a player to steal from,
-     * or (game state {@link SOCGame#WAITING_FOR_ROBBER_OR_PIRATE})
+     * or (game state {@link GameState#WAITING_FOR_ROBBER_OR_PIRATE})
      * chose whether to move the robber or the pirate,
-     * or (game state {@link SOCGame#WAITING_FOR_ROB_CLOTH_OR_RESOURCE})
+     * or (game state {@link GameState#WAITING_FOR_ROB_CLOTH_OR_RESOURCE})
      * chose whether to steal a resource or cloth.
      *
      * @param ga  the game

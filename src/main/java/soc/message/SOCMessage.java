@@ -456,7 +456,7 @@ public abstract class SOCMessage implements Serializable, Cloneable
 
     /**
      * {@link SOCDisconnect} - Notice to a peer that a connection is being disconnected
-     * @Since 3.0.0
+     * @since 3.0.0
      */
     public static final int DISCONNECT = 1103;
 

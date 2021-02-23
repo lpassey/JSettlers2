@@ -148,8 +148,8 @@ public class TradePanel extends ShadowedBox
      * Current convention sets this field to client player, if any.
      * @see #setPlayer(SOCPlayer, int)
      * @see #playerResourceButtonNumber
-     * @see #playerIsRow1
-     * @see #offeredToPlayer
+     * @see #isPlayerRow1
+     * @see #isOfferToPlayer
      */
     private SOCPlayer player;
 
@@ -192,8 +192,8 @@ public class TradePanel extends ShadowedBox
 
     /**
      * Countdown timer to auto-reject offers from bots. Uses {@link #lineBelow}.
-     * Created when countdown needed in {@link #updateTradeOffer(SOCTradeOffer)}.
-     * See {@link AutoRejectTask} javadoc for details.
+     * Created when countdown needed in {@link #setTradeOffer(SOCTradeOffer)}.
+     * See {@link TradePanel.AutoRejectTask} javadoc for details.
      */
     private AutoRejectTask rejTimerTask;
 
@@ -294,7 +294,8 @@ public class TradePanel extends ShadowedBox
      * @param listener   Listener for callbacks when buttons pressed; not {@code null}
      * @param displayScale  For high-DPI displays, what scaling factor to use? Unscaled is 1.
      * @throws IllegalArgumentException  if {@code buttonTexts} is null or length != 3,
-     *     or {@code hpan} or {@code listener} or {@ {@code sqLabel1} or {@link sqLabel2} is null
+     *     or {@code hpan} or {@code listener} or {@code sqLabelTexts} is null or its length
+     *     is not 2 and also not 4. TODO: how can this not always be false?
      */
     public TradePanel
         (final String[] buttonTexts, final String[] sqLabelTexts, boolean isPlayerRow1, boolean hasLine2,
@@ -454,7 +455,7 @@ public class TradePanel extends ShadowedBox
      * Should be called when already showing an offer or about to do so.
      * Not for use in a counter-offer panel.
      *
-     * @param currentOffer  Trade offer details from hand panel's non-client player,
+     * @param offer  Trade offer details from hand panel's non-client player,
      *     or null to only clear resource squares to 0 and clear {@link #isOfferToPlayer()} flag.
      * @see #setTradeResources(SOCResourceSet, SOCResourceSet)
      * @see #updateOfferButtons()
@@ -783,7 +784,6 @@ public class TradePanel extends ShadowedBox
 
     /**
      * Custom layout for this OfferPanel, including the components within
-     * its offer {@link #balloon} and counter-offer {@link #counterOfferBox}.
      */
     public void doLayout()
     {

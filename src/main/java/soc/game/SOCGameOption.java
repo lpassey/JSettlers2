@@ -38,7 +38,7 @@ import soc.util.Version;
  * This class has two purposes:
  *<UL>
  * <LI> Per-game values of options
- * <LI> Static set of Known Options: see {@link SOCGameOptionSet#getAllKnownOptions()} for the current list.
+ * <LI> Static set of Known Options: see {@link soc.server.SOCServerGameOptionSet#getAllKnownOptions()} for the current list.
  *</UL>
  * Also handles packing/parsing sets of options to/from Strings.
  *<P>
@@ -47,7 +47,7 @@ import soc.util.Version;
  * and robot clients both want to change their "known options" in different ways.
  *<P>
  * For information about adding or changing game options in a
- * later version of JSettlers, please see {@link SOCGameOptionSet#getAllKnownOptions()}.
+ * later version of JSettlers, please see {@link soc.server.SOCServerGameOptionSet#getAllKnownOptions()}.
  *
  *<H3>Naming and referencing Game Options</H3>
  *
@@ -76,7 +76,8 @@ import soc.util.Version;
  * name keys with '_' or longer than 3 characters can't be sent to older clients.
  * Options starting with '_' are meant to be set by the server during game creation,
  * not requested by the client. They're set during
- * {@link SOCGameOptionSet#adjustOptionsToKnown(Map, boolean, SOCFeatureSet) SOCGameOptionSet.adjustOptionsToKnown(getAllKnownOptions(), true, cliFeats)}.
+ * {@link soc.server.SOCServerGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet, Map)
+ * soc.server.SOCServerGameOptionSet.adjustOptionsToKnown(getAllKnownOptions(), true, cliFeats)}.
  *<P>
  * For the same reason, option string values (and enum choices) must not contain
  * certain characters or span more than 1 line; this is checked by calling
@@ -84,7 +85,7 @@ import soc.util.Version;
  *
  *<H3>Known Options and interaction</H3>
  *
- * The "known options" are initialized via {@link SOCGameOptionSet#getAllKnownOptions()}. See that
+ * The "known options" are initialized via {@link soc.server.SOCServerGameOptionSet#getAllKnownOptions()}. See that
  * method's description for more details on adding an option.
  * If a new option changes previously expected behavior of the game, it should default to
  * the old behavior; its default value on your server can be changed at runtime.
@@ -92,7 +93,8 @@ import soc.util.Version;
  * Since 1.1.13, when the user changes options while creating a new game, related
  * options can be changed on-screen for consistency; see {@link SOCGameOption.ChangeListener} for details.
  * If you create a ChangeListener, consider adding equivalent code to
- * {@link SOCGameOptionSet#adjustOptionsToKnown(Map, Map, boolean)} for the server side.
+ * {@link soc.server.SOCServerGameOptionSet#adjustOptionsToKnown((SOCGameOptionSet, boolean, SOCFeatureSet, Map))}
+ * for the server side.
  *
  *<H3>Sea Board Scenarios</H3>
  *
@@ -113,7 +115,7 @@ import soc.util.Version;
  * The server's owner can choose to {@link SOCGameOptionSet#activate(String)} the option during server startup,
  * making it visible and available for games.
  *<P>
- * Added in 2.4.50, also compatible with earlier clients. Example: {@link #K_PLAY_VPO "PLAY_VPO"}.
+ * Added in 2.4.50, also compatible with earlier clients. Example: {@link SOCGameOptionSet#K_PLAY_VPO "PLAY_VPO"}.
  *
  *<H3>Third-Party Options</H3>
  *
@@ -150,8 +152,8 @@ import soc.util.Version;
  * Game option descriptions are also stored as {@code gameopt.*} in
  * {@code server/strings/toClient_*.properties} to be sent to clients if needed
  * during version negotiation. At the client, option's text can be localized with {@link #setDesc(String)}.
- * See unit test {@link soctest.TestI18NGameoptScenStrings} and
- * {@link soc.server.SOCServerMessageHandler#handleGAMEOPTIONGETINFOS(soc.server.genericServer.Connection, soc.message.SOCGameOptionGetInfos) SOCServerMessageHandler.handleGAMEOPTIONGETINFOS(..)}.
+ * See unit test {@link soctest.i18n.TestI18NGameoptScenStrings} and
+ * {@link soc.server.SOCServerMessageHandler#handleGAMEOPTIONGETINFOS(soc.communication.Connection, soc.message.SOCGameOptionGetInfos) SOCServerMessageHandler.handleGAMEOPTIONGETINFOS(..)}.
  *<P>
  * @author Jeremy D. Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.07
@@ -173,8 +175,8 @@ public class SOCGameOption
      * or {@link #OTYPE_INTBOOL}; blank for {@link #OTYPE_STR} or {@link #OTYPE_STRHIDE};
      * {@link #defaultIntValue} for {@link #OTYPE_INT} or {@link #OTYPE_ENUM})
      *<P>
-     * Only recommended for seldom-used options.
-     * The removal is done in {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}.
+     * Only recommended for seldom-used options The removal is done in
+     * {@link soc.server.SOCServerGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet, Map)}.
      * Once this flag is set for an option, it should not be un-set if the
      * option is changed in a later version.
      *<P>
@@ -244,7 +246,7 @@ public class SOCGameOption
      *      their name key: {@code "_3"}, {@code "T3"}, etc. This avoids a naming conflict,
      *      since built-in options will never have {@code '3'} in that position
      * <LI> Unless the server and client both know the third-party option and its client feature
-     *      in their {@link SOCGameOptionSet#getAllKnownOptions()} methods,
+     *      in their {@link soc.server.SOCServerGameOptionSet#getAllKnownOptions()} methods,
      *      it will be ignored/unknown during the game option info synchronization/negotiation
      *      process done when the client connects
      *</UL>
@@ -336,7 +338,7 @@ public class SOCGameOption
 
     // If you create a new option type,
     // please update parseOptionsToMap(), packOptionsToString(),
-    // SOCGameOptionSet.adjustOptionsToKnown(), and soc.message.SOCGameOptionGetInfo,
+    // SOCServerGameOptionSet.adjustOptionsToKnown(), and soc.message.SOCGameOptionGetInfo,
     // and other places.
     // (Search *.java for "// OTYPE_*" to find all locations)
 
@@ -548,7 +550,7 @@ public class SOCGameOption
      * @param flags   Option flags such as {@link #FLAG_DROP_IF_UNUSED}, or 0;
      *                Remember that older clients won't recognize some gameoption flags.
      * @param enumVals text to display for each possible choice of this option.
-     *                Please see the explanation at {@link SOCGameOptionSet#getAllKnownOptions()} about
+     *                Please see the explanation at {@link soc.server.SOCServerGameOptionSet#getAllKnownOptions()} about
      *                changing or adding to enumVals in later versions.
      * @param desc Descriptive brief text, to appear in the options dialog; may
      *             contain a placeholder character '#' where the enum's popup-menu goes.
@@ -1133,7 +1135,7 @@ public class SOCGameOption
     /**
      * Utility - build a string of option name-value pairs from the Known Options' current values.
      *
-     * @param knownOpts  Known Options, from {@link SOCGameOptionSet#getAllKnownOptions()}; not null
+     * @param knownOpts  Known Options, from {@link soc.server.SOCServerGameOptionSet#getAllKnownOptions()}; not null
      * @param hideEmptyStringOpts omit string-valued options which are empty?
      *            Suitable only for sending defaults.
      * @param hideLongNameOpts omit options with long key names or underscores?
@@ -1289,7 +1291,7 @@ public class SOCGameOption
      * See {@link #packOptionsToString(Map, boolean, boolean)} for the string's format.
      *
      * @param sb Pack into (append to) this buffer
-     * @eee #getPackedValue()
+     * @see #getPackedValue()
      * @see #toString()
      */
     public void packValue( StringBuilder sb )
@@ -1866,8 +1868,8 @@ public class SOCGameOption
      * Callback method is {@link #valueChanged(SOCGameOption, Object, Object, SOCGameOptionSet, SOCGameOptionSet)}.
      * Called from <tt>NewGameOptionsFrame</tt>.
      *<P>
-     * For <em>server-side</em> consistency adjustment of values before creating games,
-     * add code to {@link SOCGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet)}
+     * For <em>server-side</em> consistency adjustment of values before creating games, add code to
+     * {@link soc.server.SOCServerGameOptionSet#adjustOptionsToKnown(SOCGameOptionSet, boolean, SOCFeatureSet, Map)}
      * that's equivalent to your ChangeListener.
      *
      * @see SOCGameOption#addChangeListener(ChangeListener)
