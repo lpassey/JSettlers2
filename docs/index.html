@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<!--suppress HtmlRequiredAltAttribute -->
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="utf-8" />
+	<title>JSettlers3 Design Concepts</title>
+<!--	<base href="https://lpassey.github.io/JSettlers-javadoc/javadoc/soc/message/" target="_self">-->
+	<style>
+		td:first-child { width: 5em }
+		td:first-child + td { width: 12em; text-align: right; padding-right: .5em }
+	</style>
+</head>
+<body>
+<h2 style="text-align: center">JSettlers3 Design Concepts</h2>
+<p>This version of JSettlers3 is designed to be a client/server application. JSettlersServer[version].jar
+	will launch a network server application which accepts connections from clients using the TCP protocol.
+	JSettlersClient[version].jar is used to connect to a server application using the TCP protocol.
+	The combined client/server jar file, JSettlers[-version].jar, can start a server using the TCP
+	protocol, an internal messaging protocol, or both, and can connect to an external server via TCP
+	or the local server using internal messaging.</p>
+
+<p>In all cases, coordination between the client User Interface, and the server game control is
+	performed by sending and receiving messages. The goal is that the client should have no awareness
+	of game play, simply responding to server messages, and that the server should have no knowledge
+	of the display or user interaction except to the extent that these actions are communicated via a message.</p>
+
+<p>The purpose of this document is to describe the sequence of messages that typically occur during
+	game play. For the exact description of each message, consult the Javadocs for that message.
+	Whatever message queuing system is used to exchange messages, messages must be serialized and
+	deserialized faithfully, so that each message received is an exact duplicate of the message sent.</p>
+
+<h3>There are several phases to using JSettlers3. </h3>
+
+<p>In the first phase of operation of JSettlers2 the game server and the client application must be
+	launched. These two things can be done in any order, but if the client application is launched
+	first its UI will permit a user to launch the game server from the client application. The
+	command-line method of launching the server will start a network based game server that will
+	communicate with its clients via the TCP protocol. If the game server is launched from the client
+	application, a user has the option of launching a server that can communicate with the client
+	only via an internal communication channel that does not use TCP. In this case, only the client
+	(and robots) will be able to participate in "practice" games.
+</p>
+<h4>A description of the JSettlers3 connection model can be found <a href="">here</a>.</h4>
+
+<h3><em>Handshake</em> phase</h3>
+<p>In the next phase of operation, the client must connect to a game server. If the game server was
+	launched as a local "practice" server, the client automatically initiates the connection.
+	Otherwise, the client will provide a UI for the user to select a network host and port of the
+	server to connect with. The client also requests a user nickname; in the case of the "practice"
+	server the user nickname is automatically set to "Player".
+</p>
+<p>
+	Immediately after connecting to a server, the <em>handshake</em> phase begins by the client sending an
+	<a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCVersion.html">SOCVersion</a>
+	message to the server. The message will indicate the version and build string of the client, as
+	well as features it supports. Going forward, most of the contents of the message will be obsoleted.
+	A short exchange of methods will the occur at the end of which the client should be able to join
+	a chat channel with other players, join	an existing game, or create a new game.</p>
+
+<h4>A messaging sequence diagram for the initial <em>client/server handshake</em> can be found <a href="">here</a>.</h4>
+
+<p style="display: none">Upon receiving the SOCVersion message from the client, the server responds with its own SOCVersion
+	message, followed by an SOCChannels message indicating what chat channels are available, and then
+	an SOCGamesWithOptions message indicating what games are available to be joined. It is possible
+	that either or both of these messages will have no content, but the messages must be sent and
+	received. This completes the client/server handshake.</p>
+
+<h3><em>Option Discovery</em> phase (optional)</h3>
+<p>To create a new game	the client must first discover what game options the server supports so it
+	can create a UI allowing a player to select options and maybe change some default values. This
+	<em>option discovery</em> phase begins when the client sends an
+	<a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCGameOptionGetDefault.html">SOCGameOptionGetDefault</a> message
+	to the server. If the client knows some of the options and their default values it can include a
+	list of those options in the message. The server will respond with a list of those options and
+	their defaults that it supports and which were not listed in the client message, as well as
+	other information useful to the client to allow the user to create a new game.</p>
+
+<p>Current known options and their defaults are described in the Javadocs for the
+	<a href="https://lpassey.github.io/JSettlers2-javadoc/soc/game/SOCGameOptionSet.html">SOCGameOptionSet</a>
+	class. Option keys that begin with "_SC_" are options specific to a game scenario.
+	To learn more about game option properties, consult the Javadocs associated with the
+	<a href="https://lpassey.github.io/JSettlers2-javadoc/soc/game/SOCGameOption.html">SOCGameOption</a> class.</p>
+
+<p>At the end of the <em>option discovery</em> phase the client should have all the information
+	required to show the user a dialog to create a new game. The client will present a list of all
+	scenarios, known to the server, for the user to select when creating a new game.</p>
+<h4>A description and messaging sequence diagram for the <em>option discovery</em> phase can be found <a href="options.html">here</a>.</h4>
+
+<h3><em>Game Creation</em> phase</h3>
+<p>Once the user has selected the desired options (or has accepted the defaults) and selected a
+	scenario if desired, the client will begin the <em>game creation</em> phase by sending an
+	<a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCNewGameWithOptionsRequest.html">SOCNewGameWithOptionsRequest</a>
+	message to the server requesting that a new game be created with the selected options.</p>
+<!--
+Client - SOCNewGameWithOptionsRequest:nickname=User|password empty|host=	|game=test
+	|opts=_SC_FOG=f,BC=t3,_SC_SANY=f,_SC_3IP=f,NT=f,PLB=f,N7=t7,_SC_PIRI=f,
+	_SC_CLVI=f,_SC_SEAC=f,SC=,_SC_FTRI=f,RD=f,_SC_WOND=f,PLP=f,_SC_0RVP=f,VP=f10,
+	N7C=f,SBL=f,PL=4
+-->
+<p>When the game server creates a new game it will send an
+	<a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCNewGameWithOptions.html">SOCNewGameWithOptions</a>
+	message to every client indicating that the new game was created, allowing those clients to
+	update their lists of available games.</p>
+<!--
+Server - SOCNewGameWithOptions:game=test|param1=-1|param2=BC=t3,N7=t7,RD=f,PL=4
+-->
+<p>Typically the client will automatically send an
+	<a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCJoinGame.html">SOCJoinGame</a>
+	message to the game server immediately after completing  requesting to join the game that it just
+	created. A client may postpone this request and join the game at a later time if desired.</p>
+
+<h3><em>Join Game</em> phase</h3>
+
+<p>To join an existing or newly created game the client will send an
+	<a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCJoinGame.html">SOCJoinGame</a>
+	message to the game server with a requested nickname and the name of the game it wishes to join.
+	If the game server requires player authentication a password must also be included. The server
+	will respond with a series of messages indicating which seats are available, and which "face"
+	icon should be used for each player.
+</p>
+
+<h4>A description and messaging sequence diagram for the <em>Join Game</em> phase can be found
+	<a href="joingame.html">here</a>.</h4>
+
+<div style="display: none">
+Example:
+
+
+Server - SOCJoinGameAuth:game=test
+
+	Join existing game sequence -
+
+	OUT [AWT-EventQueue-0] - null - SOCJoinGame:nickname=lee|password empty|host=	|game=new
+	IN - [connection-localhost-8880] null - SOCJoinGameAuth:game=new
+	IN - [connection-localhost-8880] null - SOCStatusMessage:status=Welcome to Java Settlers of Catan!
+
+	Remainder is identical for both cases:
+
+	After the SOCJoinGameAuth message, the client is sent all relevant game and player information.
+
+Server - SOCSetSeatLock:game=test|states=UNLOCKED,UNLOCKED,UNLOCKED,UNLOCKED
+Server - SOCPotentialSettlements:game=test|playerNum=-1|list=83 85 87 89 8b 8d 94 96 98 9a 9c 23 25 a5 27 a7 a9 ab ad 32 34 36 b6 38 b8 ba bc 43 45 47 c7 49 c9 cb cd 52 54 56 58 d8 5a da dc 63 65 67 69 6b 72 74 76 78 7a 7c 
+
+Server - SOCGameElements:game=test|e4=-1
+
+Server - SOCPlayerElements:game=test|playerNum=0|actionType=SET|e18=0,e6=0,e15=0,e10=15,e11=5,e12=4
+Server - SOCChangeFace:game=test|playerNumber=0|faceId=1
+Server - SOCDiceResult:game=test|param=-1
+
+Server - SOCPlayerElements:game=test|playerNum=1|actionType=SET|e18=0,e6=0,e15=0,e10=15,e11=5,e12=4
+Server - SOCChangeFace:game=test|playerNumber=1|faceId=1
+
+Server - SOCPlayerElements:game=test|playerNum=2|actionType=SET|e18=0,e6=0,e15=0,e10=15,e11=5,e12=4
+Server - SOCChangeFace:game=test|playerNumber=2|faceId=1
+
+Server - SOCPlayerElements:game=test|playerNum=3|actionType=SET|e18=0,e6=0,e15=0,e10=15,e11=5,e12=4
+Server - SOCChangeFace:game=test|playerNumber=3|faceId=1
+
+Server - SOCGameElements:game=test|e2=25,e1=0,e3=-1,e6=-1,e5=-1
+Server - SOCGameMembers:game=test|members=[User]
+Server - SOCGameState:game=test|state=NEW_GAME
+
+Their joining is then announced to all game members with an SOCJoinGame message.
+
+Server - SOCJoinGame:nickname=User|password empty|host=	|game=test
+
+
+	IN - [connection-localhost-8880] null - SOCSetSeatLock:game=new|states=UNLOCKED,UNLOCKED,UNLOCKED,UNLOCKED
+	IN - [connection-localhost-8880] null - SOCPotentialSettlements:game=new|playerNum=-1|list=83 85 87 89 8b 8d 94 96 98 9a 9c 23 25 a5 27 a7 a9 ab ad 32 34 36 b6 38 b8 ba bc 43 45 47 c7 49 c9 cb cd 52 54 56 58 d8 5a da dc 63 65 67 69 6b 72 74 76 78 7a 7c
+	IN - [connection-localhost-8880] null - SOCGameElements:game=new|e4=-1
+
+	IN - [connection-localhost-8880] null - SOCPlayerElements:game=new|playerNum=0|actionType=SET|e18=0,e6=0,e15=0,e10=15,e11=5,e12=4
+	IN - [connection-localhost-8880] null - SOCChangeFace:game=new|playerNumber=0|faceId=1
+	IN - [connection-localhost-8880] null - SOCDiceResult:game=new|param=-1
+
+	IN - [connection-localhost-8880] null - SOCPlayerElements:game=new|playerNum=1|actionType=SET|e18=0,e6=0,e15=0,e10=15,e11=5,e12=4
+	IN - [connection-localhost-8880] null - SOCChangeFace:game=new|playerNumber=1|faceId=1
+
+	IN - [connection-localhost-8880] null - SOCPlayerElements:game=new|playerNum=2|actionType=SET|e18=0,e6=0,e15=0,e10=15,e11=5,e12=4
+	IN - [connection-localhost-8880] null - SOCChangeFace:game=new|playerNumber=2|faceId=1
+
+	IN - [connection-localhost-8880] null - SOCPlayerElements:game=new|playerNum=3|actionType=SET|e18=0,e6=0,e15=0,e10=15,e11=5,e12=4
+	IN - [connection-localhost-8880] null - SOCChangeFace:game=new|playerNumber=3|faceId=1
+
+	IN - [connection-localhost-8880] null - SOCGameElements:game=new|e2=25,e1=0,e3=-1,e6=-1,e5=-1
+	IN - [connection-localhost-8880] null - SOCGameMembers:game=new|members=[hp, lee]
+	IN - [connection-localhost-8880] null - SOCGameState:game=new|state=NEW_GAME
+
+	IN - [connection-localhost-8880] null - SOCJoinGame:nickname=lee|password empty|host=	|game=new
+
+</div>
+<h3><em>Initial Game Setup</em> phase</h3>
+<p>(The player picks an open seat, and starts the game. The server selects a player at random to start,
+	each player places a road and settlement.)</p>
+<h4>A messaging sequence diagram for the initial game setup can be found <a href="">here</a>.</h4>
+
+<h3><em>Play</em> phase</h3>
+<p>At the beginning of each round the server will send an
+	<a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCPlayDevCardRequest.html">SOCTurn</a>
+	message to all clients indicating the seat number of the player whose turn it is to roll the dice,
+	and setting the game state to <em>ROLL_OR_CARD</em>. The server will then send an SOCRollDicePrompt to
+	every client to indicated that the designated client may now request a dice roll.</p>
+<p>The designated client may now play a "Soldier" development card by sending an
+	<a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCPlayDevCardRequest.html">SOCPlayDevCardRequest</a>
+	message to the server, or may request that the server roll the dice by sending an
+	<a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCPlayDevCardRequest.html">SOCRollDice</a>
+	message.
+</p>
+<p>The game server's responses to each of these messages depends on the actions precipitated by the
+	message.</p>
+<h4>The <em>Roll Dice</em> messaging sequence diagram for the beginning of a player's turn can be found <a href="rolls.html">here</a>.</h4>
+
+<h4>The <em>Play Soldier card</em> messaging sequence diagram for playing a "Soldier" development card
+	card can be found <a href="knights.html">here</a>.</h4>
+<p>Once the "dice" have been "rolled", the robber potentially moved, and resources distributed, the
+	designated player can "spend" his or her resources to build roads, ships, settlements or cities,
+	or to buy more development cards. In order to change the resources a client possesses it may trade
+	with other players, or with the "bank." Trading and buying can occur in any order and any number
+	of times until the client indicates its turn is over by sending an
+	<a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCEndTurn.html">SOCEndTurn</a>
+	message to the server.
+
+
+<h4>The <em>Trade Resource</em> messaging sequence diagram for the beginning of a player's turn can be found <a href="">here</a>.</h4>
+
+<h4>The <em>Buy and Build</em> messaging sequence diagram for building can be found <a href="">here</a>.</h4>
+
+</body>
+</html>
