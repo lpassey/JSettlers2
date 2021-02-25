@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+
+<!--suppress HtmlRequiredAltAttribute -->
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Sequence diagram for playing "Soldier" development cards</title>
+    <base href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/" target="_self">
+    <style>
+        td:first-child { width: 5em }
+        td:first-child + td { width: 12em; text-align: right; padding-right: .5em }
+    </style>
+</head>
+<body>
+    <p>This is a sequence diagram for the messages passed between clients and the server when a
+        "Soldier" type development card is played, either before the dice are rolled, or afterwards.</p>
+    <p>Arrows labeled "ONE" represent messages going to a single client; other
+        clients will not be aware of these messages. Individual messages typically contain a data field
+        indicating the intended player number; this is not always the case.</p>
+    <p>Arrows labeled "ALL" represent messages going from the game server to every client, except in
+        those instances where an identical message is sent to a client separately. In the case where
+        individual messages are sent separately to clients, this message is sent only to clients
+        that did not receive an individual message.</p>
+    <p>Arrows labeled "SERVER" represent messages going from a single client to the game server,
+        typically in response to a message from the server. The server may or may not share the
+        contents of that message with other clients.</p>
+    <h2 style="text-align: center">Messaging sequence for creating and joining games.</h2>
+
+<!--
+    <table>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCPlayerElement.html">SOCPlayerElement:</a></td>
+            <td>SET dev card played flag to <em>false</em></td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCTurn.html">SOCTurn:</a></td>
+            <td>Indicates the seat number whose turn it is and sets game state to <em>ROLL_OR_CARD</em></td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCRollDicePrompt.html">SOCRollDicePrompt:</a></td>
+            <td>Prompts a seat number to roll the dice</td></tr>
+    </table><br/>
+    <h3 style="padding-left: 5em">IF SOLDIER IS PLAYED BEFORE THE ROLL — BEGIN</h3>
+    <table>
+        <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
+            <td><a href="SOCPlayDevCardRequest.html">SOCPlayDevCardRequest:</a></td>
+            <td>devCard=9</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCGameServerText.html">SOCGameServerText:</a></td>
+            <td>text=player one played a Soldier card.</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCDevCardAction.html">SOCDevCardAction:</a></td>
+            <td>card type 9 played by player</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCPlayerElement.html">SOCPlayerElement:</a></td>
+            <td>SET dev card played flag to <em>true</em> for the specific player</td> </tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCPlayerElement.html">SOCPlayerElement:</a></td>
+            <td>Soldier card count increased by one for the specific player</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCGameState.html">SOCGameState:</a></td>
+            <td>state=<em>PLACING_ROBBER</em></td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCGameServerText.html">SOCGameServerText:</a></td>
+            <td>text=player will move the robber.</td></tr>
+
+        <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
+            <td><a href="SOCMoveRobber.html">SOCMoveRobber:</a></td>
+            <td>player owning turn moves robber to coordinates</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCMoveRobber.html">SOCMoveRobber:</a></td>
+            <td>robber was moved to coordinates</td></tr>
+    </table>
+    <h4 style="padding-left: 10em"><STRONG>IF THE PLAYER MUST CHOOSE ONE OF MULTIPLE VICTIMS &mdash; BEGIN</STRONG></h4>
+    <table>
+                <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+                    <td><a href="SOCGameServerText.html">SOCGameServerText:</a></td>
+                    <td>text=player moved the robber. Must choose a victim.</td></tr>
+                <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+                    <td><a href="SOCGameState.html">SOCGameState:</a></td>
+                    <td>state=<em>WAITING_FOR_ROB_CHOOSE_PLAYER</em></td>
+                </tr>
+-->
+                <!-- choices are players touching this hex -- >
+                <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
+                    <td><a href="SOCChoosePlayerRequest.html">SOCChoosePlayerRequest:</a></td>
+                    <td>choices=[false, false, true, true]</td></tr>
+                <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
+                    <td><a href="SOCChoosePlayer.html">SOCChoosePlayer:</a></td>
+                    <td>choice = index into choices array</td></tr>
+    </table>
+    <h4 style="padding-left: 10em"><STRONG>END -- PLAYER MUST CHOOSE VICTIM</STRONG></h4>
+    <table>
+        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
+            <td><a href="SOCReportRobbery.html">SOCReportRobbery:</a></td>
+            <td>resource stolen; thief and victim are told resource type </td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCReportRobbery.html">SOCReportRobbery:</a></td>
+            <td>resources stolen; all other player are told type is unknown</td></tr>
+
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCGameState.html">SOCGameState:</a></td>
+            <td>state=<em>ROLL_OR_CARD</em> - resets to pre-roll state.</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCRollDicePrompt.html">SOCRollDicePrompt:</a></td>
+            <td>Again prompts the player to roll the dice</td></tr>
+    </table>
+    <h3 style="padding-left: 5em"><STRONG>END &mdash; SOLDIER IS PLAYED BEFORE THE ROLL</STRONG></h3>
+    <table>
+        <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
+            <td><a href="SOCRollDice.html">SOCRollDice:</a></td>
+            <td>The specified client asks the server to roll the dice</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCDiceResult.html">SOCDiceResult:</a></td>
+            <td>The number rolled</td></tr>
+        <tr><td style="padding-left: 5em" colspan="3">&nbsp;&mdash;&nbsp;For messaging sequences in the case of a dice result of '7', see the
+            <a href="https://lpassey.github.io/JSettlers2/rolls.html">Sequence Diagram for Dice Rolls</a>.</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-all.png" /></td>
+            <td><a href="SOCGameState.html">SOCGameState:</a></td>
+            <td>state=<em>PLAY1</em> &mdash; you are now free to move about the island</td></tr>
+    </table>
+    <p>During the <em>PLAY1</em> state a player may play a Soldier card if and only if s/he has not
+        yet played any other development card during this turn. In this case, the messaging sequence
+        is identical to that specified in the section "IF SOLDIER IS PLAYED BEFORE THE ROLL", above,
+        except that neither an SOCGameState nor an SOCRollDicePrompt message will be sent when the
+        Soldier is done being played.
+    </p>
+    -->
+</body>
+</html>

@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+
+<!--suppress HtmlRequiredAltAttribute -->
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Sequence diagram for playing "Soldier" development cards</title>
+    <base href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/" target="_self">
+    <style>
+        td:first-child { width: 5em }
+        td:first-child + td { width: 12em; text-align: right; padding-right: .5em }
+    </style>
+</head>
+<body>
+    <p>This is a sequence diagram for the messages passed between clients and the server when a
+        client needs to know game options and scenarios supported by the game server.</p>
+    <p>Arrows labeled "SERVER" represent messages going from a the client to the game server.</p>
+    <p>Arrows labeled "ONE" represent messages going to the client; other
+        clients will not be aware of these messages.</p>
+
+    <h2 style="text-align: center">Messaging sequence discovery of game options supported by the game server.</h2>
+    <table>
+        <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
+            <td><a href="SOCGameOptionGetDefaults.html">SOCGameOptionGetDefaults:</a></td>
+            <td>Request game options supported by server</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
+            <td><a href="SOCGameOptionGetDefaults.html">SOCGameOptionGetDefaults:</a></td>
+            <td>Returns a list of the game options supported by this server and their default values<br />
+                (ex. opts=BC=t4, _SC_SANY=f, NT=f, PLB=f, _SC_CLVI=f, PLP=f, SBL=f, _SC_FOG=f, _SC_3IP=f,
+                N7=f7, _SC_PIRI=f, _SC_SEAC=f, _SC_FTRI=f, RD=f, _SC_WOND=f, _SC_0RVP=f, VP=f10, N7C=f, PL=4,_BHW=0)</td></tr>
+        <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
+            <td><a href="SOCAuthRequest.html">SOCAuthRequest:</a></td>
+            <td><strong>Why here, why now?</strong>role=P|nickname=footwo|scheme=1|host=localhost|password empty</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
+            <td><a href="SOCStatusMessage.html">SOCStatusMessage:</a></td>
+            <td>Welcome to Java Settlers of Catan!</td></tr>
+    </table>
+    <p>Once a client knows all the default game options supported by the server, it might need to know
+        more about a specific option, e.g. the type of option (boolean, integer, etc.), the range of
+        values allowed (e.g. 10 to 20), or a usage flag associated with the option (active, hidden,
+        3rd party, etc). To collect this information the client can send an
+        <a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCGameOptionGetInfos.html">SOCGameOptionGetInfos</a>
+        message asking for more information about one or more options. The server responds with a
+        <a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCGameOptionInfo.html">SOCGameOptionInfo</a>
+        message for each game option listed in the request message. When the server
+        has finished sending all of the game option info requested it will send a message with the EOL
+        flag set and an option key of "-".</p>
+    <table>
+        <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
+            <td><a href="SOCGameOptionGetInfos.html">SOCGameOptionGetInfos:</a></td>
+            <td>Request detailed information about each game option in the provided list</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
+            <td><a href="SOCGameOptionInfo.html">SOCGameOptionInfo:</a></td>
+            <td>Details about first game option.</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
+            <td><a href="SOCGameOptionInfo.html">SOCGameOptionInfo:</a></td>
+            <td>Details about second game option.</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
+            <td><a href="SOCGameOptionInfo.html">SOCGameOptionInfo:</a></td>
+            <td>Details about third game option.</td></tr>
+        <tr><td></td><td>So on for every<br />option listed ...</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
+            <td><a href="SOCGameOptionInfo.html">SOCGameOptionInfo:</a></td>
+            <td>Message with option key name of "-", indicating the end of the SOCGameOptionInfo list</td></tr>
+<!--
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=_SC_FOG|p=1|p=2000|p=2000|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=Scenarios: Some hexes initially hidden by fog
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=BC|p=3|p=-1|p=1107|p=t|p=4|p=3|p=9|p=t|p=4|p=0|p=Break up clumps of # or more same-type hexes/ports
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=_SC_SANY|p=1|p=2000|p=2000|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=Scenarios: SVP for your first settlement on any island after initial placement
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=_SC_3IP|p=1|p=2000|p=2000|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=Scenarios: Third initial settlement
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=NT|p=1|p=1107|p=1107|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=No trading allowed between players
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=PLB|p=1|p=1108|p=1113|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=Use 6-player board
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=N7|p=3|p=-1|p=1107|p=f|p=7|p=1|p=999|p=f|p=7|p=0|p=Roll no 7s during first # rounds
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=_SC_PIRI|p=1|p=2000|p=2000|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=Scenarios: Pirate Islands and fortresses
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=_SC_CLVI|p=1|p=2000|p=2000|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=Scenarios: Cloth Trade with neutral villages
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=_SC_SEAC|p=1|p=2000|p=2000|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=Scenarios: 2 SVP for your first settlement on each island after initial placement
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=_SC_FTRI|p=1|p=2000|p=2000|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=Scenarios: The Forgotten Tribe
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=RD|p=1|p=-1|p=1107|p=f|p=0|p=0|p=0|p=f|p=0|p=0|p=Robber can't return to the desert
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=_SC_WOND|p=1|p=2000|p=2000|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=Scenarios: Wonders
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=PLP|p=1|p=1108|p=2300|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=6-player board: Can Special Build only if 5 or 6 players in game
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=_SC_0RVP|p=1|p=2000|p=2000|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=Scenarios: No longest trade route VP (no Longest Road)
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=VP|p=3|p=-1|p=2000|p=f|p=10|p=10|p=20|p=f|p=10|p=1|p=Victory points to win: #
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=N7C|p=1|p=-1|p=1119|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=Roll no 7s until a city is built
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=SBL|p=1|p=2000|p=2000|p=f|p=0|p=0|p=0|p=f|p=0|p=1|p=Use sea board
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=PL|p=2|p=-1|p=1108|p=f|p=4|p=2|p=6|p=f|p=4|p=0|p=Maximum # players
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=_BHW|p=2|p=2000|p=2000|p=f|p=0|p=0|p=65535|p=f|p=0|p=3|p=Large board's height and width (0xRRCC) if not default (local to client only)
+        IN - [connection-localhost-8880] null - SOCGameOptionInfo:p=-|p=0|p=2147483647|p=2147483647|p=f|p=0|p=0|p=0|p=f|p=0|p=f|p=-
+-->
+    </table>
+    <p>Once all game option information is received or known, the client should
+        request any unknown scenario information from the server by sending an
+        <a href="https://lpassey.github.io/JSettlers2-javadoc/soc/message/SOCScenarioInfo.html">SOCScenarioInfo</a>
+        message. The request message may contain a list of scenario keys already known to the client;
+        in this case the server will respond with all scenario information in its possession other than
+        the specified scenarios. A scenario request of "?" will return all scenario information.</p>
+    <table>
+        <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
+                <td><a href="SOCScenarioInfo.html">SOCScenarioInfo:</a></td>
+                <td>Request for all game scenarios supported by the server</td></tr>
+        <!--
+        IN - [connection-localhost-8880] null - SOCScenarioInfo:key=SC_4ISL|minVers=2000|lastModVers=2000|opts=_SC_SEAC=t,SBL=t,VP=t12|title=The Four Islands|desc=Start on one or two islands. Explore and gain SVP by building to others.
+        IN - [connection-localhost-8880] null - SOCScenarioInfo:key=SC_WOND|minVers=2000|lastModVers=2000|opts=_SC_WOND=t,SBL=t,VP=t10,_SC_SANY=t|title=Wonders|desc=Each player chooses a unique Wonder and can build all 4 of its levels. Each Wonder has its own requirements before you may start it, such as several cities built or a port at a certain location. To win you must complete your Wonder's 4 levels, or reach 10 VP and complete more levels than any other player. Has no pirate ship.
+        IN - [connection-localhost-8880] null - SOCScenarioInfo:key=SC_FOG|minVers=2000|lastModVers=2000|opts=_SC_FOG=t,SBL=t,VP=t12|title=Fog Islands|desc=Some hexes are initially hidden by fog. When you build a ship or road to a foggy hex, that hex is revealed. Unless it's water, you are given its resource as a reward.
+        IN - [connection-localhost-8880] null - SOCScenarioInfo:key=SC_FTRI|minVers=2000|lastModVers=2000|opts=_SC_FTRI=t,SBL=t,VP=t13|title=The Forgotten Tribe|desc=Far areas of the board have small habitations of a "forgotten tribe" of settlers. When players build ships to reach them, they are greeted with "gifts" of a development card, Special Victory Point, or a Port given to the player which must be moved adjacent to one of their coastal settlements/cities if possible, or set aside to place later.
+        IN - [connection-localhost-8880] null - SOCScenarioInfo:key=SC_NSHO|minVers=2000|lastModVers=2000|opts=_SC_SEAC=t,SBL=t,VP=t13|title=New Shores
+        IN - [connection-localhost-8880] null - SOCScenarioInfo:key=SC_PIRI|minVers=2000|lastModVers=2000|opts=_SC_PIRI=t,SBL=t,VP=t10,_SC_0RVP=t|title=Pirate Islands and Fortresses|desc=A pirate fleet patrols, attacking to steal resources from weak players with adjacent settlements/cities until the player builds a strong fleet of Warships. Build ships directly to the Fortress of your color, which the pirates have captured from you. To win the game, you must reach the victory point goal and defeat the Fortress 3 times using warships. Ship routes can't branch out, only follow dotted lines to the Fortress. Strengthen your fleet by playing Warship development cards to upgrade your ships. When the pirate fleet attacks, you win if you have more Warships than the pirate fleet strength (randomly 1-6). No robber or largest army. When 7 is rolled, any pirate fleet attack happens before the usual discards.
+        IN - [connection-localhost-8880] null - SOCScenarioInfo:key=SC_TTD|minVers=2000|lastModVers=2000|opts=_SC_SEAC=t,SBL=t,VP=t12|title=Through The Desert|desc=Start on the main island. Explore and gain SVP by building to the small islands, or through the desert to the coast.
+        IN - [connection-localhost-8880] null - SOCScenarioInfo:key=SC_CLVI|minVers=2000|lastModVers=2000|opts=_SC_CLVI=t,SBL=t,VP=t14,_SC_3IP=t,_SC_0RVP=t|title=Cloth Trade with neutral villages|desc=The small islands' villages give you Cloth; every 2 cloth you have is 1 extra Victory Point. To gain cloth, build ships to a village. You can't move the pirate until you've reached a village. Each player to reach a village gets 1 of its cloth at that time, and 1 more whenever its number is rolled, until the village runs out. Pirate can steal cloth or resources. If fewer than 4 villages still have cloth, the game ends and the player with the most VP wins. (If tied, player with most cloth wins.)
+        IN - [connection-localhost-8880] null - SOCScenarioInfo:key=-
+        -->
+        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
+            <td><a href="SOCScenarioInfo.html">SOCScenarioInfo:</a></td>
+            <td>Details about the first supported game scenario</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
+            <td><a href="SOCScenarioInfo.html">SOCScenarioInfo:</a></td>
+            <td>Details about the second supported game scenario</td></tr>
+        <tr><td></td><td>So on for every<br />scenario supported ...</td></tr>
+        <tr><td><img height="25" src="../../arrow-right-one.png" /></td>
+            <td><a href="SOCScenarioInfo.html">SOCScenarioInfo:</a></td>
+            <td>Message with a scenario key name of "-", indicating the end of the list.</td></tr>
+        <!--
+                <tr><td><img height="25" src="../../arrow-left-server.png" /></td>
+                    <td><a href="SOCGameOptionGetInfos.html">SOCGameOptionGetInfos:</a></td>
+                    <td>Request detailed information about each game option listed that is used by the supporcenarios</td></tr>
+
+         -->
+    </table><br/>
+</body>
+</html>
