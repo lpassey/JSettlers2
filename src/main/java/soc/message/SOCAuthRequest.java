@@ -131,6 +131,7 @@ public class SOCAuthRequest extends SOCMessage
     public SOCAuthRequest(final String ro, final String nn, final String pw, final int sch, final String hn)
         throws IllegalArgumentException
     {
+        super( AUTHREQUEST );
         if (! SOCMessage.isSingleLineAndSafe(ro))
             throw new IllegalArgumentException("role: " + ro);
         if (! SOCMessage.isSingleLineAndSafe(nn))
@@ -138,7 +139,6 @@ public class SOCAuthRequest extends SOCMessage
         if ((hn != null) && ! SOCMessage.isSingleLineAndSafe(hn))
             throw new IllegalArgumentException("hostname: " + hn);
 
-        messageType = AUTHREQUEST;
         role = ro;
         nickname = nn;
         authScheme = sch;

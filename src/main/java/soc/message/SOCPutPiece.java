@@ -110,12 +110,12 @@ public class SOCPutPiece extends SOCMessage
     public SOCPutPiece(String na, int pn, int pt, int co)
         throws IllegalArgumentException
     {
+        super( PUTPIECE );
         if (pt < 0)
             throw new IllegalArgumentException("pt: " + pt);
         if (co < 0)
             throw new IllegalArgumentException("coord < 0");
 
-        messageType = PUTPIECE;
         game = na;
         pieceType = pt;
         playerNumber = pn;

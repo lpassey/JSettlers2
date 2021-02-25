@@ -66,7 +66,7 @@ public class SOCResourceCount extends SOCMessage
      */
     public SOCResourceCount(String ga, int pn, int rc)
     {
-        messageType = RESOURCECOUNT;
+        super( RESOURCECOUNT );
         game = ga;
         playerNumber = pn;
         count = rc;

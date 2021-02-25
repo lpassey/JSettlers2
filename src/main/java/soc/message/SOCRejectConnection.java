@@ -42,7 +42,7 @@ public class SOCRejectConnection extends SOCMessage
      */
     public SOCRejectConnection(String message)
     {
-        messageType = REJECTCONNECTION;
+        super( REJECTCONNECTION );
         text = message;
     }
 

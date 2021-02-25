@@ -79,7 +79,7 @@ public class SOCSitDown extends SOCMessage
      */
     public SOCSitDown(String ga, String nk, int pn, boolean rf)
     {
-        messageType = SITDOWN;
+        super( SITDOWN );
         game = ga;
         nickname = nk;
         playerNumber = pn;

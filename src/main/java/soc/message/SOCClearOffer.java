@@ -65,7 +65,7 @@ public class SOCClearOffer extends SOCMessage
      */
     public SOCClearOffer(String ga, int pn)
     {
-        messageType = CLEAROFFER;
+        super( CLEAROFFER );
         game = ga;
         playerNumber = pn;
     }

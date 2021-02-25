@@ -80,7 +80,7 @@ public class SOCMoveRobber extends SOCMessage
      */
     public SOCMoveRobber(String na, int pn, int co)
     {
-        messageType = MOVEROBBER;
+        super( MOVEROBBER );
         game = na;
         playerNumber = pn;
         coordinates = co;

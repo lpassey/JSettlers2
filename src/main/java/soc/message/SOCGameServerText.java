@@ -85,7 +85,7 @@ public class SOCGameServerText extends SOCMessage
      */
     public SOCGameServerText(final String ga, final String tm)
     {
-        messageType = GAMESERVERTEXT;
+        super( GAMESERVERTEXT );
         game = ga;
         text = tm;
     }

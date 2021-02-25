@@ -7,8 +7,7 @@ public class SOCDisconnect extends SOCMessage implements SOCMessageFromUnauthCli
      */
     public SOCDisconnect()
     {
-        messageType = DISCONNECT;
-//        super( DISCONNECT );
+        super( DISCONNECT );
     }
 
     /**

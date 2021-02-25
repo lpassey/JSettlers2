@@ -44,7 +44,7 @@ public class SOCDeleteGame extends SOCMessage
      */
     public SOCDeleteGame(String ga)
     {
-        messageType = DELETEGAME;
+        super( DELETEGAME );
         game = ga;
     }
 

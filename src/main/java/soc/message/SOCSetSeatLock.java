@@ -95,7 +95,7 @@ public class SOCSetSeatLock extends SOCMessage
      */
     public SOCSetSeatLock( String gameName, int pn, SeatLockState st )
     {
-        messageType = SETSEATLOCK;
+        super( SETSEATLOCK );
         game = gameName;
         playerNumber = pn;
         state = st;
@@ -115,10 +115,10 @@ public class SOCSetSeatLock extends SOCMessage
     public SOCSetSeatLock( final String gameName, final SeatLockState[] st )
         throws IllegalArgumentException
     {
+        super( SETSEATLOCK );
         if ((st.length != 4) && (st.length != 6))
             throw new IllegalArgumentException( "length" );
 
-        messageType = SETSEATLOCK;
         game = gameName;
         playerNumber = -1;
         states = st;

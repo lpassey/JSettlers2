@@ -56,7 +56,7 @@ public class SOCDiscardRequest extends SOCMessage
      */
     public SOCDiscardRequest(String ga, int nd)
     {
-        messageType = DISCARDREQUEST;
+        super( DISCARDREQUEST );
         game = ga;
         numDiscards = nd;
     }

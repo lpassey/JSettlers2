@@ -103,7 +103,7 @@ public class SOCBankTrade extends SOCMessage
      */
     public SOCBankTrade(String ga, SOCResourceSet give, SOCResourceSet get, final int pn)
     {
-        messageType = BANKTRADE;
+        super( BANKTRADE );
         game = ga;
         this.give = give;
         this.get = get;

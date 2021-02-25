@@ -57,7 +57,7 @@ public class SOCDevCardCount extends SOCMessage
      */
     public SOCDevCardCount(String ga, int nd)
     {
-        messageType = DEVCARDCOUNT;
+        super( DEVCARDCOUNT );
         game = ga;
         numDevCards = nd;
     }

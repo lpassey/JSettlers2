@@ -52,7 +52,7 @@ public class SOCRollDice extends SOCMessage
      */
     public SOCRollDice(String ga)
     {
-        messageType = ROLLDICE;
+        super( ROLLDICE );
         game = ga;
     }
 

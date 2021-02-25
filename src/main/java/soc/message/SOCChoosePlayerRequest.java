@@ -75,7 +75,7 @@ public class SOCChoosePlayerRequest extends SOCMessage
      */
     public SOCChoosePlayerRequest(final String ga, final boolean[] ch, final boolean canChooseNone)
     {
-        messageType = CHOOSEPLAYERREQUEST;
+        super( CHOOSEPLAYERREQUEST );
         game = ga;
         choices = ch;
         allowChooseNone = canChooseNone;

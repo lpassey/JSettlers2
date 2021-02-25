@@ -58,7 +58,7 @@ public class SOCServerPing extends SOCMessage
      */
     public SOCServerPing(int st)
     {
-        messageType = SERVERPING;
+        super( SERVERPING );
         sleepTime = st;
     }
 

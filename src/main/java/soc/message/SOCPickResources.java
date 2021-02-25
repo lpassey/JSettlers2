@@ -166,7 +166,7 @@ public class SOCPickResources extends SOCMessage
      */
     public SOCPickResources(String ga, SOCResourceSet rs, int pn, int rc)
     {
-        messageType = PICKRESOURCES;
+        super( PICKRESOURCES );
         game = ga;
         resources = rs;
         playerNumber = pn;

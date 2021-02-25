@@ -73,7 +73,7 @@ public class SOCJoinChannel extends SOCMessage
      */
     public SOCJoinChannel(String nn, String pw, String hn, String ch)
     {
-        messageType = JOINCHANNEL;
+        super( JOINCHANNEL );
         nickname = nn;
         password = pw;
         channel = ch;

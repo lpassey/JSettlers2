@@ -90,7 +90,7 @@ public abstract class SOCMessageTemplateMi extends SOCMessageMulti
      */
     protected SOCMessageTemplateMi(int id, String ga, int[] parr)
     {
-        messageType = id;
+        super( id );
         game = ga;
         pa = parr;
     }
@@ -118,7 +118,7 @@ public abstract class SOCMessageTemplateMi extends SOCMessageMulti
      */
     public String toCmd()
     {
-        return toCmd(messageType, game, pa);
+        return toCmd(getType(), game, pa);
     }
 
     /**

@@ -55,7 +55,7 @@ public abstract class SOCMessageTemplate0 extends SOCMessage
      */
     protected SOCMessageTemplate0(int id, String ga)
     {
-        messageType = id;
+        super( id );
         game = ga;
     }
 
@@ -74,7 +74,7 @@ public abstract class SOCMessageTemplate0 extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(messageType, game);
+        return toCmd(getType(), game);
     }
 
     /**

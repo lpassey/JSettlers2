@@ -66,7 +66,7 @@ public class SOCPickResourceType extends SOCMessage
      */
     public SOCPickResourceType(String ga, int rs)
     {
-        messageType = PICKRESOURCETYPE;
+        super( PICKRESOURCETYPE );
         game = ga;
         resource = rs;
     }

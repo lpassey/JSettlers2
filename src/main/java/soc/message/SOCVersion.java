@@ -102,10 +102,10 @@ public class SOCVersion extends SOCMessage
         (final int verNum, final String verStr, final String verBuild, final String feats, final String cliLocale)
         throws IllegalArgumentException
     {
+        super( VERSION );
         if ((verBuild == null) && (feats != null))
             throw new IllegalArgumentException("null verBuild, non-null feats");
 
-        messageType = VERSION;
         versNum = verNum;
         versStr = verStr;
         versBuild = verBuild;

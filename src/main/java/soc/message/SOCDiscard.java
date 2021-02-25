@@ -75,7 +75,7 @@ public class SOCDiscard extends SOCMessage
      */
     public SOCDiscard(String ga, int cl, int or, int sh, int wh, int wo, int uk)
     {
-        messageType = DISCARD;
+        super( DISCARD );
         game = ga;
         resources = new SOCResourceSet(cl, or, sh, wh, wo, uk);
     }
@@ -88,7 +88,7 @@ public class SOCDiscard extends SOCMessage
      */
     public SOCDiscard(String ga, int pn, SOCResourceSet rs)
     {
-        messageType = DISCARD;
+        super( DISCARD );
         game = ga;
         resources = rs;
     }

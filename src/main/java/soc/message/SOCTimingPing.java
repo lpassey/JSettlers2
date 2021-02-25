@@ -48,7 +48,7 @@ public class SOCTimingPing extends SOCMessage
      */
     public SOCTimingPing(String ga)
     {
-        messageType = TIMINGPING;
+        super( TIMINGPING );
         game = ga;
     }
 

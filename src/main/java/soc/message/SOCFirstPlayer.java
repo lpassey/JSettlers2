@@ -54,7 +54,7 @@ public class SOCFirstPlayer extends SOCMessage
      */
     public SOCFirstPlayer(String ga, int pn)
     {
-        messageType = FIRSTPLAYER;
+        super( FIRSTPLAYER );
         game = ga;
         playerNumber = pn;
     }

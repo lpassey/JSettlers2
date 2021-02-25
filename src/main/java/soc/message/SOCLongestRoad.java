@@ -59,7 +59,7 @@ public class SOCLongestRoad extends SOCMessage
      */
     public SOCLongestRoad(String ga, int pn)
     {
-        messageType = LONGESTROAD;
+        super( LONGESTROAD );
         game = ga;
         playerNumber = pn;
     }

@@ -37,7 +37,7 @@ public class SOCAdminReset extends SOCMessage
      */
     public SOCAdminReset()
     {
-        messageType = ADMINRESET;
+        super( ADMINRESET );
     }
 
     /**

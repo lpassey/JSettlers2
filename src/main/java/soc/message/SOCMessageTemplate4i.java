@@ -106,7 +106,7 @@ public abstract class SOCMessageTemplate4i extends SOCMessage
     protected SOCMessageTemplate4i
         (final int messageType, final String ga, final int p1, final int p2, final int p3, final int p4)
     {
-        this.messageType = messageType;
+        super( messageType );
         game = ga;
         this.p1 = p1;
         this.p2 = p2;
@@ -161,7 +161,7 @@ public abstract class SOCMessageTemplate4i extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(messageType, game, p1, p2, p3, p4);
+        return toCmd(getType(), game, p1, p2, p3, p4);
     }
 
     /**

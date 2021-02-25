@@ -56,7 +56,7 @@ public class SOCNewGame extends SOCMessage
      */
     public SOCNewGame(String ga)
     {
-        messageType = NEWGAME;
+        super( NEWGAME );
         game = ga;
     }
 

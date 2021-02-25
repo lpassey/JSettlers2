@@ -90,7 +90,7 @@ public abstract class SOCMessageTemplate2i extends SOCMessage
      */
     protected SOCMessageTemplate2i(int id, String ga, int p1, int p2)
     {
-        messageType = id;
+        super( id );
         game = ga;
         this.p1 = p1;
         this.p2 = p2;
@@ -127,7 +127,7 @@ public abstract class SOCMessageTemplate2i extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(messageType, game, p1, p2);
+        return toCmd( getType(), game, p1, p2);
     }
 
     /**

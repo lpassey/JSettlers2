@@ -74,4 +74,9 @@ package soc.message;
 public abstract class SOCMessageMulti extends SOCMessage
 {
     private static final long serialVersionUID = 1100L;  // last structural change v1.1.00
+
+    SOCMessageMulti( int messageType )
+    {
+        super( messageType );
+    }
 }

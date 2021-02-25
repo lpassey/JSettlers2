@@ -102,7 +102,7 @@ public class SOCChoosePlayer extends SOCMessage
      */
     public SOCChoosePlayer(String ga, int ch)
     {
-        messageType = CHOOSEPLAYER;
+        super( CHOOSEPLAYER );
         game = ga;
         choice = ch;
     }

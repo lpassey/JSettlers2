@@ -61,7 +61,7 @@ public class SOCChangeFace extends SOCMessage
      */
     public SOCChangeFace(String ga, int pn, int id)
     {
-        messageType = CHANGEFACE;
+        super( CHANGEFACE );
         game = ga;
         playerNumber = pn;
         faceId = id;

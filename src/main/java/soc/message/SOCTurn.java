@@ -83,7 +83,7 @@ public class SOCTurn extends SOCMessage
      */
     public SOCTurn( final String ga, final int pn, final GameState gs )
     {
-        messageType = TURN;
+        super( TURN );
         game = ga;
         playerNumber = pn;
         gameState = gs;

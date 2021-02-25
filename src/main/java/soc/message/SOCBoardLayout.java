@@ -156,7 +156,7 @@ public class SOCBoardLayout extends SOCMessage
     public SOCBoardLayout
     ( String ga, final int[] hl, final int[] nl, final int rh, final boolean alreadyMapped )
     {
-        messageType = BOARDLAYOUT;
+        super( BOARDLAYOUT );
         game = ga;
         if (alreadyMapped)
         {

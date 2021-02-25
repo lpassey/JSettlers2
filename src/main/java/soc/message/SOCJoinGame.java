@@ -73,7 +73,7 @@ public class SOCJoinGame extends SOCMessageTemplateJoinGame
      */
     public SOCJoinGame(String nn, String pw, String hn, String ga)
     {
-        super(nn, pw, hn, ga);  // will set messagetype=JOINGAME
+        super(JOINGAME, nn, pw, hn, ga);  // will set messagetype=JOINGAME
     }
 
     /**

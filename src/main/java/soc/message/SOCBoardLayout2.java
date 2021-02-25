@@ -152,7 +152,7 @@ public class SOCBoardLayout2 extends SOCMessage
      */
     public SOCBoardLayout2( String ga, int bef, Map<String, Object> parts )
     {
-        messageType = BOARDLAYOUT2;
+        super( BOARDLAYOUT2 );
         game = ga;
         boardEncodingFormat = bef;
         layoutParts = parts;
@@ -173,7 +173,7 @@ public class SOCBoardLayout2 extends SOCMessage
      */
     public SOCBoardLayout2( final String ga, final int bef, final int[] hl, final int[] nl, final int[] pl, final int rh )
     {
-        messageType = BOARDLAYOUT2;
+        super( BOARDLAYOUT2 );
         game = ga;
         boardEncodingFormat = bef;
         layoutParts = new HashMap<>();
@@ -224,7 +224,7 @@ public class SOCBoardLayout2 extends SOCMessage
         final int[] lh, final int[] pl, final int rh, final int ph, final int[] px, final int[] rx,
         final Map<String, int[]> other )
     {
-        messageType = BOARDLAYOUT2;
+        super( BOARDLAYOUT2 );
         game = ga;
         boardEncodingFormat = bef;
         layoutParts = new HashMap<>();

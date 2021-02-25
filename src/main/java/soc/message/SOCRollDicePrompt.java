@@ -72,7 +72,7 @@ public class SOCRollDicePrompt extends SOCMessage
      */
     public SOCRollDicePrompt(String ga, int pn)
     {
-        messageType = ROLLDICEPROMPT;
+        super( ROLLDICEPROMPT );
         game = ga;
         playerNumber = pn;
     }

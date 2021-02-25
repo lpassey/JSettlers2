@@ -75,10 +75,10 @@ public class SOCBuildRequest extends SOCMessage
     public SOCBuildRequest(String ga, int pt)
         throws IllegalArgumentException
     {
+        super( BUILDREQUEST );
         if (pt < -1)
             throw new IllegalArgumentException("pt: " + pt);
 
-        messageType = BUILDREQUEST;
         game = ga;
         pieceType = pt;
     }

@@ -42,7 +42,7 @@ public class SOCNewChannel extends SOCMessage
      */
     public SOCNewChannel(String ch)
     {
-        messageType = NEWCHANNEL;
+        super( NEWCHANNEL );
         channel = ch;
     }
 

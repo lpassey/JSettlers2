@@ -64,7 +64,7 @@ public class SOCLeaveGame extends SOCMessage
      */
     public SOCLeaveGame(String nn, String hn, String ga)
     {
-        messageType = LEAVEGAME;
+        super( LEAVEGAME );
         nickname = nn;
         game = ga;
         host = hn;

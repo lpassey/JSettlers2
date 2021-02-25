@@ -81,7 +81,7 @@ public class SOCAcceptOffer extends SOCMessage
      */
     public SOCAcceptOffer(String ga, int ac, int of)
     {
-        messageType = ACCEPTOFFER;
+        super( ACCEPTOFFER );
         game = ga;
         accepting = ac;
         offering = of;

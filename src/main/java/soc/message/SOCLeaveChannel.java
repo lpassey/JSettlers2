@@ -62,7 +62,7 @@ public class SOCLeaveChannel extends SOCMessage
      */
     public SOCLeaveChannel(String nn, String hn, String ch)
     {
-        messageType = LEAVECHANNEL;
+        super( LEAVECHANNEL );
         nickname = nn;
         channel = ch;
         host = hn;

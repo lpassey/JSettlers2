@@ -44,7 +44,7 @@ public class SOCRobotDismiss extends SOCMessage
      */
     public SOCRobotDismiss(String ga)
     {
-        messageType = ROBOTDISMISS;
+        super( ROBOTDISMISS );
         game = ga;
     }
 

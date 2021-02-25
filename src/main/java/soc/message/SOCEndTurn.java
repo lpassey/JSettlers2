@@ -43,7 +43,7 @@ public class SOCEndTurn extends SOCMessage
      */
     public SOCEndTurn(String ga)
     {
-        messageType = ENDTURN;
+        super( ENDTURN );
         game = ga;
     }
 

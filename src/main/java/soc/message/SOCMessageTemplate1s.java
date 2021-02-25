@@ -79,10 +79,10 @@ public abstract class SOCMessageTemplate1s extends SOCMessage
      * @param ga  Name of game this message is for
      * @param p   Parameter
      */
-    protected SOCMessageTemplate1s(int id, String ga, String p)
+    protected SOCMessageTemplate1s(int messageType, String gameName, String p)
     {
-        messageType = id;
-        game = ga;
+        super( messageType );
+        game = gameName;
         p1 = p;
     }
 
@@ -109,7 +109,7 @@ public abstract class SOCMessageTemplate1s extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(messageType, game, p1);
+        return toCmd( getType(), game, p1);
     }
 
     /**

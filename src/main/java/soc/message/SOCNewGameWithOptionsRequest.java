@@ -82,18 +82,16 @@ public class SOCNewGameWithOptionsRequest extends SOCMessageTemplateJoinGame
      * @param optstr the game options as a string name-value pairs, as created by
      *    {@link SOCGameOption#packOptionsToString(Map, boolean, boolean) SOCGameOption.packOptionsToString(opts, false, false)}.
      */
-    public SOCNewGameWithOptionsRequest(String nn, String pw, String hn, String ga, String optstr)
+    public SOCNewGameWithOptionsRequest( String nn, String pw, String hn, String ga, String optstr)
     {
-        super(nn, pw, hn, ga);
-        messageType = NEWGAMEWITHOPTIONSREQUEST;
+        super(NEWGAMEWITHOPTIONSREQUEST, nn, pw, hn, ga);
         optsStr = optstr;
         opts = null;
     }
 
     public SOCNewGameWithOptionsRequest(String nn, String pw, String hn, String ga,  Map<String, SOCGameOption> opts )
     {
-        super(nn, pw, hn, ga);
-        messageType = NEWGAMEWITHOPTIONSREQUEST;
+        super(NEWGAMEWITHOPTIONSREQUEST, nn, pw, hn, ga);
         this.opts = opts;
         optsStr = SOCGameOption.packOptionsToString(opts, false, false);
     }

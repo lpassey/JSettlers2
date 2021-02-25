@@ -67,7 +67,7 @@ public class SOCStartGame extends SOCMessage
      */
     public SOCStartGame( final String ga, final GameState gs )
     {
-        messageType = STARTGAME;
+        super( STARTGAME );
         game = ga;
         gameState = gs;
     }

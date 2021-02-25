@@ -271,12 +271,12 @@ public class SOCSetSpecialItem extends SOCMessage
          final int pn, final int co, final int lv, final String sv)
         throws IllegalArgumentException
     {
+        super( SETSPECIALITEM );
         if ((ga == null) || (typeKey == null) || ((pn != -1) && (pi == -1))
             || ((pi == -1) && (gi == -1))
             || ((sv != null) && ! SOCMessage.isSingleLineAndSafe(sv)))
             throw new IllegalArgumentException();
 
-        messageType = SETSPECIALITEM;
         game = ga;
         this.op = op;
         this.typeKey = typeKey;

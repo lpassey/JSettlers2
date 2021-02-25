@@ -52,7 +52,7 @@ public class SOCAdminPing extends SOCMessage
      */
     public SOCAdminPing(String ga)
     {
-        messageType = ADMINPING;
+        super( ADMINPING );
         game = ga;
     }
 

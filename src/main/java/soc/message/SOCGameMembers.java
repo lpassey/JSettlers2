@@ -78,7 +78,7 @@ public class SOCGameMembers extends SOCMessage
      */
     public SOCGameMembers( String ga, List<String> ml )
     {
-        messageType = GAMEMEMBERS;
+        super( GAMEMEMBERS );
         members = ml;
         game = ga;
     }

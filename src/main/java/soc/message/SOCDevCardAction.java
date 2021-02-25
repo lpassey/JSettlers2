@@ -162,7 +162,7 @@ public class SOCDevCardAction extends SOCMessage
      */
     public SOCDevCardAction( String ga, int pn, int ac, int ct )
     {
-        messageType = DEVCARDACTION;
+        super( DEVCARDACTION );
         game = ga;
         playerNumber = pn;
         actionType = ac;
@@ -191,6 +191,7 @@ public class SOCDevCardAction extends SOCMessage
     public SOCDevCardAction( String ga, int pn, int ac, List<Integer> ct )
         throws IllegalArgumentException
     {
+        super( DEVCARDACTION );
         if (pn < 0)
             throw new IllegalArgumentException( "pn: " + pn );
         if ((ac == PLAY) || (ac == CANNOT_PLAY))
@@ -201,7 +202,6 @@ public class SOCDevCardAction extends SOCMessage
         if ((S == 0) || (S > MAX_MULTIPLE))
             throw new IllegalArgumentException( "ct size: " + S );
 
-        messageType = DEVCARDACTION;
         game = ga;
         playerNumber = pn;
         actionType = ac;

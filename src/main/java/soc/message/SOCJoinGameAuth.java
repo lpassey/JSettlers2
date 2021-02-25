@@ -105,7 +105,7 @@ public class SOCJoinGameAuth extends SOCMessage
     public SOCJoinGameAuth( final String gaName, final int height, final int width, final int[] layoutVS )
         throws IllegalArgumentException
     {
-        messageType = JOINGAMEAUTH;
+        super( JOINGAMEAUTH );
         game = gaName;
         this.boardHeight = height;
         this.boardWidth = width;

@@ -67,7 +67,7 @@ public class SOCPlayDevCardRequest extends SOCMessage
      */
     public SOCPlayDevCardRequest(String ga, int dc)
     {
-        messageType = PLAYDEVCARDREQUEST;
+        super( PLAYDEVCARDREQUEST );
         game = ga;
         devCard = dc;
     }

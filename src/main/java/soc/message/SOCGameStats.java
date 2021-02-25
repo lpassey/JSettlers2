@@ -72,7 +72,7 @@ public class SOCGameStats extends SOCMessage
      */
     public SOCGameStats(String ga, int[] sc, boolean[] rb)
     {
-        messageType = GAMESTATS;
+        super( GAMESTATS );
         game = ga;
         scores = sc;
         robots = rb;

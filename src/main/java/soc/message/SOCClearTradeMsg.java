@@ -62,7 +62,7 @@ public class SOCClearTradeMsg extends SOCMessage
      */
     public SOCClearTradeMsg(String ga, int pn)
     {
-        messageType = CLEARTRADEMSG;
+        super( CLEARTRADEMSG );
         game = ga;
         playerNumber = pn;
     }

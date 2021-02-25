@@ -215,6 +215,7 @@ public class SOCReportRobbery extends SOCMessage
             final boolean isGainLose, final int amount, final int victimAmount, final int extraValue )
         throws IllegalArgumentException
     {
+        super( REPORTROBBERY );
         if ((peType == null) && (resSet == null) && (resType < 0))
             throw new IllegalArgumentException( "peType/resSet/resType" );
         if ((resSet == null) && ((amount < 0) || (victimAmount < 0)))
@@ -224,7 +225,6 @@ public class SOCReportRobbery extends SOCMessage
         if ((resSet != null) && resSet.isEmpty())
             throw new IllegalArgumentException( "resSet empty" );
 
-        messageType = REPORTROBBERY;
         this.gaName = gaName;
         this.perpPN = perpPN;
         this.victimPN = victimPN;

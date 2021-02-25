@@ -166,7 +166,7 @@ public class SOCPotentialSettlements extends SOCMessage
      */
     public SOCPotentialSettlements( String ga, int pn, List<Integer> ps )
     {
-        messageType = POTENTIALSETTLEMENTS;
+        super( POTENTIALSETTLEMENTS );
         game = ga;
         playerNumber = pn;
         psNodes = ps;
@@ -237,7 +237,7 @@ public class SOCPotentialSettlements extends SOCMessage
     ( String ga, int pn, final List<Integer> ps, final int pan, HashSet<Integer>[] lan, final int[][] lse )
         throws IllegalArgumentException, NullPointerException
     {
-        messageType = POTENTIALSETTLEMENTS;
+        super( POTENTIALSETTLEMENTS );
         game = ga;
         playerNumber = pn;
         psNodes = ps;

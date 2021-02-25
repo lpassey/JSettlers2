@@ -84,7 +84,7 @@ public class SOCBotJoinGameRequest extends SOCMessage
      */
     public SOCBotJoinGameRequest(String ga, int pn, SOCGameOptionSet opts)
     {
-        messageType = BOTJOINGAMEREQUEST;
+        super( BOTJOINGAMEREQUEST );
         game = ga;
         playerNumber = pn;
         Map<String, SOCGameOption> optsMap = (opts != null) ? opts.getAll() : null;
@@ -103,7 +103,7 @@ public class SOCBotJoinGameRequest extends SOCMessage
      */
     public SOCBotJoinGameRequest(String ga, int pn, final String optsStr)
     {
-        messageType = BOTJOINGAMEREQUEST;
+        super( BOTJOINGAMEREQUEST );
         game = ga;
         playerNumber = pn;
         opts = null;

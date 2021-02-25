@@ -237,7 +237,7 @@ public class SOCInventoryItemAction extends SOCMessage
         (final String ga, final int pn, final int ac, final int it,
          final boolean kept, final boolean vp, final boolean canCancel)
     {
-        messageType = INVENTORYITEMACTION;
+        super( INVENTORYITEMACTION );
         game = ga;
         playerNumber = pn;
         action = ac;
@@ -262,7 +262,7 @@ public class SOCInventoryItemAction extends SOCMessage
     public SOCInventoryItemAction
         (final String ga, final int pn, final int ac, final int it, final int rc)
     {
-        messageType = INVENTORYITEMACTION;
+        super( INVENTORYITEMACTION );
         game = ga;
         playerNumber = pn;
         action = ac;

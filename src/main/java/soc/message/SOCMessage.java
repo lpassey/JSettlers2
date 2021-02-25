@@ -535,9 +535,14 @@ public abstract class SOCMessage implements Serializable, Cloneable
     /**
      * An ID identifying the type of message; see {@link #getType()}.
      */
-    protected int messageType;
+    private final int messageType;
 
     private boolean debugTraffic;
+
+    public SOCMessage( int messageType )
+    {
+        this.messageType = messageType;
+    }
 
     public boolean debugTraffic()
     {

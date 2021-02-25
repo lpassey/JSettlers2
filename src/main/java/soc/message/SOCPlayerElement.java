@@ -582,10 +582,10 @@ public class SOCPlayerElement extends SOCMessage
     public SOCPlayerElement( String gameName, int seatNumber, int actionType, int elementType, int amt, boolean isNews )
         throws IllegalArgumentException
     {
+        super( PLAYERELEMENT );
         if ((actionType == GAIN_NEWS) || (actionType == SET_NEWS) || (actionType == LOSE_NEWS))
             throw new IllegalArgumentException("use isNews instead");
 
-        messageType = PLAYERELEMENT;
         game = gameName;
         playerNumber = seatNumber;
         this.actionType = actionType;

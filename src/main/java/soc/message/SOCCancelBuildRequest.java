@@ -107,7 +107,7 @@ public class SOCCancelBuildRequest extends SOCMessage
      */
     public SOCCancelBuildRequest(String ga, int pt)
     {
-        messageType = CANCELBUILDREQUEST;
+        super( CANCELBUILDREQUEST );
         game = ga;
         pieceType = pt;
     }

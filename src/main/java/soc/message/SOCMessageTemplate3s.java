@@ -101,7 +101,7 @@ public abstract class SOCMessageTemplate3s extends SOCMessage
      */
     protected SOCMessageTemplate3s(int id, String ga, String p1, String p2, String p3)
     {
-        messageType = id;
+        super( id );
         game = ga;
         this.p1 = p1;
         this.p2 = p2;
@@ -147,7 +147,7 @@ public abstract class SOCMessageTemplate3s extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(messageType, game, p1, p2, p3);
+        return toCmd( getType(), game, p1, p2, p3 );
     }
 
     /**

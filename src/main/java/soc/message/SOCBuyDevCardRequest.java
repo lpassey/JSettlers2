@@ -86,7 +86,7 @@ public class SOCBuyDevCardRequest extends SOCMessage
      */
     public SOCBuyDevCardRequest(String ga)
     {
-        messageType = BUYDEVCARDREQUEST;
+        super( BUYDEVCARDREQUEST );
         game = ga;
     }
 

@@ -111,10 +111,10 @@ public class SOCSVPTextMessage extends SOCMessage
     public SOCSVPTextMessage(final String ga, final int pn, final int svp, final String desc, final boolean isLocal)
         throws IllegalArgumentException
     {
-        if ((desc == null) || ! isSingleLineAndSafe(desc, true))
+        super( SVPTEXTMSG );
+        if (! isSingleLineAndSafe(desc, true))
             throw new IllegalArgumentException("desc");
 
-        messageType = SVPTEXTMSG;
         game = ga;
         this.pn = pn;
         this.svp = svp;
@@ -137,7 +137,7 @@ public class SOCSVPTextMessage extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(messageType, game, pn, svp, desc);
+        return toCmd( getType(), game, pn, svp, desc);
     }
 
     /**

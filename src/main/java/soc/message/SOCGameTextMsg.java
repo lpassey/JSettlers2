@@ -122,7 +122,7 @@ public class SOCGameTextMsg extends SOCMessage
      */
     public SOCGameTextMsg(String ga, String nn, String tm)
     {
-        messageType = GAMETEXTMSG;
+        super( GAMETEXTMSG );
         game = ga;
         nickname = nn;
         text = tm;

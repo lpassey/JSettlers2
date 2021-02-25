@@ -155,7 +155,7 @@ public class SOCGameState extends SOCMessage
      */
     public SOCGameState(String ga, GameState gs)
     {
-        messageType = GAMESTATE;
+        super( GAMESTATE );
         game = ga;
         state = gs;
     }

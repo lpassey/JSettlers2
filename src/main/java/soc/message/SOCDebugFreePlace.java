@@ -91,12 +91,12 @@ public class SOCDebugFreePlace extends SOCMessage
     public SOCDebugFreePlace(String na, int pn, int pt, int co)
         throws IllegalArgumentException
     {
+        super( DEBUGFREEPLACE );
         if (pt < 0)
             throw new IllegalArgumentException("pt: " + pt);
         if (co < 0)
             throw new IllegalArgumentException("coord < 0");
 
-        messageType = DEBUGFREEPLACE;
         game = na;
         pieceType = pt;
         playerNumber = pn;

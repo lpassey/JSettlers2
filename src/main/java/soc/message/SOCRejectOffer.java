@@ -160,7 +160,7 @@ public class SOCRejectOffer extends SOCMessage
      */
     public SOCRejectOffer(String gameName, int pn, final int reasonCode)
     {
-        messageType = REJECTOFFER;
+        super( REJECTOFFER );
         game = gameName;
         playerNumber = pn;
         this.reasonCode = Reason.values()[reasonCode];

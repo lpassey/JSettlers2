@@ -59,7 +59,7 @@ public class SOCLargestArmy extends SOCMessage
      */
     public SOCLargestArmy(String ga, int pn)
     {
-        messageType = LARGESTARMY;
+        super( LARGESTARMY );
         game = ga;
         playerNumber = pn;
     }

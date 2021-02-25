@@ -68,7 +68,7 @@ public class SOCMakeOffer extends SOCMessage
      */
     public SOCMakeOffer(String ga, SOCTradeOffer of)
     {
-        messageType = MAKEOFFER;
+        super( MAKEOFFER );
         game = ga;
         offer = of;
     }

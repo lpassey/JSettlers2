@@ -61,7 +61,7 @@ public class SOCLastSettlement extends SOCMessage
      */
     public SOCLastSettlement(String na, int pn, int co)
     {
-        messageType = LASTSETTLEMENT;
+        super( LASTSETTLEMENT );
         game = na;
         playerNumber = pn;
         coordinates = co;

@@ -60,7 +60,7 @@ public class SOCSetPlayedDevCard extends SOCMessage
      */
     public SOCSetPlayedDevCard(String ga, int pn, boolean pd)
     {
-        messageType = SETPLAYEDDEVCARD;
+        super( SETPLAYEDDEVCARD );
         game = ga;
         playerNumber = pn;
         playedDevCard = pd;
