@@ -69,11 +69,11 @@ public abstract class SOCMessageTemplate1s extends SOCMessageForGame
     /**
      * Create a new message.
      *
-     * @param id  Message type ID
-     * @param ga  Name of game this message is for
-     * @param p   Parameter
+     * @param messageType  Message type ID
+     * @param gameName  Name of game this message is for
+     * @param p   the string parameter
      */
-    protected SOCMessageTemplate1s(int messageType, String gameName, String p)
+    protected SOCMessageTemplate1s( int messageType, String gameName, String p)
     {
         super( messageType, gameName );
         p1 = p;

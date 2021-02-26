@@ -407,7 +407,7 @@ public class SOCStatusMessage extends SOCMessage
      * <p>
      * For details and the list of status value fallbacks, see {@link #statusFallbackForVersion(int, int)}.
      * <p>
-     * Replaces {@link #toCmd(int, int, String)} used before v2.4.50.
+     * Replaces {@code #toCmd(int, int, String)} used before v2.4.50.
      *
      * @param sv      the status value; if 0 or less, is not output.
      *                Should be a constant such as {@link #SV_OK}.
@@ -417,8 +417,8 @@ public class SOCStatusMessage extends SOCMessage
      *                in your string, and they will be passed on for the receiver to parse.
      * @return the status message
      * @throws IllegalArgumentException If a {@code sv} has no successful fallback at {@code cliVers},
-     *                                  such as with {@link #SV_OK_SET_NICKNAME}, and the client must reauthenticate instead;
-     *                                  the exception is thrown to prevent continued server processing as if the fallback was successful.
+     *          such as with {@link #SV_OK_SET_NICKNAME}, and the client must reauthenticate instead;
+     *           the exception is thrown to prevent continued server processing as if the fallback was successful.
      * @since 2.4.50
      */
     public static SOCStatusMessage buildForVersion( int sv, final int cliVers, final String st )

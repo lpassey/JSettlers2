@@ -2040,12 +2040,12 @@ public final class MessageHandler implements SOCMessageDispatcher
     /**
      * Handle the "report robbery" message.
      * @param mes  the message
-     * @param ga  game object for {@link SOCMessageForGame#getGame() mes.getGameName()}
+     * @param game  game object for {@link SOCMessageForGame#getGameName() mes.getGameName()}
      * @since 2.4.50
      */
-    protected void handleREPORTROBBERY( final SOCReportRobbery mes, SOCGame ga )
+    protected void handleREPORTROBBERY( final SOCReportRobbery mes, SOCGame game )
     {
-        SOCDisplaylessPlayerClient.handleREPORTROBBERY( mes, ga );
+        SOCDisplaylessPlayerClient.handleREPORTROBBERY( mes, game );
 
         PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl != null)

@@ -145,7 +145,7 @@ public class SOCGameState extends SOCMessageForGame
      * Create a GameState message.
      *
      * @param gameName  name of the game
-     * @param gs  game state
+     * @param gameState  game state
      */
     public SOCGameState(String gameName, GameState gameState)
     {

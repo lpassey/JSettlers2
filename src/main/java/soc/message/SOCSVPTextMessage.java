@@ -92,7 +92,7 @@ public class SOCSVPTextMessage extends SOCMessageForGame
     /**
      * Create a new localized or non-localized SVPTEXTMSG message.
      *
-     * @param ga  the game name
+     * @param gameName  the game name
      * @param pn  Player number
      * @param svp  Number of Special Victory Points (SVP) awarded
      * @param desc  Description of the player's action that led to the SVP.

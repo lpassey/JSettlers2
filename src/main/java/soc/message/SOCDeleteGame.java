@@ -34,7 +34,7 @@ public class SOCDeleteGame extends  SOCMessageForGame
     /**
      * Create a DeleteGame message.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      */
     public SOCDeleteGame(String gameName)
     {

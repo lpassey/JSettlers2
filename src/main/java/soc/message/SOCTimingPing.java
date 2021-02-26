@@ -38,7 +38,7 @@ public class SOCTimingPing extends SOCMessageForGame
     /**
      * Create a SOCTimingPing message.
      *
-     * @param ga  name of game
+     * @param gameName  name of game
      */
     public SOCTimingPing( String gameName )
     {

@@ -76,7 +76,7 @@ public class SOCBuyDevCardRequest extends SOCMessageForGame
     /**
      * Create a BuyDevCardRequest message.
      *
-     * @param ga  name of game
+     * @param gameName  name of game
      */
     public SOCBuyDevCardRequest(String gameName)
     {

@@ -114,7 +114,7 @@ public class SOCGameMessageHandler
      * Caller of this method will catch any thrown Exceptions.
      *
      * @param game  Game in which client {@code connection} is sending {@code message}.
-     *     Never null; from {@link SOCMessageForGame#getGame()}.
+     *     Never null; from {@link SOCMessageForGame#getGameName()}.
      * @param message  Message from client {@code connection}. Never null.
      * @param connection  Connection to the Client sending {@code message}. Never null.
      *     {@link Connection#getData()} won't be {@code null}

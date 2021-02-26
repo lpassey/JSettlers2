@@ -139,17 +139,17 @@ public class SOCVersion extends SOCMessage
 
     /**
      * VERSION SEP vernum SEP2 verstr [SEP2 build [SEP2 feats [SEP2 cliLocale]]].
-     * Build, feats, and cliLocale are optional and may be blank ({@link SOCMessage#EMPTYSTR}).
-     * @param versNum  the version number, like 1100 for 1.1.00, as in {@link soc.util.Version#versionNumber()}; not null
-     * @param versStr  the version as string, like "1.1.00"; not null
-     * @param versBuild the version build, or null, from {@link soc.util.Version#buildnum()}
-     * @param feats  The server's or client's active optional features, or null, as in
+     * Build, feats, and cliLocale are optional and may be blank ({@link SOCMessage#EMPTYSTR}).<br />
+     * {@code versNum}  the version number, like 1100 for 1.1.00, as in {@link soc.util.Version#versionNumber()}; not null<br />
+     * {@code versStr}  the version as string, like "1.1.00"; not null<p />
+     * {@code versBuild} the version build, or null, from {@link soc.util.Version#buildnum()}<p />
+     * {@code feats}  The server's or client's active optional features, or null, as in
      *     {@link SOCFeatureSet#getEncodedList()}.
      *     Not sent by servers older than 1.1.19 or clients older than 2.0.00;
      *     see {@link SOCFeatureSet#SOCFeatureSet(boolean, boolean)} for default features at older versions.
-     *     Server can send this to a client older than 1.1.19, it is safely ignored.
-     * @param cliLocale The client's JVM locale, or null, as in {@link java.util.Locale#toString()}.
-     *     Not sent by servers or by clients older than 2.0.00.
+     *     Server can send this to a client older than 1.1.19, it is safely ignored.<p />
+     * {@code cliLocale} The client's JVM locale, or null, as in {@link java.util.Locale#toString()}.
+     *     Not sent by servers or by clients older than 2.0.00.<p />
      * @return    the command string
      * @throws IllegalArgumentException if {@code verBuild} is null and {@code feats} != null;
      *     not supported by message encoding to clients older than 2.0.00.

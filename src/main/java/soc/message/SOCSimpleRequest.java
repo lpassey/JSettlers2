@@ -136,44 +136,44 @@ public class SOCSimpleRequest extends SOCMessageTemplate4i
     /**
      * Create a SOCSimpleRequest message.
      *
-     * @param ga  the name of the game
-     * @param pn  the requester's player number
+     * @param gameName  the name of the game
+     * @param playerSeatNumber  the requester's player number
      * @param reqType  the request type; below 1000 is general, 1000+ is specific to one kind of game
      */
-    public SOCSimpleRequest(final String gameName, final int pn, final int reqType)
+    public SOCSimpleRequest(final String gameName, final int playerSeatNumber, final int reqType)
     {
-        this( gameName, pn, reqType, 0, 0);
+        this( gameName, playerSeatNumber, reqType, 0, 0);
     }
 
     /**
      * Create a SOCSimpleRequest message with a detail value.
      *
-     * @param ga  the name of the game
-     * @param pn  the requester's player number
+     * @param gameName  the name of the game
+     * @param playerSeatNumber  the requester's player number
      * @param reqType  the request type; below 1000 is general, 1000+ is specific to one kind of game
      * @param value1  Optional detail value, or 0.  Use {@link #getValue1()}, not {@link #getParam1()}, to get
      *     this value from a {@code SOCSimpleRequest} message.
      */
-    public SOCSimpleRequest(final String gameName, final int pn, final int reqType, final int value1)
+    public SOCSimpleRequest(final String gameName, final int playerSeatNumber, final int reqType, final int value1)
     {
-        this( gameName, pn, reqType, value1, 0);
+        this( gameName, playerSeatNumber, reqType, value1, 0);
     }
 
     /**
      * Create a SOCSimpleRequest message with 2 detail values.
      *
-     * @param ga  the name of the game
-     * @param pn  the requester's player number
+     * @param gameName  the name of the game
+     * @param playerSeatNumber  the requester's player number
      * @param reqType  the request type; below 1000 is general, 1000+ is specific to one kind of game
      * @param value1  First optional detail value, or 0.  Use {@link #getValue1()}, not {@link #getParam1()}, to get
      *     this value from a {@code SOCSimpleRequest} message.
      * @param value2  Second optional detail value, or 0. Use {@link #getValue2()}, not {@link #getParam2()}, to get
      *     this value from a {@code SOCSimpleRequest} message.
      */
-    public SOCSimpleRequest(final String gameName, final int pn, final int reqType,
+    public SOCSimpleRequest(final String gameName, final int playerSeatNumber, final int reqType,
         final int value1, final int value2)
     {
-        super( SIMPLEREQUEST, gameName, pn, reqType, value1, value2 );
+        super( SIMPLEREQUEST, gameName, playerSeatNumber, reqType, value1, value2 );
     }
 
     /**

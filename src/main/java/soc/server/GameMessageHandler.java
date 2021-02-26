@@ -46,15 +46,15 @@ public interface GameMessageHandler
      * {@link soc.communication.SOCMessageDispatcher SOCMessageDispatcher}.
      * Caller will catch any thrown Exceptions.
      *
-     * @param ga  Game in which client {@code c} is sending {@code msg}.
-     *            Never null; from {@link SOCMessageForGame#getGame()}.
-     * @param mes  Message from client {@code c}. Never null.
+     * @param game  Game in which client {@code c} is sending {@code msg}.
+     *            Never null; from {@link SOCMessageForGame#getGameName()}.
+     * @param clientMsg  Message from client {@code c}. Never null.
      * @param c    Client sending {@code msg}. Never null.
      *     {@link Connection#getData()} won't be {@code null}
      *     unless {@code mes} implements {@link SOCMessageFromUnauthClient}.
      * @return  true if processed, false if ignored or unknown message type
      */
-    boolean dispatch( SOCGame ga, SOCMessageForGame mes, Connection c )
+    boolean dispatch( SOCGame game, SOCMessageForGame clientMsg, Connection c )
         throws Exception;
 
 }

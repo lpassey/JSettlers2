@@ -1823,7 +1823,8 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      *<P>
      * This method is public static for access by other client classes.
      * @param mes  the message
-     * @param ga  Message's game from {@link SOCLastSettlement#getGame()}; if {@code null}, message is ignored
+     * @param ga  Message's game from {@link SOCLastSettlement#getGameName()};
+     *           if {@code null}, message is ignored
      * @since 2.0.00
      */
     public static void handleLASTSETTLEMENT(SOCLastSettlement mes, final SOCGame ga)
@@ -1855,7 +1856,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * This method is public static for access by
      * {@code SOCRobotBrain.handlePUTPIECE_updateGameData(SOCPutPiece)}.
      * @param mes  the message
-     * @param ga  Message's game from {@link SOCPutPiece#getGame()}; if {@code null}, message is ignored
+     * @param ga  Message's game from {@link SOCPutPiece#getGameName()}; if {@code null}, message is ignored
      */
     public static void handlePUTPIECE(final SOCPutPiece mes, SOCGame ga)
     {
@@ -1987,7 +1988,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * This method is public static for access by {@code SOCPlayerClient} and robot client classes.
      *
      * @param mes  the message
-     * @param ga  game object for {@link SOCMessageForGame#getGame() mes.getGameName()}; if {@code null}, message is ignored
+     * @param ga  game object for {@link SOCMessageForGame#getGameName() mes.getGameNameName()}; if {@code null}, message is ignored
      * @since 2.4.50
      */
     public static void handleREPORTROBBERY(final SOCReportRobbery mes, SOCGame ga)
