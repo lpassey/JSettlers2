@@ -40,15 +40,10 @@ import java.util.StringTokenizer;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 2.0.00
  */
-public class SOCSVPTextMessage extends SOCMessage
-    implements SOCKeyedMessage, SOCMessageForGame
+public class SOCSVPTextMessage extends SOCMessageForGame
+    implements SOCKeyedMessage
 {
     private static final long serialVersionUID = 2000L;
-
-    /**
-     * Name of the game.
-     */
-    public final String game;
 
     /**
      * Player number.
@@ -78,7 +73,7 @@ public class SOCSVPTextMessage extends SOCMessage
     /**
      * Create a new non-localized SVPTEXTMSG message at the server.
      *
-     * @param ga  the game name
+     * @param gameName  the game name
      * @param pn  Player number
      * @param svp  Number of Special Victory Points (SVP) awarded
      * @param desc  Description of the player's action that led to the SVP.
@@ -88,10 +83,10 @@ public class SOCSVPTextMessage extends SOCMessage
      * @throws IllegalArgumentException if {@code desc} is null or
      *     fails {@link SOCMessage#isSingleLineAndSafe(String, boolean) SOCMessage.isSingleLineAndSafe(desc, true)}
      */
-    public SOCSVPTextMessage(final String ga, final int pn, final int svp, final String desc)
+    public SOCSVPTextMessage(final String gameName, final int pn, final int svp, final String desc)
         throws IllegalArgumentException
     {
-        this(ga, pn, svp, desc, false);
+        this(gameName, pn, svp, desc, false);
     }
 
     /**
@@ -108,14 +103,14 @@ public class SOCSVPTextMessage extends SOCMessage
      * @throws IllegalArgumentException if {@code desc} is null or
      *     fails {@link SOCMessage#isSingleLineAndSafe(String, boolean) SOCMessage.isSingleLineAndSafe(desc, true)}
      */
-    public SOCSVPTextMessage(final String ga, final int pn, final int svp, final String desc, final boolean isLocal)
+    public SOCSVPTextMessage(final String gameName, final int pn, final int svp, final String desc,
+        final boolean isLocal)
         throws IllegalArgumentException
     {
-        super( SVPTEXTMSG );
+        super( SVPTEXTMSG, gameName );
         if (! isSingleLineAndSafe(desc, true))
             throw new IllegalArgumentException("desc");
 
-        game = ga;
         this.pn = pn;
         this.svp = svp;
         this.desc = desc;
@@ -123,36 +118,14 @@ public class SOCSVPTextMessage extends SOCMessage
     }
 
     /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
-    /**
      * SVPTEXTMSG sep game sep2 pn sep2 svp sep2 desc
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getType(), game, pn, svp, desc);
-    }
-
-    /**
-     * SVPTEXTMSG sep game sep2 pn sep2 svp sep2 desc
-     *
-     * @param ga  the game name
-     * @param pn  Player number
-     * @param svp  Number of Special Victory Points (SVP) awarded
-     * @param desc  Description of the player's action that led to the SVP
-     * @return    the command string
-     */
-    protected static String toCmd
-        (final int messageType, final String ga, final int pn, final int svp, final String desc)
-    {
-        return messageType + sep + ga + sep2 + pn + sep2 + svp + sep2 + desc;
+        return super.toCmd( sep2 + pn + sep2 + svp + sep2 + desc );
     }
 
     /**
@@ -167,7 +140,7 @@ public class SOCSVPTextMessage extends SOCMessage
 
     public SOCMessage localize(final String localizedText)
     {
-        return new SOCSVPTextMessage(game, pn, svp, localizedText, true);
+        return new SOCSVPTextMessage( getGameName(), pn, svp, localizedText, true );
     }
 
     /**
@@ -209,7 +182,7 @@ public class SOCSVPTextMessage extends SOCMessage
      */
     public String toString()
     {
-        return getClass().getSimpleName() + ":game=" + game
+        return getClass().getSimpleName() + ":game=" + getGameName()
             + "|pn=" + pn + "|svp=" + svp + "|desc=" + desc;
     }
 

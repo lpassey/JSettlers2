@@ -55,8 +55,7 @@ import soc.game.SOCDevCardConstants;  // for javadocs only
  * @author Robert S Thomas
  * @see SOCInventoryItemAction
  */
-public class SOCDevCardAction extends SOCMessage
-    implements SOCMessageForGame
+public class SOCDevCardAction extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -123,11 +122,6 @@ public class SOCDevCardAction extends SOCMessage
     public static final int CANNOT_PLAY = 4;
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * Player number
      */
     private int playerNumber;
@@ -153,17 +147,16 @@ public class SOCDevCardAction extends SOCMessage
     /**
      * Create a DevCardAction message about 1 card.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param pn  the player number, or -1 for action type {@link #CANNOT_PLAY}
      * @param ac  the type of action
      * @param ct  the type of card, like {@link SOCDevCardConstants#ROADS}
      *     or {@link SOCDevCardConstants#UNKNOWN}
      * @see #SOCDevCardAction(String, int, int, List)
      */
-    public SOCDevCardAction( String ga, int pn, int ac, int ct )
+    public SOCDevCardAction( String gameName, int pn, int ac, int ct )
     {
-        super( DEVCARDACTION );
-        game = ga;
+        super( DEVCARDACTION, gameName );
         playerNumber = pn;
         actionType = ac;
         cardType = ct;
@@ -178,7 +171,7 @@ public class SOCDevCardAction extends SOCMessage
      * This form is currently used only at end of game (state {@link soc.game.GameState#GAME_OVER})
      * to reveal hidden Victory Point cards. So, bots ignore it.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param pn  the player number; cannot be &lt; 0
      * @param ac  the type of action; cannot be {@link #PLAY} or {@link #CANNOT_PLAY}
      * @param ct  the types of card, like {@link SOCDevCardConstants#ROADS}
@@ -188,10 +181,10 @@ public class SOCDevCardAction extends SOCMessage
      * @see #SOCDevCardAction(String, int, int, int)
      * @since 2.0.00
      */
-    public SOCDevCardAction( String ga, int pn, int ac, List<Integer> ct )
+    public SOCDevCardAction( String gameName, int pn, int ac, List<Integer> ct )
         throws IllegalArgumentException
     {
-        super( DEVCARDACTION );
+        super( DEVCARDACTION, gameName );
         if (pn < 0)
             throw new IllegalArgumentException( "pn: " + pn );
         if ((ac == PLAY) || (ac == CANNOT_PLAY))
@@ -202,19 +195,10 @@ public class SOCDevCardAction extends SOCMessage
         if ((S == 0) || (S > MAX_MULTIPLE))
             throw new IllegalArgumentException( "ct size: " + S );
 
-        game = ga;
         playerNumber = pn;
         actionType = ac;
         cardType = 0;
         cardTypes = ct;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -263,7 +247,7 @@ public class SOCDevCardAction extends SOCMessage
     public String toCmd()
     {
         StringBuilder sb = new StringBuilder
-            ( DEVCARDACTION + sep + game + sep2 + playerNumber + sep2 + actionType );
+            ( DEVCARDACTION + sep + getGameName() + sep2 + playerNumber + sep2 + actionType );
         if (cardTypes == null)
         {
             sb.append( sep2 );
@@ -432,7 +416,7 @@ public class SOCDevCardAction extends SOCMessage
         else
             act = Integer.toString( actionType );
 
-        return "SOCDevCardAction:game=" + game + "|playerNum=" + playerNumber
+        return "SOCDevCardAction:game=" + getGameName() + "|playerNum=" + playerNumber
             + "|actionType=" + act +
             ((cardTypes != null)
                 ? "|cardTypes=" + cardTypes.toString()  // "[1, 5, 7]"

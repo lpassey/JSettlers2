@@ -44,15 +44,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCSitDown extends SOCMessage
-    implements SOCMessageForGame
+public class SOCSitDown extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Nickname of player; ignored from client, can be "-" or {@link SOCMessage#EMPTYSTR} but not blank
@@ -72,26 +66,17 @@ public class SOCSitDown extends SOCMessage
     /**
      * Create a SitDown message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param nk  nickname of the player; ignored from client, can be "-" or {@link SOCMessage#EMPTYSTR} but not blank
      * @param pn  the seat number
      * @param rf  true if this is a robot
      */
-    public SOCSitDown(String ga, String nk, int pn, boolean rf)
+    public SOCSitDown(String gameName, String nk, int pn, boolean rf)
     {
-        super( SITDOWN );
-        game = ga;
+        super( SITDOWN, gameName );
         nickname = nk;
         playerNumber = pn;
         robotFlag = rf;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -124,23 +109,10 @@ public class SOCSitDown extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, nickname, playerNumber, robotFlag);
-    }
-
-    /**
-     * SITDOWN sep game sep2 nickname sep2 playerNumber sep2 robotFlag
-     *
-     * @param ga  the name of the game
-     * @param nk  nickname of the player; ignored from client, can be "-" or {@link SOCMessage#EMPTYSTR} but not blank
-     * @param pn  the seat number
-     * @param rf  the value of the robot flag
-     * @return the command string
-     */
-    public static String toCmd(String ga, String nk, int pn, boolean rf)
-    {
-        return SITDOWN + sep + ga + sep2 + nk + sep2 + pn + sep2 + rf;
+        return super.toCmd( sep2 + nickname + sep2 + playerNumber + sep2 + robotFlag );
     }
 
     /**
@@ -178,6 +150,6 @@ public class SOCSitDown extends SOCMessage
      */
     public String toString()
     {
-        return "SOCSitDown:game=" + game + "|nickname=" + nickname + "|playerNumber=" + playerNumber + "|robotFlag=" + robotFlag;
+        return "SOCSitDown:game=" + getGameName() + "|nickname=" + nickname + "|playerNumber=" + playerNumber + "|robotFlag=" + robotFlag;
     }
 }

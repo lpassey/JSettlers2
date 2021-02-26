@@ -31,15 +31,10 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCSetPlayedDevCard extends SOCMessage
-    implements SOCMessageForGame
+@Deprecated
+public class SOCSetPlayedDevCard extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The player number
@@ -54,24 +49,15 @@ public class SOCSetPlayedDevCard extends SOCMessage
     /**
      * Create a SetPlayedDevCard message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the seat number
      * @param pd  the value of the playedDevCard flag
      */
-    public SOCSetPlayedDevCard(String ga, int pn, boolean pd)
+    public SOCSetPlayedDevCard( String gameName, int pn, boolean pd )
     {
-        super( SETPLAYEDDEVCARD );
-        game = ga;
+        super( SETPLAYEDDEVCARD, gameName );
         playerNumber = pn;
         playedDevCard = pd;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -95,22 +81,10 @@ public class SOCSetPlayedDevCard extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, playerNumber, playedDevCard);
-    }
-
-    /**
-     * SETPLAYEDDEVCARD sep game sep2 playerNumber sep2 playedDevCard
-     *
-     * @param ga  the name of the game
-     * @param pn  the seat number
-     * @param pd  the value of the playedDevCard flag
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn, boolean pd)
-    {
-        return SETPLAYEDDEVCARD + sep + ga + sep2 + pn + sep2 + pd;
+        return super.toCmd( sep2 + playerNumber + sep2 + playedDevCard );
     }
 
     /**
@@ -121,7 +95,7 @@ public class SOCSetPlayedDevCard extends SOCMessage
      */
     public static SOCSetPlayedDevCard parseDataStr(String s)
     {
-        String ga; // the game name
+        String gameName; // the game name
         int pn; // the seat number
         boolean pd; // the value of the playedDevCard flag
 
@@ -129,7 +103,7 @@ public class SOCSetPlayedDevCard extends SOCMessage
 
         try
         {
-            ga = st.nextToken();
+            gameName = st.nextToken();
             pn = Integer.parseInt(st.nextToken());
             pd = Boolean.valueOf( st.nextToken() );
         }
@@ -138,7 +112,7 @@ public class SOCSetPlayedDevCard extends SOCMessage
             return null;
         }
 
-        return new SOCSetPlayedDevCard(ga, pn, pd);
+        return new SOCSetPlayedDevCard(gameName, pn, pd);
     }
 
     /**
@@ -146,6 +120,7 @@ public class SOCSetPlayedDevCard extends SOCMessage
      */
     public String toString()
     {
-        return "SOCSetPlayedDevCard:game=" + game + "|playerNumber=" + playerNumber + "|playedDevCard=" + playedDevCard;
+        return "SOCSetPlayedDevCard:game=" + getGameName() + "|playerNumber=" + playerNumber
+            + "|playedDevCard=" + playedDevCard;
     }
 }

@@ -34,8 +34,6 @@ import soc.game.SOCPlayingPiece;
  * <LI> Param 3: Coordinates of the piece to remove
  *</UL>
  *<P>
- * (These parameters are in the same order as in {@link SOCPutPiece#toCmd(String, int, int, int)}.)
- *<P>
  * Introduced in v2.0.00 for the Pirate Islands scenario ({@code _SC_PIRI}).
  *
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
@@ -71,24 +69,6 @@ public class SOCRemovePiece extends SOCMessageTemplate3i
         throws IllegalArgumentException
     {
         this(ga, pp.getPlayerNumber(), pp.getType(), pp.getCoordinates());
-    }
-
-    /**
-     * REMOVEPIECE sep game sep2 pn sep2 ptype sep2 co
-     *
-     * @param ga  the name of the game
-     * @param pn  player number owning the piece
-     * @param ptype  type of playing piece, such as {@link soc.game.SOCPlayingPiece#SHIP}
-     * @param co  coordinates of the piece to remove; must be >= 0
-     * @return the command string
-     */
-    public static String toCmd(final String ga, final int pn, final int ptype, final int co)
-        throws IllegalArgumentException
-    {
-        if (co < 0)
-            throw new IllegalArgumentException("coord < 0");
-
-        return SOCMessageTemplate3i.toCmd(REMOVEPIECE, ga, pn, ptype, co);
     }
 
     /**
@@ -137,7 +117,7 @@ public class SOCRemovePiece extends SOCMessageTemplate3i
     @Override
     public String toString()
     {
-        return "SOCRemovePiece:game=" + game
+        return "SOCRemovePiece:game=" + getGameName()
             + "|pn=" + p1 + "|pieceType=" + p2 + "|coord=" + p3;
     }
 

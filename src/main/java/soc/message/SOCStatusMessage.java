@@ -480,7 +480,16 @@ public class SOCStatusMessage extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd( svalue, status );
+        StringBuilder sb = new StringBuilder()
+            .append( STATUSMESSAGE )
+            .append( sep );
+        if (svalue > 0)
+        {
+            sb.append( svalue );
+            sb.append( sep2 );
+        }
+        sb.append( status );
+        return sb.toString();
     }
 
     /**
@@ -497,20 +506,20 @@ public class SOCStatusMessage extends SOCMessage
      *           in your string, and they will be passed on for the receiver to parse.
      * @return the command string
      */
-    public static String toCmd( int sv, String st )
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append( STATUSMESSAGE );
-        sb.append( sep );
-        if (sv > 0)
-        {
-            sb.append( sv );
-            sb.append( sep2 );
-        }
-        sb.append( st );
-
-        return sb.toString();
-    }
+//    public static String toCmd( int sv, String st )
+//    {
+//        StringBuilder sb = new StringBuilder();
+//        sb.append( STATUSMESSAGE );
+//        sb.append( sep );
+//        if (sv > 0)
+//        {
+//            sb.append( sv );
+//            sb.append( sep2 );
+//        }
+//        sb.append( st );
+//
+//        return sb.toString();
+//    }
 
     /**
      * STATUSMESSAGE sep [svalue sep2] status -- includes backwards compatibility.
@@ -528,23 +537,23 @@ public class SOCStatusMessage extends SOCMessage
      *                in your string, and they will be passed on for the receiver to parse.
      * @return the command string
      * @throws IllegalArgumentException If a {@code sv} has no successful fallback at {@code cliVers},
-     *                                  such as with {@link #SV_OK_SET_NICKNAME}, and the client must reauthenticate instead;
-     *                                  the exception is thrown to prevent continued server processing as if the fallback was successful.
+     *         such as with {@link #SV_OK_SET_NICKNAME}, and the client must reauthenticate instead;
+     *         the exception is thrown to prevent continued server processing as if the fallback was successful.
      * @see #statusFallbackForVersion(int, int)
      * @since 1.1.07
      * @deprecated Use {@link #buildForVersion(int, int, String)} instead,
-     * which returns a message object instead of a String
+     *      which returns a message object instead of a String
      */
-    @Deprecated
-    public static String toCmd( final int sv, final int cliVers, final String st )
-        throws IllegalArgumentException
-    {
-        int fallSV = statusFallbackForVersion( sv, cliVers );
-        if (fallSV != sv)
-            return toCmd( fallSV, cliVers, st );  // ensure fallback value is valid at client's version
-        else
-            return toCmd( sv, st );
-    }
+//    @Deprecated
+//    public static String toCmd( final int sv, final int cliVers, final String st )
+//        throws IllegalArgumentException
+//    {
+//        int fallSV = statusFallbackForVersion( sv, cliVers );
+//        if (fallSV != sv)
+//            return toCmd( fallSV, cliVers, st );  // ensure fallback value is valid at client's version
+//        else
+//            return toCmd( sv, st );
+//    }
 
     /**
      * Is this status value defined in this version?  If not, {@link #SV_NOT_OK_GENERIC} should be sent instead.

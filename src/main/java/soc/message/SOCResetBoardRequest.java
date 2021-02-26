@@ -31,7 +31,7 @@ package soc.message;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public class SOCResetBoardRequest extends SOCMessageTemplate0
+public class SOCResetBoardRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1100L;  // last structural change v1.1.00
 
@@ -62,5 +62,4 @@ public class SOCResetBoardRequest extends SOCMessageTemplate0
      * @return Version number, 1100 for JSettlers 1.1.00.
      */
     public int getMinimumVersion() { return 1100; }
-
 }

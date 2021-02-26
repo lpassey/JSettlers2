@@ -990,7 +990,7 @@ public class SOCServerMessageHandler
      */
     private void handleCHANGEFACE( Connection c, final SOCChangeFace mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         final SOCGame ga = gameList.getGameData( gaName );
         if (ga == null)
             return;
@@ -1019,7 +1019,7 @@ public class SOCServerMessageHandler
     private void handleSETSEATLOCK( Connection c, final SOCSetSeatLock mes )
     {
         final SOCGame.SeatLockState sl = mes.getLockState();
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = gameList.getGameData( gaName );
         if (ga == null)
             return;
@@ -1139,7 +1139,7 @@ public class SOCServerMessageHandler
     {
         //createNewGameEventRecord();
         //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
-        final String gaName = gameTextMsgMes.getGame();
+        final String gaName = gameTextMsgMes.getGameName();
 
         SOCGame ga = gameList.getGameData( gaName );
         if (ga == null)
@@ -2395,7 +2395,7 @@ public class SOCServerMessageHandler
             return;
 
         final Map<String, SOCGameOption> optsMap = mes.getOptions(server.knownOpts);
-        server.createOrJoinGameIfUserOK( c, mes.getNickname(), mes.getPassword(), mes.getGame(),
+        server.createOrJoinGameIfUserOK( c, mes.getNickname(), mes.getPassword(), mes.getGameName(),
                 (optsMap != null) ? new SOCGameOptionSet( optsMap ) : null );
     }
 
@@ -2428,7 +2428,8 @@ public class SOCServerMessageHandler
                 return;  // <--- Early return: Client too old ---
         }
 
-        server.createOrJoinGameIfUserOK( c, mes.getNickname(), mes.getPassword(), mes.getGame(), null );
+        server.createOrJoinGameIfUserOK( c, mes.getNickname(), mes.getPassword(),
+            mes.getGameName(), null );
     }
 
     /**
@@ -2444,7 +2445,7 @@ public class SOCServerMessageHandler
             return;
 
         boolean isMember = false;
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         if (!gameList.takeMonitorForGame( gaName ))
         {
             return;  // <--- Early return: game not in gamelist ---
@@ -2521,7 +2522,7 @@ public class SOCServerMessageHandler
         if (c == null)
             return;
 
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = gameList.getGameData( gaName );
         if (ga == null)
         {
@@ -2662,7 +2663,7 @@ public class SOCServerMessageHandler
                         if ((ga.savedGameModel != null) && (gameState.gt( SPECIAL_BUILDING )))
                         {
                             canSit = true;
-                            server.messageToGame(gaName, true, new SOCLeaveGame(seatedName, "-", gaName));
+                            server.messageToGame( gaName, true, new SOCLeaveGame(gaName, seatedName, "-" ));
                         }
                     }
                 }
@@ -2752,11 +2753,10 @@ public class SOCServerMessageHandler
      *     robots-only game using the *STARTBOTGAME* debug command; ignored otherwise.
      * @since 1.0.0
      */
-    void handleSTARTGAME
-    ( Connection c, final SOCStartGame mes, final int botsOnly_maxBots )
+    void handleSTARTGAME( Connection c, final SOCStartGame mes, final int botsOnly_maxBots )
     {
-        final String gn = mes.getGame();
-        SOCGame ga = gameList.getGameData( gn );
+        final String gameName = mes.getGameName();
+        SOCGame ga = gameList.getGameData( gameName );
         if (ga == null)
             return;
 
@@ -2889,14 +2889,14 @@ public class SOCServerMessageHandler
                             if (!invitedBots)
                             {
                                 System.err.println
-                                    ( "Robot-join problem in game " + gn + ": "
+                                    ( "Robot-join problem in game " + gameName + ": "
                                         + ((e != null) ? e : " no matching bots available") );
 
                                 // recover, so that human players can still start a game
                                 ga.setGameState( NEW_GAME );
                                 allowStart = false;
 
-                                gameList.takeMonitorForGame( gn );
+                                gameList.takeMonitorForGame( gameName );
                                 if (e != null)
                                     server.messageToGameKeyed(ga, true, false, "start.robots.cannot.join.problem", e.getMessage());
                                     // "Sorry, robots cannot join this game: {0}"
@@ -2905,7 +2905,7 @@ public class SOCServerMessageHandler
                                 // "Sorry, robots cannot join this game because of its options."
                                 server.messageToGameKeyed(ga, true, false, "start.to.start.without.robots");
                                 // "To start the game without robots, lock all empty seats."
-                                gameList.releaseMonitorForGame( gn );
+                                gameList.releaseMonitorForGame( gameName );
                             }
                         }
                     }
@@ -2917,7 +2917,7 @@ public class SOCServerMessageHandler
                  */
                 if (seatsFull && allowStart)
                 {
-                    GameHandler hand = gameList.getGameTypeHandler( gn );
+                    GameHandler hand = gameList.getGameTypeHandler( gameName );
                     if (hand != null)
                         hand.startGame( ga );
                 }
@@ -2956,8 +2956,8 @@ public class SOCServerMessageHandler
      */
     private void handleRESETBOARDREQUEST( Connection c, final SOCResetBoardRequest mes )
     {
-        final String gaName = mes.getGame();
-        SOCGame ga = gameList.getGameData( gaName );
+        final String gameName = mes.getGameName();
+        SOCGame ga = gameList.getGameData( gameName );
         if (ga == null)
             return;
         SOCPlayer reqPlayer = ga.getPlayer( c.getData() );
@@ -2984,7 +2984,7 @@ public class SOCServerMessageHandler
         Connection[] humanConns = new Connection[ga.maxPlayers];
         Connection[] robotConns = new Connection[ga.maxPlayers];
         final int numHuman = SOCGameBoardReset.sortPlayerConnections
-            ( ga, null, gameList.getMembers( gaName ), humanConns, robotConns );
+            ( ga, null, gameList.getMembers( gameName ), humanConns, robotConns );
 
         final int reqPN = reqPlayer.getPlayerNumber();
         if (numHuman < 2)
@@ -3005,11 +3005,11 @@ public class SOCServerMessageHandler
             }
             if (hadUnlockedRobot)
             {
-                server.resetBoardAndNotify(gaName, reqPN);
+                server.resetBoardAndNotify(gameName, reqPN);
             }
             else if (hadRobot)
             {
-                server.messageToPlayerKeyed( c, gaName, reqPN, "resetboard.request.unlock.bot" );
+                server.messageToPlayerKeyed( c, gameName, reqPN, "resetboard.request.unlock.bot" );
                 // "Please unlock at least one bot, so you will have an opponent."
             }
             else
@@ -3023,7 +3023,7 @@ public class SOCServerMessageHandler
             // Probably put it to a vote.
 
             // First, Count number of other players who can vote (connected, version chk)
-            gameList.takeMonitorForGame( gaName );
+            gameList.takeMonitorForGame( gameName );
             int votingPlayers = 0;
             try
             {
@@ -3039,7 +3039,7 @@ public class SOCServerMessageHandler
             }
             finally
             {
-                gameList.releaseMonitorForGame( gaName );
+                gameList.releaseMonitorForGame( gameName );
             }
 
             if (votingPlayers == 0)
@@ -3049,21 +3049,21 @@ public class SOCServerMessageHandler
                 server.messageToGameKeyed(ga, true, false, "resetboard.vote.request.alloldcli", c.getData());
                 // ">>> {0} is resetting the game - other connected players are unable to vote (client too old)."
 
-                server.resetBoardAndNotify(gaName, reqPN);
+                server.resetBoardAndNotify(gameName, reqPN);
             }
             else
             {
                 // Put it to a vote
                 server.messageToGameKeyed(ga, true, false, "resetboard.vote.request", c.getData());
                 // "requests a board reset - other players please vote."
-                final SOCMessage vr = new SOCResetBoardVoteRequest( gaName, reqPN );
+                final SOCMessage vr = new SOCResetBoardVoteRequest( gameName, reqPN );
 
                 ga.resetVoteBegin( reqPN );
 
                 for (int i = 0; i < ga.maxPlayers; ++i)
                     if (humanConns[i] != null)
                         if (humanConns[i].getRemoteVersion() >= 1100)
-                            server.messageToPlayer(humanConns[i], gaName, i, vr);
+                            server.messageToPlayer(humanConns[i], gameName, i, vr);
                         else
                             ga.resetVoteRegister
                                 ( ga.getPlayer( humanConns[i].getData() ).getPlayerNumber(), true );
@@ -3085,8 +3085,8 @@ public class SOCServerMessageHandler
      */
     private void handleRESETBOARDVOTE( Connection c, final SOCResetBoardVote mes )
     {
-        final String gaName = mes.getGame();
-        SOCGame ga = gameList.getGameData( gaName );
+        final String gameName = mes.getGameName();
+        SOCGame ga = gameList.getGameData( gameName );
         if (ga == null)
             return;
         final String plName = c.getData();

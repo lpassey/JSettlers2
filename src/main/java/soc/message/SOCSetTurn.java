@@ -63,18 +63,6 @@ public class SOCSetTurn extends SOCMessageTemplate1i
     }
 
     /**
-     * SETTURN sep game sep2 playerNumber
-     *
-     * @param ga  the name of the game
-     * @param pn  the seat number
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn)
-    {
-        return SETTURN + sep + ga + sep2 + pn;
-    }
-
-    /**
      * Parse the command String into a SetTurn message
      *
      * @param s   the String to parse: SETTURN sep game sep2 playerNumber
@@ -82,6 +70,8 @@ public class SOCSetTurn extends SOCMessageTemplate1i
      */
     public static SOCSetTurn parseDataStr(String s)
     {
+        SOCMessageTemplate1i result = SOCMessageTemplate1i.parseDataStr( SETTURN, s );
+
         String ga; // the game name
         int pn; // the seat number
 
@@ -99,5 +89,4 @@ public class SOCSetTurn extends SOCMessageTemplate1i
 
         return new SOCSetTurn(ga, pn);
     }
-
 }

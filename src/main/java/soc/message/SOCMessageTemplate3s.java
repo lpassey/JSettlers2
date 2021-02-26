@@ -64,15 +64,9 @@ package soc.message;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public abstract class SOCMessageTemplate3s extends SOCMessage
-    implements SOCMessageForGame
+public abstract class SOCMessageTemplate3s extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;
-
-    /**
-     * Name of the game.
-     */
-    protected String game;
 
     /**
      * First string parameter.
@@ -93,27 +87,18 @@ public abstract class SOCMessageTemplate3s extends SOCMessage
      * Create a new message. The second parameter is optional here;
      * your subclass may decide to make it mandatory.
      *
-     * @param id  Message type ID
-     * @param ga  Name of game this message is for
+     * @param messageType  Message type ID
+     * @param gameName  Name of game this message is for
      * @param p1   First parameter
      * @param p2   Second parameter, or null
      * @param p3   Third parameter, or null
      */
-    protected SOCMessageTemplate3s(int id, String ga, String p1, String p2, String p3)
+    protected SOCMessageTemplate3s(int messageType, String gameName, String p1, String p2, String p3)
     {
-        super( id );
-        game = ga;
+        super( messageType, gameName );
         this.p1 = p1;
         this.p2 = p2;
         this.p3 = p3;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -145,67 +130,22 @@ public abstract class SOCMessageTemplate3s extends SOCMessage
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getType(), game, p1, p2, p3 );
+        return super.toCmd(sep2 + p1
+            + sep2 + (p2 != null ? p2 : "")
+            + sep2 + (p3 != null ? p3 : ""));
     }
-
-    /**
-     * MESSAGETYPE sep game sep2 param1 sep2 param2 sep2 param3
-     *
-     * @param messageType The message type id
-     * @param ga  the game name
-     * @param param1 The first parameter
-     * @param param2 The second parameter, or null
-     * @param param3 The third parameter, or null
-     * @return    the command string
-     */
-    protected static String toCmd(final int messageType, String ga, String param1, String param2, String param3)
-    {
-        return messageType + sep + ga + sep2 + param1
-            + sep2 + (param2 != null ? param2 : "")
-            + sep2 + (param3 != null ? param3 : "");
-    }
-
-    /**
-     * Parse the command String into a MessageType message
-     *
-     * @param s   the String to parse
-     * @return    a RejectCardID message, or null if parsing errors
-    public static SOCRejectCardID parseDataStr(final String s)
-    {
-        String ga; // the game name
-        String cid; // the card id
-        String cname; // the card name, or null for unknown
-        String cname2; // the duplicate card name, if any
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            cid = st.nextToken();
-            cname = st.nextToken();
-            cname2 = st.nextToken();
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCRejectCardID(ga, cid, cname, cname2);
-    }
-     */
 
     /**
      * @return a human readable form of the message
      */
     public String toString()
     {
-        return getClass().getSimpleName() + ":game=" + game
+        return getClass().getSimpleName() + ":game=" + getGameName()
             + "|param1=" + p1
             + "|param2=" + (p2 != null ? p2 : "")
             + "|param3=" + (p3 != null ? p3 : "");
     }
-
 }

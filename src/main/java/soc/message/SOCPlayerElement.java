@@ -70,8 +70,7 @@ import soc.game.SOCResourceConstants; // for javadocs only
  * @author Robert S Thomas
  * @see SOCGameElements
  */
-public class SOCPlayerElement extends SOCMessage
-    implements SOCMessageForGame
+public class SOCPlayerElement extends SOCMessageForGame
 {
     /**
      * First version number (2.0.00) that has element types replacing single-purpose message types:
@@ -426,11 +425,6 @@ public class SOCPlayerElement extends SOCMessage
     public static final int LOSE_NEWS = -102;
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * Player number; can be -1 for some elements.
      * See {@link #getPlayerNumber()} for details and version restrictions.
      */
@@ -440,7 +434,7 @@ public class SOCPlayerElement extends SOCMessage
      * Player element type, such as {@link PEType#SETTLEMENTS}, as int.
      * See {@link #getElementType()} for details.
      */
-    private int elementType;
+    private PEType elementType;
 
     /**
      * Action type: {@link #SET}, {@link #GAIN}, or {@link #LOSE}
@@ -489,7 +483,7 @@ public class SOCPlayerElement extends SOCMessage
     /**
      * Create a PlayerElement message with an int element type.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param pn  the player number; v1.1.19 and newer allow -1 for some elements (applies to board or to all players).
      *            Earlier client versions will throw an exception accessing player -1.
      *            If the element type allows -1, its constant's javadoc will mention that.
@@ -504,16 +498,16 @@ public class SOCPlayerElement extends SOCMessage
      * @see #SOCPlayerElement(String, int, int, PEType, int)
      * @see #SOCPlayerElement(String, int, int, int, int, boolean)
      */
-    public SOCPlayerElement(String ga, int pn, int ac, int et, int amt)
+    public SOCPlayerElement(String gameName, int pn, int ac, int et, int amt)
         throws IllegalArgumentException
     {
-        this(ga, pn, ac, et, amt, false);
+        this( gameName, pn, ac, et, amt, false );
     }
 
     /**
      * Create a PlayerElement message with a {@link PEType} element type.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param pn  the player number; v1.1.19 and newer allow -1 for some elements (applies to board or to all players).
      *            Earlier client versions will throw an exception accessing player -1.
      *            If the element type allows -1, its constant's javadoc will mention that.
@@ -528,16 +522,16 @@ public class SOCPlayerElement extends SOCMessage
      * @see #SOCPlayerElement(String, int, int, PEType, int, boolean)
      * @since 2.3.00
      */
-    public SOCPlayerElement(String ga, int pn, int ac, PEType et, int amt)
+    public SOCPlayerElement(String gameName, int pn, int ac, PEType et, int amt)
         throws IllegalArgumentException
     {
-        this(ga, pn, ac, et.value, amt, false);
+        this(gameName, pn, ac, et.value, amt, false);
     }
 
     /**
      * Create a PlayerElement message, optionally with the {@link #isNews()} flag set.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param pn  the player number; v1.1.19 and newer allow -1 for some elements (applies to board or to all players).
      *            Earlier client versions will throw an exception accessing player -1.
      *            If the element type allows -1, its constant's javadoc will mention that.
@@ -553,10 +547,10 @@ public class SOCPlayerElement extends SOCMessage
      * @throws IllegalArgumentException if {@code ac} is {@link #GAIN_NEWS}, {@link #SET_NEWS} or {@link #LOSE_NEWS}
      * @since 2.3.00
      */
-    public SOCPlayerElement(String ga, int pn, int ac, PEType et, int amt, boolean isNews)
+    public SOCPlayerElement(String gameName, int pn, int ac, PEType et, int amt, boolean isNews)
         throws IllegalArgumentException
     {
-        this(ga, pn, ac, et.value, amt, isNews);
+        this( gameName, pn, ac, et.value, amt, isNews );
     }
 
     /**
@@ -582,24 +576,15 @@ public class SOCPlayerElement extends SOCMessage
     public SOCPlayerElement( String gameName, int seatNumber, int actionType, int elementType, int amt, boolean isNews )
         throws IllegalArgumentException
     {
-        super( PLAYERELEMENT );
+        super( PLAYERELEMENT, gameName );
         if ((actionType == GAIN_NEWS) || (actionType == SET_NEWS) || (actionType == LOSE_NEWS))
             throw new IllegalArgumentException("use isNews instead");
 
-        game = gameName;
         playerNumber = seatNumber;
         this.actionType = actionType;
-        this.elementType = elementType;
+        this.elementType = PEType.valueOf( elementType );
         amount = amt;
         news = isNews;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -633,7 +618,7 @@ public class SOCPlayerElement extends SOCMessage
      */
     public int getElementType()
     {
-        return elementType;
+        return elementType.getValue();
     }
 
     /**
@@ -672,59 +657,12 @@ public class SOCPlayerElement extends SOCMessage
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        int ac = actionType;
-        if (news)
-            switch (ac)
-            {
-            case GAIN:
-                ac = GAIN_NEWS;  break;
-            case LOSE:
-                ac = LOSE_NEWS;  break;
-            case SET:
-                ac = SET_NEWS;  break;
-            }
-
-        return toCmd(game, playerNumber, ac, elementType, amount);
-    }
-
-    /**
-     * PLAYERELEMENT sep game sep2 playerNumber sep2 actionType sep2 elementType sep2 value
-     * [sep2 isNews ("Y", or sep2 and field are omitted)]
-     *
-     * @param ga  the game name
-     * @param pn  the player number; v1.1.19 and newer allow -1 for some elements (applies to board or to all players).
-     *            Earlier client versions will throw an exception accessing player -1.
-     *            If the element type allows -1, its constant's javadoc will mention that.
-     * @param ac  the type of action: {@link #SET}, {@link #GAIN}, or {@link #LOSE}.
-     *            Use {@link #GAIN_NEWS}, {@link #SET_NEWS} or {@link #LOSE_NEWS} to set message's {@link #isNews()} flag.
-     * @param et  the type of element
-     * @param amt the amount to set or change the element
-     * @return    the command string
-     */
-    public static String toCmd(String ga, int pn, int ac, PEType et, int amt)
-    {
-        return toCmd(ga, pn, ac, et.getValue(), amt);
-    }
-
-    private static String toCmd(String ga, int pn, int ac, int et, int amt)
-    {
-        boolean isNews = false;
-        switch (ac)
-        {
-        case GAIN_NEWS:
-            isNews = true;  ac = GAIN;  break;
-        case SET_NEWS:
-            isNews = true;  ac = SET;  break;
-        case LOSE_NEWS:
-            isNews = true;  ac = LOSE;  break;
-        default:
-            // no ac change needed
-        }
-
-        return PLAYERELEMENT + sep + ga + sep2 + pn + sep2 + ac + sep2 + et + sep2 + amt
-            + ((isNews) ? (sep2 + 'Y') : "");
+        return super.toCmd( sep2 + playerNumber + sep2 + actionType
+            + sep2 + elementType.getValue()
+            + sep2 + amount + ((news) ? (sep2 + 'Y') : "" ));
     }
 
     /**
@@ -831,8 +769,7 @@ public class SOCPlayerElement extends SOCMessage
         else
             act = Integer.toString(actionType);
 
-        return "SOCPlayerElement:game=" + game + "|playerNum=" + playerNumber + "|actionType=" + act
-            + "|elementType=" + elementType + "|amount=" + amount + ((news) ? "|news=Y" : "");
+        return "SOCPlayerElement:game=" + getGameName() + "|playerNum=" + playerNumber + "|actionType=" + act
+            + "|elementType=" + elementType.getValue() + "|amount=" + amount + ((news) ? "|news=Y" : "");
     }
-
 }

@@ -26,58 +26,22 @@ package soc.message;
  *
  * @author Robert S. Thomas
  */
-public class SOCEndTurn extends SOCMessage
-    implements SOCMessageForGame
+public class SOCEndTurn extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * Create a EndTurn message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      */
-    public SOCEndTurn(String ga)
+    public SOCEndTurn(String gameName)
     {
-        super( ENDTURN );
-        game = ga;
-    }
+        super( ENDTURN, gameName );
+     }
 
     /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
-    /**
-     * ENDTURN sep game
-     *
-     * @return the command string
-     */
-    public String toCmd()
-    {
-        return toCmd(game);
-    }
-
-    /**
-     * ENDTURN sep game
-     *
-     * @param ga  the name of the game
-     * @return the command string
-     */
-    public static String toCmd(String ga)
-    {
-        return ENDTURN + sep + ga;
-    }
-
-    /**
-     * Parse the command String into a EndTurn message
+     *  * Parse the command String into a EndTurn message
      *
      * @param s   the String to parse
      * @return    a EndTurn message, or null if the data is garbled
@@ -92,6 +56,6 @@ public class SOCEndTurn extends SOCMessage
      */
     public String toString()
     {
-        return "SOCEndTurn:game=" + game;
+        return "SOCEndTurn:game=" + getGameName();
     }
 }

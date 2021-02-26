@@ -89,8 +89,7 @@ import soc.game.SOCInventoryItem;     // for javadoc's use
  *
  * @since 2.0.00
  */
-public class SOCInventoryItemAction extends SOCMessage
-    implements SOCMessageForGame
+public class SOCInventoryItemAction extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;
 
@@ -153,11 +152,6 @@ public class SOCInventoryItemAction extends SOCMessage
     private static final int FLAG_CANCPLAY = 0x04;
 
     /**
-     * Name of game; getter required by {@link SOCMessageForGame}
-     */
-    private final String game;
-
-    /**
      * Player number (or -1 for action {@link #CANNOT_PLAY}) from server,
      * or any value sent from client (not used by server)
      */
@@ -178,7 +172,7 @@ public class SOCInventoryItemAction extends SOCMessage
      * to {@link SOCGame#canPlayInventoryItem(int, int)} return codes, or 0.
      * Also used within this class to encode {@link #isKept} and {@link #isVP} over the network.
      */
-    public final int reasonCode;
+    public int reasonCode;
 
     /**
      * If true, this item being added is kept in inventory until end of game.
@@ -209,22 +203,22 @@ public class SOCInventoryItemAction extends SOCMessage
      * If the action is the server replying with {@link #CANNOT_PLAY} with a reason code,
      * use the {@link #SOCInventoryItemAction(String, int, int, int, int)} constructor instead.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param pn  the player number, or -1 for action type {@link #CANNOT_PLAY}.
      *     Sent from server, ignored if sent from client.
      * @param ac  the type of action, such as {@link #PLAY}
      * @param it  the item type code, from {@link SOCInventoryItem#itype}
      */
-    public SOCInventoryItemAction(final String ga, final int pn, final int ac, final int it)
+    public SOCInventoryItemAction(final String gameName, final int pn, final int ac, final int it)
     {
-        this(ga, pn, ac, it, 0);
+        this(gameName, pn, ac, it, 0);
     }
 
     /**
      * Create an InventoryItemAction message, with any possible flags.
      * {@link #reasonCode} will be 0.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param pn  the player number, or -1 for action type {@link #CANNOT_PLAY}.
      *     Sent from server, ignored if sent from client.
      * @param ac  the type of action, such as {@link #ADD_PLAYABLE} or {@link #PLAYED}
@@ -233,12 +227,10 @@ public class SOCInventoryItemAction extends SOCMessage
      * @param vp    If true, this is an add  or play message with the {@link #isVP} flag set
      * @param canCancel  If true, this is an add or play message with the {@link #canCancelPlay} flag set
      */
-    public SOCInventoryItemAction
-        (final String ga, final int pn, final int ac, final int it,
-         final boolean kept, final boolean vp, final boolean canCancel)
+    public SOCInventoryItemAction( final String gameName, final int pn, final int ac, final int it,
+         final boolean kept, final boolean vp, final boolean canCancel )
     {
-        super( INVENTORYITEMACTION );
-        game = ga;
+        super( INVENTORYITEMACTION, gameName );
         playerNumber = pn;
         action = ac;
         itemType = it;
@@ -252,33 +244,18 @@ public class SOCInventoryItemAction extends SOCMessage
      * Create an InventoryItemAction message, with optional {@link #reasonCode}.
      * The {@link #isKept}, {@link #isVP}, and {@link #canCancelPlay} flags will be false.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param pn  the player number, or -1 for action type {@link #CANNOT_PLAY}.
      *     Sent from server, ignored if sent from client.
      * @param ac  the type of action, such as {@link #ADD_PLAYABLE}
      * @param it  the item type code, from {@link SOCInventoryItem#itype}
      * @param rc  reason code for {@link #reasonCode}, or 0
      */
-    public SOCInventoryItemAction
-        (final String ga, final int pn, final int ac, final int it, final int rc)
+    public SOCInventoryItemAction( final String gameName, final int pn, final int ac,
+        final int it, final int rc )
     {
-        super( INVENTORYITEMACTION );
-        game = ga;
-        playerNumber = pn;
-        action = ac;
-        itemType = it;
+        this( gameName, pn, ac, it, false, false, false );
         reasonCode = rc;
-        isKept = false;
-        isVP = false;
-        canCancelPlay = false;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -288,26 +265,13 @@ public class SOCInventoryItemAction extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber, action, itemType, reasonCode);
-    }
-
-    /**
-     * INVENTORYITEMACTION sep game sep2 playerNumber sep2 action sep2 itemType [ sep2 rcode ]
-     *
-     * @param ga  the game name
-     * @param pn  the player number if sent from server; ignored if sent from client
-     * @param ac  the type of action
-     * @param it  the item type code
-     * @param rc  the reason code if action == CANNOT_PLAY
-     * @return    the command string
-     */
-    public static String toCmd
-        (final String ga, final int pn, final int ac, final int it, final int rc)
-    {
-        String cmd = INVENTORYITEMACTION + sep + ga + sep2 + pn + sep2 + ac + sep2 + it;
-        if (rc != 0)
-            cmd = cmd + sep2 + rc;
-        return cmd;
+        StringBuilder cmd = new StringBuilder( super.toCmd() )
+            .append( sep2 ).append( playerNumber )
+            .append( sep2 ).append( action )
+            .append( sep2 ).append( itemType );
+        if (reasonCode != 0)
+            cmd.append( sep2 ).append( reasonCode );
+        return cmd.toString();
     }
 
     /**
@@ -372,7 +336,7 @@ public class SOCInventoryItemAction extends SOCMessage
         default:            ac = Integer.toString(action);
         }
 
-        String s = "SOCInventoryItemAction:game=" + game + "|playerNum=" + playerNumber + "|action=" + ac
+        String s = "SOCInventoryItemAction:game=" + getGameName() + "|playerNum=" + playerNumber + "|action=" + ac
             + "|itemType=" + itemType;
 
         if ((action != PLAY) && (action != CANNOT_PLAY))

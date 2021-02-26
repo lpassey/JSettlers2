@@ -23,6 +23,8 @@ package soc.message;
 // import java.util.StringTokenizer;
 
 
+import java.util.StringTokenizer;
+
 /**
  * Template for per-game message types with 1 integer parameter.
  * Your class javadoc should explain the meaning of param1,
@@ -57,15 +59,9 @@ package soc.message;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public abstract class SOCMessageTemplate1i extends SOCMessage
-    implements SOCMessageForGame
+public abstract class SOCMessageTemplate1i extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;
-
-    /**
-     * Name of the game.
-     */
-    protected String game;
 
     /**
      * Single integer parameter.
@@ -81,19 +77,9 @@ public abstract class SOCMessageTemplate1i extends SOCMessage
      */
     protected SOCMessageTemplate1i(int messageType, String gameName, int p)
     {
-        super( messageType );
-        game = gameName;
+        super( messageType, gameName );
         p1 = p;
     }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
     /**
      * @return the single parameter
      */
@@ -107,22 +93,30 @@ public abstract class SOCMessageTemplate1i extends SOCMessage
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getType(), game, p1 );
+        return super.toCmd( sep2 + p1 );
     }
 
-    /**
-     * MESSAGETYPE sep game sep2 param
-     *
-     * @param messageType The message type id
-     * @param ga  the game name
-     * @param param The parameter
-     * @return    the command string
-     */
-    protected static String toCmd(final int messageType, String ga, int param)
+    public static SOCMessageTemplate1i parseDataStr( int messageType, String s )
     {
-        return messageType + sep + ga + sep2 + param;
+
+        String ga; // the game name
+        int p1; // the number of discards
+
+        StringTokenizer st = new StringTokenizer(s, sep2);
+
+        try
+        {
+            ga = st.nextToken();
+            p1 = Integer.parseInt(st.nextToken());
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+        return new SOCMessageTemplate1i( messageType, ga, p1 ) {};
     }
 
     /**
@@ -156,6 +150,6 @@ public abstract class SOCMessageTemplate1i extends SOCMessage
      */
     public String toString()
     {
-        return getClass().getSimpleName() + ":game=" + game + "|param=" + p1;
+        return getClass().getSimpleName() + ":game=" + getGameName() + "|param=" + p1;
     }
 }

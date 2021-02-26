@@ -49,15 +49,15 @@ public class SOCPieceValue extends SOCMessageTemplate4i
     /**
      * Create a SOCPieceValue message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pt  Type of the piece to be updated, such as {@link soc.game.SOCPlayingPiece#FORTRESS}
      * @param coord  Coordinate of the piece
      * @param pv1    New value for the piece
      * @param pv2    New secondary value if piece has 2 value fields, or 0
      */
-    public SOCPieceValue(final String ga, final int pt, final int coord, final int pv1, final int pv2)
+    public SOCPieceValue(final String gameName, final int pt, final int coord, final int pv1, final int pv2)
     {
-        super(PIECEVALUE, ga, pt, coord, pv1, pv2);
+        super(PIECEVALUE, gameName, pt, coord, pv1, pv2);
     }
 
     /**
@@ -108,7 +108,7 @@ public class SOCPieceValue extends SOCMessageTemplate4i
     @Override
     public String toString()
     {
-        return "SOCPieceValue:game=" + game
+        return "SOCPieceValue:game=" + getGameName()
             + "|pieceType=" + p1 + "|coord=" + p2
             + "|pv1=" + p3 + "|pv2=" + p4;
     }

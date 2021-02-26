@@ -23,9 +23,6 @@ package soc.message;
 import java.util.List;
 import java.util.ListIterator;
 
-// import java.util.StringTokenizer;
-
-
 /**
  * Template for message types with variable number of string parameters.
  * You will have to write parseDataStr, because of its subclass return
@@ -58,7 +55,7 @@ import java.util.ListIterator;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public abstract class SOCMessageTemplateMs extends SOCMessageMulti
+public abstract class SOCMessageTemplateMs extends SOCMessage implements SOCMessageMulti
 {
     private static final long serialVersionUID = 2000L;
 
@@ -102,27 +99,15 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getType(), pa );
-    }
+        // A funky construct required by the fact that StringBuilder can only be initialized with a string.
+        StringBuilder sb = new StringBuilder().append( getType() );
 
-    /**
-     * MESSAGETYPE [sep game] sep param1 sep param2 sep ...
-     *
-     * @param messageType The message type id
-     * @param pal  The parameter list, or null if no additional parameters.
-     *     Blank or null values in this list are automatically sent as the {@link SOCMessage#EMPTYSTR} token
-     *     and must be converted back on the receiving end: See {@link #parseData_FindEmptyStrs(List)}.
-     * @return the command string
-     */
-    protected static String toCmd( final int messageType, final List<String> pal )
-    {
-        StringBuilder sb = new StringBuilder( Integer.toString( messageType ) );
-
-        if (pal != null)
+        if (pa != null)
         {
-            for (final String p : pal)
+            for (final String p : pa)
             {
                 sb.append( sep );
                 if ((p != null) && (p.length() > 0))
@@ -131,7 +116,6 @@ public abstract class SOCMessageTemplateMs extends SOCMessageMulti
                     sb.append( EMPTYSTR );
             }
         }
-
         return sb.toString();
     }
 

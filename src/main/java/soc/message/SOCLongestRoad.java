@@ -24,6 +24,7 @@ import java.util.StringTokenizer;
 
 
 /**
+ * @deprecated
  * This message from server says which player has Longest Road/Longest Route.
  * Sent during joinGame and when changes occur during normal gameplay.
  *<P>
@@ -36,15 +37,10 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCLongestRoad extends SOCMessage
-    implements SOCMessageForGame
+@Deprecated
+public class SOCLongestRoad extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The number of the player with longest road
@@ -54,22 +50,13 @@ public class SOCLongestRoad extends SOCMessage
     /**
      * Create a LongestRoad message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the seat number
      */
-    public SOCLongestRoad(String ga, int pn)
+    public SOCLongestRoad(String gameName, int pn)
     {
-        super( LONGESTROAD );
-        game = ga;
+        super( LONGESTROAD, gameName );
         playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -85,21 +72,10 @@ public class SOCLongestRoad extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, playerNumber);
-    }
-
-    /**
-     * LONGESTROAD sep game sep2 playerNumber
-     *
-     * @param ga  the name of the game
-     * @param pn  the seat number
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn)
-    {
-        return LONGESTROAD + sep + ga + sep2 + pn;
+        return super.toCmd( sep2 + playerNumber );
     }
 
     /**
@@ -133,6 +109,6 @@ public class SOCLongestRoad extends SOCMessage
      */
     public String toString()
     {
-        return "SOCLongestRoad:game=" + game + "|playerNumber=" + playerNumber;
+        return "SOCLongestRoad:game=" + getGameName() + "|playerNumber=" + playerNumber;
     }
 }

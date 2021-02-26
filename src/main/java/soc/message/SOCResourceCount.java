@@ -37,15 +37,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCResourceCount extends SOCMessage
-    implements SOCMessageForGame
+public class SOCResourceCount extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The seat number
@@ -60,24 +54,15 @@ public class SOCResourceCount extends SOCMessage
     /**
      * Create a ResourceCount message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the seat number
      * @param rc  the resource count
      */
-    public SOCResourceCount(String ga, int pn, int rc)
+    public SOCResourceCount(String gameName, int pn, int rc)
     {
-        super( RESOURCECOUNT );
-        game = ga;
+        super( RESOURCECOUNT, gameName );
         playerNumber = pn;
         count = rc;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -101,22 +86,10 @@ public class SOCResourceCount extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, playerNumber, count);
-    }
-
-    /**
-     * RESOURCECOUNT sep game sep2 playerNumber sep2 count
-     *
-     * @param ga  the name of the game
-     * @param pn  the seat number
-     * @param rc  the resource count
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn, int rc)
-    {
-        return RESOURCECOUNT + sep + ga + sep2 + pn + sep2 + rc;
+        return super.toCmd( sep2 + playerNumber + sep2 + count );
     }
 
     /**
@@ -127,6 +100,8 @@ public class SOCResourceCount extends SOCMessage
      */
     public static SOCResourceCount parseDataStr(String s)
     {
+        SOCMessageTemplate2i template2i = SOCMessageTemplate2i.parseDataStr( RESOURCECOUNT, s );
+
         String ga; // the game name
         int pn; // the seat number
         int rc; // the resource count
@@ -144,7 +119,9 @@ public class SOCResourceCount extends SOCMessage
             return null;
         }
 
-        return new SOCResourceCount(ga, pn, rc);
+        if (null != template2i)
+            return new SOCResourceCount(template2i.getGameName(), template2i.p1, template2i.p2);
+        return null;
     }
 
     /**
@@ -152,6 +129,6 @@ public class SOCResourceCount extends SOCMessage
      */
     public String toString()
     {
-        return "SOCResourceCount:game=" + game + "|playerNumber=" + playerNumber + "|count=" + count;
+        return "SOCResourceCount:game=" + getGameName() + "|playerNumber=" + playerNumber + "|count=" + count;
     }
 }

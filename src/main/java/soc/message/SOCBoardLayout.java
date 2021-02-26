@@ -24,7 +24,6 @@ package soc.message;
 import java.util.StringTokenizer;
 
 import soc.game.SOCBoard;
-import soc.game.SOCGame;  // for javadocs
 import soc.util.DataUtils;
 
 
@@ -59,8 +58,7 @@ import soc.util.DataUtils;
  *
  * @author Robert S. Thomas
  */
-public class SOCBoardLayout extends SOCMessage
-    implements SOCMessageForGame
+public class SOCBoardLayout extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -103,11 +101,6 @@ public class SOCBoardLayout extends SOCMessage
     private static final int SENTLAND_WATER = 6, SENTLAND_DESERT = 0;
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * The hex layout; a mapping/unmapping step is done in constructor/{@link #getHexLayout()}.
      */
     private int[] hexLayout;
@@ -126,7 +119,7 @@ public class SOCBoardLayout extends SOCMessage
      * Create a SOCBoardLayout message. Hex type numbers and dice numbers
      * will be mapped from their game-object values to the old compatibility values sent over the network.
      *
-     * @param ga   the name of the game
+     * @param gameName   the name of the game
      * @param hl   the hex layout; not mapped yet from SOCBoard's value range,
      *               so the constructor will map it.
      * @param nl   the dice number layout; not mapped yet, so the constructor
@@ -135,16 +128,16 @@ public class SOCBoardLayout extends SOCMessage
      * @param rh   the robber hex
      * @see #SOCBoardLayout(String, int[], int[], int, boolean)
      */
-    public SOCBoardLayout( String ga, int[] hl, int[] nl, int rh )
+    public SOCBoardLayout( String gameName, int[] hl, int[] nl, int rh )
     {
-        this( ga, hl, nl, rh, false );
+        this( gameName, hl, nl, rh, false );
     }
 
     /**
      * Create a SOCBoardLayout message, which may have already mapped hex type numbers and dice numbers
      * from their game-object values to the old compatibility values sent over the network.
      *
-     * @param ga   the name of the game
+     * @param gameName   the name of the game
      * @param hl   the hex layout
      * @param nl   the number layout
      * @param rh   the robber hex
@@ -154,10 +147,9 @@ public class SOCBoardLayout extends SOCMessage
      * @since 1.1.08
      */
     public SOCBoardLayout
-    ( String ga, final int[] hl, final int[] nl, final int rh, final boolean alreadyMapped )
+    ( String gameName, final int[] hl, final int[] nl, final int rh, final boolean alreadyMapped )
     {
-        super( BOARDLAYOUT );
-        game = ga;
+        super( BOARDLAYOUT, gameName );
         if (alreadyMapped)
         {
             hexLayout = hl;
@@ -193,14 +185,6 @@ public class SOCBoardLayout extends SOCMessage
             }
         }
         robberHex = rh;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -268,9 +252,10 @@ public class SOCBoardLayout extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        StringBuilder cmd = new StringBuilder( BOARDLAYOUT + sep + game );
+        StringBuilder cmd = new StringBuilder( super.toCmd() );
 
         for (int i = 0; i < 37; i++)
             cmd.append( sep2_char ).append( hexLayout[i] );
@@ -366,7 +351,7 @@ public class SOCBoardLayout extends SOCMessage
     public String toString()
     {
         StringBuffer sb = new StringBuffer( "SOCBoardLayout:game=" );
-        sb.append( game );
+        sb.append( getGameName() );
         sb.append( "|hexLayout=" );
         DataUtils.arrayIntoStringBuf( hexLayout, sb, false );
         sb.append( "|numberLayout=" );

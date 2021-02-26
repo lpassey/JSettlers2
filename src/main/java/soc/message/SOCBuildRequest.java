@@ -48,15 +48,9 @@ import java.util.StringTokenizer;
  * @see SOCCancelBuildRequest
  * @see SOCBuyDevCardRequest
  */
-public class SOCBuildRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCBuildRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The type of piece to build, from {@link soc.game.SOCPlayingPiece} constants,
@@ -67,28 +61,19 @@ public class SOCBuildRequest extends SOCMessage
     /**
      * Create a BuildRequest message.
      *
-     * @param ga  the name of the game
-     * @param pt  the type of piece to build, from {@link soc.game.SOCPlayingPiece} constants,
+     * @param gameName  the name of the game
+     * @param pieceType  the type of piece to build, from {@link soc.game.SOCPlayingPiece} constants,
      *               or -1 to request the Special Building Phase.
      * @throws IllegalArgumentException if {@code pt} &lt; -1
      */
-    public SOCBuildRequest(String ga, int pt)
+    public SOCBuildRequest(String gameName, int pieceType)
         throws IllegalArgumentException
     {
-        super( BUILDREQUEST );
-        if (pt < -1)
-            throw new IllegalArgumentException("pt: " + pt);
+        super( BUILDREQUEST, gameName );
+        if (pieceType < -1)
+            throw new IllegalArgumentException("pt: " + pieceType);
 
-        game = ga;
-        pieceType = pt;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
+        this.pieceType = pieceType;
     }
 
     /**
@@ -105,9 +90,10 @@ public class SOCBuildRequest extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return BUILDREQUEST + sep + game + sep2 + pieceType;
+        return super.toCmd( sep2 + pieceType );
     }
 
     /**
@@ -141,7 +127,7 @@ public class SOCBuildRequest extends SOCMessage
      */
     public String toString()
     {
-        return "SOCBuildRequest:game=" + game + "|pieceType=" + pieceType;
+        return "SOCBuildRequest:game=" + getGameName() + "|pieceType=" + pieceType;
     }
 
 }

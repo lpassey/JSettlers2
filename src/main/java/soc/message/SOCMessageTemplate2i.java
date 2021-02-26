@@ -23,6 +23,8 @@ package soc.message;
 // import java.util.StringTokenizer;
 
 
+import java.util.StringTokenizer;
+
 /**
  * Template for per-game message types with 2 integer parameters.
  * Your class javadoc should explain the meaning of param1 and param2,
@@ -60,15 +62,9 @@ package soc.message;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public abstract class SOCMessageTemplate2i extends SOCMessage
-    implements SOCMessageForGame
+public abstract class SOCMessageTemplate2i extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;
-
-    /**
-     * Name of the game.
-     */
-    protected String game;
 
     /**
      * First integer parameter.
@@ -83,25 +79,39 @@ public abstract class SOCMessageTemplate2i extends SOCMessage
     /**
      * Create a new message.
      *
-     * @param id  Message type ID
-     * @param ga  Name of game this message is for
+     * @param messageType  Message type ID
+     * @param gameName  Name of game this message is for
      * @param p1  Parameter 1
      * @param p2  Parameter 2
      */
-    protected SOCMessageTemplate2i(int id, String ga, int p1, int p2)
+    protected SOCMessageTemplate2i(int messageType, String gameName, int p1, int p2)
     {
-        super( id );
-        game = ga;
+        super( messageType, gameName );
         this.p1 = p1;
         this.p2 = p2;
     }
 
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
+    public static SOCMessageTemplate2i parseDataStr( int messageType, String s )
     {
-        return game;
+        String ga; // the game name
+        int p1; // the seat number
+        int p2; // the resource count
+
+        StringTokenizer st = new StringTokenizer(s, sep2);
+
+        try
+        {
+            ga = st.nextToken();
+            p1 = Integer.parseInt(st.nextToken());
+            p2 = Integer.parseInt(st.nextToken());
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+        return new SOCMessageTemplate2i( messageType, ga, p1, p2)
+        {
+        };
     }
 
     /**
@@ -125,59 +135,18 @@ public abstract class SOCMessageTemplate2i extends SOCMessage
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getType(), game, p1, p2);
+        return super.toCmd( sep2 + p1 + sep2 + p2 );
     }
-
-    /**
-     * MESSAGETYPE sep game sep2 param1 sep2 param2
-     *
-     * @param messageType The message type id
-     * @param ga  the new game name
-     * @param param1 The first parameter
-     * @param param2 The second parameter
-     * @return    the command string
-     */
-    protected static String toCmd(final int messageType, String ga, int param1, int param2)
-    {
-        return messageType + sep + ga + sep2 + param1 + sep2 + param2;
-    }
-
-    /**
-     * Parse the command String into a MessageType message
-     *
-     * @param s   the String to parse
-     * @return    a MoveRobber message, or null if parsing errors
-    public static SOCMoveRobber parseDataStr(final String s)
-    {
-        String ga; // the game name
-        int pn; // the seat number
-        int co; // coordinates
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
-            co = Integer.parseInt(st.nextToken());
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCMoveRobber(ga, pn, co);
-    }
-     */
 
     /**
      * @return a human readable form of the message
      */
     public String toString()
     {
-        return getClass().getSimpleName() + ":game=" + game
+        return getClass().getSimpleName() + ":game=" + getGameName()
             + "|param1=" + p1 + "|param2=" + p2;
     }
 }

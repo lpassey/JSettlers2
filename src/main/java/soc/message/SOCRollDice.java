@@ -32,57 +32,22 @@ import soc.game.SOCGame;  // for javadocs only
  * @see SOCGame#clientRequestsDiceResultsFullySent
  * @author Robert S Thomas
  */
-public class SOCRollDice extends SOCMessage
-    implements SOCMessageForGame
+public class SOCRollDice extends SOCMessageForGame
 {
     /** Class marked for v1.1.11 with SOCMessageForGame.
      *  Over the network, fields are unchanged since v1.0.0 or earlier, per git and old cvs history. -JM
      */
     private static final long serialVersionUID = 1111L;
 
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Create a RollDice message.
      *
-     * @param ga  name of game
+     * @param gameName  name of game
      */
-    public SOCRollDice(String ga)
+    public SOCRollDice(String gameName)
     {
-        super( ROLLDICE );
-        game = ga;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
-    /**
-     * ROLLDICE sep game
-     *
-     * @return the command String
-     */
-    public String toCmd()
-    {
-        return toCmd(game);
-    }
-
-    /**
-     * ROLLDICE sep game
-     *
-     * @param ga  the game name
-     * @return    the command string
-     */
-    public static String toCmd(String ga)
-    {
-        return ROLLDICE + sep + ga;
+        super( ROLLDICE, gameName );
     }
 
     /**
@@ -101,6 +66,6 @@ public class SOCRollDice extends SOCMessage
      */
     public String toString()
     {
-        return "SOCRollDice:game=" + game;
+        return "SOCRollDice:game=" + getGameName();
     }
 }

@@ -30,7 +30,7 @@ package soc.message;
  * Game name may include a marker prefix if the client can't join;
  * see {@link SOCGames#MARKER_THIS_GAME_UNJOINABLE}.
  * This marker will be retained within the game name returned by
- * {@link #getGame()}.
+ * {@link #getGameName()}.
  *<P>
  * Just like {@link SOCNewGameWithOptions}, robot clients don't need to handle
  * this message type. Bots ignore new-game announcements and are asked to
@@ -38,46 +38,30 @@ package soc.message;
  *
  * @author Robert S Thomas
  */
-public class SOCNewGame extends SOCMessage
-    implements SOCMessageForGame
+public class SOCNewGame extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
     /**
-     * Name of the new game.
-     */
-    private String game;
-
-    /**
      * Create a NewGame message.
      *
-     * @param ga  the name of the game; may have
+     * @param gameName  the name of the game; may have
      *            the {@link SOCGames#MARKER_THIS_GAME_UNJOINABLE} prefix.
      */
-    public SOCNewGame(String ga)
+    public SOCNewGame(String gameName)
     {
-        super( NEWGAME );
-        game = ga;
-    }
-
-    /**
-     * @return the name of the game; may have
-     *         the {@link SOCGames#MARKER_THIS_GAME_UNJOINABLE} prefix.
-     */
-    public String getGame()
-    {
-        return game;
+        super( NEWGAME, gameName );
     }
 
     /**
      * NEWGAME sep game
      *
-     * @return the command String
+     * @return the command String -- handled by superclass
      */
-    public String toCmd()
-    {
-        return NEWGAME + sep + game;
-    }
+//    public String toCmd()
+//    {
+//        return NEWGAME + sep + getGameName();
+//    }
 
     /**
      * Parse the command String into a NewGame message
@@ -95,7 +79,7 @@ public class SOCNewGame extends SOCMessage
      */
     public String toString()
     {
-        return "SOCNewGame:game=" + game;
+        return "SOCNewGame:game=" + getGameName();
     }
 
 }

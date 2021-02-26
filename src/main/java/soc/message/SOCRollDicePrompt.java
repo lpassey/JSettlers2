@@ -46,18 +46,12 @@ import java.util.StringTokenizer;
  * @author Jeremy D. Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public class SOCRollDicePrompt extends SOCMessage
-    implements SOCMessageForGame
+public class SOCRollDicePrompt extends SOCMessageForGame
 {
     /** Class marked for v1.1.11 with SOCMessageForGame.
      *  Introduced at v1.1.00.
      */
     private static final long serialVersionUID = 1111L;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The player whose turn it is to roll
@@ -67,22 +61,13 @@ public class SOCRollDicePrompt extends SOCMessage
     /**
      * Create a RollDicePrompt message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the player number who should roll
      */
-    public SOCRollDicePrompt(String ga, int pn)
+    public SOCRollDicePrompt(String gameName, int pn)
     {
-        super( ROLLDICEPROMPT );
-        game = ga;
+        super( ROLLDICEPROMPT, gameName );
         playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -98,21 +83,10 @@ public class SOCRollDicePrompt extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, playerNumber);
-    }
-
-    /**
-     * ROLLDICEPROMPT sep game sep2 playernumber
-     *
-     * @param ga  the name of the game
-     * @param pn  the player number to roll
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn)
-    {
-        return ROLLDICEPROMPT + sep + ga + sep2 + pn;
+        return super.toCmd( sep2 + playerNumber );
     }
 
     /**
@@ -146,7 +120,7 @@ public class SOCRollDicePrompt extends SOCMessage
      */
     public String toString()
     {
-        return "SOCRollDicePrompt:game=" + game + "|playerNumber=" + playerNumber;
+        return "SOCRollDicePrompt:game=" + getGameName() + "|playerNumber=" + playerNumber;
     }
 
     /**
@@ -155,5 +129,4 @@ public class SOCRollDicePrompt extends SOCMessage
      * @return Version number, 1100 for JSettlers 1.1.00.
      */
     public int getMinimumVersion() { return 1100; }
-
 }

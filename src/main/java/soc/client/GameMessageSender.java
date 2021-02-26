@@ -241,7 +241,7 @@ import soc.message.SOCStartGame;
     {
         clientListeners.remove( game.getName() );
         client.games.remove( game.getName() );
-        connection.send( new SOCLeaveGame("-", "-", game.getName() ));
+        connection.send( new SOCLeaveGame(game.getName(), "-", "-" ));
     }
 
     /**

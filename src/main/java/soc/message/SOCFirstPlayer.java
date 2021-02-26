@@ -22,7 +22,6 @@ package soc.message;
 
 import java.util.StringTokenizer;
 
-
 /**
  * This message says who the first player number is.
  *<P>
@@ -31,15 +30,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCFirstPlayer extends SOCMessage
-    implements SOCMessageForGame
+public class SOCFirstPlayer extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The seat number
@@ -49,22 +42,13 @@ public class SOCFirstPlayer extends SOCMessage
     /**
      * Create a FirstPlayer message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the seat number
      */
-    public SOCFirstPlayer(String ga, int pn)
+    public SOCFirstPlayer(String gameName, int pn)
     {
-        super( FIRSTPLAYER );
-        game = ga;
+        super( FIRSTPLAYER, gameName );
         playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -80,21 +64,10 @@ public class SOCFirstPlayer extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, playerNumber);
-    }
-
-    /**
-     * FIRSTPLAYER sep game sep2 playerNumber
-     *
-     * @param ga  the name of the game
-     * @param pn  the seat number
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn)
-    {
-        return FIRSTPLAYER + sep + ga + sep2 + pn;
+        return super.toCmd(sep2 + playerNumber );
     }
 
     /**
@@ -128,6 +101,6 @@ public class SOCFirstPlayer extends SOCMessage
      */
     public String toString()
     {
-        return "SOCFirstPlayer:game=" + game + "|playerNumber=" + playerNumber;
+        return "SOCFirstPlayer:game=" + getGameName() + "|playerNumber=" + playerNumber;
     }
 }

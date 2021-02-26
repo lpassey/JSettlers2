@@ -46,8 +46,7 @@ import soc.game.SOCGame.SeatLockState;
  *
  * @author Robert S. Thomas
  */
-public class SOCSetSeatLock extends SOCMessage
-    implements SOCMessageForGame
+public class SOCSetSeatLock extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -57,11 +56,6 @@ public class SOCSetSeatLock extends SOCMessage
      * @since 2.0.00
      */
     public static final int VERSION_FOR_ALL_SEATS = 2000;
-
-    /**
-     * Name of game
-     */
-    private final String game;
 
     /**
      * Change lock state of this seat number.
@@ -95,8 +89,7 @@ public class SOCSetSeatLock extends SOCMessage
      */
     public SOCSetSeatLock( String gameName, int pn, SeatLockState st )
     {
-        super( SETSEATLOCK );
-        game = gameName;
+        super( SETSEATLOCK, gameName );
         playerNumber = pn;
         state = st;
         states = null;
@@ -115,21 +108,12 @@ public class SOCSetSeatLock extends SOCMessage
     public SOCSetSeatLock( final String gameName, final SeatLockState[] st )
         throws IllegalArgumentException
     {
-        super( SETSEATLOCK );
+        super( SETSEATLOCK, gameName );
         if ((st.length != 4) && (st.length != 6))
             throw new IllegalArgumentException( "length" );
 
-        game = gameName;
         playerNumber = -1;
         states = st;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -170,16 +154,20 @@ public class SOCSetSeatLock extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
         if (states == null)
         {
-            return toCmd( game, playerNumber, state );
+            return super.toCmd( sep2 + playerNumber + sep2 +
+                ((state == SeatLockState.LOCKED) ? "true"
+                    : (state == SeatLockState.UNLOCKED) ? "false"
+                    : "clear" ));   // st == SeatLockState.CLEAR_ON_RESET
         }
         else
         {
-            StringBuilder sb = new StringBuilder();
-            sb.append( SETSEATLOCK + sep ).append( game );
+            StringBuilder sb = new StringBuilder( SETSEATLOCK + sep )
+                .append( getGameName() );
             for (SeatLockState seatLockState : states)
             {
                 sb.append( sep2_char );
@@ -192,24 +180,6 @@ public class SOCSetSeatLock extends SOCMessage
     }
 
     /**
-     * SETSEATLOCK sep game sep2 playerNumber sep2 state
-     *
-     * @param ga  the name of the game
-     * @param pn  the number of the changing player
-     * @param st  the state of the lock
-     * @return the command string.  For backwards compatibility,
-     *     seatLockState will be "true" for LOCKED, "false" for UNLOCKED, or "clear" for CLEAR_ON_RESET.
-     *     Versions before v2.0.00 won't recognize {@code "clear"}.
-     */
-    public static String toCmd( final String ga, final int pn, final SeatLockState st )
-    {
-        return SETSEATLOCK + sep + ga + sep2 + pn + sep2 +
-            ((st == SeatLockState.LOCKED) ? "true"
-                : (st == SeatLockState.UNLOCKED) ? "false"
-                : "clear");   // st == SeatLockState.CLEAR_ON_RESET
-    }
-
-    /**
      * Parse the command String into a SetSeatLock message
      * for one or all seats in the game.
      *
@@ -218,7 +188,7 @@ public class SOCSetSeatLock extends SOCMessage
      */
     public static SOCSetSeatLock parseDataStr( String s )
     {
-        String ga; // the game name
+        String gameName; // the game name
         int pn; // the number of the changing player
         final SeatLockState ls; // the state of the lock
 
@@ -226,14 +196,14 @@ public class SOCSetSeatLock extends SOCMessage
 
         try
         {
-            ga = st.nextToken();
+            gameName = st.nextToken();
             final String tok = st.nextToken();
             if (Character.isDigit( tok.charAt( 0 ) ))
             {
                 pn = Integer.parseInt( tok );
                 ls = parseLockState( st.nextToken() );
 
-                return new SOCSetSeatLock( ga, pn, ls );
+                return new SOCSetSeatLock( gameName, pn, ls );
             }
             else
             {
@@ -245,7 +215,7 @@ public class SOCSetSeatLock extends SOCMessage
                 for (pn = 1; pn < np; ++pn)
                     sls[pn] = parseLockState( st.nextToken() );
 
-                return new SOCSetSeatLock( ga, sls );
+                return new SOCSetSeatLock( gameName, sls );
             }
         }
         catch( Exception e )
@@ -327,7 +297,7 @@ public class SOCSetSeatLock extends SOCMessage
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder( "SOCSetSeatLock:game=" + game );
+        StringBuilder sb = new StringBuilder( "SOCSetSeatLock:game=" + getGameName() );
         if (states == null)
         {
             sb.append( "|playerNumber=" );

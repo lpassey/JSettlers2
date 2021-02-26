@@ -567,7 +567,7 @@ public class TestToCmdToStringParse
         {new SOCLeaveChannel("m name", "-", "ch name"), "1006|m name,-,ch name", "SOCLeaveChannel:nickname=m name|host=-|channel=ch name"},
             // v1.x was SOCLeave:
         {new SOCLeaveChannel("m name", "-", "ch name"), "1006|m name,-,ch name", "SOCLeave:nickname=m name|host=-|channel=ch name", OPT_PARSE_ONLY},
-        {new SOCLeaveGame("testp2", "-", "ga"), "1011|testp2,-,ga", "SOCLeaveGame:nickname=testp2|host=-|game=ga"},
+        {new SOCLeaveGame("ga", "testp2", "-"), "1011|ga,testp2,-", "SOCLeaveGame:game=ga|nickname=testp2|host=-"},
         {
             new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, "SC_FOG"),
             "1100|S|0|SC_FOG",

@@ -40,15 +40,9 @@ import soc.game.SOCGame;
  *
  * @author Robert S. Thomas
  */
-public class SOCStartGame extends SOCMessage
-    implements SOCMessageForGame
+public class SOCStartGame extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The optional {@link SOCGame} State field, or 0.
@@ -60,24 +54,15 @@ public class SOCStartGame extends SOCMessage
     /**
      * Create a StartGame message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param gs  the new turn's optional Game State such as {@link GameState#ROLL_OR_CARD}, or 0.
      *     Ignored from client. Values &lt; 0 are out of range and ignored (treated as 0).
      *     Must not send {@code gs} to a client older than {@link SOCGameState#VERSION_FOR_GAME_STATE_AS_FIELD}.
      */
-    public SOCStartGame( final String ga, final GameState gs )
+    public SOCStartGame( final String gameName, final GameState gs )
     {
-        super( STARTGAME );
-        game = ga;
+        super( STARTGAME, gameName );
         gameState = gs;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -98,21 +83,11 @@ public class SOCStartGame extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( game, gameState );
-    }
-
-    /**
-     * STARTGAME sep game [sep2 gameState]
-     *
-     * @param ga  the name of the game
-     * @param gs  the new turn's optional Game State such as {@link GameState#ROLL_OR_CARD}, or 0 to omit that field
-     * @return the command string
-     */
-    public static String toCmd( final String ga, final GameState gs )
-    {
-        return STARTGAME + sep + ga + ((gs != GameState.NEW_GAME) ? sep2 + gs.getIntValue() : "");
+        return super.toCmd(
+            (gameState != GameState.NEW_GAME) ? sep2 + getGameState().getIntValue() : "" );
     }
 
     /**
@@ -148,6 +123,6 @@ public class SOCStartGame extends SOCMessage
      */
     public String toString()
     {
-        return "SOCStartGame:game=" + game + ((gameState != GameState.NEW_GAME) ? "|gameState=" + gameState : "");
+        return "SOCStartGame:game=" + getGameName() + ((gameState != GameState.NEW_GAME) ? "|gameState=" + gameState : "");
     }
 }

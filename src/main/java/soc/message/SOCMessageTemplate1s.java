@@ -57,15 +57,9 @@ package soc.message;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public abstract class SOCMessageTemplate1s extends SOCMessage
-    implements SOCMessageForGame
+public abstract class SOCMessageTemplate1s extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;
-
-    /**
-     * Name of the game.
-     */
-    protected String game;
 
     /**
      * Single string parameter.
@@ -81,17 +75,8 @@ public abstract class SOCMessageTemplate1s extends SOCMessage
      */
     protected SOCMessageTemplate1s(int messageType, String gameName, String p)
     {
-        super( messageType );
-        game = gameName;
+        super( messageType, gameName );
         p1 = p;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -107,55 +92,17 @@ public abstract class SOCMessageTemplate1s extends SOCMessage
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( getType(), game, p1);
+        return super.toCmd( sep2 + p1 );
     }
-
-    /**
-     * MESSAGETYPE sep game sep2 param
-     *
-     * @param messageType The message type id
-     * @param ga  the game name
-     * @param param The parameter
-     * @return    the command string
-     */
-    protected static String toCmd(final int messageType, String ga, String param)
-    {
-        return messageType + sep + ga + sep2 + param;
-    }
-
-    /**
-     * Parse the command String into a MessageType message
-     *
-     * @param s   the String to parse
-     * @return    a SitDown message, or null if parsing errors
-    public static SOCSitDown parseDataStr(final String s)
-    {
-        String ga; // the game name
-        String pna; // the player name
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            pna = st.nextToken();
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCSitDown(ga, pna);
-    }
-     */
 
     /**
      * @return a human readable form of the message
      */
     public String toString()
     {
-        return getClass().getSimpleName() + ":game=" + game + "|param=" + p1;
+        return getClass().getSimpleName() + ":game=" + getGameName() + "|param=" + p1;
     }
 }

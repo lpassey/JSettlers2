@@ -33,15 +33,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCDiscardRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCDiscardRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The number of discards
@@ -51,22 +45,13 @@ public class SOCDiscardRequest extends SOCMessage
     /**
      * Create a DiscardRequest message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param nd  the number of discards
      */
-    public SOCDiscardRequest(String ga, int nd)
+    public SOCDiscardRequest(String gameName, int nd)
     {
-        super( DISCARDREQUEST );
-        game = ga;
+        super( DISCARDREQUEST, gameName );
         numDiscards = nd;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -84,19 +69,7 @@ public class SOCDiscardRequest extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, numDiscards);
-    }
-
-    /**
-     * DISCARDREQUEST sep game sep2 numDiscards
-     *
-     * @param ga  the name of the game
-     * @param nd  the number of discards
-     * @return the command string
-     */
-    public static String toCmd(String ga, int nd)
-    {
-        return DISCARDREQUEST + sep + ga + sep2 + nd;
+        return super.toCmd(sep2 + numDiscards );
     }
 
     /**
@@ -107,6 +80,8 @@ public class SOCDiscardRequest extends SOCMessage
      */
     public static SOCDiscardRequest parseDataStr(String s)
     {
+        SOCMessageTemplate1i result = SOCMessageTemplate1i.parseDataStr( DISCARDREQUEST, s );
+
         String ga; // the game name
         int nd; // the number of discards
 
@@ -116,13 +91,16 @@ public class SOCDiscardRequest extends SOCMessage
         {
             ga = st.nextToken();
             nd = Integer.parseInt(st.nextToken());
+//            return new SOCDiscardRequest(ga, nd);
         }
         catch (Exception e)
         {
             return null;
         }
 
-        return new SOCDiscardRequest(ga, nd);
+        if (null != result)
+            return new SOCDiscardRequest( result.getGameName(), result.p1 );
+        return null;
     }
 
     /**
@@ -130,6 +108,6 @@ public class SOCDiscardRequest extends SOCMessage
      */
     public String toString()
     {
-        return "SOCDiscardRequest:game=" + game + "|numDiscards=" + numDiscards;
+        return "SOCDiscardRequest:game=" + getGameName() + "|numDiscards=" + numDiscards;
     }
 }

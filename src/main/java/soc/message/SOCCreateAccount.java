@@ -102,8 +102,7 @@ public class SOCCreateAccount extends SOCMessage
 
     /**
      * Password for the requested new account. This won't be null or 0-length:
-     * Enforced in constructor, {@link #toCmd(String, String, String, String)},
-     * and {@link #parseDataStr(String)}.
+     * Enforced in constructor and {@link #parseDataStr(String)}.
      *<P>
      * Before v1.1.19, those methods didn't check their parameters for a non-blank password;
      * {@link #parseDataStr(String)} has always rejected a message without a password because
@@ -118,8 +117,7 @@ public class SOCCreateAccount extends SOCMessage
 
     /**
      * Host name for the requested new account. This won't be null or 0-length:
-     * Enforced in constructor, {@link #toCmd(String, String, String, String)},
-     * and {@link #parseDataStr(String)}.
+     * Enforced in constructor and {@link #parseDataStr(String)}.
      *<P>
      * Before v1.1.19, those methods didn't check their parameters for a non-blank host;
      * {@link #parseDataStr(String)} has always rejected a message without a host because
@@ -148,33 +146,12 @@ public class SOCCreateAccount extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(nickname, password, host, email);
-    }
-
-    /**
-     * CREATEACCOUNT sep nickname sep2 password sep2 host sep2 email
-     *
-     * @param nn  the nickname
-     * @param pw  the password; must not be null or ""
-     * @param hn  the host name; must not be null or ""
-     * @param em  the email; optional, can use null or ""
-     * @return    the command string
-     * @throws IllegalArgumentException if {@code pw} or {@code hn} are null or empty ("")
-     */
-    public static String toCmd(String nn, String pw, String hn, String em)
-        throws IllegalArgumentException
-    {
-        if ((pw == null) || (pw.length() == 0))
-            throw new IllegalArgumentException("pw");
-        if ((hn == null) || (hn.length() == 0))
-            throw new IllegalArgumentException("hn");
-
+        String em = email;
         if ((em == null) || (em.length() == 0))
             em = EMPTYSTR;
 
-        return CREATEACCOUNT + sep + nn + sep2 + pw + sep2 + hn + sep2 + em;
+        return CREATEACCOUNT + sep + nickname + sep2 + password + sep2 + host + sep2 + em;
     }
-
     /**
      * Parse the command String into a CreateAccount message.
      * A blank email field becomes "", not null.

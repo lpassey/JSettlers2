@@ -36,15 +36,10 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCLargestArmy extends SOCMessage
-    implements SOCMessageForGame
+@Deprecated
+public class SOCLargestArmy extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The number of the player with largest army
@@ -54,22 +49,13 @@ public class SOCLargestArmy extends SOCMessage
     /**
      * Create a LargestArmy message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the seat number
      */
-    public SOCLargestArmy(String ga, int pn)
+    public SOCLargestArmy(String gameName, int pn)
     {
-        super( LARGESTARMY );
-        game = ga;
+        super( LARGESTARMY, gameName );
         playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -85,21 +71,10 @@ public class SOCLargestArmy extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, playerNumber);
-    }
-
-    /**
-     * LARGESTARMY sep game sep2 playerNumber
-     *
-     * @param ga  the name of the game
-     * @param pn  the seat number
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn)
-    {
-        return LARGESTARMY + sep + ga + sep2 + pn;
+        return super.toCmd( sep2 + playerNumber );
     }
 
     /**
@@ -133,6 +108,6 @@ public class SOCLargestArmy extends SOCMessage
      */
     public String toString()
     {
-        return "SOCLargestArmy:game=" + game + "|playerNumber=" + playerNumber;
+        return "SOCLargestArmy:game=" + getGameName() + "|playerNumber=" + playerNumber;
     }
 }

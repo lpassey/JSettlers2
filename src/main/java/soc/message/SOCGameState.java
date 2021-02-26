@@ -126,8 +126,7 @@ import soc.game.SOCGame;  // for javadoc's use
  * @author Robert S Thomas &lt;thomas@infolab.northwestern.edu&gt;
  * @see SOCGame#getGameState()
  */
-public class SOCGameState extends SOCMessage
-    implements SOCMessageForGame
+public class SOCGameState extends SOCMessageForGame
 {
     /**
      * Minimum client version (v2.0.00) which can be sent message types with an optional Game State field.
@@ -138,34 +137,20 @@ public class SOCGameState extends SOCMessage
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * Game state
      */
-    private GameState state;
+    private GameState gameState;
 
     /**
      * Create a GameState message.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param gs  game state
      */
-    public SOCGameState(String ga, GameState gs)
+    public SOCGameState(String gameName, GameState gameState)
     {
-        super( GAMESTATE );
-        game = ga;
-        state = gs;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
+        super( GAMESTATE, gameName );
+        this.gameState = gameState;
     }
 
     /**
@@ -173,7 +158,7 @@ public class SOCGameState extends SOCMessage
      */
     public GameState getState()
     {
-        return state;
+        return gameState;
     }
 
     /**
@@ -181,21 +166,10 @@ public class SOCGameState extends SOCMessage
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( game, state );
-    }
-
-    /**
-     * GAMESTATE sep game sep2 state
-     *
-     * @param ga  the game name
-     * @param gs  the game state
-     * @return    the command string
-     */
-    public static String toCmd(String ga, GameState gs)
-    {
-        return GAMESTATE + sep + ga + sep2 + gs.getIntValue();
+        return super.toCmd( sep2 + gameState.getIntValue());
     }
 
     /**
@@ -229,6 +203,6 @@ public class SOCGameState extends SOCMessage
      */
     public String toString()
     {
-        return "SOCGameState:game=" + game + "|state=" + state;
+        return "SOCGameState:game=" + getGameName() + "|state=" + gameState;
     }
 }

@@ -33,8 +33,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCClearTradeMsg extends SOCMessage
-    implements SOCMessageForGame
+public class SOCClearTradeMsg extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1112L;  // last structural change v1.1.12
 
@@ -45,11 +44,6 @@ public class SOCClearTradeMsg extends SOCMessage
     public static final int VERSION_FOR_CLEAR_ALL = 1112;
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * The seat number, or -1 to clear all seats
      */
     private int playerNumber;
@@ -57,22 +51,13 @@ public class SOCClearTradeMsg extends SOCMessage
     /**
      * Create a ClearTradeMsg message.
      *
-     * @param ga  the name of the game
-     * @param pn  the seat number
+     * @param gameName  the name of the game
+     * @param seatNumber  the seat number
      */
-    public SOCClearTradeMsg(String ga, int pn)
+    public SOCClearTradeMsg(String gameName, int seatNumber)
     {
-        super( CLEARTRADEMSG );
-        game = ga;
-        playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
+        super( CLEARTRADEMSG, gameName );
+        playerNumber = seatNumber;
     }
 
     /**
@@ -88,21 +73,10 @@ public class SOCClearTradeMsg extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, playerNumber);
-    }
-
-    /**
-     * CLEARTRADEMSG sep game sep2 playerNumber
-     *
-     * @param ga  the name of the game
-     * @param pn  the seat number
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn)
-    {
-        return CLEARTRADEMSG + sep + ga + sep2 + pn;
+        return super.toCmd( sep2 + playerNumber );
     }
 
     /**
@@ -136,6 +110,6 @@ public class SOCClearTradeMsg extends SOCMessage
      */
     public String toString()
     {
-        return "SOCClearTradeMsg:game=" + game + "|playerNumber=" + playerNumber;
+        return "SOCClearTradeMsg:game=" + getGameName() + "|playerNumber=" + playerNumber;
     }
 }

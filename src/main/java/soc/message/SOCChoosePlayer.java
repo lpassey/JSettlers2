@@ -51,8 +51,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas &lt;thomas@infolab.northwestern.edu&gt;
  */
-public class SOCChoosePlayer extends SOCMessage
-    implements SOCMessageForGame
+public class SOCChoosePlayer extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -75,11 +74,6 @@ public class SOCChoosePlayer extends SOCMessage
     public static final int CHOICE_MOVE_PIRATE = -3;
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * The number of the chosen player,
      * or {@link #CHOICE_NO_PLAYER} to choose no one,
      * or {@link #CHOICE_MOVE_ROBBER} to move the robber
@@ -90,7 +84,7 @@ public class SOCChoosePlayer extends SOCMessage
     /**
      * Create a ChoosePlayer message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param ch  the number of the chosen player,
      *   or {@link #CHOICE_NO_PLAYER} to choose no one,
      *   or {@link #CHOICE_MOVE_ROBBER} to move the robber
@@ -100,19 +94,10 @@ public class SOCChoosePlayer extends SOCMessage
      * use {@code ch} = playerNumber to rob a resource from that player;
      * to rob cloth, use {@code ch} = -(playerNumber + 1).
      */
-    public SOCChoosePlayer(String ga, int ch)
+    public SOCChoosePlayer(String gameName, int ch)
     {
-        super( CHOOSEPLAYER );
-        game = ga;
+        super( CHOOSEPLAYER, gameName );
         choice = ch;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -137,22 +122,10 @@ public class SOCChoosePlayer extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, choice);
-    }
-
-    /**
-     * CHOOSEPLAYER sep game sep2 choice
-     *
-     * @param ga  the name of the game
-     * @param ch  the number of the chosen player;
-     *            see {@link #SOCChoosePlayer(String, int)} for meaning
-     * @return the command string
-     */
-    public static String toCmd(String ga, int ch)
-    {
-        return CHOOSEPLAYER + sep + ga + sep2 + ch;
+        return super.toCmd( sep2 + choice );
     }
 
     /**
@@ -186,7 +159,7 @@ public class SOCChoosePlayer extends SOCMessage
      */
     public String toString()
     {
-        return "SOCChoosePlayer:game=" + game + "|choice=" + choice;
+        return "SOCChoosePlayer:game=" + getGameName() + "|choice=" + choice;
     }
 
 }

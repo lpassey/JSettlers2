@@ -149,7 +149,7 @@ import soc.message.SOCStatusMessage;
                 // Try to process message through its game type's handler
                 // before falling through to server-wide handler
 
-                final String gaName = ((SOCMessageForGame) mes).getGame();
+                final String gaName = ((SOCMessageForGame) mes).getGameName();
                 if (gaName == null)
                     return;  // <--- Early return: malformed ---
 
@@ -165,10 +165,10 @@ import soc.message.SOCStatusMessage;
                     }
                     else
                     {
-                        final GameMessageHandler hand = gameList.getGameTypeMessageHandler(gaName);
-                        if (hand != null)  // all consistent games will have a handler
+                        final GameMessageHandler gameMessageHandler = gameList.getGameTypeMessageHandler(gaName);
+                        if (gameMessageHandler != null)  // all consistent games will have a handler
                         {
-                            if (hand.dispatch(ga, (SOCMessageForGame) mes, con))
+                            if (gameMessageHandler.dispatch(ga, (SOCMessageForGame) mes, con))
                                 return;  // <--- Was handled by GameMessageHandler ---
 
                             // else: Message type unknown or ignored by handler. Server handles it below.

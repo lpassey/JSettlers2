@@ -46,28 +46,14 @@ public class SOCRevealFogHex extends SOCMessageTemplate3i
     /**
      * Create a SOCRevealFogHex message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param hexCoord  Coordinate of the land hex to reveal
      * @param hexType   Revealed hex type, same value as {@link SOCBoard#getHexTypeFromCoord(int)}
      * @param diceNum   Revealed hex dice number, same value as {@link SOCBoard#getNumberOnHexFromCoord(int)}, or 0
      */
-    public SOCRevealFogHex(final String ga, final int hexCoord, final int hexType, final int diceNum)
+    public SOCRevealFogHex(final String gameName, final int hexCoord, final int hexType, final int diceNum)
     {
-        super(REVEALFOGHEX, ga, hexCoord, hexType, diceNum);
-    }
-
-    /**
-     * REVEALFOGHEX sep game sep2 hexcoord sep2 hextype sep2 dicenum
-     *
-     * @param ga  the name of the game
-     * @param hexCoord  Coordinate of the land hex to reveal
-     * @param hexType   Revealed hex type, same value as {@link SOCBoard#getHexTypeFromCoord(int)}
-     * @param diceNum   Revealed hex dice number, same value as {@link SOCBoard#getNumberOnHexFromCoord(int)}, or 0
-     * @return the command string
-     */
-    public static String toCmd(final String ga, final int hexCoord, final int hexType, final int diceNum)
-    {
-        return SOCMessageTemplate3i.toCmd(REVEALFOGHEX, ga, hexCoord, hexType, diceNum);
+        super(REVEALFOGHEX, gameName, hexCoord, hexType, diceNum);
     }
 
     /**
@@ -116,7 +102,7 @@ public class SOCRevealFogHex extends SOCMessageTemplate3i
     @Override
     public String toString()
     {
-        return "SOCRevealFogHex:game=" + game
+        return "SOCRevealFogHex:game=" + getGameName()
             + "|hexCoord=" + p1 + "|hexType=" + p2 + "|diceNum=" + p3;
     }
 

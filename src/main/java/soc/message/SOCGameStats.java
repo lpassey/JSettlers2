@@ -41,15 +41,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCGameStats extends SOCMessage
-    implements SOCMessageForGame
+public class SOCGameStats extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Player scores; see {@link #getScores()}.
@@ -64,26 +58,17 @@ public class SOCGameStats extends SOCMessage
     /**
      * Create a GameStats message
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param sc  the scores; always indexed 0 to
      *   {@link soc.game.SOCGame#maxPlayers} - 1,
      *   regardless of number of players in the game
      * @param rb  where robots are sitting; indexed same as scores
      */
-    public SOCGameStats(String ga, int[] sc, boolean[] rb)
+    public SOCGameStats(String gameName, int[] sc, boolean[] rb)
     {
-        super( GAMESTATS );
-        game = ga;
+        super( GAMESTATS, gameName );
         scores = sc;
         robots = rb;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -107,27 +92,16 @@ public class SOCGameStats extends SOCMessage
     /**
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, scores, robots);
-    }
+        StringBuilder cmd = new StringBuilder( super.toCmd() );
 
-    /**
-     * @return the command string
-     *
-     * @param ga  the name of the game
-     * @param sc  the scores
-     * @param rb  where robots are sitting
-     */
-    public static String toCmd(String ga, int[] sc, boolean[] rb)
-    {
-        StringBuilder cmd = new StringBuilder( GAMESTATS + sep + ga );
-
-        for (int value : sc)
+        for (int value : scores)
         {
             cmd.append( sep2 ).append( value );
         }
-        for (boolean b : rb)
+        for (boolean b : robots)
         {
             cmd.append( sep2 ).append( b );
         }
@@ -142,7 +116,7 @@ public class SOCGameStats extends SOCMessage
      */
     public static SOCGameStats parseDataStr(String s)
     {
-        String ga; // the game name
+        String gameName; // the game name
         int[] sc; // the scores
         boolean[] rb; // where robots are sitting
 
@@ -150,7 +124,7 @@ public class SOCGameStats extends SOCMessage
 
         try
         {
-            ga = st.nextToken();
+            gameName = st.nextToken();
             final int maxPlayers = st.countTokens() / 2;
             sc = new int[maxPlayers];
             rb = new boolean[maxPlayers];
@@ -170,7 +144,7 @@ public class SOCGameStats extends SOCMessage
             return null;
         }
 
-        return new SOCGameStats(ga, sc, rb);
+        return new SOCGameStats( gameName, sc, rb );
     }
 
     /**
@@ -179,7 +153,7 @@ public class SOCGameStats extends SOCMessage
     public String toString()
     {
         StringBuilder text = new StringBuilder("SOCGameStats:game=");
-        text.append(game);
+        text.append(getGameName());
         for (int score : scores)
         {
             text.append( "|" );

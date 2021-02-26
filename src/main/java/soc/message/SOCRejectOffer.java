@@ -55,8 +55,7 @@ import java.util.StringTokenizer;
  * @author Robert S. Thomas
  * @see SOCAcceptOffer
  */
-public class SOCRejectOffer extends SOCMessage
-    implements SOCMessageForGame
+public class SOCRejectOffer extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2450L;  // last structural change v2.4.50
 
@@ -116,11 +115,6 @@ public class SOCRejectOffer extends SOCMessage
     public enum Reason {NO_REASON, REASON_CANNOT_MAKE_TRADE, REASON_NOT_YOUR_TURN, REASON_CANNOT_MAKE_OFFER }
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * From server, the player number rejecting all offers made to them, or -1; see {@link #getPlayerNumber()}.
      */
     private int playerNumber;
@@ -160,18 +154,9 @@ public class SOCRejectOffer extends SOCMessage
      */
     public SOCRejectOffer(String gameName, int pn, final int reasonCode)
     {
-        super( REJECTOFFER );
-        game = gameName;
+        super( REJECTOFFER, gameName );
         playerNumber = pn;
         this.reasonCode = Reason.values()[reasonCode];
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -207,10 +192,11 @@ public class SOCRejectOffer extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return REJECTOFFER + sep + game + sep2 + playerNumber
-           + ((reasonCode.ordinal() != 0) ? sep2 + reasonCode.ordinal() : "");
+        return super.toCmd( sep2 + playerNumber
+           + ((reasonCode.ordinal() != 0) ? sep2 + reasonCode.ordinal() : ""));
     }
 
     /**
@@ -247,7 +233,7 @@ public class SOCRejectOffer extends SOCMessage
      */
     public String toString()
     {
-        return "SOCRejectOffer:game=" + game + "|playerNumber=" + playerNumber
+        return "SOCRejectOffer:game=" + getGameName() + "|playerNumber=" + playerNumber
             + ((reasonCode.ordinal() != 0) ? "|reasonCode=" + reasonCode : "");
     }
 

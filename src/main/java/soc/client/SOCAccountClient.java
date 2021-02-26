@@ -668,8 +668,8 @@ public class SOCAccountClient extends Applet
 
             // send VERSION right away (1.1.07 and later)
             // Version msg includes locale in 2.0.00 and later clients; v1.x.xx servers will ignore that token.
-            put( SOCVersion.toCmd
-                ( Version.versionNumber(), Version.version(), Version.buildnum(), null, cliLocale.toString() ) );
+            put( new SOCVersion( Version.versionNumber(), Version.version(), Version.buildnum(),
+                null, cliLocale.toString() ).toCmd() );
         }
         catch( Exception e )
         {
@@ -785,7 +785,7 @@ public class SOCAccountClient extends Applet
             {
                 submitLock = true;
                 status.setText( strings.get( "account.create.msg.creating" ) );  // "Creating account..."
-                put( SOCCreateAccount.toCmd( nickname, password, host, emailAddress ) );
+                put( new SOCCreateAccount( nickname, password, host, emailAddress ).toCmd() );
             }
         }
         else if (target == conn_connect)

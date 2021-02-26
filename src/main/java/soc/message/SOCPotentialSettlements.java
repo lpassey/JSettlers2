@@ -63,8 +63,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S Thomas
  */
-public class SOCPotentialSettlements extends SOCMessage
-    implements SOCMessageForGame
+public class SOCPotentialSettlements extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -74,11 +73,6 @@ public class SOCPotentialSettlements extends SOCMessage
      * @since 2.0.00
      */
     public static final int VERSION_FOR_PLAYERNUM_ALL = 2000;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Player number, or -1 for all players; see {@link #getPlayerNumber()} for details.
@@ -155,7 +149,7 @@ public class SOCPotentialSettlements extends SOCMessage
     /**
      * Create a SOCPotentialSettlements message for a board layout without land areas.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param pn  the player number, or -1 for all players in v2.0.00
      *   or newer (see <tt>ps</tt> for implications)
      * @param ps  the list of potential settlement nodes; if <tt>pn == -1</tt>
@@ -164,10 +158,9 @@ public class SOCPotentialSettlements extends SOCMessage
      *   <tt>ps</tt> also is the list of legal settlements.
      * @see #SOCPotentialSettlements(String, int, List, int, HashSet[], int[][])
      */
-    public SOCPotentialSettlements( String ga, int pn, List<Integer> ps )
+    public SOCPotentialSettlements( String gameName, int pn, List<Integer> ps )
     {
-        super( POTENTIALSETTLEMENTS );
-        game = ga;
+        super( POTENTIALSETTLEMENTS, gameName );
         playerNumber = pn;
         psNodes = ps;
         psNodesFromAll = false;
@@ -182,7 +175,7 @@ public class SOCPotentialSettlements extends SOCMessage
      * and Legal Sea Edges, but not the board layout's Land Areas (which are sent only with
      * {@code pn = 0}, not again for every player).
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param pn  the player number; must be &gt; 0
      * @param ps  player's list of potential settlement nodes
      * @param lse  Legal sea edges for player's ships if restricted, or {@code null};
@@ -191,10 +184,10 @@ public class SOCPotentialSettlements extends SOCMessage
      * @see #SOCPotentialSettlements(String, int, List, int, HashSet[], int[][])
      * @since 2.0.00
      */
-    public SOCPotentialSettlements( String ga, int pn, List<Integer> ps, final int[][] lse )
+    public SOCPotentialSettlements( String gameName, int pn, List<Integer> ps, final int[][] lse )
         throws IllegalArgumentException
     {
-        this( ga, pn, ps );
+        this( gameName, pn, ps );
         if (pn <= 0)
             throw new IllegalArgumentException( "pn" );
 
@@ -206,7 +199,7 @@ public class SOCPotentialSettlements extends SOCMessage
      * each of which have a set of legal settlements, but only one of which
      * has potential settlements at this time.
      *
-     * @param ga  Name of the game
+     * @param gameName  Name of the game
      * @param pn  Player number, or -1 for all players
      * @param ps  Player's unique list of potential settlement nodes; null if game isn't yet past initial placement
      *     and either {@code pan != 0} and all players' list is {@code lan[pan]}, or because players
@@ -233,12 +226,11 @@ public class SOCPotentialSettlements extends SOCMessage
      * @see #SOCPotentialSettlements(String, int, List)
      * @since 2.0.00
      */
-    public SOCPotentialSettlements
-    ( String ga, int pn, final List<Integer> ps, final int pan, HashSet<Integer>[] lan, final int[][] lse )
+    public SOCPotentialSettlements( String gameName, int pn, final List<Integer> ps, final int pan,
+        HashSet<Integer>[] lan, final int[][] lse )
         throws IllegalArgumentException, NullPointerException
     {
-        super( POTENTIALSETTLEMENTS );
-        game = ga;
+        super( POTENTIALSETTLEMENTS, gameName );
         playerNumber = pn;
         psNodes = ps;
         psNodesFromAll = (pan == 0) && (ps == null);
@@ -252,14 +244,6 @@ public class SOCPotentialSettlements extends SOCMessage
         for (int i = 1; i < lan.length; ++i)
             if (lan[i] == null)
                 throw new IllegalArgumentException( "lan[" + i + "] null" );
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -307,8 +291,8 @@ public class SOCPotentialSettlements extends SOCMessage
 
     /**
      * POTENTIALSETTLEMENTS formatted command, for a message with 1 or multiple land areas.
-     * Format will be either {@link #toCmd(String, int, List)}
-     * or {@link #toCmd(String, int, List, int, HashSet[], int[][])}
+     * Format will be either {@code #toCmd( int, List)}
+     * or {@link #toCmd( int, List, int, HashSet[], int[][])}
      *
      * @return the command String
      */
@@ -317,39 +301,23 @@ public class SOCPotentialSettlements extends SOCMessage
     {
         if ((landAreasLegalNodes == null) && (legalSeaEdges == null))
         {
-            return toCmd( game, playerNumber, psNodes );
+            StringBuilder cmd = new StringBuilder(super.toCmd( sep2 + playerNumber ));
+
+            for (Integer number : psNodes)
+            {
+                cmd.append( sep2 ).append( number );
+            }
+            return cmd.toString();
         }
         else
         {
             if (landAreasLegalNodes != null)
-                return toCmd( game, playerNumber, psNodes, startingLandArea, landAreasLegalNodes, legalSeaEdges );
+                return toCmd( playerNumber, psNodes, startingLandArea, landAreasLegalNodes, legalSeaEdges );
             else
                 // legalSeaEdges but no landAreasLegalNodes:
                 // used only for pn > 0 when joining a game that's already started (SC_PIRI)
-                return toCmd( game, playerNumber, psNodes, 0, null, legalSeaEdges );
+                return toCmd( playerNumber, psNodes, 0, null, legalSeaEdges );
         }
-    }
-
-    /**
-     * <tt>toCmd</tt> for a SOCPotentialSettlements message with 1 land area.
-     *<P><tt>
-     * POTENTIALSETTLEMENTS sep game sep2 playerNumber sep2 psNodes
-     *</tt>
-     * @param ga  the game name
-     * @param pn  the player number
-     * @param ps  the list of potential settlements
-     * @return the command string
-     * @see #toCmd(String, int, int, HashSet[], int[][])
-     */
-    private static String toCmd( String ga, int pn, List<Integer> ps )
-    {
-        StringBuilder cmd = new StringBuilder( POTENTIALSETTLEMENTS + sep + ga + sep2 + pn );
-
-        for (Integer number : ps)
-        {
-            cmd.append( sep2 ).append( number );
-        }
-        return cmd.toString();
     }
 
     /**
@@ -370,7 +338,7 @@ public class SOCPotentialSettlements extends SOCMessage
      *      {@link soc.game.SOCBoardLarge} node coordinate.
      *</UL>
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param pn  the player number, or -1 for all players
      * @param ps  Player's unique list of potential settlement nodes; null if game isn't yet past initial placement
      *     and either {@code pan != 0} and all players' list is {@code lan[pan]}, or because players
@@ -388,10 +356,10 @@ public class SOCPotentialSettlements extends SOCMessage
      * @return the command string
      * @see #toCmd(String, int, List)
      */
-    private static String toCmd
-    ( String ga, int pn, final List<Integer> ps, final int pan, final HashSet<Integer>[] lan, final int[][] lse )
+    private String toCmd( int pn, final List<Integer> ps, final int pan,
+        final HashSet<Integer>[] lan, final int[][] lse )
     {
-        StringBuilder cmd = new StringBuilder( POTENTIALSETTLEMENTS + sep + ga + sep2 + pn );
+        StringBuilder cmd = new StringBuilder( super.toCmd( sep2 + pn ));
 
         if (ps != null)
         {
@@ -828,7 +796,7 @@ public class SOCPotentialSettlements extends SOCMessage
     public String toString()
     {
         StringBuilder s = new StringBuilder
-            ( "SOCPotentialSettlements:game=" + game + "|playerNum=" + playerNumber + "|list=" );
+            ( "SOCPotentialSettlements:game=" + getGameName() + "|playerNum=" + playerNumber + "|list=" );
         if (psNodesFromAll)
             s.append( "(fromAllLANodes)" );
         else if (psNodes == null)
@@ -896,5 +864,4 @@ public class SOCPotentialSettlements extends SOCMessage
 
         return s.toString();
     }
-
 }

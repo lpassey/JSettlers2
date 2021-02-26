@@ -55,8 +55,7 @@ import java.util.StringTokenizer;
  * @see SOCChannelMembers
  * @see SOCGamesWithOptions
  */
-public class SOCGameMembers extends SOCMessage
-    implements SOCMessageForGame
+public class SOCGameMembers extends  SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -66,21 +65,15 @@ public class SOCGameMembers extends SOCMessage
     private List<String> members;
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * Create a GameMembers message.
      *
-     * @param ga  name of game
+     * @param gameName  name of game
      * @param ml  list of members
      */
-    public SOCGameMembers( String ga, List<String> ml )
+    public SOCGameMembers( String gameName, List<String> ml )
     {
-        super( GAMEMEMBERS );
+        super( GAMEMEMBERS, gameName );
         members = ml;
-        game = ga;
     }
 
     /**
@@ -92,41 +85,21 @@ public class SOCGameMembers extends SOCMessage
     }
 
     /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
-    /**
      * GAMEMEMBERS sep game sep2 members
+     *
+     * Used from instance method {@link #toCmd()} with Strings,
+     * and from other callers with {@link Connection}s for convenience.
      *
      * @return the command String
      */
     @Override
     public String toCmd()
     {
-        return toCmd( game, members );
-    }
-
-    /**
-     * GAMEMEMBERS sep game sep2 members
-     *<P>
-     * Used from instance method {@link #toCmd()} with Strings,
-     * and from other callers with {@link Connection}s for convenience.
-     *
-     * @param ga  the game name
-     * @param ml  the list of members (String or {@link Connection})
-     * @return the command string
-     */
-    public static String toCmd( String ga, List<?> ml )
-    {
-        StringBuilder cmd = new StringBuilder( GAMEMEMBERS + sep + ga );
+        StringBuilder cmd = new StringBuilder( super.toCmd() );
 
         try
         {
-            for (Object obj : ml)
+            for (Object obj : members)
             {
                 String str;
                 if (obj instanceof Connection)
@@ -158,13 +131,13 @@ public class SOCGameMembers extends SOCMessage
      */
     public static SOCGameMembers parseDataStr( String s )
     {
-        String ga;
+        String gameName;
         List<String> ml = new ArrayList<>();
         StringTokenizer st = new StringTokenizer( s, sep2 );
 
         try
         {
-            ga = st.nextToken();
+            gameName = st.nextToken();
 
             while (st.hasMoreTokens())
                 ml.add( st.nextToken() );
@@ -174,7 +147,7 @@ public class SOCGameMembers extends SOCMessage
             return null;
         }
 
-        return new SOCGameMembers( ga, ml );
+        return new SOCGameMembers( gameName, ml );
     }
 
     /**
@@ -201,8 +174,7 @@ public class SOCGameMembers extends SOCMessage
      *     v1.x example: {@code "game=ga|members=player0,droid 1,robot 2,debug"}
      * @return Member list for {@link #parseDataStr(String)}, or {@code null} if params are malformed
      */
-    public static String stripAttribNamesToMemberList
-    ( final String prefix, final String messageStrParams )
+    public static String stripAttribNamesToMemberList( final String prefix, final String messageStrParams )
     {
         if (!messageStrParams.startsWith( prefix ))
             return null;
@@ -248,7 +220,7 @@ public class SOCGameMembers extends SOCMessage
     public String toString()
     {
         StringBuilder sb = new StringBuilder( "SOCGameMembers:game=" );
-        sb.append( game );
+        sb.append( getGameName() );
         sb.append( "|members=" );
         if (members != null)
             sb.append( members );  // "[joe, bob, lily,...]"

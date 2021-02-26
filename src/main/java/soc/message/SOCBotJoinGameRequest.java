@@ -44,15 +44,9 @@ import soc.game.SOCGameOptionSet;
  * @author Robert S Thomas
  * @see SOCJoinGameAuth
  */
-public class SOCBotJoinGameRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCBotJoinGameRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2450L;  // last structural change v2.4.50
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * Where the robot should sit
@@ -72,20 +66,19 @@ public class SOCBotJoinGameRequest extends SOCMessage
      * May be null if {@link #getOptions(SOCGameOptionSet)} hasn't been called, or if optsStr is {@code "-"}
      * @since 1.1.07
      */
-    private Map<String,SOCGameOption> opts = null;
+    private Map<String,SOCGameOption> opts;
 
     /**
      * Create a BotJoinGameRequest message with a set of {@link SOCGameOption}s.
      *
-     * @param ga  name of game
+     * @param gameName  name of game
      * @param pn  the seat number
      * @param opts  game's {@link SOCGameOption}s, or null
      * @see #SOCBotJoinGameRequest(String, int, String)
      */
-    public SOCBotJoinGameRequest(String ga, int pn, SOCGameOptionSet opts)
+    public SOCBotJoinGameRequest(String gameName, int pn, SOCGameOptionSet opts)
     {
-        super( BOTJOINGAMEREQUEST );
-        game = ga;
+        super( BOTJOINGAMEREQUEST, gameName );
         playerNumber = pn;
         Map<String, SOCGameOption> optsMap = (opts != null) ? opts.getAll() : null;
         this.opts = optsMap;
@@ -95,27 +88,18 @@ public class SOCBotJoinGameRequest extends SOCMessage
     /**
      * Create a BotJoinGameRequest message with a packed string of game options.
      *
-     * @param ga  name of game
+     * @param gameName  name of game
      * @param pn  the seat number
      * @param optsStr {@link SOCGameOption game options}, or null
      * @see #SOCBotJoinGameRequest(String, int, SOCGameOptionSet)
      * @since 2.4.50
      */
-    public SOCBotJoinGameRequest(String ga, int pn, final String optsStr)
+    public SOCBotJoinGameRequest(String gameName, int pn, final String optsStr)
     {
-        super( BOTJOINGAMEREQUEST );
-        game = ga;
+        super( BOTJOINGAMEREQUEST, gameName );
         playerNumber = pn;
         opts = null;
         this.optsStr = optsStr;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -151,7 +135,7 @@ public class SOCBotJoinGameRequest extends SOCMessage
     @Override
     public String toCmd()
     {
-        return BOTJOINGAMEREQUEST + sep + game + sep2 + playerNumber + sep2 + optsStr;
+        return super.toCmd( sep2 + playerNumber + sep2 + optsStr );
     }
 
     /**
@@ -193,7 +177,8 @@ public class SOCBotJoinGameRequest extends SOCMessage
     @Override
     public String toString()
     {
-        return "SOCBotJoinGameRequest:game=" + game + "|playerNumber=" + playerNumber + "|opts=" + optsStr;
+        return "SOCBotJoinGameRequest:game=" + getGameName() + "|playerNumber=" + playerNumber
+            + "|opts=" + optsStr;
     }
 
 }

@@ -48,6 +48,7 @@ import soc.game.SOCGame;
  * @see SOCGamesWithOptions
  * @see SOCGameMembers
  */
+@Deprecated
 public class SOCGames extends SOCMessage
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00

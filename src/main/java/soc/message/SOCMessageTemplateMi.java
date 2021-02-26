@@ -63,15 +63,10 @@ package soc.message;
  * @since 1.1.00
  * @see SOCMessageTemplateMs
  */
-public abstract class SOCMessageTemplateMi extends SOCMessageMulti
-    implements SOCMessageForGame
+public abstract class SOCMessageTemplateMi extends SOCMessageForGame
+    implements SOCMessageMulti
 {
     private static final long serialVersionUID = 2000L;
-
-    /**
-     * Name of the game, or null if none.
-     */
-    protected String game;
 
     /**
      * Array of int parameters, or null if none.
@@ -85,22 +80,13 @@ public abstract class SOCMessageTemplateMi extends SOCMessageMulti
      * Create a new multi-message with integer parameters.
      *
      * @param id  Message type ID
-     * @param ga  Name of game this message is for, or null if none
+     * @param gameName  Name of game this message is for, or null if none
      * @param parr   Parameters, or null if none
      */
-    protected SOCMessageTemplateMi(int id, String ga, int[] parr)
+    protected SOCMessageTemplateMi(int id, String gameName, int[] parr)
     {
-        super( id );
-        game = ga;
+        super( id, gameName );
         pa = parr;
-    }
-
-    /**
-     * @return the name of the game, or null if none
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -116,37 +102,19 @@ public abstract class SOCMessageTemplateMi extends SOCMessageMulti
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(getType(), game, pa);
-    }
+        StringBuilder sb = new StringBuilder( super.toCmd());
 
-    /**
-     * MESSAGETYPE [sep game] sep param1 sep param2 sep ...
-     *
-     * @param messageType The message type id
-     * @param gaName  the game name, or null
-     * @param parr  The parameter array, or null if no additional parameters
-     * @return    the command string
-     */
-    protected static String toCmd(final int messageType, String gaName, int[] parr)
-    {
-        StringBuilder sb = new StringBuilder(Integer.toString(messageType));
-
-        if (gaName != null)
+        if (pa != null)
         {
-            sb.append(sep);
-            sb.append(gaName);
-        }
-        if (parr != null)
-        {
-            for (int value : parr)
+            for (int value : pa)
             {
                 sb.append( sep );
                 sb.append( value );
             }
         }
-
         return sb.toString();
     }
 
@@ -187,10 +155,10 @@ public abstract class SOCMessageTemplateMi extends SOCMessageMulti
     public String toString()
     {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        if (game != null)
+        if (getGameName() != null)
         {
             sb.append (":game=");
-            sb.append (game);
+            sb.append (getGameName());
         }
         if (pa != null)
         {

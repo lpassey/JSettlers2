@@ -153,25 +153,12 @@ public class SOCImARobot extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd( nickname, cookie, rbclass );
-    }
-
-    /**
-     * IMAROBOT sep nickname sep2 cookie sep2 rbclass
-     *
-     * @param nn  the nickname
-     * @param cookie  the security cookie
-     * @param rbclass the robot class
-     * @return the command string
-     */
-    public static String toCmd( final String nn, final String cookie, final String rbclass )
-    {
         if (cookie != null)
-            return IMAROBOT + sep + nn + sep2 + cookie + sep2 + rbclass;
+            return IMAROBOT + sep + nickname + sep2 + cookie + sep2 + rbclass;
         if (rbclass == null)
-            return IMAROBOT + sep + nn;  // back-compat only (pre-1.1.09: no rbclass)
+            return IMAROBOT + sep + nickname;  // back-compat only (pre-1.1.09: no rbclass)
         else
-            return IMAROBOT + sep + nn + sep2 + rbclass;  // back-compat (pre-1.1.19: no cookie)
+            return IMAROBOT + sep + nickname + sep2 + rbclass;  // back-compat (pre-1.1.19: no cookie)
     }
 
     /**

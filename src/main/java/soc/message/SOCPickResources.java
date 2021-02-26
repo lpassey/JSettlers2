@@ -72,8 +72,7 @@ import java.util.StringTokenizer;
  * @see SOCPickResourceType
  * @author Robert S. Thomas
  */
-public class SOCPickResources extends SOCMessage
-    implements SOCMessageForGame
+public class SOCPickResources extends SOCMessageForGame
 {
     /**
      * Minimum server and client version number where server sends this message,
@@ -103,11 +102,6 @@ public class SOCPickResources extends SOCMessage
     private static final long serialVersionUID = 2450L;  // last structural change v2.4.50
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * The set of resources picked to be gained
      */
     private SOCResourceSet resources;
@@ -129,7 +123,7 @@ public class SOCPickResources extends SOCMessage
     /**
      * Create a Pick Resources message without a player number or reason code.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param cl  the amount of clay being picked
      * @param or  the amount of ore being picked
      * @param sh  the amount of sheep being picked
@@ -137,9 +131,9 @@ public class SOCPickResources extends SOCMessage
      * @param wo  the amount of wood being picked
      * @since 2.0.00
      */
-    public SOCPickResources(String ga, int cl, int or, int sh, int wh, int wo)
+    public SOCPickResources(String gameName, int cl, int or, int sh, int wh, int wo)
     {
-        this(ga, new SOCResourceSet(cl, or, sh, wh, wo, 0));
+        this( gameName, new SOCResourceSet(cl, or, sh, wh, wo, 0));
     }
 
     /**
@@ -158,27 +152,18 @@ public class SOCPickResources extends SOCMessage
      * Create a PickResources message with an optional player number and reason code,
      * for sending to client v2.4.50 or newer ({@link #VERSION_FOR_SERVER_ANNOUNCE}).
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param rs  the resources being picked.
      *     Should not contain unknown resources, those will be ignored and not sent.
      * @param pn  player number when sent from server, or 0 when sent from client
      * @param rc  reason code ({@link #REASON_DISCOVERY}, etc), or 0 for none
      */
-    public SOCPickResources(String ga, SOCResourceSet rs, int pn, int rc)
+    public SOCPickResources(String gameName, SOCResourceSet rs, int pn, int rc)
     {
-        super( PICKRESOURCES );
-        game = ga;
+        super( PICKRESOURCES, gameName );
         resources = rs;
         playerNumber = pn;
         reasonCode = rc;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -222,12 +207,12 @@ public class SOCPickResources extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        StringBuilder cmd = new StringBuilder(PICKRESOURCES + sep + game);
+        StringBuilder cmd = new StringBuilder(super.toCmd());
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD; i++)
         {
             cmd.append(sep2_char).append(resources.getAmount(i));
         }
@@ -299,7 +284,7 @@ public class SOCPickResources extends SOCMessage
     public String toString()
     {
         StringBuilder sb = new StringBuilder
-            ("SOCPickResources:game=" + game + "|resources=" + resources);
+            ("SOCPickResources:game=" + getGameName() + "|resources=" + resources);
         if ((playerNumber != 0) || (reasonCode != 0))
             sb.append("|pn=").append(playerNumber).append("|reason=").append(reasonCode);
 

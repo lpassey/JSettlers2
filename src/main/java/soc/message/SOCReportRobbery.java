@@ -66,8 +66,7 @@ import soc.message.SOCPlayerElement.PEType;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 2.4.50
  */
-public class SOCReportRobbery extends SOCMessage
-    implements SOCMessageForGame
+public class SOCReportRobbery extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2450L;  // last structural change v2.4.50
 
@@ -76,12 +75,7 @@ public class SOCReportRobbery extends SOCMessage
      */
     public static final int MIN_VERSION = 2450;
 
-    /**
-     * Name of the game
-     */
-    public final String gaName;
-
-    /** Victim player number, or -1 if none (for future use by scenarios/expansions) */
+   /** Victim player number, or -1 if none (for future use by scenarios/expansions) */
     public final int victimPN;
 
     /**
@@ -143,7 +137,7 @@ public class SOCReportRobbery extends SOCMessage
      * Create a {@link SOCReportRobbery} message about one resource type
      * (not a resource set, or cloth or some other {@link PEType}).
      *
-     * @param gaName  name of the game
+     * @param gameName  name of the game
      * @param perpPN  Perpetrator's player number, or -1 if none (for future use by scenarios/expansions)
      * @param victimPN  Victim's player number, or -1 if none (for future use by scenarios/expansions)
      * @param resType  Resource type being stolen, like {@link SOCResourceConstants#SHEEP}
@@ -157,11 +151,12 @@ public class SOCReportRobbery extends SOCMessage
      * @see #SOCReportRobbery(String, int, int, SOCResourceSet, int)
      * @see #SOCReportRobbery(String, int, int, int, SOCResourceSet, SOCPlayerElement.PEType, boolean, int, int, int)
      */
-    public SOCReportRobbery( final String gaName, final int perpPN, final int victimPN, final int resType,
+    public SOCReportRobbery( final String gameName, final int perpPN, final int victimPN, final int resType,
         final boolean isGainLose, final int amount, final int victimAmount, final int extraValue )
         throws IllegalArgumentException
     {
-        this( gaName, perpPN, victimPN, resType, null, null, isGainLose, amount, victimAmount, extraValue );
+        this( gameName, perpPN, victimPN, resType, null, null, isGainLose, amount,
+            victimAmount, extraValue );
     }
 
     /**
@@ -169,7 +164,7 @@ public class SOCReportRobbery extends SOCMessage
      * (not one resource type, or cloth or some other {@link PEType}).
      * Will set {@link #isGainLose} == true.
      *
-     * @param gaName  name of the game
+     * @param gameName  name of the game
      * @param perpPN  Perpetrator's player number, or -1 if none (for future use by scenarios/expansions)
      * @param victimPN  Victim's player number, or -1 if none (for future use by scenarios/expansions)
      * @param resSet  Resource set being stolen; not null or empty.
@@ -179,18 +174,18 @@ public class SOCReportRobbery extends SOCMessage
      * @see #SOCReportRobbery(String, int, int, int, boolean, int, int, int)
      * @see #SOCReportRobbery(String, int, int, int, SOCResourceSet, SOCPlayerElement.PEType, boolean, int, int, int)
      */
-    public SOCReportRobbery( final String gaName, final int perpPN, final int victimPN,
+    public SOCReportRobbery( final String gameName, final int perpPN, final int victimPN,
         final SOCResourceSet resSet, final int extraValue )
         throws IllegalArgumentException
     {
-        this( gaName, perpPN, victimPN, -1, resSet, null, true, 0, 0, extraValue );
+        this( gameName, perpPN, victimPN, -1, resSet, null, true, 0, 0, extraValue );
     }
 
     /**
      * Create a {@link SOCReportRobbery} message about cloth or some other player element
      * (not a resource or resource set).
      *
-     * @param gaName  name of the game
+     * @param gameName  name of the game
      * @param perpPN  Perpetrator's player number, or -1 if none (for future use by scenarios/expansions)
      * @param victimPN  Victim's player number, or -1 if none (for future use by scenarios/expansions)
      * @param peType  the type of element, like {@link PEType#SCENARIO_CLOTH_COUNT}
@@ -203,19 +198,19 @@ public class SOCReportRobbery extends SOCMessage
      * @see #SOCReportRobbery(String, int, int, int, boolean, int, int, int)
      * @see #SOCReportRobbery(String, int, int, SOCResourceSet, int)
      */
-    public SOCReportRobbery( final String gaName, final int perpPN, final int victimPN, final PEType peType,
+    public SOCReportRobbery( final String gameName, final int perpPN, final int victimPN, final PEType peType,
         final boolean isGainLose, final int amount, final int victimAmount, final int extraValue )
         throws IllegalArgumentException
     {
-        this( gaName, perpPN, victimPN, -1, null, peType, isGainLose, amount, victimAmount, extraValue );
+        this( gameName, perpPN, victimPN, -1, null, peType, isGainLose, amount, victimAmount, extraValue );
     }
 
-    private SOCReportRobbery( final String gaName, final int perpPN, final int victimPN,
+    private SOCReportRobbery( final String gameName, final int perpPN, final int victimPN,
             final int resType, final SOCResourceSet resSet, final PEType peType,
             final boolean isGainLose, final int amount, final int victimAmount, final int extraValue )
         throws IllegalArgumentException
     {
-        super( REPORTROBBERY );
+        super( REPORTROBBERY, gameName );
         if ((peType == null) && (resSet == null) && (resType < 0))
             throw new IllegalArgumentException( "peType/resSet/resType" );
         if ((resSet == null) && ((amount < 0) || (victimAmount < 0)))
@@ -225,7 +220,6 @@ public class SOCReportRobbery extends SOCMessage
         if ((resSet != null) && resSet.isEmpty())
             throw new IllegalArgumentException( "resSet empty" );
 
-        this.gaName = gaName;
         this.perpPN = perpPN;
         this.victimPN = victimPN;
         this.resType = ((resSet == null) && (peType == null)) ? resType : 0;
@@ -235,14 +229,6 @@ public class SOCReportRobbery extends SOCMessage
         this.amount = amount;
         this.victimAmount = victimAmount;
         this.extraValue = extraValue;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return gaName;
     }
 
     /**
@@ -264,10 +250,10 @@ public class SOCReportRobbery extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        StringBuilder sb = new StringBuilder
-            ( REPORTROBBERY + sep + gaName + sep2 + perpPN + sep2 + victimPN + sep2 );
+        StringBuilder sb = new StringBuilder( super.toCmd( sep2 + perpPN + sep2 + victimPN + sep2 ));
         if (resSet != null)
         {
             sb.append( 'S' );
@@ -469,7 +455,7 @@ public class SOCReportRobbery extends SOCMessage
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder( "SOCReportRobbery:game=" + gaName );
+        StringBuilder sb = new StringBuilder( "SOCReportRobbery:game=" + getGameName() );
         sb.append( "|perp=" ).append( perpPN )
             .append( "|victim=" ).append( victimPN );
         if (resSet != null)

@@ -34,15 +34,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCDevCardCount extends SOCMessage
-    implements SOCMessageForGame
+public class SOCDevCardCount extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The number of dev cards
@@ -52,22 +46,13 @@ public class SOCDevCardCount extends SOCMessage
     /**
      * Create a DevCardCount message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param nd  the number of dev cards
      */
-    public SOCDevCardCount(String ga, int nd)
+    public SOCDevCardCount(String gameName, int nd)
     {
-        super( DEVCARDCOUNT );
-        game = ga;
+        super( DEVCARDCOUNT, gameName );
         numDevCards = nd;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -85,19 +70,7 @@ public class SOCDevCardCount extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, numDevCards);
-    }
-
-    /**
-     * DEVCARDCOUNT sep game sep2 numDevCards
-     *
-     * @param ga  the name of the game
-     * @param nd  the number of dev cards
-     * @return the command string
-     */
-    public static String toCmd(String ga, int nd)
-    {
-        return DEVCARDCOUNT + sep + ga + sep2 + nd;
+        return super.toCmd( sep2 + numDevCards );
     }
 
     /**
@@ -131,7 +104,7 @@ public class SOCDevCardCount extends SOCMessage
      */
     public String toString()
     {
-        return "SOCDevCardCount:game=" + game + "|numDevCards=" + numDevCards;
+        return "SOCDevCardCount:game=" + getGameName() + "|numDevCards=" + numDevCards;
     }
 
 }

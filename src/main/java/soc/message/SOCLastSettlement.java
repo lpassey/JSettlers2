@@ -32,15 +32,10 @@ import java.util.StringTokenizer;
  *
  * @author Robert S Thomas
  */
-public class SOCLastSettlement extends SOCMessage
-    implements SOCMessageForGame
+@Deprecated
+public class SOCLastSettlement extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * the name of the game
-     */
-    private String game;
 
     /**
      * the number of the player
@@ -55,24 +50,15 @@ public class SOCLastSettlement extends SOCMessage
     /**
      * create a LastSettlement message
      *
-     * @param na  name of the game
+     * @param gameName  name of the game
      * @param pn  player number
      * @param co  coordinates
      */
-    public SOCLastSettlement(String na, int pn, int co)
+    public SOCLastSettlement(String gameName, int pn, int co)
     {
-        super( LASTSETTLEMENT );
-        game = na;
+        super( LASTSETTLEMENT, gameName );
         playerNumber = pn;
         coordinates = co;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -98,24 +84,10 @@ public class SOCLastSettlement extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, playerNumber, coordinates);
-    }
-
-    /**
-     * Command string:
-     *
-     * LASTSETTLEMENT sep game sep2 playerNumber sep2 coordinates
-     *
-     * @param na  the name of the game
-     * @param pn  player number
-     * @param co  coordinates
-     * @return the command string
-     */
-    public static String toCmd(String na, int pn, int co)
-    {
-        return LASTSETTLEMENT + sep + na + sep2 + pn + sep2 + co;
+        return super.toCmd( sep2 + playerNumber + sep2 + coordinates );
     }
 
     /**
@@ -178,6 +150,7 @@ public class SOCLastSettlement extends SOCMessage
      */
     public String toString()
     {
-        return "SOCLastSettlement:game=" + game + "|playerNumber=" + playerNumber + "|coord=" + Integer.toHexString(coordinates);
+        return "SOCLastSettlement:game=" + getGameName() + "|playerNumber=" + playerNumber
+            + "|coord=" + Integer.toHexString(coordinates);
     }
 }

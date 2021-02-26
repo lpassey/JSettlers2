@@ -27,33 +27,18 @@ package soc.message;
  * @author Robert S Thomas
  * @see SOCDeleteChannel
  */
-public class SOCDeleteGame extends SOCMessage
-    implements SOCMessageForGame
+public class SOCDeleteGame extends  SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of the game.
-     */
-    private String game;
 
     /**
      * Create a DeleteGame message.
      *
      * @param ga  name of the game
      */
-    public SOCDeleteGame(String ga)
+    public SOCDeleteGame(String gameName)
     {
-        super( DELETEGAME );
-        game = ga;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
+        super( DELETEGAME, gameName );
     }
 
     /**
@@ -63,7 +48,7 @@ public class SOCDeleteGame extends SOCMessage
      */
     public String toCmd()
     {
-        return DELETEGAME + sep + game;
+        return DELETEGAME + sep + getGameName();
     }
 
     /**
@@ -82,7 +67,7 @@ public class SOCDeleteGame extends SOCMessage
      */
     public String toString()
     {
-        return "SOCDeleteGame:game=" + game;
+        return "SOCDeleteGame:game=" + getGameName();
     }
 
 }

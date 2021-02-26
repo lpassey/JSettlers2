@@ -51,15 +51,9 @@ import soc.game.GameState;  // for javadocs only
  * @author Robert S Thomas
  * @see SOCMovePiece
  */
-public class SOCMoveRobber extends SOCMessage
-    implements SOCMessageForGame
+public class SOCMoveRobber extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * the name of the game
-     */
-    private String game;
 
     /**
      * the number of the player moving the robber
@@ -74,24 +68,15 @@ public class SOCMoveRobber extends SOCMessage
     /**
      * create a MoveRobber message
      *
-     * @param na  name of the game
+     * @param gameName  name of the game
      * @param pn  player number
      * @param co  hex coordinates: positive for robber, negative or 0 for pirate
      */
-    public SOCMoveRobber(String na, int pn, int co)
+    public SOCMoveRobber(String gameName, int pn, int co)
     {
-        super( MOVEROBBER );
-        game = na;
+        super( MOVEROBBER, gameName );
         playerNumber = pn;
         coordinates = co;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -118,24 +103,10 @@ public class SOCMoveRobber extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, playerNumber, coordinates);
-    }
-
-    /**
-     * Command string:
-     *
-     * MOVEROBBER sep game sep2 playerNumber sep2 coordinates
-     *
-     * @param na  the name of the game
-     * @param pn  player number
-     * @param co  hex coordinates: positive for robber, negative or 0 for pirate
-     * @return the command string
-     */
-    public static String toCmd(String na, int pn, int co)
-    {
-        return MOVEROBBER + sep + na + sep2 + pn + sep2 + co;
+        return super.toCmd( sep2 + playerNumber + sep2 + coordinates );
     }
 
     /**
@@ -146,7 +117,7 @@ public class SOCMoveRobber extends SOCMessage
      */
     public static SOCMoveRobber parseDataStr(String s)
     {
-        String na; // name of the game
+        String gameName; // name of the game
         int pn; // player number
         int co; // coordinates
 
@@ -154,7 +125,7 @@ public class SOCMoveRobber extends SOCMessage
 
         try
         {
-            na = st.nextToken();
+            gameName = st.nextToken();
             pn = Integer.parseInt(st.nextToken());
             co = Integer.parseInt(st.nextToken());
         }
@@ -163,7 +134,7 @@ public class SOCMoveRobber extends SOCMessage
             return null;
         }
 
-        return new SOCMoveRobber(na, pn, co);
+        return new SOCMoveRobber(gameName, pn, co);
     }
 
     /**
@@ -194,7 +165,7 @@ public class SOCMoveRobber extends SOCMessage
      */
     public String toString()
     {
-        return "SOCMoveRobber:game=" + game + "|playerNumber=" + playerNumber + "|coord="
+        return "SOCMoveRobber:game=" + getGameName() + "|playerNumber=" + playerNumber + "|coord="
             + ((coordinates >= 0)
               ? Integer.toHexString(coordinates)
               : ("-" + Integer.toHexString(- coordinates)));

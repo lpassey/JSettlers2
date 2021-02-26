@@ -466,14 +466,14 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
              * receive a board layout
              */
             case SOCMessage.BOARDLAYOUT:
-                handleBOARDLAYOUT((SOCBoardLayout) mes, games.get(((SOCBoardLayout) mes).getGame()));
+                handleBOARDLAYOUT((SOCBoardLayout) mes, games.get(((SOCBoardLayout) mes).getGameName()));
                 break;
 
             /**
              * receive a board layout (new format, as of 20091104 (v 1.1.08))
              */
             case SOCMessage.BOARDLAYOUT2:
-                handleBOARDLAYOUT2((SOCBoardLayout2) mes, games.get(((SOCBoardLayout2) mes).getGame()));
+                handleBOARDLAYOUT2((SOCBoardLayout2) mes, games.get(((SOCBoardLayout2) mes).getGameName()));
                 break;
 
             /**
@@ -546,7 +546,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
              * Added 2017-12-23 for v2.0.00.
              */
             case SOCMessage.LASTSETTLEMENT:
-                handleLASTSETTLEMENT((SOCLastSettlement) mes, games.get(((SOCLastSettlement) mes).getGame()));
+                handleLASTSETTLEMENT((SOCLastSettlement) mes, games.get(((SOCLastSettlement) mes).getGameName()));
                 break;
 
             /**
@@ -562,7 +562,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             case SOCMessage.PUTPIECE:
                 {
                     final SOCPutPiece ppm = (SOCPutPiece) mes;
-                    handlePUTPIECE(ppm, games.get(ppm.getGame()));
+                    handlePUTPIECE(ppm, games.get(ppm.getGameName()));
                 }
                 break;
 
@@ -657,7 +657,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
              */
             case SOCMessage.POTENTIALSETTLEMENTS:
                 handlePOTENTIALSETTLEMENTS
-                    ((SOCPotentialSettlements) mes, games.get(((SOCPotentialSettlements) mes).getGame()));
+                    ((SOCPotentialSettlements) mes, games.get(((SOCPotentialSettlements) mes).getGameName()));
                 break;
 
             /**
@@ -788,7 +788,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
              */
             case SOCMessage.REPORTROBBERY:
                 handleREPORTROBBERY
-                    ((SOCReportRobbery) mes, games.get(((SOCMessageForGame) mes).getGame()));
+                    ((SOCReportRobbery) mes, games.get(((SOCMessageForGame) mes).getGameName()));
                 break;
 
             /**
@@ -797,7 +797,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
              */
             case SOCMessage.PICKRESOURCES:
                 handlePICKRESOURCES
-                    ((SOCPickResources) mes, games.get(((SOCMessageForGame) mes).getGame()));
+                    ((SOCPickResources) mes, games.get(((SOCMessageForGame) mes).getGameName()));
                 break;
 
             case SOCMessage.ROLLDICEPROMPT:
@@ -994,9 +994,9 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
             opts = null;
         }
 
-        final SOCGame ga = new SOCGame(mes.getGame(), opts, knownOpts);
+        final SOCGame ga = new SOCGame(mes.getGameName(), opts, knownOpts);
         ga.serverVersion = connection.getRemoteVersion(); // (isPractice) ? sLocalVersion : sVersion;
-        games.put( mes.getGame(), ga);
+        games.put( mes.getGameName(), ga);
     }
 
     /**
@@ -1005,7 +1005,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleLEAVEGAME(SOCLeaveGame mes)
     {
-        String gn = (mes.getGame());
+        String gn = (mes.getGameName());
         SOCGame ga = games.get(gn);
         if (ga == null)
             return;
@@ -1070,7 +1070,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleDICERESULTRESOURCES(final SOCDiceResultResources mes)
     {
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -1116,7 +1116,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         /**
          * tell the game that a player is sitting
          */
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return null;
 
@@ -1247,7 +1247,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected static void handleSTARTGAME(Hashtable<String, SOCGame> games, SOCStartGame mes)
     {
-        final SOCGame ga = games.get(mes.getGame());
+        final SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -1283,7 +1283,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleGAMESTATE(SOCGameState mes)
     {
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get(mes.getGameName());
         if (ga != null)
             handleGAMESTATE(ga, mes.getState());
     }
@@ -1312,7 +1312,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleSETTURN(SOCSetTurn mes)
     {
-        handleGAMEELEMENT(games.get(mes.getGame()), GEType.CURRENT_PLAYER, mes.getPlayerNumber());
+        handleGAMEELEMENT(games.get(mes.getGameName()), GEType.CURRENT_PLAYER, mes.getPlayerNumber());
     }
 
     /**
@@ -1321,7 +1321,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleFIRSTPLAYER(SOCFirstPlayer mes)
     {
-        handleGAMEELEMENT(games.get(mes.getGame()), GEType.FIRST_PLAYER, mes.getPlayerNumber());
+        handleGAMEELEMENT(games.get(mes.getGameName()), GEType.FIRST_PLAYER, mes.getPlayerNumber());
     }
 
     /**
@@ -1330,7 +1330,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleTURN( SOCTurn mes )
     {
-        SOCGame ga = games.get( mes.getGame() );
+        SOCGame ga = games.get( mes.getGameName() );
         if (ga == null)
             return;
 
@@ -1348,7 +1348,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handlePLAYERELEMENTS(final SOCPlayerElements mes)
     {
-        final SOCGame ga = games.get(mes.getGame());
+        final SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -1368,7 +1368,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handlePLAYERELEMENT(SOCPlayerElement mes)
     {
-        final SOCGame ga = games.get(mes.getGame());
+        final SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -1746,7 +1746,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleGAMEELEMENTS(final SOCGameElements mes)
     {
-        final SOCGame ga = games.get(mes.getGame());
+        final SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -1809,7 +1809,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleRESOURCECOUNT(SOCResourceCount mes)
     {
-        final SOCGame ga = games.get(mes.getGame());
+        final SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -1842,7 +1842,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleDICERESULT(SOCDiceResult mes)
     {
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -1932,7 +1932,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     */
     protected void handleCANCELBUILDREQUEST(SOCCancelBuildRequest mes)
     {
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -1960,7 +1960,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleMOVEROBBER(SOCMoveRobber mes)
     {
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -1987,7 +1987,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      * This method is public static for access by {@code SOCPlayerClient} and robot client classes.
      *
      * @param mes  the message
-     * @param ga  game object for {@link SOCMessageForGame#getGame() mes.getGame()}; if {@code null}, message is ignored
+     * @param ga  game object for {@link SOCMessageForGame#getGame() mes.getGameName()}; if {@code null}, message is ignored
      * @since 2.4.50
      */
     public static void handleREPORTROBBERY(final SOCReportRobbery mes, SOCGame ga)
@@ -2064,7 +2064,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleMAKEOFFER(SOCMakeOffer mes)
     {
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -2080,7 +2080,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleCLEAROFFER(SOCClearOffer mes)
     {
-        SOCGame ga = games.get( mes.getGame() );
+        SOCGame ga = games.get( mes.getGameName() );
         if (ga == null)
             return;
 
@@ -2106,7 +2106,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected boolean handleBANKTRADE(final Map<String, SOCGame> games, final SOCBankTrade mes)
     {
-        final SOCGame ga = games.get(mes.getGame());
+        final SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return false;
 
@@ -2126,7 +2126,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleDEVCARDCOUNT(SOCDevCardCount mes)
     {
-        handleGAMEELEMENT(games.get(mes.getGame()), GEType.DEV_CARD_COUNT, mes.getNumDevCards());
+        handleGAMEELEMENT(games.get(mes.getGameName()), GEType.DEV_CARD_COUNT, mes.getNumDevCards());
     }
 
 
@@ -2140,7 +2140,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
         if (mes.getCardTypes() != null)
             return;  // <--- ignore: bots don't care about game-end VP card reveals ---
 
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -2198,7 +2198,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleSETPLAYEDDEVCARD(SOCSetPlayedDevCard mes)
     {
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -2236,7 +2236,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     @SuppressWarnings("fallthrough")
     public static boolean handleINVENTORYITEMACTION(Hashtable<String, SOCGame> games, SOCInventoryItemAction mes)
     {
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return false;
 
@@ -2356,7 +2356,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleCHANGEFACE(SOCChangeFace mes)
     {
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -2381,7 +2381,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleLONGESTROAD(SOCLongestRoad mes)
     {
-        handleGAMEELEMENT(games.get(mes.getGame()), GEType.LONGEST_ROAD_PLAYER, mes.getPlayerNumber());
+        handleGAMEELEMENT(games.get(mes.getGameName()), GEType.LONGEST_ROAD_PLAYER, mes.getPlayerNumber());
     }
 
     /**
@@ -2390,7 +2390,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleLARGESTARMY(SOCLargestArmy mes)
     {
-        handleGAMEELEMENT(games.get(mes.getGame()), GEType.LARGEST_ARMY_PLAYER, mes.getPlayerNumber());
+        handleGAMEELEMENT(games.get(mes.getGameName()), GEType.LARGEST_ARMY_PLAYER, mes.getPlayerNumber());
     }
 
     /**
@@ -2399,7 +2399,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleSETSEATLOCK(SOCSetSeatLock mes)
     {
-        SOCGame ga = games.get(mes.getGame());
+        SOCGame ga = games.get(mes.getGameName());
         if (ga == null)
             return;
 
@@ -2426,7 +2426,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleRESETBOARDAUTH( SOCResetBoardAuth mes )
     {
-        String gameName = mes.getGame();
+        String gameName = mes.getGameName();
         SOCGame game = games.get( gameName );
         if (game == null)
             return;  // Not one of our games
@@ -2474,7 +2474,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     public static void handleSIMPLEREQUEST(final Map<String, SOCGame> games, final SOCSimpleRequest mes)
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = games.get(gaName);
         if (ga == null)
             return;  // Not one of our games
@@ -2523,7 +2523,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     public static void handleSIMPLEACTION(final Map<String, SOCGame> games, final SOCSimpleAction mes)
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = games.get(gaName);
         if (ga == null)
             return;  // Not one of our games
@@ -2572,7 +2572,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleMOVEPIECE(SOCMovePiece mes)
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = games.get(gaName);
         if (ga == null)
             return;  // Not one of our games
@@ -2591,7 +2591,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleREMOVEPIECE(SOCRemovePiece mes)
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = games.get(gaName);
         if (ga == null)
             return;  // Not one of our games
@@ -2616,7 +2616,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handleREVEALFOGHEX(final SOCRevealFogHex mes)
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = games.get(gaName);
         if (ga == null)
             return;  // Not one of our games
@@ -2634,7 +2634,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     protected void handlePIECEVALUE(final SOCPieceValue mes)
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = games.get(gaName);
         if (ga == null)
             return;  // Not one of our games
@@ -2673,7 +2673,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
      */
     public static void handleSETSPECIALITEM(final Map<String, SOCGame> games, SOCSetSpecialItem mes)
     {
-        final SOCGame ga = games.get( mes.getGame() );
+        final SOCGame ga = games.get( mes.getGameName() );
         if (ga == null)
             return;
 
@@ -2930,7 +2930,7 @@ public abstract class SOCDisplaylessPlayerClient implements SOCMessageDispatcher
     public void leaveGame(final String gaName)
     {
         games.remove(gaName);
-        connection.send( new SOCLeaveGame(nickname, "-", gaName) );
+        connection.send( new SOCLeaveGame(gaName, nickname, "-" ));
     }
 
     /**

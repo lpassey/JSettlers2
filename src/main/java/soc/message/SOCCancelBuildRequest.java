@@ -72,8 +72,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCCancelBuildRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCCancelBuildRequest extends SOCMessageForGame
 {
     /**
      * pieceType to cancel special {@code SOCInventoryItem} placement; see {@link SOCCancelBuildRequest class javadoc}.
@@ -82,11 +81,6 @@ public class SOCCancelBuildRequest extends SOCMessage
     public static final int INV_ITEM_PLACE_CANCEL = -3;
 
     private static final long serialVersionUID = 2000L;
-
-    /**
-     * Name of game
-     */
-    private final String game;
 
     /**
      * The type of piece to cancel build, such as {@link soc.game.SOCPlayingPiece#CITY}
@@ -99,25 +93,16 @@ public class SOCCancelBuildRequest extends SOCMessage
     /**
      * Create a CancelBuildRequest message.
      *
-     * @param ga  the name of the game
-     * @param pt  the type of piece to cancel build, such as {@link soc.game.SOCPlayingPiece#CITY}.
+     * @param gameName  the name of the game
+     * @param pieceType  the type of piece to cancel build, such as {@link soc.game.SOCPlayingPiece#CITY}.
      *   -2 is used from server to reject request to buy a Development Card.
      *   -3 ({@link #INV_ITEM_PLACE_CANCEL}) is used from client to request canceling placement of a
      *      special SOCInventoryItem if possible.
      */
-    public SOCCancelBuildRequest(String ga, int pt)
+    public SOCCancelBuildRequest(String gameName, int pieceType)
     {
-        super( CANCELBUILDREQUEST );
-        game = ga;
-        pieceType = pt;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
+        super( CANCELBUILDREQUEST, gameName );
+        this.pieceType = pieceType;
     }
 
     /**
@@ -136,9 +121,10 @@ public class SOCCancelBuildRequest extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return CANCELBUILDREQUEST + sep + game + sep2 + pieceType;
+        return super.toCmd( sep2 + pieceType );
     }
 
     /**
@@ -172,7 +158,7 @@ public class SOCCancelBuildRequest extends SOCMessage
      */
     public String toString()
     {
-        return "SOCCancelBuildRequest:game=" + game + "|pieceType=" + pieceType;
+        return "SOCCancelBuildRequest:game=" + getGameName() + "|pieceType=" + pieceType;
     }
 
 }

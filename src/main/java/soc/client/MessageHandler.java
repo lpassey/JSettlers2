@@ -107,6 +107,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      * @param mes    the message
      * @param connection  The peer connection that sent the message
      */
+    @SuppressWarnings("ConstantConditions")
     public void handle( SOCMessage mes, Connection connection )
     {
         if (mes == null)
@@ -117,7 +118,7 @@ public final class MessageHandler implements SOCMessageDispatcher
             SOCGame ga = null;
             if (mes instanceof SOCMessageForGame)
             {
-                final String gaName = ((SOCMessageForGame) mes).getGame();
+                final String gaName = ((SOCMessageForGame) mes).getGameName();
                 ga = (gaName != null) ? client.games.get( gaName ) : null;
                 // Allows null gaName, for the few message types (like SOCScenarioInfo) which
                 // for convenience use something like SOCTemplateMs which extends SOCMessageForGame
@@ -369,7 +370,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              */
             case SOCMessage.LASTSETTLEMENT:
                 SOCDisplaylessPlayerClient.handleLASTSETTLEMENT
-                    ( (SOCLastSettlement) mes, client.games.get( ((SOCLastSettlement) mes).getGame() ) );
+                    ( (SOCLastSettlement) mes, client.games.get( ((SOCLastSettlement) mes).getGameName() ) );
                 break;
 
             /**
@@ -710,7 +711,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              */
             case SOCMessage.REPORTROBBERY:
                 handleREPORTROBBERY
-                    ((SOCReportRobbery) mes, client.games.get(((SOCMessageForGame) mes).getGame()));
+                    ((SOCReportRobbery) mes, client.games.get(((SOCMessageForGame) mes).getGameName()));
                 break;
 
             /**
@@ -719,7 +720,7 @@ public final class MessageHandler implements SOCMessageDispatcher
              */
             case SOCMessage.PICKRESOURCES:
                 handlePICKRESOURCES
-                    ((SOCPickResources) mes, client.games.get(((SOCMessageForGame) mes).getGame()));
+                    ((SOCPickResources) mes, client.games.get(((SOCMessageForGame) mes).getGameName()));
                 break;
 
             }  // switch (mes.getType())
@@ -1131,7 +1132,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         client.gotPassword = true;
 
         final SOCGameOptionSet knownOpts = client.serverGameOptions.knownOpts;
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGameOptionSet gameOpts;
         {
             if (client.serverGames != null)
@@ -1173,7 +1174,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleJOINGAME( SOCJoinGame mes )
     {
-        final String gn = mes.getGame();
+        final String gn = mes.getGameName();
         final String name = mes.getNickname();
         if (name == null)
             return;
@@ -1188,7 +1189,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleLEAVEGAME( SOCLeaveGame mes )
     {
-        String gn = mes.getGame();
+        String gn = mes.getGameName();
         SOCGame ga = client.games.get( gn );
         if (ga == null)
             return;
@@ -1217,7 +1218,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         // Run in network message thread, not AWT event thread,
         // in case client is about to be auth'd to join this game:
         // messages must take effect in the order sent
-        client.addToGameList( mes.getGame(), null, true );
+        client.addToGameList( mes.getGameName(), null, true );
     }
 
     /**
@@ -1227,7 +1228,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleDELETEGAME(SOCDeleteGame mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         // run on AWT event thread, not network thread, to avoid occasional ArrayIndexOutOfBoundsException
         // console stack trace (javax.swing.DefaultListModel.getElementAt) after deleteFromGameList
         EventQueue.invokeLater( new Runnable()
@@ -1252,7 +1253,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleGAMEMEMBERS( final SOCGameMembers mes )
     {
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         pcl.membersListed( mes.getMembers() );
     }
 
@@ -1261,7 +1262,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleGAMESTATS( SOCGameStats mes )
     {
-        String ga = mes.getGame();
+        String ga = mes.getGameName();
         int[] scores = mes.getScores();
 
         // If we're playing in a game, update the scores. (SOCPlayerInterface)
@@ -1283,7 +1284,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleGAMETEXTMSG( SOCGameTextMsg mes )
     {
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;
 
@@ -1302,7 +1303,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         /**
          * tell the game that a player is sitting
          */
-        final SOCGame ga = client.games.get( mes.getGame() );
+        final SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 
@@ -1341,7 +1342,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         /**
          * tell the GUI that a player is sitting
          */
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         pcl.playerSitdown( pn, plName );
 
         /**
@@ -1363,7 +1364,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleBOARDLAYOUT( SOCBoardLayout mes )
     {
-        final String gameName = mes.getGame();
+        final String gameName = mes.getGameName();
         SOCGame game = client.games.get( gameName );
         if (game == null)
             return;
@@ -1407,7 +1408,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleBOARDLAYOUT2( SOCBoardLayout2 mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         if (SOCDisplaylessPlayerClient.handleBOARDLAYOUT2( mes, client.games.get( gaName ) ))
         {
             PlayerClientListener pcl = client.getClientListener( gaName );
@@ -1422,8 +1423,8 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleSTARTGAME( SOCStartGame mes )
     {
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
-        final SOCGame ga = client.games.get( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
+        final SOCGame ga = client.games.get( mes.getGameName() );
         if ((pcl == null) || (ga == null))
             return;
 
@@ -1438,7 +1439,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleGAMESTATE( SOCGameState mes )
     {
-        SOCGame ga = client.games.get( mes.getGame() );
+        SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 
@@ -1486,7 +1487,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleTURN( SOCTurn mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = client.games.get( gaName );
         if (ga == null)
             return;
@@ -1496,7 +1497,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         final int pnum = mes.getPlayerNumber();
         ga.setCurrentPlayerNumber( pnum );
         ga.updateAtTurn();
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         pcl.playerTurnSet( pnum );
     }
 
@@ -1508,11 +1509,11 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handlePLAYERELEMENTS( SOCPlayerElements mes )
     {
-        final SOCGame ga = client.games.get( mes.getGame() );
+        final SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 
-        final PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        final PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         final int pn = mes.getPlayerNumber();
         final SOCPlayer pl = (pn != -1) ? ga.getPlayer( pn ) : null;
         final int action = mes.getAction();
@@ -1540,7 +1541,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handlePLAYERELEMENT( SOCPlayerElement mes )
     {
-        final SOCGame ga = client.games.get( mes.getGame() );
+        final SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 
@@ -1548,7 +1549,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         final int action = mes.getAction(), amount = mes.getAmount();
         final PEType etype = PEType.valueOf( mes.getElementType() );
 
-        handlePLAYERELEMENT( client.getClientListener( mes.getGame() ), ga, null, pn, action,
+        handlePLAYERELEMENT( client.getClientListener( mes.getGameName() ), ga, null, pn, action,
             etype, amount, mes.isNews() );
     }
 
@@ -1749,7 +1750,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleGAMEELEMENTS( final SOCGameElements mes )
     {
-        final SOCGame ga = client.games.get( mes.getGame() );
+        final SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 
@@ -1839,12 +1840,12 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleRESOURCECOUNT( SOCResourceCount mes )
     {
-        final SOCGame ga = client.games.get( mes.getGame() );
+        final SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 
         handlePLAYERELEMENT
-            ( client.getClientListener( mes.getGame() ), ga, null, mes.getPlayerNumber(),
+            ( client.getClientListener( mes.getGameName() ), ga, null, mes.getPlayerNumber(),
                 SOCPlayerElement.SET, PEType.RESOURCE_COUNT, mes.getCount(), false );
     }
 
@@ -1854,7 +1855,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleDICERESULT( SOCDiceResult mes )
     {
-        final String gameName = mes.getGame();
+        final String gameName = mes.getGameName();
         SOCGame ga = client.games.get( gameName );
         if (ga == null)
             return;
@@ -1881,7 +1882,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handlePUTPIECE( SOCPutPiece mes )
     {
-        SOCGame ga = client.games.get( mes.getGame() );
+        SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 
@@ -1889,7 +1890,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         final int coord = mes.getCoordinates();
         final int ptype = mes.getPieceType();
 
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;
         pcl.playerPiecePlaced( player, coord, ptype );
@@ -1928,7 +1929,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleCANCELBUILDREQUEST( SOCCancelBuildRequest mes )
     {
-        SOCGame ga = client.games.get( mes.getGame() );
+        SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 
@@ -1953,7 +1954,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                 ga.undoPutInitSettlement( pp );
             }
         }
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         pcl.buildRequestCanceled( pl );
     }
 
@@ -1963,7 +1964,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleMOVEROBBER( SOCMoveRobber mes )
     {
-        SOCGame ga = client.games.get( mes.getGame() );
+        SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 
@@ -1984,7 +1985,7 @@ public final class MessageHandler implements SOCMessageDispatcher
             ((SOCBoardLarge) ga.getBoard()).setPirateHex( newHex, true );
         }
 
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         pcl.robberMoved( newHex, isPirate );
     }
 
@@ -1994,7 +1995,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleDISCARDREQUEST( SOCDiscardRequest mes )
     {
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         pcl.requestedDiscard( mes.getNumberOfDiscards() );
     }
 
@@ -2004,7 +2005,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleCHOOSEPLAYERREQUEST( SOCChoosePlayerRequest mes )
     {
-        SOCGame game = client.games.get( mes.getGame() );
+        SOCGame game = client.games.get( mes.getGameName() );
         final int maxPl = game.maxPlayers;
         final boolean[] ch = mes.getChoices();
 
@@ -2018,7 +2019,7 @@ public final class MessageHandler implements SOCMessageDispatcher
             }
         }
 
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         pcl.requestedChoosePlayer( choices, mes.canChooseNone() );
     }
 
@@ -2028,25 +2029,25 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleCHOOSEPLAYER( SOCChoosePlayer mes )
     {
-        SOCGame ga = client.games.get( mes.getGame() );
+        SOCGame ga = client.games.get( mes.getGameName() );
         int victimPlayerNumber = mes.getChoice();
         SOCPlayer player = ga.getPlayer( victimPlayerNumber );
 
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         pcl.requestedChooseRobResourceType( player );
     }
 
     /**
      * Handle the "report robbery" message.
      * @param mes  the message
-     * @param ga  game object for {@link SOCMessageForGame#getGame() mes.getGame()}
+     * @param ga  game object for {@link SOCMessageForGame#getGame() mes.getGameName()}
      * @since 2.4.50
      */
     protected void handleREPORTROBBERY( final SOCReportRobbery mes, SOCGame ga )
     {
         SOCDisplaylessPlayerClient.handleREPORTROBBERY( mes, ga );
 
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl != null)
             pcl.reportRobbery
                 ( mes.perpPN, mes.victimPN, mes.resType, mes.resSet, mes.peType,
@@ -2060,7 +2061,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleBANKTRADE( final SOCBankTrade mes )
     {
-        String gameName = mes.getGame();
+        String gameName = mes.getGameName();
         final SOCGame ga = client.games.get( gameName );
         if (ga == null)
             return;
@@ -2084,7 +2085,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleMAKEOFFER( final SOCMakeOffer mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         final SOCGame ga = client.games.get( gaName );
         if (ga == null)
             return;
@@ -2104,7 +2105,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleCLEAROFFER( final SOCClearOffer mes )
     {
-        final SOCGame ga = client.games.get( mes.getGame() );
+        final SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 
@@ -2119,7 +2120,7 @@ public final class MessageHandler implements SOCMessageDispatcher
                 ga.getPlayer( i ).setCurrentOffer( null );
         }
 
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         pcl.requestedTradeClear( player, false );
     }
 
@@ -2129,11 +2130,11 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleREJECTOFFER( SOCRejectOffer mes )
     {
-        SOCGame ga = client.games.get( mes.getGame() );
+        SOCGame ga = client.games.get( mes.getGameName() );
         final int pn = mes.getPlayerNumber();
         SOCPlayer player = (pn >= 0) ? ga.getPlayer(pn) : null;
 
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
 
         int rc = mes.getReasonCode();
         switch (rc)
@@ -2162,7 +2163,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleACCEPTOFFER( final SOCAcceptOffer mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         final SOCGame ga = client.games.get( gaName );
         if (ga == null)
             return;
@@ -2180,13 +2181,13 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleCLEARTRADEMSG( SOCClearTradeMsg mes )
     {
-        SOCGame ga = client.games.get( mes.getGame() );
+        SOCGame ga = client.games.get( mes.getGameName() );
         int pn = mes.getPlayerNumber();
         SOCPlayer player = null;
         if (pn != -1)
             player = ga.getPlayer( pn );
 
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         pcl.requestedTradeReset( player );
     }
 
@@ -2203,13 +2204,13 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleDEVCARDACTION( final SOCDevCardAction mes )
     {
-        SOCGame theGame = client.games.get( mes.getGame() );
+        SOCGame theGame = client.games.get( mes.getGameName() );
         if (theGame == null)
             return;
 
         final int pn = mes.getPlayerNumber();
         final SOCPlayer player = theGame.getPlayer(pn);
-        final PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        final PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         final boolean isClientPlayer = (pcl != null) && (pn >= 0) && (pn == pcl.getClientPlayerNumber());
         final int act = mes.getAction();
 
@@ -2287,7 +2288,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleSETPLAYEDDEVCARD( SOCSetPlayedDevCard mes )
     {
-        SOCGame ga = client.games.get( mes.getGame() );
+        SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 
@@ -2326,7 +2327,7 @@ public final class MessageHandler implements SOCMessageDispatcher
     protected void handlePOTENTIALSETTLEMENTS( SOCPotentialSettlements mes )
         throws IllegalStateException
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCDisplaylessPlayerClient.handlePOTENTIALSETTLEMENTS( mes, client.games.get( gaName ) );
 
         PlayerClientListener pcl = client.getClientListener( gaName );
@@ -2340,12 +2341,12 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleCHANGEFACE( SOCChangeFace mes )
     {
-        SOCGame ga = client.games.get( mes.getGame() );
+        SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 
         SOCPlayer player = ga.getPlayer( mes.getPlayerNumber() );
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         player.setFaceId( mes.getFaceId() );
         pcl.playerFaceChanged( player, mes.getFaceId() );
     }
@@ -2367,7 +2368,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleSETSEATLOCK( SOCSetSeatLock mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = client.games.get( gaName );
         if (ga == null)
             return;
@@ -2392,7 +2393,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleROLLDICEPROMPT( SOCRollDicePrompt mes )
     {
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;  // Not one of our games
 
@@ -2415,11 +2416,11 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleRESETBOARDAUTH( SOCResetBoardAuth mes )
     {
-        String gname = mes.getGame();
+        String gname = mes.getGameName();
         SOCGame ga = client.games.get( gname );
         if (ga == null)
             return;  // Not one of our games
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;  // Not one of our games
 
@@ -2438,11 +2439,11 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleRESETBOARDVOTEREQUEST( SOCResetBoardVoteRequest mes )
     {
-        String gname = mes.getGame();
+        String gname = mes.getGameName();
         SOCGame ga = client.games.get( gname );
         if (ga == null)
             return;  // Not one of our games
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;  // Not one of our games
 
@@ -2458,11 +2459,11 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleRESETBOARDVOTE( SOCResetBoardVote mes )
     {
-        String gname = mes.getGame();
+        String gname = mes.getGameName();
         SOCGame ga = client.games.get( gname );
         if (ga == null)
             return;  // Not one of our games
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;  // Not one of our games
 
@@ -2478,11 +2479,11 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleRESETBOARDREJECT( SOCResetBoardReject mes )
     {
-        String gname = mes.getGame();
+        String gname = mes.getGameName();
         SOCGame ga = client.games.get( gname );
         if (ga == null)
             return;  // Not one of our games
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;  // Not one of our games
 
@@ -2560,7 +2561,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         // in case client is about to be auth'd to join this game:
         // messages must take effect in the order sent
 
-        String gameName = mes.getGame();
+        String gameName = mes.getGameName();
         final String opts = mes.getOptionsString();
 
         boolean canJoin = (mes.getMinVersion() <= Version.versionNumber());
@@ -2718,7 +2719,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     private void handlePLAYERSTATS( SOCPlayerStats mes )
     {
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;  // Not one of our games
 
@@ -2750,7 +2751,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     private void handleDEBUGFREEPLACE( SOCDebugFreePlace mes )
     {
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;  // Not one of our games
 
@@ -2763,7 +2764,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     private void handleSIMPLEREQUEST( SOCSimpleRequest mes )
     {
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;  // Not one of our games
 
@@ -2778,7 +2779,7 @@ public final class MessageHandler implements SOCMessageDispatcher
     @SuppressWarnings("fallthrough")
     private void handleSIMPLEACTION( final SOCSimpleAction mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         PlayerClientListener pcl = client.getClientListener( gaName );
         if (pcl == null)
             return;  // Not one of our games
@@ -2825,7 +2826,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleGAMESERVERTEXT( SOCGameServerText mes )
     {
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;
 
@@ -2839,11 +2840,11 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleDICERESULTRESOURCES( final SOCDiceResultResources mes )
     {
-        SOCGame game = client.games.get( mes.getGame() );
+        SOCGame game = client.games.get( mes.getGameName() );
         if (game == null)
             return;
 
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;
 
@@ -2877,12 +2878,12 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     private void handleMOVEPIECE( SOCMovePiece mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = client.games.get( gaName );
         if (ga == null)
             return;  // Not one of our games
 
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;
         SOCPlayer player = ga.getPlayer( mes.getPlayerNumber() );
@@ -2895,12 +2896,12 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     private void handleREMOVEPIECE( SOCRemovePiece mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = client.games.get( gaName );
         if (ga == null)
             return;  // Not one of our games
 
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;
         SOCPlayer player = ga.getPlayer( mes.getParam1() );
@@ -2913,7 +2914,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleREVEALFOGHEX( final SOCRevealFogHex mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = client.games.get( gaName );
         if (ga == null)
             return;  // Not one of our games
@@ -2935,7 +2936,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handlePIECEVALUE( final SOCPieceValue mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = client.games.get( gaName );
         if (ga == null)
             return;  // Not one of our games
@@ -2981,7 +2982,7 @@ public final class MessageHandler implements SOCMessageDispatcher
      */
     protected void handleSVPTEXTMSG( final SOCSVPTextMessage mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = client.games.get( gaName );
         if (ga == null)
             return;  // Not one of our games
@@ -3006,7 +3007,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         final boolean isReject = SOCDisplaylessPlayerClient.handleINVENTORYITEMACTION
             ( client.games, mes );
 
-        PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;
 
@@ -3016,7 +3017,7 @@ public final class MessageHandler implements SOCMessageDispatcher
         }
         else
         {
-            SOCGame ga = client.games.get( mes.getGame() );
+            SOCGame ga = client.games.get( mes.getGameName() );
             if (ga != null)
             {
                 final SOCPlayer pl = ga.getPlayer( mes.playerNumber );
@@ -3043,11 +3044,11 @@ public final class MessageHandler implements SOCMessageDispatcher
 
         SOCDisplaylessPlayerClient.handleSETSPECIALITEM( games, mes );
 
-        final PlayerClientListener pcl = client.getClientListener( mes.getGame() );
+        final PlayerClientListener pcl = client.getClientListener( mes.getGameName() );
         if (pcl == null)
             return;
 
-        final SOCGame ga = client.games.get( mes.getGame() );
+        final SOCGame ga = client.games.get( mes.getGameName() );
         if (ga == null)
             return;
 

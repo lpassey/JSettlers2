@@ -29,7 +29,7 @@ package soc.message;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public class SOCResetBoardReject extends SOCMessageTemplate0
+public class SOCResetBoardReject extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1100L;  // last structural change v1.1.00
 

@@ -34,8 +34,7 @@ import java.util.StringTokenizer;
  * @author Robert S Thomas
  * @see SOCLeaveChannel
  */
-public class SOCLeaveGame extends SOCMessage
-    implements SOCMessageForGame
+public class SOCLeaveGame extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
@@ -45,11 +44,6 @@ public class SOCLeaveGame extends SOCMessage
     private String nickname;
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * Unused optional host name of server hosting the game, or "-"; see {@link #getHost()}.
      */
     private String host;
@@ -57,16 +51,15 @@ public class SOCLeaveGame extends SOCMessage
     /**
      * Create a LeaveGame message.
      *
+     * @param gameName  name of game
      * @param nn  leaving member's nickname; server has always ignored this field from client, can send "-" but not blank
      * @param hn  unused optional host name, or "-"
      *            (Length 0 would fail {@link #parseDataStr(String)} at the receiver)
-     * @param ga  name of game
      */
-    public SOCLeaveGame(String nn, String hn, String ga)
+    public SOCLeaveGame( String gameName, String nn, String hn )
     {
-        super( LEAVEGAME );
+        super( LEAVEGAME, gameName );
         nickname = nn;
-        game = ga;
         host = hn;
     }
 
@@ -90,34 +83,16 @@ public class SOCLeaveGame extends SOCMessage
     }
 
     /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
-    /**
+     * NOTE: non-standard ordering of fields in message; beware if you change this!
+     *
      * LEAVEGAME sep nickname sep2 host sep2 game
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(nickname, host, game);
-    }
-
-    /**
-     * LEAVEGAME sep nickname sep2 host sep2 game
-     *
-     * @param nn  leaving member's nickname; server has always ignored this field from client, can send "-" but not blank
-     * @param hn  unused; the optional host name, or "-"
-     * @param ga  the name of the game
-     * @return    the command string
-     */
-    public static String toCmd(String nn, String hn, String ga)
-    {
-        return LEAVEGAME + sep + nn + sep2 + hn + sep2 + ga;
+        return super.toCmd( sep2 + nickname + sep2 + host );
     }
 
     /**
@@ -128,24 +103,24 @@ public class SOCLeaveGame extends SOCMessage
      */
     public static SOCLeaveGame parseDataStr(String s)
     {
-        String nn; // nickname
-        String hn; // host name
-        String ga; // game name
+        String nickname; // nickname
+        String host; // host name
+        String gameName; // game name
 
         StringTokenizer st = new StringTokenizer(s, sep2);
 
         try
         {
-            nn = st.nextToken();
-            hn = st.nextToken();
-            ga = st.nextToken();
+            gameName = st.nextToken();
+            nickname = st.nextToken();
+            host = st.nextToken();
         }
         catch (Exception e)
         {
             return null;
         }
 
-        return new SOCLeaveGame(nn, hn, ga);
+        return new SOCLeaveGame( gameName, nickname, host );
     }
 
     /**
@@ -153,6 +128,6 @@ public class SOCLeaveGame extends SOCMessage
      */
     public String toString()
     {
-        return "SOCLeaveGame:nickname=" + nickname + "|host=" + host + "|game=" + game;
+        return "SOCLeaveGame:game=" + getGameName() + "|nickname=" + nickname + "|host=" + host;
     }
 }

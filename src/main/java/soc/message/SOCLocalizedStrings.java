@@ -305,50 +305,50 @@ public class SOCLocalizedStrings extends SOCMessageTemplateMs
     }
 
     /**
+     * Build the command string; used at server side.
+     * Empty or null elements will be built as {@link SOCMessage#EMPTYSTR}.
+     * At the receiver, {@link #parseDataStr(List)} will automatically replace {@code EMPTYSTR} with "".
      * See {@link #SOCLocalizedStrings(String, int, List)} for field/parameter details.
-     * Will build empty or null elements as {@link SOCMessage#EMPTYSTR}.
-     * Relies on callers to make sure {@code type} and every element of {@code strs} passes
-     * {@link SOCMessage#isSingleLineAndSafe(String)}.
-     * @param skipFirstStr  If true, {@code str}'s first element is {@code type}: skip it while building cmd.
      */
-    private static String toCmd
-    ( final String type, final int flags, List<String> strs, final boolean skipFirstStr )
+    @Override
+    public String toCmd()
     {
-        StringBuilder sb = new StringBuilder( Integer.toString( SOCMessage.LOCALIZEDSTRINGS ) );
-        sb.append( sep );
-        sb.append( type );
-        sb.append( sep );
-        sb.append( Integer.toHexString( flags ) );
+//        return toCmd( pa.get( 0 ), flags, pa );
+//    }
+//
+//    /**
+//     * See {@link #SOCLocalizedStrings(String, int, List)} for field/parameter details.
+//     * Will build empty or null elements as {@link SOCMessage#EMPTYSTR}.
+//     * Relies on callers to make sure {@code type} and every element of {@code strs} passes
+//     * {@link SOCMessage#isSingleLineAndSafe(String)}.
+//     * @param skipFirstStr  If true, {@code str}'s first element is {@code type}: skip it while building cmd.
+//     */
+//    private static String toCmd( final String type, final int flags, List<String> pa  )
+//    {
+        StringBuilder sb = new StringBuilder()
+            .append( LOCALIZEDSTRINGS )
+            .append( sep )
+            .append( pa.get( 0 ) )
+            .append( sep )
+            .append( Integer.toHexString( flags ) );
 
-        if (strs != null)
+//        if (pa != null)
         {
-            for (int i = 0; i < strs.size(); ++i)
+            for (int i = 0; i < pa.size(); ++i)
             {
-                if ((i == 0) && skipFirstStr)
+                if (i == 0)
                     continue;
 
                 sb.append( sep );
 
-                String itm = strs.get( i );
+                String itm = pa.get( i );
                 if ((itm == null) || (itm.length() == 0))
                     itm = EMPTYSTR;
 
                 sb.append( itm );
             }
         }
-
         return sb.toString();
-    }
-
-    /**
-     * Build the command string; used at server side.
-     * Empty or null elements will be built as {@link SOCMessage#EMPTYSTR}.
-     * At the receiver, {@link #parseDataStr(List)} will automatically replace {@code EMPTYSTR} with "".
-     * See {@link #SOCLocalizedStrings(String, int, List)} for field/parameter details.
-     */
-    public String toCmd()
-    {
-        return toCmd( pa.get( 0 ), flags, pa, true );
     }
 
     /**

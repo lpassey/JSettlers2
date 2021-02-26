@@ -22,7 +22,8 @@ package soc.message;
 
 
 /**
- * This message means that someone is joining or creating a game.
+ * This message means that someone is joining or creating a game. This message holds a game name,
+ * but the game has not yet been registered, so it is not a SOCMessageForGame
  *<P>
  * Once the client has successfully joined or created a game or channel, the
  * nickname and password fields can be left blank or "-" in its later join/create requests.
@@ -56,7 +57,7 @@ public abstract class SOCMessageTemplateJoinGame extends SOCMessage
     /**
      * Name of game
      */
-    protected String game;
+    protected String gameName;
 
     /**
      * Unused; server host name to which the client is connected; see {@link #getHost()}
@@ -76,7 +77,7 @@ public abstract class SOCMessageTemplateJoinGame extends SOCMessage
         super( messageType );
         nickname = nn;
         password = (pw != null) ? pw : "";
-        game = ga;
+        gameName = ga;
         host = hn;
     }
 
@@ -112,9 +113,9 @@ public abstract class SOCMessageTemplateJoinGame extends SOCMessage
     /**
      * @return the game name
      */
-    public String getGame()
+    public String getGameName()
     {
-        return game;
+        return gameName;
     }
 
     /**
@@ -131,7 +132,7 @@ public abstract class SOCMessageTemplateJoinGame extends SOCMessage
         else
             pwmask = "|password=***";
 
-        String s = classname + ":nickname=" + nickname + pwmask + "|host=" + host + "|game=" + game;
+        String s = classname + ":nickname=" + nickname + pwmask + "|host=" + host + "|game=" + gameName;
         if (otherParams != null)
             s = s + "|" + otherParams;
 

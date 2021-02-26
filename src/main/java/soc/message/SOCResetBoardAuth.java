@@ -54,14 +54,14 @@ public class SOCResetBoardAuth extends SOCMessageTemplate2i
     /**
      * Create a ResetBoardAuth message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param joinpn  the player position number at which to join, or -1:
      *     See {@link #getRejoinPlayerNumber()}
      * @param reqpn  player number who requested the reset
      */
-    public SOCResetBoardAuth(String ga, int joinpn, int reqpn)
+    public SOCResetBoardAuth(String gameName, int joinpn, int reqpn)
     {
-        super (RESETBOARDAUTH, ga, joinpn, reqpn);
+        super (RESETBOARDAUTH, gameName, joinpn, reqpn);
     }
 
     /**
@@ -129,7 +129,7 @@ public class SOCResetBoardAuth extends SOCMessageTemplate2i
     @Override
     public String toString()
     {
-        return "SOCResetBoardAuth:game=" + game
+        return "SOCResetBoardAuth:game=" + getGameName()
             + "|rejoinPN=" + p1 + "|requestingPN=" + p2;
     }
 

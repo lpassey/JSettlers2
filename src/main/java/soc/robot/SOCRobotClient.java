@@ -509,7 +509,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             && !(mes instanceof SOCGameServerText)
             && !(mes instanceof SOCTurn))
         {
-            final String ga = ((SOCMessageForGame) mes).getGame();
+            final String ga = ((SOCMessageForGame) mes).getGameName();
             if (ga != null)
             {
                 SOCRobotBrain brain = robotBrains.get( ga );
@@ -812,7 +812,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     {
         D.ebugPrintlnINFO( "*** Admin Ping message = " + mes );
 
-        SOCGame ga = games.get( mes.getGame() );
+        SOCGame ga = games.get( mes.getGameName() );
 
         //
         //  if the robot hears a PING and is in the game
@@ -829,7 +829,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         }
         else
         {
-            connection.send( new SOCJoinGame(nickname, password, SOCMessage.EMPTYSTR, mes.getGame()));
+            connection.send( new SOCJoinGame(nickname, password, SOCMessage.EMPTYSTR, mes.getGameName()));
         }
     }
 
@@ -925,7 +925,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     {
         D.ebugPrintlnINFO( "**** handleBOTJOINGAMEREQUEST ****" );
 
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
 
         if ((testQuitAtJoinreqPercent != 0) && (new Random().nextInt( 100 ) < testQuitAtJoinreqPercent))
         {
@@ -990,7 +990,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     {
         gamesPlayed++;
 
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
 
         final SOCGameOptionSet gameOpts = gameOptions.get( gaName );
         final int bh = mes.getBoardHeight(), bw = mes.getBoardWidth();
@@ -1037,15 +1037,15 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         /**
          * sit down to play
          */
-        Integer pn = seatRequests.get( mes.getGame() );
+        Integer pn = seatRequests.get( mes.getGameName() );
 
         if (pn != null)
         {
-            connection.send( new SOCSitDown( mes.getGame(), SOCMessage.EMPTYSTR, pn, true));
+            connection.send( new SOCSitDown( mes.getGameName(), SOCMessage.EMPTYSTR, pn, true));
         }
         else
         {
-            System.err.println( "** Cannot sit down: Assert failed: null pn for game " + mes.getGame() );
+            System.err.println( "** Cannot sit down: Assert failed: null pn for game " + mes.getGameName() );
         }
     }
 
@@ -1057,7 +1057,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      */
     protected void handlePutBrainQ( SOCMessageForGame mes )
     {
-        CappedQueue<SOCMessage> brainQ = brainQs.get( mes.getGame() );
+        CappedQueue<SOCMessage> brainQ = brainQs.get( mes.getGameName() );
 
         if (brainQ != null)
         {
@@ -1105,7 +1105,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         {
             return;
         }
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         final String dcmd = mes.getText().substring( nL );
 
         if (dcmd.startsWith( ":debug-off" ))
@@ -1311,7 +1311,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     @Override
     protected SOCGame handleSITDOWN( SOCSitDown mes )
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
 
         /**
          * tell the game that a player is sitting
@@ -1380,11 +1380,12 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     @Override
     protected void handleDELETEGAME( SOCDeleteGame mes )
     {
-        SOCRobotBrain brain = robotBrains.get( mes.getGame() );
+        String gameName = mes.getGameName();
+        SOCRobotBrain brain = robotBrains.get( gameName );
 
         if (brain != null)
         {
-            SOCGame ga = games.get( mes.getGame() );
+            SOCGame ga = games.get( gameName );
 
             if (ga != null)
             {
@@ -1400,9 +1401,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                 }
 
                 brain.kill();
-                robotBrains.remove( mes.getGame() );
-                brainQs.remove( mes.getGame() );
-                games.remove( mes.getGame() );
+                robotBrains.remove( gameName );
+                brainQs.remove( gameName );
+                games.remove( gameName );
             }
         }
     }
@@ -1415,7 +1416,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     @Override
     protected void handleGAMESTATE( SOCGameState mes )
     {
-        SOCGame ga = games.get( mes.getGame() );
+        SOCGame ga = games.get( mes.getGameName() );
 
         if (ga != null)
         {
@@ -1429,7 +1430,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      */
     protected void handlePUTPIECE( SOCPutPiece mes )
     {
-        CappedQueue<SOCMessage> brainQ = brainQs.get( mes.getGame() );
+        CappedQueue<SOCMessage> brainQ = brainQs.get( mes.getGameName() );
 
         if (brainQ != null)
         {
@@ -1450,8 +1451,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      */
     protected void handleROBOTDISMISS( SOCRobotDismiss mes )
     {
-        SOCGame ga = games.get( mes.getGame() );
-        CappedQueue<SOCMessage> brainQ = brainQs.get( mes.getGame() );
+        String gameName = mes.getGameName();
+        SOCGame ga = games.get( gameName );
+        CappedQueue<SOCMessage> brainQ = brainQs.get( gameName );
 
         if ((ga != null) && (brainQ != null))
         {
@@ -1468,11 +1470,12 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
              * if the brain isn't alive, then we need to leave
              * the game here, instead of having the brain leave it
              */
-            SOCRobotBrain brain = robotBrains.get( mes.getGame() );
+            SOCRobotBrain brain = robotBrains.get( gameName );
 
             if ((brain == null) || (!brain.isAlive()))
             {
-                leaveGame( games.get( mes.getGame() ), "brain not alive in handleROBOTDISMISS", true, false );
+                leaveGame( games.get( gameName ), "brain not alive in handleROBOTDISMISS",
+                    true, false );
             }
         }
     }
@@ -1498,7 +1501,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     {
         D.ebugPrintlnINFO( "**** handleRESETBOARDAUTH ****" );
 
-        String gname = mes.getGame();
+        String gname = mes.getGameName();
         SOCGame ga = games.get( gname );
         if (ga == null)
             return;  // Not one of our games
@@ -1605,7 +1608,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
             System.err.flush();
         }
 
-        connection.send( new SOCLeaveGame(nickname, "-", gaName));
+        connection.send(new SOCLeaveGame( gaName,  nickname, "-" ));
     }
 
     /**

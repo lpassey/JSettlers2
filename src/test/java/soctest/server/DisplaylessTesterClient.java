@@ -180,7 +180,7 @@ public class DisplaylessTesterClient extends SOCDisplaylessPlayerClient
     @Override
     protected void handleNEWGAME(final SOCNewGame mes)
     {
-        String gameName = mes.getGame();
+        String gameName = mes.getGameName();
         boolean canJoin = true;
         boolean hasUnjoinMarker = (gameName.charAt(0) == SOCGames.MARKER_THIS_GAME_UNJOINABLE);
         if (hasUnjoinMarker)
@@ -194,7 +194,7 @@ public class DisplaylessTesterClient extends SOCDisplaylessPlayerClient
     @Override
     protected void handleNEWGAMEWITHOPTIONS(final SOCNewGameWithOptions mes)
     {
-        String gameName = mes.getGame();
+        String gameName = mes.getGameName();
         boolean canJoin = (mes.getMinVersion() <= Version.versionNumber());
         if (gameName.charAt(0) == SOCGames.MARKER_THIS_GAME_UNJOINABLE)
         {
@@ -209,7 +209,7 @@ public class DisplaylessTesterClient extends SOCDisplaylessPlayerClient
     {
         gotPassword = true;
 
-        String gameName = mes.getGame();
+        String gameName = mes.getGameName();
         SOCGameOptionSet opts = serverGames.parseGameOptions(gameName);
 
         final int bh = mes.getBoardHeight(), bw = mes.getBoardWidth();

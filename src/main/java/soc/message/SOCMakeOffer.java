@@ -42,15 +42,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCMakeOffer extends SOCMessage
-    implements SOCMessageForGame
+public class SOCMakeOffer extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The offer being made
@@ -60,25 +54,16 @@ public class SOCMakeOffer extends SOCMessage
     /**
      * Create a MakeOffer message.
      *
-     * @param ga   the name of the game
-     * @param of   the offer being made.
+     * @param gameName   the name of the game
+     * @param offer      the offer being made.
      *    From server, this offer's {@link SOCTradeOffer#getFrom()} is the player number
      *    making the offer: See {@link #getOffer()}.
      *    From client, value of {@code of.getFrom()} is ignored at server.
      */
-    public SOCMakeOffer(String ga, SOCTradeOffer of)
+    public SOCMakeOffer(String gameName, SOCTradeOffer offer)
     {
-        super( MAKEOFFER );
-        game = ga;
-        offer = of;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
+        super( MAKEOFFER, gameName );
+        this.offer = offer;
     }
 
     /**
@@ -93,49 +78,37 @@ public class SOCMakeOffer extends SOCMessage
     }
 
     /**
-     * @return the command string
-     */
-    public String toCmd()
-    {
-        return toCmd(game, offer);
-    }
-
-    /**
-     * @return the command string
-     *
-     * @param ga  the name of the game
-     * @param of   the offer being made.
      *    From server, this offer's {@link SOCTradeOffer#getFrom()} is the player number
      *    making the offer. From client, value of {@code of.getFrom()} is ignored at server.
+     *
+     * @return the command string
      */
-    public static String toCmd(String ga, SOCTradeOffer of)
+    @Override
+    public String toCmd()
     {
-        StringBuilder cmd = new StringBuilder( MAKEOFFER + sep + ga );
-        cmd.append( sep2 ).append( of.getFrom() );
+        StringBuilder cmd = new StringBuilder( super.toCmd("" ));
+        cmd.append( sep2 ).append( offer.getFrom() );
 
-        boolean[] to = of.getTo();
+        boolean[] to = offer.getTo();
 
         for (boolean b : to)
         {
             cmd.append( sep2 ).append( b );
         }
 
-        SOCResourceSet give = of.getGiveSet();
+        SOCResourceSet give = offer.getGiveSet();
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD; i++)
         {
             cmd.append( sep2 ).append( give.getAmount( i ) );
         }
 
-        SOCResourceSet get = of.getGetSet();
+        SOCResourceSet get = offer.getGetSet();
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD; i++)
         {
             cmd.append( sep2 ).append( get.getAmount( i ) );
         }
-
         return cmd.toString();
     }
 
@@ -234,7 +207,7 @@ public class SOCMakeOffer extends SOCMessage
      */
     public String toString()
     {
-        return "SOCMakeOffer:game=" + game + "|offer=" + offer;
+        return "SOCMakeOffer:game=" + getGameName() + "|offer=" + offer;
     }
 
 }

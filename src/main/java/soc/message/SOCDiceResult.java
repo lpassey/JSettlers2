@@ -76,18 +76,6 @@ public class SOCDiceResult extends SOCMessageTemplate1i
     }
 
     /**
-     * DICERESULT sep game sep2 result
-     *
-     * @param ga  the name of the game
-     * @param dr  the dice result, from {@link soc.game.SOCGame#getCurrentDice()}
-     * @return the command string
-     */
-    public static String toCmd(String ga, int dr)
-    {
-        return DICERESULT + sep + ga + sep2 + dr;
-    }
-
-    /**
      * Parse the command String into a DiceResult message
      *
      * @param s   the String to parse: DICERESULT sep game sep2 result
@@ -95,6 +83,8 @@ public class SOCDiceResult extends SOCMessageTemplate1i
      */
     public static SOCDiceResult parseDataStr(String s)
     {
+        SOCMessageTemplate1i result = SOCMessageTemplate1i.parseDataStr( DICERESULT, s );
+
         String ga; // the game name
         int dr; // the dice result
 
@@ -112,5 +102,4 @@ public class SOCDiceResult extends SOCMessageTemplate1i
 
         return new SOCDiceResult(ga, dr);
     }
-
 }

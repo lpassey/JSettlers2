@@ -27,44 +27,30 @@ package soc.message;
  *
  * @author Robert S Thomas
  */
-public class SOCRobotDismiss extends SOCMessage
-    implements SOCMessageForGame
+public class SOCRobotDismiss extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * Create a RobotDismiss message.
      *
-     * @param ga  name of game
+     * @param gameName  name of game
      */
-    public SOCRobotDismiss(String ga)
+    public SOCRobotDismiss(String gameName)
     {
-        super( ROBOTDISMISS );
-        game = ga;
-    }
-
-    /**
-     * @return the game name
-     */
-    public String getGame()
-    {
-        return game;
+        super( ROBOTDISMISS, gameName );
     }
 
     /**
      * ROBOTDISMISS sep game
      *
-     * @return the command String
+     * @return the command String -- handled by superclass
      */
-    public String toCmd()
-    {
-        return ROBOTDISMISS + sep + game;
-    }
+//    @Override
+//    public String toCmd()
+//    {
+//        return ROBOTDISMISS + sep + getGameName();
+//    }
 
     /**
      * Parse the command String into a RobotDismiss message
@@ -82,6 +68,6 @@ public class SOCRobotDismiss extends SOCMessage
      */
     public String toString()
     {
-        return "SOCRobotDismiss:game=" + game;
+        return "SOCRobotDismiss:game=" + getGameName();
     }
 }

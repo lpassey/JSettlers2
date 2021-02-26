@@ -45,8 +45,7 @@ import java.util.StringTokenizer;
  * @author Jeremy D Monin
  * @since 2.0.00
  */
-public class SOCGameServerText extends SOCMessage
-    implements SOCMessageForGame
+public class SOCGameServerText extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;
 
@@ -68,11 +67,6 @@ public class SOCGameServerText extends SOCMessage
     public static final String UNLIKELY_CHAR1 = Character.toString( (char) 1 );
 
     /**
-     * Name of game
-     */
-    private final String game;
-
-    /**
      * Text message
      */
     private final String text;
@@ -80,22 +74,13 @@ public class SOCGameServerText extends SOCMessage
     /**
      * Create a GameServerText message.
      *
-     * @param ga  name of game
+     * @param gameName  name of game
      * @param tm  text message
      */
-    public SOCGameServerText(final String ga, final String tm)
+    public SOCGameServerText(final String gameName, final String tm)
     {
-        super( GAMESERVERTEXT );
-        game = ga;
+        super( GAMESERVERTEXT, gameName );
         text = tm;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -111,21 +96,10 @@ public class SOCGameServerText extends SOCMessage
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, text);
-    }
-
-    /**
-     * GAMESERVERTEXT sep game char1 text
-     *
-     * @param ga  the game name
-     * @param tm  the text message
-     * @return    the command string
-     */
-    public static String toCmd(final String ga, final String tm)
-    {
-        return GAMESERVERTEXT + sep + ga + UNLIKELY_CHAR1 + tm;
+        return super.toCmd( UNLIKELY_CHAR1 + text );
     }
 
     /**
@@ -179,7 +153,7 @@ public class SOCGameServerText extends SOCMessage
      */
     public String toString()
     {
-        return "SOCGameServerText:game=" + game + "|text=" + text;
+        return "SOCGameServerText:game=" + getGameName() + "|text=" + text;
     }
 
     /**
@@ -188,5 +162,4 @@ public class SOCGameServerText extends SOCMessage
      * @return Version number, 2000 for JSettlers 2.0.00.
      */
     public final int getMinimumVersion() { return VERSION_FOR_GAMESERVERTEXT; /* == 2000 */ }
-
 }

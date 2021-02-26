@@ -47,8 +47,7 @@ import java.util.StringTokenizer;
  * @author Jeremy D Monin
  * @since 1.1.12
  */
-public class SOCDebugFreePlace extends SOCMessage
-    implements SOCMessageForGame
+public class SOCDebugFreePlace extends SOCMessageForGame
 {
     /** matches version (1.1.12) */
     private static final long serialVersionUID = 1112L;
@@ -58,11 +57,6 @@ public class SOCDebugFreePlace extends SOCMessage
      * and send DEBUGFREEPLACE.
      */
     public static final int VERSION_FOR_DEBUGFREEPLACE = 1112;
-
-    /**
-     * the name of the game
-     */
-    private String game;
 
     /**
      * the type of piece being placed, such as {@link soc.game.SOCPlayingPiece#CITY}
@@ -82,22 +76,21 @@ public class SOCDebugFreePlace extends SOCMessage
     /**
      * create a DEBUGFREEPLACE message from the client.
      *
-     * @param na  name of the game
+     * @param gameName  name of the game
      * @param pt  type of playing piece, such as {@link soc.game.SOCPlayingPiece#CITY}; must be >= 0
      * @param pn  player number
      * @param co  coordinates; must be >= 0
      * @throws IllegalArgumentException if {@code pt} &lt; 0 or {@code co} &lt; 0
      */
-    public SOCDebugFreePlace(String na, int pn, int pt, int co)
+    public SOCDebugFreePlace( String gameName, int pn, int pt, int co )
         throws IllegalArgumentException
     {
-        super( DEBUGFREEPLACE );
+        super( DEBUGFREEPLACE, gameName );
         if (pt < 0)
             throw new IllegalArgumentException("pt: " + pt);
         if (co < 0)
             throw new IllegalArgumentException("coord < 0");
 
-        game = na;
         pieceType = pt;
         playerNumber = pn;
         coordinates = co;
@@ -108,21 +101,13 @@ public class SOCDebugFreePlace extends SOCMessage
      * pieceType will be 0.
      * coordinate will be 1 for on, 0 for off.
      *
-     * @param na  name of the game
+     * @param gameName  name of the game
      * @param pn  current player number
      * @param onOff  true for on, false for off
      */
-    public SOCDebugFreePlace(String na, int pn, boolean onOff)
+    public SOCDebugFreePlace(String gameName, int pn, boolean onOff)
     {
-        this(na, pn, 0, onOff ? 1 : 0);
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
+        this(gameName, pn, 0, onOff ? 1 : 0);
     }
 
     /**
@@ -158,30 +143,7 @@ public class SOCDebugFreePlace extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, playerNumber, pieceType, coordinates);
-    }
-
-    /**
-     * Command string:
-     *
-     * DEBUGFREEPLACE sep game sep2 playerNumber sep2 pieceType sep2 coordinates
-     *
-     * @param na  the name of the game
-     * @param pt  type of playing piece, such as {@link soc.game.SOCPlayingPiece#CITY}; must be >= 0
-     * @param pn  player number
-     * @param co  coordinates; must be >= 0
-     * @return the command string
-     * @throws IllegalArgumentException if {@code pt} &lt; 0 or {@code co} &lt; 0
-     */
-    public static String toCmd(String na, int pn, int pt, int co)
-        throws IllegalArgumentException
-    {
-        if (pt < 0)
-            throw new IllegalArgumentException("pt: " + pt);
-        if (co < 0)
-            throw new IllegalArgumentException("coord < 0");
-
-        return DEBUGFREEPLACE + sep + na + sep2 + pn + sep2 + pt + sep2 + co;
+        return super.toCmd( sep2 + playerNumber + sep2 + pieceType + sep2 + coordinates );
     }
 
     /**
@@ -250,7 +212,9 @@ public class SOCDebugFreePlace extends SOCMessage
      */
     public String toString()
     {
-        return "SOCDebugFreePlace:game=" + game + "|playerNumber=" + playerNumber + "|pieceType=" + pieceType + "|coord=0x" + Integer.toHexString(coordinates);
+        return "SOCDebugFreePlace:game=" + getGameName() + "|playerNumber="
+            + playerNumber + "|pieceType="
+            + pieceType + "|coord=0x" + Integer.toHexString(coordinates);
     }
 
 }

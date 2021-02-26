@@ -38,15 +38,9 @@ import soc.game.SOCGameOptionSet;  // for javadocs only
  *
  * @author Robert S. Thomas
  */
-public class SOCChoosePlayerRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCChoosePlayerRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
-
-    /**
-     * Name of game
-     */
-    private final String game;
 
     /**
      * True if can choose to not steal from anyone.
@@ -67,26 +61,17 @@ public class SOCChoosePlayerRequest extends SOCMessage
     /**
      * Create a ChoosePlayerRequest message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param ch  the possible choices; an array with 1 element per player number
      *     (0 to <tt>game.maxPlayers - 1</tt>)
      * @param canChooseNone  true if can choose to not steal from anyone.
      *     This is used with some game scenarios; all scenarios require version 2.0.00 or newer.
      */
-    public SOCChoosePlayerRequest(final String ga, final boolean[] ch, final boolean canChooseNone)
+    public SOCChoosePlayerRequest(final String gameName, final boolean[] ch, final boolean canChooseNone)
     {
-        super( CHOOSEPLAYERREQUEST );
-        game = ga;
+        super( CHOOSEPLAYERREQUEST, gameName );
         choices = ch;
         allowChooseNone = canChooseNone;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -117,31 +102,15 @@ public class SOCChoosePlayerRequest extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, choices, allowChooseNone);
-    }
+        StringBuilder mes = new StringBuilder(super.toCmd());
 
-    /**
-     * CHOOSEPLAYERREQUEST sep game sep2 [ "NONE" sep2 ] choices[0] sep2 choices[1] ...
-     *<BR>
-     * Each {@code choices} element is lowercase "true" or "false".
-     *
-     * @param ga  the name of the game
-     * @param ch  the choices; an array with 1 element per player number
-     *     (0 to <tt>game.maxPlayers - 1</tt>)
-     * @param canChooseNone  true if can choose to not steal from anyone.
-     *     This is used with some game scenarios; all scenarios require version 2.0.00 or newer.
-     * @return the command string
-     */
-    public static String toCmd(final String ga, final boolean[] ch, final boolean canChooseNone)
-    {
-        StringBuilder mes = new StringBuilder(CHOOSEPLAYERREQUEST + sep + ga);
-
-        if (canChooseNone)
+        if (allowChooseNone)
             mes.append(sep2 + "NONE");
 
-        for (boolean b : ch)
+        for (boolean b : choices)
         {
             mes.append( sep2_char );
             mes.append( b ? "true" : "false" );
@@ -244,7 +213,7 @@ public class SOCChoosePlayerRequest extends SOCMessage
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder("SOCChoosePlayerRequest:game=" + game);
+        StringBuilder sb = new StringBuilder("SOCChoosePlayerRequest:game=" + getGameName());
         if (canChooseNone())
             sb.append("|canChooseNone=true");
         sb.append( "|choices=" ).append( Arrays.toString( choices ) );  // "[true, false, ...]"

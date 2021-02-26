@@ -91,8 +91,7 @@ import soc.util.DataUtils;
  * @see SOCBoardLayout
  * @since 1.1.08
  */
-public class SOCBoardLayout2 extends SOCMessage
-    implements SOCMessageForGame
+public class SOCBoardLayout2 extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2300L;
 
@@ -119,11 +118,6 @@ public class SOCBoardLayout2 extends SOCMessage
     private static final int SENTLAND_WATER = 6, SENTLAND_DESERT = 0;
 
     /**
-     * Name of game
-     */
-    private final String game;
-
-    /**
      * Board layout encoding version, from {@link SOCBoard#getBoardEncodingFormat()}.
      */
     private final int boardEncodingFormat;
@@ -144,16 +138,15 @@ public class SOCBoardLayout2 extends SOCMessage
     /**
      * Create a SOCBoardLayout2 message; see class javadoc for parts' meanings.
      *
-     * @param ga   the name of the game
+     * @param gameName   the name of the game
      * @param bef  the board encoding format number, from {@link SOCBoard#getBoardEncodingFormat()}
      * @param parts  the parts of the layout: int[] arrays or Strings or Integers.
      *               contents are not validated here, but contents not matching their keys' documented type
      *               may cause a ClassCastException later.
      */
-    public SOCBoardLayout2( String ga, int bef, Map<String, Object> parts )
+    public SOCBoardLayout2( String gameName, int bef, Map<String, Object> parts )
     {
-        super( BOARDLAYOUT2 );
-        game = ga;
+        super( BOARDLAYOUT2, gameName );
         boardEncodingFormat = bef;
         layoutParts = parts;
     }
@@ -162,7 +155,7 @@ public class SOCBoardLayout2 extends SOCMessage
      * Create a SOCBoardLayout2 message for encoding format v1 or v2; see class javadoc for parameters' meanings.
      * ({@link SOCBoard#BOARD_ENCODING_ORIGINAL} or {@link SOCBoard#BOARD_ENCODING_6PLAYER}.)
      *
-     * @param ga   the name of the game
+     * @param gameName   the name of the game
      * @param bef  the board encoding format number, from {@link SOCBoard#getBoardEncodingFormat()}
      * @param hl   the hex layout; not mapped yet, so the constructor will map it from the
      *               {@link SOCBoard#getHexLayout()} value range
@@ -171,10 +164,10 @@ public class SOCBoardLayout2 extends SOCMessage
      * @param pl   the port layout, or null
      * @param rh   the robber hex
      */
-    public SOCBoardLayout2( final String ga, final int bef, final int[] hl, final int[] nl, final int[] pl, final int rh )
+    public SOCBoardLayout2( final String gameName, final int bef, final int[] hl, final int[] nl,
+        final int[] pl, final int rh )
     {
-        super( BOARDLAYOUT2 );
-        game = ga;
+        super( BOARDLAYOUT2, gameName );
         boardEncodingFormat = bef;
         layoutParts = new HashMap<>();
 
@@ -208,7 +201,7 @@ public class SOCBoardLayout2 extends SOCMessage
      * Create a SOCBoardLayout2 message for encoding format v3.
      * ({@link SOCBoardLarge}, {@link SOCBoard#BOARD_ENCODING_LARGE}.)
      *
-     * @param ga   the name of the game
+     * @param gameName   the name of the game
      * @param bef  the board encoding format number, from {@link SOCBoard#getBoardEncodingFormat()}
      * @param lh   the land hex layout, or null if all water (before makeNewBoard is called)
      * @param pl   the port layout, or null
@@ -219,13 +212,10 @@ public class SOCBoardLayout2 extends SOCMessage
      * @param other  any other layout parts to add, or null; see {@link #getAddedParts()}.
      *             Please make sure that new keys don't conflict with ones already listed in the class javadoc.
      */
-    public SOCBoardLayout2
-    ( final String ga, final int bef,
-        final int[] lh, final int[] pl, final int rh, final int ph, final int[] px, final int[] rx,
-        final Map<String, int[]> other )
+    public SOCBoardLayout2( final String gameName, final int bef, final int[] lh, final int[] pl,
+        final int rh, final int ph, final int[] px, final int[] rx, final Map<String, int[]> other )
     {
-        super( BOARDLAYOUT2 );
-        game = ga;
+        super( BOARDLAYOUT2, gameName );
         boardEncodingFormat = bef;
         layoutParts = new HashMap<>();
         if (lh != null)
@@ -243,15 +233,6 @@ public class SOCBoardLayout2 extends SOCMessage
 
         if (other != null)
             layoutParts.putAll( other );
-    }
-
-    /**
-     * Game name
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -410,10 +391,8 @@ public class SOCBoardLayout2 extends SOCMessage
     @Override
     public String toCmd()
     {
-        StringBuilder cmd = new StringBuilder();
+        StringBuilder cmd = new StringBuilder( super.toCmd());
 
-        cmd.append( BOARDLAYOUT2 );
-        cmd.append( sep ).append( game );
         cmd.append( sep2_char ).append( boardEncodingFormat );
 
         for (String okey : layoutParts.keySet())
@@ -502,7 +481,7 @@ public class SOCBoardLayout2 extends SOCMessage
     public String toString()
     {
         StringBuffer sb = new StringBuffer( "SOCBoardLayout2:game=" );
-        sb.append( game );
+        sb.append( getGameName() );
         sb.append( "|bef=" );
         sb.append( boardEncodingFormat );
         for (String okey : layoutParts.keySet())

@@ -51,15 +51,9 @@ import soc.game.SOCGame;  // for javadocs only
  * @author Robert S. Thomas
  * @see SOCSetTurn
  */
-public class SOCTurn extends SOCMessage
-    implements SOCMessageForGame
+public class SOCTurn extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The seat number
@@ -76,25 +70,16 @@ public class SOCTurn extends SOCMessage
     /**
      * Create a Turn message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the seat number
      * @param gs  the new turn's optional Game State such as {@link GameState#ROLL_OR_CARD}, or 0.
      *     Values &lt; 0 are out of range and ignored (treated as 0).
      */
-    public SOCTurn( final String ga, final int pn, final GameState gs )
+    public SOCTurn( final String gameName, final int pn, final GameState gs )
     {
-        super( TURN );
-        game = ga;
+        super( TURN, gameName );
         playerNumber = pn;
         gameState = gs;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -121,22 +106,11 @@ public class SOCTurn extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd( game, playerNumber, gameState );
-    }
-
-    /**
-     * TURN sep game sep2 playerNumber [sep2 gameState]
-     *
-     * @param ga  the name of the game
-     * @param pn  the seat number
-     * @param gs  the new turn's optional Game State such as {@link GameState#ROLL_OR_CARD}, or 0 to omit that field
-     * @return the command string
-     */
-    public static String toCmd( final String ga, final int pn, final GameState gs )
-    {
-        return TURN + sep + ga + sep2 + pn + ((gs !=  GameState.NEW_GAME) ? sep2 + gs.getIntValue() : "");
+        return super.toCmd( sep2 + playerNumber
+            + ((gameState !=  GameState.NEW_GAME) ? sep2 + gameState.getIntValue() : "" ));
     }
 
     /**
@@ -173,7 +147,7 @@ public class SOCTurn extends SOCMessage
      */
     public String toString()
     {
-        return "SOCTurn:game=" + game + "|playerNumber=" + playerNumber
+        return "SOCTurn:game=" + getGameName() + "|playerNumber=" + playerNumber
             + ((gameState != GameState.NEW_GAME) ? "|gameState=" + gameState : "");
     }
 

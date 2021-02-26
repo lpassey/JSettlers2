@@ -34,8 +34,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCClearOffer extends SOCMessage
-    implements SOCMessageForGame
+public class SOCClearOffer extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
 
@@ -46,11 +45,6 @@ public class SOCClearOffer extends SOCMessage
     public static final int VERSION_FOR_CLEAR_ALL = 1109;
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * The seat number, or -1 for all, when sent from server.
      * Server has always ignored this field when sent from client.
      */
@@ -59,23 +53,14 @@ public class SOCClearOffer extends SOCMessage
     /**
      * Create a ClearOffer message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the seat number, or -1 for all (1.1.09 or newer only).
      *     Sent from server, always ignored when sent from client.
      */
-    public SOCClearOffer(String ga, int pn)
+    public SOCClearOffer(String gameName, int pn)
     {
-        super( CLEAROFFER );
-        game = ga;
+        super( CLEAROFFER, gameName );
         playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -92,21 +77,10 @@ public class SOCClearOffer extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, playerNumber);
-    }
-
-    /**
-     * CLEAROFFER sep game sep2 playerNumber
-     *
-     * @param ga  the name of the game
-     * @param pn  the seat number from server, or -1 for all; always ignored when sent from client
-     * @return the command string
-     */
-    public static String toCmd(String ga, int pn)
-    {
-        return CLEAROFFER + sep + ga + sep2 + pn;
+        return super.toCmd( sep2 + playerNumber );
     }
 
     /**
@@ -140,7 +114,7 @@ public class SOCClearOffer extends SOCMessage
      */
     public String toString()
     {
-        return "SOCClearOffer:game=" + game + "|playerNumber=" + playerNumber;
+        return "SOCClearOffer:game=" + getGameName() + "|playerNumber=" + playerNumber;
     }
 
 }

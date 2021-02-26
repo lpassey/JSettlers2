@@ -22,7 +22,6 @@ package soc.message;
 
 import java.util.StringTokenizer;
 
-import soc.game.SOCGame;  // for javadocs only
 import soc.game.SOCResourceConstants;  // for javadocs only
 
 
@@ -41,15 +40,9 @@ import soc.game.SOCResourceConstants;  // for javadocs only
  * @see SOCPickResources
  * @author Robert S. Thomas
  */
-public class SOCPickResourceType extends SOCMessage
-    implements SOCMessageForGame
+public class SOCPickResourceType extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The chosen resource type,
@@ -60,23 +53,14 @@ public class SOCPickResourceType extends SOCMessage
     /**
      * Create a SOCPickResourceType message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param rs  the resource type,
      *     such as {@link SOCResourceConstants#CLAY} or {@link SOCResourceConstants#SHEEP}
      */
-    public SOCPickResourceType(String ga, int rs)
+    public SOCPickResourceType(String gameName, int rs)
     {
-        super( PICKRESOURCETYPE );
-        game = ga;
+        super( PICKRESOURCETYPE, gameName );
         resource = rs;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -96,9 +80,10 @@ public class SOCPickResourceType extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return PICKRESOURCETYPE + sep + game + sep2 + resource;
+        return super.toCmd( sep2 + resource );
     }
 
     /**
@@ -123,7 +108,6 @@ public class SOCPickResourceType extends SOCMessage
         {
             return null;
         }
-
         return new SOCPickResourceType(ga, rs);
     }
 
@@ -132,7 +116,7 @@ public class SOCPickResourceType extends SOCMessage
      */
     public String toString()
     {
-        return "SOCPickResourceType:game=" + game + "|resType=" + resource;
+        return "SOCPickResourceType:game=" + getGameName() + "|resType=" + resource;
     }
 
 }

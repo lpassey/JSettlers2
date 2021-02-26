@@ -55,8 +55,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCBankTrade extends SOCMessage
-    implements SOCMessageForGame
+public class SOCBankTrade extends SOCMessageForGame
 {
 
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
@@ -68,11 +67,6 @@ public class SOCBankTrade extends SOCMessage
      * @since 2.4.50
      */
     public static final int VERSION_FOR_SKIP_PLAYERELEMENTS = 2450;
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The set of resources being given to the bank/port
@@ -94,28 +88,19 @@ public class SOCBankTrade extends SOCMessage
     /**
      * Create a BankTrade message.
      *
-     * @param ga   the name of the game
+     * @param gameName   the name of the game
      * @param give the set of resources being given to the bank/port: see {@link #getGiveSet()}
      * @param get  the set of resources being taken from the bank/port: see {@link #getGetSet()}
      * @param pn   the player number making the trade,
      *     or -1 to send a request from client.
      *     Field not sent if -1. Versions older than 2.0.00 ignore this field.
      */
-    public SOCBankTrade(String ga, SOCResourceSet give, SOCResourceSet get, final int pn)
+    public SOCBankTrade( String gameName, SOCResourceSet give, SOCResourceSet get, final int pn)
     {
-        super( BANKTRADE );
-        game = ga;
+        super( BANKTRADE, gameName );
         this.give = give;
         this.get = get;
         playerNumber = pn;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -153,9 +138,10 @@ public class SOCBankTrade extends SOCMessage
      * Build a command string to send this message. {@code playerNumber} is not sent if -1.
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        StringBuilder cmd = new StringBuilder(BANKTRADE + sep + game);
+        StringBuilder cmd = new StringBuilder( super.toCmd( "" ) );
 
         for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
                 i++)
@@ -249,7 +235,7 @@ public class SOCBankTrade extends SOCMessage
      */
     public String toString()
     {
-        return "SOCBankTrade:game=" + game + "|give=" + give + "|get=" + get
+        return "SOCBankTrade:game=" + getGameName() + "|give=" + give + "|get=" + get
             + ((playerNumber != -1) ? ("|pn=" + playerNumber) : "");
     }
 

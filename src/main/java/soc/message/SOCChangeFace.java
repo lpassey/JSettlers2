@@ -30,15 +30,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCChangeFace extends SOCMessage
-    implements SOCMessageForGame
+public class SOCChangeFace extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The player number changing their face, from server;
@@ -54,25 +48,16 @@ public class SOCChangeFace extends SOCMessage
     /**
      * Create a ChangeFace message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the player number changing their face; sent from server, always ignored when sent from client
      * @param id  the id of the face image;
      *            1 and higher are human face images, 0 is the default robot, -1 is the smarter robot.
      */
-    public SOCChangeFace(String ga, int pn, int id)
+    public SOCChangeFace(String gameName, int pn, int id)
     {
-        super( CHANGEFACE );
-        game = ga;
+        super( CHANGEFACE, gameName );
         playerNumber = pn;
         faceId = id;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -99,9 +84,10 @@ public class SOCChangeFace extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return CHANGEFACE + sep + game + sep2 + playerNumber + sep2 + faceId;
+        return super.toCmd( sep2 + playerNumber + sep2 + faceId );
     }
 
     /**
@@ -137,7 +123,7 @@ public class SOCChangeFace extends SOCMessage
      */
     public String toString()
     {
-        return "SOCChangeFace:game=" + game + "|playerNumber=" + playerNumber + "|faceId=" + faceId;
+        return "SOCChangeFace:game=" + getGameName() + "|playerNumber=" + playerNumber + "|faceId=" + faceId;
     }
 
 }

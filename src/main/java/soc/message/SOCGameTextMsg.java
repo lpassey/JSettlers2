@@ -40,8 +40,7 @@ import java.util.StringTokenizer;
  *
  * @author Robert S Thomas
  */
-public class SOCGameTextMsg extends SOCMessage
-    implements SOCMessageForGame
+public class SOCGameTextMsg extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -93,11 +92,6 @@ public class SOCGameTextMsg extends SOCMessage
     private static String sep2_alt = "" + (char) 0;
 
     /**
-     * Name of game
-     */
-    private String game;
-
-    /**
      * Nickname of sender from server, or {@link #SERVERNAME} or {@link #SERVER_FOR_CHAT}, or "-";
      * see {@link #getNickname()}.
      */
@@ -112,7 +106,7 @@ public class SOCGameTextMsg extends SOCMessage
     /**
      * Create a GameTextMsg message.
      *
-     * @param ga  name of game
+     * @param gameName  name of game
      * @param nn  nickname of sender, when message sent from server; announcements from the server (not from a player)
      *     use {@link #SERVERNAME} or {@link #SERVER_FOR_CHAT}.
      *     Server has always ignored this field from client, can send "-" but not blank.
@@ -120,20 +114,11 @@ public class SOCGameTextMsg extends SOCMessage
      *     For expected format when {@code nn} is {@link #SERVER_FOR_CHAT},
      *     see that constant's javadoc.
      */
-    public SOCGameTextMsg(String ga, String nn, String tm)
+    public SOCGameTextMsg(String gameName, String nn, String tm)
     {
-        super( GAMETEXTMSG );
-        game = ga;
+        super( GAMETEXTMSG, gameName );
         nickname = nn;
         text = tm;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
     }
 
     /**
@@ -167,9 +152,10 @@ public class SOCGameTextMsg extends SOCMessage
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return GAMETEXTMSG + sep + game + sep2_alt + nickname + sep2_alt + text;
+        return super.toCmd( sep2_alt + nickname + sep2_alt + text );
     }
 
     /**
@@ -247,6 +233,6 @@ public class SOCGameTextMsg extends SOCMessage
      */
     public String toString()
     {
-        return "SOCGameTextMsg:game=" + game + "|nickname=" + nickname + "|text=" + text;
+        return "SOCGameTextMsg:game=" + getGameName() + "|nickname=" + nickname + "|text=" + text;
     }
 }

@@ -37,59 +37,17 @@ package soc.message;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public abstract class SOCMessageTemplate0 extends SOCMessage
-    implements SOCMessageForGame
+public abstract class SOCMessageTemplate
 {
     private static final long serialVersionUID = 2000L;
-
-    /**
-     * Name of the game.
-     */
-    protected String game;
 
     /**
      * Create a new message.
      *
      * @param id  Message type ID
-     * @param ga  Name of game this message is for
+     * @param gameName  Name of game this message is for
      */
-    protected SOCMessageTemplate0(int id, String ga)
-    {
-        super( id );
-        game = ga;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
-    }
-
-    /**
-     * MESSAGETYPE sep game
-     *
-     * @return the command String
-     */
-    public String toCmd()
-    {
-        return toCmd(getType(), game);
-    }
-
-    /**
-     * MESSAGETYPE sep game
-     *<P>
-     * Public method only because there are no parameters, so this is easy to call.
-     *
-     * @param messageType The message type id
-     * @param ga  the game name
-     * @return    the command string
-     */
-    public static String toCmd(final int messageType, final String ga)
-    {
-        return messageType + sep + ga;
-    }
+    protected SOCMessageTemplate(int id, String gameName) {}
 
     /**
      * Parse the command String into a MessageType message
@@ -101,13 +59,5 @@ public abstract class SOCMessageTemplate0 extends SOCMessage
         return new SOCAdminPing(s);
     }
      */
-
-    /**
-     * @return a human readable form of the message
-     */
-    public String toString()
-    {
-        return getClass().getSimpleName() + ":game=" + game;
-    }
 
 }

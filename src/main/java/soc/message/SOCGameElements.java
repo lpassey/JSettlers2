@@ -37,7 +37,6 @@ import soc.game.SOCGame;  // for javadocs only
  * @since 2.0.00
  */
 public class SOCGameElements extends SOCMessageTemplateMi
-    implements SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;  // last structural change v2.0.00
 
@@ -202,7 +201,7 @@ public class SOCGameElements extends SOCMessageTemplateMi
     /**
      * Create a GameElements message about multiple elements.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param etypes  element types to set, such as {@link GEType#DEV_CARD_COUNT}
      * @param values  new values for each element, corresponding to <tt>etypes[]</tt>
      * @see #SOCGameElements(String, GEType, int)
@@ -210,16 +209,16 @@ public class SOCGameElements extends SOCMessageTemplateMi
      *     or {@code etypes} contains {@code null}
      * @throws IllegalArgumentException if {@code etypes.length != values.length}
      */
-    public SOCGameElements( final String ga, final GEType[] etypes, final int[] values )
+    public SOCGameElements( final String gameName, final GEType[] etypes, final int[] values )
         throws NullPointerException, IllegalArgumentException
     {
-        this( ga, GEType.getValues( etypes ), values );
+        this( gameName, GEType.getValues( etypes ), values );
     }
 
-    private SOCGameElements( final String ga, final int[] etypes, final int[] values )
+    private SOCGameElements( final String gameName, final int[] etypes, final int[] values )
         throws NullPointerException, IllegalArgumentException
     {
-        super( GAMEELEMENTS, ga, new int[2 * etypes.length] );
+        super( GAMEELEMENTS, gameName, new int[2 * etypes.length] );
         if (values == null)
             throw new NullPointerException();
         final int L = etypes.length;
@@ -240,16 +239,16 @@ public class SOCGameElements extends SOCMessageTemplateMi
     /**
      * Create a GameElements message about one element.
      *
-     * @param ga  name of the game
+     * @param gameName  name of the game
      * @param etype  the type of element, such as {@link GEType#DEV_CARD_COUNT}
      * @param value  the value to set the element to
      * @throws NullPointerException if {@code etype} is null
      * @see #SOCGameElements(String, GEType[], int[])
      */
-    public SOCGameElements( final String ga, final GEType etype, final int value )
+    public SOCGameElements( final String gameName, final GEType etype, final int value )
         throws NullPointerException
     {
-        this( ga, new int[]{etype.value}, new int[]{value} );
+        this( gameName, new int[]{etype.value}, new int[]{value} );
     }
 
     /**
@@ -377,7 +376,7 @@ public class SOCGameElements extends SOCMessageTemplateMi
     public String toString()
     {
         StringBuilder sb = new StringBuilder
-            ( "SOCGameElements:game=" + game + '|' );
+            ( "SOCGameElements:game=" + getGameName() + '|' );
         for (int i = 0; i < pa.length; )
         {
             if (i > 0)
@@ -392,5 +391,4 @@ public class SOCGameElements extends SOCMessageTemplateMi
 
         return sb.toString();
     }
-
 }

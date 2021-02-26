@@ -44,15 +44,9 @@ import java.util.StringTokenizer;
  *
  * @author Robert S. Thomas
  */
-public class SOCPlayDevCardRequest extends SOCMessage
-    implements SOCMessageForGame
+public class SOCPlayDevCardRequest extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1111L;  // last structural change v1.1.11
-
-    /**
-     * Name of game
-     */
-    private String game;
 
     /**
      * The type of dev card
@@ -62,22 +56,13 @@ public class SOCPlayDevCardRequest extends SOCMessage
     /**
      * Create a PlayDevCardRequest message.
      *
-     * @param ga  the name of the game
-     * @param dc  the type of dev card
+     * @param gameName  the name of the game
+     * @param devCardType  the type of dev card
      */
-    public SOCPlayDevCardRequest(String ga, int dc)
+    public SOCPlayDevCardRequest(String gameName, int devCardType)
     {
-        super( PLAYDEVCARDREQUEST );
-        game = ga;
-        devCard = dc;
-    }
-
-    /**
-     * @return the name of the game
-     */
-    public String getGame()
-    {
-        return game;
+        super( PLAYDEVCARDREQUEST, gameName );
+        devCard = devCardType;
     }
 
     /**
@@ -96,21 +81,10 @@ public class SOCPlayDevCardRequest extends SOCMessage
      *
      * @return the command string
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(game, devCard);
-    }
-
-    /**
-     * PLAYDEVCARDREQUEST sep game sep2 devCard
-     *
-     * @param ga  the name of the game
-     * @param dc  the type of dev card
-     * @return the command string
-     */
-    public static String toCmd(String ga, int dc)
-    {
-        return PLAYDEVCARDREQUEST + sep + ga + sep2 + dc;
+        return super.toCmd( sep2 + devCard );
     }
 
     /**
@@ -144,6 +118,6 @@ public class SOCPlayDevCardRequest extends SOCMessage
      */
     public String toString()
     {
-        return "SOCPlayDevCardRequest:game=" + game + "|devCard=" + devCard;
+        return "SOCPlayDevCardRequest:game=" + getGameName() + "|devCard=" + devCard;
     }
 }

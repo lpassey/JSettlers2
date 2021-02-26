@@ -40,7 +40,7 @@ import soc.game.SOCGameOptionSet;
  * Game name may include a prefix marker if the client can't join;
  * see {@link SOCGames#MARKER_THIS_GAME_UNJOINABLE}.
  * This marker will be retained within the game name returned by
- * {@link #getGame()}.
+ * {@link #getGameName()}.
  *<P>
  * Just like {@link SOCNewGame NEWGAME}, robot clients don't need to handle
  * this message type. Bots ignore new-game announcements and are asked to

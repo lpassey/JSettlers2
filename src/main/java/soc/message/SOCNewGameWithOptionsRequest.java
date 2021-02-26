@@ -117,10 +117,11 @@ public class SOCNewGameWithOptionsRequest extends SOCMessageTemplateJoinGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
         return NEWGAMEWITHOPTIONSREQUEST + sep + nickname + sep2 + (password.isEmpty() ? EMPTYSTR : password)
-            + sep2 + host + sep2 + game + sep2 + optsStr;
+            + sep2 + host + sep2 + getGameName() + sep2 + optsStr;
     }
 
     /**

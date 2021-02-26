@@ -204,27 +204,27 @@ public class SOCSimpleAction extends SOCMessageTemplate4i
     /**
      * Create a SOCSimpleAction message.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the player acting or acted on, or -1 if this action isn't about a specific player
      * @param actType  the action type; below 1000 is general, 1000+ is specific to one kind of game
      */
-    public SOCSimpleAction(final String ga, final int pn, final int actType)
+    public SOCSimpleAction(final String gameName, final int pn, final int actType)
     {
-        this(ga, pn, actType, 0, 0);
+        this(gameName, pn, actType, 0, 0);
     }
 
     /**
      * Create a SOCSimpleAction message with a detail value.
      *
-     * @param ga  the name of the game
+     * @param gameName  the name of the game
      * @param pn  the player acting or acted on, or -1 if this action isn't about a specific player
      * @param actType  the action type; below 1000 is general, 1000+ is specific to one kind of game
      * @param value1  Optional detail value, or 0.  Use {@link #getValue1()}, not {@link #getParam1()}, to get
      *     this value from a {@code SOCSimpleAction} message.
      */
-    public SOCSimpleAction(final String ga, final int pn, final int actType, final int value1)
+    public SOCSimpleAction(final String gameName, final int pn, final int actType, final int value1)
     {
-        this(ga, pn, actType, value1, 0);
+        this(gameName, pn, actType, value1, 0);
     }
 
     /**
@@ -238,9 +238,10 @@ public class SOCSimpleAction extends SOCMessageTemplate4i
      * @param value2  Second optional detail value, or 0.  Use {@link #getValue2()}, not {@link #getParam2()}, to get
      *     this value from a {@code SOCSimpleAction} message.
      */
-    public SOCSimpleAction(final String ga, final int pn, final int actType, final int value1, final int value2)
+    public SOCSimpleAction(final String gameName, final int pn, final int actType,
+        final int value1, final int value2)
     {
-        super(SIMPLEACTION, ga, pn, actType, value1, value2);
+        super( SIMPLEACTION, gameName, pn, actType, value1, value2 );
     }
 
     /**
@@ -273,21 +274,6 @@ public class SOCSimpleAction extends SOCMessageTemplate4i
     public final int getValue2()
     {
         return p4;
-    }
-
-    /**
-     * {@link SOCMessage#SIMPLEACTION SIMPLEACTION} sep game sep2 playernumber sep2 actType sep2 value1 sep2 value2
-     *
-     * @param ga  the name of the game
-     * @param pn  the player acting or acted on, or -1 if this action isn't about a specific player
-     * @param actType  the action type; below 1000 is general, 1000+ is specific to one kind of game
-     * @param value1  First optional detail value, or 0
-     * @param value2  Second optional detail value, or 0
-     * @return the command string
-     */
-    public static String toCmd(final String ga, final int pn, final int actType, final int value1, final int value2)
-    {
-        return SOCMessageTemplate4i.toCmd(SIMPLEACTION, ga, pn, actType, value1, value2);
     }
 
     /**
@@ -339,7 +325,7 @@ public class SOCSimpleAction extends SOCMessageTemplate4i
     @Override
     public String toString()
     {
-        return "SOCSimpleAction:game=" + game
+        return "SOCSimpleAction:game=" + getGameName()
             + "|pn=" + p1 + "|actType=" + p2
             + "|v1=" + p3 + "|v2=" + p4;
     }

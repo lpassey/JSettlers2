@@ -20,10 +20,6 @@
  **/
 package soc.message;
 
-// import java.util.NoSuchElementException;
-// import java.util.StringTokenizer;
-
-
 /**
  * Marker interface for message type containing multiple field groups, each of which may have fields. <BR>
  * Format: MESSAGETYPECONST SEP fieldgroup1 SEP fieldgroup2 SEP fieldgroup3 SEP ...    <BR>
@@ -71,12 +67,6 @@ package soc.message;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
-public abstract class SOCMessageMulti extends SOCMessage
+public interface SOCMessageMulti
 {
-    private static final long serialVersionUID = 1100L;  // last structural change v1.1.00
-
-    SOCMessageMulti( int messageType )
-    {
-        super( messageType );
-    }
 }

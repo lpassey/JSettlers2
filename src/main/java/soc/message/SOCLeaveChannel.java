@@ -103,21 +103,7 @@ public class SOCLeaveChannel extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(nickname, host, channel);
-    }
-
-    /**
-     * {@code LEAVECHANNEL} sep <em>nickname</em> sep2 <em>host</em> sep2 <em>channel</em>
-     *
-     * @param nn  the nickname when sent from server;
-     *     server has always ignored this field from client, can send "-" but not blank
-     * @param hn  unused; the optional host name, or "-"
-     * @param ch  the name of chat channel
-     * @return    the command string
-     */
-    public static String toCmd(String nn, String hn, String ch)
-    {
-        return LEAVECHANNEL + sep + nn + sep2 + hn + sep2 + ch;
+        return LEAVECHANNEL + sep + nickname + sep2 + host + sep2 + channel;
     }
 
     /**

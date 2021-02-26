@@ -69,11 +69,11 @@ public class SOCJoinGame extends SOCMessageTemplateJoinGame
      *     server has always ignored this field from client after auth, can send "-" but not blank
      * @param pw  optional password, or "" if none
      * @param hn  unused; optional server host name to which client is connected, or "-" or {@link SOCMessage#EMPTYSTR}
-     * @param ga  name of the game
+     * @param gameName  name of the game
      */
-    public SOCJoinGame(String nn, String pw, String hn, String ga)
+    public SOCJoinGame(String nn, String pw, String hn, String gameName)
     {
-        super(JOINGAME, nn, pw, hn, ga);  // will set messagetype=JOINGAME
+        super(JOINGAME, nn, pw, hn, gameName);  // will set messagetype=JOINGAME
     }
 
     /**
@@ -81,29 +81,14 @@ public class SOCJoinGame extends SOCMessageTemplateJoinGame
      *
      * @return the command String
      */
+    @Override
     public String toCmd()
     {
-        return toCmd(nickname, password, host, game);
-    }
-
-    /**
-     * JOINGAME sep nickname sep2 password sep2 host sep2 game
-     *
-     * @param nn  the nickname when announced from server, or "-" from client if already auth'd to server;
-     *     server has always ignored this field from client after auth, can send "-" but not blank
-     * @param pw  the optional password, or "" if none
-     * @param hn  unused; the optional server host name to which client is connected,
-     *     or "-" or {@link SOCMessage#EMPTYSTR}
-     * @param ga  the game name
-     * @return    the command string
-     */
-    public static String toCmd(String nn, String pw, String hn, String ga)
-    {
-        String temppw = pw;
+        String temppw = password;
         if (temppw.length() == 0)
             temppw = EMPTYSTR;
 
-        return JOINGAME + sep + nn + sep2 + temppw + sep2 + hn + sep2 + ga;
+        return JOINGAME + sep + nickname + sep2 + temppw + sep2 + host + sep2 + getGameName();
     }
 
     /**
