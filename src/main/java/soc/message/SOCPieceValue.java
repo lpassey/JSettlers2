@@ -19,6 +19,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
@@ -68,28 +69,16 @@ public class SOCPieceValue extends SOCMessageTemplate4i
      */
     public static SOCPieceValue parseDataStr(final String s)
     {
-        String ga; // the game name
-        int pt;  // piece type
-        int co;  // the piece coordinate
-        int pv1; // value field 1
-        int pv2; // value field 2, or 0
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
+        ArrayList<String> parsed = parseDataStr( s, 5 );
+        if (null != parsed)
         {
-            ga = st.nextToken();
-            pt = Integer.parseInt(st.nextToken());
-            co = Integer.parseInt(st.nextToken());
-            pv1 = Integer.parseInt(st.nextToken());
-            pv2 = Integer.parseInt(st.nextToken());
+            return new SOCPieceValue( parsed.get( 0 ),   // the game name
+                Integer.parseInt( parsed.get( 1 )),      // type of piece
+                Integer.parseInt( parsed.get( 2 )),      // the piece coordinate
+                Integer.parseInt( parsed.get( 3 )),      // value field 1
+                Integer.parseInt( parsed.get( 4 )));     // value field 2, or 0
         }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCPieceValue(ga, pt, co, pv1, pv2);
+        return null;
     }
 
     /**

@@ -20,6 +20,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 
@@ -70,8 +71,8 @@ public class SOCSetTurn extends SOCMessageTemplate1i
      */
     public static SOCSetTurn parseDataStr(String s)
     {
-        SOCMessageTemplate1i result = SOCMessageTemplate1i.parseDataStr( SETTURN, s );
-
+        ArrayList<String> parsed = parseDataStr( s, 2 );
+/*
         String ga; // the game name
         int pn; // the seat number
 
@@ -86,7 +87,9 @@ public class SOCSetTurn extends SOCMessageTemplate1i
         {
             return null;
         }
-
-        return new SOCSetTurn(ga, pn);
+*/
+        if (null != parsed)
+            return new SOCSetTurn(parsed.get(0), Integer.parseInt( parsed.get(1)));
+        return null;
     }
 }

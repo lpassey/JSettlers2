@@ -20,6 +20,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 
@@ -91,6 +92,8 @@ public class SOCClearOffer extends SOCMessageForGame
      */
     public static SOCClearOffer parseDataStr(String s)
     {
+        ArrayList<String> parsed = parseDataStr( s, 2 );
+/*
         String ga; // the game name
         int pn; // the seat number
 
@@ -105,8 +108,11 @@ public class SOCClearOffer extends SOCMessageForGame
         {
             return null;
         }
-
-        return new SOCClearOffer(ga, pn);
+*/
+        if (null != parsed)
+           return new SOCClearOffer(parsed.get( 0 ), Integer.parseInt( parsed.get( 1 )));
+        else
+            return null;
     }
 
     /**

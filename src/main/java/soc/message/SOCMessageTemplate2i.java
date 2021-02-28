@@ -20,11 +20,6 @@
  **/
 package soc.message;
 
-// import java.util.StringTokenizer;
-
-
-import java.util.StringTokenizer;
-
 /**
  * Template for per-game message types with 2 integer parameters.
  * Your class javadoc should explain the meaning of param1 and param2,
@@ -89,29 +84,6 @@ public abstract class SOCMessageTemplate2i extends SOCMessageForGame
         super( messageType, gameName );
         this.p1 = p1;
         this.p2 = p2;
-    }
-
-    public static SOCMessageTemplate2i parseDataStr( int messageType, String s )
-    {
-        String ga; // the game name
-        int p1; // the seat number
-        int p2; // the resource count
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            p1 = Integer.parseInt(st.nextToken());
-            p2 = Integer.parseInt(st.nextToken());
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-        return new SOCMessageTemplate2i( messageType, ga, p1, p2)
-        {
-        };
     }
 
     /**

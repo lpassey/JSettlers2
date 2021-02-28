@@ -19,6 +19,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import soc.game.GameState;  // for javadocs only
@@ -217,28 +218,16 @@ public class SOCSimpleRequest extends SOCMessageTemplate4i
      */
     public static SOCSimpleRequest parseDataStr(final String s)
     {
-        final String ga; // the game name
-        final int pn;    // the player number
-        final int rt;    // request type code
-        final int v1;    // optional value1
-        final int v2;    // optional value2
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
+        ArrayList<String> parsed = parseDataStr( s, 5 );
+        if (null != parsed)
         {
-            ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
-            rt = Integer.parseInt(st.nextToken());
-            v1 = Integer.parseInt(st.nextToken());
-            v2 = Integer.parseInt(st.nextToken());
+            return new SOCSimpleRequest( parsed.get( 0 ),   // the game name
+                Integer.parseInt( parsed.get( 1 )),     // the player number
+                Integer.parseInt( parsed.get( 2 )),     // request type code
+                Integer.parseInt( parsed.get( 3 )),     // optional value1
+                Integer.parseInt( parsed.get( 4 )));    // optional value2
         }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCSimpleRequest(ga, pn, rt, v1, v2);
+        return null;
     }
 
     /**

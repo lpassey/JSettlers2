@@ -96,7 +96,7 @@ public class SOCGameOptionInfo extends SOCMessageTemplateMs
      */
     public SOCGameOptionInfo( final SOCGameOption op, final int cliVers, final String localDesc )
     {
-        super( GAMEOPTIONINFO, new ArrayList<String>() );
+        super( GAMEOPTIONINFO, new ArrayList<>() );
 
         // OTYPE_*
         opt = op;
@@ -280,10 +280,12 @@ public class SOCGameOptionInfo extends SOCMessageTemplateMs
     /**
      * @return the name (key) of the option, or "-" for the end-of-list marker.
      */
+/*
     public String getOptionNameKey()
     {
         return pa.get( 0 );
     }
+*/
 
     /**
      * @return the option value, or null if this

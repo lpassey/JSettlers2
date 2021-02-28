@@ -20,6 +20,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 
@@ -98,6 +99,9 @@ public class SOCChangeFace extends SOCMessageForGame
      */
     public static SOCChangeFace parseDataStr(String s)
     {
+        ArrayList<String> parsed = parseDataStr( s, 3 );
+
+        /*
         String ga; // the game name
         int pn; // the changing player number
         int id; // the id of the face image
@@ -114,8 +118,12 @@ public class SOCChangeFace extends SOCMessageForGame
         {
             return null;
         }
-
-        return new SOCChangeFace(ga, pn, id);
+*/
+        if (null != parsed)
+            return new SOCChangeFace( parsed.get( 0 ), Integer.parseInt( parsed.get( 1 )),
+                Integer.parseInt( parsed.get( 2 )));
+        else
+            return null;
     }
 
     /**
@@ -125,5 +133,4 @@ public class SOCChangeFace extends SOCMessageForGame
     {
         return "SOCChangeFace:game=" + getGameName() + "|playerNumber=" + playerNumber + "|faceId=" + faceId;
     }
-
 }

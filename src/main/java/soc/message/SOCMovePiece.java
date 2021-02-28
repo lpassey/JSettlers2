@@ -19,6 +19,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
@@ -113,28 +114,16 @@ public class SOCMovePiece extends SOCMessageTemplate4i
      */
     public static SOCMovePiece parseDataStr(String s)
     {
-        String ga; // the game name
-        int pn;    // the player number
-        int pc;    // piece type
-        int fc;    // 'from' coordinate
-        int tc;    // 'to' coordinate
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
+        ArrayList<String> parsed = parseDataStr( s, 5 );
+        if (null != parsed)
         {
-            ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
-            pc = Integer.parseInt(st.nextToken());
-            fc = Integer.parseInt(st.nextToken());
-            tc = Integer.parseInt(st.nextToken());
-
-            return new SOCMovePiece(ga, pn, pc, fc, tc);
+            return new SOCMovePiece( parsed.get( 0 ),   // the game name
+                Integer.parseInt( parsed.get( 1 ) ),     // player number
+                Integer.parseInt( parsed.get( 2 ) ),     // type of piece
+                Integer.parseInt( parsed.get( 3 ) ),     // 'from' coordinate
+                Integer.parseInt( parsed.get( 4 ) ) );    // 'to' coordinate
         }
-        catch (Exception e)
-        {
-            return null;
-        }
+        return null;
     }
 
     /**

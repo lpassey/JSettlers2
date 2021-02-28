@@ -19,6 +19,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
@@ -93,24 +94,11 @@ public class SOCResetBoardAuth extends SOCMessageTemplate2i
      */
     public static SOCResetBoardAuth parseDataStr(String s)
     {
-        String ga;   // the game name
-        int joinpn;  // the player number to join at
-        int reqpn;   // the requester player number
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            joinpn = Integer.parseInt(st.nextToken());
-            reqpn = Integer.parseInt(st.nextToken());
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCResetBoardAuth(ga, joinpn, reqpn);
+        ArrayList<String> parsed = parseDataStr( s, 3 );
+        if (null != parsed)
+            return new SOCResetBoardAuth( parsed.get( 0 ), Integer.parseInt( parsed.get( 1 )),
+                Integer.parseInt( parsed.get( 2 )));
+        return null;
     }
 
     /**

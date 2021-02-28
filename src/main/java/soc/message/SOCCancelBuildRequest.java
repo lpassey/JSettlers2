@@ -20,6 +20,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
@@ -135,6 +136,8 @@ public class SOCCancelBuildRequest extends SOCMessageForGame
      */
     public static SOCCancelBuildRequest parseDataStr(String s)
     {
+        ArrayList<String> parsed = parseDataStr( s, 2 );
+/*
         String ga; // the game name
         int pt; // the type of piece to build
 
@@ -149,8 +152,11 @@ public class SOCCancelBuildRequest extends SOCMessageForGame
         {
             return null;
         }
-
-        return new SOCCancelBuildRequest(ga, pt);
+ */
+        if (null != parsed)
+            return new SOCCancelBuildRequest( parsed.get( 0 ), Integer.parseInt( parsed.get( 1 )));
+        else
+            return null;
     }
 
     /**

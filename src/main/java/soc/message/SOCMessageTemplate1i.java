@@ -20,11 +20,6 @@
  **/
 package soc.message;
 
-// import java.util.StringTokenizer;
-
-
-import java.util.StringTokenizer;
-
 /**
  * Template for per-game message types with 1 integer parameter.
  * Your class javadoc should explain the meaning of param1,
@@ -98,52 +93,6 @@ public abstract class SOCMessageTemplate1i extends SOCMessageForGame
     {
         return super.toCmd( sep2 + p1 );
     }
-
-    public static SOCMessageTemplate1i parseDataStr( int messageType, String s )
-    {
-
-        String ga; // the game name
-        int p1; // the number of discards
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            p1 = Integer.parseInt(st.nextToken());
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-        return new SOCMessageTemplate1i( messageType, ga, p1 ) {};
-    }
-
-    /**
-     * Parse the command String into a MessageType message
-     *
-     * @param s   the String to parse
-     * @return    a LongestRoad message, or null if parsing errors
-    public static SOCLongestRoad parseDataStr(final String s)
-    {
-        String ga; // the game name
-        int pn; // the seat number
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCLongestRoad(ga, pn);
-    }
-     */
 
     /**
      * @return a human readable form of the message

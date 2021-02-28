@@ -21,10 +21,9 @@
  **/
 package soc.message;
 
-// import java.util.StringTokenizer;
-
-
 /**
+ * @apiNote UNUSED
+ *
  * Template for per-game message types with 3 string parameters.
  * The second and third parameters can be optional.
  * Your class javadoc should explain the meaning of param1, param2, and param3,
@@ -64,6 +63,7 @@ package soc.message;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
+@Deprecated
 public abstract class SOCMessageTemplate3s extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;

@@ -20,6 +20,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 
@@ -80,8 +81,8 @@ public class SOCDiscardRequest extends SOCMessageForGame
      */
     public static SOCDiscardRequest parseDataStr(String s)
     {
-        SOCMessageTemplate1i result = SOCMessageTemplate1i.parseDataStr( DISCARDREQUEST, s );
-
+        ArrayList<String> parsed = parseDataStr( s, 2 );
+/*
         String ga; // the game name
         int nd; // the number of discards
 
@@ -97,9 +98,9 @@ public class SOCDiscardRequest extends SOCMessageForGame
         {
             return null;
         }
-
-        if (null != result)
-            return new SOCDiscardRequest( result.getGameName(), result.p1 );
+*/
+        if (null != parsed)
+            return new SOCDiscardRequest( parsed.get( 0 ), Integer.parseInt( parsed.get( 1 )));
         return null;
     }
 

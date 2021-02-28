@@ -50,16 +50,6 @@ public class SOCAdminPing extends SOCMessageForGame
     }
 
     /**
-     * ADMINPING sep game
-     *
-     * @return the command String - handled by SOCMessageForGame
-     */
-//    public String toCmd()
-//    {
-//        return ADMINPING + sep + getGameName();
-//    }
-
-    /**
      * Parse the command String into a AdminPing message
      *
      * @param s   the String to parse

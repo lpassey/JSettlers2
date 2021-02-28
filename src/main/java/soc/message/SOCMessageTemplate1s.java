@@ -20,10 +20,9 @@
  **/
 package soc.message;
 
-// import java.util.StringTokenizer;
-
-
 /**
+ * @apiNote UNUSED
+ *
  * Template for per-game message types with 1 string parameter.
  * Your class javadoc should explain the meaning of param1,
  * so that you won't need to write a getter for it.
@@ -57,6 +56,7 @@ package soc.message;
  * @author Jeremy D Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.00
  */
+@Deprecated
 public abstract class SOCMessageTemplate1s extends SOCMessageForGame
 {
     private static final long serialVersionUID = 2000L;

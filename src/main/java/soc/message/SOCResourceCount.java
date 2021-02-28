@@ -20,6 +20,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 
@@ -100,27 +101,10 @@ public class SOCResourceCount extends SOCMessageForGame
      */
     public static SOCResourceCount parseDataStr(String s)
     {
-        SOCMessageTemplate2i template2i = SOCMessageTemplate2i.parseDataStr( RESOURCECOUNT, s );
-
-        String ga; // the game name
-        int pn; // the seat number
-        int rc; // the resource count
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
-            rc = Integer.parseInt(st.nextToken());
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        if (null != template2i)
-            return new SOCResourceCount(template2i.getGameName(), template2i.p1, template2i.p2);
+        ArrayList<String> parsed = parseDataStr( s, 3 );
+        if (null != parsed)
+            return new SOCResourceCount( parsed.get( 0 ), Integer.parseInt( parsed.get( 1 )),
+                Integer.parseInt( parsed.get( 2 )));
         return null;
     }
 

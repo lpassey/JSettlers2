@@ -49,7 +49,7 @@ import soc.game.SOCGameOptionSet;
  * @author Jeremy D. Monin &lt;jeremy@nand.net&gt;
  * @since 1.1.07
  */
-public class SOCNewGameWithOptions extends SOCMessageTemplate2s
+public class SOCNewGameWithOptions extends SOCMessageForGame
 {
     private static final long serialVersionUID = 1107L;  // last structural change v1.1.07
 
@@ -60,7 +60,9 @@ public class SOCNewGameWithOptions extends SOCMessageTemplate2s
      */
     public static final int VERSION_FOR_NEWGAMEWITHOPTIONS = 1107;
 
-    private int gameMinVers = -1;
+    private int gameMinVers;
+
+    private String optionsString;
 
     /**
      * Create a SOCNewGameWithOptions message at server, to send to a specific client version.
@@ -74,7 +76,7 @@ public class SOCNewGameWithOptions extends SOCMessageTemplate2s
      *            Use -2 if the client version doesn't matter.
      * @since 2.4.50
      */
-    public SOCNewGameWithOptions(final SOCGame ga, final int cliVers)
+    public SOCNewGameWithOptions( final SOCGame ga, final int cliVers )
     {
         this(ga.getName(), ga.getGameOptions(), ga.getClientVersionMinRequired(), cliVers);
     }
@@ -82,7 +84,7 @@ public class SOCNewGameWithOptions extends SOCMessageTemplate2s
     /**
      * Create a SOCNewGameWithOptions message at client.
      *
-     * @param ga  the name of the game; may have the
+     * @param gameName  the name of the game; may have the
      *            {@link SOCGames#MARKER_THIS_GAME_UNJOINABLE} prefix.
      *            minVers also designates if the game is joinable.
      * @param optstr Requested game options, in the format returned by
@@ -90,12 +92,13 @@ public class SOCNewGameWithOptions extends SOCMessageTemplate2s
      *            or null
      * @param minVers Minimum client version required for this game, or -1
      */
-    private SOCNewGameWithOptions(final String ga, final String optstr, final int minVers)
+    private SOCNewGameWithOptions( final String gameName, String optstr, int minVers )
     {
-        super(NEWGAMEWITHOPTIONS,
-              ga,
-              Integer.toString(minVers),
-              ((optstr != null) && (optstr.length() > 0) ? optstr : "-"));
+        super( NEWGAMEWITHOPTIONS, gameName );
+        if (null == optstr || (optstr.length() == 0))
+            optionsString = "-";
+        else
+            optionsString = optstr;
         gameMinVers = minVers;
     }
 
@@ -113,11 +116,10 @@ public class SOCNewGameWithOptions extends SOCMessageTemplate2s
      *            Use -2 if the client version doesn't matter, or if adjustment should not be done.
      * @since 2.0.00
      */
-    public SOCNewGameWithOptions
-        (final String ga, final SOCGameOptionSet opts, final int minVers, final int cliVers)
+    public SOCNewGameWithOptions( final String ga, final SOCGameOptionSet opts, final int minVers, final int cliVers )
     {
-        this(ga, SOCGameOption.packOptionsToString
-                ((opts != null) ? opts.getAll() : null, false, false, cliVers), minVers);
+        this( ga, SOCGameOption.packOptionsToString( (opts != null) ? opts.getAll() : null,
+            false, false, cliVers), minVers );
     }
 
     /**
@@ -128,7 +130,7 @@ public class SOCNewGameWithOptions extends SOCMessageTemplate2s
      */
     public String getOptionsString()
     {
-        return p2;
+        return optionsString;
     }
 
     /**
@@ -138,6 +140,12 @@ public class SOCNewGameWithOptions extends SOCMessageTemplate2s
     public int getMinVersion()
     {
         return gameMinVers;
+    }
+
+    @Override
+    public String toCmd()
+    {
+        return super.toCmd( sep2 + gameMinVers + sep2 + (optionsString != null ? optionsString : "" ));
     }
 
     /**
@@ -165,10 +173,20 @@ public class SOCNewGameWithOptions extends SOCMessageTemplate2s
         {
             return null;
         }
-        if (opts.equals("-"))
-            opts = null;
+        if (opts.startsWith (","))
+            opts = opts.substring( 1 );
 
         return new SOCNewGameWithOptions(ga, opts, minVers);
+    }
+
+    /**
+     * @return a human readable form of the message
+     */
+    public String toString()
+    {
+        return getClass().getSimpleName() + ":game=" + getGameName()
+            + "|param1=" + gameMinVers
+            + "|param2=" + (optionsString != null ? optionsString : "");
     }
 
     /**
@@ -178,5 +196,4 @@ public class SOCNewGameWithOptions extends SOCMessageTemplate2s
      */
     @Override
     public int getMinimumVersion() { return VERSION_FOR_NEWGAMEWITHOPTIONS; /* == 1107 */ }
-
 }

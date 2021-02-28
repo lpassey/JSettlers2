@@ -20,6 +20,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 
@@ -83,23 +84,10 @@ public class SOCDiceResult extends SOCMessageTemplate1i
      */
     public static SOCDiceResult parseDataStr(String s)
     {
-        SOCMessageTemplate1i result = SOCMessageTemplate1i.parseDataStr( DICERESULT, s );
-
-        String ga; // the game name
-        int dr; // the dice result
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            dr = Integer.parseInt(st.nextToken());
-        }
-        catch (Exception e)
-        {
+        ArrayList<String> parsed = parseDataStr( s, 2 );
+        if (null != parsed)
+            return new SOCDiceResult( parsed.get(0), Integer.parseInt( parsed.get( 1 )));
+        else
             return null;
-        }
-
-        return new SOCDiceResult(ga, dr);
     }
 }

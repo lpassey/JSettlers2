@@ -20,7 +20,7 @@
  **/
 package soc.message;
 
-import java.util.StringTokenizer;
+import java.util.ArrayList;
 
 
 /**
@@ -120,24 +120,13 @@ public class SOCAcceptOffer extends SOCMessageForGame
      */
     public static SOCAcceptOffer parseDataStr(String s)
     {
-        String ga; // the game name
-        int ac; // the number of the accepting player
-        int of; //the number of the offering player
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
+        ArrayList<String> parsed = parseDataStr( s, 3 );
+        if (null != parsed)
         {
-            ga = st.nextToken();
-            ac = Integer.parseInt(st.nextToken());
-            of = Integer.parseInt(st.nextToken());
+            return new SOCAcceptOffer( parsed.get( 0 ), Integer.parseInt( parsed.get( 1 ) ),
+                Integer.parseInt( parsed.get( 2 ) ) );
         }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCAcceptOffer(ga, ac, of);
+        return null;
     }
 
     /**

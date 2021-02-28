@@ -21,10 +21,12 @@
  **/
 package soc.message;
 
+import soc.game.ResourceSet;
 import soc.game.SOCGame;  // for javadocs only
 import soc.game.SOCResourceConstants;
 import soc.game.SOCResourceSet;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 
@@ -231,6 +233,26 @@ public class SOCPickResources extends SOCMessageForGame
      */
     public static SOCPickResources parseDataStr(String s)
     {
+        ArrayList<String> parsed = parseDataStr( s, 8 );
+        if (null != parsed)
+        {
+            int pn = parsed.size() > 6 ? Integer.parseInt(parsed.get( 6 )) : 0;
+            int reasonCode = parsed.size() > 7 ? Integer.parseInt(parsed.get( 7 )) : 0;
+
+            return new SOCPickResources(
+                parsed.get( 0 ),    // the game name
+                new SOCResourceSet(
+                    Integer.parseInt( parsed.get( 1 )),    // the amount of clay being discarded
+                    Integer.parseInt( parsed.get( 2 )),     // the amount of ore being discarded
+                    Integer.parseInt( parsed.get( 3 )),     // the amount of sheep being discarded
+                    Integer.parseInt( parsed.get( 4 )),     // the amount of wheat being discarded
+                    Integer.parseInt( parsed.get( 5 )),     // the amount of wood being discarded
+                    0 ), pn, reasonCode
+            );
+        }
+
+        return null;
+ /*
         final String ga; // the game name
         final int cl, // the amount of clay being picked
                   or, // the amount of ore being picked
@@ -243,12 +265,12 @@ public class SOCPickResources extends SOCMessageForGame
 
         try
         {
-            ga = st.nextToken();
-            cl = Integer.parseInt(st.nextToken());
-            or = Integer.parseInt(st.nextToken());
-            sh = Integer.parseInt(st.nextToken());
-            wh = Integer.parseInt(st.nextToken());
-            wo = Integer.parseInt(st.nextToken());
+            ga = st.nextToken(); 0
+            cl = Integer.parseInt(st.nextToken()); 1
+            or = Integer.parseInt(st.nextToken()); 2
+            sh = Integer.parseInt(st.nextToken()); 3
+            wh = Integer.parseInt(st.nextToken()); 4
+            wo = Integer.parseInt(st.nextToken()); 5
             if (st.hasMoreTokens())
             {
                 pn = Integer.parseInt(st.nextToken());
@@ -262,6 +284,7 @@ public class SOCPickResources extends SOCMessageForGame
 
         return new SOCPickResources
             (ga, new SOCResourceSet(cl, or, sh, wh, wo, 0), pn, reasonCode);
+*/
     }
 
     /**

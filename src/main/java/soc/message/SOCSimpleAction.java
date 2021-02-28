@@ -19,6 +19,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import soc.game.SOCBoardLarge;  // solely for javadocs
@@ -285,28 +286,16 @@ public class SOCSimpleAction extends SOCMessageTemplate4i
      */
     public static SOCSimpleAction parseDataStr(final String s)
     {
-        final String ga; // the game name
-        final int pn;    // the player number or -1
-        final int at;    // action type code
-        final int v1;    // optional value1
-        final int v2;    // optional value2
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
+        ArrayList<String> parsed = parseDataStr( s, 5 );
+        if (null != parsed)
         {
-            ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
-            at = Integer.parseInt(st.nextToken());
-            v1 = Integer.parseInt(st.nextToken());
-            v2 = Integer.parseInt(st.nextToken());
+            return new SOCSimpleAction( parsed.get( 0 ),   // the game name
+                Integer.parseInt( parsed.get( 1 )),     // the player number or -1
+                Integer.parseInt( parsed.get( 2 )),     // action type code
+                Integer.parseInt( parsed.get( 3 )),     // optional value1
+                Integer.parseInt( parsed.get( 4 )));    // optional value2
         }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCSimpleAction(ga, pn, at, v1, v2);
+        return null;
     }
 
     /**

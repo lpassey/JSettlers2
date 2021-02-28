@@ -19,9 +19,6 @@
  **/
 package soc.message;
 
-// import java.util.StringTokenizer;
-
-
 /**
  * Template for per-game message types with 3 integer parameters.
  * Your class javadoc should explain the meaning of param1, param2, and param3,

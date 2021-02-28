@@ -20,6 +20,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 
@@ -136,6 +137,8 @@ public class SOCChoosePlayer extends SOCMessageForGame
      */
     public static SOCChoosePlayer parseDataStr(String s)
     {
+        ArrayList<String> parsed = parseDataStr( s, 2 );
+/*
         String ga; // the game name
         int ch; // the number of the chosen player
 
@@ -150,8 +153,11 @@ public class SOCChoosePlayer extends SOCMessageForGame
         {
             return null;
         }
-
-        return new SOCChoosePlayer(ga, ch);
+*/
+        if (null != parsed)
+            return new SOCChoosePlayer(parsed.get( 0 ), Integer.parseInt( parsed.get( 1 )));
+        else
+            return null;
     }
 
     /**

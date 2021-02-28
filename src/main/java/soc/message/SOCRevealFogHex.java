@@ -19,6 +19,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import soc.game.SOCBoard;  // for javadocs only
@@ -64,10 +65,19 @@ public class SOCRevealFogHex extends SOCMessageTemplate3i
      */
     public static SOCRevealFogHex parseDataStr(String s)
     {
+        ArrayList<String> parsed = parseDataStr( s, 4 );
+        if (null != parsed)
+            return new SOCRevealFogHex( parsed.get( 0 ), // the game name
+                Integer.parseInt( parsed.get( 1 )),     // hex coordinate
+                Integer.parseInt( parsed.get( 2 )),     // hex type
+                Integer.parseInt( parsed.get( 3 )));    // dice number
+        return null;
+/*
+
         String ga; // game name
-        int hc;    // hex coordinate
+        int hc;
         int ht;    // hex type
-        int dn;    // dice number
+        int dn;
 
         StringTokenizer st = new StringTokenizer(s, sep2);
 
@@ -84,6 +94,7 @@ public class SOCRevealFogHex extends SOCMessageTemplate3i
         }
 
         return new SOCRevealFogHex(ga, hc, ht, dn);
+*/
     }
 
     /**

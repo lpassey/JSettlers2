@@ -20,6 +20,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 
@@ -81,6 +82,8 @@ public class SOCDevCardCount extends SOCMessageForGame
      */
     public static SOCDevCardCount parseDataStr(String s)
     {
+        ArrayList<String> parsed = parseDataStr( s, 2 );
+/*
         String ga; // the game name
         int nd; // the number of dev cards
 
@@ -95,8 +98,11 @@ public class SOCDevCardCount extends SOCMessageForGame
         {
             return null;
         }
-
-        return new SOCDevCardCount(ga, nd);
+*/
+        if (null != parsed)
+            return new SOCDevCardCount( parsed.get( 0 ), Integer.parseInt( parsed.get( 1 )));
+        else
+            return null;
     }
 
     /**

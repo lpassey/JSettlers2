@@ -19,6 +19,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
@@ -79,24 +80,11 @@ public class SOCResetBoardVote extends SOCMessageTemplate2i
      */
     public static SOCResetBoardVote parseDataStr(String s)
     {
-        String ga; // the game name
-        int pn;    // the voter's player number
-        int vy;    // vote, 1 or 0
-
-        StringTokenizer st = new StringTokenizer(s, sep2);
-
-        try
-        {
-            ga = st.nextToken();
-            pn = Integer.parseInt(st.nextToken());
-            vy = Integer.parseInt(st.nextToken());
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-
-        return new SOCResetBoardVote(ga, pn, vy != 0);
+        ArrayList<String> parsed = parseDataStr( s, 3 );
+        if (null != parsed)
+            return new SOCResetBoardVote( parsed.get( 0 ), Integer.parseInt( parsed.get( 1 )),
+                Integer.parseInt( parsed.get( 2 )) != 0);
+        return null;
     }
 
     /**

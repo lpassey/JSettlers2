@@ -1088,6 +1088,25 @@ public abstract class SOCMessage implements Serializable, Cloneable
         }
     }
 
+    protected static ArrayList<String> parseDataStr( String dataStr, int numTokens )
+    {
+        ArrayList<String> result = new ArrayList<>( numTokens );
+
+        StringTokenizer st = new StringTokenizer(dataStr, sep2);
+
+        while (0 < numTokens && st.hasMoreElements()) try
+        {
+            result.add( st.nextToken());
+            --numTokens;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+
+        return result;
+    }
+
     /**
      * Map of renamed classes for backwards compatibility in {@link #parseMsgStr(String)}:
      * Key is old name of message type, value is new name (SOCMessage subclass).
@@ -1357,5 +1376,4 @@ public abstract class SOCMessage implements Serializable, Cloneable
 
         return Arrays.asList( params );
     }
-
 }

@@ -19,6 +19,7 @@
  **/
 package soc.message;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import soc.game.SOCPlayingPiece;
@@ -79,10 +80,19 @@ public class SOCRemovePiece extends SOCMessageTemplate3i
      */
     public static SOCRemovePiece parseDataStr(String s)
     {
-        final String ga; // the game name
-        final int pn; // player number
-        final int pt; // type of piece
-        final int co; // coordinates
+        ArrayList<String> parsed = parseDataStr( s, 4 );
+        if (null != parsed)
+            return new SOCRemovePiece( parsed.get( 0 ), // the game name
+                Integer.parseInt( parsed.get( 1 )),     // player number
+                Integer.parseInt( parsed.get( 2 )),     // type of piece
+                Integer.parseInt( parsed.get( 3 )));    // coordinates
+        return null;
+
+/*
+        final String ga;
+        final int pn;
+        final int pt;
+        final int co;
 
         StringTokenizer st = new StringTokenizer(s, sep2);
 
@@ -99,6 +109,7 @@ public class SOCRemovePiece extends SOCMessageTemplate3i
         {
             return null;
         }
+*/
     }
 
     /**

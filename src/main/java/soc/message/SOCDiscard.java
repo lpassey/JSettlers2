@@ -24,6 +24,7 @@ package soc.message;
 import soc.game.SOCResourceConstants;
 import soc.game.SOCResourceSet;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 
@@ -118,13 +119,28 @@ public class SOCDiscard extends SOCMessageForGame
      */
     public static SOCDiscard parseDataStr(String s)
     {
+        ArrayList<String> parsed = parseDataStr( s, 7 );
+        if (null != parsed)
+        {
+            return new SOCDiscard(
+                parsed.get( 0 ),    // the game name
+                Integer.parseInt( parsed.get( 1 ) ),    // the amount of clay being discarded
+                Integer.parseInt( parsed.get( 2 )),     // the amount of ore being discarded
+                Integer.parseInt( parsed.get( 3 )),     // the amount of sheep being discarded
+                Integer.parseInt( parsed.get( 4 )),     // the amount of wheat being discarded
+                Integer.parseInt( parsed.get( 5 )),     // the amount of wood being discarded
+                Integer.parseInt( parsed.get( 6 ))      // the amount of unknown resources being discarded
+            );
+        }
+        return null;
+/*
         String ga; // the game name
-        int cl; // the amount of clay being discarded
-        int or; // the amount of ore being discarded
-        int sh; // the amount of sheep being discarded
-        int wh; // the amount of wheat being discarded
-        int wo; // the amount of wood being discarded
-        int uk; // the amount of unknown resources being discarded
+        int cl;
+        int or;
+        int sh;
+        int wh;
+        int wo;
+        int uk;
 
         StringTokenizer st = new StringTokenizer(s, sep2);
 
@@ -144,6 +160,7 @@ public class SOCDiscard extends SOCMessageForGame
         }
 
         return new SOCDiscard(ga, cl, or, sh, wh, wo, uk);
+ */
     }
 
     /**

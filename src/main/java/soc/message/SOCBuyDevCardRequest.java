@@ -84,16 +84,6 @@ public class SOCBuyDevCardRequest extends SOCMessageForGame
     }
 
     /**
-     * BUYDEVCARDREQUEST sep game
-     *
-     * @return the command String -- handled by SOCMessageForGame
-     */
-//    public String toCmd()
-//    {
-//        return BUYDEVCARDREQUEST + sep + getGameName();
-//    }
-
-    /**
      * Parse the command String into a BuyDevCardRequest message
      *
      * @param s   the String to parse
