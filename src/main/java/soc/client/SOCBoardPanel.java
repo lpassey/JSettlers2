@@ -58,16 +58,16 @@ import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
-import java.awt.Transparency;
+import java.awt.Transparency;;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
+
 import java.awt.image.VolatileImage;
-import java.io.IOException;
-import java.util.Arrays;
+import java.io.IOException;import java.util.Arrays;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -137,7 +137,7 @@ import static soc.game.GameState.*;
  *  <LI> Layout manager calls {@code setSize(..)} or {@code setBounds(..)},
  *       which calls {@link #rescaleBoard(int, int)}
  *  <LI> {@link #rescaleBoard(int, int)} scales hex images, calls
- *       {@link #renderBorderedHex(Image, Color)} and {@link #renderPortImages()}
+ *       {@link #renderBorderedHex(BufferedImage, Color)} and {@link #renderPortImages()}
  *       into image buffers to use for redrawing the board
  *  <LI> {@link #paintComponent(Graphics)} calls {@link #drawBoard(Graphics)}
  *  <LI> First call to {@code drawBoard(..)} calls {@link #drawBoardEmpty(Graphics)} which renders into a buffer image
@@ -440,7 +440,7 @@ import static soc.game.GameState.*;
      *<P>
      * First index is the shape number, second index is coordinates within the shape, clockwise from tip.
      * Shape numbers are 0-5, for the 6 facing directions numbered the same way as
-     * {@link SOCBoard#getAdjacentNodeToHex(int)}: clockwise from top (northern point of hex),
+     * {@link SOCBoard#getAdjacentNodeToHex(int, int)}: clockwise from top (northern point of hex),
      * 0 is north, 1 is northeast, etc, 5 is northwest.
      * @see #HEX_PORT_CIRCLE_DIA
      * @since 1.1.20
@@ -520,7 +520,7 @@ import static soc.game.GameState.*;
 
     /**
      * Player arrow color when game is over,
-     * and during {@link SOCGame#SPECIAL_BUILDING} phase of the 6-player game.
+     * and during {@link  GameState#SPECIAL_BUILDING} phase of the 6-player game.
      *<P>
      * The game-over color was added in 1.1.09.  Previously, {@link #ARROW_COLOR} was used.
      * @since 1.1.08
@@ -718,7 +718,7 @@ import static soc.game.GameState.*;
     private final static int PLACE_PIRATE = 18;
 
     /**
-     * In scenario option {@link SOCGameOptionSet#K_SC_FTRI _SC_FTRI} game state {@link SOCGame#PLACING_INV_ITEM},
+     * In scenario option {@link SOCGameOptionSet#K_SC_FTRI _SC_FTRI} game state {@link GameState#PLACING_INV_ITEM},
      * boardpanel mode to place a port next to player's coastal settlement/city.
      * @since 2.0.00
      */
@@ -728,14 +728,14 @@ import static soc.game.GameState.*;
 
     /**
      * Player's turn is starting; waiting for current player to take action.
-     * (State {@link SOCGame#ROLL_OR_CARD})
+     * (State {@link GameState#ROLL_OR_CARD})
      * @since 1.1.03
      */
     private final static int TURN_STARTING = 97;
 
     /**
      * Game is still forming, players are sitting down.
-     * (State {@link SOCGame#READY} or {@link SOCGame#NEW})
+     * (State {@link GameState#READY} or {@link GameState#NEW})
      * @since 1.1.00
      */
     private final static int GAME_FORMING = 98;
@@ -2770,8 +2770,7 @@ import static soc.game.GameState.*;
      * Set the board fields to a new size, and rescale graphics if needed.
      * Does not call repaint or setSize.
      * Updates {@link #isScaledOrRotated}, {@link #scaledPanelW}, {@link #panelMarginX}, and other fields.
-     * Calls {@link #rescaleCoordinateArrays()}, {@link #renderBorderedHex(Image, Color)},
-     * and {@link #renderPortImages()}.
+     * Calls {@link #renderBorderedHex(BufferedImage, Color)} and {@link #renderPortImages()}.
      *
      * @param newW  New width in pixels, no less than {@link #minSize}.width
      * @param newH  New height in pixels, no less than {@link #minSize}.height
@@ -3273,6 +3272,7 @@ import static soc.game.GameState.*;
             (w, h, Transparency.BITMASK);
             // use PI instead of this.getGraphicsConfiguration(),
             // which is null during early call by PI constructor through initUIElements/rescaleBoard
+
         Graphics2D g = bufi.createGraphics();
         g.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
         g.drawImage( src, 0, 0, w, h, null );
@@ -3389,7 +3389,8 @@ import static soc.game.GameState.*;
                     ibuf = gconf.createCompatibleVolatileImage
                         (scaledPanelW, scaledPanelH, Transparency.OPAQUE);
                 }
-            } while (ibuf.contentsLost());
+            }
+            while (ibuf.contentsLost());
             buffer = ibuf;
 
             // Try-catch: Because of message timing during placement,
@@ -3402,15 +3403,16 @@ import static soc.game.GameState.*;
                 Graphics2D graf2D = ibuf.createGraphics();
                 drawBoard(graf2D);  // Do the actual drawing
                 graf2D.dispose();
-            } catch (ConcurrentModificationException cme) {
+            }
+            catch (ConcurrentModificationException cme)
+            {
                 repaint();  // try again soon
                 return;
             }
 
             if (hoverTip.isVisible())
-                hoverTip.paint(ibuf.getGraphics());
-            g.drawImage(ibuf, 0, 0, this);
-
+                hoverTip.paint( ibuf.getGraphics() );
+            g.drawImage( ibuf, 0, 0, this );
         }
         catch( Throwable th )
         {
@@ -4337,7 +4339,7 @@ import static soc.game.GameState.*;
      *             If &lt; 0, no arrow is drawn.
      * @param diceResult Roll result to show, if rolled, from {@link SOCGame#getCurrentDice()}.
      *                   To show, {@code diceResult} must be at least 2
-     *                   and gameState not {@link SOCGame#ROLL_OR_CARD}.
+     *                   and gameState not {@link GameState#ROLL_OR_CARD}.
      */
     private void drawArrow( Graphics g, int pnum, int diceResult )
     {
@@ -4580,7 +4582,7 @@ import static soc.game.GameState.*;
             return;  // <--- Too early: board not created & sent from server ---
 
         if (portHexCoords == null)
-            portHexCoords = new HashSet<>();
+            portHexCoords = new HashSet<Integer>();
         else
             portHexCoords.clear();  // in case ports have changed (SC_FTRI does that)
 
@@ -4631,8 +4633,8 @@ import static soc.game.GameState.*;
         final GraphicsConfiguration gconf = playerInterface.getGraphicsConfiguration();
             // use PI instead of this.getGraphicsConfiguration(), which is null early in setup
         VolatileImage ebb = emptyBoardBuffer;
-            // Local copy, in case field becomes null in another thread
-            // during drawBoardEmpty or other calls. (this has happened)
+        // Local copy, in case field becomes null in another thread
+        // during drawBoardEmpty or other calls. (this has happened)
 
         do
         {
@@ -4642,20 +4644,23 @@ import static soc.game.GameState.*;
                 if ((ebb == null) || (ebbValidStatus == VolatileImage.IMAGE_INCOMPATIBLE))
                 {
                     ebb = gconf.createCompatibleVolatileImage(scaledPanelW, scaledPanelH, Transparency.OPAQUE);
-                    emptyBoardBuffer = ebb;
+                emptyBoardBuffer = ebb;
                 }
 
                 drawnEmptyAt = System.currentTimeMillis();
-                scaledMissedImage = false;  // drawBoardEmpty, drawHex will set this flag if missed
+                scaledMissedImage = false;    // drawBoardEmpty, drawHex will set this flag if missed
                 Graphics2D ebbG = ebb.createGraphics();
                 drawBoardEmpty(ebbG);
                 ebbG.dispose();
 
                 if (scaledMissedImage && (scaledAt != 0)
                     && (RESCALE_MAX_RETRY_MS < (drawnEmptyAt - scaledAt)))  // eventually give up scaling it
+                {
                     scaledMissedImage = false;
+                }
             }
-        } while (ebb.contentsLost());
+        }
+        while (ebb.contentsLost());
 
         // draw ebb from local variable, not emptyBoardBuffer field, to avoid occasional NPE
         g.setPaintMode();
@@ -7755,7 +7760,7 @@ import static soc.game.GameState.*;
      * If those hexes are loaded, calls {@link #checkNonstandardHexesSize(Image[], boolean)}.
      *
      * @param c  Our component, or any class packaged in the same jar,
-     *     to load image resource files with getResource
+     *      to load image resource files with getResource
      * @param wantsRotated  True for the 6-player non-sea board
      *          (v2 encoding {@link SOCBoard#BOARD_ENCODING_6PLAYER}), false otherwise.
      *          The large board (v3 encoding)'s fog-hex and gold-hex images have no rotated version,
@@ -7767,7 +7772,7 @@ import static soc.game.GameState.*;
             return;
 
         final Class<?> clazz = c.getClass();
-        int setIdx = UserPreferences.getPref(SOCPlayerClient.PREF_HEX_GRAPHICS_SET, 0);
+        int setIdx = UserPreferences.getPref( SOCPlayerClient.PREF_HEX_GRAPHICS_SET, 0 );
         if ((setIdx < 0) || (setIdx >= HEX_GRAPHICS_SET_SUBDIRS.length))
             setIdx = 0;
         final String hexSetDirBase = IMAGEDIR + "/" + HEX_GRAPHICS_SET_SUBDIRS[setIdx];
@@ -7775,14 +7780,15 @@ import static soc.game.GameState.*;
         if (hexes == null)
         {
             hexesGraphicsSetIndex = setIdx;
-
             hexes = new BufferedImage[10];  // water, desert, 5 resources, gold, fog, 3:1 port
 
             try
             {
                 loadHexesAndImages(hexes, hexSetDirBase, clazz, false);
-            } catch (IOException e) {
-                System.out.println("Error loading board images");
+            }
+            catch (IOException e)
+            {
+                System.out.println( "Error loading board images" );
             }
 
             hexesMustAlwaysScale = checkNonstandardHexesSize( hexes, false );
@@ -7795,8 +7801,10 @@ import static soc.game.GameState.*;
             try
             {
                 loadHexesAndImages(rotatHexes, hexSetDirBase + "/rotat", clazz, true);
-            } catch (IOException e) {
-                System.out.println("Error loading rotated board images");
+            }
+            catch (IOException e)
+            {
+                System.out.println( "Error loading rotated board images" );
             }
 
             rotatHexesMustAlwaysScale = checkNonstandardHexesSize( rotatHexes, true );
@@ -7826,9 +7834,8 @@ import static soc.game.GameState.*;
      * @see #renderPortImages()
      * @since 1.1.08
      */
-    private static final void loadHexesAndImages
-        (final BufferedImage[] newHexes, final String imageDir, final Class<?> clazz,
-         final boolean wantsRotated)
+    private static void loadHexesAndImages( final BufferedImage[] newHexes, final String imageDir,
+                                            final Class<?> clazz, final boolean wantsRotated )
         throws IOException
     {
         final int numHexImage;
@@ -7972,7 +7979,7 @@ import static soc.game.GameState.*;
             {
                 setName( "delayedRepaint" );
             }
-            catch( Throwable th )
+            catch( Throwable ignored )
             {
             }
 
@@ -7980,7 +7987,7 @@ import static soc.game.GameState.*;
             {
                 Thread.sleep( RESCALE_RETRY_DELAY_MS );
             }
-            catch( InterruptedException e )
+            catch( InterruptedException ignore )
             {
             }
             finally
@@ -8619,7 +8626,7 @@ import static soc.game.GameState.*;
                                         {
                                             nlDesc = strings.get( "board.nodelist._SC_WOND.N" + i );
                                         }
-                                        catch( MissingResourceException e )
+                                        catch( MissingResourceException ignore )
                                         {
                                         }
 
@@ -8629,7 +8636,7 @@ import static soc.game.GameState.*;
                                             {
                                                 nlDesc = strings.get( "board.nodelist.no_desc", i );
                                             }
-                                            catch( MissingResourceException e )
+                                            catch( MissingResourceException ignore )
                                             {
                                             }
                                         }

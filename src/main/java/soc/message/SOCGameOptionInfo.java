@@ -96,7 +96,7 @@ public class SOCGameOptionInfo extends SOCMessageTemplateMs
      */
     public SOCGameOptionInfo( final SOCGameOption op, final int cliVers, final String localDesc )
     {
-        super( GAMEOPTIONINFO, new ArrayList<>() );
+        super( GAMEOPTIONINFO, new ArrayList<String>() );
 
         // OTYPE_*
         opt = op;
