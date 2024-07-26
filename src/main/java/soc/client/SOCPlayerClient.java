@@ -873,7 +873,7 @@ public class SOCPlayerClient
 
         if (ga.getGameState() != SOCGame.OVER)
         {
-            System.err.println("L4044: pcli.updateGameEndStats called at state " + ga.getGameState());
+            System.err.println("L4044: mainDisplay.updateGameEndStats called at state " + ga.getGameState());
             return;  // Should not have been sent; game is not yet over.
         }
 

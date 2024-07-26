@@ -128,6 +128,32 @@ jar.enabled = false       // instead build serverJar, fullJar, i18neditorJar
 distZip.enabled = false   // dist builds distFullZip
 distTar.enabled = false   // dist builds distSrcTar, distFullTar
 
+task clientJar(type: Jar) {
+    archiveBaseName = 'JSettlersClient'
+    archiveVersion = project.version
+    manifest {
+        attributes(
+                'Main-Class': 'soc.client.SOCPlayerClient',
+                'Implementation-Version': project.version,
+                'Build-Revision': project.git_revision,
+//                'Class-Path': 'gson.jar',  // in case client launches a server, or another project uses fullJar
+        )
+    }
+    from(sourceSets.main.output) {
+        include "net/nand/util/i18n/mgr/**"
+        include "soc/baseclient/**"
+        include "soc/client/**"
+        include "soc/debug/**"
+        include "soc/disableDebug/**"
+//        include "soc/game/**"
+        include "soc/message/**"
+        include "soc/util/**"
+    }
+    from(sourceSets.main.resources) {
+        include "resources/**"
+    }
+}
+
 task serverJar(type: Jar) {
     archiveBaseName = 'JSettlersServer'
     archiveVersion = project.version
@@ -279,8 +305,7 @@ task distCheckSrcDirty {
             if (! stdout.isEmpty())
             {
                 println "Untracked files in repo: Commit, move, or .gitignore these:" + System.properties['line.separator'] + stdout
-                throw new BuildCancelledException
-                    ("Untracked files in repo: Commit, move, or .gitignore")
+                throw new BuildCancelledException("Untracked files in repo: Commit, move, or .gitignore")
             }
         }
     }

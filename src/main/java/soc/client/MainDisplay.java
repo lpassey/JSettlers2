@@ -99,8 +99,8 @@ public interface MainDisplay
      * @throws IllegalStateException  if already connected to a server
      * @since 1.1.00
      */
-    void startLocalTCPServer(final int tport)
-        throws IllegalArgumentException, IllegalStateException;
+//    void startLocalTCPServer(final int tport)
+//        throws IllegalArgumentException, IllegalStateException;
 
     /**
      * Read and validate username and password GUI fields into client's data fields.
@@ -153,7 +153,7 @@ public interface MainDisplay
      * Assumes the dialog panels are all initialized.
      * @since 1.1.00
      */
-    void clickPracticeButton();
+//    void clickPracticeButton();
 
     void practiceGameStarting();
 
@@ -409,4 +409,7 @@ public interface MainDisplay
      */
     Timer getEventTimer();
 
+    void resetGameOptionDefaultsTimeoutTask();
+
+    SOCPlayerInterface findAnyActiveGame(boolean fromPracticeServer);
 }

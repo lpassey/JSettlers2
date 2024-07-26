@@ -5227,7 +5227,7 @@ public class SOCPlayerInterface extends JFrame
 
         /**
          * React to the Move Robber button.
-         * Call {@link GameMessageSender#choosePlayer(SOCGame, int) pcli.choosePlayer(CHOICE_MOVE_ROBBER)}.
+         * Call {@link GameMessageSender#choosePlayer(SOCGame, int) mainDisplay.choosePlayer(CHOICE_MOVE_ROBBER)}.
          */
         @Override
         public void button1Chosen()
@@ -5237,7 +5237,7 @@ public class SOCPlayerInterface extends JFrame
 
         /**
          * React to the Move Pirate button.
-         * Call {@link GameMessageSender#choosePlayer(SOCGame, int) pcli.choosePlayer(CHOICE_MOVE_PIRATE)}.
+         * Call {@link GameMessageSender#choosePlayer(SOCGame, int) mainDisplay.choosePlayer(CHOICE_MOVE_PIRATE)}.
          */
         @Override
         public void button2Chosen()
@@ -5303,7 +5303,7 @@ public class SOCPlayerInterface extends JFrame
 
         /**
          * React to the Steal Cloth button.
-         * Call {@link GameMessageSender#choosePlayer(SOCGame, int) pcli.choosePlayer(-(vpn + 1))}.
+         * Call {@link GameMessageSender#choosePlayer(SOCGame, int) mainDisplay.choosePlayer(-(vpn + 1))}.
          */
         @Override
         public void button1Chosen()
@@ -5313,7 +5313,7 @@ public class SOCPlayerInterface extends JFrame
 
         /**
          * React to the Steal Resource button.
-         * Call {@link GameMessageSender#choosePlayer(SOCGame, int) pcli.choosePlayer(vpn)}.
+         * Call {@link GameMessageSender#choosePlayer(SOCGame, int) mainDisplay.choosePlayer(vpn)}.
          */
         @Override
         public void button2Chosen()

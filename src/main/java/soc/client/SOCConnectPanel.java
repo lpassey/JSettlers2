@@ -1,4 +1,4 @@
-/**
+/* *
  * Java Settlers - An online multiplayer version of the game Settlers of Catan
  * Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
  * This file copyright (C) 2008-2009,2012-2013,2017,2019-2022,2024 Jeremy D Monin <jeremy@nand.net>
@@ -21,33 +21,15 @@
  **/
 package soc.client;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.LayoutManager;
+import soc.util.SOCStringManager;
+import soc.util.Version;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.SocketTimeoutException;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-
-import soc.util.SOCStringManager;
-import soc.util.Version;
-
 
 /**
  * This is the dialog panel for standalone client startup (JAR or otherwise)
@@ -58,38 +40,24 @@ import soc.util.Version;
  * @since 1.1.00
  */
 @SuppressWarnings("serial")
-/*package*/ class SOCConnectOrPracticePanel extends JPanel
+/*package*/ class SOCConnectPanel extends JPanel
     implements ActionListener, KeyListener
 {
-    private final SwingMainDisplay md;
+    private final MainDisplay md;
     private final ClientNetwork clientNetwork;
 
     /** Welcome message, or error after disconnect */
     private JLabel topText;
 
-    /** "Practice" */
-    private JButton prac;
+     /** "Connect to server" */
+//    private JButton connserv;
 
-    /** "Connect to server" */
-    private JButton connserv;
-    /** Contains GUI elements for details in {@link #connserv} */
+    /** Contains GUI elements for details in {@link #conn_connect} */
     private JPanel panel_conn;
     private JTextField conn_servhost, conn_servport, conn_user;
     private JPasswordField conn_pass;
-    private JButton conn_connect, conn_cancel;
-
-    /** "Start a server" */
-    private JButton runserv;
-    /** Contains GUI elements for details in {@link #runserv}, or null if can't run. */
-    private JPanel panel_run;
-    private JTextField run_servport;
-    private JButton run_startserv, run_cancel;
-
-    /**
-     * Do we have security to run a TCP server?
-     * Determined by calling {@link #checkCanLaunchServer()}.
-     */
-    private final boolean canLaunchServer;
+    private JButton conn_connect;
+    //, conn_cancel;
 
     private static final Color HEADER_LABEL_BG = new Color(220,255,220);
     private static final Color HEADER_LABEL_FG = new Color( 50, 80, 50);
@@ -105,14 +73,13 @@ import soc.util.Version;
      *
      * @param md      Player client main display
      */
-    public SOCConnectOrPracticePanel(final SwingMainDisplay md)
+    public SOCConnectPanel( final MainDisplay md)
     {
         super(new BorderLayout());
 
         this.md = md;
         SOCPlayerClient cli = md.getClient();
         clientNetwork = cli.getNet();
-        canLaunchServer = checkCanLaunchServer();
 
         // same Frame setup as in SOCPlayerClient.main
         final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors(false, false);
@@ -124,66 +91,6 @@ import soc.util.Version;
 
         addKeyListener(this);
         initInterfaceElements(colors != null ? colors[1] : null);  // SwingMainDisplay.MISC_LABEL_FG_OFF_WHITE
-    }
-
-    /**
-     * Check with the {@link java.lang.SecurityManager} about being a tcp server.
-     * Port {@link ClientNetwork#SOC_PORT_DEFAULT} and some subsequent ports are checked (to be above 1024).
-     * @return True if we have perms to start a server and listen on a port
-     */
-    public static boolean checkCanLaunchServer()
-    {
-        try
-        {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm == null)
-                return true;
-            try
-            {
-                sm.checkAccept("localhost", ClientNetwork.SOC_PORT_DEFAULT);
-                sm.checkListen(ClientNetwork.SOC_PORT_DEFAULT);
-            }
-            catch (SecurityException se)
-            {
-                return false;
-            }
-        }
-        catch (SecurityException se)
-        {
-            // can't read security mgr; check it the hard way
-            int port = ClientNetwork.SOC_PORT_DEFAULT;
-            for (int i = 0; i <= 100; ++i)
-            {
-                ServerSocket ss = null;
-                try
-                {
-                    ss = new ServerSocket(i + port);
-                    ss.setReuseAddress(true);
-                    ss.setSoTimeout(11);  // very short (11 ms)
-                    ss.accept();  // will time out soon
-                    ss.close();
-                }
-                catch (SocketTimeoutException ste)
-                {
-                    // Allowed to bind
-                    try
-                    {
-                        ss.close();
-                    }
-                    catch (IOException ignore) {}
-                    return true;
-                }
-                catch (IOException ie)
-                {
-                    // maybe already bound: ok, try next port in loop
-                }
-                catch (SecurityException se2)
-                {
-                    return false;  // Not allowed to have a server socket
-                }
-            }
-        }
-        return false;
     }
 
     /**
@@ -210,7 +117,7 @@ import soc.util.Version;
         /**
          * JButton.setBackground(null) is needed on win32 to avoid gray corners
          */
-        final boolean shouldClearButtonBGs = (! isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
+//        final boolean shouldClearButtonBGs = (! isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
 
         // In center of bpContainer, bp holds the narrow UI stack:
         final JPanel bp = new BoxedJPanel();
@@ -242,56 +149,14 @@ import soc.util.Version;
         gbl.setConstraints(topText, gbc);
         modeButtonsContainer.add(topText);
 
-        /**
-         * Interface setup: Connect to a Server
-         */
-
-        connserv = new JButton(strings.get("pcli.cpp.connecttoaserv"));  // "Connect to a Server"
-        if (shouldClearButtonBGs)
-            connserv.setBackground(null);
-        gbl.setConstraints(connserv, gbc);
-        modeButtonsContainer.add(connserv);
-        connserv.addActionListener(this);
-
-        /**
-         * Interface setup: Practice
-         */
-        prac = new JButton(strings.get("pcli.main.practice"));  // "Practice" - same as SOCPlayerClient button
-        if (shouldClearButtonBGs)
-            prac.setBackground(null);
-        gbl.setConstraints(prac, gbc);
-        modeButtonsContainer.add(prac);
-        prac.addActionListener(this);
-
-        /**
-         * Interface setup: Start a Server
-         */
-        runserv = new JButton(strings.get("pcli.cpp.startserv"));  // "Start a Server"
-        if (shouldClearButtonBGs)
-            runserv.setBackground(null);
-        gbl.setConstraints(runserv, gbc);
-        if (! canLaunchServer)
-            runserv.setEnabled(false);
-        modeButtonsContainer.add(runserv);
-
         bp.add(modeButtonsContainer);
 
         /**
          * Interface setup: sub-panels (not initially visible)
          */
         panel_conn = initInterface_conn();  // panel_conn setup
-        panel_conn.setVisible(false);
+        panel_conn.setVisible( true );
         bp.add (panel_conn);
-
-        if (canLaunchServer)
-        {
-            runserv.addActionListener(this);
-            panel_run = initInterface_run();  // panel_run setup
-            panel_run.setVisible(false);
-            bp.add (panel_run);
-        } else {
-            panel_run = null;
-        }
 
         // Final assembly setup
         bpContainer.add(Box.createHorizontalGlue());
@@ -404,122 +269,15 @@ import soc.util.Version;
         gbl.setConstraints(conn_connect, gbc);
         pconn.add(conn_connect);
 
-        conn_cancel = new JButton(strings.get("base.cancel"));
-        if (shouldClearButtonBGs)
-            conn_cancel.setBackground(null);
-        conn_cancel.addActionListener(this);
-        conn_cancel.addKeyListener(this);
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(conn_cancel, gbc);  // still with weightx = 0.5
-        pconn.add(conn_cancel);
-
         return pconn;
     }
 
-    /** panel_run setup */
-    private JPanel initInterface_run()
-    {
-        final boolean isOSHighContrast = SwingMainDisplay.isOSColorHighContrast();
-        final boolean shouldClearButtonBGs = (! isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
-        GridBagLayout gbl = new GridBagLayout();
-        GridBagConstraints gbc = new GridBagConstraints();
-        JPanel prun = new BoxedJPanel(gbl);
-
-        if (! isOSHighContrast)
-        {
-            prun.setBackground(null);  // inherit from parent
-            prun.setForeground(null);
-        }
-
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        JLabel L;
-
-        // heading row
-        L = new JLabel(strings.get("pcli.cpp.startserv"), SwingConstants.CENTER);  // "Start a Server"
-        if (! isOSHighContrast)
-        {
-            L.setBackground(HEADER_LABEL_BG);
-            L.setForeground(HEADER_LABEL_FG);
-            L.setOpaque(true);
-        }
-        gbc.gridwidth = 4;
-        gbc.weightx = 1;
-        gbc.ipadx = 4;
-        gbc.ipady = 4;
-        gbl.setConstraints(L, gbc);
-        prun.add(L);
-        gbc.ipadx = 0;
-        gbc.ipady = 0;
-
-        L = new JLabel(" ");  // Spacing for rest of form's rows
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.weightx = 0;
-        gbl.setConstraints(L, gbc);
-        prun.add(L);
-
-        // blank row
-        L = new JLabel();
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(L, gbc);
-        prun.add(L);
-
-        // Port#
-        L = new JLabel(strings.get("pcli.cpp.port"));
-        gbc.gridwidth = 1;
-        gbl.setConstraints(L, gbc);
-        prun.add(L);
-        run_servport = new JTextField(10);
-        {
-            String svp = Integer.toString(clientNetwork.getPort());
-            run_servport.setText(svp);
-            run_servport.setSelectionStart(0);
-            run_servport.setSelectionEnd(svp.length());
-        }
-        gbc.gridwidth = 2;
-        gbl.setConstraints(run_servport, gbc);
-        run_servport.addKeyListener(this);  // for ESC/ENTER
-        prun.add(run_servport);
-        L = new JLabel(" ");  // Spacing for rest of form's rows
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbl.setConstraints(L, gbc);
-        prun.add(L);
-
-        L = new JLabel(" ");
-        gbc.gridwidth = 1;
-        gbl.setConstraints(L, gbc);
-        prun.add(L);
-        run_startserv = new JButton(" " + strings.get("pcli.cpp.start") + " ");
-        if (shouldClearButtonBGs)
-            run_startserv.setBackground(null);
-        run_startserv.addActionListener(this);
-        run_startserv.addKeyListener(this);  // for win32 keyboard-focus
-        gbc.weightx = 0.5;
-        gbl.setConstraints(run_startserv, gbc);
-        prun.add(run_startserv);
-
-        run_cancel = new JButton(strings.get("base.cancel"));
-        if (shouldClearButtonBGs)
-            run_cancel.setBackground(null);
-        run_cancel.addActionListener(this);
-        run_cancel.addKeyListener(this);
-        gbl.setConstraints(run_cancel, gbc);  // still with weightx = 0.5
-        prun.add(run_cancel);
-
-        return prun;
-    }
-
-    /**
-     * A local server has been started; disable other options ("Connect", etc) but
-     * not Practice.  Called from client, once the server is started in
-     * {@link MainDisplay#startLocalTCPServer(int)}.
+   /**
+     * Do nothing method to keep SOCMainDisplay from breaking ... for now
+     *  Called from {@link MainDisplay#startLocalTCPServer(int)}.
      */
     public void startedLocalServer()
     {
-        connserv.setEnabled(false);
-        conn_connect.setEnabled(false);
-        run_startserv.setEnabled(false);
-        run_cancel.setEnabled(false);
     }
 
     /**
@@ -533,13 +291,13 @@ import soc.util.Version;
     public void lostServerConnection(final String errText)
     {
         // Hide any visible detail fields
-        clickConnCancel();
-        clickRunCancel();
-
         setTopText(errText);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        for (JButton b : new JButton[]{connserv, conn_connect, conn_cancel, runserv, run_startserv, run_cancel})
-            b.setEnabled(true);
+        for (JButton b : new JButton[]{ conn_connect
+        })
+        {
+            b.setEnabled( true );
+        }
     }
 
     /**
@@ -575,16 +333,16 @@ import soc.util.Version;
      * If the field is empty after trimming whitespace, use this client's default from
      * {@link ClientNetwork#getPort() clientNetwork.getPort()},
      * which is usually {@link ClientNetwork#SOC_PORT_DEFAULT}.
-     * @param tf  Text field with the port number, such as {@link #conn_servport} or {@link #run_servport}
+     * @param portNumber   Text field with the port number
      * @return the port number, or {@code clientNetwork.getPort()} if empty,
      *         or 0 if cannot be parsed or if outside the valid range 1-65535
      * @since 1.1.19
      */
-    private final int parsePortNumberOrDefault(final JTextField tf)
+    private int parsePortNumberOrDefault( final JTextField portNumber )
     {
         int srport;
         try {
-            final String ptext = tf.getText().trim();
+            final String ptext = portNumber .getText().trim();
             if (ptext.length() > 0)
                 srport = Integer.parseInt(ptext);
             else
@@ -608,82 +366,26 @@ import soc.util.Version;
         try {
 
         Object src = ae.getSource();
-        if (src == prac)
-        {
-            // Ask client to set up and start a practice game
-            md.clickPracticeButton();
-            return;
-        }
 
-        if (src == connserv)
-        {
-            // Show fields to get details to connect to server later
-            panel_conn.setVisible(true);
-            if ((panel_run != null) && panel_run.isVisible())
-            {
-                panel_run.setVisible(false);
-                runserv.setVisible(true);
-            }
-            connserv.setVisible(false);
-            conn_servhost.requestFocus();
-            validate();
-            return;
-        }
+//        if (src == connserv)
+//        {
+//            // Show fields to get details to connect to server later
+//            panel_conn.setVisible(true);
+//            connserv.setVisible(false);
+//            conn_servhost.requestFocus();
+//            validate();
+//            return;
+//        }
 
         if (src == conn_connect)
         {
             // After clicking connserv, actually connect to server
             clickConnConnect();
-            return;
         }
 
-        if (src == conn_cancel)
-        {
-            // Hide fields used to connect to server
-            clickConnCancel();
-            return;
-        }
 
-        if (src == runserv)
-        {
-            // Show fields to get details to start a TCP server
-            panel_run.setVisible(true);
-            if ((panel_conn != null) && panel_conn.isVisible())
-            {
-                panel_conn.setVisible(false);
-                connserv.setVisible(true);
-            }
-            runserv.setVisible(false);
-            run_servport.requestFocus();
-            {
-                // Convenience: type-to-replace port value
-                String svpText = run_servport.getText();
-                if ((svpText != null) && (svpText.trim().length() > 0))
-                {
-                    run_servport.setSelectionStart(0);
-                    run_servport.setSelectionEnd(svpText.length());
-                }
-            }
-            validate();
-            return;
-        }
-
-        if (src == run_startserv)
-        {
-            // After clicking runserv, actually start a server
-            clickRunStartserv();
-            return;
-        }
-
-        if (src == run_cancel)
-        {
-            // Hide fields used to start a server
-            clickRunCancel();
-            return;
-        }
-
-        }  // try
-        catch(Throwable thr)
+       }  // try
+        catch( Throwable thr )
         {
             System.err.println("-- Error caught in AWT event thread: " + thr + " --");
             thr.printStackTrace();
@@ -696,11 +398,9 @@ import soc.util.Version;
             System.err.println("-- Error stack trace end --");
             System.err.println();
         }
-
     }
 
     /** "Connect..." from connect setup; check fields, set WAIT_CURSOR, ask cli to connect  */
-    @SuppressWarnings("deprecation")  // TODO replace conn_pass.getText()
     private void clickConnConnect()
     {
         // TODO Check contents of fields
@@ -715,33 +415,15 @@ import soc.util.Version;
 
         // Copy fields, show MAIN_PANEL, and connect in client
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        md.getClient().connect(cserv, cport, conn_user.getText(), conn_pass.getText());
+        char[] passwd = conn_pass.getPassword();
+        md.getClient().connect(cserv, cport, conn_user.getText(), String.valueOf( passwd ));
     }
 
     /** Hide fields used to connect to server. */
-    private void clickConnCancel()
-    {
-        panel_conn.setVisible(false);
-        connserv.setVisible(true);
-        validate();
-    }
-
-    /** Actually start a server, on port from {@link #run_servport} */
-    private void clickRunStartserv()
-    {
-        // After clicking runserv, actually start a server
-        final int srport = parsePortNumberOrDefault(run_servport);
-        if (srport > 0)
-            md.startLocalTCPServer(srport);
-    }
-
-    /** Hide fields used to start a server */
-    private void clickRunCancel()
-    {
-        panel_run.setVisible(false);
-        runserv.setVisible(true);
-        validate();
-    }
+//    private void clickConnCancel()
+//    {
+//        validate();
+//    }
 
     /** Handle Enter or Esc key (KeyListener) */
     public void keyPressed(KeyEvent e)
@@ -752,23 +434,18 @@ import soc.util.Version;
         try {
 
         boolean panelConnShowing = (panel_conn != null) && (panel_conn.isVisible());
-        boolean panelRunShowing  = (panel_run != null)  && (panel_run.isVisible());
 
         switch (e.getKeyCode())
         {
         case KeyEvent.VK_ENTER:
             if (panelConnShowing)
                 clickConnConnect();
-            else if (panelRunShowing)
-                clickRunStartserv();
             break;
 
         case KeyEvent.VK_CANCEL:
         case KeyEvent.VK_ESCAPE:
-            if (panelConnShowing)
-                clickConnCancel();
-            else if (panelRunShowing)
-                clickRunCancel();
+//            if (panelConnShowing)
+//                clickConnCancel();
             break;
         }  // switch(e)
 
@@ -810,6 +487,5 @@ import soc.util.Version;
 
         @Override
         public Dimension getMaximumSize() { return getPreferredSize(); }
-    };
-
+    }
 }

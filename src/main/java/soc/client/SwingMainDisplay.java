@@ -119,7 +119,7 @@ import soc.util.Version;
  * @since 2.0.00
  */
 @SuppressWarnings("serial")
-public class SwingMainDisplay extends JPanel implements MainDisplay
+public class SwingMainDisplay extends MainDisplayBaseImpl
 {
     /**
      * Recommended minimum height of the screen (display): 768 pixels.
@@ -128,7 +128,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #PROP_JSETTLERS_UI_SCALE
      * @since 2.0.00
      */
-    public static final int DISPLAY_MIN_UNSCALED_HEIGHT = 768;
+//    public static final int DISPLAY_MIN_UNSCALED_HEIGHT = 768;
 
     /**
      * System property {@code "jsettlers.uiScale"} for UI scaling override ("high-DPI") if needed
@@ -140,7 +140,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * but that property might not be available for all java versions.
      * @since 2.0.00
      */
-    public static final String PROP_JSETTLERS_UI_SCALE = "jsettlers.uiScale";
+//    public static final String PROP_JSETTLERS_UI_SCALE = "jsettlers.uiScale";
 
     /**
      * System property {@code "jsettlers.uiContrastMode"} to force high-contrast dark or light mode
@@ -148,7 +148,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * Name is based on {@link #PROP_JSETTLERS_UI_SCALE}.
      * @since 2.0.00
      */
-    public static final String PROP_JSETTLERS_UI_CONTRAST_MODE = "jsettlers.uiContrastMode";
+//    public static final String PROP_JSETTLERS_UI_CONTRAST_MODE = "jsettlers.uiContrastMode";
 
     /**
      * The classic JSettlers goldenrod dialog background color; pale yellow-orange tint #FFE6A2.
@@ -158,7 +158,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #JSETTLERS_BG_GREEN
      * @since 2.0.00
      */
-    public static final Color DIALOG_BG_GOLDENROD = new Color(255, 230, 162);
+//    public static final Color DIALOG_BG_GOLDENROD = new Color(255, 230, 162);
 
     /**
      * The classic JSettlers green background color; green tone #61AF71.
@@ -169,7 +169,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #DIALOG_BG_GOLDENROD
      * @since 2.0.00
      */
-    public static final Color JSETTLERS_BG_GREEN = new Color(97, 175, 113);
+//    public static final Color JSETTLERS_BG_GREEN = new Color(97, 175, 113);
 
     /**
      * For miscellaneous labels, off-white foreground color #FCFBF3.
@@ -180,26 +180,26 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     public static final Color MISC_LABEL_FG_OFF_WHITE = new Color(252, 251, 243);
 
     /** main panel, in cardlayout */
-    private static final String MAIN_PANEL = "main";
+//    private static final String MAIN_PANEL = "main";
 
     /**
      * Message main panel for showing errors, in cardlayout.
      * @see #showErrorPanel(String, boolean)
      */
-    private static final String MESSAGE_PANEL = "message";
+//    private static final String MESSAGE_PANEL = "message";
 
     /** Connect-or-practice panel (if jar launch), in cardlayout.
      * Panel field is {@link #connectOrPracticePane}.
      * Shown at startup if {@link #hasConnectOrPractice}.
      * @since 1.1.00
      */
-    private static final String CONNECT_OR_PRACTICE_PANEL = "connOrPractice";
+//    private static final String CONNECT_OR_PRACTICE_PANEL = "connOrPractice";
 
     /**
      * For practice games, reminder message for network problems.
      * @since 1.1.00
      */
-    public final String NET_UNAVAIL_CAN_PRACTICE_MSG;
+//    public final String NET_UNAVAIL_CAN_PRACTICE_MSG;
 
     /**
      * Hint message if they try to join a game or channel without entering a nickname.
@@ -208,7 +208,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #NEED_NICKNAME_BEFORE_JOIN_G
      * @since 1.1.00
      */
-    public final String NEED_NICKNAME_BEFORE_JOIN;
+//    public final String NEED_NICKNAME_BEFORE_JOIN;
 
     /**
      * Stronger hint message if they still try to join a game or channel without entering a nickname.
@@ -217,7 +217,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #NEED_NICKNAME_BEFORE_JOIN_G2
      * @since 1.1.00
      */
-    public final String NEED_NICKNAME_BEFORE_JOIN_2;
+//    public final String NEED_NICKNAME_BEFORE_JOIN_2;
 
     /**
      * Hint message if they try to join a game without entering a nickname,
@@ -227,7 +227,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #NEED_NICKNAME_BEFORE_JOIN
      * @since 1.1.19
      */
-    public final String NEED_NICKNAME_BEFORE_JOIN_G;
+ //   public final String NEED_NICKNAME_BEFORE_JOIN_G;
 
     /**
      * Stronger hint message if they still try to join a game without entering a nickname,
@@ -237,44 +237,44 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #NEED_NICKNAME_BEFORE_JOIN_2
      * @since 1.1.19
      */
-    public final String NEED_NICKNAME_BEFORE_JOIN_G2;
+ //   public final String NEED_NICKNAME_BEFORE_JOIN_G2;
 
     /**
      * Status text to indicate client cannot join a game.
      * @since 1.1.06
      */
-    public final String STATUS_CANNOT_JOIN_THIS_GAME;
+//    public final String STATUS_CANNOT_JOIN_THIS_GAME;
 
     /**
      * Tracking flag to make sure {@link #scaleUIManagerFonts(int)} is done only once.
      * @since 2.0.00
      */
-    private static boolean didScaleUIManagerFonts;
+//    private static boolean didScaleUIManagerFonts;
 
-    private final SOCPlayerClient client;
+//    private final SOCPlayerClient client;
 
-    private final ClientNetwork net;
+//    private final ClientNetwork net;
 
     /**
      * For high-DPI displays, what scaling factor to use? Unscaled is 1.
      * @see #checkDisplayScaleFactor(Component)
      * @see #PROP_JSETTLERS_UI_SCALE
      */
-    private final int displayScale;
+//    private final int displayScale;
 
     /**
      * True if {@link #getForegroundBackgroundColors(boolean, boolean)} has been called to
      * determine {@link #isOSColorHighContrast}, {@link #osColorText}, {@link #osColorTextBG}.
      * @since 2.0.00
      */
-    private static boolean hasDeterminedOSColors;
+//    private static boolean hasDeterminedOSColors;
 
     /**
      * Is the OS using high-contrast or reverse-video colors (accessibility mode)?
      * If {@link #hasDeterminedOSColors}, has been set in {@link #getForegroundBackgroundColors(boolean, boolean)}.
      * @since 2.0.00
      */
-    private static boolean isOSColorHighContrast;  // TODO later enhancement: + isOSDarkBackground
+//    private static boolean isOSColorHighContrast;  // TODO later enhancement: + isOSDarkBackground
 
     /**
      * System theme's default text colors, from {@link SystemColor#textText} and {@link SystemColor#text}.
@@ -282,19 +282,19 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * Lazy: avoids static initializer to avoid problems for console-only client jar usage.
      * @since 2.0.00
      */
-    private static Color osColorText, osColorTextBG;
+//    private static Color osColorText, osColorTextBG;
 
     /**
      * Foreground color for miscellaneous label text; typically {@link #MISC_LABEL_FG_OFF_WHITE}.
      * @since 2.0.00
      */
-    private final Color miscLabelFGColor;
+//    private final Color miscLabelFGColor;
 
     /**
      * The player interfaces for all the {@link SOCPlayerClient#games} we're playing.
      * Accessed from GUI thread and network MessageHandler thread.
      */
-    private final Map<String, SOCPlayerInterface> playerInterfaces = new Hashtable<String, SOCPlayerInterface>();
+    // private final Map<String, SOCPlayerInterface> playerInterfaces = new Hashtable<String, SOCPlayerInterface>();
 
     /**
      * Task for timeout when asking remote server for {@link SOCGameOptionInfo game options info}.
@@ -303,7 +303,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #gameOptionsSetTimeoutTask()
      * @since 1.1.07
      */
-    protected GameOptionsTimeoutTask gameOptsTask = null;
+    // protected GameOptionsTimeoutTask gameOptsTask = null;
 
     /**
      * Task for timeout when asking remote server for {@link SOCGameOption game options defaults}.
@@ -312,14 +312,14 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #gameWithOptionsBeginSetup(boolean, boolean)
      * @since 1.1.07
      */
-    protected GameOptionDefaultsTimeoutTask gameOptsDefsTask = null;
+    // protected GameOptionDefaultsTimeoutTask gameOptsDefsTask = null;
 
     /**
      * Once true, disable "nick" textfield, etc.
      * Remains true, even if connected becomes false.
      * @since 1.1.00
      */
-    protected boolean hasJoinedServer;
+//    protected boolean hasJoinedServer;
 
     /**
      * If true, at startup we'll give the user a choice to
@@ -340,20 +340,20 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #hasConnectOrPractice
      * @since 1.1.00
      */
-    protected SOCConnectOrPracticePanel connectOrPracticePane;
+    private SOCConnectOrPracticePanel connectOrPracticePane;
 
     /**
      * The currently showing new-game options frame, or null
      * @since 1.1.07
      */
-    public NewGameOptionsFrame newGameOptsFrame = null;
+//    public NewGameOptionsFrame newGameOptsFrame = null;
 
     /**
      * Currently showing {@link NewGameOptionsFrame NGOF}s from user clicking "Game Info" button.
      * Uses Hashtable for thread-safety, in case a non-UI thread might want to update info in such a window.
      * @since 2.7.00
      */
-    private final Hashtable<String, NewGameOptionsFrame> gameInfoFrames = new Hashtable<>();
+//    private final Hashtable<String, NewGameOptionsFrame> gameInfoFrames = new Hashtable<>();
 
     // MainPanel GUI elements:
 
@@ -369,13 +369,13 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * when the version and features are known.
      * @since 1.1.19
      */
-    private JPanel mainPane;
+//    private JPanel mainPane;
 
     /** Layout for {@link #mainPane} */
-    private GridBagLayout mainGBL;
+//    private GridBagLayout mainGBL;
 
     /** Constraints for {@link #mainGBL} */
-    private GridBagConstraints mainGBC;
+//    private GridBagConstraints mainGBC;
 
     /**
      * Flags for tracking {@link #mainPane} layout status, in case
@@ -384,7 +384,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * another server or starting a hosted tcp server.
      * @since 1.1.19
      */
-    private boolean mainPaneLayoutIsDone, mainPaneLayoutIsDone_hasChannels;
+//    private boolean mainPaneLayoutIsDone, mainPaneLayoutIsDone_hasChannels;
 
     /**
      * Nickname (username) to connect to server and use in games.
@@ -394,10 +394,10 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * Default value is set in {@link #guardedActionPerform_games(Object)} if still blank,
      * so Practice game can be joined from {@link SOCConnectOrPracticePanel} which doesn't show this field.
      */
-    protected JTextField nick;
+//    protected JTextField nick;
 
     /** Password for {@link #nick} while connecting to server, or blank */
-    protected JPasswordField pass;
+//    protected JPasswordField pass;
 
     /**
      * Status from server, or progress/error message updated by client.
@@ -405,7 +405,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #clearWaitingStatus(boolean)
      * @see #statusOKText
      */
-    protected JTextField status;
+//    protected JTextField status;
 
     /**
      * If most recent {@link #showStatus(String, boolean, boolean)} was OK, its text.
@@ -413,13 +413,13 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #clearWaitingStatus(boolean)
      * @since 2.0.00
      */
-    private String statusOKText;
+//    private String statusOKText;
 
     /**
      * Chat channel name to create or join with {@link #jc} button.
      * Hidden in v1.1.19+ if server is missing {@link SOCFeatureSet#SERVER_CHANNELS}.
      */
-    protected JTextField channel;
+//    protected JTextField channel;
 
     // protected TextField game;  // removed 1.1.07 - NewGameOptionsFrame instead
 
@@ -429,7 +429,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *<P>
      * When there are no channels, this list contains a single blank item (" ").
      */
-    protected JList<JoinableListItem> chlist;
+//    protected JList<JoinableListItem> chlist;
 
     /**
      * List of games that can be joined with {@link #jg} button or by double-click,
@@ -439,23 +439,23 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *<P>
      * When there are no games, this list contains a single blank item (" ").
      */
-    protected JList<JoinableListItem> gmlist;
+//    protected JList<JoinableListItem> gmlist;
 
     /**
      * "New Game..." button, brings up {@link NewGameOptionsFrame} window
      * @since 1.1.07
      */
-    protected JButton ng;  // new game
+//    protected JButton ng;  // new game
 
     /**
      * "Join Channel" button, for channel currently highlighted in {@link #chlist},
      * or create new channel named in {@link #channel}. Hidden in v1.1.19+ if server
      * is missing {@link SOCFeatureSet#SERVER_CHANNELS}.
      */
-    protected JButton jc;
+//    protected JButton jc;
 
     /** "Join Game" button */
-    protected JButton jg;
+//    protected JButton jg;
 
     /**
      * Practice Game button: Create game to play against
@@ -471,7 +471,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * Renamed in 2.0.00 to 'gi'; previously 'so' Show Options.
      * @since 1.1.07
      */
-    protected JButton gi;
+//    protected JButton gi;
 
     /**
      * Local Server indicator in main panel: blank, or 'server is running' if
@@ -491,20 +491,20 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *
      * @since 1.1.00
      */
-    private JLabel versionOrlocalTCPPortLabel;
+//    private JLabel versionOrlocalTCPPortLabel;
 
     /**
      * Error message display in {@link #MESSAGE_PANEL}.
      * Updated by {@link #showErrorPanel(String, boolean)}.
      */
-    protected JLabel messageLabel;
+//    protected JLabel messageLabel;
 
     /**
      * Secondary message at top of {@link #MESSAGE_PANEL}.
      * Updated by {@link #showErrorPanel(String, boolean)}.
      * @since 1.1.00
      */
-    protected JLabel messageLabel_top;
+//    protected JLabel messageLabel_top;
 
     /**
      * Practice Game button in {@link #MESSAGE_PANEL}.
@@ -520,13 +520,13 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *
      * @see #hasConnectOrPractice
      */
-    protected CardLayout cardLayout;
+//    protected CardLayout cardLayout;
 
     /**
      * The channels we've joined.
      * Accessed from GUI thread and network MessageHandler thread.
      */
-    protected Hashtable<String, ChannelFrame> channels = new Hashtable<String, ChannelFrame>();
+//    protected Hashtable<String, ChannelFrame> channels = new Hashtable<String, ChannelFrame>();
 
     /**
      * Utility for time-driven events in the display.
@@ -534,7 +534,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * and {@link SOCPlayerInterface#getEventTimer()}.
      * @since 1.1.07
      */
-    protected Timer eventTimer = new Timer(true);  // use daemon thread
+//    protected Timer eventTimer = new Timer(true);  // use daemon thread
 
     /**
      * Create a new SwingMainDisplay for this client.
@@ -547,44 +547,45 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *     call {@link #checkDisplayScaleFactor(Component)} with the Frame to which this display will be added
      * @throws IllegalArgumentException if {@code client} is null or {@code displayScaleFactor} &lt; 1
      */
-    public SwingMainDisplay
-        (boolean hasConnectOrPractice, final SOCPlayerClient client, final int displayScaleFactor)
+    public SwingMainDisplay( boolean hasConnectOrPractice, final SOCPlayerClient client,
+                             final int displayScaleFactor )
         throws IllegalArgumentException
     {
-        if (client == null)
-            throw new IllegalArgumentException("null client");
-        if (displayScaleFactor < 1)
-            throw new IllegalArgumentException("displayScaleFactor: " + displayScaleFactor);
+        super( client, displayScaleFactor );
+//        if (client == null)
+//            throw new IllegalArgumentException("null client");
+//        if (displayScaleFactor < 1)
+//            throw new IllegalArgumentException("displayScaleFactor: " + displayScaleFactor);
 
         this.hasConnectOrPractice = hasConnectOrPractice;
-        this.client = client;
-        displayScale = displayScaleFactor;
-        net = client.getNet();
-
-        NET_UNAVAIL_CAN_PRACTICE_MSG = client.strings.get("pcli.error.server.unavailable");
-            // "The server is unavailable. You can still play practice games."
-        NEED_NICKNAME_BEFORE_JOIN = client.strings.get("pcli.main.join.neednickname");
-            // "First enter a nickname, then join a game or channel."
-        NEED_NICKNAME_BEFORE_JOIN_G = client.strings.get("pcli.main.join.neednickname.g");
-            // "First enter a nickname, then join a game."
-        NEED_NICKNAME_BEFORE_JOIN_2 = client.strings.get("pcli.main.join.neednickname.2");
-            // "You must enter a nickname before you can join a game or channel."
-        NEED_NICKNAME_BEFORE_JOIN_G2 = client.strings.get("pcli.main.join.neednickname.g2");
-            // "You must enter a nickname before you can join a game."
-        STATUS_CANNOT_JOIN_THIS_GAME = client.strings.get("pcli.main.join.cannot");
-            // "Cannot join, this client is incompatible with features of this game."
+//        this.client = client;
+//        displayScale = displayScaleFactor;
+//        net = client.getNet();
+//
+//        NET_UNAVAIL_CAN_PRACTICE_MSG = client.strings.get("pcli.error.server.unavailable");
+//            // "The server is unavailable. You can still play practice games."
+//        NEED_NICKNAME_BEFORE_JOIN = client.strings.get("pcli.main.join.neednickname");
+//            // "First enter a nickname, then join a game or channel."
+//        NEED_NICKNAME_BEFORE_JOIN_G = client.strings.get("pcli.main.join.neednickname.g");
+//            // "First enter a nickname, then join a game."
+//        NEED_NICKNAME_BEFORE_JOIN_2 = client.strings.get("pcli.main.join.neednickname.2");
+//            // "You must enter a nickname before you can join a game or channel."
+//        NEED_NICKNAME_BEFORE_JOIN_G2 = client.strings.get("pcli.main.join.neednickname.g2");
+//            // "You must enter a nickname before you can join a game."
+//        STATUS_CANNOT_JOIN_THIS_GAME = client.strings.get("pcli.main.join.cannot");
+//            // "Cannot join, this client is incompatible with features of this game."
 
         // Set colors; easier than troubleshooting color-inherit from JFrame or applet tag
-        setOpaque(true);
-        final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors(false, false);
-        if (colors != null)
-        {
-            setBackground(colors[2]);  // JSETTLERS_BG_GREEN
-            setForeground(colors[0]);  // Color.BLACK
-            miscLabelFGColor = colors[1];
-        } else {
-            miscLabelFGColor = osColorText;
-        }
+//        setOpaque(true);
+//        final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors(false, false);
+//        if (colors != null)
+//        {
+//            setBackground(colors[2]);  // JSETTLERS_BG_GREEN
+//            setForeground(colors[0]);  // Color.BLACK
+//            miscLabelFGColor = colors[1];
+//        } else {
+//            miscLabelFGColor = osColorText;
+//        }
     }
 
     /**
@@ -608,7 +609,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *     instead of same as main foreground {@link Color#BLACK}.
      * @since 2.0.00
      */
-    public static final Color[] getForegroundBackgroundColors
+    public static Color[] getForegroundBackgroundColors
         (final boolean isForLightBG, final boolean wantSystemColors)
     {
         if (! hasDeterminedOSColors)
@@ -689,13 +690,13 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @return true if high-contrast or reverse instead of usual JSettlers colors
      * @since 2.0.00
      */
-    public static final boolean isOSColorHighContrast()
-    {
-        if (! hasDeterminedOSColors)
-            getForegroundBackgroundColors(false, true);
-
-        return isOSColorHighContrast;
-    }
+//    public static final boolean isOSColorHighContrast()
+//    {
+//        if (! hasDeterminedOSColors)
+//            getForegroundBackgroundColors(false, true);
+//
+//        return isOSColorHighContrast;
+//    }
 
     /**
      * For use on high-DPI displays, determine if the screen resolution is tall enough that our unscaled (1x)
@@ -717,49 +718,49 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @throws NullPointerException  if {@code c} is null
      * @since 2.0.00
      */
-    public static final int checkDisplayScaleFactor(final Component c)
-        throws IllegalStateException, NullPointerException
-    {
-        try
-        {
-            final String propValue = System.getProperty(PROP_JSETTLERS_UI_SCALE);
-            if ((propValue != null) && (propValue.length() > 0))
-            {
-                try
-                {
-                    int uiScale = Integer.parseInt(propValue);
-                    if (uiScale > 0)
-                    {
-                        System.err.println("L678: checkDisplayScaleFactor prop override -> scale=" + uiScale);  // TODO later: remove debug print
-                        return uiScale;
-                    }
-                } catch (NumberFormatException e) {}
-            }
-        } catch (SecurityException e) {}
-
-        int uiScaleForce = UserPreferences.getPref(SOCPlayerClient.PREF_UI_SCALE_FORCE, 0);
-        if ((uiScaleForce > 0) && (uiScaleForce <= 3))
-        {
-            System.err.println("L688: checkDisplayScaleFactor user-pref override -> scale=" + uiScaleForce);  // TODO later: remove debug print
-            return uiScaleForce;
-        }
-
-        final GraphicsConfiguration gconf = c.getGraphicsConfiguration();
-        if (gconf == null)
-            throw new IllegalStateException("needs container");
-
-        int scale = 1;
-        try
-        {
-            final int screenHeight = gconf.getDevice().getDisplayMode().getHeight();
-            System.err.print("L549: checkDisplayScaleFactor got screenHeight=" + screenHeight);  // TODO later: remove debug print
-            if (screenHeight >= (2 * DISPLAY_MIN_UNSCALED_HEIGHT))
-                scale = screenHeight / DISPLAY_MIN_UNSCALED_HEIGHT;
-        } catch (NullPointerException e) {}
-
-        System.err.println(" -> scale=" + scale);  // TODO later: remove debug print
-        return scale;
-    }
+//    public static int checkDisplayScaleFactor(final Component c)
+//        throws IllegalStateException, NullPointerException
+//    {
+//        try
+//        {
+//            final String propValue = System.getProperty(PROP_JSETTLERS_UI_SCALE);
+//            if ((propValue != null) && (propValue.length() > 0))
+//            {
+//                try
+//                {
+//                    int uiScale = Integer.parseInt(propValue);
+//                    if (uiScale > 0)
+//                    {
+//                        System.err.println("L678: checkDisplayScaleFactor prop override -> scale=" + uiScale);  // TODO later: remove debug print
+//                        return uiScale;
+//                    }
+//                } catch (NumberFormatException ignore) {}
+//            }
+//        } catch (SecurityException ignore) {}
+//
+//        int uiScaleForce = UserPreferences.getPref(SOCPlayerClient.PREF_UI_SCALE_FORCE, 0);
+//        if ((uiScaleForce > 0) && (uiScaleForce <= 3))
+//        {
+//            System.err.println("L688: checkDisplayScaleFactor user-pref override -> scale=" + uiScaleForce);  // TODO later: remove debug print
+//            return uiScaleForce;
+//        }
+//
+//        final GraphicsConfiguration gconf = c.getGraphicsConfiguration();
+//        if (gconf == null)
+//            throw new IllegalStateException("needs container");
+//
+//        int scale = 1;
+//        try
+//        {
+//            final int screenHeight = gconf.getDevice().getDisplayMode().getHeight();
+//            System.err.print("L549: checkDisplayScaleFactor got screenHeight=" + screenHeight);  // TODO later: remove debug print
+//            if (screenHeight >= (2 * DISPLAY_MIN_UNSCALED_HEIGHT))
+//                scale = screenHeight / DISPLAY_MIN_UNSCALED_HEIGHT;
+//        } catch (NullPointerException ignore) {}
+//
+//        System.err.println(" -> scale=" + scale);  // TODO later: remove debug print
+//        return scale;
+//    }
 
     /**
      * If not already done, scale the UI look-and-feel font sizes for use on high-DPI displays.
@@ -770,62 +771,62 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *     if 1, makes no changes to font sizes.
      * @since 2.0.00
      */
-    public static final void scaleUIManagerFonts(final int displayScale)
-    {
-        if ((displayScale <= 1) || didScaleUIManagerFonts)
-            return;
-
-        // Adapted from MadProgrammer's 2014-11-12 answer to
-        // https://stackoverflow.com/questions/26877517/java-swing-on-high-dpi-screen
-
-        final Set<Object> keySet = UIManager.getLookAndFeelDefaults().keySet();
-        for (final Object key : keySet.toArray(new Object[keySet.size()]))
-        {
-            if ((key == null) || ! key.toString().toLowerCase().contains("font"))
-                continue;
-
-            Font font = UIManager.getDefaults().getFont(key);
-            if (font != null)
-                UIManager.put(key, font.deriveFont((float) (font.getSize2D() * displayScale)));
-        }
-
-        didScaleUIManagerFonts = true;
-    }
+//    public static final void scaleUIManagerFonts(final int displayScale)
+//    {
+//        if ((displayScale <= 1) || didScaleUIManagerFonts)
+//            return;
+//
+//        // Adapted from MadProgrammer's 2014-11-12 answer to
+//        // https://stackoverflow.com/questions/26877517/java-swing-on-high-dpi-screen
+//
+//        final Set<Object> keySet = UIManager.getLookAndFeelDefaults().keySet();
+//        for (final Object key : keySet.toArray(new Object[keySet.size()]))
+//        {
+//            if ((key == null) || ! key.toString().toLowerCase().contains("font"))
+//                continue;
+//
+//            Font font = UIManager.getDefaults().getFont(key);
+//            if (font != null)
+//                UIManager.put(key, font.deriveFont((float) (font.getSize2D() * displayScale)));
+//        }
+//
+//        didScaleUIManagerFonts = true;
+//    }
 
     public SOCPlayerClient getClient()
     {
         return client;
     }
 
-    public final GameMessageSender getGameMessageSender()
-    {
-        return client.getGameMessageSender();
-    }
-
-    public final Container getGUIContainer()
-    {
-        return this;
-    }
+//    public final GameMessageSender getGameMessageSender()
+//    {
+//        return client.getGameMessageSender();
+//    }
+//
+//    public final Container getGUIContainer()
+//    {
+//        return this;
+//    }
 
     /**
      * {@inheritDoc}
      *<P>
      * Determined at startup by {@link #checkDisplayScaleFactor(Component)}.
      */
-    public final int getDisplayScaleFactor()
-    {
-        return displayScale;
-    }
+//    public final int getDisplayScaleFactor()
+//    {
+//        return displayScale;
+//    }
 
     public WindowAdapter createWindowAdapter()
     {
         return new ClientWindowAdapter(this);
     }
 
-    public void setMessage(String message)
-    {
-        messageLabel.setText(message);
-    }
+//    public void setMessage(String message)
+//    {
+//        messageLabel.setText(message);
+//    }
 
     /**
      * {@inheritDoc}
@@ -833,11 +834,12 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * Uses {@link NotifyDialog#createAndShow(SwingMainDisplay, Frame, String, String, boolean)}
      * which calls {@link EventQueue#invokeLater(Runnable)} to ensure it displays from the proper thread.
      */
-    public void showErrorDialog(final String errMessage, final String buttonText)
-    {
-        NotifyDialog.createAndShow(this, null, errMessage, buttonText, true);
-    }
+//    public void showErrorDialog(final String errMessage, final String buttonText)
+//    {
+//        NotifyDialog.createAndShow(this, null, errMessage, buttonText, true);
+//    }
 
+    @Override
     public void initVisualElements()
     {
         final SOCStringManager strings = client.strings;
@@ -957,8 +959,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 {
                     jg.setEnabled(wasSel);
                     gi.setEnabled(wasSel &&
-                        ((client.getNet().practiceServer != null)
-                         || (client.sVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)));
+                            ( // (client.getNet().practiceServer != null) ||    // unecessary optimization
+                            client.sVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS));
                 }
             }
         });
@@ -1025,7 +1027,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @since 1.1.19
      * @throws IllegalArgumentException if {@code feats} is null but {@code isStatusRow} is false
      */
-    private void initMainPanelLayout(final boolean isStatusRow, final SOCFeatureSet feats)
+    @Override
+    protected void initMainPanelLayout(final boolean isStatusRow, final SOCFeatureSet feats)
         throws IllegalArgumentException
     {
         if ((feats == null) && ! isStatusRow)
@@ -1290,19 +1293,19 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * Prepare to connect, give feedback by showing {@link #MESSAGE_PANEL}.
      * {@inheritDoc}
      */
-    public void connect(String chost, int cport, String cpass, String cuser)
-    {
-        connectOrPracticePane.setServerHostPort(chost, cport);
-        nick.setEditable(true);  // in case of reconnect. Will disable after starting or joining a game.
-        pass.setEditable(true);
-        pass.setText(cpass);
-        nick.setText(cuser);
-        nick.requestFocusInWindow();
-        if ((cuser != null) && (cuser.trim().length() > 0))
-            ng.setEnabled(true);
-
-        cardLayout.show(this, MESSAGE_PANEL);
-    }
+//    public void connect(String chost, int cport, String cpass, String cuser)
+//    {
+//        connectOrPracticePane.setServerHostPort(chost, cport);
+//        nick.setEditable(true);  // in case of reconnect. Will disable after starting or joining a game.
+//        pass.setEditable(true);
+//        pass.setText(cpass);
+//        nick.setText(cuser);
+//        nick.requestFocusInWindow();
+//        if ((cuser != null) && (cuser.trim().length() > 0))
+//            ng.setEnabled(true);
+//
+//        cardLayout.show(this, MESSAGE_PANEL);
+//    }
 
     public void clickPracticeButton()
     {
@@ -1320,7 +1323,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *     such as {@link #jg}, {@link #ng}, {@link #chlist}, or {@link #gmlist}.
      * @since 1.1.00
      */
-    private void guardedActionPerform(Object target)
+    @Override
+    protected void guardedActionPerform(Object target)
     {
         try
         {
@@ -1369,70 +1373,70 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #guardedActionPerform_games(Object)
      * @since 1.1.06
      */
-    private boolean guardedActionPerform_channels(Object target)
-    {
-        String ch = null;
-
-        if (target == jc) // "Join Channel" Button
-        {
-            ch = channel.getText().trim();
-            if (ch.length() == 0)
-                ch = null;
-        }
-        else if (target == channel)
-        {
-            ch = channel.getText().trim();
-        }
-
-        if (ch == null)
-        {
-            JoinableListItem itm = chlist.getSelectedValue();
-            if (itm == null)
-                return true;
-            if (itm.isUnjoinable)
-                return false;
-
-            ch = itm.name.trim();
-        } else if (! ch.isEmpty()) {
-            String errMsg = checkNameFormat(ch);
-
-            if (errMsg != null)
-            {
-                status.setText(errMsg);
-                channel.requestFocusInWindow();
-                ch = "";
-            }
-        }
-
-        if (ch.isEmpty())
-        {
-            return true;
-        }
-
-        ChannelFrame cf = channels.get(ch);
-
-        if (cf == null)
-        {
-            if (channels.isEmpty())
-            {
-                // Prepare to auth.
-                // May set hint message if empty, like NEED_NICKNAME_BEFORE_JOIN
-                if (! readValidNicknameAndPassword())
-                    return true;  // not filled in yet
-            }
-
-            status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
-            net.putNet(SOCJoinChannel.toCmd
-                (client.nickname, (client.gotPassword ? "" : client.password), SOCMessage.EMPTYSTR, ch));
-        }
-        else
-        {
-            cf.setVisible(true);
-        }
-
-        channel.setText("");
-        return true;
-    }
+//    private boolean guardedActionPerform_channels(Object target)
+//    {
+//        String ch = null;
+//
+//        if (target == jc) // "Join Channel" Button
+//        {
+//            ch = channel.getText().trim();
+//            if (ch.length() == 0)
+//                ch = null;
+//        }
+//        else if (target == channel)
+//        {
+//            ch = channel.getText().trim();
+//        }
+//
+//        if (ch == null)
+//        {
+//            JoinableListItem itm = chlist.getSelectedValue();
+//            if (itm == null)
+//                return true;
+//            if (itm.isUnjoinable)
+//                return false;
+//
+//            ch = itm.name.trim();
+//        } else if (! ch.isEmpty()) {
+//            String errMsg = checkNameFormat(ch);
+//
+//            if (errMsg != null)
+//            {
+//                status.setText(errMsg);
+//                channel.requestFocusInWindow();
+//                ch = "";
+//            }
+//        }
+//
+//        if (ch.isEmpty())
+//        {
+//            return true;
+//        }
+//
+//        ChannelFrame cf = channels.get(ch);
+//
+//        if (cf == null)
+//        {
+//            if (channels.isEmpty())
+//            {
+//                // Prepare to auth.
+//                // May set hint message if empty, like NEED_NICKNAME_BEFORE_JOIN
+//                if (! readValidNicknameAndPassword())
+//                    return true;  // not filled in yet
+//            }
+//
+//            status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
+//            net.putNet(SOCJoinChannel.toCmd
+//                (client.nickname, (client.gotPassword ? "" : client.password), SOCMessage.EMPTYSTR, ch));
+//        }
+//        else
+//        {
+//            cf.setVisible(true);
+//        }
+//
+//        channel.setText("");
+//        return true;
+//    }
 
     /**
      * {@inheritDoc}
@@ -1441,22 +1445,22 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * a hint message if username/nickname field is empty.
      * @since 1.1.07
      */
-    public boolean readValidNicknameAndPassword()
-    {
-        // May set hint message if empty,
-        // like NEED_NICKNAME_BEFORE_JOIN
-        if (getValidNickname(false) == null)
-            return false;  // nickname field blank or invalid, client.nickname not set yet
-
-        if (! client.gotPassword)
-        {
-            client.password = getPassword();  // may be 0-length
-            if (client.password == null)
-                return false;  // invalid or too long
-        }
-
-        return true;
-    }
+//    public boolean readValidNicknameAndPassword()
+//    {
+//        // May set hint message if empty,
+//        // like NEED_NICKNAME_BEFORE_JOIN
+//        if (getValidNickname(false) == null)
+//            return false;  // nickname field blank or invalid, client.nickname not set yet
+//
+//        if (! client.gotPassword)
+//        {
+//            client.password = getPassword();  // may be 0-length
+//            if (client.password == null)
+//                return false;  // invalid or too long
+//        }
+//
+//        return true;
+//    }
 
     /**
      * GuardedActionPerform when a games-related button or field is clicked.
@@ -1467,7 +1471,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #guardedActionPerform_channels(Object)
      * @since 1.1.06
      */
-    private boolean guardedActionPerform_games(Object target)
+    @Override
+    protected boolean guardedActionPerform_games( Object target )
     {
         String gm;  // May also be 0-length string, if pulled from Lists
         boolean isUnjoinable = false;  // if selecting game from gmList, may become true
@@ -1519,7 +1524,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 isPractice = true;
                 opts = net.practiceServer.getGameOptions(gm);  // won't ever need to parse from string on practice server
             }
-            else if (client.serverGames != null)
+            else
+            if (client.serverGames != null)
             {
                 opts = client.serverGames.getGameOptions(gm);
                 if ((opts == null) && (client.serverGames.getGameOptionsString(gm) != null))
@@ -1649,8 +1655,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
                 status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                net.putNet(SOCJoinGame.toCmd
-                    (client.nickname, (client.gotPassword ? "" : client.password), SOCMessage.EMPTYSTR, gm));
+                net.putNet(SOCJoinGame.toCmd( client.nickname,
+                        (client.gotPassword ? "" : client.password), SOCMessage.EMPTYSTR, gm));
             }
         }
         else
@@ -1678,46 +1684,47 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #readValidNicknameAndPassword()
      * @since 1.1.07
      */
+    @Override
     protected String getValidNickname(final boolean precheckOnly)
     {
-        final String n = nick.getText().trim();
+        final String n = super.getValidNickname( precheckOnly );
 
-        if (n.isEmpty())
-        {
-            final String stat = status.getText();
-            if (stat.equals(NEED_NICKNAME_BEFORE_JOIN) || stat.equals(NEED_NICKNAME_BEFORE_JOIN_G))
-                // Send stronger hint message
-                status.setText
-                    ((client.sFeatures.isActive(SOCFeatureSet.SERVER_CHANNELS))
-                     ? NEED_NICKNAME_BEFORE_JOIN_2
-                     : NEED_NICKNAME_BEFORE_JOIN_G2 );
-            else
-                // Send first hint message (or re-send first if they've seen _2)
-                status.setText
-                    ((client.sFeatures.isActive(SOCFeatureSet.SERVER_CHANNELS))
-                     ? NEED_NICKNAME_BEFORE_JOIN
-                     : NEED_NICKNAME_BEFORE_JOIN_G );
-
-            return null;
-        }
-
-        String errMsg = checkNameFormat(n);
-        if (errMsg != null)
-        {
-            status.setText(errMsg);
-
-            return null;
-        }
-
-        nick.setText(n);
-
-        if (! precheckOnly)
-        {
-            client.nickname = n;
-            if (client.practiceNickname == null)
-                client.practiceNickname = n;
-        }
-
+//        if (n.isEmpty())
+//        {
+//            final String stat = status.getText();
+//            if (stat.equals(NEED_NICKNAME_BEFORE_JOIN) || stat.equals(NEED_NICKNAME_BEFORE_JOIN_G))
+//                // Send stronger hint message
+//                status.setText
+//                    ((client.sFeatures.isActive(SOCFeatureSet.SERVER_CHANNELS))
+//                     ? NEED_NICKNAME_BEFORE_JOIN_2
+//                     : NEED_NICKNAME_BEFORE_JOIN_G2 );
+//            else
+//                // Send first hint message (or re-send first if they've seen _2)
+//                status.setText
+//                    ((client.sFeatures.isActive(SOCFeatureSet.SERVER_CHANNELS))
+//                     ? NEED_NICKNAME_BEFORE_JOIN
+//                     : NEED_NICKNAME_BEFORE_JOIN_G );
+//
+//            return null;
+//        }
+//
+//        String errMsg = checkNameFormat(n);
+//        if (errMsg != null)
+//        {
+//            status.setText(errMsg);
+//
+//            return null;
+//        }
+//
+//        nick.setText(n);
+//
+//        if (! precheckOnly)
+//        {
+//            client.nickname = n;
+//            if (client.practiceNickname == null)
+//                client.practiceNickname = n;
+//        }
+        client.practiceNickname = n;
         return n;
     }
 
@@ -1734,22 +1741,22 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @return {@code null} if name is OK, otherwise localized error text
      * @since 2.3.00
      */
-    private String checkNameFormat(final String n)
-    {
-        String errMsg = null;
-
-        if (-1 != n.indexOf(SOCMessage.sep_char))  // '|'
-            errMsg = client.strings.get("netmsg.status.client.newgame_name_rejected_char", SOCMessage.sep_char);
-                // Name must not contain "|", please choose a different name.
-        else if (-1 != n.indexOf(SOCMessage.sep2_char))  // ','
-            errMsg = client.strings.get("netmsg.status.client.newgame_name_rejected_char", SOCMessage.sep2_char);
-                // Name must not contain ",", please choose a different name.
-        else if (! SOCMessage.isSingleLineAndSafe(n))
-            errMsg = client.strings.get("netmsg.status.common.newgame_name_rejected");
-                // "This name is not permitted, please choose a different name."
-
-        return errMsg;
-    }
+//    private String checkNameFormat(final String n)
+//    {
+//        String errMsg = null;
+//
+//        if (-1 != n.indexOf(SOCMessage.sep_char))  // '|'
+//            errMsg = client.strings.get("netmsg.status.client.newgame_name_rejected_char", SOCMessage.sep_char);
+//                // Name must not contain "|", please choose a different name.
+//        else if (-1 != n.indexOf(SOCMessage.sep2_char))  // ','
+//            errMsg = client.strings.get("netmsg.status.client.newgame_name_rejected_char", SOCMessage.sep2_char);
+//                // Name must not contain ",", please choose a different name.
+//        else if (! SOCMessage.isSingleLineAndSafe(n))
+//            errMsg = client.strings.get("netmsg.status.common.newgame_name_rejected");
+//                // "This name is not permitted, please choose a different name."
+//
+//        return errMsg;
+//    }
 
     /**
      * Validate and return the password textfield contents; may be 0-length, or {@code null} if invalid.
@@ -1760,34 +1767,34 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see #readValidNicknameAndPassword()
      * @since 1.1.07
      */
-    protected String getPassword()
-    {
-        if (client.gotPassword)
-            return client.password;
-
-        @SuppressWarnings("deprecation")
-        String p = pass.getText().trim();
-
-        if (p.length() > SOCAuthRequest.PASSWORD_LEN_MAX)
-        {
-            status.setText
-                (client.strings.get("account.common.password_too_long"));  // "That password is too long."
-            pass.requestFocus();
-            p = null;
-        }
-
-        client.password = p;
-        return p;
-    }
+//    protected String getPassword()
+//    {
+//        if (client.gotPassword)
+//            return client.password;
+//
+//        @SuppressWarnings("deprecation")
+//        String p = pass.getText().trim();
+//
+//        if (p.length() > SOCAuthRequest.PASSWORD_LEN_MAX)
+//        {
+//            status.setText
+//                (client.strings.get("account.common.password_too_long"));  // "That password is too long."
+//            pass.requestFocus();
+//            p = null;
+//        }
+//
+//        client.password = p;
+//        return p;
+//    }
 
     /**
      * {@inheritDoc}
      * @since 1.1.07
      */
-    public Timer getEventTimer()
-    {
-        return eventTimer;
-    }
+//    public Timer getEventTimer()
+//    {
+//        return eventTimer;
+//    }
 
     /**
      * {@inheritDoc}
@@ -1795,6 +1802,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * Updates tcpServGameOpts, practiceServGameOpts, newGameOptsFrame.
      * @since 1.1.07
      */
+    @Override
     public void gameWithOptionsBeginSetup(final boolean forPracticeServer, final boolean didAuth)
     {
         if (newGameOptsFrame != null)
@@ -2040,6 +2048,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      *
      * @since 1.1.07
      */
+    @Override
     public void askStartGameWithOptions
         (final String gmName, final boolean forPracticeServer,
          final SOCGameOptionSet opts, final Map<String, Object> localPrefs)
@@ -2071,12 +2080,12 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * will have status line show the text from that message: Typically something like
      * "Welcome to JSettlers!".
      */
-    public void clearWaitingStatus(final boolean clearStatus)
-    {
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        if (clearStatus)
-            status.setText(statusOKText != null ? statusOKText : "");  // clear "Talking to server...", etc
-    }
+//    public void clearWaitingStatus(final boolean clearStatus)
+//    {
+//        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+//        if (clearStatus)
+//            status.setText(statusOKText != null ? statusOKText : "");  // clear "Talking to server...", etc
+//    }
 
     /**
      * Look for active games that we're playing
@@ -2088,7 +2097,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @see ClientNetwork#anyHostedActiveGames()
      * @since 1.1.00
      */
-    protected SOCPlayerInterface findAnyActiveGame(boolean fromPracticeServer)
+    @Override
+    public SOCPlayerInterface findAnyActiveGame(boolean fromPracticeServer)
     {
         SOCPlayerInterface pi = null;
         int gs;  // gamestate
@@ -2149,6 +2159,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @throws NullPointerException if {@code err} is {@code null}
      * @since 1.1.16
      */
+    @Override
     public void showErrorPanel(String err, final boolean canPractice)
         throws NullPointerException
     {
@@ -2187,13 +2198,13 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         {
             cardLayout.show(this, MESSAGE_PANEL);
             revalidate();
-            if (canPractice)
-            {
-                if (! hasAnyActiveGame(true))
-                    pgm.requestFocus();  // No practice games: put this msg as topmost window
-                else
-                    pgm.requestFocusInWindow();  // Practice game is active; don't interrupt to show this
-            }
+//            if (canPractice)  // canPractice is always false...
+//            {
+//                if (! hasAnyActiveGame(true))
+//                    pgm.requestFocus();  // No practice games: put this msg as topmost window
+//                else
+//                    pgm.requestFocusInWindow();  // Practice game is active; don't interrupt to show this
+//            }
         }
     }
 
@@ -2210,522 +2221,525 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * {@link #initMainPanelLayout(boolean, SOCFeatureSet) initMainPanelLayout(false, feats)}
      * to complete layout of the Main Panel with the server's version and active features.
      */
-    public void showVersion
-        (final int vers, final String versionString, final String buildString, final SOCFeatureSet feats)
-    {
-        if (null == net.localTCPServer)
-        {
-            versionOrlocalTCPPortLabel.setForeground(miscLabelFGColor);  // MISC_LABEL_FG_OFF_WHITE
-            versionOrlocalTCPPortLabel.setText(client.strings.get("pcli.main.version", versionString));  // "v {0}"
-            versionOrlocalTCPPortLabel.setToolTipText
-                (client.strings.get("pcli.main.version.tip", versionString, buildString,
-                     Version.version(), Version.buildnum()));
-                     // "Server version is {0} build {1}; client is {2} bld {3}"
-        }
-
-        initMainPanelLayout(false, feats);  // complete the layout as appropriate for server
-        validate();
-
-        if ((net.practiceServer == null) && (vers < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
-            && (gi != null))
-            gi.setEnabled(false);  // server too old for options, so don't use that button
-    }
-
-    public void showStatus(final String statusText, final boolean statusIsOK, final boolean debugWarn)
-    {
-        status.setText(statusText);
-        statusOKText = (statusIsOK) ? statusText : null;
-
-        // If warning about debug during initial connect, show that.
-        // That status message would be sent after VERSION.
-        if (debugWarn)
-            versionOrlocalTCPPortLabel.setText
-                (versionOrlocalTCPPortLabel.getText()
-                 + client.strings.get("pcli.message.append.debugon"));  // ", debug is on"
-
-        // If was trying to join a game, reset cursor from WAIT_CURSOR.
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-    }
-
-    public void setNickname(final String nm)
-    {
-        nick.setText(nm);
-    }
-
-    public void focusPassword()
-    {
-        pass.requestFocusInWindow();
-    }
-
-    public void setPassword(final String pw)
-    {
-        pass.setText(pw);
-    }
-
-    public void repaintGameAndChannelLists()
-    {
-        if (chlist.isVisible())
-            chlist.repaint();
-
-        if (gmlist.isVisible())
-            gmlist.repaint();
-    }
-
-    public void channelJoined(String channelName)
-    {
-        nick.setEditable(false);
-        pass.setText("");
-        pass.setEditable(false);
-        clearWaitingStatus(true);
-        if (! hasJoinedServer)
-        {
-            Container c = getParent();
-            if (c instanceof Frame)
-            {
-                Frame fr = (Frame) c;
-                fr.setTitle(/*I*/fr.getTitle() + " [" + nick.getText() + "]"/*18N*/);
-            }
-            hasJoinedServer = true;
-        }
-
-        ChannelFrame cf = new ChannelFrame(channelName, this);
-        cf.setVisible(true);
-        channels.put(channelName, cf);
-    }
-
-    public void channelJoined(String channelName, String nickname)
-    {
-        ChannelFrame fr = channels.get(channelName);
-        fr.print("*** " + client.strings.get("channel.joined", nickname) + "\n");  // "{0} has joined this channel."
-        fr.addMember(nickname);
-    }
-
-    public void channelLeft(String channelName)
-    {
-        channels.remove(channelName);
-    }
-
-    public void channelLeft(String channelName, String nickname)
-    {
-        ChannelFrame fr = channels.get(channelName);
-        fr.print("*** " + client.strings.get("channel.left", nickname) + "\n");  // "{0} left."
-        fr.deleteMember(nickname);
-    }
-
-    public void channelMemberList(String channelName, Collection<String> members)
-    {
-        ChannelFrame fr = channels.get(channelName);
-
-        for (String member : members)
-            fr.addMember(member);
-
-        fr.began();
-    }
-
-    public void channelDeleted(String channelName)
-    {
-        deleteFromList(channelName, chlist);
-    }
-
-    public void channelsClosed(String message)
-    {
-        for (ChannelFrame cf : channels.values())
-            cf.over(message);
-
-        channels.clear();
-        DefaultListModel<JoinableListItem> lm = (DefaultListModel<JoinableListItem>) chlist.getModel();
-        lm.clear();
-        lm.addElement(JoinableListItem.BLANK);
-    }
-
-    /**
-     * Add a joinable new channel or game.
-     *
-     * @param thing  the thing to add to the list
-     * @param lst    the list
-     */
-    public void addToList(String thing, JList<JoinableListItem> lst)
-    {
-        final JoinableListItem item = new JoinableListItem(thing, false);
-        final DefaultListModel<JoinableListItem> lm = (DefaultListModel<JoinableListItem>) lst.getModel();
-
-        if (lm.get(0).equals(JoinableListItem.BLANK))
-        {
-            lm.set(0, item);
-            lst.setSelectedIndex(0);
-        } else {
-            lm.addElement(item);
-        }
-    }
-
-    /**
-     * Delete a list item.
-     * Recreate "blank" item if list becomes empty.
-     * Otherwise select a remaining item.
-     *
-     * @param thing   name of the thing to remove
-     * @param lst     the list
-     */
-    public void deleteFromList(String thing, JList<JoinableListItem> lst)
-    {
-        final DefaultListModel<JoinableListItem> lm = (DefaultListModel<JoinableListItem>) lst.getModel();
-
-        if (lm.size() == 1)
-        {
-            if (lm.get(0).equals(thing))
-            {
-                lm.set(0, JoinableListItem.BLANK);  // keep blank item
-                lst.clearSelection();
-            }
-
-            return;
-        }
-
-        lm.removeElement(new JoinableListItem(thing, false));
-
-        if (lst.getSelectedIndex() == -1)
-        {
-            final int c = lm.size();
-            if (c > 0)
-                lst.setSelectedIndex(c - 1);
-        }
-    }
-
-    public void channelCreated(String channelName)
-    {
-        addToList(channelName, chlist);
-    }
-
-    public void channelList(Collection<String> channelNames, boolean isPractice)
-    {
-        if (! isPractice)
-        {
-            cardLayout.show(SwingMainDisplay.this, MAIN_PANEL);
-            validate();
-
-            status.setText
-                ((client.sFeatures.isActive(SOCFeatureSet.SERVER_CHANNELS))
-                 ? NEED_NICKNAME_BEFORE_JOIN    // "First enter a nickname, then join a game or channel."
-                 : NEED_NICKNAME_BEFORE_JOIN_G  // "First enter a nickname, then join a game."
-                 );
-        }
-
-        for (String ch : channelNames)
-        {
-            addToList(ch, chlist);
-        }
-
-        if (! isPractice)
-            nick.requestFocus();
-    }
-
-    public void chatMessageBroadcast(String message)
-    {
-        for (ChannelFrame fr : channels.values())
-        {
-            fr.print("::: " + message + " :::");
-        }
-    }
-
-    public void chatMessageReceived(String channelName, String nickname, String message)
-    {
-        ChannelFrame fr = channels.get(channelName);
-
-        if (fr != null)
-        {
-            if (! client.onIgnoreList(nickname))
-            {
-                fr.print(nickname + ": " + message);
-            }
-        }
-    }
-
-    public void gameTimingStatsReceived
-        (final String gameName, final long creationTimeSeconds,
-         final boolean isStarted, final int durationFinishedSeconds)
-    {
-        final NewGameOptionsFrame ngof = gameInfoFrames.get(gameName);
-        if (ngof != null)
-            ngof.gameTimingStatsReceived(creationTimeSeconds, isStarted, durationFinishedSeconds);
-    }
-
-    public void dialogClosed(final NewGameOptionsFrame ngof)
-    {
-        if (ngof == newGameOptsFrame)
-            newGameOptsFrame = null;
-
-        final String gaName = ngof.getExistingGameName();
-        if (gaName != null)
-            gameInfoFrames.remove(gaName);
-    }
-
-    public void leaveGame(SOCGame game)
-    {
-        playerInterfaces.remove(game.getName());
-    }
-
-    public PlayerClientListener gameJoined
-        (final SOCGame game, final int[] layoutVS, final Map<String, Object> localPrefs)
-    {
-        nick.setEditable(false);
-        pass.setEditable(false);
-        pass.setText("");
-        clearWaitingStatus(true);
-        if (! hasJoinedServer)
-        {
-            Container c = getParent();
-            if (c instanceof Frame)
-            {
-                Frame fr = (Frame) c;
-                fr.setTitle(/*I*/fr.getTitle() + " [" + nick.getText() + "]"/*18N*/);
-            }
-            hasJoinedServer = true;
-        }
-
-        final SOCPlayerInterface pi = new SOCPlayerInterface
-            (game.getName(), SwingMainDisplay.this, game, layoutVS, localPrefs);
-        playerInterfaces.put(game.getName(), pi);
-
-        // slight delay before PI window visibility, otherwise
-        // MainDisplay might get back in front of it while
-        // processing double-click event (seen MacOSX in 2020-01)
-        eventTimer.schedule(new TimerTask()
-        {
-            public void run()
-            {
-                EventQueue.invokeLater(new Runnable()
-                {
-                    public void run()
-                    {
-                        pi.setVisible(true);
-                        pi.toFront();
-                    }
-                });
-            }
-        }, 80 /* ms */ );
-
-        return pi.getClientListener();
-    }
-
-    /**
-     * Start the game-options info timeout
-     * ({@link GameOptionsTimeoutTask}) at 5 seconds.
-     * @see #gameOptionsCancelTimeoutTask()
-     * @since 1.1.07
-     */
-    private void gameOptionsSetTimeoutTask()
-    {
-        if (gameOptsTask != null)
-            gameOptsTask.cancel();
-        gameOptsTask = new GameOptionsTimeoutTask(this, client.tcpServGameOpts);
-        eventTimer.schedule(gameOptsTask, 5000 /* ms */ );
-    }
-
-    /**
-     * Cancel the game-options info timeout.
-     * @see #gameOptionsSetTimeoutTask()
-     * @since 1.1.07
-     */
-    private void gameOptionsCancelTimeoutTask()
-    {
-        if (gameOptsTask != null)
-        {
-            gameOptsTask.cancel();
-            gameOptsTask = null;
-        }
-    }
-
-    public void optionsRequested()
-    {
-        gameOptionsSetTimeoutTask();
-    }
-
-    public void optionsReceived(ServerGametypeInfo opts, boolean isPractice)
-    {
-        gameOptionsCancelTimeoutTask();
-
-        if ((opts.newGameOpts == null) && (opts.knownOpts != null))
-            opts.newGameOpts = new SOCGameOptionSet(opts.knownOpts, true);
-        newGameOptsFrame = showGameOptions(null, opts.newGameOpts, isPractice);
-    }
-
-    public void optionsReceived(ServerGametypeInfo opts, boolean isPractice, boolean isDash, boolean hasAllNow)
-    {
-        final boolean newGameWaiting;
-        final String gameInfoWaiting;
-        synchronized(opts)
-        {
-            newGameWaiting = opts.newGameWaitingForOpts;
-            gameInfoWaiting = opts.gameInfoWaitingForOpts;
-        }
-
-        if ((! isPractice) && isDash)
-            gameOptionsCancelTimeoutTask();
-
-        if (hasAllNow)
-        {
-            if (gameInfoWaiting != null)
-            {
-                synchronized(opts)
-                {
-                    opts.gameInfoWaitingForOpts = null;
-                }
-                final SOCGameOptionSet gameOpts = client.serverGames.parseGameOptions(gameInfoWaiting);
-                if (! isPractice)
-                    client.checkGameoptsForUnknownScenario(gameOpts);
-                showGameOptions(gameInfoWaiting, gameOpts, isPractice);
-            }
-            else if (newGameWaiting)
-            {
-                synchronized(opts)
-                {
-                    opts.newGameWaitingForOpts = false;
-                    if ((opts.newGameOpts == null) && (opts.knownOpts != null))
-                        opts.newGameOpts = new SOCGameOptionSet(opts.knownOpts, true);
-                }
-                newGameOptsFrame = showGameOptions(null, opts.newGameOpts, isPractice);
-            }
-        }
-    }
-
-    public void addToGameList
-        (final boolean cannotJoin, String gameName, String gameOptsStr, final boolean addToSrvList)
-    {
-        if (addToSrvList)
-        {
-            if (client.serverGames == null)
-                client.serverGames = new SOCGameList(client.tcpServGameOpts.knownOpts);
-            client.serverGames.addGame(gameName, gameOptsStr, cannotJoin);
-        }
-
-        final JoinableListItem item = new JoinableListItem(gameName, cannotJoin);
-        final DefaultListModel<JoinableListItem> lm = (DefaultListModel<JoinableListItem>) gmlist.getModel();
-
-        if ((! lm.isEmpty()) && (lm.get(0).equals(JoinableListItem.BLANK)))
-        {
-            lm.set(0, item);
-            gmlist.setSelectedIndex(0);
-            jg.setEnabled(true);
-            gi.setEnabled((net.practiceServer != null)
-                || (client.sVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS));
-        } else {
-            lm.addElement(item);
-        }
-        gmlist.repaint();
-    }
-
-    public boolean deleteFromGameList(String gameName, final boolean isPractice, final boolean withUnjoinablePrefix)
-    {
-        final DefaultListModel<JoinableListItem> lm = (DefaultListModel<JoinableListItem>) gmlist.getModel();
-
-        if (lm.size() == 1)
-        {
-            if (lm.get(0).equals(gameName))
-            {
-                lm.set(0, JoinableListItem.BLANK);  // keep blank item
-                gmlist.clearSelection();
-
-                if ((! isPractice) && (client.serverGames != null))
-                    client.serverGames.deleteGame(gameName);  // may not be in there
-
-                gi.setEnabled(false);
-
-                return true;
-            }
-
-            return false;
-        }
-
-        boolean found = lm.removeElement(new JoinableListItem(gameName, withUnjoinablePrefix));
-
-        if (gmlist.getSelectedIndex() == -1)
-        {
-            final int c = lm.size();
-            if (c > 0)
-                gmlist.setSelectedIndex(c - 1);  // one of the remaining games, or blank item if none
-        }
-
-        if (found && (! isPractice) && (client.serverGames != null))
-            client.serverGames.deleteGame(gameName);  // may not be in there
-
-        return found;
-    }
-
-    /**
-     * {@inheritDoc}
-     *<P>
-     * Before v2.0.00 this method was {@code chSend}.
-     */
-    public void sendToChannel(String ch, String mes)
-    {
-        if (! doLocalCommand(ch, mes))
-        {
-            net.putNet(new SOCChannelTextMsg(ch, client.nickname, mes).toCmd());
-        }
-    }
-
-    /**
-     * Handle local client commands for channels.
-     *
-     * @param cmd  Local client command string, such as \ignore or \&shy;unignore
-     * @return true if a command was handled
-     * @see SOCPlayerInterface#doLocalCommand(String)
-     */
-    public boolean doLocalCommand(String ch, String cmd)
-    {
-        ChannelFrame fr = channels.get(ch);
-
-        if (cmd.startsWith("\\ignore "))
-        {
-            String name = cmd.substring(8);
-            client.addToIgnoreList(name);
-            fr.print("* "+/*I*/"Ignoring " + name/*18N*/);
-            printIgnoreList(fr);
-
-            return true;
-        }
-        else if (cmd.startsWith("\\unignore "))
-        {
-            String name = cmd.substring(10);
-            client.removeFromIgnoreList(name);
-            fr.print("* "+/*I*/"Unignoring " + name/*18N*/);
-            printIgnoreList(fr);
-
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    /**
-     * Print the current chat ignorelist to a channel window.
-     * @since 1.1.00
-     */
-    protected void printIgnoreList(ChannelFrame fr)
-    {
-        fr.print("* "+/*I*/"Ignore list:"/*18N*/);
-
-        for (String s : client.ignoreList)
-        {
-            fr.print("* " + s);
-        }
-    }
-
-    /**
-     * Print the current chat ignorelist to a game window.
-     * @since 1.1.00
-     */
-    public void printIgnoreList(SOCPlayerInterface pi)
-    {
-        pi.print("* "+/*I*/"Ignore list:"/*18N*/);
-
-        for (String s : client.ignoreList)
-        {
-            pi.print("* " + s);
-        }
-    }
+//    public void showVersion( final int vers, final String versionString, final String buildString,
+//                             final SOCFeatureSet feats)
+//    {
+//        if (null == net.localTCPServer)
+//        {
+//            versionOrlocalTCPPortLabel.setForeground(miscLabelFGColor);  // MISC_LABEL_FG_OFF_WHITE
+//            versionOrlocalTCPPortLabel.setText(client.strings.get("pcli.main.version", versionString));  // "v {0}"
+//            versionOrlocalTCPPortLabel.setToolTipText
+//                (client.strings.get("pcli.main.version.tip", versionString, buildString,
+//                     Version.version(), Version.buildnum()));
+//                     // "Server version is {0} build {1}; client is {2} bld {3}"
+//        }
+//
+//        initMainPanelLayout(false, feats);  // complete the layout as appropriate for server
+//        validate();
+//
+//        if ( // (net.practiceServer == null) &&     // unnecessary optimization
+//               (vers < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
+//            && (gi != null))
+//        {
+//            gi.setEnabled( false );  // server too old for options, so don't use that button
+//        }
+//    }
+//
+//    public void showStatus(final String statusText, final boolean statusIsOK, final boolean debugWarn)
+//    {
+//        status.setText(statusText);
+//        statusOKText = (statusIsOK) ? statusText : null;
+//
+//        // If warning about debug during initial connect, show that.
+//        // That status message would be sent after VERSION.
+//        if (debugWarn)
+//            versionOrlocalTCPPortLabel.setText
+//                (versionOrlocalTCPPortLabel.getText()
+//                 + client.strings.get("pcli.message.append.debugon"));  // ", debug is on"
+//
+//        // If was trying to join a game, reset cursor from WAIT_CURSOR.
+//        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+//    }
+//
+//    public void setNickname(final String nm)
+//    {
+//        nick.setText(nm);
+//    }
+//
+//    public void focusPassword()
+//    {
+//        pass.requestFocusInWindow();
+//    }
+//
+//    public void setPassword(final String pw)
+//    {
+//        pass.setText(pw);
+//    }
+//
+//    public void repaintGameAndChannelLists()
+//    {
+//        if (chlist.isVisible())
+//            chlist.repaint();
+//
+//        if (gmlist.isVisible())
+//            gmlist.repaint();
+//    }
+//
+//    public void channelJoined(String channelName)
+//    {
+//        nick.setEditable(false);
+//        pass.setText("");
+//        pass.setEditable(false);
+//        clearWaitingStatus(true);
+//        if (! hasJoinedServer)
+//        {
+//            Container c = getParent();
+//            if (c instanceof Frame)
+//            {
+//                Frame fr = (Frame) c;
+//                fr.setTitle(/*I*/fr.getTitle() + " [" + nick.getText() + "]"/*18N*/);
+//            }
+//            hasJoinedServer = true;
+//        }
+//
+//        ChannelFrame cf = new ChannelFrame(channelName, this);
+//        cf.setVisible(true);
+//        channels.put(channelName, cf);
+//    }
+//
+//    public void channelJoined(String channelName, String nickname)
+//    {
+//        ChannelFrame fr = channels.get(channelName);
+//        fr.print("*** " + client.strings.get("channel.joined", nickname) + "\n");  // "{0} has joined this channel."
+//        fr.addMember(nickname);
+//    }
+//
+//    public void channelLeft(String channelName)
+//    {
+//        channels.remove(channelName);
+//    }
+//
+//    public void channelLeft(String channelName, String nickname)
+//    {
+//        ChannelFrame fr = channels.get(channelName);
+//        fr.print("*** " + client.strings.get("channel.left", nickname) + "\n");  // "{0} left."
+//        fr.deleteMember(nickname);
+//    }
+//
+//    public void channelMemberList(String channelName, Collection<String> members)
+//    {
+//        ChannelFrame fr = channels.get(channelName);
+//
+//        for (String member : members)
+//            fr.addMember(member);
+//
+//        fr.began();
+//    }
+//
+//    public void channelDeleted(String channelName)
+//    {
+//        deleteFromList(channelName, chlist);
+//    }
+//
+//    public void channelsClosed(String message)
+//    {
+//        for (ChannelFrame cf : channels.values())
+//            cf.over(message);
+//
+//        channels.clear();
+//        DefaultListModel<JoinableListItem> lm = (DefaultListModel<JoinableListItem>) chlist.getModel();
+//        lm.clear();
+//        lm.addElement(JoinableListItem.BLANK);
+//    }
+//
+//    /**
+//     * Add a joinable new channel or game.
+//     *
+//     * @param thing  the thing to add to the list
+//     * @param lst    the list
+//     */
+//    public void addToList(String thing, JList<JoinableListItem> lst)
+//    {
+//        final JoinableListItem item = new JoinableListItem(thing, false);
+//        final DefaultListModel<JoinableListItem> lm = (DefaultListModel<JoinableListItem>) lst.getModel();
+//
+//        if (lm.get(0).equals(JoinableListItem.BLANK))
+//        {
+//            lm.set(0, item);
+//            lst.setSelectedIndex(0);
+//        } else {
+//            lm.addElement(item);
+//        }
+//    }
+//
+//    /**
+//     * Delete a list item.
+//     * Recreate "blank" item if list becomes empty.
+//     * Otherwise select a remaining item.
+//     *
+//     * @param thing   name of the thing to remove
+//     * @param lst     the list
+//     */
+//    public void deleteFromList(String thing, JList<JoinableListItem> lst)
+//    {
+//        final DefaultListModel<JoinableListItem> lm = (DefaultListModel<JoinableListItem>) lst.getModel();
+//
+//        if (lm.size() == 1)
+//        {
+//            if (lm.get(0).equals(thing))
+//            {
+//                lm.set(0, JoinableListItem.BLANK);  // keep blank item
+//                lst.clearSelection();
+//            }
+//
+//            return;
+//        }
+//
+//        lm.removeElement(new JoinableListItem(thing, false));
+//
+//        if (lst.getSelectedIndex() == -1)
+//        {
+//            final int c = lm.size();
+//            if (c > 0)
+//                lst.setSelectedIndex(c - 1);
+//        }
+//    }
+//
+//    public void channelCreated(String channelName)
+//    {
+//        addToList(channelName, chlist);
+//    }
+//
+//    public void channelList(Collection<String> channelNames, boolean isPractice)
+//    {
+//        if (! isPractice)
+//        {
+//            cardLayout.show( this, MAIN_PANEL );
+//            validate();
+//
+//            status.setText
+//                ((client.sFeatures.isActive(SOCFeatureSet.SERVER_CHANNELS))
+//                 ? NEED_NICKNAME_BEFORE_JOIN    // "First enter a nickname, then join a game or channel."
+//                 : NEED_NICKNAME_BEFORE_JOIN_G  // "First enter a nickname, then join a game."
+//                 );
+//        }
+//
+//        for (String ch : channelNames)
+//        {
+//            addToList(ch, chlist);
+//        }
+//
+//        if (! isPractice)
+//            nick.requestFocus();
+//    }
+//
+//    public void chatMessageBroadcast(String message)
+//    {
+//        for (ChannelFrame fr : channels.values())
+//        {
+//            fr.print("::: " + message + " :::");
+//        }
+//    }
+//
+//    public void chatMessageReceived(String channelName, String nickname, String message)
+//    {
+//        ChannelFrame fr = channels.get(channelName);
+//
+//        if (fr != null)
+//        {
+//            if (! client.onIgnoreList(nickname))
+//            {
+//                fr.print(nickname + ": " + message);
+//            }
+//        }
+//    }
+//
+//    public void gameTimingStatsReceived
+//        (final String gameName, final long creationTimeSeconds,
+//         final boolean isStarted, final int durationFinishedSeconds)
+//    {
+//        final NewGameOptionsFrame ngof = gameInfoFrames.get(gameName);
+//        if (ngof != null)
+//            ngof.gameTimingStatsReceived(creationTimeSeconds, isStarted, durationFinishedSeconds);
+//    }
+//
+//    public void dialogClosed(final NewGameOptionsFrame ngof)
+//    {
+//        if (ngof == newGameOptsFrame)
+//            newGameOptsFrame = null;
+//
+//        final String gaName = ngof.getExistingGameName();
+//        if (gaName != null)
+//            gameInfoFrames.remove(gaName);
+//    }
+//
+//    public void leaveGame(SOCGame game)
+//    {
+//        playerInterfaces.remove(game.getName());
+//    }
+//
+//    public PlayerClientListener gameJoined
+//        (final SOCGame game, final int[] layoutVS, final Map<String, Object> localPrefs)
+//    {
+//        nick.setEditable(false);
+//        pass.setEditable(false);
+//        pass.setText("");
+//        clearWaitingStatus(true);
+//        if (! hasJoinedServer)
+//        {
+//            Container c = getParent();
+//            if (c instanceof Frame)
+//            {
+//                Frame fr = (Frame) c;
+//                fr.setTitle(/*I*/fr.getTitle() + " [" + nick.getText() + "]"/*18N*/);
+//            }
+//            hasJoinedServer = true;
+//        }
+//
+//        final SOCPlayerInterface pi = new SOCPlayerInterface
+//            (game.getName(), this, game, layoutVS, localPrefs);
+//        playerInterfaces.put(game.getName(), pi);
+//
+//        // slight delay before PI window visibility, otherwise
+//        // MainDisplay might get back in front of it while
+//        // processing double-click event (seen MacOSX in 2020-01)
+//        eventTimer.schedule(new TimerTask()
+//        {
+//            public void run()
+//            {
+//                EventQueue.invokeLater(new Runnable()
+//                {
+//                    public void run()
+//                    {
+//                        pi.setVisible(true);
+//                        pi.toFront();
+//                    }
+//                });
+//            }
+//        }, 80 /* ms */ );
+//
+//        return pi.getClientListener();
+//    }
+//
+//    /**
+//     * Start the game-options info timeout
+//     * ({@link GameOptionsTimeoutTask}) at 5 seconds.
+//     * @see #gameOptionsCancelTimeoutTask()
+//     * @since 1.1.07
+//     */
+//    private void gameOptionsSetTimeoutTask()
+//    {
+//        if (gameOptsTask != null)
+//            gameOptsTask.cancel();
+//        gameOptsTask = new GameOptionsTimeoutTask(this, client.tcpServGameOpts);
+//        eventTimer.schedule(gameOptsTask, 5000 /* ms */ );
+//    }
+//
+//    /**
+//     * Cancel the game-options info timeout.
+//     * @see #gameOptionsSetTimeoutTask()
+//     * @since 1.1.07
+//     */
+//    private void gameOptionsCancelTimeoutTask()
+//    {
+//        if (gameOptsTask != null)
+//        {
+//            gameOptsTask.cancel();
+//            gameOptsTask = null;
+//        }
+//    }
+//
+//    public void optionsRequested()
+//    {
+//        gameOptionsSetTimeoutTask();
+//    }
+//
+//    public void optionsReceived(ServerGametypeInfo opts, boolean isPractice)
+//    {
+//        gameOptionsCancelTimeoutTask();
+//
+//        if ((opts.newGameOpts == null) && (opts.knownOpts != null))
+//            opts.newGameOpts = new SOCGameOptionSet(opts.knownOpts, true);
+//        newGameOptsFrame = showGameOptions(null, opts.newGameOpts, isPractice);
+//    }
+//
+//     public void optionsReceived(ServerGametypeInfo opts, boolean isPractice, boolean isDash, boolean hasAllNow)
+//    {
+//        final boolean newGameWaiting;
+//        final String gameInfoWaiting;
+//        synchronized(opts)
+//        {
+//            newGameWaiting = opts.newGameWaitingForOpts;
+//            gameInfoWaiting = opts.gameInfoWaitingForOpts;
+//        }
+//
+//        if ((! isPractice) && isDash)
+//            gameOptionsCancelTimeoutTask();
+//
+//        if (hasAllNow)
+//        {
+//            if (gameInfoWaiting != null)
+//            {
+//                synchronized(opts)
+//                {
+//                    opts.gameInfoWaitingForOpts = null;
+//                }
+//                final SOCGameOptionSet gameOpts = client.serverGames.parseGameOptions(gameInfoWaiting);
+//                // if (! isPractice)    // unnecessary optimization
+//                    client.checkGameoptsForUnknownScenario(gameOpts);
+//                showGameOptions(gameInfoWaiting, gameOpts, isPractice);
+//            }
+//            else if (newGameWaiting)
+//            {
+//                synchronized(opts)
+//                {
+//                    opts.newGameWaitingForOpts = false;
+//                    if ((opts.newGameOpts == null) && (opts.knownOpts != null))
+//                        opts.newGameOpts = new SOCGameOptionSet(opts.knownOpts, true);
+//                }
+//                newGameOptsFrame = showGameOptions(null, opts.newGameOpts, isPractice);
+//            }
+//        }
+//    }
+//
+//    public void addToGameList
+//        (final boolean cannotJoin, String gameName, String gameOptsStr, final boolean addToSrvList)
+//    {
+//        if (addToSrvList)
+//        {
+//            if (client.serverGames == null)
+//                client.serverGames = new SOCGameList(client.tcpServGameOpts.knownOpts);
+//            client.serverGames.addGame(gameName, gameOptsStr, cannotJoin);
+//        }
+//
+//        final JoinableListItem item = new JoinableListItem(gameName, cannotJoin);
+//        final DefaultListModel<JoinableListItem> lm = (DefaultListModel<JoinableListItem>) gmlist.getModel();
+//
+//        if ((! lm.isEmpty()) && (lm.get(0).equals(JoinableListItem.BLANK)))
+//        {
+//            lm.set(0, item);
+//            gmlist.setSelectedIndex(0);
+//            jg.setEnabled(true);
+//            gi.setEnabled( // (net.practiceServer != null) ||   // unnecessary optimization
+//                 (client.sVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS));
+//        } else {
+//            lm.addElement(item);
+//        }
+//        gmlist.repaint();
+//    }
+//
+//    public boolean deleteFromGameList(String gameName, final boolean isPractice, final boolean withUnjoinablePrefix)
+//    {
+//        final DefaultListModel<JoinableListItem> lm = (DefaultListModel<JoinableListItem>) gmlist.getModel();
+//
+//        if (lm.size() == 1)
+//        {
+//            if (lm.get(0).equals(gameName))
+//            {
+//                lm.set(0, JoinableListItem.BLANK);  // keep blank item
+//                gmlist.clearSelection();
+//
+//                if ((! isPractice) && (client.serverGames != null))
+//                    client.serverGames.deleteGame(gameName);  // may not be in there
+//
+//                gi.setEnabled(false);
+//
+//                return true;
+//            }
+//
+//            return false;
+//        }
+//
+//        boolean found = lm.removeElement(new JoinableListItem(gameName, withUnjoinablePrefix));
+//
+//        if (gmlist.getSelectedIndex() == -1)
+//        {
+//            final int c = lm.size();
+//            if (c > 0)
+//                gmlist.setSelectedIndex(c - 1);  // one of the remaining games, or blank item if none
+//        }
+//
+//        if (found && (! isPractice) && (client.serverGames != null))
+//            client.serverGames.deleteGame(gameName);  // may not be in there
+//
+//        return found;
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *<P>
+//     * Before v2.0.00 this method was {@code chSend}.
+//     */
+//    public void sendToChannel(String ch, String mes)
+//    {
+//        if (! doLocalCommand(ch, mes))
+//        {
+//            net.putNet(new SOCChannelTextMsg(ch, client.nickname, mes).toCmd());
+//        }
+//    }
+//
+//    /**
+//     * Handle local client commands for channels.
+//     *
+//     * @param cmd  Local client command string, such as \ignore or \&shy;unignore
+//     * @return true if a command was handled
+//     * @see SOCPlayerInterface#doLocalCommand(String)
+//     */
+//    public boolean doLocalCommand(String ch, String cmd)
+//    {
+//        ChannelFrame fr = channels.get(ch);
+//
+//        if (cmd.startsWith("\\ignore "))
+//        {
+//            String name = cmd.substring(8);
+//            client.addToIgnoreList(name);
+//            fr.print("* "+/*I*/"Ignoring " + name/*18N*/);
+//            printIgnoreList(fr);
+//
+//            return true;
+//        }
+//        else if (cmd.startsWith("\\unignore "))
+//        {
+//            String name = cmd.substring(10);
+//            client.removeFromIgnoreList(name);
+//            fr.print("* "+/*I*/"Unignoring " + name/*18N*/);
+//            printIgnoreList(fr);
+//
+//            return true;
+//        }
+//        else
+//        {
+//            return false;
+//        }
+//    }
+//
+//    /**
+//     * Print the current chat ignorelist to a channel window.
+//     * @since 1.1.00
+//     */
+//    protected void printIgnoreList(ChannelFrame fr)
+//    {
+//        fr.print("* "+/*I*/"Ignore list:"/*18N*/);
+//
+//        for (String s : client.ignoreList)
+//        {
+//            fr.print("* " + s);
+//        }
+//    }
+//
+//    /**
+//     * Print the current chat ignorelist to a game window.
+//     * @since 1.1.00
+//     */
+//    public void printIgnoreList(SOCPlayerInterface pi)
+//    {
+//        pi.print("* "+/*I*/"Ignore list:"/*18N*/);
+//
+//        for (String s : client.ignoreList)
+//        {
+//            pi.print("* " + s);
+//        }
+//    }
 
     /**
      * When a practice game is starting, it may take a while to start server & game.
@@ -2881,55 +2895,55 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * and assumes it's localized.
      * @since 2.0.00
      */
-    private static class JoinableListItem
-    {
-        /** Blank dummy item; {@link #name} is 1 space " " */
-        public static final JoinableListItem BLANK = new JoinableListItem(" ", false);
-
-        public final String name;
-        public final boolean isUnjoinable;
-
-        /**
-         * Make a JoinableListItem.
-         * @throws IllegalArgumentException if {@code name} is {@code null}
-         */
-        public JoinableListItem(final String name, final boolean isUnjoinable)
-            throws IllegalArgumentException
-        {
-            if (name == null)
-                throw new IllegalArgumentException();
-
-            this.name = name;
-            this.isUnjoinable = isUnjoinable;
-        }
-
-        /**
-         * Item {@link #name}. If {@link #isUnjoinable}, will be prefixed with
-         * {@link SOCPlayerClient#GAMENAME_PREFIX_CANNOT_JOIN}.
-         */
-        public String toString()
-        {
-            return (isUnjoinable)
-                ? (SOCPlayerClient.GAMENAME_PREFIX_CANNOT_JOIN + name)
-                : name;
-        }
-
-        /** Check list item equality to a {@link String} or another item (only {@link #name} field is checked). */
-        @Override
-        public boolean equals(Object i)
-        {
-            if (i == null)
-                return false;
-            if (i == this)
-                return true;
-            if (i instanceof JoinableListItem)
-                return name.equals(((JoinableListItem) i).name);
-            else if (i instanceof String)
-                return name.equals(i);
-            else
-                return super.equals(i);
-        }
-    }   // JoinableListItem
+//    static class JoinableListItem
+//    {
+//        /** Blank dummy item; {@link #name} is 1 space " " */
+//        public static final JoinableListItem BLANK = new JoinableListItem(" ", false);
+//
+//        public final String name;
+//        public final boolean isUnjoinable;
+//
+//        /**
+//         * Make a JoinableListItem.
+//         * @throws IllegalArgumentException if {@code name} is {@code null}
+//         */
+//        public JoinableListItem(final String name, final boolean isUnjoinable)
+//            throws IllegalArgumentException
+//        {
+//            if (name == null)
+//                throw new IllegalArgumentException();
+//
+//            this.name = name;
+//            this.isUnjoinable = isUnjoinable;
+//        }
+//
+//        /**
+//         * Item {@link #name}. If {@link #isUnjoinable}, will be prefixed with
+//         * {@link SOCPlayerClient#GAMENAME_PREFIX_CANNOT_JOIN}.
+//         */
+//        public String toString()
+//        {
+//            return (isUnjoinable)
+//                ? (SOCPlayerClient.GAMENAME_PREFIX_CANNOT_JOIN + name)
+//                : name;
+//        }
+//
+//        /** Check list item equality to a {@link String} or another item (only {@link #name} field is checked). */
+//        @Override
+//        public boolean equals(Object i)
+//        {
+//            if (i == null)
+//                return false;
+//            if (i == this)
+//                return true;
+//            if (i instanceof JoinableListItem)
+//                return name.equals(((JoinableListItem) i).name);
+//            else if (i instanceof String)
+//                return name.equals(i);
+//            else
+//                return super.equals(i);
+//        }
+//    }   // JoinableListItem
 
 
     /**
@@ -2941,7 +2955,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     {
         private final SwingMainDisplay md;
 
-        public ClientWindowAdapter(SwingMainDisplay md)
+        public ClientWindowAdapter( SwingMainDisplay md)
         {
             this.md = md;
         }
@@ -2958,7 +2972,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             SOCPlayerInterface piActive = null;
 
             // Are we a client to any active games?
-            if (piActive == null)
+//            if (piActive == null)     // always true...
                 piActive = md.findAnyActiveGame(false);
 
             if (piActive != null)
@@ -3056,32 +3070,32 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * @author jdmonin
      * @since 1.1.07
      */
-    private static class GameOptionDefaultsTimeoutTask extends TimerTask
-    {
-        public SwingMainDisplay pcli;
-        public ServerGametypeInfo srvOpts;
-        public boolean forPracticeServer;
-
-        public GameOptionDefaultsTimeoutTask (SwingMainDisplay c, ServerGametypeInfo opts, boolean forPractice)
-        {
-            pcli = c;
-            srvOpts = opts;
-            forPracticeServer = forPractice;
-        }
-
-        /**
-         * Called when timer fires. See class description for action taken.
-         */
-        @Override
-        public void run()
-        {
-            pcli.gameOptsDefsTask = null;  // Clear reference to this soon-to-expire obj
-            srvOpts.noMoreOptions(true);
-            if (srvOpts.newGameWaitingForOpts)
-                pcli.gameWithOptionsBeginSetup(forPracticeServer, false);
-        }
-
-    }  // GameOptionDefaultsTimeoutTask
+//    private static class GameOptionDefaultsTimeoutTask extends TimerTask
+//    {
+//        public SwingMainDisplay pcli;
+//        public ServerGametypeInfo srvOpts;
+//        public boolean forPracticeServer;
+//
+//        public GameOptionDefaultsTimeoutTask (SwingMainDisplay c, ServerGametypeInfo opts, boolean forPractice)
+//        {
+//            pcli = c;
+//            srvOpts = opts;
+//            forPracticeServer = forPractice;
+//        }
+//
+//        /**
+//         * Called when timer fires. See class description for action taken.
+//         */
+//        @Override
+//        public void run()
+//        {
+//            pcli.gameOptsDefsTask = null;  // Clear reference to this soon-to-expire obj
+//            srvOpts.noMoreOptions(true);
+//            if (srvOpts.newGameWaitingForOpts)
+//                pcli.gameWithOptionsBeginSetup(forPracticeServer, false);
+//        }
+//
+//    }  // GameOptionDefaultsTimeoutTask
 
 
 }
