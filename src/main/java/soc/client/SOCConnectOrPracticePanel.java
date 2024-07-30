@@ -61,7 +61,7 @@ import soc.util.Version;
 /*package*/ class SOCConnectOrPracticePanel extends JPanel
     implements ActionListener, KeyListener
 {
-    private final SwingMainDisplay md;
+    private final SwingServerMainDisplay md;
     private final ClientNetwork clientNetwork;
 
     /** Welcome message, or error after disconnect */
@@ -105,7 +105,7 @@ import soc.util.Version;
      *
      * @param md      Player client main display
      */
-    public SOCConnectOrPracticePanel(final SwingMainDisplay md)
+    public SOCConnectOrPracticePanel(final SwingServerMainDisplay md)
     {
         super(new BorderLayout());
 
@@ -625,6 +625,9 @@ import soc.util.Version;
                 runserv.setVisible(true);
             }
             connserv.setVisible(false);
+            prac.setVisible( false );
+            runserv.setVisible(false);
+
             conn_servhost.requestFocus();
             validate();
             return;
@@ -651,7 +654,8 @@ import soc.util.Version;
             if ((panel_conn != null) && panel_conn.isVisible())
             {
                 panel_conn.setVisible(false);
-                connserv.setVisible(true);
+                connserv.setVisible(false);
+                prac.setVisible( false );
             }
             runserv.setVisible(false);
             run_servport.requestFocus();
@@ -723,6 +727,9 @@ import soc.util.Version;
     {
         panel_conn.setVisible(false);
         connserv.setVisible(true);
+        prac.setVisible( true );
+        runserv.setVisible(true);
+
         validate();
     }
 
@@ -740,6 +747,9 @@ import soc.util.Version;
     {
         panel_run.setVisible(false);
         runserv.setVisible(true);
+        prac.setVisible( true );
+        connserv.setVisible(true);
+
         validate();
     }
 

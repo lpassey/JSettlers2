@@ -125,7 +125,7 @@ import soc.util.Version;
     /**
      * Client-hosted TCP server. If client is running this server, it's also connected
      * as a client, instead of being client of a remote server.
-     * Started via {@link SwingMainDisplay#startLocalTCPServer(int)}.
+     * Started via {@link SwingServerMainDisplay#startLocalTCPServer(int)}.
      * {@link #practiceServer} may still be activated at the user's request.
      * Note that {@link SOCGame#isPractice} is false for localTCPServer's games.
      * @since 1.1.00

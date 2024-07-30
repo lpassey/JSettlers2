@@ -75,7 +75,7 @@ public class SOCApplet extends Applet
     @Override
     public void start()
     {
-        if (! mainDisplay.hasConnectOrPractice)
+//        if (! mainDisplay.hasConnectOrPractice)
             mainDisplay.nick.requestFocus();
     }
 
@@ -94,7 +94,7 @@ public class SOCApplet extends Applet
         } catch (Exception e) {}
 
         client = new SOCPlayerClient();
-        mainDisplay = new SwingMainDisplay(false, client, 1);
+        mainDisplay = new SwingMainDisplay( client, 1);
         client.setMainDisplay(mainDisplay);
 
         Version.printVersionText(System.out, "Java Settlers Client ");  // I18N: Not localizing console output yet

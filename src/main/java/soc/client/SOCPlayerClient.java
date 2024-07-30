@@ -1138,7 +1138,7 @@ public class SOCPlayerClient
             frame.setForeground(colors[0]);  // Color.BLACK
         }
 
-        mainDisplay = new SwingMainDisplay((args.length == 0), client, displayScale);
+        mainDisplay = new SwingServerMainDisplay((args.length == 0), client, displayScale);
         client.setMainDisplay(mainDisplay);
 
         // Add a listener for the close event
