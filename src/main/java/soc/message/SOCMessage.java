@@ -113,8 +113,8 @@ import java.util.StringTokenizer;
  *      Note the JSettlers version with a comment.
  *      <P>
  *      <em>Note:</em> Most things added to client {@code MessageHandler.handle} should also be added to
- *      {@link soc.baseclient.SOCDisplaylessPlayerClient#treat(SOCMessage)}. If robots
- *      should react, also add to {@link soc.robot.SOCRobotClient#treat(SOCMessage)}
+ *      {@link soc.baseclient.SOCDisplaylessPlayerClient#handle(SOCMessage)}. If robots
+ *      should react, also add to {@link soc.robot.SOCRobotClient#handle(SOCMessage)}
  *      and maybe also {@link soc.robot.SOCRobotBrain#run()}.
  *      <P>
  *      If the message is player-state related, you might also want to add
