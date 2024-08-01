@@ -319,7 +319,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
 
                 SOCMessage msg = SOCMessage.toMsg(s);
                 if (msg != null)
-                    treat(msg);
+                    handle(msg);
                 else if (debugTraffic)
                     soc.debug.D.ebugERROR(nickname + ": Could not parse net message: " + s);
             }
@@ -400,7 +400,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
     }
 
     /**
-     * Treat the incoming messages.
+     * Handle the incoming messages.
      *<P>
      * For message types relevant to robots and automated clients, will update our data from the
      * message contents. Other types will be ignored. Messages of unknown type are ignored
@@ -408,24 +408,24 @@ public class SOCDisplaylessPlayerClient implements Runnable
      *<P>
      * If {@link #PROP_JSETTLERS_DEBUG_TRAFFIC} is set, debug-prints message contents.
      *<P>
-     *<B>Note:</B> <tt>SOCRobotClient.treat(mes)</tt> calls this method as its default case, for
-     * message types which have no robot-specific handling. For those that do, the robot treat's
-     * switch case can call <tt>super.treat(mes)</tt> before or after any robot-specific handling.
+     *<B>Note:</B> {@link SOCRobotClient.handle(SOCMessage)} calls this method as its default case, for
+     * message types which have no robot-specific handling. For those that do, the robot handle's
+     * switch case can call <tt>super.handle(mes)</tt> before or after any robot-specific handling.
      * (Before v2.0.00, the bot didn't call this method by default.)
      *<P>
      *<B>New message types:</B><BR>
      * If the message type is relevant to bots and other automated clients, add it here. If handling
-     * differs between displayless and the robot client, add it to <tt>SOCRobotClient.treat</tt> too.
+     * differs between displayless and the robot client, add it to {@link SOCRobotClient.handle( SOCMessage )} too.
      *
      * @param mes    the message
      */
-    public void treat(SOCMessage mes)
+    public void handle( SOCMessage mes )
     {
-        treat(mes, false);
+        handle(mes, false);
     }
 
     /**
-     * Treat the incoming messages, callable from subclasses. For details see {@link #treat(SOCMessage)}.
+     * Handle the incoming messages, callable from subclasses. For details see {@link #handle(SOCMessage)}.
      * This method adds a flag parameter to prevent debug printing message contents twice.
      *
      * @param mes  The message
@@ -434,7 +434,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      *     would have done that debug print if enabled.
      * @since 2.0.00
      */
-    protected void treat(final SOCMessage mes, final boolean didDebugPrintAlready)
+    protected void handle( final SOCMessage mes, final boolean didDebugPrintAlready )
     {
         if (mes == null)
             return;  // Msg parsing error
@@ -1033,7 +1033,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
         }
         catch (Exception e)
         {
-            System.out.println("SOCDisplaylessPlayerClient treat ERROR - " + e.getMessage());
+            System.out.println("SOCDisplaylessPlayerClient handle ERROR - " + e.getMessage());
             e.printStackTrace();
             System.out.println("  For message: " + mes);
         }
@@ -1286,7 +1286,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      * handle the "game stats" message. Looks up the game and calls
      * {@link #handleGAMESTATS(SOCGameStats, SOCGame)}.
      *<P>
-     * Instead of overriding this method, {@link SOCRobotClient#treat(SOCMessage)} bypasses it
+     * Instead of overriding this method, {@link SOCRobotClient#handle(SOCMessage)} bypasses it
      * and processes stats in {@link SOCRobotBrain#handleGAMESTATS(SOCGameStats)}.
      */
     protected void handleGAMESTATS(SOCGameStats mes)
@@ -2896,7 +2896,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
      * Update player statistics.
      * Server currently sends only for client player.
      * This message is handled by some client types, but ignored in the base
-     * {@link SOCDisplaylessPlayerClient#treat(SOCMessage)} unless its
+     * {@link SOCDisplaylessPlayerClient#handle(SOCMessage)} unless its
      * {@link SOCDisplaylessPlayerClient#ignorePlayerStats} flag is cleared.
      * @param mes  the message
      * @param ga  Game the client is playing, from {@link SOCMessageForGame#getGame() mes.getGame()},

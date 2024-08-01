@@ -60,7 +60,7 @@ import java.util.Vector;
  *<P>
  * When ready, call {@link #init()} to start the bot's threads and connect to the server.
  * (Built-in bots should set {@link #printedInitialWelcome} beforehand to reduce console clutter.)
- * Once connected, messages from the server are processed in {@link #treat(SOCMessage)}.
+ * Once connected, messages from the server are processed in {@link #handle(SOCMessage)}.
  * For each game this robot client plays, there is a {@link SOCRobotBrain}.
  *<P>
  * The built-in robots must be the same version as the server, to simplify things.
@@ -153,7 +153,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * The pause goes on until {@link #debugRandomPauseUntil} arrives
      * and then {@code debugRandomPauseActive} becomes {@code false}
      * until the next random float below {@link #DEBUGRANDOMPAUSE_FREQ}.
-     * This is all handled within {@link #treat(SOCMessage)}.
+     * This is all handled within {@link #handle(SOCMessage)}.
      * @since 1.1.11
      */
     protected boolean debugRandomPauseActive = false;
@@ -161,7 +161,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     /**
      * When {@link #debugRandomPauseActive} is true, store incoming messages
      * from the server into this queue until {@link #debugRandomPauseUntil}.
-     * Initialized in {@link #treat(SOCMessage)}.
+     * Initialized in {@link #handle(SOCMessage)}.
      * @since 1.1.11
      */
     protected Vector<SOCMessage> debugRandomPauseQueue = null;
@@ -511,18 +511,18 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     }
 
     /**
-     * Treat the incoming messages.
+     * Handle the incoming messages.
      * Messages of unknown type are ignored. All {@link SOCGameServerText} are ignored.
      * ({@code mes} will be null from {@link SOCMessage#toMsg(String)}).
      *<P>
      *<B>Note:</B> If a message doesn't need any robot-specific handling,
      * and doesn't appear as a specific case in this method's switch,
-     * this method calls {@link SOCDisplaylessPlayerClient#treat(SOCMessage)} for it.
+     * this method calls {@link SOCDisplaylessPlayerClient#handle(SOCMessage)} for it.
      *
      * @param mes    the message
      */
     @Override
-    public void treat(SOCMessage mes)
+    public void handle( SOCMessage mes )
     {
         if (mes == null)
             return;  // Message syntax error or unknown type
@@ -587,7 +587,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                 // calling ourself is safe, because
                 //  ! queue.isEmpty; thus won't decide
                 //  to set debugRandomPauseActive=true again.
-                treat(debugRandomPauseQueue.firstElement());
+                handle(debugRandomPauseQueue.firstElement());
                 debugRandomPauseQueue.removeElementAt(0);
             }
 
@@ -757,7 +757,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                 break;
 
             // These message types are ignored by the robot client;
-            // don't send them to SOCDisplaylessClient.treat:
+            // don't send them to SOCDisplaylessClient.handle:
 
             case SOCMessage.BCASTTEXTMSG:
             case SOCMessage.CHANGEFACE:
@@ -777,16 +777,16 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                 break;  // ignore this message type
 
             /**
-             * Call SOCDisplaylessClient.treat for all other message types.
+             * Call {@link SOCDisplaylessClient.handle( SOCMessage, boolean )} for all other message types.
              * For types relevant to robots, updates game data from the message contents.
              */
             default:
-                super.treat(mes, true);
+                super.handle(mes, true);
             }
         }
         catch (Throwable e)
         {
-            System.err.println("SOCRobotClient treat ERROR - " + e + " " + e.getMessage());
+            System.err.println("SOCRobotClient handle ERROR - " + e + " " + e.getMessage());
             e.printStackTrace();
             while (e.getCause() != null)
             {
