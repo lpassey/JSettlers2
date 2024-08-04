@@ -78,7 +78,7 @@ import soc.message.SOCUndoPutPiece;
  * @author paulbilnoski
  * @since 2.0.00
  */
-/*package*/ class GameMessageSender
+public class GameMessageSender
 {
     private final SOCPlayerClient client;
     private final ClientNetwork net;

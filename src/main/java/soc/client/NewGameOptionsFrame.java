@@ -381,7 +381,8 @@ import soc.util.Version;
         forNewGame = (gaName == null);
         existingGameName = gaName;
         this.opts = opts;
-        knownOpts = ((forPractice) ? cli.practiceServGameOpts : cli.tcpServGameOpts).knownOpts;
+        knownOpts = cli.getKnownOpts( forPractice );
+//                ((forPractice) ? cli.practiceServGameOpts : cli.tcpServGameOpts).knownOpts;
         localPrefs = new HashMap<String, Object>();
         this.forPractice = forPractice;
         this.readOnly = readOnly;
@@ -398,10 +399,10 @@ import soc.util.Version;
         }
         if ((gaName == null) && forPractice)
         {
-            if (cli.numPracticeGames == 0)
-                gaName = cli.DEFAULT_PRACTICE_GAMENAME;
+            if (cli.getNumPracticeGames() == 0)
+                gaName = SOCFullClient.DEFAULT_PRACTICE_GAMENAME;
             else
-                gaName = cli.DEFAULT_PRACTICE_GAMENAME + " " + (1 + cli.numPracticeGames);
+                gaName = SOCFullClient.DEFAULT_PRACTICE_GAMENAME + " " + (1 + cli.getNumPracticeGames());
         }
 
         // same Frame/Window setup as in SOCPlayerClient.main
@@ -557,7 +558,7 @@ import soc.util.Version;
                 gameInfo = new JLabel();
                 if (hasGameInfoAlready)
                     updateGameInfo();
-                else if (! (pcli.gotPassword || mainDisplay.readValidNicknameAndPassword()))
+                else if (! (pcli.isAuthenticated() || mainDisplay.readValidNicknameAndPassword()))
                     gameInfo.setText(strings.get("game.options.must_enter_nickname_to_check"));  // "Must enter a nickname to check status"
                 gbc.gridwidth = GridBagConstraints.REMAINDER;
                 gbc.weightx = 1;

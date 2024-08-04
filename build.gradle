@@ -11,7 +11,7 @@ buildscript {
     }
 }
 
-version = '2.7.00'  // same as in src/main/resources/resources/version.info
+version = '2.7.01'  // same as in src/main/resources/resources/version.info
 ext.i18neditor_version = '1.2.1'  // for PTE editor; same as in src/main/resources/pteResources/pteversion.properties
 ext.git_revision = '?'  // placed in jar manifests as Build-Revision attrib; will be filled in by findGitRevision task
 
@@ -145,8 +145,9 @@ task clientJar(type: Jar) {
         include "soc/client/**"
         include "soc/debug/**"
         include "soc/disableDebug/**"
-//        include "soc/game/**"
+        include "soc/game/**"
         include "soc/message/**"
+        // No server code, no robots
         include "soc/util/**"
     }
     from(sourceSets.main.resources) {
@@ -187,7 +188,7 @@ task fullJar(type: Jar) {
     archiveVersion = project.version
     manifest {
         attributes(
-            'Main-Class': 'soc.client.SOCPlayerClient',
+            'Main-Class': 'soc.client.SOCFullClient',
             'Implementation-Version': project.version,
             'Build-Revision': project.git_revision,
             'Class-Path': 'gson.jar',  // in case client launches a server, or another project uses fullJar
@@ -267,7 +268,7 @@ task distFullTar(type: Tar) {
     archiveClassifier = 'full'
     compression = Compression.GZIP
     archiveExtension = 'tar.gz'
-    from srcTree, fullJar.outputs.files, serverJar.outputs.files
+    from srcTree, fullJar.outputs.files, serverJar.outputs.files, clientJar.outputs.files
     into 'jsettlers-' + project.version + '/'
 }
 
@@ -276,7 +277,7 @@ task distFullZip(type: Zip) {
     dependsOn cleanRemovePyc
     archiveBaseName = 'jsettlers'
     archiveClassifier = 'full'
-    from srcTree, fullJar.outputs.files, serverJar.outputs.files
+    from srcTree, fullJar.outputs.files, serverJar.outputs.files, clientJar.outputs.files
     into 'jsettlers-' + project.version + '/'
 }
 
@@ -390,7 +391,7 @@ clean {
 }
 
 artifacts {
-    archives serverJar, fullJar
+    archives serverJar, fullJar, clientJar
 }
 
 

@@ -49,6 +49,9 @@ import java.awt.event.KeyListener;
     /** Welcome message, or error after disconnect */
     private JLabel topText;
 
+    /** "Practice" */
+//    private JButton prac;
+
      /** "Connect to server" */
 //    private JButton connserv;
 
@@ -117,7 +120,7 @@ import java.awt.event.KeyListener;
         /**
          * JButton.setBackground(null) is needed on win32 to avoid gray corners
          */
-//        final boolean shouldClearButtonBGs = (! isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
+        final boolean shouldClearButtonBGs = (! isOSHighContrast) && SOCPlayerClient.IS_PLATFORM_WINDOWS;
 
         // In center of bpContainer, bp holds the narrow UI stack:
         final JPanel bp = new BoxedJPanel();
@@ -134,22 +137,28 @@ import java.awt.event.KeyListener;
 
         final GridBagLayout gbl = new GridBagLayout();
         final GridBagConstraints gbc = new GridBagConstraints();
-        final JPanel modeButtonsContainer = new BoxedJPanel(gbl);
-        if (! isOSHighContrast)
-        {
-            modeButtonsContainer.setBackground(null);
-            modeButtonsContainer.setForeground(null);
-        }
 
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-
-        topText = new JLabel(strings.get("pcli.cpp.welcomeheading"), SwingConstants.CENTER);
-            // "Welcome to JSettlers!  Please choose an option."
-        gbl.setConstraints(topText, gbc);
-        modeButtonsContainer.add(topText);
-
-        bp.add(modeButtonsContainer);
+        /*
+          This "modeButtonsContainer" hold the three buttons to connect to a server, launch
+          a practice server, or launch an in memory server. This client can't do two of these
+          things, so we just skip it and show the connect panel
+         */
+//        final JPanel modeButtonsContainer = new BoxedJPanel(gbl);
+//        if (! isOSHighContrast)
+//        {
+//            modeButtonsContainer.setBackground(null);
+//            modeButtonsContainer.setForeground(null);
+//        }
+//
+//        gbc.fill = GridBagConstraints.BOTH;
+//        gbc.gridwidth = GridBagConstraints.REMAINDER;
+//
+//        topText = new JLabel(strings.get("pcli.cpp.welcomeheading"), SwingConstants.CENTER);
+//            // "Welcome to JSettlers!  Please choose an option."
+//        gbl.setConstraints(topText, gbc);
+//        modeButtonsContainer.add(topText);
+//
+//        bp.add(modeButtonsContainer);
 
         /**
          * Interface setup: sub-panels (not initially visible)
@@ -273,14 +282,18 @@ import java.awt.event.KeyListener;
     }
 
    /**
-     * Do nothing method to keep SOCMainDisplay from breaking ... for now
-     *  Called from {@link MainDisplay#startLocalTCPServer(int)}.
-     */
+    * TODO: Do nothing method to keep SOCMainDisplay from breaking ... for now
+    *  Called from {@link MainDisplay#startLocalTCPServer(int)}, only implemented
+    *  in {@link SwingServerMainDisplay}
+    */
     public void startedLocalServer()
     {
     }
 
     /**
+     * TODO: Currently unused. when it becomes used, switch to the Connect card and try to
+     * connect again or to a different server
+     * <p>
      * We were connected to a TCP server (remote, or the one we started) but something broke the connection.
      * Show an error message and the initial 3 buttons, as if we've just started the client up.
      *
@@ -366,6 +379,12 @@ import java.awt.event.KeyListener;
         try {
 
         Object src = ae.getSource();
+//        if (src == prac)
+//        {
+//            // Ask client to set up and start a practice game
+//            md.clickPracticeButton();
+//            return;
+//        }
 
 //        if (src == connserv)
 //        {
@@ -377,14 +396,14 @@ import java.awt.event.KeyListener;
 //            return;
 //        }
 
-        if (src == conn_connect)
-        {
-            // After clicking connserv, actually connect to server
-            clickConnConnect();
-        }
+            if (src == conn_connect)
+            {
+                // After clicking connserv, actually connect to server
+                clickConnConnect();
+            }
 
 
-       }  // try
+        }  // try
         catch( Throwable thr )
         {
             System.err.println("-- Error caught in AWT event thread: " + thr + " --");
@@ -415,15 +434,23 @@ import java.awt.event.KeyListener;
 
         // Copy fields, show MAIN_PANEL, and connect in client
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        char[] passwd = conn_pass.getPassword();
-        md.getClient().connect(cserv, cport, conn_user.getText(), String.valueOf( passwd ));
+        md.getClient().connect(cserv, cport, conn_user.getText(), String.valueOf( conn_pass.getPassword() ));
     }
+
+    /** Hide fields used to connect to server. */
+//    private void clickConnCancel()
+
+    /** Actually start a server, on port from {@link #run_servport} */
+//    private void clickRunStartserv()
 
     /** Hide fields used to connect to server. */
 //    private void clickConnCancel()
 //    {
 //        validate();
 //    }
+
+    /** Hide fields used to start a server */
+//    private void clickRunCancel()
 
     /** Handle Enter or Esc key (KeyListener) */
     public void keyPressed(KeyEvent e)

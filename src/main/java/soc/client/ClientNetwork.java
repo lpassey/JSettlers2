@@ -311,10 +311,10 @@ import soc.util.Version;
 
         // Ask internal practice server to create the game
         if (gameOpts == null)
-            putPractice(SOCJoinGame.toCmd(client.practiceNickname, "", SOCMessage.EMPTYSTR, practiceGameName));
+            putPractice(SOCJoinGame.toCmd(client.getNickname(), "", SOCMessage.EMPTYSTR, practiceGameName));
         else
             putPractice(SOCNewGameWithOptionsRequest.toCmd
-                (client.practiceNickname, "", SOCMessage.EMPTYSTR, practiceGameName, gameOpts.getAll()));
+                (client.getNickname(), "", SOCMessage.EMPTYSTR, practiceGameName, gameOpts.getAll()));
 
         return true;
     }
@@ -440,11 +440,11 @@ import soc.util.Version;
 
         try
         {
-            if (client.gotPassword)
+            if (client.isAuthenticated())
             {
-                mainDisplay.setPassword(client.password);
+                mainDisplay.setPassword(client.getPassword());
                     // when ! gotPassword, SwingMainDisplay.getPassword() will read pw from there
-                client.gotPassword = false;
+                client.setAuthenticated( false );
             }
 
             final SocketAddress srvAddr = (host != null)
@@ -475,7 +475,7 @@ import soc.util.Version;
                             {
                                 Thread.sleep(PING_LOCAL_SERVER_INTERVAL_MS);
                             }
-                            catch (InterruptedException e) {}
+                            catch (InterruptedException ignore) {}
 
                             putNet(pingCmd);
                         }

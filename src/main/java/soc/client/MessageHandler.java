@@ -841,7 +841,7 @@ public class MessageHandler
             ? client.tcpServGameOpts.knownOpts.optionsWithFlag(SOCGameOption.FLAG_3RD_PARTY, 0)
             : null;   // sVersion < cliVersion, so SOCGameOptionSet.optionsNewerThanVersion will find any 3rd-party opts
 
-        if ( ((! isPractice) && (client.sVersion > cliVersion))
+        if (    ((! isPractice) && (client.sVersion > cliVersion))
              || ((isPractice || sameVersion) && (withTokenI18n || (opts3p != null))) )
         {
             // Newer server: Ask it to list any options we don't know about yet.
@@ -914,29 +914,32 @@ public class MessageHandler
 
                     gms.put(new SOCGameOptionGetInfos(null, true, false).toCmd(), false);  // sends opt list "-,?I18N"
                 }
-            } else {
+            } 
+            else 
+            {
                 // server is too old to understand options. Can't happen with local practice srv,
                 // because that's our version (it runs from our own JAR file).
-
                 client.tcpServGameOpts.noMoreOptions(true);
                 client.tcpServGameOpts.knownOpts = null;
             }
-        } else {
-            // client.sVersion == cliVersion, so we have same info/code as server for getAllKnownOptions, scenarios, etc
-            // and found nothing else to ask about (i18n, 3rd-party gameopts).
+        }
+        else 
+        {          
+            // client.sVersion == cliVersion, so we have same info/code as server for getAllKnownOptions,
+            // scenarios, etc. and found nothing else to ask about (i18n, 3rd-party gameopts).
 
             // For practice games, knownOpts may already be initialized, so check vs null.
-            ServerGametypeInfo opts = (isPractice ? client.practiceServGameOpts : client.tcpServGameOpts);
-            if (opts.knownOpts == null)
-                opts.knownOpts = SOCGameOptionSet.getAllKnownOptions();
-            opts.noMoreOptions(isPractice);  // defaults not known unless it's practice
-
-            if (! (withTokenI18n || isPractice))
-            {
-                // won't need i18n strings: set flags so we won't ask server later for scenario details
-                opts.allScenStringsReceived = true;
-                opts.allScenInfoReceived = true;
-            }
+//            ServerGametypeInfo opts = (isPractice ? client.practiceServGameOpts : client.tcpServGameOpts);
+//            if (opts.knownOpts == null)
+//                opts.knownOpts = SOCGameOptionSet.getAllKnownOptions();
+//            opts.noMoreOptions(isPractice);  // defaults not known unless it's practice
+//
+//            if (! (withTokenI18n || isPractice))
+//            {
+//                // won't need i18n strings: set flags so we won't ask server later for scenario details
+//                opts.allScenStringsReceived = true;
+//                opts.allScenInfoReceived = true;
+//            }
         }
     }
 
@@ -994,7 +997,7 @@ public class MessageHandler
 
             if (sv == SOCStatusMessage.SV_OK)
             {
-                client.gotPassword = true;
+                client.setAuthenticated( true );
 
                 EventQueue.invokeLater(new Runnable()
                 {
@@ -1027,9 +1030,9 @@ public class MessageHandler
                 while (st.hasMoreTokens())
                     optNames.add(st.nextToken());
 
-                StringBuffer opts = new StringBuffer();
-                final SOCGameOptionSet knowns =
-                    (isPractice) ? client.practiceServGameOpts.knownOpts : client.tcpServGameOpts.knownOpts;
+                StringBuilder opts = new StringBuilder();
+                final SOCGameOptionSet knowns = client.getKnownOpts( isPractice );
+//                    (isPractice) ? client.practiceServGameOpts.knownOpts : client.tcpServGameOpts.knownOpts;
                 for (String oname : optNames)
                 {
                     opts.append('\n');
@@ -1095,7 +1098,7 @@ public class MessageHandler
      */
     protected void handleJOINCHANNELAUTH(SOCJoinChannelAuth mes)
     {
-        client.gotPassword = true;
+        client.setAuthenticated( true );
         client.getMainDisplay().channelJoined(mes.getChannel());
     }
 
@@ -1261,10 +1264,10 @@ public class MessageHandler
         throws IllegalStateException
     {
         if (! isPractice)
-            client.gotPassword = true;
+            client.setAuthenticated( true );
 
-        final SOCGameOptionSet knownOpts =
-            ((isPractice) ? client.practiceServGameOpts : client.tcpServGameOpts).knownOpts;
+        final SOCGameOptionSet knownOpts = client.getKnownOpts( isPractice );
+//            ((isPractice) ? client.practiceServGameOpts : client.tcpServGameOpts).knownOpts;
         final String gaName = mes.getGame();
         SOCGameOptionSet gameOpts;
         if (isPractice)
@@ -1497,7 +1500,7 @@ public class MessageHandler
             ga.releaseMonitor();
         }
 
-        final boolean playerIsClient = client.getNickname(ga.isPractice).equals(plName);
+        final boolean playerIsClient = client.getNickname( /* ga.isPractice */).equals(plName);
 
         if (playerIsClient
             && (ga.isPractice || (client.sVersion >= SOCDevCardAction.VERSION_FOR_SITDOWN_CLEARS_INVENTORY)))
@@ -1867,7 +1870,7 @@ public class MessageHandler
                 // Update count if possible; convert known to unknown if needed.
                 // For our own player, server sends resource specifics, not just total count
 
-                boolean isClientPlayer = pl.getName().equals(client.getNickname(ga.isPractice));
+                boolean isClientPlayer = pl.getName().equals(client.getNickname());
                 if (! isClientPlayer)
                 {
                     SOCDisplaylessPlayerClient.handlePLAYERELEMENT_simple
@@ -2724,9 +2727,10 @@ public class MessageHandler
     private void handleGAMEOPTIONGETDEFAULTS(SOCGameOptionGetDefaults mes, final boolean isPractice)
     {
         ServerGametypeInfo servOpts;
-        if (isPractice)
-            servOpts = client.practiceServGameOpts;
-        else
+        // TODO: fix
+//        if (isPractice)
+//            servOpts = client.practiceServGameOpts;
+//        else
             servOpts = client.tcpServGameOpts;
 
         final List<String> unknowns;
@@ -2768,9 +2772,10 @@ public class MessageHandler
     /*package*/ void handleGAMEOPTIONINFO(SOCGameOptionInfo mes, final boolean isPractice)
     {
         ServerGametypeInfo opts;
-        if (isPractice)
-            opts = client.practiceServGameOpts;
-        else
+        // TODO: fix
+//        if (isPractice)
+//            opts = client.practiceServGameOpts;
+//        else
             opts = client.tcpServGameOpts;
 
         boolean hasAllNow;
@@ -2816,8 +2821,8 @@ public class MessageHandler
         // SOCGames.MARKER_THIS_GAME_UNJOINABLE.
         // This is recognized and removed in mes.getGameList.
 
-        final SOCGameList msgGames = mes.getGameList
-            ((isPractice ? client.practiceServGameOpts : client.tcpServGameOpts).knownOpts);
+        final SOCGameList msgGames = mes.getGameList( client.getKnownOpts( isPractice ));
+//                (isPractice ? client.practiceServGameOpts : client.tcpServGameOpts).knownOpts);
         if (msgGames == null)
             return;
 
@@ -2860,8 +2865,8 @@ public class MessageHandler
      */
     private void handleLOCALIZEDSTRINGS(final SOCLocalizedStrings mes, final boolean isPractice)
     {
-        final SOCGameOptionSet knownOpts =
-            ((isPractice) ? client.practiceServGameOpts : client.tcpServGameOpts).knownOpts;
+        final SOCGameOptionSet knownOpts = client.getKnownOpts( isPractice );
+//            ((isPractice) ? client.practiceServGameOpts : client.tcpServGameOpts).knownOpts;
         final List<String> strs = mes.getParams();
         final String type = strs.get(0);
 
@@ -2882,8 +2887,7 @@ public class MessageHandler
         }
         else if (type.equals(SOCLocalizedStrings.TYPE_SCENARIO))
         {
-            client.localizeGameScenarios
-                (strs, true, mes.isFlagSet(SOCLocalizedStrings.FLAG_SENT_ALL), isPractice);
+//           client.localizeGameScenarios( strs, true, mes.isFlagSet(SOCLocalizedStrings.FLAG_SENT_ALL), isPractice);
         }
         else
         {
@@ -2899,9 +2903,9 @@ public class MessageHandler
     private void handleSCENARIOINFO(final SOCScenarioInfo mes, final boolean isPractice)
     {
         ServerGametypeInfo opts;
-        if (isPractice)
-            opts = client.practiceServGameOpts;
-        else
+//        if (isPractice)
+//            opts = client.practiceServGameOpts;
+//        else
             opts = client.tcpServGameOpts;
 
         if (mes.noMoreScens)

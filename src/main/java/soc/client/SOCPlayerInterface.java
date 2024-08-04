@@ -851,7 +851,7 @@ public class SOCPlayerInterface extends JFrame
         throws IllegalArgumentException
     {
         super(strings.get("interface.title.game", title)
-              + (ga.isPractice ? "" : " [" + md.getClient().getNickname(false) + "]"));
+              + (ga.isPractice ? "" : " [" + md.getClient().getNickname() + "]"));
             // "Settlers of Catan Game: {0}"
 
         layoutNotReadyYet = true;  // will set to false at end of layoutContainer
@@ -1877,7 +1877,7 @@ public class SOCPlayerInterface extends JFrame
      */
     public final String getClientNickname()
     {
-        return client.getNickname(game.isPractice);
+        return client.getNickname();
     }
 
     /**
@@ -3155,8 +3155,8 @@ public class SOCPlayerInterface extends JFrame
      */
     public void showScenarioInfoDialog()
     {
-        NewGameOptionsFrame.showScenarioInfoDialog
-            (game, ((game.isPractice) ? client.practiceServGameOpts : client.tcpServGameOpts).knownOpts,
+        NewGameOptionsFrame.showScenarioInfoDialog( game, client.getKnownOpts( game.isPractice ),
+//                ((game.isPractice) ? client.practiceServGameOpts : client.tcpServGameOpts).knownOpts,
              getMainDisplay(), this);
     }
 

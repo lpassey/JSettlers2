@@ -85,7 +85,7 @@ public interface MainDisplay
      * @param cpass Password text to put into that TextField (obscured)
      * @param cuser User nickname text to put into that TextField
      */
-    void connect(String chost, int cport, String cpass, String cuser);
+    void saveConnectInfo( String chost, int cport, String cpass, String cuser);
 
     /**
      * Setup for locally hosting a TCP server.

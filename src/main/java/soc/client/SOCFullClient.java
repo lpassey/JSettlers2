@@ -22,39 +22,18 @@
  **/
 package soc.client;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.EventQueue;
-
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.prefs.Preferences;
-
-import javax.swing.JFrame;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-
 import net.nand.util.i18n.mgr.StringManager;
-
-import soc.baseclient.SOCBaseClient;
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
-import soc.game.SOCGame;
-import soc.game.SOCGameOption;
-import soc.game.SOCGameOptionSet;
-import soc.game.SOCPlayer;
-import soc.game.SOCScenario;
-
+import soc.game.*;
 import soc.message.*;
+import soc.util.*;
 
-import soc.util.I18n;
-import soc.util.SOCFeatureSet;
-import soc.util.SOCGameList;
-import soc.util.SOCStringManager;
-import soc.util.Version;
+import javax.swing.*;
+import java.awt.*;
+import java.util.List;
+import java.util.*;
+import java.util.prefs.Preferences;
 
 /**
  * Standalone client for connecting to the SOCServer. (For applet see {@link SOCApplet}.)
@@ -91,7 +70,7 @@ import soc.util.Version;
  *
  * @author Robert S Thomas
  */
-public class SOCPlayerClient extends SOCBaseClient
+public class SOCFullClient extends SOCPlayerClient
 {
     /**
      * String property {@code jsettlers.debug.clear_prefs} to support testing and debugging:
@@ -116,7 +95,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see SOCDisplaylessPlayerClient#PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P
      * @since 2.0.00
      */
-    public static final String PROP_JSETTLERS_DEBUG_CLIENT_FEATURES = "jsettlers.debug.client.features";
+//    public static final String PROP_JSETTLERS_DEBUG_CLIENT_FEATURES = "jsettlers.debug.client.features";
 
     /**
      * Integer persistent {@link Preferences} key for width of a {@link SOCPlayerInterface} window frame,
@@ -132,14 +111,14 @@ public class SOCPlayerClient extends SOCBaseClient
      *
      * @since 1.2.00
      */
-    public static final String PREF_PI__WIDTH = "PI_width";
+//    public static final String PREF_PI__WIDTH = "PI_width";
 
     /**
      * Integer persistent {@link Preferences} key for height of a {@link SOCPlayerInterface} window frame;
      * see {@link #PREF_PI__WIDTH} for details.
      * @since 1.2.00
      */
-    public static final String PREF_PI__HEIGHT = "PI_height";
+//    public static final String PREF_PI__HEIGHT = "PI_height";
 
     /**
      * Boolean persistent {@link Preferences} key for sound effects.
@@ -153,7 +132,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see SOCPlayerInterface#isSoundMuted()
      * @since 1.2.00
      */
-    public static final String PREF_SOUND_ON = "soundOn";
+//    public static final String PREF_SOUND_ON = "soundOn";
 
     /**
      * Integer persistent {@link Preferences} key for starting value of the countdown to auto-reject bot trades,
@@ -170,7 +149,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see SOCPlayerInterface#getBotTradeRejectSec()
      * @since 1.2.00
      */
-    public static final String PREF_BOT_TRADE_REJECT_SEC = "botTradeRejectSec";
+//    public static final String PREF_BOT_TRADE_REJECT_SEC = "botTradeRejectSec";
 
     /**
      * Integer persistent {@link Preferences} key for choice of hex graphics set.
@@ -183,7 +162,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see UserPreferences#getPref(String, int)
      * @since 2.0.00
      */
-    public static final String PREF_HEX_GRAPHICS_SET = "hexGraphicsSet";
+//    public static final String PREF_HEX_GRAPHICS_SET = "hexGraphicsSet";
 
     /**
      * Integer persistent {@link Preferences} optional key to force (2 or 3) or disable (1) UI Scaling.
@@ -199,7 +178,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see UserPreferences#getPref(String, int)
      * @since 2.0.00
      */
-    public static final String PREF_UI_SCALE_FORCE = "uiScaleForce";
+//    public static final String PREF_UI_SCALE_FORCE = "uiScaleForce";
 
     /**
      * Integer persistent {@link Preferences} key for remembering preferred face icon ID.
@@ -214,20 +193,20 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see UserPreferences#getPref(String, int)
      * @since 2.4.00
      */
-    public static final String PREF_FACE_ICON = "faceIcon";
+//    public static final String PREF_FACE_ICON = "faceIcon";
 
     /**
      * i18n text strings in our {@link #cliLocale}.
      * @since 2.0.00
      */
-    final soc.util.SOCStringManager strings;
+//    final SOCStringManager strings;
 
     /**
      * Prefix text to indicate a game this client cannot join: "(cannot join) "<BR>
      * Non-final for localization. Localize before calling {@link SwingMainDisplay.JoinableListItem#toString()}.
      * @since 1.1.06
      */
-    protected static String GAMENAME_PREFIX_CANNOT_JOIN = "(cannot join) ";
+//    protected static String GAMENAME_PREFIX_CANNOT_JOIN = "(cannot join) ";
 
     /**
      * For use in password fields, and possibly by other places, detect if we're running on
@@ -238,7 +217,7 @@ public class SOCPlayerClient extends SOCBaseClient
      *
      * @since 1.1.07
      */
-    public static final boolean IS_PLATFORM_MAC_OSX;
+//    public static final boolean IS_PLATFORM_MAC_OSX;
 
     /**
      * Is this a windows platform, according to {@link System#getProperty(String) System.getProperty("os.name")}?
@@ -248,44 +227,44 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see #IS_PLATFORM_MAC_OSX
      * @since 1.1.08
      */
-    /*package*/ static final boolean IS_PLATFORM_WINDOWS;
+//    /*package*/ static final boolean IS_PLATFORM_WINDOWS;
 
-    static {
-        String osName = System.getProperty("os.name");
-        IS_PLATFORM_WINDOWS = (osName != null) && (osName.toLowerCase().indexOf("windows") != -1);
-        IS_PLATFORM_MAC_OSX = (osName != null) && osName.toLowerCase().startsWith("mac os x");
-    }
+//    static {
+//        String osName = System.getProperty("os.name");
+//        IS_PLATFORM_WINDOWS = (osName != null) && (osName.toLowerCase().indexOf("windows") != -1);
+//        IS_PLATFORM_MAC_OSX = (osName != null) && osName.toLowerCase().startsWith("mac os x");
+//    }
 
-    static
-    {
-        if (IS_PLATFORM_MAC_OSX)
-        {
-            // Must set "OSX look and feel" items before calling any AWT code
-            // or setting a platform look and feel.
-
-            System.setProperty("apple.awt.application.name", "JSettlers");
-                // Required on OSX 10.7 or so and newer; works for apple java 6
-            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "JSettlers");
-                // Works for earlier OSX versions
-        }
-        else if (! IS_PLATFORM_WINDOWS)
-        {
-            // Linux/Unix: Use sub-pixel font antialiasing if available;
-            // some desktop environments don't enable antialiasing by default
-
-            String currVal = null;
-            try
-            {
-                currVal = System.getProperty("awt.useSystemAAFontSettings");
-            } catch (SecurityException e) {}
-            if (currVal == null)
-                try
-                {
-                    System.setProperty("awt.useSystemAAFontSettings", "lcd");
-                } catch (SecurityException e) {}
-
-        }
-    }
+//    static
+//    {
+//        if (IS_PLATFORM_MAC_OSX)
+//        {
+//            // Must set "OSX look and feel" items before calling any AWT code
+//            // or setting a platform look and feel.
+//
+//            System.setProperty("apple.awt.application.name", "JSettlers");
+//                // Required on OSX 10.7 or so and newer; works for apple java 6
+//            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "JSettlers");
+//                // Works for earlier OSX versions
+//        }
+//        else if (! IS_PLATFORM_WINDOWS)
+//        {
+//            // Linux/Unix: Use sub-pixel font antialiasing if available;
+//            // some desktop environments don't enable antialiasing by default
+//
+//            String currVal = null;
+//            try
+//            {
+//                currVal = System.getProperty("awt.useSystemAAFontSettings");
+//            } catch (SecurityException e) {}
+//            if (currVal == null)
+//                try
+//                {
+//                    System.setProperty("awt.useSystemAAFontSettings", "lcd");
+//                } catch (SecurityException e) {}
+//
+//        }
+//    }
 
     /**
      * Locale for i18n message lookups used for {@link #strings}.  Also sent to server while connecting.
@@ -293,7 +272,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * {@link I18n#PROP_JSETTLERS_LOCALE PROP_JSETTLERS_LOCALE} ({@code "jsettlers.locale"}).
      * @since 2.0.00
      */
-    final Locale cliLocale;
+//    final Locale cliLocale;
 
     /**
      * Helper object to deal with network connectivity.
@@ -301,12 +280,12 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see #gameMessageSender
      * @since 2.0.00
      */
-    protected ClientNetwork net;
+//    private ClientNetwork net;
 
     /**
      * Helper object to dispatch incoming messages from the server.
      * Called by {@link ClientNetwork} when it receives network traffic.
-     * Must call {@link MessageHandler#init(SOCPlayerClient)} before usage.
+     * Must call {@link MessageHandler#init(SOCFullClient)} before usage.
      * @see #gameMessageSender
      */
 //    private final MessageHandler messageHandler;
@@ -323,7 +302,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * Display for the main user interface, including and beyond the list of games and chat channels.
      * Individual games are {@link PlayerClientListener}s / {@link SOCPlayerInterface}s.
      */
-    protected MainDisplay mainDisplay;
+//    private MainDisplay mainDisplay;
 
     /**
      *  Server version number for remote server, sent soon after connect, 0 if no server, or -1 if version unknown.
@@ -357,15 +336,15 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see #sFeatures
      * @since 1.1.07
      */
-    protected ServerGametypeInfo tcpServGameOpts = new ServerGametypeInfo();
- //   protected ServerGametypeInfo practiceServGameOpts = new ServerGametypeInfo();
+//    protected ServerGametypeInfo tcpServGameOpts = new ServerGametypeInfo();
+    protected ServerGametypeInfo practiceServGameOpts = new ServerGametypeInfo();
 
     /**
      * For practice games, default game name ("Practice").
      * Set in constructor using i18n {@link #strings} lookup.
      * @since 1.1.00
      */
-//    public final String DEFAULT_PRACTICE_GAMENAME;
+    public static String DEFAULT_PRACTICE_GAMENAME;
 
     /**
      * Client's nickname as a player in practice games; null until validated and set by
@@ -405,7 +384,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * Used only with TCP servers, not with {@link ClientNetwork#practiceServer}.
      * @since 1.1.19
      */
-    protected boolean isNGOFWaitingForAuthStatus;
+//    protected boolean isNGOFWaitingForAuthStatus;
 
     /**
      * True if contents of incoming and outgoing network message traffic should be debug-printed.
@@ -414,7 +393,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * Versions earlier than 1.1.20 always printed this debug output; 1.1.20 never prints it.
      * @since 1.2.00
      */
-    boolean debugTraffic;
+//    boolean debugTraffic;
 
     /**
      * Face icon ID chosen most recently (for use in new games) for {@link SOCPlayer#setFaceId(int)};
@@ -422,7 +401,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * by {@link SOCPlayerInterface} window listener's {@code windowClosed(..)}.
      * @since 1.1.00
      */
-    protected int lastFaceChange;
+//    protected int lastFaceChange;
 
     /**
      * All the games we're currently playing. Includes networked or hosted games and those on practice server.
@@ -430,7 +409,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * which sometimes directly calls {@code client.games.get(..)}.
      * @see #serverGames
      */
-    protected final Hashtable<String, SOCGame> games = new Hashtable<String, SOCGame>();
+//    protected final Hashtable<String, SOCGame> games = new Hashtable<String, SOCGame>();
 
     /**
      * all announced game names on the remote server, including games which we can't
@@ -448,7 +427,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see #gamesUnjoinableOverride
      * @since 1.1.07
      */
-    protected SOCGameList serverGames = null;
+//    protected SOCGameList serverGames = null;
 
     /**
      * the unjoinable game names from {@link #serverGames} that player has asked to join,
@@ -457,7 +436,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * Both key and value are the game name, without the {@link #GAMENAME_PREFIX_CANNOT_JOIN} prefix.
      * @since 1.1.06
      */
-    protected Map<String,String> gamesUnjoinableOverride = new HashMap<String,String>();
+//    protected Map<String,String> gamesUnjoinableOverride = new HashMap<String,String>();
 
     /**
      * Map from game-name to the listener for that game.
@@ -473,7 +452,7 @@ public class SOCPlayerClient extends SOCBaseClient
      *
      * @since 1.2.00
      */
-    protected final HashMap<String, Map<String, Object>> gameReqLocalPrefs = new HashMap<String, Map<String, Object>>();
+//    private final HashMap<String, Map<String, Object>> gameReqLocalPrefs = new HashMap<String, Map<String, Object>>();
 
     /**
      * the ignore list
@@ -484,7 +463,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * Number of practice games started; used for naming practice games
      * @since 1.1.00
      */
-//    protected int numPracticeGames = 0;
+    protected int numPracticeGames = 0;
 
     /**
      * Create a SOCPlayerClient connecting to localhost port {@link ClientNetwork#SOC_PORT_DEFAULT}.
@@ -499,7 +478,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * to join a TCP server, or {@link MainDisplay#clickPracticeButton()}
      * or {@link MainDisplay#startLocalTCPServer(int)} to start a server locally.
      */
-    public SOCPlayerClient()
+    public SOCFullClient()
     {
         this(new MessageHandler());
     }
@@ -511,45 +490,47 @@ public class SOCPlayerClient extends SOCBaseClient
      * @throws IllegalArgumentException if {@code mh} is null
      * @since 2.5.00
      */
-    protected SOCPlayerClient(final MessageHandler mh)
+    protected SOCFullClient( final MessageHandler mh)
         throws IllegalArgumentException
     {
-        if (mh == null)
-            throw new IllegalArgumentException("mh");
+        super( mh );
 
-        authenticated = false;
-
-        int id = UserPreferences.getPref(PREF_FACE_ICON, SOCPlayer.FIRST_HUMAN_FACE_ID);
-        if (id <= 0)
-            id = SOCPlayer.FIRST_HUMAN_FACE_ID;  // use default if not remembering
-        lastFaceChange = id;
-
-        if (null != System.getProperty(SOCDisplaylessPlayerClient.PROP_JSETTLERS_DEBUG_TRAFFIC))
-            debugTraffic = true;  // set flag if debug prop has any value at all
-
-        String jsLocale = System.getProperty(I18n.PROP_JSETTLERS_LOCALE);
-        Locale lo = null;
-        if (jsLocale != null)
-        {
-            try
-            {
-                lo = StringManager.parseLocale(jsLocale.trim());
-            } catch (IllegalArgumentException e) {
-                System.err.println("Could not parse locale " + jsLocale);
-            }
-        }
-        if (lo != null)
-            cliLocale = lo;
-        else
-            cliLocale = Locale.getDefault();
-
-        strings = soc.util.SOCStringManager.getClientManager(cliLocale);
-//        DEFAULT_PRACTICE_GAMENAME = strings.get("default.name.practice.game");
-        GAMENAME_PREFIX_CANNOT_JOIN = strings.get("pcli.gamelist.cannot_join.parens") + ' ';  // "(cannot join) "
-
-        String debug_clearPrefs = System.getProperty(PROP_JSETTLERS_DEBUG_CLEAR__PREFS);
-        if (debug_clearPrefs != null)
-            UserPreferences.clear(debug_clearPrefs);
+//        if (mh == null)
+//            throw new IllegalArgumentException("mh");
+//
+//        gotPassword = false;
+//
+//        int id = UserPreferences.getPref(PREF_FACE_ICON, SOCPlayer.FIRST_HUMAN_FACE_ID);
+//        if (id <= 0)
+//            id = SOCPlayer.FIRST_HUMAN_FACE_ID;  // use default if not remembering
+//        lastFaceChange = id;
+//
+//        if (null != System.getProperty(SOCDisplaylessPlayerClient.PROP_JSETTLERS_DEBUG_TRAFFIC))
+//            debugTraffic = true;  // set flag if debug prop has any value at all
+//
+//        String jsLocale = System.getProperty(I18n.PROP_JSETTLERS_LOCALE);
+//        Locale lo = null;
+//        if (jsLocale != null)
+//        {
+//            try
+//            {
+//                lo = StringManager.parseLocale(jsLocale.trim());
+//            } catch (IllegalArgumentException e) {
+//                System.err.println("Could not parse locale " + jsLocale);
+//            }
+//        }
+//        if (lo != null)
+//            cliLocale = lo;
+//        else
+//            cliLocale = Locale.getDefault();
+//
+//        strings = SOCStringManager.getClientManager(cliLocale);
+        DEFAULT_PRACTICE_GAMENAME = strings.get("default.name.practice.game");
+//        GAMENAME_PREFIX_CANNOT_JOIN = strings.get("pcli.gamelist.cannot_join.parens") + ' ';  // "(cannot join) "
+//
+//        String debug_clearPrefs = System.getProperty(PROP_JSETTLERS_DEBUG_CLEAR__PREFS);
+//        if (debug_clearPrefs != null)
+//            UserPreferences.clear(debug_clearPrefs);
 
         String gameopt3pName = System.getProperty(SOCDisplaylessPlayerClient.PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P);
         if (gameopt3pName != null)
@@ -559,15 +540,15 @@ public class SOCPlayerClient extends SOCBaseClient
                 (gameopt3pName, 2000, Version.versionNumber(), false,
                  SOCGameOption.FLAG_3RD_PARTY | SOCGameOption.FLAG_DROP_IF_UNUSED,
                  "Client test 3p option " + gameopt3pName);
-            tcpServGameOpts.knownOpts.put(gameopt3p);
-//            practiceServGameOpts.knownOpts.put(gameopt3p);
-            soc.server.SOCServer.startupKnownOpts.put(gameopt3p);
-            // similar code is in SOCRobotClient.buildClientFeats()
+//            tcpServGameOpts.knownOpts.put(gameopt3p);
+            practiceServGameOpts.knownOpts.put(gameopt3p);
+//            soc.server.SOCServer.startupKnownOpts.put(gameopt3p);
+//            // similar code is in SOCRobotClient.buildClientFeats()
         }
-
-        net = new ClientNetwork(this);
-        gameMessageSender = new GameMessageSender(this, clientListeners);
-        messageHandler = mh;
+//
+//        net = new ClientNetwork(this);
+//        gameMessageSender = new GameMessageSender(this, clientListeners);
+//        messageHandler = mh;
     }
 
     /**
@@ -576,14 +557,14 @@ public class SOCPlayerClient extends SOCBaseClient
      * @throws IllegalArgumentException if {@code md} is {@code null}
      * @since 2.0.00
      */
-    public void setMainDisplay(final MainDisplay md)
-        throws IllegalArgumentException
-    {
-        if (md == null)
-            throw new IllegalArgumentException("null");
-        mainDisplay = md;
-        net.setMainDisplay(md);
-    }
+//    public void setMainDisplay(final MainDisplay md)
+//        throws IllegalArgumentException
+//    {
+//        if (md == null)
+//            throw new IllegalArgumentException("null");
+//        mainDisplay = md;
+//        net.setMainDisplay(md);
+//    }
 
     /**
      * Connect and give feedback by showing MESSAGE_PANEL.
@@ -600,20 +581,20 @@ public class SOCPlayerClient extends SOCBaseClient
      * @param cpass User optional password
      * @since 1.1.00
      */
-    public void connect(final String chost, final int cport, final String cuser, final String cpass)
-    {
-        mainDisplay.saveConnectInfo(chost, cport, cpass, cuser);
-
-        // TODO don't do net connect attempt on UI thread
-        // Meanwhile: To ensure the UI repaints before starting net connect:
-        EventQueue.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                net.connect(chost, cport);
-            }
-        });
-    }
+//    public void connect(final String chost, final int cport, final String cuser, final String cpass)
+//    {
+//        mainDisplay.saveConnectInfo(chost, cport, cpass, cuser);
+//
+//        // TODO don't do net connect attempt on UI thread
+//        // Meanwhile: To ensure the UI repaints before starting net connect:
+//        EventQueue.invokeLater(new Runnable()
+//        {
+//            public void run()
+//            {
+//                net.connect(chost, cport);
+//            }
+//        });
+//    }
 
     /**
      * Get the client user's nickname used on the remote/TCP server or practice server, if set.
@@ -623,7 +604,7 @@ public class SOCPlayerClient extends SOCBaseClient
      */
 //    public String getNickname(final boolean forPractice)
 //    {
-//        return (forPractice) ? practiceNickname : nickname;
+//        return /* (forPractice) ? practiceNickname : */ nickname;
 //    }
 
     /**
@@ -639,10 +620,10 @@ public class SOCPlayerClient extends SOCBaseClient
      * Get this client's ClientNetwork.
      * @since 2.0.00
      */
-    protected ClientNetwork getNet()
-    {
-        return net;
-    }
+//    /*package*/ ClientNetwork getNet()
+//    {
+//        return net;
+//    }
 
     /**
      * @return the client listener of this SOCPlayerClient for a particular game
@@ -656,20 +637,10 @@ public class SOCPlayerClient extends SOCBaseClient
     }
 
     /**
-     * Add a client listener to the list of listeners, indexed by game name.
-     * @param gameName the name of the game associated with this listener
-     * @param clientListener
-     */
-    @Override
-    protected void addClientListener( String gameName, PlayerClientListener clientListener )
-    {
-
-    }
-
-    /**
      * @return the client listeners of this SOCPlayerClient object.
      * @see #getClientListener(String)
      */
+    @Override
     protected Map<String, PlayerClientListener> getClientListeners()
     {
         return clientListeners;
@@ -685,26 +656,26 @@ public class SOCPlayerClient extends SOCBaseClient
      *
      * @since 2.0.00
      */
-    /*package*/ void reloadBoardGraphics()
-    {
-        EventQueue.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                try
-                {
-                    SOCBoardPanel.reloadBoardGraphics(mainDisplay.getGUIContainer());
-                    for (final PlayerClientListener pcl : clientListeners.values())
-                        pcl.boardUpdated();
-                } catch (Throwable th) {
-                    System.err.println("-- Error caught in reloadBoardGraphics: " + th + " --");
-                    th.printStackTrace();
-                    System.err.println("-- Error stack trace end --");
-                    System.err.println();
-                }
-            }
-        });
-    }
+//    /*package*/ void reloadBoardGraphics()
+//    {
+//        EventQueue.invokeLater(new Runnable()
+//        {
+//            public void run()
+//            {
+//                try
+//                {
+//                    SOCBoardPanel.reloadBoardGraphics(mainDisplay.getGUIContainer());
+//                    for (final PlayerClientListener pcl : clientListeners.values())
+//                        pcl.boardUpdated();
+//                } catch (Throwable th) {
+//                    System.err.println("-- Error caught in reloadBoardGraphics: " + th + " --");
+//                    th.printStackTrace();
+//                    System.err.println("-- Error stack trace end --");
+//                    System.err.println();
+//                }
+//            }
+//        });
+//    }
 
     /**
      * @return the local game preferences of this SOCPlayerClient object.
@@ -728,8 +699,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * Get this client's MessageHandler.
      * @since 2.0.00
      */
-//    @Override
-//    final protected MessageHandler getMessageHandler() {
+//    final MessageHandler getMessageHandler() {
 //        return messageHandler;
 //    }
 
@@ -740,12 +710,13 @@ public class SOCPlayerClient extends SOCBaseClient
      * @return  True if client should request localized strings
      * @since 2.0.00
      */
-    final boolean wantsI18nStrings(final boolean isPractice)
-    {
-        return (isPractice || (sVersion >= SOCStringManager.VERSION_FOR_I18N))
-            && (cliLocale != null)
-            && ! ("en".equals(cliLocale.getLanguage()) && "US".equals(cliLocale.getCountry()));
-    }
+//    @Override
+//    final boolean wantsI18nStrings(final boolean isPractice)
+//    {
+//        return (isPractice || (sVersion >= SOCStringManager.VERSION_FOR_I18N))
+//            && (cliLocale != null)
+//            && ! ("en".equals(cliLocale.getLanguage()) && "US".equals(cliLocale.getCountry()));
+//    }
 
     /**
      * Check these game options to see if they contain a scenario we don't yet have full info about.
@@ -758,25 +729,25 @@ public class SOCPlayerClient extends SOCBaseClient
      * @param opts  Game options to check for {@code "SC"}, or {@code null}
      * @since 2.0.00
      */
-    protected void checkGameoptsForUnknownScenario(final SOCGameOptionSet opts)
-    {
-        if ((opts == null) || tcpServGameOpts.allScenInfoReceived || ! opts.containsKey("SC"))
-            return;
-
-        final String scKey = opts.get("SC").getStringValue();
-        if ((scKey.length() == 0) || tcpServGameOpts.scenKeys.contains(scKey))
-            return;
-
-        if (sVersion != Version.versionNumber())
-        {
-            // different version than client: scenario details might have changed
-            net.putNet(new SOCScenarioInfo(scKey, false).toCmd());
-        } else {
-            // same version: need localization strings, at most
-            net.putNet(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey).toCmd());
-            tcpServGameOpts.scenKeys.add(scKey);  // don't ask again later
-        }
-    }
+//    protected void checkGameoptsForUnknownScenario(final SOCGameOptionSet opts)
+//    {
+//        if ((opts == null) || tcpServGameOpts.allScenInfoReceived || ! opts.containsKey("SC"))
+//            return;
+//
+//        final String scKey = opts.get("SC").getStringValue();
+//        if ((scKey.length() == 0) || tcpServGameOpts.scenKeys.contains(scKey))
+//            return;
+//
+//        if (sVersion != Version.versionNumber())
+//        {
+//            // different version than client: scenario details might have changed
+//            net.putNet(new SOCScenarioInfo(scKey, false).toCmd());
+//        } else {
+//            // same version: need localization strings, at most
+//            net.putNet(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey).toCmd());
+//            tcpServGameOpts.scenKeys.add(scKey);  // don't ask again later
+//        }
+//    }
 
     /**
      * Localize {@link SOCScenario} names and descriptions with strings from the server.
@@ -792,41 +763,41 @@ public class SOCPlayerClient extends SOCBaseClient
      * @param isPractice  Is the server {@link ClientNetwork#practiceServer}, not remote?
      * @since 2.0.00
      */
-    protected void localizeGameScenarios( ServerGametypeInfo opts,
-            final List<String> scStrs, final boolean skipFirst, final boolean sentAll, final boolean isPractice)
-    {
-//        ServerGametypeInfo opts = ( /* isPractice ? practiceServGameOpts : */ tcpServGameOpts);
-
-        final int L = scStrs.size();
-        int i = (skipFirst) ? 1 : 0;
-        while (i < L)
-        {
-            final String scKey = scStrs.get(i);
-            ++i;
-            opts.scenKeys.add(scKey);
-
-            final String nm = scStrs.get(i);
-            ++i;
-
-            if (nm.equals(SOCLocalizedStrings.MARKER_KEY_UNKNOWN))
-                continue;
-
-            String desc = scStrs.get(i);
-            ++i;
-
-            SOCScenario sc = SOCScenario.getScenario(scKey);
-            if ((sc != null) && (nm.length() > 0))
-            {
-                if ((desc != null) && (desc.length() == 0))
-                    desc = null;
-
-                sc.setDesc(nm, desc);
-            }
-        }
-
-        if (sentAll)
-            opts.allScenStringsReceived = true;
-    }
+//    protected void localizeGameScenarios
+//        (final List<String> scStrs, final boolean skipFirst, final boolean sentAll, final boolean isPractice)
+//    {
+//        ServerGametypeInfo opts = (isPractice ? practiceServGameOpts : tcpServGameOpts);
+//
+//        final int L = scStrs.size();
+//        int i = (skipFirst) ? 1 : 0;
+//        while (i < L)
+//        {
+//            final String scKey = scStrs.get(i);
+//            ++i;
+//            opts.scenKeys.add(scKey);
+//
+//            final String nm = scStrs.get(i);
+//            ++i;
+//
+//            if (nm.equals(SOCLocalizedStrings.MARKER_KEY_UNKNOWN))
+//                continue;
+//
+//            String desc = scStrs.get(i);
+//            ++i;
+//
+//            SOCScenario sc = SOCScenario.getScenario(scKey);
+//            if ((sc != null) && (nm.length() > 0))
+//            {
+//                if ((desc != null) && (desc.length() == 0))
+//                    desc = null;
+//
+//                sc.setDesc(nm, desc);
+//            }
+//        }
+//
+//        if (sentAll)
+//            opts.allScenStringsReceived = true;
+//    }
 
     /**
      * Does a game with this name exist, either at the remote server or our Practice Server (if one is running)?
@@ -839,9 +810,13 @@ public class SOCPlayerClient extends SOCBaseClient
     @Override
     public boolean doesGameExist(final String gameName, final boolean checkPractice)
     {
-        if (serverGames != null)
-            return serverGames.isGame(gameName);
-        return false;
+        boolean gameExists = (checkPractice)
+            ? ((net.practiceServer != null) && (net.practiceServer.getGame(gameName) != null))
+            : false;
+        if ((! gameExists) && (serverGames != null))
+            gameExists = serverGames.isGame(gameName);
+
+        return gameExists;
     }
 
     /**
@@ -857,15 +832,15 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see #doesGameExist(String, boolean)
      * @see MainDisplay#addToGameList(boolean, String, String, boolean)
      */
-    public void addToGameList(String gameName, String gameOptsStr, final boolean addToSrvList)
-    {
-        boolean hasUnjoinMarker = (gameName.charAt(0) == SOCGames.MARKER_THIS_GAME_UNJOINABLE);
-        if (hasUnjoinMarker)
-        {
-            gameName = gameName.substring(1);
-        }
-        mainDisplay.addToGameList(hasUnjoinMarker, gameName, gameOptsStr, addToSrvList);
-    }
+//    public void addToGameList(String gameName, String gameOptsStr, final boolean addToSrvList)
+//    {
+//        boolean hasUnjoinMarker = (gameName.charAt(0) == SOCGames.MARKER_THIS_GAME_UNJOINABLE);
+//        if (hasUnjoinMarker)
+//        {
+//            gameName = gameName.substring(1);
+//        }
+//        mainDisplay.addToGameList(hasUnjoinMarker, gameName, gameOptsStr, addToSrvList);
+//    }
 
     /**
      * If we're playing in or observing a game that's just finished, update the scores.
@@ -876,45 +851,44 @@ public class SOCPlayerClient extends SOCBaseClient
      *   This is {@code long[]} because of the message format sent from server.
      * @since 1.1.00
      */
-    public void updateGameEndStats(String game, final long[] scores)
-    {
-        SOCGame ga = games.get(game);
-        if (ga == null)
-            return;  // Not playing in or observing that game
-
-        if (ga.getGameState() != SOCGame.OVER)
-        {
-            System.err.println("L4044: mainDisplay.updateGameEndStats called at state " + ga.getGameState());
-            return;  // Should not have been sent; game is not yet over.
-        }
-
-        PlayerClientListener pcl = clientListeners.get(game);
-        if (pcl == null)
-            return;
-
-        Map<SOCPlayer, Integer> scoresMap = new HashMap<SOCPlayer, Integer>();
-        for (int i=0; i<scores.length; ++i)
-            scoresMap.put(ga.getPlayer(i), Integer.valueOf((int) scores[i]));
-
-        pcl.gameEnded(scoresMap);
-    }
+//    public void updateGameEndStats(String game, final long[] scores)
+//    {
+//        SOCGame ga = games.get(game);
+//        if (ga == null)
+//            return;  // Not playing in or observing that game
+//
+//        if (ga.getGameState() != SOCGame.OVER)
+//        {
+//            System.err.println("L4044: mainDisplay.updateGameEndStats called at state " + ga.getGameState());
+//            return;  // Should not have been sent; game is not yet over.
+//        }
+//
+//        PlayerClientListener pcl = clientListeners.get(game);
+//        if (pcl == null)
+//            return;
+//
+//        Map<SOCPlayer, Integer> scoresMap = new HashMap<SOCPlayer, Integer>();
+//        for (int i=0; i<scores.length; ++i)
+//            scoresMap.put(ga.getPlayer(i), Integer.valueOf((int) scores[i]));
+//
+//        pcl.gameEnded(scoresMap);
+//    }
 
     /**
      * the user leaves the given chat channel
      *
      * @param ch  the name of the channel
      */
-    public void leaveChannel(String ch)
-    {
-        mainDisplay.channelLeft(ch);
-        net.putNet(SOCLeaveChannel.toCmd("-", "-", ch));
-    }
+//    public void leaveChannel(String ch)
+//    {
+//        mainDisplay.channelLeft(ch);
+//        net.putNet(SOCLeaveChannel.toCmd("-", "-", ch));
+//    }
 
     /**
      * @return true if name is on the ignore list
      */
-//    @Override     // implemented in SOCBaseClient
-//    public boolean onIgnoreList(String name)
+//    protected boolean onIgnoreList(String name)
 //    {
 //        boolean result = false;
 //
@@ -937,8 +911,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * @param name the name to add
      * @see #removeFromIgnoreList(String)
      */
-//    @Override
-//    public void addToIgnoreList(String name)
+//    protected void addToIgnoreList(String name)
 //    {
 //        name = name.trim();
 //
@@ -954,8 +927,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * @param name  the name to remove
      * @see #addToIgnoreList(String)
      */
-//    @Override
-//    public void removeFromIgnoreList(String name)
+//    protected void removeFromIgnoreList(String name)
 //    {
 //        name = name.trim();
 //        ignoreList.removeElement(name);
@@ -969,10 +941,10 @@ public class SOCPlayerClient extends SOCBaseClient
      *         starting the practice server or client
      * @since 1.1.00
      */
-//    public boolean startPracticeGame()
-//    {
-//        return startPracticeGame(null, null, true);
-//    }
+    public boolean startPracticeGame()
+    {
+        return startPracticeGame(null, null, true);
+    }
 
     /**
      * Setup for practice game (on the non-tcp server).
@@ -988,27 +960,27 @@ public class SOCPlayerClient extends SOCBaseClient
      *         starting the practice server or client
      * @since 1.1.00
      */
-//    public boolean startPracticeGame
-//        (String practiceGameName, final SOCGameOptionSet gameOpts, final boolean mainPanelIsActive)
-//    {
-//        ++numPracticeGames;
-//
-//        if (practiceGameName == null)
-//            practiceGameName = DEFAULT_PRACTICE_GAMENAME + " " + (numPracticeGames);  // "Practice 3"
-//
-//        // May take a while to start server & game.
-//        // The new-game window will clear this cursor.
-//        mainDisplay.practiceGameStarting();
-//
-//        return net.startPracticeGame(practiceGameName, gameOpts);
-//    }
+    public boolean startPracticeGame
+        (String practiceGameName, final SOCGameOptionSet gameOpts, final boolean mainPanelIsActive)
+    {
+        ++numPracticeGames;
+
+        if (practiceGameName == null)
+            practiceGameName = DEFAULT_PRACTICE_GAMENAME + " " + (numPracticeGames);  // "Practice 3"
+
+        // May take a while to start server & game.
+        // The new-game window will clear this cursor.
+        mainDisplay.practiceGameStarting();
+
+        return net.startPracticeGame(practiceGameName, gameOpts);
+    }
 
     /**
      * For new-game requests, a per-game local preference map from {@link NewGameOptionsFrame} to pass to
      * that new game's {@link SOCPlayerInterface} constructor.
      *<P>
      * Preference name keys are {@link SOCPlayerInterface#PREF_SOUND_MUTE}, etc.
-     * Values for boolean prefs should be {@link Boolean#TRUE} or {@code .FALSE}.  
+     * Values for boolean prefs should be {@link Boolean#TRUE} or {@code .FALSE}.
      *<P>
      * The {@link HashMap} of game names permits a {@code null} value instead of a Map,
      * but there is no guarantee that preference values can be {@code null} within a game's Map.
@@ -1018,30 +990,30 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see #getGameReqLocalPrefs()
      * @since 2.0.00
      */
-    void putGameReqLocalPrefs(final String gaName, final Map<String, Object> localPrefs)
-    {
-        gameReqLocalPrefs.put(gaName, localPrefs);
-    }
+//    void putGameReqLocalPrefs(final String gaName, final Map<String, Object> localPrefs)
+//    {
+//        gameReqLocalPrefs.put(gaName, localPrefs);
+//    }
 
     /**
      * Server version, for checking feature availability.
      * Returns -1 if unknown. Checks {@link SOCGame#isPractice}:
-     * practice games always return this client's own {@link soc.util.Version#versionNumber()}.
+     * practice games always return this client's own {@link Version#versionNumber()}.
      *<P>
      * Instead of calling this method, some client code checks a game's version like:<BR>
      * {@code (game.isPractice || (client.sVersion >= VERSION_FOR_AUTHREQUEST))}
      *
      * @param  game  Game being played on a practice or tcp server.
-     * @return Server version, in same format as {@link soc.util.Version#versionNumber()},
+     * @return Server version, in same format as {@link Version#versionNumber()},
      *         or 0 or -1.
      * @since 1.1.00
      */
     @Override
     public int getServerVersion(SOCGame game)
     {
-//        if (game.isPractice)
-//            return Version.versionNumber();
-//        else
+        if (game.isPractice)        // probably unnecessary optimization
+            return Version.versionNumber();
+        else
             return sVersion;
     }
 
@@ -1055,17 +1027,16 @@ public class SOCPlayerClient extends SOCBaseClient
      *<P>
      * Before v1.2.01 this method was {@code destroy()}.
      */
-
+    @Override
     public void shutdownFromNetwork()
     {
         final boolean canPractice = net.putLeaveAll(); // Can we still start a practice game?
 
         String err;
-//        if (canPractice)
-//        {
-//            err = strings.get("pcli.error.networktrouble");  // "Sorry, network trouble has occurred."
-//        } else
+        if (canPractice)
         {
+            err = strings.get("pcli.error.networktrouble");  // "Sorry, network trouble has occurred."
+        } else {
             err = strings.get("pcli.error.clientshutdown");  // "Sorry, the client has been shut down."
         }
         err = err + " " + ((net.ex == null) ? strings.get("pcli.error.loadpageagain") : net.ex.toString());
@@ -1078,8 +1049,8 @@ public class SOCPlayerClient extends SOCBaseClient
         {
             String gaName = e.getKey();
             SOCGame game = games.get(gaName);
-
-//            if (! isPractice)
+            boolean isPractice = canPractice && (game != null) && game.isPractice;
+            if (! isPractice)
             {
                 e.getValue().gameDisconnected(false, err);
                 if (! mainDisplay.deleteFromGameList(gaName, false, false))
@@ -1089,7 +1060,7 @@ public class SOCPlayerClient extends SOCBaseClient
 
         net.dispose();
 
-        mainDisplay.showErrorPanel(err, false);
+        mainDisplay.showErrorPanel(err, canPractice);
     }
 
     /**
@@ -1100,44 +1071,12 @@ public class SOCPlayerClient extends SOCBaseClient
         System.err.println("usage: java [-D ...=...] -jar JSettlers.jar [<host> <port>]");
     }
 
-    protected static ServerConnectInfo parseCL( String[] args )
-    {
-        final String host;  // from args, if not empty
-        final int port;
-
-        if (args.length != 0)
-        {
-            if (args.length != 2)
-            {
-                usage();
-                System.exit(1);
-            }
-
-            String h = null;
-            int p = -1;
-            try {
-                h = args[0];
-                p = Integer.parseInt(args[1]);
-            } catch (NumberFormatException x) {
-                usage();
-                System.err.println("Invalid port: " + args[1]);
-                System.exit(1);
-            }
-            host = h;
-            port = p;
-        } else {
-            host = null;
-            port = -1;
-        }
-
-        return new ServerConnectInfo( host, port, "" );
-    }
     /**
      * for stand-alones
      */
     public static void main(String[] args)
     {
-        final SOCPlayerClient client;
+        final SOCFullClient client;
         final SwingMainDisplay mainDisplay;
 
         ServerConnectInfo server = parseCL( args );
@@ -1146,9 +1085,9 @@ public class SOCPlayerClient extends SOCBaseClient
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignore) {}
+        } catch (Exception e) {}
 
-        client = new SOCPlayerClient();
+        client = new SOCFullClient();
         JFrame frame = new JFrame(client.strings.get("pcli.main.title", Version.version()));  // "JSettlers client {0}"
 
         final int displayScale = SwingMainDisplay.checkDisplayScaleFactor(frame);
@@ -1161,7 +1100,7 @@ public class SOCPlayerClient extends SOCBaseClient
             frame.setForeground(colors[0]);  // Color.BLACK
         }
 
-        mainDisplay = new SwingMainDisplay( client, displayScale);
+        mainDisplay = new SwingServerMainDisplay((args.length == 0), client, displayScale);
         client.setMainDisplay(mainDisplay);
 
         // Add a listener for the close event
@@ -1198,19 +1137,17 @@ public class SOCPlayerClient extends SOCBaseClient
     }
 
     @Override
-    protected SOCGameOptionSet getKnownOpts( boolean isPracticeServer ) {
+    protected SOCGameOptionSet getKnownOpts( boolean isPracticeServer )
+    {
+        if (isPracticeServer)
+            return practiceServGameOpts.knownOpts;
         return tcpServGameOpts.knownOpts;
     }
 
     @Override
     protected int getNumPracticeGames()
     {
-        return 0;
+        return numPracticeGames;
     }
 
-    // TODO: implement these
-    @Override
-    protected SOCGameOptionSet getGameOptions( String gameName ) {
-        return null;
-    }
 }  // public class SOCPlayerClient

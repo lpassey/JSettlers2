@@ -72,6 +72,7 @@ import soc.util.Version;
 
     /** "Connect to server" */
     private JButton connserv;
+
     /** Contains GUI elements for details in {@link #connserv} */
     private JPanel panel_conn;
     private JTextField conn_servhost, conn_servport, conn_user;
@@ -227,6 +228,7 @@ import soc.util.Version;
 
         final GridBagLayout gbl = new GridBagLayout();
         final GridBagConstraints gbc = new GridBagConstraints();
+
         final JPanel modeButtonsContainer = new BoxedJPanel(gbl);
         if (! isOSHighContrast)
         {
@@ -580,7 +582,7 @@ import soc.util.Version;
      *         or 0 if cannot be parsed or if outside the valid range 1-65535
      * @since 1.1.19
      */
-    private final int parsePortNumberOrDefault(final JTextField tf)
+    private int parsePortNumberOrDefault(final JTextField tf)
     {
         int srport;
         try {
@@ -700,11 +702,9 @@ import soc.util.Version;
             System.err.println("-- Error stack trace end --");
             System.err.println();
         }
-
     }
 
     /** "Connect..." from connect setup; check fields, set WAIT_CURSOR, ask cli to connect  */
-    @SuppressWarnings("deprecation")  // TODO replace conn_pass.getText()
     private void clickConnConnect()
     {
         // TODO Check contents of fields
@@ -719,7 +719,7 @@ import soc.util.Version;
 
         // Copy fields, show MAIN_PANEL, and connect in client
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        md.getClient().connect(cserv, cport, conn_user.getText(), conn_pass.getText());
+        md.getClient().connect(cserv, cport, conn_user.getText(), String.valueOf( conn_pass.getPassword() ));
     }
 
     /** Hide fields used to connect to server. */
@@ -820,6 +820,5 @@ import soc.util.Version;
 
         @Override
         public Dimension getMaximumSize() { return getPreferredSize(); }
-    };
-
+    }
 }
