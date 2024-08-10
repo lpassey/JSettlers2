@@ -3,15 +3,30 @@ package soc.baseclient;
 import soc.client.*;
 import soc.game.SOCGame;
 import soc.game.SOCGameOptionSet;
-import soc.game.SOCPlayer;
-import soc.message.SOCMessage;
+// import soc.game.SOCPlayer;
+import soc.util.I18n;
 import soc.util.SOCFeatureSet;
 import soc.util.Version;
 
+import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Vector;
 
 abstract public class SOCBaseClient
 {
+    /**
+     * Locale for i18n message lookups used for {@link #strings}.  Also sent to server while connecting.
+     * Override if needed in the constructor by reading JVM property. Should only be set by sub-classes
+     * {@link I18n#PROP_JSETTLERS_LOCALE PROP_JSETTLERS_LOCALE} ({@code "jsettlers.locale"}).
+     * @since 2.0.00
+     */
+    protected Locale cliLocale;
+
+    public Locale getClientLocale()
+    {
+        return cliLocale;
+    }
+
     /**
      *  Server version number for remote server, sent soon after connect, 0 if no server, or -1 if version unknown.
      *  Use {@link #soc.game.getServerVersion(SOCGame)} instead to check the effective version of a specific game.
@@ -123,6 +138,19 @@ abstract public class SOCBaseClient
         return messageHandler;
     }
 
+    // No setter as this is set in the constructor
+
+    private ServerConnection serverConnection;
+
+    /**
+     * Get this client's ServerConnection.
+     * @since 2.0.00
+     */
+    protected ServerConnection getserverConnection()
+    {
+        return serverConnection;
+    }
+
     /**
      * Helper object to form and send outgoing network traffic to the server. For use
      * by the client, no one else.
@@ -131,15 +159,6 @@ abstract public class SOCBaseClient
      * @since 2.0.00
      */
     protected GameMessageSender gameMessageSender;
-
-    /**
-     * Get this client's GameMessageSender for making and sending messages to the server.
-     * @since 2.0.00
-     */
-    public GameMessageSender getGameMessageSender()
-    {
-        return gameMessageSender;
-    }
 
     /**
      * the ignore list
@@ -199,6 +218,28 @@ abstract public class SOCBaseClient
         ignoreList.removeElement(name);
     }
 
+    /**
+     * All the games we're currently playing. Includes networked or hosted games and those on practice server.
+     * Accessed from GUI thread and network {@link MessageHandler} thread,
+     * which sometimes directly calls {@code client.games.get(..)}.
+     * @see #serverGames
+     */
+    protected final Hashtable<String, SOCGame> games = new Hashtable<String, SOCGame>();
+
+    public Hashtable<String, SOCGame > getCurrentGames()
+    {
+        return games;
+    }
+
+    /**
+     * Get this client's GameMessageSender for making and sending messages to the server.
+     * @since 2.0.00
+     */
+    public GameMessageSender getGameMessageSender()
+    {
+        return gameMessageSender;
+    }
+
     public void leaveGame( SOCGame game)
     {
         gameMessageSender.leaveGame( game );
@@ -209,9 +250,25 @@ abstract public class SOCBaseClient
         gameMessageSender.resetBoardRequest( game );
     }
 
+    /**
+     * True if contents of incoming and outgoing network message traffic should be debug-printed.
+     * Set if optional system property {@link SOCDisplaylessPlayerClient#PROP_JSETTLERS_DEBUG_TRAFFIC} is set.
+     *<P>
+     * Versions earlier than 1.1.20 always printed this debug output; 1.1.20 never prints it.
+     * @since 1.2.00
+     */
+    public boolean debugTraffic;
+
+    public boolean anyHostedActiveGames()
+    {
+        return false;
+    }
+
+
+
     // ABSTRACT METHODS
 
-    // put a string to the network connection
+    // put a string to the network tcpConnection
 //    protected abstract boolean put( String s )
 //            throws IllegalArgumentException;
 //
@@ -221,9 +278,11 @@ abstract public class SOCBaseClient
 //
 //    public abstract void putMessage( SOCMessage message, boolean isPractice );
 
+    public abstract SOCGame getGame( String gameName );
+
     protected abstract int getNumPracticeGames();
 
-    protected abstract PlayerClientListener getClientListener( String gameName );
+    public abstract PlayerClientListener getClientListener( String gameName );
 
     protected abstract void addClientListener( String gameName, PlayerClientListener listener );
 
@@ -234,4 +293,20 @@ abstract public class SOCBaseClient
     protected abstract SOCGameOptionSet getGameOptions( String gameName );
 
     public abstract int getServerVersion(SOCGame game);
+
+    /**
+     * network trouble; if possible, ask if they want to play locally (practiceServer vs. robots).
+     * Otherwise, go ahead and shut down. Either way, calls {@link MainDisplay#showErrorPanel(String, boolean)}
+     * to show an error message or network exception detail.
+     * Removes server's games and channels from MainDisplay's lists.
+     *<P>
+     * "If possible" is determined from return value of {@link ClientNetwork#putLeaveAll()}.
+     *<P>
+     * Before v1.2.01 this method was {@code destroy()}.
+     */
+    public abstract void shutdownFromNetwork();
+
+    public abstract void disconnect();
+
+    public abstract void requestAuthorization();
 }

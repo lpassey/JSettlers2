@@ -21,13 +21,16 @@
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
 
-package soc.client;
+package soc.applet;
 
 import java.applet.Applet;
 import java.awt.Color;
 
 import javax.swing.UIManager;
 
+import soc.baseclient.TCPServerConnection;
+import soc.client.SOCPlayerClient;
+import soc.client.SwingMainDisplay;
 import soc.util.Version;
 
 /**
@@ -76,7 +79,7 @@ public class SOCApplet extends Applet
     public void start()
     {
 //        if (! mainDisplay.hasConnectOrPractice)
-            mainDisplay.nick.requestFocus();
+//            mainDisplay.nick.requestFocus();
     }
 
     /**
@@ -113,13 +116,13 @@ public class SOCApplet extends Applet
         mainDisplay.initVisualElements(); // after the background is set
         add(mainDisplay);
 
-        param = getParameter("suggestion");
-        if (param != null)
-            mainDisplay.channel.setText(param); // after visuals initialized
+//        param = getParameter("suggestion");
+//        if (param != null)
+//            mainDisplay.setChannel.setText(param); // after visuals initialized
 
         param = getParameter("nickname");  // for use with dynamically-generated html
         if (param != null)
-            mainDisplay.nick.setText(param);
+            mainDisplay.setNickname( param );
 
         System.out.println("Getting host...");  // I18N: Not localizing console output yet
         String host = getCodeBase().getHost();
@@ -127,7 +130,7 @@ public class SOCApplet extends Applet
             //host = null;  // localhost
             host = "127.0.0.1"; // localhost - don't use "localhost" because Java 6 applets do not work
 
-        int port = ClientNetwork.SOC_PORT_DEFAULT;
+        int port = TCPServerConnection.SOC_PORT_DEFAULT;
         try {
             param = getParameter("PORT");
             if (param != null)
@@ -137,7 +140,7 @@ public class SOCApplet extends Applet
             System.err.println("Invalid port: " + param);
         }
 
-        client.getNet().connect(host, port);
+        client.connect(host, port, client.getNickname(), client.getPassword());
     }
 
     /**
