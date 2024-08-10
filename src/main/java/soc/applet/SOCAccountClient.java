@@ -18,9 +18,11 @@
  *
  * The maintainer of this program can be reached at jsettlers@nand.net
  **/
-package soc.client;
+package soc.applet;
 
 import soc.baseclient.SOCDisplaylessPlayerClient;
+import soc.baseclient.TCPServerConnection;
+import soc.client.SwingMainDisplay;
 import soc.disableDebug.D;
 
 import soc.message.SOCAuthRequest;
@@ -71,6 +73,8 @@ import javax.swing.WindowConstants;
 
 
 /**
+ * Applets are deprecated, so don't include this code in the build.
+ * <p/>
  * Applet/Standalone client for connecting to the SOCServer and
  * making user accounts.
  *<P>
@@ -256,7 +260,7 @@ public class SOCAccountClient extends Applet
      */
     public SOCAccountClient(final int displayScaleFactor)
     {
-        this(null, ClientNetwork.SOC_PORT_DEFAULT, displayScaleFactor);
+        this(null, TCPServerConnection.SOC_PORT_DEFAULT, displayScaleFactor);
     }
 
     /**
@@ -671,7 +675,7 @@ public class SOCAccountClient extends Applet
                 (Version.versionNumber(), Version.version(), Version.buildnum(), null, cliLocale.toString()));
         } catch (Exception e) {
             ex = e;
-            String msg = strings.get("pcli.error.couldnotconnect", ex);  // "Could not connect to the server: " + ex
+            String msg = strings.get("pcli.error.couldnotconnect", ex);  // "Could not connect to the server: " + lastException
             System.err.println(msg);
             messageLabel.setText(msg);
         }
@@ -906,7 +910,7 @@ public class SOCAccountClient extends Applet
                 break;
 
             /**
-             * handle the reject connection message
+             * handle the reject tcpConnection message
              */
             case SOCMessage.REJECTCONNECTION:
                 handleREJECTCONNECTION((SOCRejectConnection) mes);
@@ -968,7 +972,7 @@ public class SOCAccountClient extends Applet
 
     /**
      * Handle the "list of channels" message:
-     * Server connection is complete, show {@link #MAIN_PANEL} unless {@link #connPanel} is already showing.
+     * Server tcpConnection is complete, show {@link #MAIN_PANEL} unless {@link #connPanel} is already showing.
      * @param mes  the message
      */
     protected void handleCHANNELS(SOCChannels mes)
@@ -985,7 +989,7 @@ public class SOCAccountClient extends Applet
     }
 
     /**
-     * handle the "reject connection" message
+     * handle the "reject tcpConnection" message
      * @param mes  the message
      */
     protected void handleREJECTCONNECTION(SOCRejectConnection mes)
@@ -1179,7 +1183,7 @@ public class SOCAccountClient extends Applet
 
         try {
             client.host = args[0];
-            client.port = (args.length > 1) ? Integer.parseInt(args[1]) : ClientNetwork.SOC_PORT_DEFAULT;
+            client.port = (args.length > 1) ? Integer.parseInt(args[1]) : TCPServerConnection.SOC_PORT_DEFAULT;
         } catch (NumberFormatException x) {
             usage();
             System.err.println("Invalid port: " + args[1]);
