@@ -25,6 +25,8 @@ package soc.client;
 
 import java.util.Map;
 
+import soc.baseclient.InProcessConnection;
+import soc.baseclient.TCPServerConnection;
 import soc.game.SOCDevCardConstants;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
@@ -81,18 +83,25 @@ import soc.message.SOCUndoPutPiece;
 public class GameMessageSender
 {
     private final SOCPlayerClient client;
-    private final ClientNetwork net;
+//    private final ClientNetwork net;
     private final Map<String, PlayerClientListener> clientListeners;
+    private final TCPServerConnection tcpConnection;
+    private final InProcessConnection inProcConnection;
 
-    GameMessageSender(final SOCPlayerClient client, Map<String, PlayerClientListener> clientListeners)
+    GameMessageSender( final SOCPlayerClient client, Map<String, PlayerClientListener> clientListeners )
     {
         this.client = client;
         if (client == null)
             throw new IllegalArgumentException("client is null");
-        net = client.getNet();
-        if (net == null)
-            throw new IllegalArgumentException("client network is null");
+//        net = client.getNet();
+//        if (net == null)
+//            throw new IllegalArgumentException("client network is null");
         this.clientListeners = clientListeners;
+        tcpConnection = client.tcpConnection;
+        if (client instanceof SOCFullClient)
+            inProcConnection = ((SOCFullClient) client).inProcessConnection;
+        else        // has to be done this way because inProcConnection is declared final
+            inProcConnection = null;
     }
 
     /**
@@ -115,9 +124,9 @@ public class GameMessageSender
             throw new IllegalArgumentException("s null");
 
         if (isPractice)
-            return net.putPractice(s);
+            return inProcConnection.send(s);
         else
-            return net.putNet(s);
+            return tcpConnection.send(s);
     }
 
     /**
@@ -309,7 +318,7 @@ public class GameMessageSender
     public void leaveGame(SOCGame ga)
     {
         clientListeners.remove(ga.getName());
-        client.games.remove(ga.getName());
+        client.removeGame(ga.getName());
         put(SOCLeaveGame.toCmd("-", "-", ga.getName()), ga.isPractice);
     }
 

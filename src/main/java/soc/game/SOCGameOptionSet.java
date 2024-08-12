@@ -1951,6 +1951,8 @@ public class SOCGameOptionSet
         if (pl == null)
             return null;  // shouldn't happen, PL is a known option
 
+        if (pl.getIntValue() <= SOCGame.MAXPLAYERS_STANDARD)
+            return null;
         Map<String, SOCGameOption> ret = new HashMap<>();
         ret.put("PL", new SOCGameOption(pl, SOCGame.MAXPLAYERS_STANDARD));
         return ret;

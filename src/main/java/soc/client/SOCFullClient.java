@@ -22,11 +22,12 @@
  **/
 package soc.client;
 
-import net.nand.util.i18n.mgr.StringManager;
+import soc.baseclient.InProcessConnection;
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
 import soc.game.*;
 import soc.message.*;
+import soc.server.SOCServer;
 import soc.util.*;
 
 import javax.swing.*;
@@ -281,6 +282,23 @@ public class SOCFullClient extends SOCPlayerClient
      * @since 2.0.00
      */
 //    private ClientNetwork net;
+    /**
+     * A connection to an in-process server. Only set if the user asked for a practice server.
+     */
+    /* package */ InProcessConnection inProcessConnection = null;
+
+    /**
+     * Client-hosted TCP server. If client is running this server, it's also connected
+     * as a client, instead of being client of a remote server.
+     * Started via {@link SwingServerMainDisplay#startLocalTCPServer(int)}.
+     * {@link #practiceServer} may still be activated at the user's request.
+     * Note that {@link SOCGame#isPractice} is false for localTCPServer's games.
+     * @since 1.1.00
+     */
+    SOCServer localTCPServer = null;
+
+    /*package */ boolean hasLocalTCPServer = false;
+
 
     /**
      * Helper object to dispatch incoming messages from the server.
@@ -311,7 +329,7 @@ public class SOCFullClient extends SOCPlayerClient
      *  so always check {@link SOCGame#isPractice} before checking this field.
      * @since 1.1.00
      */
-    protected int sVersion;
+//    protected int sVersion;
 
     /**
      * Server's active optional features, sent soon after connect, or null if unknown.
@@ -319,7 +337,7 @@ public class SOCFullClient extends SOCPlayerClient
      * @see #tcpServGameOpts
      * @since 1.1.19
      */
-    protected SOCFeatureSet sFeatures;
+//    protected SOCFeatureSet sFeatures;
 
     /**
      * Track the game options available at the remote server and at the practice server.
@@ -466,7 +484,7 @@ public class SOCFullClient extends SOCPlayerClient
     protected int numPracticeGames = 0;
 
     /**
-     * Create a SOCPlayerClient connecting to localhost port {@link ClientNetwork#SOC_PORT_DEFAULT}.
+     * Create a SOCFullClient connecting to localhost port {@link ClientNetwork#SOC_PORT_DEFAULT}.
      * Initializes helper objects (except {@link MainDisplay}), locale, {@link SOCStringManager}.
      * The locale will be the current user's default locale, unless overridden by setting the
      * {@link I18n#PROP_JSETTLERS_LOCALE PROP_JSETTLERS_LOCALE} JVM property {@code "jsettlers.locale"}.
@@ -545,9 +563,15 @@ public class SOCFullClient extends SOCPlayerClient
 //            soc.server.SOCServer.startupKnownOpts.put(gameopt3p);
 //            // similar code is in SOCRobotClient.buildClientFeats()
         }
-//
+
+        // every full featured client has an in-process connection as well as a tcp connection,
+        // but neither is connected yet.
+        inProcessConnection = new InProcessConnection( this );
+
 //        net = new ClientNetwork(this);
-//        gameMessageSender = new GameMessageSender(this, clientListeners);
+        // this allows the gameMessageSender to access the practice server, if any.
+        // even though this was already set, we didn't have a InProcessConnection instance yet
+        gameMessageSender = new GameMessageSender(this, clientListeners);
 //        messageHandler = mh;
     }
 
@@ -611,6 +635,7 @@ public class SOCFullClient extends SOCPlayerClient
      * Get this client's MainDisplay.
      * @since 2.0.00
      */
+    @Override
     MainDisplay getMainDisplay()
     {
         return mainDisplay;
@@ -631,7 +656,7 @@ public class SOCFullClient extends SOCPlayerClient
      * @see #getClientListeners()
      */
     @Override
-    protected PlayerClientListener getClientListener(String gameName)
+    public PlayerClientListener getClientListener( String gameName )
     {
         return clientListeners.get(gameName);
     }
@@ -800,6 +825,36 @@ public class SOCFullClient extends SOCPlayerClient
 //    }
 
     /**
+     * Look for active games that we're hosting (state >= START1A, not yet OVER).
+     *
+     * @return If any hosted games of ours are active
+     * @see MainDisplay#hasAnyActiveGame(boolean)
+     * @see SwingMainDisplay#findAnyActiveGame(boolean)
+     * @since 1.1.00
+     */
+    @Override
+    public boolean anyHostedActiveGames()
+    {
+        if (hasLocalTCPServer)  // true IF a. localTCPServer has been instantiated, and
+                                // b. this client has successfully connected to that server.
+        {
+            Collection<String> gameNames = serverGames.getGameNames();
+
+            // a backdoor way of getting the state of games. Might be wiser to ask
+            // via a net request?
+            for (String tryGm : gameNames)
+            {
+                int gs = localTCPServer.getGameState( tryGm );
+                if ((gs < SOCGame.OVER) && (gs >= SOCGame.START1A))
+                {
+                    return true;  // Active
+                }
+            }
+        }
+        return false;  // No active games found
+    }
+
+    /**
      * Does a game with this name exist, either at the remote server or our Practice Server (if one is running)?
      * @param gameName  Game name to check. Should not have the prefix {@link SOCGames#MARKER_THIS_GAME_UNJOINABLE}.
      * @param checkPractice  True if should also check list of practice games, false to ignore practice games.
@@ -811,8 +866,8 @@ public class SOCFullClient extends SOCPlayerClient
     public boolean doesGameExist(final String gameName, final boolean checkPractice)
     {
         boolean gameExists = (checkPractice)
-            ? ((net.practiceServer != null) && (net.practiceServer.getGame(gameName) != null))
-            : false;
+                && ((inProcessConnection != null)     // true if there is a connection to a practice server
+                && (inProcessConnection.getGame( gameName ) != null));
         if ((! gameExists) && (serverGames != null))
             gameExists = serverGames.isGame(gameName);
 
@@ -934,6 +989,45 @@ public class SOCFullClient extends SOCPlayerClient
 //    }
 
     /**
+     * Create and start the local TCP server on a given port.
+     * If startup fails, show a {@link NotifyDialog} with the error message.
+     * @return True if started, false if not
+     * Orignally part of ClientNetwork.java.
+     */
+    public boolean initLocalServer(int tport)
+    {
+        try
+        {
+            localTCPServer = new SOCServer( tport, SOCServer.SOC_MAXCONN_DEFAULT, null, null );
+            localTCPServer.setPriority(5);  // same as in SOCServer.main
+            localTCPServer.start();
+        }
+        catch (Throwable th)
+        {
+            mainDisplay.showErrorDialog
+                ( strings.get("pcli.error.startingserv") + "\n" + th,  // "Problem starting server:"
+                  strings.get("base.cancel"));
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Shut down the local TCP server. Be sure to disconnect before calling this method
+     **/
+    public void shutdownLocalServer()
+    {
+        if ((localTCPServer != null) && (localTCPServer.isUp()))
+        {
+            localTCPServer.stopServer();
+            localTCPServer = null;
+        }
+    }
+
+
+    /**
      * Create a game name, and start a practice game.
      * Assumes {@link SwingMainDisplay#MAIN_PANEL} is initialized.
      * See {@link #startPracticeGame(String, SOCGameOptionSet, boolean)} for details.
@@ -960,8 +1054,8 @@ public class SOCFullClient extends SOCPlayerClient
      *         starting the practice server or client
      * @since 1.1.00
      */
-    public boolean startPracticeGame
-        (String practiceGameName, final SOCGameOptionSet gameOpts, final boolean mainPanelIsActive)
+    public boolean startPracticeGame( String practiceGameName, final SOCGameOptionSet gameOpts,
+                                      final boolean mainPanelIsActive)
     {
         ++numPracticeGames;
 
@@ -972,9 +1066,13 @@ public class SOCFullClient extends SOCPlayerClient
         // The new-game window will clear this cursor.
         mainDisplay.practiceGameStarting();
 
-        return net.startPracticeGame(practiceGameName, gameOpts);
+        return inProcessConnection.startPracticeGame( practiceGameName, gameOpts );
     }
 
+    public void enableOptions()
+    {
+        mainDisplay.enableOptions();
+    }
     /**
      * For new-game requests, a per-game local preference map from {@link NewGameOptionsFrame} to pass to
      * that new game's {@link SOCPlayerInterface} constructor.
@@ -1030,8 +1128,19 @@ public class SOCFullClient extends SOCPlayerClient
     @Override
     public void shutdownFromNetwork()
     {
-        final boolean canPractice = net.putLeaveAll(); // Can we still start a practice game?
+        // TODO: we need to figure out how to make the practice decison independant
+        //  of the return value of putLeaveAll
+        boolean canPractice = ( inProcessConnection != null
+                && inProcessConnection.getLastException() == null);  // Can we still start a practice game?
 
+        // if we cant start a practice game, but one is running, leave it too...
+        if ( inProcessConnection != null && !canPractice)
+        {
+            inProcessConnection.send( new SOCLeaveAll().toCmd() );
+        }
+
+        tcpConnection.putLeaveAll();
+        shutdownLocalServer();
         String err;
         if (canPractice)
         {
@@ -1039,7 +1148,10 @@ public class SOCFullClient extends SOCPlayerClient
         } else {
             err = strings.get("pcli.error.clientshutdown");  // "Sorry, the client has been shut down."
         }
-        err = err + " " + ((net.ex == null) ? strings.get("pcli.error.loadpageagain") : net.ex.toString());
+        err = err + " " +
+            (  (tcpConnection.getLastException() == null)
+             ? strings.get("pcli.error.loadpageagain")
+             : tcpConnection.getLastException().toString());
             // "Load the page again."
 
         mainDisplay.channelsClosed(err);
@@ -1058,8 +1170,8 @@ public class SOCFullClient extends SOCPlayerClient
             }
         }
 
-        net.dispose();
-
+        tcpConnection.disconnect();
+        shutdownLocalServer();
         mainDisplay.showErrorPanel(err, canPractice);
     }
 
@@ -1079,40 +1191,36 @@ public class SOCFullClient extends SOCPlayerClient
         final SOCFullClient client;
         final SwingMainDisplay mainDisplay;
 
-        ServerConnectInfo server = parseCL( args );
+        final ServerConnectInfo server = parseCL( args );
 
         Version.printVersionText(System.out, "Java Settlers Client ");
 
-        try {
+        try
+        {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {}
+        }
+        catch (Exception ignore) {}
 
         client = new SOCFullClient();
-        JFrame frame = new JFrame(client.strings.get("pcli.main.title", Version.version()));  // "JSettlers client {0}"
+        JFrame frame = createMainFrame( client );
 
         final int displayScale = SwingMainDisplay.checkDisplayScaleFactor(frame);
-        SwingMainDisplay.scaleUIManagerFonts(displayScale);
-
-        final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors(false, false);
-        if (colors != null)
-        {
-            frame.setBackground(colors[2]);  // SwingMainDisplay.JSETTLERS_BG_GREEN
-            frame.setForeground(colors[0]);  // Color.BLACK
-        }
 
         mainDisplay = new SwingServerMainDisplay((args.length == 0), client, displayScale);
         client.setMainDisplay(mainDisplay);
 
         // Add a listener for the close event
-        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        frame.addWindowListener(mainDisplay.createWindowAdapter());
+        addFrameListener( frame, mainDisplay, displayScale );
 
-        mainDisplay.initVisualElements(); // after the background is set
-
-        frame.add(mainDisplay, BorderLayout.CENTER);
-        frame.setLocationByPlatform(true);
-        frame.setSize(650 * displayScale, 400 * displayScale);
-        frame.setVisible(true);
+//        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+//        frame.addWindowListener(mainDisplay.createWindowAdapter());
+//
+//        mainDisplay.initVisualElements(); // after the background is set
+//
+//        frame.add(mainDisplay, BorderLayout.CENTER);
+//        frame.setLocationByPlatform(true);
+//        frame.setSize(650 * displayScale, 400 * displayScale);
+//        frame.setVisible(true);
 
         if (Version.versionNumber() == 0)
         {
@@ -1148,6 +1256,56 @@ public class SOCFullClient extends SOCPlayerClient
     protected int getNumPracticeGames()
     {
         return numPracticeGames;
+    }
+
+    /**
+     * Get a game directly from the in process (practice) server.
+     * @param gameName the name of the game sought
+     * @return the targeted game, or null if it does not exist
+     */
+    public SOCGame getPracticeGame( String gameName )
+    {
+        if (inProcessConnection != null)
+            return inProcessConnection.getGame( gameName );
+        return null;
+    }
+
+    /**
+     *
+     * @param gameName
+     * @return the game associated with this gameName.
+     */
+//    @Override
+//    public SOCGame getGame( String gameName )
+//    {
+//        SOCGame game = getPracticeGame( gameName );
+//        if (null == game)
+//            game = games.get( gameName );
+//        return games.get( gameName );
+//    }
+
+    public Set<String> getPracticeGames()
+    {
+        if (null == inProcessConnection || !inProcessConnection.isConnected())
+            return null;
+        return inProcessConnection.getGames().getGameNames();
+    }
+    /**
+     *
+     * @param gameName
+     * @return the set of options associated with this game. Note, if the same game exists on a practice
+     *      server and on a remote server, the practice will be preferred.
+     */
+    @Override
+    protected SOCGameOptionSet getGameOptions( String gameName )
+    {
+        if (null != inProcessConnection)
+        {
+            SOCGameOptionSet opts = inProcessConnection.getGameOptions( gameName );
+            if (null != opts)
+                return opts;
+        }
+        return super.getGameOptions( gameName );
     }
 
 }  // public class SOCPlayerClient

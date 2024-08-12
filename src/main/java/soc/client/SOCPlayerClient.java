@@ -27,7 +27,6 @@ import java.awt.Color;
 import java.awt.EventQueue;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,6 +41,7 @@ import net.nand.util.i18n.mgr.StringManager;
 import soc.baseclient.SOCBaseClient;
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
+import soc.baseclient.TCPServerConnection;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
@@ -252,7 +252,7 @@ public class SOCPlayerClient extends SOCBaseClient
 
     static {
         String osName = System.getProperty("os.name");
-        IS_PLATFORM_WINDOWS = (osName != null) && (osName.toLowerCase().indexOf("windows") != -1);
+        IS_PLATFORM_WINDOWS = (osName != null) && (osName.toLowerCase().contains( "windows" ));
         IS_PLATFORM_MAC_OSX = (osName != null) && osName.toLowerCase().startsWith("mac os x");
     }
 
@@ -293,7 +293,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * {@link I18n#PROP_JSETTLERS_LOCALE PROP_JSETTLERS_LOCALE} ({@code "jsettlers.locale"}).
      * @since 2.0.00
      */
-    final Locale cliLocale;
+//    final Locale cliLocale;
 
     /**
      * Helper object to deal with network connectivity.
@@ -301,7 +301,8 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see #gameMessageSender
      * @since 2.0.00
      */
-    protected ClientNetwork net;
+//    protected ClientNetwork net;
+    protected TCPServerConnection tcpConnection;
 
     /**
      * Helper object to dispatch incoming messages from the server.
@@ -390,6 +391,13 @@ public class SOCPlayerClient extends SOCBaseClient
      */
 //    protected String password = null;
 
+    @Override
+    public void setPassword( String password )
+    {
+        super.setPassword( password );
+        mainDisplay.setPassword( password );
+    }
+
     /**
      * True if we've successfully authenticated: Stored the {@link #password} if any, and the server's replied that our
      * auth request or join game request with nickname/password was correct.
@@ -414,7 +422,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * Versions earlier than 1.1.20 always printed this debug output; 1.1.20 never prints it.
      * @since 1.2.00
      */
-    boolean debugTraffic;
+//    boolean debugTraffic;
 
     /**
      * Face icon ID chosen most recently (for use in new games) for {@link SOCPlayer#setFaceId(int)};
@@ -430,7 +438,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * which sometimes directly calls {@code client.games.get(..)}.
      * @see #serverGames
      */
-    protected final Hashtable<String, SOCGame> games = new Hashtable<String, SOCGame>();
+//    protected final Hashtable<String, SOCGame> games = new Hashtable<String, SOCGame>();
 
     /**
      * all announced game names on the remote server, including games which we can't
@@ -565,7 +573,10 @@ public class SOCPlayerClient extends SOCBaseClient
             // similar code is in SOCRobotClient.buildClientFeats()
         }
 
-        net = new ClientNetwork(this);
+        // every visual client has a tcp connection.
+        tcpConnection = new TCPServerConnection( this );
+
+//        net = new ClientNetwork(this);
         gameMessageSender = new GameMessageSender(this, clientListeners);
         messageHandler = mh;
     }
@@ -576,19 +587,19 @@ public class SOCPlayerClient extends SOCBaseClient
      * @throws IllegalArgumentException if {@code md} is {@code null}
      * @since 2.0.00
      */
-    public void setMainDisplay(final MainDisplay md)
+    public void setMainDisplay( final MainDisplay md )
         throws IllegalArgumentException
     {
         if (md == null)
             throw new IllegalArgumentException("null");
         mainDisplay = md;
-        net.setMainDisplay(md);
+//        tcpConnection.setMainDisplay(md);  // TODO: probably not a good idea...
     }
 
     /**
      * Connect and give feedback by showing MESSAGE_PANEL.
      * Calls {@link MainDisplay#connect(String, int, String, String)} to set username and password,
-     * then {@link ClientNetwork#connect(String, int)} to make the connection.
+     * then {@link ClientNetwork#connect(String, int)} to make the tcpConnection.
      *<P>
      * Note: If {@code chost} is null, {@link ClientNetwork#connect(String, int)}
      * assumes client has started a local server, so will start a thread to
@@ -610,7 +621,7 @@ public class SOCPlayerClient extends SOCBaseClient
         {
             public void run()
             {
-                net.connect(chost, cport);
+                tcpConnection.connect(chost, cport);
             }
         });
     }
@@ -639,10 +650,10 @@ public class SOCPlayerClient extends SOCBaseClient
      * Get this client's ClientNetwork.
      * @since 2.0.00
      */
-    protected ClientNetwork getNet()
-    {
-        return net;
-    }
+//    protected ClientNetwork getNet()
+//    {
+//        return net;
+//    }
 
     /**
      * @return the client listener of this SOCPlayerClient for a particular game
@@ -650,7 +661,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see #getClientListeners()
      */
     @Override
-    protected PlayerClientListener getClientListener(String gameName)
+    public PlayerClientListener getClientListener( String gameName )
     {
         return clientListeners.get(gameName);
     }
@@ -770,10 +781,10 @@ public class SOCPlayerClient extends SOCBaseClient
         if (sVersion != Version.versionNumber())
         {
             // different version than client: scenario details might have changed
-            net.putNet(new SOCScenarioInfo(scKey, false).toCmd());
+            tcpConnection.send( new SOCScenarioInfo(scKey, false).toCmd() );
         } else {
             // same version: need localization strings, at most
-            net.putNet(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey).toCmd());
+            tcpConnection.send(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey).toCmd());
             tcpServGameOpts.scenKeys.add(scKey);  // don't ask again later
         }
     }
@@ -793,7 +804,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * @since 2.0.00
      */
     protected void localizeGameScenarios( ServerGametypeInfo opts,
-            final List<String> scStrs, final boolean skipFirst, final boolean sentAll, final boolean isPractice)
+            final List<String> scStrs, final boolean skipFirst, final boolean sentAll )
     {
 //        ServerGametypeInfo opts = ( /* isPractice ? practiceServGameOpts : */ tcpServGameOpts);
 
@@ -907,7 +918,7 @@ public class SOCPlayerClient extends SOCBaseClient
     public void leaveChannel(String ch)
     {
         mainDisplay.channelLeft(ch);
-        net.putNet(SOCLeaveChannel.toCmd("-", "-", ch));
+        getserverConnection().send(SOCLeaveChannel.toCmd("-", "-", ch));
     }
 
     /**
@@ -1055,10 +1066,12 @@ public class SOCPlayerClient extends SOCBaseClient
      *<P>
      * Before v1.2.01 this method was {@code destroy()}.
      */
-
+    @Override
     public void shutdownFromNetwork()
     {
-        final boolean canPractice = net.putLeaveAll(); // Can we still start a practice game?
+        tcpConnection.putLeaveAll();
+        // This client can't start practice games...
+//        final boolean canPractice = net.putLeaveAll(); // Can we still start a practice game?
 
         String err;
 //        if (canPractice)
@@ -1068,12 +1081,15 @@ public class SOCPlayerClient extends SOCBaseClient
         {
             err = strings.get("pcli.error.clientshutdown");  // "Sorry, the client has been shut down."
         }
-        err = err + " " + ((net.ex == null) ? strings.get("pcli.error.loadpageagain") : net.ex.toString());
+        err = err + " " +
+                (  (getserverConnection().getLastException() == null)
+                 ? strings.get("pcli.error.loadpageagain")
+                 : getserverConnection().getLastException().toString());
             // "Load the page again."
 
         mainDisplay.channelsClosed(err);
 
-        // Stop network games; continue Practice games if possible.
+        // Stop network games. This client can't start in-process games
         for (Map.Entry<String, PlayerClientListener> e : clientListeners.entrySet())
         {
             String gaName = e.getKey();
@@ -1087,8 +1103,7 @@ public class SOCPlayerClient extends SOCBaseClient
             }
         }
 
-        net.dispose();
-
+        tcpConnection.disconnect();
         mainDisplay.showErrorPanel(err, false);
     }
 
@@ -1132,23 +1147,9 @@ public class SOCPlayerClient extends SOCBaseClient
 
         return new ServerConnectInfo( host, port, "" );
     }
-    /**
-     * for stand-alones
-     */
-    public static void main(String[] args)
+
+    protected static JFrame createMainFrame( SOCPlayerClient client )
     {
-        final SOCPlayerClient client;
-        final SwingMainDisplay mainDisplay;
-
-        ServerConnectInfo server = parseCL( args );
-
-        Version.printVersionText(System.out, "Java Settlers Client ");
-
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignore) {}
-
-        client = new SOCPlayerClient();
         JFrame frame = new JFrame(client.strings.get("pcli.main.title", Version.version()));  // "JSettlers client {0}"
 
         final int displayScale = SwingMainDisplay.checkDisplayScaleFactor(frame);
@@ -1157,24 +1158,68 @@ public class SOCPlayerClient extends SOCBaseClient
         final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors(false, false);
         if (colors != null)
         {
-            frame.setBackground(colors[2]);  // SwingMainDisplay.JSETTLERS_BG_GREEN
-            frame.setForeground(colors[0]);  // Color.BLACK
+            frame.setBackground( colors[2] );  // SwingMainDisplay.JSETTLERS_BG_GREEN
+            frame.setForeground( colors[0] );  // Color.BLACK
         }
+        return frame;
+    }
+
+    protected static void addFrameListener( JFrame frame, SwingMainDisplay mainDisplay, int displayScale )
+    {
+        frame.setDefaultCloseOperation( WindowConstants.DO_NOTHING_ON_CLOSE );
+        frame.addWindowListener( mainDisplay.createWindowAdapter() );
+
+        mainDisplay.initVisualElements(); // after the background is set
+
+        frame.add( mainDisplay, BorderLayout.CENTER );
+        frame.setLocationByPlatform( true );
+        frame.setSize( 650 * displayScale, 400 * displayScale );
+        frame.setVisible( true );
+    }
+
+    public static void main(String[] args)
+    {
+        final SOCPlayerClient client;
+        final SwingMainDisplay mainDisplay;
+
+        final ServerConnectInfo server = parseCL( args );
+
+        Version.printVersionText(System.out, "Java Settlers Client ");
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignore) {}
+
+        client = new SOCPlayerClient();
+        JFrame frame = createMainFrame( client );
+//                new JFrame(client.strings.get("pcli.main.title", Version.version()));  // "JSettlers client {0}"
+//
+        final int displayScale = SwingMainDisplay.checkDisplayScaleFactor(frame);
+//        SwingMainDisplay.scaleUIManagerFonts(displayScale);
+//
+//        final Color[] colors = SwingMainDisplay.getForegroundBackgroundColors(false, false);
+//        if (colors != null)
+//        {
+//            frame.setBackground(colors[2]);  // SwingMainDisplay.JSETTLERS_BG_GREEN
+//            frame.setForeground(colors[0]);  // Color.BLACK
+//        }
 
         mainDisplay = new SwingMainDisplay( client, displayScale);
         client.setMainDisplay(mainDisplay);
 
         // Add a listener for the close event
-        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        frame.addWindowListener(mainDisplay.createWindowAdapter());
+        addFrameListener( frame, mainDisplay, displayScale );
+//        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+//        frame.addWindowListener(mainDisplay.createWindowAdapter());
+//
+//        mainDisplay.initVisualElements(); // after the background is set
+//
+//        frame.add(mainDisplay, BorderLayout.CENTER);
+//        frame.setLocationByPlatform(true);
+//        frame.setSize(650 * displayScale, 400 * displayScale);
+//        frame.setVisible(true);
 
-        mainDisplay.initVisualElements(); // after the background is set
-
-        frame.add(mainDisplay, BorderLayout.CENTER);
-        frame.setLocationByPlatform(true);
-        frame.setSize(650 * displayScale, 400 * displayScale);
-        frame.setVisible(true);
-
+        // Can't display an error message until the main display is setup.
         if (Version.versionNumber() == 0)
         {
             client.mainDisplay.showErrorPanel("Packaging error: Cannot determine JSettlers version", false);
@@ -1186,7 +1231,7 @@ public class SOCPlayerClient extends SOCBaseClient
         if ((server.hostname != null) && (server.port != -1))
         {
             // Connect to a remote server.
-            // Uses invokeLater so UI can set host/port textfields before calling call net.connect
+            // Uses invokeLater so UI can set host/port textfields before calling connect()
             EventQueue.invokeLater(new Runnable()
             {
                 public void run()
@@ -1198,7 +1243,8 @@ public class SOCPlayerClient extends SOCBaseClient
     }
 
     @Override
-    protected SOCGameOptionSet getKnownOpts( boolean isPracticeServer ) {
+    protected SOCGameOptionSet getKnownOpts( boolean isPracticeServer )
+    {
         return tcpServGameOpts.knownOpts;
     }
 
@@ -1208,9 +1254,37 @@ public class SOCPlayerClient extends SOCBaseClient
         return 0;
     }
 
+    public void requestAuthorization()
+    {
+        tcpConnection.send( new SOCAuthRequest( SOCAuthRequest.ROLE_GAME_PLAYER, getNickname(),
+                getPassword(), SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT,
+                tcpConnection.getHost()).toCmd());
+
+    }
+
+    @Override
+    public void disconnect()
+    {
+        // A client will have only one active tcpConnection. It may have been started by the client
+        // or by a separate computer; this client doesn't care.
+        tcpConnection.disconnect();
+    }
+
+//    @Override
+//    public SOCGame getGame( String gameName )
+//    {
+//        return games.get( gameName );
+//    }
+
     // TODO: implement these
     @Override
     protected SOCGameOptionSet getGameOptions( String gameName ) {
         return null;
+    }
+
+    // TODO: should probably let client decide if practicing is possible.
+    public void showErrorPanel( String msg, boolean canPractice )
+    {
+        mainDisplay.showErrorPanel( msg, canPractice );
     }
 }  // public class SOCPlayerClient

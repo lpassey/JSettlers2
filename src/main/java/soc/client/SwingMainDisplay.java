@@ -200,7 +200,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
     protected final SOCPlayerClient client;
 
-    protected final ClientNetwork net;
+//    protected final ClientNetwork net;
 
     /**
      * For high-DPI displays, what scaling factor to use? Unscaled is 1.
@@ -510,7 +510,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 //        this.hasConnectOrPractice = hasConnectOrPractice;
         this.client = client;
         displayScale = displayScaleFactor;
-        net = client.getNet();
+//        net = client.getNet();
 
         NET_UNAVAIL_CAN_PRACTICE_MSG = client.strings.get("pcli.error.server.unavailable");
         // "The server is unavailable. You can still play practice games."
@@ -1286,7 +1286,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             if (target == buttonDisconnect)
             {
                 // disconnect from this server, and show the connect panel again.
-                client.net.disconnect();
+                client.disconnect();
                 cardLayout.show( this, CONNECT_OR_PRACTICE_PANEL );
             }
             else if ((target == buttonJoinChannel) || (target == channel) || (target == chlist)) // Join channel stuff
@@ -1395,7 +1395,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             }
 
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
-            net.putNet(SOCJoinChannel.toCmd( client.nickname,
+            client.tcpConnection.send( SOCJoinChannel.toCmd( client.nickname,
                     (client.isAuthenticated() ? "" : client.getPassword()), SOCMessage.EMPTYSTR, ch));
         }
         else
@@ -1554,7 +1554,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
         if (pi == null)
         {
-            if (client.games.isEmpty())
+            if (! client.hasGames())
             {
                 // May set hint message if empty,
                 // like NEED_NICKNAME_BEFORE_JOIN
@@ -1598,7 +1598,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
                 status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                net.putNet( SOCJoinGame.toCmd( client.nickname,
+                client.tcpConnection.send( SOCJoinGame.toCmd( client.nickname,
                         (client.isAuthenticated() ? "" : client.getPassword()), SOCMessage.EMPTYSTR, gm) );
             }
         }
@@ -1774,8 +1774,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             client.isNGOFWaitingForAuthStatus = true;
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));  // NGOF create calls setCursor(DEFAULT_CURSOR)
-            net.putNet(new SOCAuthRequest( SOCAuthRequest.ROLE_GAME_PLAYER, client.getNickname(),
-                    client.getPassword(), SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, net.getHost()).toCmd());
+            client.requestAuthorization( );
 
             return;
         }
@@ -1970,14 +1969,14 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 if (! readValidNicknameAndPassword())
                     return ngof;  // <--- Early return: Can't auth, so can't send SOCGameStats ---
 
-                net.putNet(new SOCAuthRequest( SOCAuthRequest.ROLE_GAME_PLAYER, client.getNickname(),
+                client.tcpConnection.send( new SOCAuthRequest( SOCAuthRequest.ROLE_GAME_PLAYER, client.getNickname(),
                         client.getPassword(), SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, "localhost"
                         /* client.getNet().getHost() */).toCmd());
 
                 // ideally we'd wait for auth success reply before sending SOCGameStats,
                 // but this is already a corner case
             }
-            net.putNet( new SOCGameStats(gaName, SOCGameStats.TYPE_TIMING, null).toCmd() );
+            client.tcpConnection.send(  new SOCGameStats(gaName, SOCGameStats.TYPE_TIMING, null).toCmd() );
         }
         return ngof;
     }
@@ -2001,7 +2000,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             String askMsg = (client.sVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
                 ? SOCNewGameWithOptionsRequest.toCmd( client.nickname, pw, SOCMessage.EMPTYSTR, gmName, opts.getAll() )
                 : SOCJoinGame.toCmd( client.nickname, pw, SOCMessage.EMPTYSTR, gmName );
-            net.putNet( askMsg );
+            client.tcpConnection.send(  askMsg );
             System.out.flush();  // for debug print output (temporary)
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -2140,7 +2139,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     public void showVersion( final int vers, final String versionString, final String buildString,
                              final SOCFeatureSet feats)
     {
-        if (null == net.localTCPServer)
+//        if (null == net.localTCPServer)   // We're going to ask the server for it's version even if it's local
         {
             versionOrlocalTCPPortLabel.setForeground(miscLabelFGColor);  // MISC_LABEL_FG_OFF_WHITE
             versionOrlocalTCPPortLabel.setText(client.strings.get("pcli.main.version", versionString));  // "v {0}"
@@ -2157,7 +2156,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
         if ( // (net.practiceServer == null) &&     // unnecessary optimization
                 (vers < SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
-                        && (buttonGameInfo != null))
+             && (buttonGameInfo != null))
         {
             buttonGameInfo.setEnabled( false );  // server too old for options, so don't use that button
         }
@@ -2590,7 +2589,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     {
         if (! doLocalCommand(ch, mes))
         {
-            net.putNet( new SOCChannelTextMsg( ch, client.nickname, mes).toCmd() );
+            client.tcpConnection.send(  new SOCChannelTextMsg( ch, client.nickname, mes).toCmd() );
         }
     }
 
@@ -2897,7 +2896,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 SOCQuitAllConfirmDialog.createAndShow(piActive.getMainDisplay(), piActive);
                 return;
             }
-            md.getClient().getNet().putLeaveAll();
+            md.getClient().tcpConnection.putLeaveAll();
             System.exit(0);
         }
 
@@ -2955,7 +2954,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * {@link SOCGameOption game option defaults}.
      * (in case of slow connection or server bug).
      * Set up when sending {@link SOCGameOptionGetDefaults GAMEOPTIONGETDEFAULTS}
-     * in {@link MainDisplayBaseImpl#gameWithOptionsBeginSetup(boolean, boolean)}.
+     * in {@link MainDisplay#gameWithOptionsBeginSetup(boolean, boolean)}.
      *<P>
      * When timer fires, assume no defaults will be received.
      * Display the new-game dialog.

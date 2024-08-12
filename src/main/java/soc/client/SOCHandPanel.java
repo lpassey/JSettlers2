@@ -2504,12 +2504,8 @@ import javax.swing.UIManager;
 
         final boolean showResourceDetails;
         String playerName = player.getName();
-        if (null == playerName)
-        {
-            playerName = playerInterface.getClientNickname();
-            player.setName( playerName );
-        }
-        if ( null != playerName && playerName.equals(playerInterface.getClientNickname()))
+        String nickname =  playerInterface.getClientNickname();
+        if ( null != playerName && playerName.equals( nickname ))
         {
             // this is our hand
 

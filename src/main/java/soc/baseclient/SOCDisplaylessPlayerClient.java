@@ -964,7 +964,8 @@ public class SOCDisplaylessPlayerClient implements Runnable
              * Added 2013-11-26 for v2.0.00.
              */
             case SOCMessage.INVENTORYITEMACTION:
-                handleINVENTORYITEMACTION(games, (SOCInventoryItemAction) mes);
+                String game = ((SOCInventoryItemAction) mes).getGame(); // getGame() actually returns the game name, not the game itself
+                handleINVENTORYITEMACTION(getGame( game ), (SOCInventoryItemAction) mes);
                 break;
 
             /**
@@ -972,7 +973,8 @@ public class SOCDisplaylessPlayerClient implements Runnable
              * Added 2014-04-16 for v2.0.00.
              */
             case SOCMessage.SETSPECIALITEM:
-                handleSETSPECIALITEM(games, (SOCSetSpecialItem) mes);
+                handleSETSPECIALITEM(games.get( ((SOCSetSpecialItem) mes).getGame() ),
+                        (SOCSetSpecialItem) mes);
                 break;
 
             /**
@@ -2650,9 +2652,9 @@ public class SOCDisplaylessPlayerClient implements Runnable
      * @since 2.0.00
      */
     @SuppressWarnings("fallthrough")
-    public static boolean handleINVENTORYITEMACTION(Hashtable<String, SOCGame> games, SOCInventoryItemAction mes)
+    public static boolean handleINVENTORYITEMACTION( SOCGame  ga, SOCInventoryItemAction mes)
     {
-        SOCGame ga = games.get(mes.getGame());
+//        SOCGame ga = games.get(mes.getGame());
         if (ga == null)
             return false;
 
@@ -3220,9 +3222,9 @@ public class SOCDisplaylessPlayerClient implements Runnable
      * @param mes  the message
      * @since 2.0.00
      */
-    public static final void handleSETSPECIALITEM(final Map<String, SOCGame> games, SOCSetSpecialItem mes)
+    public static final void handleSETSPECIALITEM(  SOCGame ga, SOCSetSpecialItem mes)
     {
-        final SOCGame ga = games.get(mes.getGame());
+//        final SOCGame ga = games.get(mes.getGame());
         if (ga == null)
             return;
 

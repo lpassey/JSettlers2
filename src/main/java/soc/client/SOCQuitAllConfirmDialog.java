@@ -52,7 +52,7 @@ import java.awt.Frame;
         if ((md == null) || (gamePIOrSelf == null))
             throw new IllegalArgumentException("no nulls");
 
-        boolean hasAny = md.getClient().getNet().anyHostedActiveGames();
+        boolean hasAny = md.getClient().anyHostedActiveGames();
         SOCQuitAllConfirmDialog qcd = new SOCQuitAllConfirmDialog(md, gamePIOrSelf, hasAny);
         qcd.setVisible(true);
     }
@@ -89,7 +89,10 @@ import java.awt.Frame;
     @Override
     public void button1Chosen()
     {
-        md.getClient().getNet().putLeaveAll();
+        // TODO: do we need to putLeaveAll to the practice server as well?
+        // don't risk a NullPointerException
+        if (null != md.getClient().tcpConnection)
+            md.getClient().tcpConnection.putLeaveAll();
         System.exit(0);
     }
 

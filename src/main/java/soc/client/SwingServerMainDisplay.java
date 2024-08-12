@@ -67,6 +67,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
+import soc.baseclient.TCPServerConnection;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
@@ -1468,18 +1469,20 @@ public class SwingServerMainDisplay extends SwingMainDisplay
     @Override
     protected boolean guardedActionPerform_games( Object target )
     {
-        String gm;  // May also be 0-length string, if pulled from Lists
+        String gameName;  // May also be 0-length string, if pulled from Lists
         boolean isUnjoinable = false;  // if selecting game from gmList, may become true
 
         if ((target == pg) || (target == pgm)) // "Practice Game" Buttons
         {
-            gm = getClient().DEFAULT_PRACTICE_GAMENAME;  // "Practice"
+            gameName = SOCFullClient.DEFAULT_PRACTICE_GAMENAME;  // "Practice"
 
             // If blank, fill in player name
             // (v1.x used DEFAULT_PLAYER_NAME const field here)
 
-            if (0 == nick.getText().trim().length())
+            String mynickname = nick.getText().trim();
+            if (0 == mynickname.length())
                 nick.setText(client.strings.get("default.name.practice.player"));  // "Player"
+            client.setNickname( nick.getText() );
         }
         else if (target == buttonNewGame)  // "New Game" button
         {
@@ -1495,12 +1498,12 @@ public class SwingServerMainDisplay extends SwingMainDisplay
             JoinableListItem item = gmlist.getSelectedValue();
             if (item == null)
                 return true;
-            gm = item.name.trim();  // may be length 0
+            gameName = item.name.trim();  // may be length 0
             isUnjoinable = item.isUnjoinable;
         }
 
         // System.out.println("GM = |"+gm+"|");
-        if (gm.length() == 0)
+        if (gameName.length() == 0)
         {
             return true;
         }
@@ -1513,16 +1516,17 @@ public class SwingServerMainDisplay extends SwingMainDisplay
             boolean isPractice = false;
             SOCGameOptionSet opts = null;
 
-            if ((net.practiceServer != null) && (net.practiceServer.getGame(gm) != null))
+            SOCGame game = getClient().getPracticeGame( gameName );   // if not null, the game exists on the inProcessServer, which means it is a practice game
+            if (null != game)
             {
+                game.isPractice = true;
                 isPractice = true;
-                opts = net.practiceServer.getGameOptions(gm);  // won't ever need to parse from string on practice server
+                opts = getClient().getGameOptions( gameName );  // won't ever need to parse from string on practice server
             }
-            else
-            if (client.serverGames != null)
+            else if (client.serverGames != null)
             {
-                opts = client.serverGames.getGameOptions(gm);
-                if ((opts == null) && (client.serverGames.getGameOptionsString(gm) != null))
+                opts = client.serverGames.getGameOptions( gameName );
+                if ((opts == null) && (client.serverGames.getGameOptionsString( gameName ) != null))
                 {
                     // If necessary, parse game options from string before displaying.
                     // (Parsed options are cached, they won't be re-parsed)
@@ -1532,15 +1536,17 @@ public class SwingServerMainDisplay extends SwingMainDisplay
 
                     if (client.tcpServGameOpts.allOptionsReceived)
                     {
-                        opts = client.serverGames.parseGameOptions(gm);
+                        opts = client.serverGames.parseGameOptions( gameName );
                         client.checkGameoptsForUnknownScenario(opts);
-                    } else {
+                    }
+                    else
+                    {
                         // not yet received; remember game name.
                         // when all are received, will show it,
                         // and will also clear WAIT_CURSOR.
                         // (see handleGAMEOPTIONINFO)
 
-                        client.tcpServGameOpts.gameInfoWaitingForOpts = gm;
+                        client.tcpServGameOpts.gameInfoWaitingForOpts = gameName;
                         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                         return true;  // <---- early return: not yet ready to show ----
                     }
@@ -1548,32 +1554,34 @@ public class SwingServerMainDisplay extends SwingMainDisplay
             }
 
             // don't overwrite newGameOptsFrame field; this popup is to show an existing game.
-            final NewGameOptionsFrame ngof = gameInfoFrames.get(gm);
+            final NewGameOptionsFrame ngof = gameInfoFrames.get( gameName );
             if (ngof != null)
                 ngof.toFront();
             else
-                showGameOptions(gm, opts, isPractice);
+                showGameOptions( gameName, opts, isPractice );
 
             return true;
         }
 
         // Can we not join that game?
-        if (isUnjoinable || ((client.serverGames != null) && client.serverGames.isUnjoinableGame(gm)))
+        if (isUnjoinable || (  (client.serverGames != null)
+                             && client.serverGames.isUnjoinableGame(gameName)))
         {
-            if (! client.gamesUnjoinableOverride.containsKey(gm))
+            if (! client.gamesUnjoinableOverride.containsKey( gameName))
             {
-                client.gamesUnjoinableOverride.put(gm, gm);  // Next click will try override
+                client.gamesUnjoinableOverride.put(gameName, gameName);  // Next click will try override
                 return false;
             }
         }
 
         // Are we already in a game with that name?
-        SOCPlayerInterface pi = playerInterfaces.get(gm);
+        SOCPlayerInterface pi = playerInterfaces.get( gameName );
 
         if ((pi == null)
                 && ((target == pg) || (target == pgm))
-                && (net.practiceServer != null)
-                && (gm.equalsIgnoreCase(getClient().DEFAULT_PRACTICE_GAMENAME)))
+                && ! getClient().inProcessConnection.isConnected()  // Short circuits findAnyActiveGame; should be unnecessary
+                && (gameName.equalsIgnoreCase( SOCFullClient.DEFAULT_PRACTICE_GAMENAME ))
+        )
         {
             // Practice game requested, no game named "Practice" already exists.
             // Check for other active practice games. (Could be "Practice 2")
@@ -1606,7 +1614,7 @@ public class SwingServerMainDisplay extends SwingMainDisplay
 
         if (pi == null)
         {
-            if (client.games.isEmpty())
+            if (! client.hasGames())
             {
                 // May set hint message if empty,
                 // like NEED_NICKNAME_BEFORE_JOIN
@@ -1621,7 +1629,9 @@ public class SwingServerMainDisplay extends SwingMainDisplay
                 }
             }
 
-            if (((target == pg) || (target == pgm)) && (null == net.ex_P))
+            if (   ((target == pg) || (target == pgm))
+                    // don't allow a practice game if the inProcConnection had an exception.
+                && (null == getClient().inProcessConnection || null == getClient().inProcessConnection.getLastException() ))
             {
                 if (target == pg)
                     status.setText
@@ -1649,8 +1659,10 @@ public class SwingServerMainDisplay extends SwingMainDisplay
 
                 status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                net.putNet(SOCJoinGame.toCmd( client.getNickname(),
-                        (client.isAuthenticated() ? "" : client.getPassword()), SOCMessage.EMPTYSTR, gm));
+                client.tcpConnection.send( SOCJoinGame.toCmd( client.getNickname(),
+                        (client.isAuthenticated()
+                                ? ""
+                                : client.getPassword()), SOCMessage.EMPTYSTR, gameName));
             }
         }
         else
@@ -1808,8 +1820,8 @@ public class SwingServerMainDisplay extends SwingMainDisplay
         // Have we authenticated our password?  If not, do so now before creating newGameOptsFrame.
         // Even if the server doesn't support accounts or passwords, this will name our connection
         // and reserve our nickname.
-        if ((! (forPracticeServer || client.isAuthenticated()))
-                && (client.sVersion >= SOCAuthRequest.VERSION_FOR_AUTHREQUEST))
+        if (   (! (forPracticeServer || client.isAuthenticated()))
+            && (client.sVersion >= SOCAuthRequest.VERSION_FOR_AUTHREQUEST))
         {
             if (! readValidNicknameAndPassword())
                 return;
@@ -1821,10 +1833,10 @@ public class SwingServerMainDisplay extends SwingMainDisplay
             client.isNGOFWaitingForAuthStatus = true;
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));  // NGOF create calls setCursor(DEFAULT_CURSOR)
-            net.putNet(new SOCAuthRequest
-                    (SOCAuthRequest.ROLE_GAME_PLAYER, client.getNickname(), client.getPassword(),
-                            SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, net.getHost()).toCmd());
-
+            getClient().requestAuthorization();
+//            net.putNet(new SOCAuthRequest
+//                    (SOCAuthRequest.ROLE_GAME_PLAYER, client.getNickname(), client.getPassword(),
+//                            SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, net.getHost()).toCmd());
             return;
         }
 
@@ -1854,16 +1866,18 @@ public class SwingServerMainDisplay extends SwingMainDisplay
                     // "Create Game" in the NewGameOptionsFrame, causing the new
                     // game to be requested from askStartGameWithOptions.
                     fullSetIsKnown = true;
-                    opts.knownOpts = SOCServer.localizeKnownOptions(client.cliLocale, true);
+                    opts.knownOpts = SOCServer.localizeKnownOptions(client.getClientLocale(), true);
                 }
 
                 if (! opts.allScenStringsReceived)
                 {
                     // Game scenario localized text. As with game options, the practice client and
                     // practice server aren't started yet, so we can't go through them to request localization.
-                    client.localizeGameScenarios( opts,
-                            SOCServer.localizeGameScenarios( client.cliLocale, null, true,false, null),
-                           false, true, forPracticeServer );
+                    client.localizeGameScenarios(
+                            // be sure to localize the right set of options
+                            forPracticeServer ? getClient().practiceServGameOpts : getClient().tcpServGameOpts,
+                            SOCServer.localizeGameScenarios( client.getClientLocale(), null, true,false, null),
+                           false, true );
                 }
             } else {
                 opts = client.tcpServGameOpts;
@@ -2000,8 +2014,8 @@ public class SwingServerMainDisplay extends SwingMainDisplay
      * @return the new NGOF
      * @since 2.7.00
      */
-    private NewGameOptionsFrame showGameOptions
-    (final String gaName, final SOCGameOptionSet gameOpts, final boolean forPracticeServer)
+    private NewGameOptionsFrame showGameOptions( final String gaName, final SOCGameOptionSet gameOpts,
+                                                 final boolean forPracticeServer)
     {
         final boolean isNew = (gaName == null);
         final NewGameOptionsFrame ngof = NewGameOptionsFrame.createAndShow
@@ -2019,16 +2033,16 @@ public class SwingServerMainDisplay extends SwingMainDisplay
             {
                 if (! readValidNicknameAndPassword())
                     return ngof;  // <--- Early return: Can't auth, so can't send SOCGameStats ---
-
-                net.putNet(new SOCAuthRequest
-                        (SOCAuthRequest.ROLE_GAME_PLAYER, client.getNickname(), client.getPassword(),
-                                SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, net.getHost()).toCmd());
+                client.requestAuthorization();
+//                net.putNet(new SOCAuthRequest
+//                        (SOCAuthRequest.ROLE_GAME_PLAYER, client.getNickname(), client.getPassword(),
+//                                SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, net.getHost()).toCmd());
 
                 // ideally we'd wait for auth success reply before sending SOCGameStats,
                 // but this is already a corner case
             }
 
-            net.putNet(new SOCGameStats(gaName, SOCGameStats.TYPE_TIMING, null).toCmd());
+            client.tcpConnection.send(new SOCGameStats(gaName, SOCGameStats.TYPE_TIMING, null).toCmd());
         }
 
         return ngof;
@@ -2043,16 +2057,17 @@ public class SwingServerMainDisplay extends SwingMainDisplay
      * @since 1.1.07
      */
     @Override
-    public void askStartGameWithOptions
-    (final String gmName, final boolean forPracticeServer,
-     final SOCGameOptionSet opts, final Map<String, Object> localPrefs)
+    public void askStartGameWithOptions( final String gmName, final boolean forPracticeServer,
+            final SOCGameOptionSet opts, final Map<String, Object> localPrefs)
     {
         client.putGameReqLocalPrefs(gmName, localPrefs);
 
         if (forPracticeServer)
         {
             getClient().startPracticeGame(gmName, opts, true);  // Also sets WAIT_CURSOR
-        } else {
+        }
+        else
+        {
             final String pw = (client.isAuthenticated() ? "" : client.getPassword());  // after successful auth, don't need to send
             String askMsg =
                     (client.sVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
@@ -2060,7 +2075,7 @@ public class SwingServerMainDisplay extends SwingMainDisplay
                             (client.getNickname(), pw, SOCMessage.EMPTYSTR, gmName, opts.getAll())
                             : SOCJoinGame.toCmd
                             (client.getNickname(), pw, SOCMessage.EMPTYSTR, gmName);
-            net.putNet(askMsg);
+            client.tcpConnection.send( askMsg );
             System.out.flush();  // for debug print output (temporary)
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -2092,33 +2107,38 @@ public class SwingServerMainDisplay extends SwingMainDisplay
      * @since 1.1.00
      */
     @Override
-    public SOCPlayerInterface findAnyActiveGame(boolean fromPracticeServer)
+    public SOCPlayerInterface findAnyActiveGame( boolean fromPracticeServer )
     {
         SOCPlayerInterface pi = null;
         int gs;  // gamestate
 
         Collection<String> gameNames;
-        if (fromPracticeServer)
+        if (fromPracticeServer) // TODO: getPracticeGames should return null if no practice server,
+                                // so "fromPracticeServer" could be removed.
         {
-            if (net.practiceServer == null)
-                return null;  // <---- Early return: no games if no practice server ----
-            gameNames = net.practiceServer.getGameNames();
-        } else {
+            gameNames = getClient().getPracticeGames();
+            if (null == gameNames)
+                return null;
+        }
+        else
+        {
             gameNames = playerInterfaces.keySet();
         }
 
         for (String tryGm : gameNames)
         {
-            if (fromPracticeServer)
+//            if (fromPracticeServer)     // only seeking games from the practice server
+//            {
+//                gs = net.practiceServer.getGameState(tryGm);
+//                if (gs < SOCGame.OVER)
+//                {
+//                    pi = playerInterfaces.get(tryGm);
+//                    if (pi != null)
+//                        break;  // Active and we have a window with it
+//                }
+//            }
+//            else
             {
-                gs = net.practiceServer.getGameState(tryGm);
-                if (gs < SOCGame.OVER)
-                {
-                    pi = playerInterfaces.get(tryGm);
-                    if (pi != null)
-                        break;  // Active and we have a window with it
-                }
-            } else {
                 pi = playerInterfaces.get(tryGm);
                 if (pi != null)
                 {
@@ -2746,22 +2766,26 @@ public class SwingServerMainDisplay extends SwingMainDisplay
     }
 
     /**
-     * {@inheritDoc}
-     *<P>
      * If parent is a Frame, sets titlebar to show "server" and port number.
      * Shows port number in {@link #versionOrlocalTCPPortLabel}.
+     *
+     * @param tport The port that the local TCP server will run on.
+     * @throws IllegalArgumentException
+     * @throws IllegalStateException
      */
-    public void startLocalTCPServer(final int tport)
+    public void startLocalTCPServer( final int tport )
             throws IllegalArgumentException, IllegalStateException
     {
-        if (net.localTCPServer != null)
+//        if (net.localTCPServer != null)
+        if (client.tcpConnection != null && client.tcpConnection.isConnected() )
         {
-            return;  // Already set up
+            throw new IllegalStateException("Already connected to " + client.tcpConnection.getHost());
         }
-        if (net.isConnected())
+        if (client.tcpConnection == null)
         {
-            throw new IllegalStateException("Already connected to " + net.getHost());
+            client.tcpConnection = new TCPServerConnection( getClient() );
         }
+        // At this point we will have a tcpConnection, but it won't yet be connected
         if (tport < 1)
         {
             throw new IllegalArgumentException("Port must be positive: " + tport);
@@ -2771,7 +2795,10 @@ public class SwingServerMainDisplay extends SwingMainDisplay
         // At end of method, we'll clear this cursor.
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        if (! net.initLocalServer(tport))
+        /**
+         * using {@link getClient()} ensures that the variable is cast to a full client
+         */
+        if (! getClient().initLocalServer(tport))
         {
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             return;  // Unable to start local server, or bind to port
@@ -2859,14 +2886,18 @@ public class SwingServerMainDisplay extends SwingMainDisplay
 
         cardLayout.show(this, MESSAGE_PANEL);
 
-        // Connect to it
-        net.connect(null, tport);
+        // Connect to it. Should throw an IllegalStateException if connection fails.
+        getClient().tcpConnection.connect(null, tport);
 
         // Ensure we can't "connect" to another, too
         if (connectOrPracticePane != null)
         {
+            // Tell the start pane that we have a connection, so disable components as appropriate
             connectOrPracticePane.startedLocalServer();
         }
+        // Flag the client's TCP connection as a connection to the local server
+        // TODO: (may not make any difference)
+        getClient().hasLocalTCPServer = true;
 
         // Ensure we can type a nickname, or click "New Game" if one is already entered.
         // This lets player create a game after starting a practice game (which sets nickname)
@@ -2975,14 +3006,13 @@ public class SwingServerMainDisplay extends SwingMainDisplay
                 return;
             }
             boolean canAskHostingGames = false;
-            boolean isHostingActiveGames = false;
+//            boolean isHostingActiveGames = false;
 
             // Are we running a server?
-            ClientNetwork cnet = md.getClient().getNet();
-            if (cnet.isRunningLocalServer())
-                isHostingActiveGames = cnet.anyHostedActiveGames();
+//            if (md.getClient().hasLocalTCPServer)
+//                isHostingActiveGames = cnet.anyHostedActiveGames();
 
-            if (isHostingActiveGames)
+            if (md.getClient().anyHostedActiveGames())
             {
                 // If we have GUI, ask whether to shut down these games
                 Container c = md.getParent();
@@ -2995,8 +3025,11 @@ public class SwingServerMainDisplay extends SwingMainDisplay
 
             if (! canAskHostingGames)
             {
-                // Just quit.
-                md.getClient().getNet().putLeaveAll();
+                // Just quit. We might have never connected to anything.
+                // If it's only a practice game, there will be no human players
+                // so it's OK to just pull the rug out from under.
+                if (null != md.getClient().tcpConnection)
+                    md.getClient().tcpConnection.putLeaveAll();
                 System.exit(0);
             }
         }

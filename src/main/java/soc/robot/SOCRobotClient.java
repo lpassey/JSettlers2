@@ -705,8 +705,9 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
              */
             case SOCMessage.INVENTORYITEMACTION:
                 {
+                    SOCGame game = getGame( ((SOCInventoryItemAction) mes).getGame());
                     final boolean isReject = super.handleINVENTORYITEMACTION
-                        (games, (SOCInventoryItemAction) mes);
+                        (game, (SOCInventoryItemAction) mes);
                     if (isReject)
                         handlePutBrainQ((SOCInventoryItemAction) mes);
                 }
@@ -717,7 +718,8 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
              * Added 2014-04-16 for v2.0.00.
              */
             case SOCMessage.SETSPECIALITEM:
-                super.handleSETSPECIALITEM(games, (SOCSetSpecialItem) mes);
+                SOCGame game = getGame( ((SOCSetSpecialItem) mes).getGame() );  // NOTE: message.getGame() returns the name of the relevant game, not the game itself
+                super.handleSETSPECIALITEM(game, (SOCSetSpecialItem) mes);      // TODO: This should not be a static method
                 handlePutBrainQ((SOCSetSpecialItem) mes);
                 break;
 

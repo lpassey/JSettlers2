@@ -226,9 +226,24 @@ abstract public class SOCBaseClient
      */
     protected final Hashtable<String, SOCGame> games = new Hashtable<String, SOCGame>();
 
-    public Hashtable<String, SOCGame > getCurrentGames()
+    public SOCGame getGame( String gameName )
     {
-        return games;
+        return games.get( gameName );
+    }
+
+    public SOCGame addGame( String gameName, SOCGame game )
+    {
+        return games.put( gameName, game );
+    }
+
+    public SOCGame removeGame( String gameName )
+    {
+        return games.remove( gameName );
+    }
+
+    public boolean hasGames()
+    {
+        return ! games.isEmpty();
     }
 
     /**
@@ -264,22 +279,7 @@ abstract public class SOCBaseClient
         return false;
     }
 
-
-
     // ABSTRACT METHODS
-
-    // put a string to the network tcpConnection
-//    protected abstract boolean put( String s )
-//            throws IllegalArgumentException;
-//
-//    // send a game message via the game message sender
-//    // TODO: refactor out "isPractice"
-//    public abstract void putMessage( String toCmd, boolean isPractice );
-//
-//    public abstract void putMessage( SOCMessage message, boolean isPractice );
-
-    public abstract SOCGame getGame( String gameName );
-
     protected abstract int getNumPracticeGames();
 
     public abstract PlayerClientListener getClientListener( String gameName );

@@ -45,6 +45,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import soc.baseclient.TCPServerConnection;
 import soc.util.SOCStringManager;
 import soc.util.Version;
 
@@ -62,7 +63,7 @@ import soc.util.Version;
     implements ActionListener, KeyListener
 {
     private final SwingServerMainDisplay md;
-    private final ClientNetwork clientNetwork;
+//    private final ClientNetwork clientNetwork;
 
     /** Welcome message, or error after disconnect */
     private JLabel topText;
@@ -111,8 +112,8 @@ import soc.util.Version;
         super(new BorderLayout());
 
         this.md = md;
-        SOCPlayerClient cli = md.getClient();
-        clientNetwork = cli.getNet();
+//        SOCPlayerClient cli = md.getClient();
+//        clientNetwork = cli.getNet();
         canLaunchServer = checkCanLaunchServer();
 
         // same Frame setup as in SOCPlayerClient.main
@@ -141,8 +142,8 @@ import soc.util.Version;
                 return true;
             try
             {
-                sm.checkAccept("localhost", ClientNetwork.SOC_PORT_DEFAULT);
-                sm.checkListen(ClientNetwork.SOC_PORT_DEFAULT);
+                sm.checkAccept("localhost", TCPServerConnection.SOC_PORT_DEFAULT);
+                sm.checkListen(TCPServerConnection.SOC_PORT_DEFAULT);
             }
             catch (SecurityException se)
             {
@@ -152,7 +153,7 @@ import soc.util.Version;
         catch (SecurityException se)
         {
             // can't read security mgr; check it the hard way
-            int port = ClientNetwork.SOC_PORT_DEFAULT;
+            int port = TCPServerConnection.SOC_PORT_DEFAULT;
             for (int i = 0; i <= 100; ++i)
             {
                 ServerSocket ss = null;
@@ -361,7 +362,9 @@ import soc.util.Version;
         pconn.add(L);
         conn_servport = new JTextField(20);
         {
-            String svp = Integer.toString(clientNetwork.getPort());
+            String svp = "8880";
+            if (null != md.getClient().tcpConnection)
+                svp = Integer.toString(md.getClient().tcpConnection.getPort());
             conn_servport.setText(svp);
             conn_servport.setSelectionStart(0);
             conn_servport.setSelectionEnd(svp.length());
@@ -473,7 +476,9 @@ import soc.util.Version;
         prun.add(L);
         run_servport = new JTextField(10);
         {
-            String svp = Integer.toString(clientNetwork.getPort());
+            String svp = "8880";
+            if (null != md.getClient().tcpConnection)
+                svp = Integer.toString(md.getClient().tcpConnection.getPort());
             run_servport.setText(svp);
             run_servport.setSelectionStart(0);
             run_servport.setSelectionEnd(svp.length());
@@ -590,7 +595,7 @@ import soc.util.Version;
             if (ptext.length() > 0)
                 srport = Integer.parseInt(ptext);
             else
-                srport = clientNetwork.getPort();  // text field is empty, use default (usually == SOC_PORT_DEFAULT)
+                srport = md.getClient().tcpConnection.getPort();  // text field is empty, use default (usually == SOC_PORT_DEFAULT)
 
             if ((srport <= 0) || (srport > 65535))
                 srport = 0;  // TODO show error
