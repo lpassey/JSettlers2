@@ -46,7 +46,7 @@ public interface GameMessageHandler
      * Caller will catch any thrown Exceptions.
      *
      * @param ga  Game in which client {@code c} is sending {@code msg}.
-     *            Never null; from {@link SOCMessageForGame#getGame()}.
+     *            Never null; from {@link SOCMessageForGame#getGameName()}.
      * @param mes  Message from client {@code c}. Never null.
      * @param c    Client sending {@code msg}. Never null.
      *     {@link Connection#getData()} won't be {@code null}

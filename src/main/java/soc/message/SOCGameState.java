@@ -170,7 +170,7 @@ public class SOCGameState extends SOCMessage
     /**
      * @return the game name
      */
-    public String getGame()
+    public String getGameName()
     {
         return game;
     }

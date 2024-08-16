@@ -245,7 +245,7 @@ public class SOCRobberyResult extends SOCMessage
     /**
      * @return the name of the game
      */
-    public String getGame()
+    public String getGameName()
     {
         return gaName;
     }

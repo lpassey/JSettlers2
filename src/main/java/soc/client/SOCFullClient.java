@@ -1276,7 +1276,7 @@ public class SOCFullClient extends SOCPlayerClient
      * @return the game associated with this gameName.
      */
 //    @Override
-//    public SOCGame getGame( String gameName )
+//    public SOCGame getGameName( String gameName )
 //    {
 //        SOCGame game = getPracticeGame( gameName );
 //        if (null == game)

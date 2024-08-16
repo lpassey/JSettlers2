@@ -718,7 +718,7 @@ public class SOCPlayer implements SOCDevCardConstants, Serializable, Cloneable
      * @param newName  new name to give copy of player, or {@code null} to copy current name.
      *     Useful for {@link soc.robot.SOCPlayerTracker} dummy players in debug prints.
      *     Note that {@link #toString()} prints the name and the copied {@link #getPlayerNumber()}.
-     * @throws IllegalArgumentException if {@code player.getGame()} is null; shouldn't occur
+     * @throws IllegalArgumentException if {@code player.getGameName()} is null; shouldn't occur
      *     unless {@link #destroyPlayer()} has been called
      * @throws IllegalStateException if player's dev cards can't be cloned (internal error); should not possibly occur
      */

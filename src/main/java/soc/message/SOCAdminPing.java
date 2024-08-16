@@ -59,7 +59,7 @@ public class SOCAdminPing extends SOCMessage
     /**
      * @return the name of the game having the robot and the admin user as members
      */
-    public String getGame()
+    public String getGameName()
     {
         return game;
     }

@@ -837,7 +837,7 @@ public class TestGameActionExtractor
         assertTrue
             ("Line 135 expected SOCPutPiece, got " + ((msg != null) ? msg.getClass().getSimpleName() : "null"),
              msg instanceof SOCPutPiece);
-        assertEquals("test", ((SOCPutPiece) msg).getGame());
+        assertEquals("test", ((SOCPutPiece) msg).getGameName());
         assertEquals(3, ((SOCPutPiece) msg).getPieceType());
         assertEquals(0x704, ((SOCPutPiece) msg).getCoordinates());
 

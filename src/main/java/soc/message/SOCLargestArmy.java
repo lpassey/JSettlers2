@@ -67,7 +67,7 @@ public class SOCLargestArmy extends SOCMessage
     /**
      * @return the name of the game
      */
-    public String getGame()
+    public String getGameName()
     {
         return game;
     }

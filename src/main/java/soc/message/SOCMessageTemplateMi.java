@@ -98,7 +98,7 @@ public abstract class SOCMessageTemplateMi extends SOCMessageMulti
     /**
      * @return the name of the game, or null if none
      */
-    public String getGame()
+    public String getGameName()
     {
         return game;
     }

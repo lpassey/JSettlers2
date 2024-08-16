@@ -532,7 +532,7 @@ public class TestGameEventLog
         assertNull(entry.excludedPN);
         assertTrue("Line 21 expected SOCDiceResult, got " + ((msg != null) ? msg.getClass().getSimpleName() : "null"),
             msg instanceof SOCDiceResult);
-        assertEquals("test", ((SOCDiceResult) msg).getGame());
+        assertEquals("test", ((SOCDiceResult) msg).getGameName());
         assertEquals(-1, ((SOCDiceResult) msg).getResult());
 
         // !p[3, 2]:SOCRobberyResult:game=test|perp=3|victim=2|resType=6|amount=1|isGainLose=true
@@ -556,7 +556,7 @@ public class TestGameEventLog
             ("Line " + (EXPECTED_FILE_LINE_COUNT - 16) + " expected SOCPutPiece, got " +
                  ((msg != null) ? msg.getClass().getSimpleName() : "null"),
              msg instanceof SOCPutPiece);
-        assertEquals("test", ((SOCPutPiece) msg).getGame());
+        assertEquals("test", ((SOCPutPiece) msg).getGameName());
         assertEquals(2, ((SOCPutPiece) msg).getPieceType());
     }
 
@@ -601,7 +601,7 @@ public class TestGameEventLog
         assertTrue
             ("Line 102 expected SOCPutPiece, got " + ((msg != null) ? msg.getClass().getSimpleName() : "null"),
              msg instanceof SOCPutPiece);
-        assertEquals("g", ((SOCPutPiece) msg).getGame());
+        assertEquals("g", ((SOCPutPiece) msg).getGameName());
         assertEquals(1, ((SOCPutPiece) msg).getPieceType());
         assertEquals(0x43, ((SOCPutPiece) msg).getCoordinates());
 
@@ -614,7 +614,7 @@ public class TestGameEventLog
         assertNull(entry.excludedPN);
         assertTrue("Line 172 expected SOCDiceResult, got " + ((msg != null) ? msg.getClass().getSimpleName() : "null"),
             msg instanceof SOCDiceResult);
-        assertEquals("g", ((SOCDiceResult) msg).getGame());
+        assertEquals("g", ((SOCDiceResult) msg).getGameName());
         assertEquals(5, ((SOCDiceResult) msg).getResult());
 
         // 1:04.429:fo:SOCGameTextMsg:game=g|nickname=-|text=entry with timestamp >= 1 minute
@@ -627,7 +627,7 @@ public class TestGameEventLog
         assertTrue("Line " + (HAS_TIMESTAMPS_EXPECTED_FILE_LINE_COUNT - 5)
             + " expected SOCGameTextMsg, got " + ((msg != null) ? msg.getClass().getSimpleName() : "null"),
             msg instanceof SOCGameTextMsg);
-        assertEquals("g", ((SOCGameTextMsg) msg).getGame());
+        assertEquals("g", ((SOCGameTextMsg) msg).getGameName());
     }
 
     /**
@@ -721,7 +721,7 @@ public class TestGameEventLog
         assertTrue
             ("Line 104 expected SOCPutPiece, got " + ((msg != null) ? msg.getClass().getSimpleName() : "null"),
              msg instanceof SOCPutPiece);
-        assertEquals("test", ((SOCPutPiece) msg).getGame());
+        assertEquals("test", ((SOCPutPiece) msg).getGameName());
         assertEquals(0, ((SOCPutPiece) msg).getPieceType());
         assertEquals(0xa6, ((SOCPutPiece) msg).getCoordinates());
 

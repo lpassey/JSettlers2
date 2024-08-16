@@ -310,7 +310,7 @@ public class GameEventLog
      * @throws IllegalStateException  if {@link #game} is {@code null}
      * @throws NoSuchElementException  unless {@link #entries} starts with {@link SOCVersion}
      *     followed by {@link SOCNewGame} or {@link SOCNewGameWithOptions} where
-     *     {@link SOCNewGame#getGame()} equals {@link #game}{@link SOCGame#getName() .getName()}
+     *     {@link SOCNewGame#getGameName()} equals {@link #game}{@link SOCGame#getName() .getName()}
      * @throws IllegalArgumentException  if {@code saveDir} isn't a currently existing directory
      * @throws IOException if an I/O problem or {@link SecurityException} occurs
      * @see #load(File, boolean, int)
@@ -334,9 +334,9 @@ public class GameEventLog
                 msg = entries.get(1).event;
                 String gaName = null;
                 if (msg instanceof SOCNewGame)
-                    gaName = ((SOCNewGame) msg).getGame();
+                    gaName = ((SOCNewGame) msg).getGameName();
                 else if (msg instanceof SOCNewGameWithOptions)
-                    gaName = ((SOCNewGameWithOptions) msg).getGame();
+                    gaName = ((SOCNewGameWithOptions) msg).getGameName();
 
                 if (gaName != null)
                 {
@@ -570,7 +570,7 @@ public class GameEventLog
                     {
                         if (ee.event instanceof SOCNewGameWithOptions)
                         {
-                            String gameName = ((SOCNewGameWithOptions) ee.event).getGame();
+                            String gameName = ((SOCNewGameWithOptions) ee.event).getGameName();
                             if (! ret.gameName.equals(gameName))
                                 throw new ParseException("Line " + lnum + ": Game name differs from header", 1);
 
@@ -579,7 +579,7 @@ public class GameEventLog
                                 ostr = ostr.substring(1);
                             ret.optsStr = ostr;
                         } else if (ee.event instanceof SOCNewGame) {
-                            String gameName = ((SOCNewGame) ee.event).getGame();
+                            String gameName = ((SOCNewGame) ee.event).getGameName();
                             if (! ret.gameName.equals(gameName))
                                 throw new ParseException("Line " + lnum + ": Game name differs from header", 1);
                         } else {

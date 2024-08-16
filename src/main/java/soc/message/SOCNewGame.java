@@ -30,7 +30,7 @@ package soc.message;
  * Game name may include a marker prefix if the client can't join;
  * see {@link SOCGames#MARKER_THIS_GAME_UNJOINABLE}.
  * This marker will be retained within the game name returned by
- * {@link #getGame()}.
+ * {@link #getGameName()}.
  *<P>
  * Just like {@link SOCNewGameWithOptions}, robot clients don't need to handle
  * this message type. Bots ignore new-game announcements and are asked to
@@ -64,7 +64,7 @@ public class SOCNewGame extends SOCMessage
      * @return the name of the game; may have
      *         the {@link SOCGames#MARKER_THIS_GAME_UNJOINABLE} prefix.
      */
-    public String getGame()
+    public String getGameName()
     {
         return game;
     }

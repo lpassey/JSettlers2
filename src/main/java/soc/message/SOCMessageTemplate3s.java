@@ -111,7 +111,7 @@ public abstract class SOCMessageTemplate3s extends SOCMessage
     /**
      * @return the name of the game
      */
-    public String getGame()
+    public String getGameName()
     {
         return game;
     }

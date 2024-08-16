@@ -40,7 +40,7 @@ import soc.game.SOCGameOptionSet;
  * Game name may include a prefix marker if the client can't join;
  * see {@link SOCGames#MARKER_THIS_GAME_UNJOINABLE}.
  * This marker will be retained within the game name returned by
- * {@link #getGame()}.
+ * {@link #getGameName()}.
  *<P>
  * Unjoinable games are sent to clients older than v2.7.00 as {@link SOCNewGame},
  * omitting game options, instead of this message.

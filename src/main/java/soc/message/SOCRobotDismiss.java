@@ -51,7 +51,7 @@ public class SOCRobotDismiss extends SOCMessage
     /**
      * @return the game name
      */
-    public String getGame()
+    public String getGameName()
     {
         return game;
     }

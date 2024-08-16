@@ -1271,7 +1271,7 @@ public class SOCPlayerClient extends SOCBaseClient
     }
 
 //    @Override
-//    public SOCGame getGame( String gameName )
+//    public SOCGame getGameName( String gameName )
 //    {
 //        return games.get( gameName );
 //    }

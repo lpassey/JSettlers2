@@ -288,12 +288,12 @@ public class SOCSetSpecialItem extends SOCMessage
         this.sv = ((sv != null) && (sv.length() > 0)) ? sv : null;
     }
 
-    // getGame is required by interface; all message fields are public final, no getters needed
+    // getGameName is required by interface; all message fields are public final, no getters needed
 
     /**
      * @return the name of the game
      */
-    public String getGame()
+    public String getGameName()
     {
         return game;
     }

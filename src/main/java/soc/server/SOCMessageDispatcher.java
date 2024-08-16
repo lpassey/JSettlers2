@@ -152,7 +152,7 @@ import soc.server.genericServer.Server;
                 // Try to process message through its game type's handler
                 // before falling through to server-wide handler
 
-                final String gaName = ((SOCMessageForGame) mes).getGame();
+                final String gaName = ((SOCMessageForGame) mes).getGameName();
                 if (gaName == null)
                     return;  // <--- Early return: malformed ---
 

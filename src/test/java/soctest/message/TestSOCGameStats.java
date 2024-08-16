@@ -72,13 +72,13 @@ public class TestSOCGameStats
 
         SOCGameStats msg = new SOCGameStats("ga", SOCGameStats.TYPE_TIMING, LONGS_123);
         assertEquals(SOCGameStats.TYPE_TIMING, msg.getStatType());
-        assertEquals("ga", msg.getGame());
+        assertEquals("ga", msg.getGameName());
         assertArrayEquals(new long[] {1, 2, 3} , msg.getScores());
         assertNull(msg.getRobotSeats());
 
         msg = new SOCGameStats("ga", new int[]{2, 3, 4}, BOOLS_TFT);
         assertEquals(SOCGameStats.TYPE_PLAYERS, msg.getStatType());
-        assertEquals("ga", msg.getGame());
+        assertEquals("ga", msg.getGameName());
         assertArrayEquals(new long[]{2, 3, 4}, msg.getScores());
         assertArrayEquals(new boolean[]{true, false, true}, msg.getRobotSeats());
     }

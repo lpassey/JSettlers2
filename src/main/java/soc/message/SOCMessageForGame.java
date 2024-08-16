@@ -21,13 +21,13 @@ package soc.message;
  * This indicates that a {@link SOCMessage} type is always about a particular game
  * named in the message, or never about that game.
  *<P>
- * Before adding to a per-game message queue, check that {@link #getGame()} is
+ * Before adding to a per-game message queue, check that {@link #getGameName()} is
  * not {@code null} or {@link SOCMessage#GAME_NONE}.
  *<P>
  * Most implementing types' constructors will always require a game; some abstract
  * subclasses such as {@link SOCMessageTemplateMi} may allow null, leaving the choice
  * to each of their own subclasses.  Non-abstract message types must always return a
- * game name or {@link SOCMessage#GAME_NONE} from {@link #getGame()}, never null.
+ * game name or {@link SOCMessage#GAME_NONE} from {@link #getGameName()}, never null.
  *<P>
  * Template classes such as {@link SOCMessageTemplateMi} are convenient for quickly developing
  * a new message type, but they all implement {@code SOCMessageForGame}.  If the template classes
@@ -45,7 +45,7 @@ public interface SOCMessageForGame
      * If message is not about per-game structures or code, use {@link SOCMessage#GAME_NONE}.
      *<P>
      * At the server, the message treater dispatches incoming {@code SOCMessageForGame}s
-     * based on their {@code getGame()}:
+     * based on their {@code getGameName()}:
      *<UL>
      * <LI> {@code null}: Message is ignored
      * <LI> {@link SOCMessage#GAME_NONE}: Message is handled by {@code SOCServer} itself
@@ -57,7 +57,7 @@ public interface SOCMessageForGame
      *
      * @return the name of the game, or {@link SOCMessage#GAME_NONE} or (rarely, at client) {@code null} if none.
      */
-    public abstract String getGame();
+    public abstract String getGameName();
 
     /**
      * Get the message type.  Implemented in {@link SOCMessage}.

@@ -277,12 +277,12 @@ import java.net.URL;
      *
      * @param pi  the interface that this button is attached to
      * @param pn  the number of the player that owns this button, or -1 if none;
-     *          if <tt>pn</tt> >= 0, <tt>pi.getGame()</tt> must not be null.
+     *          if <tt>pn</tt> >= 0, <tt>pi.getGameName()</tt> must not be null.
      * @param bgColor  background color to use
      * @param width width,height in pixels; FACE_WIDTH_PX or FACE_WIDTH_BORDERED_PX
      *
      * @throws IllegalArgumentException if pn is < -1 or >= {@link SOCGame#maxPlayers},
-     *           or if <tt>pi.getGame()</tt> is null.
+     *           or if <tt>pi.getGameName()</tt> is null.
      * @since 1.1.00
      */
     private SOCFaceButton(final SOCPlayerInterface pi, final int pn, final Color bgColor, final int width)

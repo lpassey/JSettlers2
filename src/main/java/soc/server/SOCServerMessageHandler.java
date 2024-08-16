@@ -211,10 +211,10 @@ public class SOCServerMessageHandler
             //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleJOINGAME(c, (SOCJoinGame) mes);
 
-            //ga = (SOCGame)gamesData.get(((SOCJoinGame)mes).getGame());
+            //ga = (SOCGame)gamesData.get(((SOCJoinGame)mes).getGameName());
             //if (ga != null) {
             //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCJoinGame)mes).getGame());
+            //saveCurrentGameEventRecord(((SOCJoinGame)mes).getGameName());
             //}
             break;
 
@@ -227,10 +227,10 @@ public class SOCServerMessageHandler
             //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleLEAVEGAME(c, (SOCLeaveGame) mes);
 
-            //ga = (SOCGame)gamesData.get(((SOCLeaveGame)mes).getGame());
+            //ga = (SOCGame)gamesData.get(((SOCLeaveGame)mes).getGameName());
             //if (ga != null) {
             //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCLeaveGame)mes).getGame());
+            //saveCurrentGameEventRecord(((SOCLeaveGame)mes).getGameName());
             //}
             break;
 
@@ -243,9 +243,9 @@ public class SOCServerMessageHandler
             //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleSITDOWN(c, (SOCSitDown) mes);
 
-            //ga = (SOCGame)gamesData.get(((SOCSitDown)mes).getGame());
+            //ga = (SOCGame)gamesData.get(((SOCSitDown)mes).getGameName());
             //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCSitDown)mes).getGame());
+            //saveCurrentGameEventRecord(((SOCSitDown)mes).getGameName());
             break;
 
         /**
@@ -257,9 +257,9 @@ public class SOCServerMessageHandler
             //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
             handleSTARTGAME(c, (SOCStartGame) mes, 0);
 
-            //ga = (SOCGame)gamesData.get(((SOCStartGame)mes).getGame());
+            //ga = (SOCGame)gamesData.get(((SOCStartGame)mes).getGameName());
             //currentGameEventRecord.setSnapshot(ga);
-            //saveCurrentGameEventRecord(((SOCStartGame)mes).getGame());
+            //saveCurrentGameEventRecord(((SOCStartGame)mes).getGameName());
             break;
 
         case SOCMessage.CHANGEFACE:
@@ -982,7 +982,7 @@ public class SOCServerMessageHandler
      */
     private void handleCHANGEFACE(Connection c, final SOCChangeFace mes)
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         final SOCGame ga = gameList.getGameData(gaName);
         if (ga == null)
             return;
@@ -1011,7 +1011,7 @@ public class SOCServerMessageHandler
     private void handleSETSEATLOCK(Connection c, final SOCSetSeatLock mes)
     {
         final SOCGame.SeatLockState sl = mes.getLockState();
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = gameList.getGameData(gaName);
         if (ga == null)
             return;
@@ -1128,7 +1128,7 @@ public class SOCServerMessageHandler
     {
         //createNewGameEventRecord();
         //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.getData(), "SERVER"));
-        final String gaName = gameTextMsgMes.getGame();
+        final String gaName = gameTextMsgMes.getGameName();
 
         SOCGame ga = gameList.getGameData(gaName);
         if (ga == null)
@@ -1310,7 +1310,7 @@ public class SOCServerMessageHandler
             }
         }
 
-        //saveCurrentGameEventRecord(gameTextMsgMes.getGame());
+        //saveCurrentGameEventRecord(gameTextMsgMes.getGameName());
     }
 
     /**
@@ -2397,7 +2397,7 @@ public class SOCServerMessageHandler
             return;
 
         boolean isMember = false;
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         if (! gameList.takeMonitorForGame(gaName))
         {
             return;  // <--- Early return: game not in gamelist ---
@@ -2474,7 +2474,7 @@ public class SOCServerMessageHandler
         if (c == null)
             return;
 
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = gameList.getGameData(gaName);
         if (ga == null)
         {
@@ -2697,7 +2697,7 @@ public class SOCServerMessageHandler
     void handleSTARTGAME
         (Connection c, final SOCStartGame mes, final int botsOnly_maxBots)
     {
-        final String gn = mes.getGame();
+        final String gn = mes.getGameName();
         SOCGame ga = gameList.getGameData(gn);
         if (ga == null)
             return;
@@ -2894,7 +2894,7 @@ public class SOCServerMessageHandler
      */
     private void handleRESETBOARDREQUEST(Connection c, final SOCResetBoardRequest mes)
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = gameList.getGameData(gaName);
         if (ga == null)
             return;
@@ -3017,7 +3017,7 @@ public class SOCServerMessageHandler
      */
     private void handleRESETBOARDVOTE(Connection c, final SOCResetBoardVote mes)
     {
-        final String gaName = mes.getGame();
+        final String gaName = mes.getGameName();
         SOCGame ga = gameList.getGameData(gaName);
         if (ga == null)
             return;

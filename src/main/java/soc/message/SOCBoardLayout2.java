@@ -249,7 +249,7 @@ public class SOCBoardLayout2 extends SOCMessage
      * Game name
      * @return the name of the game
      */
-    public String getGame()
+    public String getGameName()
     {
         return game;
     }

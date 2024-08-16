@@ -92,7 +92,7 @@ public class SOCLeaveGame extends SOCMessage
     /**
      * @return the game name
      */
-    public String getGame()
+    public String getGameName()
     {
         return game;
     }

@@ -7991,7 +7991,7 @@ public class SOCServer extends Server
     /**
      * Create a reloaded savegame and have a client join it.
      * Calls {@link #createOrJoinGame(Connection, int, String, SOCGameOptionSet, SOCGame, int)}
-     * with player info from {@code sgm} and current contents of {@link SavedGameModel#getGame() sgm.getGame()}.
+     * with player info from {@code sgm} and current contents of {@link SavedGameModel#getGame() sgm.getGameName()}.
      *<P>
      * Will ask bots to join and sit down for any players marked as robots in {@code sgm}.
      *<P>

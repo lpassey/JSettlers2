@@ -113,7 +113,7 @@ public class SOCBotJoinGameRequest extends SOCMessage
     /**
      * @return the game name
      */
-    public String getGame()
+    public String getGameName()
     {
         return game;
     }

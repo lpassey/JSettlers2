@@ -1006,7 +1006,7 @@ public class TestRecorder
             assertNotNull("SGM has gameopts: " + sgm.gameName, sgm.gameOptions);
             SOCGame sgmGame = sgm.getGame();
             SOCGameOptionSet opts = sgmGame.getGameOptions();
-            assertNotNull("SGM.getGame has gameopts: " + sgmGame.getName(), opts);
+            assertNotNull("SGM.getGameName has gameopts: " + sgmGame.getName(), opts);
             final String optKey = observabilityOpt.key;
             assertFalse
                 ("game shouldn't already have observ gameopt " + optKey,
@@ -1723,8 +1723,8 @@ public class TestRecorder
         /**
          * Reloaded game within the test server, from {@link #sgm}; not null.
          * For the game at client, call
-         * <tt>{@link #tcli}.{@link soc.baseclient.SOCDisplaylessPlayerClient#getGame(String) getGame(gaName)}</tt>
-         * or <tt>{@link #tcli2}.getGame(gaName)</tt>.
+         * <tt>{@link #tcli}.{@link soc.baseclient.SOCDisplaylessPlayerClient#getGame(String) getGameName(gaName)}</tt>
+         * or <tt>{@link #tcli2}.getGameName(gaName)</tt>.
          * @see #board
          * @see #clientPlayer
          * @see #records

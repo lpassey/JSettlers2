@@ -1539,7 +1539,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 //            // So, it's OK to not check that here or in the dialog.
 //
 //            // Is the game over yet?
-//            if (pi.getGame().getGameState() == SOCGame.OVER)
+//            if (pi.getGameName().getGameState() == SOCGame.OVER)
 //            {
 //                // No point joining, just get options to start a new one.
 //                gameWithOptionsBeginSetup(true, false);
