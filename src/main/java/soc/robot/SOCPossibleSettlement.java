@@ -199,7 +199,7 @@ public class SOCPossibleSettlement extends SOCPossiblePiece
            //  get new numbers
            //
            SOCPlayerNumbers newNumbers = new SOCPlayerNumbers(player.getNumbers());
-           newNumbers.updateNumbers(coord, player.getGameName().getBoard());
+           newNumbers.updateNumbers(coord, player.getGame().getBoard());
            D.ebugPrintlnINFO("----- new numbers and ports -----");
            D.ebugPrintlnINFO("SOCPN:"+newNumbers);
            D.ebugPrintINFO("PFLAGS:");
@@ -210,7 +210,7 @@ public class SOCPossibleSettlement extends SOCPossiblePiece
            boolean newPortFlags[] = new boolean[SOCBoard.WOOD_PORT+1];
            for (int port = SOCBoard.MISC_PORT; port <= SOCBoard.WOOD_PORT; port++) {
              newPortFlags[port] = player.getPortFlag(port);
-             if (player.getGameName().getBoard().getPortCoordinates(port).contains(coordInteger)) {
+             if (player.getGame().getBoard().getPortCoordinates(port).contains(coordInteger)) {
                newPortFlags[port] = true;
              }
              D.ebugPrintINFO(portFlags[port]+",");
