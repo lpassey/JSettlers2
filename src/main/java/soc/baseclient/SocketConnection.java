@@ -1,11 +1,30 @@
+/**
+ * Java Settlers - An online multiplayer version of the game Settlers of Catan
+ * This file copyright (C) 2019-2023 Jeremy D Monin <jeremy@nand.net>
+ * Extracted in 2019 from SOCPlayerClient.java, so:
+ * Portions of this file Copyright (C) 2003  Robert S. Thomas <thomas@infolab.northwestern.edu>
+ * Portions of this file Copyright (C) 2012-2013 Paul Bilnoski <paul@bilnoski.net>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The maintainer of this file can be reached at github.com
+ **/
 package soc.baseclient;
 
-//import soc.client.ClientNetwork;
 import soc.client.*;
 import soc.disableDebug.D;
-import soc.game.SOCGame;
 import soc.message.*;
-import soc.server.SOCServer;
 import soc.server.genericServer.Connection;
 import soc.util.Version;
 
@@ -17,8 +36,45 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-public class TCPServerConnection extends ServerConnection
+/**
+ * Helper object to encapsulate and deal with {@link SOCBaseClient}'s server connectivity.
+ *<P>
+ * This object deals only with connections to TCP networked servers (which may
+ * be in-process, but which communicate over network sockets. A Local tcp server
+ * (if any) is started in {@link SOCFullClient#initLocalServer(int)} ).
+ *<br>
+ * Messages from server to client are received in this object's {@link NetReadTask} object
+ * which call the client's {@link PlayerMessageHandler#handle( SOCMessage )} method. The client
+ * reference is set in this object's constructor.
+ *<br>
+ * Messages from client to server are formed in {@link GameMessageSender} or other classes,
+ * which call back here to send to the server via {@link #send(String)} or {@link #putPractice(String)}.
+ *<br>
+ * Network shutdown is done in {@link #dispose()}, or {@link #disconnect()} for only the client part.
+ *<P>
+ * Before v2.0.00, most of these fields and methods were part of the main {@link SOCPlayerClient} class.
+ *
+ * @author Lee Passey based on code by Paul Bilnoski &lt;paul@bilnoski.net&gt;
+ * @since 2.8.00
+ */
+
+public class SocketConnection extends ServerConnection
 {
+    /**
+     * Network socket data.
+     * Before v2.5.00 this field was {@code s}.
+     */
+    Socket sock;
+    DataInputStream in;
+    DataOutputStream out;
+    Thread reader = null;
+
+    /**
+     * Timeout for initial network connection to server; default is 6000 milliseconds.
+     */
+    public static int CONNECT_TIMEOUT_MS = 6000;
+
+
     /**
      * Default tcp port number 8880 to listen, and to connect to remote server.
      * Should match SOCServer.SOC_PORT_DEFAULT.
@@ -31,47 +87,29 @@ public class TCPServerConnection extends ServerConnection
     /**
      * When client is running a local server, interval for how often to send {@link SOCServerPing}
      * keepalive messages: 45 minutes, in milliseconds. See {@link #connect(String, int)}.
-     *<P>
-     *     NOTE: A local server is still a TCP server, it's just one running in the same process
-     *     space as the client.
-     *<p>
      * Should be several minutes shorter than {@link soc.server.genericServer.NetConnection#TIMEOUT_VALUE}.
+     *<P>
+     *     NOTE: A local server is still a network server, it's just one running in the same
+     *     process space as the client.
+     *<p>
      * @since 2.5.00
      */
     protected static final int PING_LOCAL_SERVER_INTERVAL_MS = 45 * 60 * 1000;
 
     /**
-     * Network socket.
-     * Before v2.5.00 this field was {@code s}.
-     */
-    Socket sock;
-    DataInputStream in;
-    DataOutputStream out;
-    Thread reader = null;
-
-//    /**
-//     * Client-hosted TCP server. If client is running this server, it's also connected
-//     * as a client, instead of being client of a remote server.
-//     * Started via {@link SwingServerMainDisplay#startLocalTCPServer(int)}.
-//     * {@link #practiceServer} may still be activated at the user's request.
-//     * Note that {@link SOCGame#isPractice} is false for localTCPServer's games.
-//     * @since 1.1.00
-//     */
-//    SOCServer localTCPServer = null;
-
-    /**
-     * Are we connected to a TCP server (remote or {@link #localTCPServer})?
-     * {@link #practiceServer} is not a TCP server.
+     * Are we connected to a networked server?
      * If true, {@link #serverConnectInfo} != null.
      * @see #lastException
-     *
-     * TODO: do we need to do this for process connections?
-     */
+      */
     protected boolean connected = false;
 
-    public TCPServerConnection( SOCBaseClient client)
+    /**
+     * Are we connected to a tcp server?
+     * @see #getHost()
+     */
+    public synchronized boolean isConnected()
     {
-        super( client );
+        return connected;
     }
 
     /**
@@ -96,12 +134,13 @@ public class TCPServerConnection extends ServerConnection
     }
 
     /**
-     * Are we connected to a tcp server?
-     * @see #getHost()
+     * Constructor
+     *
+     * @param client the {@link SOCBaseClient} instance associated with this connection.
      */
-    public synchronized boolean isConnected()
+    public SocketConnection( SOCBaseClient client )
     {
-        return connected;
+        super( client );
     }
 
     /**
@@ -118,7 +157,7 @@ public class TCPServerConnection extends ServerConnection
      * Will start a thread here to periodically {@link SOCServerPing} that server to prevent timeouts when idle.
      *
      * @param host  Server host to connect to, or {@code null} for localhost
-     * @param port  Server TCP port to connect to; the default server port is {@link ClientNetwork#SOC_PORT_DEFAULT}.
+     * @param port  Server TCP port to connect to; the default server port is {@link #SOC_PORT_DEFAULT}.
      * @throws IllegalStateException if already connected
      *     or if {@link Version#versionNumber()} returns 0 (packaging error)
      * @see soc.server.SOCServer#newConnection1(Connection)
@@ -143,16 +182,10 @@ public class TCPServerConnection extends ServerConnection
         final String hostString = (host != null) ? host : "localhost";  // I18N: no need to localize this hostname
         serverConnectInfo = new ServerConnectInfo(hostString, port, null);
 
-        // TODO: This should be the responsibility of the client calling connect. Be sure that it happens
-//        System.out.println(/*I*/"Connecting to " + hostString + ":" + port/*18N*/);  // I18N: Not localizing console output yet
-//        mainDisplay.setMessage( client.strings.get("pcli.message.connecting.serv") );  // "Connecting to server..."
-
         try
         {
             if (client.isAuthenticated())
             {
-//                mainDisplay.setPassword(client.getPassword());    // unnecessary now??
-                // when ! gotPassword, SwingMainDisplay.getPassword() will read pw from there
                 client.setAuthenticated( false );
             }
 
@@ -166,9 +199,10 @@ public class TCPServerConnection extends ServerConnection
             out = new DataOutputStream(sock.getOutputStream());
             connected = true;
 
-            (reader = new Thread(new TCPServerConnection.NetReadTask((SOCPlayerClient) client, this))).start();
-            // send VERSION right away (1.1.06 and later)
-            sendVersion(false);
+            (reader = new Thread(new SocketConnection.NetReadTask((SOCPlayerClient) client, this))).start();
+            // send VERSION right away (1.1.06 and later). The server will not
+            // start its incoming queue until it gets this message
+            sendVersion();
 
             if (host == null)
             {
@@ -259,19 +293,17 @@ public class TCPServerConnection extends ServerConnection
     }
 
     /**
-     * write a message to the net: either to a remote server,
-     * or to {@link #localTCPServer} for games we're hosting.
-     *<P>
+     * write a message to the net
+     *
      * If {@link #lastException} != null, or ! {@link #connected}, {@code putNet}
      * returns false without attempting to send the message.
      *<P>
-     * This message is copied to {@link #lastMessage_N}; any error sets {@link #lastException}
+     * This message is copied to {@link ServerConnection#lastMessage}; any error sets {@link #lastException}
      * and calls {@link SOCPlayerClient#shutdownFromNetwork()} to show the error message.
      *
      * @param s  the message
      * @return true if the message was sent, false if not
      * @see GameMessageSender#put(String, boolean)
-     * @see #putPractice(String)
      */
     public synchronized boolean send(String s)
     {
@@ -304,7 +336,6 @@ public class TCPServerConnection extends ServerConnection
 
     /**
      * resend the last message (to the network)
-     * @see #resendPractice()
      */
     public void resendNet()
     {
@@ -320,7 +351,6 @@ public class TCPServerConnection extends ServerConnection
      * Since no other state variables are set, call this only right before
      * discarding this object or calling System.exit.
      *</em>
-     * @return Can we still start practice games? (No local exception yet in {@link #ex_P})
      * @since 1.1.00
      */
     public boolean putLeaveAll()
@@ -337,32 +367,6 @@ public class TCPServerConnection extends ServerConnection
         return true;
     }
 
-
-    /**
-     * Create and start the local TCP server on a given port.
-     * If startup fails, show a {@link NotifyDialog} with the error message.
-     * @return True if started, false if not
-     */
-//    public boolean initLocalServer(int tport)
-//    {
-//        try
-//        {
-//            localTCPServer = new SOCServer(tport, SOCServer.SOC_MAXCONN_DEFAULT, null, null);
-//            localTCPServer.setPriority(5);  // same as in SOCServer.main
-//            localTCPServer.start();
-//        }
-//        catch (Throwable th)
-//        {
-////            mainDisplay.showErrorDialog
-////                    (client.strings.get("pcli.error.startingserv") + "\n" + th,  // "Problem starting server:"
-////                            client.strings.get("base.cancel"));
-//
-//            return false;
-//        }
-//
-//        return true;
-//    }
-
     /**
      * A task to continuously read from the server socket.
      * Not used for talking to the practice server.
@@ -370,11 +374,13 @@ public class TCPServerConnection extends ServerConnection
      */
     static class NetReadTask implements Runnable
     {
-        final TCPServerConnection connection;
+        final SocketConnection connection;
         final SOCPlayerClient client;
 
-        public NetReadTask(SOCPlayerClient client, TCPServerConnection connection)
+        public NetReadTask(SOCPlayerClient client, SocketConnection connection)
         {
+            if (null == client.messageHandler)
+                throw new IllegalArgumentException( "Client message handler has not yet been initialized" );
             this.client = client;
             this.connection = connection;
         }
@@ -390,10 +396,10 @@ public class TCPServerConnection extends ServerConnection
             Thread.currentThread().setName("cli-netread");  // Thread name for debug
             try
             {
-                final MessageHandler handler = client.getMessageHandler();
+                final PlayerMessageHandler handler = (PlayerMessageHandler) client.getMessageHandler();
 
                 // TODO: can probably be initialized in the client?
-                handler.init(client);
+//                handler.init(client);
 
                 while (connection.isConnected())
                 {

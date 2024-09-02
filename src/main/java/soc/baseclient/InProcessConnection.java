@@ -20,21 +20,21 @@ public class InProcessConnection extends ServerConnection
     SOCServer inProcServer;
 
     /**
-     * Create our client's ClientNetwork.
-     * Before using the ClientNetwork, caller client must construct their GUI
-     * and call {@link #setMainDisplay(MainDisplay)}.
-     * Then, call {@link #connect(String, int)}.
+     * Create our client's connection to an in-process game server
+     * Before using this connection, caller client must construct their GUI
+     * and call {@link SOCFullClient#setMainDisplay(MainDisplay)}.
+     * Then, call {@link SOCFullClient#connect(String, int)}.
      *
-     * @param client The SOCBaseClient sub class that owns this connection. Should
+     * @param client The SOCFullClient that owns this connection. Should
      *               only be one.
      */
-    public InProcessConnection( SOCBaseClient client ) {
+    public InProcessConnection( SOCFullClient client )
+    {
         super( client );
     }
 
     /**
-     * Are we connected to a tcp server?
-     * @see #getHost()
+     * Are we connected to an in-process server?
      */
     public synchronized boolean isConnected()
     {
@@ -44,18 +44,17 @@ public class InProcessConnection extends ServerConnection
 
     /**
      * Client in process connection to {@link #inProcServer the in-process server}.
-     * Null before it's started in {@link #startPracticeGame()}.
+     * Null before it's started in {@link SOCFullClient#startPracticeGame()}.
      *<P>
-     * Last message is in {@link #lastMessage_P}; any error is in {@link #ex_P}.
+     * Last message is in {@link #lastMessage}; any error is in {@link #ex}.
      * @since 1.1.00
      */
     protected StringConnection strConn = null;
 
     /**
-     * write a message to the practice server. {@link #localTCPServer} is not
-     * the same as the practice server; use {@link #putNet(String)} to send
-     * a message to the local TCP server.
-     * Use <tt>putPractice</tt> only with {@link #practiceServer}.
+     * write a message to the practice server. {@link SOCFullClient#localTCPServer}
+     * is not the same as the practice server; use {@link SocketConnection#send(String)}
+     * to send a message to the local TCP server.
      *<P>
      * Before version 1.1.14, this was <tt>putLocal</tt>.
      *
@@ -63,7 +62,7 @@ public class InProcessConnection extends ServerConnection
      * @return true if the message was sent, false if not
      * @see GameMessageSender#put(String, boolean)
      * @throws IllegalArgumentException if {@code s} is {@code null}
-     * @see #putNet(String)
+     * @see SocketConnection#send(String)
      * @since 1.1.00
      */
     @Override
@@ -88,10 +87,20 @@ public class InProcessConnection extends ServerConnection
         return true;
     }
 
+    /*
+        get a game directly from the local server's game list.
+     */
     public SOCGame getGame( String gameName ) 
     {
         if (null != inProcServer)
             return inProcServer.getGame( gameName );
+        return null;
+    }
+
+    public SOCGameList getGames()
+    {
+        if (null != inProcServer)
+            return inProcServer.getGameList();
         return null;
     }
 
@@ -109,21 +118,13 @@ public class InProcessConnection extends ServerConnection
         {
             try
             {
-//                if (Version.versionNumber() == 0)
-//                {
-//                    throw new IllegalStateException("Packaging error: Cannot determine JSettlers version");
-//                }
-
                 inProcServer = new SOCServer(SOCServer.PRACTICE_STRINGPORT, SOCServer.SOC_MAXCONN_DEFAULT, null, null);
                 inProcServer.setPriority(5);  // same as in SOCServer.main
                 inProcServer.start();
             }
             catch (Throwable th)
             {
-//                mainDisplay.showErrorDialog
-//                        (client.strings.get("pcli.error.startingpractice") + "\n" + th,  // "Problem starting practice server:"
-//                                client.strings.get("base.cancel"));
-//
+                getClient().showErrorDialog(getClient().getString("pcli.error.startingpractice") + "\n" + th, false );
                 return false;
             }
         }
@@ -136,7 +137,7 @@ public class InProcessConnection extends ServerConnection
                 new LocalStringReaderTask( strConn );  // Reader will start its own thread
 
                 // Send VERSION right away
-                sendVersion(true);
+                sendVersion();
 
                 // Practice server supports per-game options
                 getClient().enableOptions();
@@ -159,6 +160,10 @@ public class InProcessConnection extends ServerConnection
         return true;
     }
 
+    /**
+     * casts the super class "client" variable to a SOCFullClient instance.
+     * @return the client instance
+     */
     private SOCFullClient getClient()
     {
         return (SOCFullClient) client;
@@ -171,20 +176,12 @@ public class InProcessConnection extends ServerConnection
         return null;
     }
 
-    public SOCGameList getGames()
-    {
-        if (null != inProcServer)
-            return inProcServer.getGameList();
-        return null;
-    }
-
     /**
      * For practice games, reader thread to get messages from the
      * practice server to be treated and reacted to.
      *<P>
      * Before v2.0.00 this class was {@code SOCPlayerClient.SOCPlayerLocalStringReader}.
      *
-     * @see NetReadTask
      * @author jdmonin
      * @since 1.1.00
      */
@@ -216,8 +213,7 @@ public class InProcessConnection extends ServerConnection
             Thread.currentThread().setName("cli-stringread");  // Thread name for debug
             try
             {
-                final MessageHandler handler = client.getMessageHandler();
-                handler.init( (SOCFullClient) client);
+                final InProcMessageHandler handler = new InProcMessageHandler( (SOCFullClient) client );
 
                 while (locl.isConnected())
                 {
@@ -225,7 +221,7 @@ public class InProcessConnection extends ServerConnection
                     SOCMessage msg = SOCMessage.toMsg(s);
 
                     if (msg != null)
-                        handler.handle(msg, true);
+                        handler.handle( msg , false );
                     else if (client.debugTraffic)
                         soc.debug.D.ebugERROR("Could not parse practice server message: " + s);
                 }
@@ -242,5 +238,4 @@ public class InProcessConnection extends ServerConnection
             }
         }
     }  // nested class LocalStringReaderTask
-
 }

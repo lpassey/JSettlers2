@@ -11,26 +11,12 @@ import java.util.Locale;
 public abstract class ServerConnection
 {
     /**
-     * Timeout for initial tcpConnection to server; default is 6000 milliseconds.
-     */
-    public static int CONNECT_TIMEOUT_MS = 6000;
-
-    /**
      * The client we're communicating for.
-     * @see #mainDisplay
      */
     protected SOCBaseClient client;
 
     /**
-     * MainDisplay for our {@link #client}, to display information and perform callbacks when needed.
-     * Set after construction by calling {@link #setMainDisplay(MainDisplay)}.
-     * <P>
-     *     connections don't get to know about displays, they have do deal with the clients
-     */
-//    protected MainDisplay mainDisplay;
-
-    /**
-     * Server tcpConnection info. {@code null} until {@link #connect(String, int)} is called.
+     * Server socketConnection info. {@code null} until {@link #connect(String, int)} is called.
      * Unlike {@code connect} params, localhost is not represented here as {@code null}:
      * see {@link ServerConnectInfo#hostname} javadoc.
      *<P>
@@ -43,7 +29,6 @@ public abstract class ServerConnection
      * For debug, our last message sent over the net.
      *<P>
      * Before v1.1.00 this field was {@code lastMessage}.
-     * @see #lastMessage_P
      */
     protected String lastMessage;
 
@@ -64,6 +49,11 @@ public abstract class ServerConnection
     {
         return lastException;
     }
+    
+    public void setLastException( Exception ex )
+    {
+        lastException = ex;
+    }
 
     /**
      * Send a message to my associated server.
@@ -77,46 +67,34 @@ public abstract class ServerConnection
      * and call {@link #setMainDisplay(MainDisplay)}.
      * Then, call {@link #connect(String, int)}.
      */
-    protected ServerConnection( SOCBaseClient c)
+    protected ServerConnection( SOCBaseClient c )
     {
         client = c;
         if (client == null)
-            throw new IllegalArgumentException("client is null");
+            throw new IllegalArgumentException( "client is null" );
     }
 
     /**
-     * Set our MainDisplay; must be done after construction.
-     * @param md  MainDisplay to use
-     * @throws IllegalArgumentException if {@code md} is {@code null}
-     */
-//    public void setMainDisplay(final MainDisplay md)
-//            throws IllegalArgumentException
-//    {
-//        if (md == null)
-//            throw new IllegalArgumentException("null");
-//    }
-
-    /**
-     * Construct and send a {@link SOCVersion} message during initial tcpConnection to a server.
+     * Construct and send a {@link SOCVersion} message during initial socketConnection to a server.
      * Version message includes features and locale in 2.0.00 and later clients; v1.x.xx servers will ignore them.
      *<P>
-     * If debug property {@link SOCPlayerClient#PROP_JSETTLERS_DEBUG_CLIENT_FEATURES PROP_JSETTLERS_DEBUG_CLIENT_FEATURES}
-     * is set, its value is sent instead of {@link #cliFeats}.{@link SOCFeatureSet#getEncodedList() getEncodedList()}.
-     * Then if debug property
-     * {@link SOCDisplaylessPlayerClient#PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P}
+     * If debug property {@link SOCPlayerClient#PROP_JSETTLERS_DEBUG_CLIENT_FEATURES}
+     * is set, its value is sent instead of {@link #cliFeats}.{@link SOCFeatureSet#getEncodedList()}.
+     * Then if debug property {@link SOCDisplaylessPlayerClient#PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P}
      * is set, its value is appended to client features as {@code "com.example.js.feat."} + gameopt3p.
      *
-     * @param isPractice  True if sending to client's practice server with {@link #putPractice(String)},
-     *     false if to a TCP server with {@link #putNet(String)}.
-     * @since 2.0.00
+     * The sub class' {@link #send()} method will know whether we are sending this message to a
+     * network server or an in-process server.
+     *
+     * @since 2.8.00
      */
-    protected void sendVersion(final boolean isPractice)
+    protected void sendVersion()
     {
         String feats = System.getProperty(SOCPlayerClient.PROP_JSETTLERS_DEBUG_CLIENT_FEATURES);
-//        if (feats == null)
-//            feats = client.getFeatures().getEncodedList();
-//        else if (feats.length() == 0)
-//            feats = null;
+        if (feats == null)
+            feats = client.getClientFeatures().getEncodedList();
+        else if (feats.length() == 0)
+            feats = null;
 
         String gameopt3p = System.getProperty(SOCDisplaylessPlayerClient.PROP_JSETTLERS_DEBUG_CLIENT_GAMEOPT3P);
         if (gameopt3p != null)

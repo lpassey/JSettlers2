@@ -26,7 +26,7 @@ package soc.client;
 import java.util.Map;
 
 import soc.baseclient.InProcessConnection;
-import soc.baseclient.TCPServerConnection;
+import soc.baseclient.SocketConnection;
 import soc.game.SOCDevCardConstants;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
@@ -71,7 +71,7 @@ import soc.message.SOCStartGame;
 import soc.message.SOCUndoPutPiece;
 
 /**
- * Client class to form outgoing messages and call {@link ClientNetwork} methods to send them to the server.
+ * Client class to form outgoing messages and call {@link soc.baseclient.ServerConnection} methods to send them to the server.
  * In-game actions and requests each have their own methods, such as {@link #buyDevCard(SOCGame)}.
  * General messages can be sent using {@link #put(String, boolean)}.
  *<P>
@@ -85,7 +85,7 @@ public class GameMessageSender
     private final SOCPlayerClient client;
 //    private final ClientNetwork net;
     private final Map<String, PlayerClientListener> clientListeners;
-    private final TCPServerConnection tcpConnection;
+    private final SocketConnection tcpConnection;
     private final InProcessConnection inProcConnection;
 
     GameMessageSender( final SOCPlayerClient client, Map<String, PlayerClientListener> clientListeners )
@@ -97,7 +97,7 @@ public class GameMessageSender
 //        if (net == null)
 //            throw new IllegalArgumentException("client network is null");
         this.clientListeners = clientListeners;
-        tcpConnection = client.tcpConnection;
+        tcpConnection = client.socketConnection;
         if (client instanceof SOCFullClient)
             inProcConnection = ((SOCFullClient) client).inProcessConnection;
         else        // has to be done this way because inProcConnection is declared final
@@ -105,7 +105,7 @@ public class GameMessageSender
     }
 
     /**
-     * Send a message to the net or practice server by calling {@link ClientNetwork} methods.
+     * Send a message to the net or practice server by calling {@link soc.baseclient.ServerConnection} methods.
      * This is a convenience method. Because the player can be in both network games and practice games,
      * uses {@code isPractice} to route to the appropriate client-server connection.
      *
@@ -117,7 +117,7 @@ public class GameMessageSender
      * @throws IllegalArgumentException if {@code s} is {@code null}
      * @see #put(SOCMessage, boolean)
      */
-    public synchronized boolean put(String s, final boolean isPractice)
+    private synchronized boolean put(String s, final boolean isPractice)
         throws IllegalArgumentException
     {
         if (s == null)
