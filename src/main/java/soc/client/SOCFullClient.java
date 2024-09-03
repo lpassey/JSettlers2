@@ -25,6 +25,7 @@ package soc.client;
 import soc.baseclient.InProcessConnection;
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
+import soc.baseclient.SocketConnection;
 import soc.game.*;
 import soc.message.*;
 import soc.server.SOCServer;
@@ -37,32 +38,29 @@ import java.util.*;
 import java.util.prefs.Preferences;
 
 /**
- * Standalone client for connecting to the SOCServer. (For applet see {@link SOCApplet}.)
- * The main user interface class {@link SwingMainDisplay} prompts for name and password,
+ * Standalone client for connecting to the SOCServer.
+ * The main user interface class {@link SwingServerMainDisplay} prompts for name and password,
  * then connects and displays the lists of games and channels available.
  * An actual game is played in a separate {@link SOCPlayerInterface} window.
- *<P>
+ *<P
  * If you want another connection port, you have to specify it as the "port"
- * argument in the html source. If you run this as a stand-alone, the port can be
+ * argument in the html source. If you run this as a stand alone, the port can be
  * specified on the command line or typed into {@code SwingMainDisplay}'s connect dialog.
- *<P>
- * At startup or init, will try to connect to server via {@link ClientNetwork#connect(String, int)}.
- * See that method for more details.
- *<P>
- * There are three possible servers to which a client can be connected:
+ *
+ * There are three possible servers to which this client can be connected:
  *<UL>
  *  <LI>  A remote server, running on the other end of a TCP connection
  *  <LI>  A local TCP server, for hosting games, launched by this client:
- *        {@link ClientNetwork#localTCPServer}
+ *        {@link #localTCPServer}
  *  <LI>  A "practice game" server, not bound to any TCP port, for practicing
- *        locally against robots: {@link ClientNetwork#practiceServer}
+ *        locally against robots: {@link #inProcessConnection}
  *        launched by {@link #startPracticeGame()}
  *</UL>
  * A running client can be connected to at most one TCP server at a time, plus the practice server.
  * Its single shared list of games shows those on the server and any practice games.
  * Each game's {@link SOCGame#isPractice} flag determines which connection to use.
  *<P>
- * Once connected, messages from the server are processed in {@link MessageHandler#handle(SOCMessage, boolean)}.
+ * Once connected, messages from the server are processed in {@link PlayerMessageHandler#handle(SOCMessage)}.
  *<P>
  * Messages to the server are formed and sent using {@link GameMessageSender}.
  *<P>
@@ -83,7 +81,7 @@ public class SOCFullClient extends SOCPlayerClient
      * @since 1.2.00
      */
     public static final String PROP_JSETTLERS_DEBUG_CLEAR__PREFS = "jsettlers.debug.clear_prefs";
-
+    
     /**
      * String property {@code jsettlers.debug.client.features} to support server testing and debugging:
      * When present, client will report these Client Features to server in its {@code Version} message
@@ -286,12 +284,19 @@ public class SOCFullClient extends SOCPlayerClient
      * A connection to an in-process server. Only set if the user asked for a practice server.
      */
     /* package */ InProcessConnection inProcessConnection = null;
-
+    
+    /**
+     * Helper object to dispatch incoming messages from the server.
+     * Called by {@link ClientNetwork} when it receives network traffic.
+     * Must call {@link PlayerMessageHandler#init(SOCPlayerClient)} before usage.
+     * @see #gameMessageSender
+     */
+    
     /**
      * Client-hosted TCP server. If client is running this server, it's also connected
      * as a client, instead of being client of a remote server.
      * Started via {@link SwingServerMainDisplay#startLocalTCPServer(int)}.
-     * {@link #practiceServer} may still be activated at the user's request.
+     * an in process server may still be activated at the user's request.
      * Note that {@link SOCGame#isPractice} is false for localTCPServer's games.
      * @since 1.1.00
      */
@@ -303,18 +308,17 @@ public class SOCFullClient extends SOCPlayerClient
     /**
      * Helper object to dispatch incoming messages from the server.
      * Called by {@link ClientNetwork} when it receives network traffic.
-     * Must call {@link MessageHandler#init(SOCFullClient)} before usage.
+     * Must call {@link PlayerMessageHandler#init(SOCFullClient)} before usage.
      * @see #gameMessageSender
      */
-//    private final MessageHandler messageHandler;
-
-    /**
-     * Helper object to form and send outgoing network traffic to the server.
-     * @see #messageHandler
-     * @see #net
+    private final InProcMessageHandler inProcMessageHandler;
+    
+        /**
+     * Helper object to form and send outgoing network traffic to the in process (practice) server.
+     * @see {@link GameMessageSender }
      * @since 2.0.00
      */
-//    private final GameMessageSender gameMessageSender;
+//    private final GameMessageSender inProcGameMessageSender;
 
     /**
      * Display for the main user interface, including and beyond the list of games and chat channels.
@@ -342,14 +346,14 @@ public class SOCFullClient extends SOCPlayerClient
     /**
      * Track the game options available at the remote server and at the practice server.
      * Initialized by {@link SwingMainDisplay#gameWithOptionsBeginSetup(boolean, boolean)}
-     * and/or {@link MessageHandler#handleVERSION(boolean, SOCVersion)}.
+     * and/or {@link PlayerMessageHandler#handleVERSION( SOCVersion)}.
      * These fields are never null, even if the respective server is not connected or not running.
      *<P>
      * For a summary of the flags and variables involved with game options,
      * and the client/server interaction about their values, see
      * {@link ServerGametypeInfo}'s javadoc.
      *<P>
-     * Scenario strings are localized by {@link #localizeGameScenarios(List, boolean, boolean, boolean)}.
+     * Scenario strings are localized by {@link SOCPlayerClient#localizeGameScenarios(ServerGametypeInfo, List, boolean, boolean )}.
      *
      * @see #sFeatures
      * @since 1.1.07
@@ -423,7 +427,7 @@ public class SOCFullClient extends SOCPlayerClient
 
     /**
      * All the games we're currently playing. Includes networked or hosted games and those on practice server.
-     * Accessed from GUI thread and network {@link MessageHandler} thread,
+     * Accessed from GUI thread and network {@link PlayerMessageHandler} thread,
      * which sometimes directly calls {@code client.games.get(..)}.
      * @see #serverGames
      */
@@ -436,10 +440,10 @@ public class SOCFullClient extends SOCPlayerClient
      * we're in) which we can join (version is not higher than our version).
      *<P>
      * Key is the game name, without the UNJOINABLE prefix.
-     * This field is null until {@link MessageHandler#handleGAMES(SOCGames, boolean) handleGAMES},
-     *   {@link MessageHandler#handleGAMESWITHOPTIONS(SOCGamesWithOptions, boolean) handleGAMESWITHOPTIONS},
-     *   {@link MessageHandler#handleNEWGAME(SOCNewGame, boolean) handleNEWGAME}
-     *   or {@link MessageHandler#handleNEWGAMEWITHOPTIONS(SOCNewGameWithOptions, boolean) handleNEWGAMEWITHOPTIONS}
+     * This field is null until {@link PlayerMessageHandler#handleGAMES(SOCGames, boolean) handleGAMES},
+     *   {@link PlayerMessageHandler#handleGAMESWITHOPTIONS(SOCGamesWithOptions, boolean) handleGAMESWITHOPTIONS},
+     *   {@link PlayerMessageHandler#handleNEWGAME(SOCNewGame, boolean) handleNEWGAME}
+     *   or {@link PlayerMessageHandler#handleNEWGAMEWITHOPTIONS(SOCNewGameWithOptions, boolean) handleNEWGAMEWITHOPTIONS}
      *   is called.
      * @see #games
      * @see #gamesUnjoinableOverride
@@ -461,7 +465,7 @@ public class SOCFullClient extends SOCPlayerClient
      * @see #getClientListeners()
      * @see #getClientListener(String)
      */
-    private final Map<String, PlayerClientListener> clientListeners = new HashMap<String, PlayerClientListener>();
+//    private final Map<String, PlayerClientListener> clientListeners = new HashMap<String, PlayerClientListener>();
 
     /**
      * For new-game requests, map of game names to per-game local preference maps to pass to
@@ -489,34 +493,34 @@ public class SOCFullClient extends SOCPlayerClient
      * The locale will be the current user's default locale, unless overridden by setting the
      * {@link I18n#PROP_JSETTLERS_LOCALE PROP_JSETTLERS_LOCALE} JVM property {@code "jsettlers.locale"}.
      *<P>
-     * Must call {@link SOCApplet#init()}, or {@link #setMainDisplay(MainDisplay)} and then
+     * Must call {@link #setMainDisplay(MainDisplay)} and then
      * {@link MainDisplay#initVisualElements()}, to start up and do layout.
      *<P>
      * Must then call {@link #connect(String, int, String, String)} or {@link ClientNetwork#connect(String, int)}
      * to join a TCP server, or {@link MainDisplay#clickPracticeButton()}
      * or {@link MainDisplay#startLocalTCPServer(int)} to start a server locally.
      */
-    public SOCFullClient()
-    {
-        this(new MessageHandler());
-    }
+//    public SOCFullClient()
+//    {
+////        this(new PlayerMessageHandler( this ));
+//    }
 
     /**
-     * Create a SOCPlayerClient with the specified {@link MessageHandler}.
-     * See {@link #SOCPlayerClient()} for all other details.
-     * @param mh  MessageHandler to use; not null
+     * Create a SOCFullClient. Message handlers for the {@link SocketConnection}
+     * and {@link InProcessConnection} will be added when those connections are established.
+     * See {@link SOCPlayerClient()} for all other details.
      * @throws IllegalArgumentException if {@code mh} is null
      * @since 2.5.00
      */
-    protected SOCFullClient( final MessageHandler mh)
+    protected SOCFullClient()
         throws IllegalArgumentException
     {
-        super( mh );
-
+        // The super constructor should do all this initialization, and set up a
+        // PlayerMessageHandler for any tcp connection
 //        if (mh == null)
 //            throw new IllegalArgumentException("mh");
 //
-//        gotPassword = false;
+//        authenticated = false;
 //
 //        int id = UserPreferences.getPref(PREF_FACE_ICON, SOCPlayer.FIRST_HUMAN_FACE_ID);
 //        if (id <= 0)
@@ -563,16 +567,18 @@ public class SOCFullClient extends SOCPlayerClient
 //            soc.server.SOCServer.startupKnownOpts.put(gameopt3p);
 //            // similar code is in SOCRobotClient.buildClientFeats()
         }
-
-        // every full featured client has an in-process connection as well as a tcp connection,
+    
+        // every full-featured client has an in-process connection as well as a tcp connection,
         // but neither is connected yet.
         inProcessConnection = new InProcessConnection( this );
-
-//        net = new ClientNetwork(this);
-        // this allows the gameMessageSender to access the practice server, if any.
-        // even though this was already set, we didn't have a InProcessConnection instance yet
+        inProcMessageHandler = new InProcMessageHandler( this );
+        
+        // this allows this client to send messages to the practice server, if any.
+        // our super class holds the GameMessageSender for the SocketConnection
+        // it gets the InProcessConnection from this client, so thase variables need
+        // to be instantiated first.
         gameMessageSender = new GameMessageSender(this, clientListeners);
-//        messageHandler = mh;
+        
     }
 
     /**
@@ -721,10 +727,10 @@ public class SOCFullClient extends SOCPlayerClient
     }
 
     /**
-     * Get this client's MessageHandler.
+     * Get this client's PlayerMessageHandler.
      * @since 2.0.00
      */
-//    final MessageHandler getMessageHandler() {
+//    final PlayerMessageHandler getMessageHandler() {
 //        return messageHandler;
 //    }
 
@@ -1042,7 +1048,7 @@ public class SOCFullClient extends SOCPlayerClient
 
     /**
      * Setup for practice game (on the non-tcp server).
-     * If needed, a (stringport, not tcp) {@link ClientNetwork#practiceServer}, client, and robots are started.
+     * If needed, a (stringport, not tcp) {@link InProcessConnection}, client, and robots are started.
      *
      * @param practiceGameName Unique name to give practice game; if name unknown, call
      *         {@link #startPracticeGame()} instead
@@ -1139,7 +1145,7 @@ public class SOCFullClient extends SOCPlayerClient
             inProcessConnection.send( new SOCLeaveAll().toCmd() );
         }
 
-        tcpConnection.putLeaveAll();
+        socketConnection.putLeaveAll();
         shutdownLocalServer();
         String err;
         if (canPractice)
@@ -1149,9 +1155,9 @@ public class SOCFullClient extends SOCPlayerClient
             err = strings.get("pcli.error.clientshutdown");  // "Sorry, the client has been shut down."
         }
         err = err + " " +
-            (  (tcpConnection.getLastException() == null)
+            (  (socketConnection.getLastException() == null)
              ? strings.get("pcli.error.loadpageagain")
-             : tcpConnection.getLastException().toString());
+             : socketConnection.getLastException().toString());
             // "Load the page again."
 
         mainDisplay.channelsClosed(err);
@@ -1170,7 +1176,7 @@ public class SOCFullClient extends SOCPlayerClient
             }
         }
 
-        tcpConnection.disconnect();
+        socketConnection.disconnect();
         shutdownLocalServer();
         mainDisplay.showErrorPanel(err, canPractice);
     }
@@ -1270,20 +1276,6 @@ public class SOCFullClient extends SOCPlayerClient
         return null;
     }
 
-    /**
-     *
-     * @param gameName
-     * @return the game associated with this gameName.
-     */
-//    @Override
-//    public SOCGame getGameName( String gameName )
-//    {
-//        SOCGame game = getPracticeGame( gameName );
-//        if (null == game)
-//            game = games.get( gameName );
-//        return games.get( gameName );
-//    }
-
     public Set<String> getPracticeGames()
     {
         if (null == inProcessConnection || !inProcessConnection.isConnected())
@@ -1307,5 +1299,26 @@ public class SOCFullClient extends SOCPlayerClient
         }
         return super.getGameOptions( gameName );
     }
-
+    
+    /**
+     * Send a message to the net or practice server by calling {@link soc.baseclient.ServerConnection} methods.
+     * This is a convenience method. Because the player can be in both network games and practice games,
+     * uses {@code isPractice} to route to the appropriate client-server connection.
+     *
+     * @param s  the message command, formatted by a {@code soc.message} class's {@code toCmd()}
+     * @param isPractice  Send to the practice server, not tcp network?
+     *      {@link ClientNetwork#localTCPServer} is considered "network" here.
+     *      Use {@code isPractice} only with {@link ClientNetwork#practiceServer}.
+     * @return true if the message was sent, false if not
+     * @throws IllegalArgumentException if {@code s} is {@code null}
+     * @see #put(SOCMessage, boolean)
+     */
+    public synchronized boolean sendPractice( String s )
+            throws IllegalArgumentException
+    {
+        if (s == null)
+            throw new IllegalArgumentException("s null");
+        return inProcessConnection.send(s);
+     }
+    
 }  // public class SOCPlayerClient

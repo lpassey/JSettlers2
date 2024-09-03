@@ -3,7 +3,6 @@ package soc.baseclient;
 import soc.client.*;
 import soc.game.SOCGame;
 import soc.game.SOCGameOptionSet;
-// import soc.game.SOCPlayer;
 import soc.util.I18n;
 import soc.util.SOCFeatureSet;
 import soc.util.Version;
@@ -29,27 +28,57 @@ abstract public class SOCBaseClient
 
     /**
      *  Server version number for remote server, sent soon after connect, 0 if no server, or -1 if version unknown.
-     *  Use {@link #soc.game.getServerVersion(SOCGame)} instead to check the effective version of a specific game.
+     *  Use {@link SOCGame#serverVersion} instead to check the effective version of a specific game.
      *  A local practice server's version is always {@link Version#versionNumber()}, not {@code sVersion},
      *  so always check {@link SOCGame#isPractice} before checking this field.
      * @since 1.1.00
      */
-    public int sVersion;
+    protected int sVersion;
+
+    public int setServerVersion( int version )
+    {
+        return sVersion = version;
+    }
 
     /**
      * Server's active optional features, sent soon after connect, or null if unknown.
-     * Not used with a local practice server, so always check {@link SOCGame#isPractice} before checking this field.
+     * Not used with a local in process server, so always check {@link SOCGame#isPractice} before checking this field.
+     * TODO: any reason not to use this with in process servers? Looks like it's never used after setting;
+     * should we remove it?
      * @see #tcpServGameOpts
      * @since 1.1.19
      */
     public SOCFeatureSet sFeatures;
+
+    void setServerFeatures( SOCFeatureSet features )
+    {
+        sFeatures = features;
+    }
+
+    /**
+     * Features supported by this built-in JSettlers client.
+     * @since 2.0.00
+     * TODO: hard-coded here. Should we make this dynamic??
+     */
+    private final SOCFeatureSet cliFeats;
+    {
+        cliFeats = new SOCFeatureSet(false, false);
+        cliFeats.add(SOCFeatureSet.CLIENT_6_PLAYERS);
+        cliFeats.add(SOCFeatureSet.CLIENT_SEA_BOARD);
+        cliFeats.add(SOCFeatureSet.CLIENT_SCENARIO_VERSION, Version.versionNumber());
+    }
+
+    public SOCFeatureSet getClientFeatures()
+    {
+        return cliFeats;
+    }
 
     /**
      * Client nickname as a player; null until validated and set by
      * {@link SwingMainDisplay#getValidNickname(boolean)].
      * Returned by {@link #getNickname()}.
      */
-    public String nickname = null;
+    protected String nickname = null;
 
     /**
      * @return the nickname of this user
@@ -118,20 +147,20 @@ abstract public class SOCBaseClient
     }
 
     /*
-        Every client has these two helper classes. MessageHandler accepts incoming messages
+        Every client has each these two helper classes. PlayerMessageHandler accepts incoming messages
         from the server, and handles them appropriately, which may or may not involve a GUI.
         GameMessageSender collects messages specifically for a game and forwards them to a server.
      */
     /**
      * Helper object to dispatch incoming messages from the server.
      * Called by {@link ClientNetwork} when it receives network traffic.
-     * Must call {@link MessageHandler#init(SOCPlayerClient)} before usage.
+     * Must call {@link PlayerMessageHandler#init(SOCPlayerClient)} before usage.
      * @see #gameMessageSender
      */
     protected MessageHandler messageHandler;
 
     /**
-     * Get this client's MessageHandler.
+     * Get this client's PlayerMessageHandler.
      * @since 2.0.00
      */
     public MessageHandler getMessageHandler() {
@@ -140,16 +169,16 @@ abstract public class SOCBaseClient
 
     // No setter as this is set in the constructor
 
-    private ServerConnection serverConnection;
+//    private ServerConnection serverConnection;
 
     /**
      * Get this client's ServerConnection.
      * @since 2.0.00
      */
-    protected ServerConnection getserverConnection()
-    {
-        return serverConnection;
-    }
+//    protected ServerConnection getserverConnection()
+//    {
+//        return serverConnection;
+//    }
 
     /**
      * Helper object to form and send outgoing network traffic to the server. For use
@@ -220,7 +249,7 @@ abstract public class SOCBaseClient
 
     /**
      * All the games we're currently playing. Includes networked or hosted games and those on practice server.
-     * Accessed from GUI thread and network {@link MessageHandler} thread,
+     * Accessed from GUI thread and network {@link PlayerMessageHandler} thread,
      * which sometimes directly calls {@code client.games.get(..)}.
      * @see #serverGames
      */
@@ -231,9 +260,10 @@ abstract public class SOCBaseClient
         return games.get( gameName );
     }
 
-    public SOCGame addGame( String gameName, SOCGame game )
+    public SOCGame addGame( SOCGame game )
     {
-        return games.put( gameName, game );
+        SOCGame gamee = games.put( game.getName(), game );
+        return gamee;
     }
 
     public SOCGame removeGame( String gameName )
@@ -280,11 +310,11 @@ abstract public class SOCBaseClient
     }
 
     // ABSTRACT METHODS
-    protected abstract int getNumPracticeGames();
+//    protected abstract int getNumPracticeGames();
 
-    public abstract PlayerClientListener getClientListener( String gameName );
+//    public abstract PlayerClientListener getClientListener( String gameName );
 
-    protected abstract void addClientListener( String gameName, PlayerClientListener listener );
+//    protected abstract void addClientListener( String gameName, PlayerClientListener listener );
 
     protected abstract SOCGameOptionSet getKnownOpts( boolean isPracticeServer );
 

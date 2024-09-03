@@ -164,16 +164,16 @@ public class DisplaylessTesterClient
     // message handlers
 
     /** To avoid confusion during gameplay, set both "server" version fields */
-    @Override
-    protected void handleVERSION(boolean isLocal, SOCVersion mes)
-    {
-        super.handleVERSION(isLocal, mes);
-
-        if (isLocal)
-            sVersion = sLocalVersion;
-        else
-            sLocalVersion = sVersion;
-    }
+//    @Override
+//    protected void handleVERSION(boolean isLocal, SOCVersion mes)
+//    {
+//        super.handleVERSION(isLocal, mes);
+//
+//        if (isLocal)
+//            sVersion = sLocalVersion;
+//        else
+//            sLocalVersion = sVersion;
+//    }
 
     // TODO refactor common with SOCPlayerClient vs this and its displayless parent,
     // which currently don't share a parent client class with SOCPlayerClient
@@ -217,29 +217,29 @@ public class DisplaylessTesterClient
         serverGames.addGame(gaName, mes.getOptionsString(), ! canJoin);
     }
 
-    @Override
-    protected void handleJOINGAMEAUTH(SOCJoinGameAuth mes, final boolean isPractice)
-    {
-        gotPassword = true;
-
-        String gaName = mes.getGameName();
-        SOCGameOptionSet opts = serverGames.parseGameOptions(gaName);
-
-        final int bh = mes.getBoardHeight(), bw = mes.getBoardWidth();
-        if ((bh != 0) || (bw != 0))
-        {
-            // Encode board size to pass through game constructor
-            if (opts == null)
-                opts = new SOCGameOptionSet();
-            SOCGameOption opt = knownOpts.getKnownOption("_BHW", true);
-            opt.setIntValue((bh << 8) | bw);
-            opts.put(opt);
-        }
-
-        final SOCGame ga = new SOCGame(gaName, opts, knownOpts);
-        ga.isPractice = isPractice;
-        ga.serverVersion = (isPractice) ? sLocalVersion : sVersion;
-        games.put(gaName, ga);
-    }
+//    @Override
+//    protected void handleJOINGAMEAUTH(SOCJoinGameAuth mes, final boolean isPractice)
+//    {
+//        gotPassword = true;
+//
+//        String gaName = mes.getGameName();
+//        SOCGameOptionSet opts = serverGames.parseGameOptions(gaName);
+//
+//        final int bh = mes.getBoardHeight(), bw = mes.getBoardWidth();
+//        if ((bh != 0) || (bw != 0))
+//        {
+//            // Encode board size to pass through game constructor
+//            if (opts == null)
+//                opts = new SOCGameOptionSet();
+//            SOCGameOption opt = knownOpts.getKnownOption("_BHW", true);
+//            opt.setIntValue((bh << 8) | bw);
+//            opts.put(opt);
+//        }
+//
+//        final SOCGame ga = new SOCGame(gaName, opts, knownOpts);
+//        ga.isPractice = isPractice;
+//        ga.serverVersion = (isPractice) ? sLocalVersion : sVersion;
+//        games.put(gaName, ga);
+//    }
 
 }

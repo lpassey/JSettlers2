@@ -41,7 +41,7 @@ import net.nand.util.i18n.mgr.StringManager;
 import soc.baseclient.SOCBaseClient;
 import soc.baseclient.SOCDisplaylessPlayerClient;
 import soc.baseclient.ServerConnectInfo;
-import soc.baseclient.TCPServerConnection;
+import soc.baseclient.SocketConnection;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
@@ -57,7 +57,7 @@ import soc.util.SOCStringManager;
 import soc.util.Version;
 
 /**
- * Standalone client for connecting to the SOCServer. (For applet see {@link SOCApplet}.)
+ * Standalone client for connecting to the SOCServer. (For applet see {@link soc.applet.SOCApplet}.)
  * The main user interface class {@link SwingMainDisplay} prompts for name and password,
  * then connects and displays the lists of games and channels available.
  * An actual game is played in a separate {@link SOCPlayerInterface} window.
@@ -66,23 +66,16 @@ import soc.util.Version;
  * argument in the html source. If you run this as a stand-alone, the port can be
  * specified on the command line or typed into {@code SwingMainDisplay}'s connect dialog.
  *<P>
- * At startup or init, will try to connect to server via {@link ClientNetwork#connect(String, int)}.
+ * At startup or init, will try to connect to a networked server via {@link SocketConnection#connect(String, int)}.
  * See that method for more details.
  *<P>
  * There are three possible servers to which a client can be connected:
  *<UL>
  *  <LI>  A remote server, running on the other end of a TCP connection
- *  <LI>  A local TCP server, for hosting games, launched by this client:
- *        {@link ClientNetwork#localTCPServer}
- *  <LI>  A "practice game" server, not bound to any TCP port, for practicing
- *        locally against robots: {@link ClientNetwork#practiceServer}
- *        launched by {@link #startPracticeGame()}
  *</UL>
- * A running client can be connected to at most one TCP server at a time, plus the practice server.
- * Its single shared list of games shows those on the server and any practice games.
- * Each game's {@link SOCGame#isPractice} flag determines which connection to use.
+ * A running client can be connected to at most one TCP server at a time
  *<P>
- * Once connected, messages from the server are processed in {@link MessageHandler#handle(SOCMessage, boolean)}.
+ * Once connected, messages from the server are processed in {@link PlayerMessageHandler#handle(SOCMessage)}.
  *<P>
  * Messages to the server are formed and sent using {@link GameMessageSender}.
  *<P>
@@ -277,12 +270,14 @@ public class SOCPlayerClient extends SOCBaseClient
             try
             {
                 currVal = System.getProperty("awt.useSystemAAFontSettings");
-            } catch (SecurityException e) {}
+            }
+            catch (SecurityException ignore) {}
             if (currVal == null)
                 try
                 {
                     System.setProperty("awt.useSystemAAFontSettings", "lcd");
-                } catch (SecurityException e) {}
+                }
+            catch (SecurityException ignore) {}
 
         }
     }
@@ -301,16 +296,15 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see #gameMessageSender
      * @since 2.0.00
      */
-//    protected ClientNetwork net;
-    protected TCPServerConnection tcpConnection;
+    protected SocketConnection socketConnection;
 
     /**
      * Helper object to dispatch incoming messages from the server.
      * Called by {@link ClientNetwork} when it receives network traffic.
-     * Must call {@link MessageHandler#init(SOCPlayerClient)} before usage.
+     * Must call {@link PlayerMessageHandler#init(SOCPlayerClient)} before usage.
      * @see #gameMessageSender
      */
-//    private final MessageHandler messageHandler;
+//    private final PlayerMessageHandler messageHandler;
 
     /**
      * Helper object to form and send outgoing network traffic to the server.
@@ -333,7 +327,7 @@ public class SOCPlayerClient extends SOCBaseClient
      *  so always check {@link SOCGame#isPractice} before checking this field.
      * @since 1.1.00
      */
-    protected int sVersion;
+    protected int sVersion =-1;
 
     /**
      * Server's active optional features, sent soon after connect, or null if unknown.
@@ -346,14 +340,14 @@ public class SOCPlayerClient extends SOCBaseClient
     /**
      * Track the game options available at the remote server and at the practice server.
      * Initialized by {@link SwingMainDisplay#gameWithOptionsBeginSetup(boolean, boolean)}
-     * and/or {@link MessageHandler#handleVERSION(boolean, SOCVersion)}.
+     * and/or {@link PlayerMessageHandler#handleVERSION( SOCVersion)}.
      * These fields are never null, even if the respective server is not connected or not running.
      *<P>
      * For a summary of the flags and variables involved with game options,
      * and the client/server interaction about their values, see
      * {@link ServerGametypeInfo}'s javadoc.
      *<P>
-     * Scenario strings are localized by {@link #localizeGameScenarios(List, boolean, boolean, boolean)}.
+     * Scenario strings are localized by {@link #localizeGameScenarios(ServerGametypeInfo, List, boolean, boolean)}.
      *
      * @see #sFeatures
      * @since 1.1.07
@@ -386,8 +380,8 @@ public class SOCPlayerClient extends SOCBaseClient
 //    protected String nickname = null;
 
     /**
-     * the password for {@link #nickname} from {@link #pass}, or {@code null} if no valid password yet.
-     * May be empty (""). If server has authenticated this password, the {@link #gotPassword} flag is set.
+     * the password for {@link #nickname} from {@link #password}, or {@code null} if no valid password yet.
+     * May be empty (""). If server has authenticated this password, the {@link #authenticated} flag is set.
      */
 //    protected String password = null;
 
@@ -410,7 +404,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * true if user clicked "new game" and, before showing {@link NewGameOptionsFrame}, we've
      * sent the nickname (username) and password to the server and are waiting for a response.
      *<P>
-     * Used only with TCP servers, not with {@link ClientNetwork#practiceServer}.
+     * Used only with TCP servers
      * @since 1.1.19
      */
     protected boolean isNGOFWaitingForAuthStatus;
@@ -434,7 +428,7 @@ public class SOCPlayerClient extends SOCBaseClient
 
     /**
      * All the games we're currently playing. Includes networked or hosted games and those on practice server.
-     * Accessed from GUI thread and network {@link MessageHandler} thread,
+     * Accessed from GUI thread and network {@link PlayerMessageHandler} thread,
      * which sometimes directly calls {@code client.games.get(..)}.
      * @see #serverGames
      */
@@ -447,10 +441,10 @@ public class SOCPlayerClient extends SOCBaseClient
      * we're in) which we can join (version is not higher than our version).
      *<P>
      * Key is the game name, without the UNJOINABLE prefix.
-     * This field is null until {@link MessageHandler#handleGAMES(SOCGames, boolean) handleGAMES},
-     *   {@link MessageHandler#handleGAMESWITHOPTIONS(SOCGamesWithOptions, boolean) handleGAMESWITHOPTIONS},
-     *   {@link MessageHandler#handleNEWGAME(SOCNewGame, boolean) handleNEWGAME}
-     *   or {@link MessageHandler#handleNEWGAMEWITHOPTIONS(SOCNewGameWithOptions, boolean) handleNEWGAMEWITHOPTIONS}
+     * This field is null until {@link PlayerMessageHandler#handleGAMES(SOCGames ) handleGAMES},
+     *   {@link PlayerMessageHandler#handleGAMESWITHOPTIONS(SOCGamesWithOptions, boolean) handleGAMESWITHOPTIONS},
+     *   {@link PlayerMessageHandler#handleNEWGAME(SOCNewGame, boolean) handleNEWGAME}
+     *   or {@link PlayerMessageHandler#handleNEWGAMEWITHOPTIONS(SOCNewGameWithOptions, boolean) handleNEWGAMEWITHOPTIONS}
      *   is called.
      * @see #games
      * @see #gamesUnjoinableOverride
@@ -472,7 +466,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * @see #getClientListeners()
      * @see #getClientListener(String)
      */
-    private final Map<String, PlayerClientListener> clientListeners = new HashMap<String, PlayerClientListener>();
+    protected final Map<String, PlayerClientListener> clientListeners = new HashMap<String, PlayerClientListener>();
 
     /**
      * For new-game requests, map of game names to per-game local preference maps to pass to
@@ -507,24 +501,16 @@ public class SOCPlayerClient extends SOCBaseClient
      * to join a TCP server, or {@link MainDisplay#clickPracticeButton()}
      * or {@link MainDisplay#startLocalTCPServer(int)} to start a server locally.
      */
-    public SOCPlayerClient()
-    {
-        this(new MessageHandler());
-    }
-
+ 
     /**
-     * Create a SOCPlayerClient with the specified {@link MessageHandler}.
-     * See {@link #SOCPlayerClient()} for all other details.
-     * @param mh  MessageHandler to use; not null
-     * @throws IllegalArgumentException if {@code mh} is null
+     * Create a SOCPlayerClient
+     * See {@link SOCBaseClient} for all other details.
+     * @throws IllegalArgumentException
      * @since 2.5.00
      */
-    protected SOCPlayerClient(final MessageHandler mh)
+    public SOCPlayerClient()
         throws IllegalArgumentException
     {
-        if (mh == null)
-            throw new IllegalArgumentException("mh");
-
         authenticated = false;
 
         int id = UserPreferences.getPref(PREF_FACE_ICON, SOCPlayer.FIRST_HUMAN_FACE_ID);
@@ -573,12 +559,10 @@ public class SOCPlayerClient extends SOCBaseClient
             // similar code is in SOCRobotClient.buildClientFeats()
         }
 
-        // every visual client has a tcp connection.
-        tcpConnection = new TCPServerConnection( this );
-
-//        net = new ClientNetwork(this);
+        // every visual client has a tcp connection instance, even if not connected.
+        messageHandler = new PlayerMessageHandler( this );
+        socketConnection = new SocketConnection( this );
         gameMessageSender = new GameMessageSender(this, clientListeners);
-        messageHandler = mh;
     }
 
     /**
@@ -593,15 +577,15 @@ public class SOCPlayerClient extends SOCBaseClient
         if (md == null)
             throw new IllegalArgumentException("null");
         mainDisplay = md;
-//        tcpConnection.setMainDisplay(md);  // TODO: probably not a good idea...
+//        socketConnection.setMainDisplay(md);  // TODO: probably not a good idea...
     }
 
     /**
      * Connect and give feedback by showing MESSAGE_PANEL.
      * Calls {@link MainDisplay#connect(String, int, String, String)} to set username and password,
-     * then {@link ClientNetwork#connect(String, int)} to make the tcpConnection.
+     * then {@link SocketConnection#connect(String, int)} to make the socketConnection.
      *<P>
-     * Note: If {@code chost} is null, {@link ClientNetwork#connect(String, int)}
+     * Note: If {@code chost} is null, {@link SocketConnection#connect(String, int)}
      * assumes client has started a local server, so will start a thread to
      * periodically send it {@link SOCServerPing}s as a keepalive.
      *
@@ -621,7 +605,10 @@ public class SOCPlayerClient extends SOCBaseClient
         {
             public void run()
             {
-                tcpConnection.connect(chost, cport);
+                // TODO: This should be the responsibility of the client calling connect. Be sure that it happens
+                System.out.println(/*I*/"Connecting to " + chost + ":" + cport/*18N*/);  // I18N: Not localizing console output yet
+                getMainDisplay().setMessage( strings.get("pcli.message.connecting.serv") );  // "Connecting to server..."
+                socketConnection.connect(chost, cport);
             }
         });
     }
@@ -660,7 +647,6 @@ public class SOCPlayerClient extends SOCBaseClient
      * @param gameName the game name to look for a listener
      * @see #getClientListeners()
      */
-    @Override
     public PlayerClientListener getClientListener( String gameName )
     {
         return clientListeners.get(gameName);
@@ -671,11 +657,10 @@ public class SOCPlayerClient extends SOCBaseClient
      * @param gameName the name of the game associated with this listener
      * @param clientListener
      */
-    @Override
-    protected void addClientListener( String gameName, PlayerClientListener clientListener )
-    {
-
-    }
+//    protected void addClientListener( String gameName, PlayerClientListener clientListener )
+//    {
+//        clientListeners.put( gameName, clientListener );
+//    }
 
     /**
      * @return the client listeners of this SOCPlayerClient object.
@@ -736,11 +721,11 @@ public class SOCPlayerClient extends SOCBaseClient
     }
 
     /**
-     * Get this client's MessageHandler.
+     * Get this client's PlayerMessageHandler.
      * @since 2.0.00
      */
 //    @Override
-//    final protected MessageHandler getMessageHandler() {
+//    final protected PlayerMessageHandler getMessageHandler() {
 //        return messageHandler;
 //    }
 
@@ -781,10 +766,10 @@ public class SOCPlayerClient extends SOCBaseClient
         if (sVersion != Version.versionNumber())
         {
             // different version than client: scenario details might have changed
-            tcpConnection.send( new SOCScenarioInfo(scKey, false).toCmd() );
+            socketConnection.send( new SOCScenarioInfo(scKey, false).toCmd() );
         } else {
             // same version: need localization strings, at most
-            tcpConnection.send(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey).toCmd());
+            socketConnection.send(new SOCLocalizedStrings(SOCLocalizedStrings.TYPE_SCENARIO, 0, scKey).toCmd());
             tcpServGameOpts.scenKeys.add(scKey);  // don't ask again later
         }
     }
@@ -800,7 +785,7 @@ public class SOCPlayerClient extends SOCBaseClient
      * @param skipFirst  If true skip the first element of {@code scStrs}, it isn't a scenario keyname.
      * @param sentAll  True if no further strings will be received; is {@link SOCLocalizedStrings#FLAG_SENT_ALL} set?
      *     If true, sets {@link ServerGametypeInfo#allScenStringsReceived}.
-     * @param isPractice  Is the server {@link ClientNetwork#practiceServer}, not remote?
+     * @ p aram isPractice  Is the server in process, not remote?
      * @since 2.0.00
      */
     protected void localizeGameScenarios( ServerGametypeInfo opts,
@@ -918,7 +903,7 @@ public class SOCPlayerClient extends SOCBaseClient
     public void leaveChannel(String ch)
     {
         mainDisplay.channelLeft(ch);
-        getserverConnection().send(SOCLeaveChannel.toCmd("-", "-", ch));
+        socketConnection.send(SOCLeaveChannel.toCmd("-", "-", ch));
     }
 
     /**
@@ -1035,28 +1020,6 @@ public class SOCPlayerClient extends SOCBaseClient
     }
 
     /**
-     * Server version, for checking feature availability.
-     * Returns -1 if unknown. Checks {@link SOCGame#isPractice}:
-     * practice games always return this client's own {@link soc.util.Version#versionNumber()}.
-     *<P>
-     * Instead of calling this method, some client code checks a game's version like:<BR>
-     * {@code (game.isPractice || (client.sVersion >= VERSION_FOR_AUTHREQUEST))}
-     *
-     * @param  game  Game being played on a practice or tcp server.
-     * @return Server version, in same format as {@link soc.util.Version#versionNumber()},
-     *         or 0 or -1.
-     * @since 1.1.00
-     */
-    @Override
-    public int getServerVersion(SOCGame game)
-    {
-//        if (game.isPractice)
-//            return Version.versionNumber();
-//        else
-            return sVersion;
-    }
-
-    /**
      * network trouble; if possible, ask if they want to play locally (practiceServer vs. robots).
      * Otherwise, go ahead and shut down. Either way, calls {@link MainDisplay#showErrorPanel(String, boolean)}
      * to show an error message or network exception detail.
@@ -1069,7 +1032,7 @@ public class SOCPlayerClient extends SOCBaseClient
     @Override
     public void shutdownFromNetwork()
     {
-        tcpConnection.putLeaveAll();
+        socketConnection.putLeaveAll();
         // This client can't start practice games...
 //        final boolean canPractice = net.putLeaveAll(); // Can we still start a practice game?
 
@@ -1082,9 +1045,9 @@ public class SOCPlayerClient extends SOCBaseClient
             err = strings.get("pcli.error.clientshutdown");  // "Sorry, the client has been shut down."
         }
         err = err + " " +
-                (  (getserverConnection().getLastException() == null)
+                (  (socketConnection.getLastException() == null)
                  ? strings.get("pcli.error.loadpageagain")
-                 : getserverConnection().getLastException().toString());
+                 : socketConnection.getLastException().toString());
             // "Load the page again."
 
         mainDisplay.channelsClosed(err);
@@ -1093,17 +1056,12 @@ public class SOCPlayerClient extends SOCBaseClient
         for (Map.Entry<String, PlayerClientListener> e : clientListeners.entrySet())
         {
             String gaName = e.getKey();
-            SOCGame game = games.get(gaName);
-
-//            if (! isPractice)
-            {
-                e.getValue().gameDisconnected(false, err);
-                if (! mainDisplay.deleteFromGameList(gaName, false, false))
-                    mainDisplay.deleteFromGameList(gaName, false, true);
-            }
+            e.getValue().gameDisconnected(false, err);
+            if (! mainDisplay.deleteFromGameList(gaName, false, false))
+                mainDisplay.deleteFromGameList(gaName, false, true);
         }
 
-        tcpConnection.disconnect();
+        socketConnection.disconnect();
         mainDisplay.showErrorPanel(err, false);
     }
 
@@ -1248,7 +1206,6 @@ public class SOCPlayerClient extends SOCBaseClient
         return tcpServGameOpts.knownOpts;
     }
 
-    @Override
     protected int getNumPracticeGames()
     {
         return 0;
@@ -1256,35 +1213,74 @@ public class SOCPlayerClient extends SOCBaseClient
 
     public void requestAuthorization()
     {
-        tcpConnection.send( new SOCAuthRequest( SOCAuthRequest.ROLE_GAME_PLAYER, getNickname(),
+        socketConnection.send( new SOCAuthRequest( SOCAuthRequest.ROLE_GAME_PLAYER, getNickname(),
                 getPassword(), SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT,
-                tcpConnection.getHost()).toCmd());
+                socketConnection.getHost()).toCmd());
 
     }
 
     @Override
     public void disconnect()
     {
-        // A client will have only one active tcpConnection. It may have been started by the client
+        // A client will have only one active socketConnection. It may have been started by the client
         // or by a separate computer; this client doesn't care.
-        tcpConnection.disconnect();
+        socketConnection.disconnect();
     }
 
 //    @Override
-//    public SOCGame getGameName( String gameName )
+//    public SOCGame getGame( String gameName )
 //    {
 //        return games.get( gameName );
 //    }
-
+    
+    public int getServerVersion(SOCGame game)
+    {
+        if (null == game)
+            return sVersion;
+        return game.serverVersion;
+    }
+    
     // TODO: implement these
     @Override
     protected SOCGameOptionSet getGameOptions( String gameName ) {
-        return null;
+        SOCGame game = getGame( gameName );
+        return game.getGameOptions();
     }
 
     // TODO: should probably let client decide if practicing is possible.
     public void showErrorPanel( String msg, boolean canPractice )
     {
         mainDisplay.showErrorPanel( msg, canPractice );
+    }
+    
+    /**
+     * Send a message to the net or practice server by calling {@link soc.baseclient.ServerConnection} methods.
+     * This is a convenience method. Because the player can be in both network games and practice games,
+     * uses {@code isPractice} to route to the appropriate client-server connection.
+     *
+     * @param s  the message command, formatted by a {@code soc.message} class's {@code toCmd()}
+     * @param isPractice  Send to the practice server, not tcp network?
+     *      {@link ClientNetwork#localTCPServer} is considered "network" here.
+     *      Use {@code isPractice} only with {@link ClientNetwork#practiceServer}.
+     * @return true if the message was sent, false if not
+     * @throws IllegalArgumentException if {@code s} is {@code null}
+     * @see SocketConnection#send( String )
+     */
+    public synchronized boolean sendMessage( String s )
+            throws IllegalArgumentException
+    {
+        if (s == null)
+            throw new IllegalArgumentException("s null");
+        return socketConnection.send(s);
+    }
+
+    public void showErrorDialog( String error, boolean canPractice )
+    {
+        mainDisplay.showErrorPanel( error, canPractice );
+    }
+
+    public String getString( String key )
+    {
+        return strings.get( key );
     }
 }  // public class SOCPlayerClient

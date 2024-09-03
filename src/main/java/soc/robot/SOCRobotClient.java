@@ -21,6 +21,7 @@
  **/
 package soc.robot;
 
+import soc.baseclient.MessageHandler;
 import soc.baseclient.ServerConnectInfo;
 import soc.baseclient.SOCDisplaylessPlayerClient;
 
@@ -29,14 +30,12 @@ import soc.disableDebug.D;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
-import soc.game.SOCPlayer;
 
 import soc.message.*;
 
 import soc.server.genericServer.StringServerSocket;
 
 import soc.util.CappedQueue;
-import soc.util.CutoffExceededException;
 import soc.util.DebugRecorder;
 import soc.util.SOCFeatureSet;
 import soc.util.SOCRobotParameters;
@@ -50,8 +49,6 @@ import java.net.Socket;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
 import java.util.Vector;
 
 
@@ -119,14 +116,14 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * For debugging feedback, hint text to remind user if debug recorder isn't on.
      * @since 2.0.00
      */
-    private static final String HINT_SEND_DEBUG_ON_FIRST = "Debug recorder isn't on. Send :debug-on command first";
+    static final String HINT_SEND_DEBUG_ON_FIRST = "Debug recorder isn't on. Send :debug-on command first";
 
     /**
      * For server testing, random disconnect percentage from property
      * {@link #PROP_JSETTLERS_BOTS_TEST_QUIT_AT_JOINREQ}. Defaults to 0.
      * @since 2.0.00
      */
-    private static int testQuitAtJoinreqPercent = 0;
+    static int testQuitAtJoinreqPercent = 0;
 
     /**
      * For debugging/regression testing, randomly pause responding
@@ -233,7 +230,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     /**
      * a table of requests from the server to sit at games
      */
-    private Hashtable<String, Integer> seatRequests = new Hashtable<String, Integer>();
+    /* package */ Hashtable<String, Integer> seatRequests = new Hashtable<String, Integer>();
 
     /**
      * Options for all games on the server we've been asked to join.
@@ -310,14 +307,19 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         startTime = System.currentTimeMillis();
         nickname = nn;
         password = pw;
-
+        messageHandler = new RobotMessageHandler( this );
+        
         String val = System.getProperty(PROP_JSETTLERS_BOTS_TEST_QUIT_AT_JOINREQ);
         if (val != null)
+        {
             try
             {
-                testQuitAtJoinreqPercent = Integer.parseInt(val);
+                testQuitAtJoinreqPercent = Integer.parseInt( val );
             }
-            catch (NumberFormatException e) {}
+            catch (NumberFormatException ignore)
+            {
+            }
+        }
     }
 
     /**
@@ -389,7 +391,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * Disconnect and then try to reconnect. Sends the same messages as {@link #init()}.
      * If the reconnect fails, will retry a maximum of 3 times.
      * If those attempts all fail, {@link #connected} will be false and {@link #ex} will be set.
-     * Otherwise when method returns, {@link #connected} is true and {@code ex} is null.
+     * Otherwise, when method returns, {@link #connected} is true and {@code ex} is null.
      */
     public void disconnectReconnect()
     {
@@ -510,6 +512,22 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         return new SOCRobotBrain(this, params, ga, mq);
     }
 
+    void putBrain( SOCGame game )
+    {
+        CappedQueue<SOCMessage> brainQ = new CappedQueue<SOCMessage>();
+        brainQs.put(game.getName(), brainQ);
+
+        SOCRobotBrain rb = createBrain(currentRobotParameters, game, brainQ);
+        robotBrains.put(game.getName(), rb);
+
+    }
+
+    SOCRobotBrain removeBrain( String gameName )
+    {
+        brainQs.remove( gameName );
+        return robotBrains.remove( gameName );
+    }
+
     /**
      * Handle the incoming messages.
      * Messages of unknown type are ignored. All {@link SOCGameServerText} are ignored.
@@ -517,347 +535,348 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      *<P>
      *<B>Note:</B> If a message doesn't need any robot-specific handling,
      * and doesn't appear as a specific case in this method's switch,
-     * this method calls {@link SOCDisplaylessPlayerClient#handle(SOCMessage)} for it.
+     * this method calls {@link MessageHandler#handle(SOCMessage)} for it.
      *
      * @param mes    the message
      */
-    @Override
-    public void handle( SOCMessage mes )
-    {
-        if (mes == null)
-            return;  // Message syntax error or unknown type
-
-        // Using debugRandomPause?
-        if (debugRandomPause && (! robotBrains.isEmpty())
-            && (mes instanceof SOCMessageForGame)
-            && ! (mes instanceof SOCGameTextMsg)
-            && ! (mes instanceof SOCGameServerText)
-            && ! (mes instanceof SOCTurn))
-        {
-            final String ga = ((SOCMessageForGame) mes).getGameName();
-            if (ga != null)
-            {
-                SOCRobotBrain brain = robotBrains.get(ga);
-                if (brain != null)
-                {
-                    if (! debugRandomPauseActive)
-                    {
-                        // random chance of doing so
-                        if ((Math.random() < DEBUGRANDOMPAUSE_FREQ)
-                            && ((debugRandomPauseQueue == null)
-                                || (debugRandomPauseQueue.isEmpty())))
-                        {
-                            SOCGame gm = games.get(ga);
-                            final int cpn = gm.getCurrentPlayerNumber();
-                            SOCPlayer rpl = gm.getPlayer(nickname);
-                            if ((rpl != null) && (cpn == rpl.getPlayerNumber())
-                                && (gm.getGameState() >= SOCGame.ROLL_OR_CARD))
-                            {
-                                // we're current player, pause us
-                                debugRandomPauseActive = true;
-                                debugRandomPauseUntil = System.currentTimeMillis() + (1000L * DEBUGRANDOMPAUSE_SECONDS);
-                                if (debugRandomPauseQueue == null)
-                                    debugRandomPauseQueue = new Vector<SOCMessage>();
-                                System.err.println("L379 -> do random pause: " + nickname);
-                                sendText(gm,
-                                    "debugRandomPauseActive for " + DEBUGRANDOMPAUSE_SECONDS + " seconds");
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (debugRandomPause && debugRandomPauseActive)
-        {
-            if ((System.currentTimeMillis() < debugRandomPauseUntil)
-                && ! (mes instanceof SOCTurn))
-            {
-                // time hasn't arrived yet, and still our turn:
-                //   Add message to queue (even non-game and SOCGameTextMsg)
-                debugRandomPauseQueue.addElement(mes);
-
-                return;  // <--- Early return: debugRandomPauseActive ---
-            }
-
-            // time to resume the queue
-            debugRandomPauseActive = false;
-            while (! debugRandomPauseQueue.isEmpty())
-            {
-                // calling ourself is safe, because
-                //  ! queue.isEmpty; thus won't decide
-                //  to set debugRandomPauseActive=true again.
-                handle(debugRandomPauseQueue.firstElement());
-                debugRandomPauseQueue.removeElementAt(0);
-            }
-
-            // Don't return from this method yet,
-            // we still need to process mes.
-        }
-
-        if ((debugTraffic || D.ebugIsEnabled())
-            && ! ((mes instanceof SOCServerPing) && (nextServerPingExpectedAt != 0)
-                  && (Math.abs(System.currentTimeMillis() - nextServerPingExpectedAt) <= 66000)))
-                          // within 66 seconds of the expected time; see displaylesscli.handleSERVERPING
-        {
-            soc.debug.D.ebugPrintlnINFO("IN - " + nickname + " - " + mes);
-        }
-
-        try
-        {
-            switch (mes.getType())
-            {
-            /**
-             * status message
-             */
-            case SOCMessage.STATUSMESSAGE:
-                handleSTATUSMESSAGE((SOCStatusMessage) mes);
-                break;
-
-            /**
-             * admin ping
-             */
-            case SOCMessage.ADMINPING:
-                handleADMINPING((SOCAdminPing) mes);
-                break;
-
-            /**
-             * admin reset
-             */
-            case SOCMessage.ADMINRESET:
-                handleADMINRESET((SOCAdminReset) mes);
-                break;
-
-            /**
-             * update the current robot parameters
-             */
-            case SOCMessage.UPDATEROBOTPARAMS:
-                handleUPDATEROBOTPARAMS((SOCUpdateRobotParams) mes);
-                break;
-
-            /**
-             * join game authorization
-             */
-            case SOCMessage.JOINGAMEAUTH:
-                handleJOINGAMEAUTH((SOCJoinGameAuth) mes, (sLocal != null));
-                break;
-
-            /**
-             * game has been destroyed
-             */
-            case SOCMessage.DELETEGAME:
-                handleDELETEGAME((SOCDeleteGame) mes);
-                break;
-
-            /**
-             * list of game members
-             */
-            case SOCMessage.GAMEMEMBERS:
-                handleGAMEMEMBERS((SOCGameMembers) mes);
-                break;
-
-            /**
-             * game text message (bot debug commands)
-             */
-            case SOCMessage.GAMETEXTMSG:
-                handleGAMETEXTMSG((SOCGameTextMsg) mes);
-                break;
-
-            /**
-             * someone is sitting down
-             */
-            case SOCMessage.SITDOWN:
-                handleSITDOWN((SOCSitDown) mes);
-                break;
-
-            /**
-             * update the state of the game
-             */
-            case SOCMessage.GAMESTATE:
-                handleGAMESTATE((SOCGameState) mes);
-                break;
-
-            /**
-             * the server is requesting that we join a game
-             */
-            case SOCMessage.BOTJOINGAMEREQUEST:
-                handleBOTJOINGAMEREQUEST((SOCBotJoinGameRequest) mes);
-                break;
-
-            /**
-             * message that means the server wants us to leave the game
-             */
-            case SOCMessage.ROBOTDISMISS:
-                handleROBOTDISMISS((SOCRobotDismiss) mes);
-                break;
-
-            /**
-             * handle board reset (new game with same players, same game name, new layout).
-             */
-            case SOCMessage.RESETBOARDAUTH:
-                handleRESETBOARDAUTH((SOCResetBoardAuth) mes);
-                break;
-
-            /**
-             * a special inventory item action: either add or remove,
-             * or we cannot play our requested item.
-             * Added 2013-11-26 for v2.0.00.
-             */
-            case SOCMessage.INVENTORYITEMACTION:
-                {
-                    SOCGame game = getGame( ((SOCInventoryItemAction) mes).getGameName());
-                    final boolean isReject = super.handleINVENTORYITEMACTION
-                        (game, (SOCInventoryItemAction) mes);
-                    if (isReject)
-                        handlePutBrainQ((SOCInventoryItemAction) mes);
-                }
-                break;
-
-            /**
-             * Special Item change announcements.
-             * Added 2014-04-16 for v2.0.00.
-             */
-            case SOCMessage.SETSPECIALITEM:
-                SOCGame game = getGame( ((SOCSetSpecialItem) mes).getGameName() );  // NOTE: message.getGameName() returns the name of the relevant game, not the game itself
-                super.handleSETSPECIALITEM(game, (SOCSetSpecialItem) mes);      // TODO: This should not be a static method
-                handlePutBrainQ((SOCSetSpecialItem) mes);
-                break;
-
-            // These message types are handled entirely by SOCRobotBrain,
-            // which will update game data and do any bot-specific tracking or actions needed:
-
-            case SOCMessage.ACCEPTOFFER:
-            case SOCMessage.BANKTRADE:     // added 2021-01-20 for v2.5.00
-            case SOCMessage.BOTGAMEDATACHECK:    // added 2021-09-30 for v2.5.00
-            case SOCMessage.CANCELBUILDREQUEST:  // current player has cancelled an initial settlement
-            case SOCMessage.CHOOSEPLAYER:  // server wants our player to choose to rob cloth or rob resources from victim
-            case SOCMessage.CHOOSEPLAYERREQUEST:
-            case SOCMessage.CLEAROFFER:
-            case SOCMessage.DECLINEPLAYERREQUEST:
-            case SOCMessage.DEVCARDACTION:  // either draw, play, or add to hand, or cannot play our requested dev card
-            case SOCMessage.DICERESULT:
-            case SOCMessage.DICERESULTRESOURCES:
-            case SOCMessage.DISCARD:        // added 2021-11-26 for v2.5.00
-            case SOCMessage.DISCARDREQUEST:
-            case SOCMessage.GAMESTATS:
-            case SOCMessage.MAKEOFFER:
-            case SOCMessage.MOVEPIECE:   // move a previously placed ship; will update game data and player trackers
-            case SOCMessage.MOVEROBBER:
-            case SOCMessage.PLAYERELEMENT:
-            case SOCMessage.PLAYERELEMENTS:  // apply multiple PLAYERELEMENT updates; added 2017-12-10 for v2.0.00
-            case SOCMessage.PUTPIECE:
-            case SOCMessage.REJECTOFFER:
-            case SOCMessage.RESOURCECOUNT:
-            case SOCMessage.ROBBERYRESULT:  // added 2021-01-05 for v2.5.00
-            case SOCMessage.SIMPLEACTION:   // added 2013-09-04 for v1.1.19
-            case SOCMessage.SIMPLEREQUEST:  // bot ignored these until 2015-10-10 for v2.0.00
-            case SOCMessage.STARTGAME:  // added 2017-12-18 for v2.0.00 when gameState became a field of this message
-            case SOCMessage.TIMINGPING:  // server's 1x/second timing ping
-            case SOCMessage.TURN:
-            case SOCMessage.UNDOPUTPIECE:   // added 2022-11-14 for v2.7.00
-                handlePutBrainQ((SOCMessageForGame) mes);
-                break;
-
-            // These message types are ignored by the robot client;
-            // don't send them to SOCDisplaylessClient.handle:
-
-            case SOCMessage.BCASTTEXTMSG:
-            case SOCMessage.CHANGEFACE:
-            case SOCMessage.CHANNELMEMBERS:
-            case SOCMessage.CHANNELS:        // If bot ever uses CHANNELS, update SOCChannels class javadoc
-            case SOCMessage.CHANNELTEXTMSG:
-            case SOCMessage.DELETECHANNEL:
-            case SOCMessage.GAMES:
-            case SOCMessage.GAMESERVERTEXT:  // SOCGameServerText contents are ignored by bots
-                                             // (but not SOCGameTextMsg, which is used solely for debug commands)
-            case SOCMessage.JOINCHANNEL:
-            case SOCMessage.JOINCHANNELAUTH:
-            case SOCMessage.LEAVECHANNEL:
-            case SOCMessage.NEWCHANNEL:
-            case SOCMessage.NEWGAME:
-            case SOCMessage.SETSEATLOCK:
-                break;  // ignore this message type
-
-            /**
-             * Call {@link SOCDisplaylessClient.handle( SOCMessage, boolean )} for all other message types.
-             * For types relevant to robots, updates game data from the message contents.
-             */
-            default:
-                super.handle(mes, true);
-            }
-        }
-        catch (Throwable e)
-        {
-            System.err.println("SOCRobotClient handle ERROR - " + e + " " + e.getMessage());
-            e.printStackTrace();
-            while (e.getCause() != null)
-            {
-                e = e.getCause();
-                System.err.println(" -> nested: " + e.getClass());
-                e.printStackTrace();
-            }
-            System.err.println("-- end stacktrace --");
-            System.out.println("  For message: " + mes);
-        }
-    }
+//    public void handle( SOCMessage mes, boolean didDebugPrint )
+//    {
+//        if (mes == null)
+//            return;  // Message syntax error or unknown type
+//
+//        // Using debugRandomPause?
+//        if (   debugRandomPause && (! robotBrains.isEmpty())
+//            && (mes instanceof SOCMessageForGame)
+//            && ! (mes instanceof SOCGameTextMsg)
+//            && ! (mes instanceof SOCGameServerText)
+//            && ! (mes instanceof SOCTurn))
+//        {
+//            final String ga = ((SOCMessageForGame) mes).getGameName();
+//            if (ga != null)
+//            {
+//                SOCRobotBrain brain = robotBrains.get(ga);
+//                if (brain != null)
+//                {
+//                    if (! debugRandomPauseActive)
+//                    {
+//                        // random chance of doing so
+//                        if ((Math.random() < DEBUGRANDOMPAUSE_FREQ)
+//                            && ((debugRandomPauseQueue == null)
+//                                || (debugRandomPauseQueue.isEmpty())))
+//                        {
+//                            SOCGame gm = games.get(ga);
+//                            final int cpn = gm.getCurrentPlayerNumber();
+//                            SOCPlayer rpl = gm.getPlayer(nickname);
+//                            if ((rpl != null) && (cpn == rpl.getPlayerNumber())
+//                                && (gm.getGameState() >= SOCGame.ROLL_OR_CARD))
+//                            {
+//                                // we're current player, pause us
+//                                debugRandomPauseActive = true;
+//                                debugRandomPauseUntil = System.currentTimeMillis() + (1000L * DEBUGRANDOMPAUSE_SECONDS);
+//                                if (debugRandomPauseQueue == null)
+//                                    debugRandomPauseQueue = new Vector<SOCMessage>();
+//                                System.err.println("L379 -> do random pause: " + nickname);
+//                                sendText(gm,
+//                                    "debugRandomPauseActive for " + DEBUGRANDOMPAUSE_SECONDS + " seconds");
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (debugRandomPause && debugRandomPauseActive)
+//        {
+//            if ((System.currentTimeMillis() < debugRandomPauseUntil)
+//                && ! (mes instanceof SOCTurn))
+//            {
+//                // time hasn't arrived yet, and still our turn:
+//                //   Add message to queue (even non-game and SOCGameTextMsg)
+//                debugRandomPauseQueue.addElement(mes);
+//
+//                return;  // <--- Early return: debugRandomPauseActive ---
+//            }
+//
+//            // time to resume the queue
+//            debugRandomPauseActive = false;
+//            while (! debugRandomPauseQueue.isEmpty())
+//            {
+//                //  calling ourself is safe, because
+//                //  ! queue.isEmpty; thus won't decide
+//                //  to set debugRandomPauseActive=true again.
+//                handle(debugRandomPauseQueue.firstElement(), true);
+//                debugRandomPauseQueue.removeElementAt(0);
+//            }
+//
+//            // Don't return from this method yet,
+//            // we still need to process mes.
+//        }
+//
+//        if ((debugTraffic || D.ebugIsEnabled())
+//            && !(   (mes instanceof SOCServerPing)
+////                 && (nextServerPingExpectedAt != 0)
+////                 && (Math.abs(System.currentTimeMillis() - nextServerPingExpectedAt) <= 66000)
+//        ))
+//                          // within 66 seconds of the expected time; see displaylesscli.handleSERVERPING
+//        {
+//            soc.debug.D.ebugPrintlnINFO("IN - " + nickname + " - " + mes);
+//        }
+//        didDebugPrint = true;
+//        try
+//        {
+//            switch (mes.getType())
+//            {
+//            /**
+//             * status message
+//             */
+//            case SOCMessage.STATUSMESSAGE:
+//                handleSTATUSMESSAGE((SOCStatusMessage) mes);
+//                break;
+//
+//            /**
+//             * admin ping
+//             */
+//            case SOCMessage.ADMINPING:
+//                handleADMINPING((SOCAdminPing) mes);
+//                break;
+//
+//            /**
+//             * admin reset
+//             */
+//            case SOCMessage.ADMINRESET:
+//                handleADMINRESET((SOCAdminReset) mes);
+//                break;
+//
+//            /**
+//             * update the current robot parameters
+//             */
+//            case SOCMessage.UPDATEROBOTPARAMS:
+//                handleUPDATEROBOTPARAMS((SOCUpdateRobotParams) mes);
+//                break;
+//
+//            /**
+//             * join game authorization
+//             */
+//            case SOCMessage.JOINGAMEAUTH:
+//                handleJOINGAMEAUTH((SOCJoinGameAuth) mes, (sLocal != null));
+//                break;
+//
+//            /**
+//             * game has been destroyed
+//             */
+//            case SOCMessage.DELETEGAME:
+//                handleDELETEGAME((SOCDeleteGame) mes);
+//                break;
+//
+//            /**
+//             * list of game members
+//             */
+//            case SOCMessage.GAMEMEMBERS:
+//                handleGAMEMEMBERS((SOCGameMembers) mes);
+//                break;
+//
+//            /**
+//             * game text message (bot debug commands)
+//             */
+//            case SOCMessage.GAMETEXTMSG:
+//                handleGAMETEXTMSG((SOCGameTextMsg) mes);
+//                break;
+//
+//            /**
+//             * someone is sitting down
+//             */
+//            case SOCMessage.SITDOWN:
+//                handleSITDOWN((SOCSitDown) mes);
+//                break;
+//
+//            /**
+//             * update the state of the game
+//             */
+//            case SOCMessage.GAMESTATE:
+//                handleGAMESTATE((SOCGameState) mes);
+//                break;
+//
+//            /**
+//             * the server is requesting that we join a game
+//             */
+//            case SOCMessage.BOTJOINGAMEREQUEST:
+//                handleBOTJOINGAMEREQUEST((SOCBotJoinGameRequest) mes);
+//                break;
+//
+//            /**
+//             * message that means the server wants us to leave the game
+//             */
+//            case SOCMessage.ROBOTDISMISS:
+//                handleROBOTDISMISS((SOCRobotDismiss) mes);
+//                break;
+//
+//            /**
+//             * handle board reset (new game with same players, same game name, new layout).
+//             */
+//            case SOCMessage.RESETBOARDAUTH:
+//                handleRESETBOARDAUTH((SOCResetBoardAuth) mes);
+//                break;
+//
+//            /**
+//             * a special inventory item action: either add or remove,
+//             * or we cannot play our requested item.
+//             * Added 2013-11-26 for v2.0.00.
+//             */
+//            case SOCMessage.INVENTORYITEMACTION:
+//                {
+//                    SOCGame game = getGame( ((SOCInventoryItemAction) mes).getGameName());
+//                    final boolean isReject = MessageHandler.handleINVENTORYITEMACTION(
+//                       (SOCInventoryItemAction) mes, game );
+//                    if (isReject)
+//                        handlePutBrainQ((SOCInventoryItemAction) mes);
+//                }
+//                break;
+//
+//            /**
+//             * Special Item change announcements.
+//             * Added 2014-04-16 for v2.0.00.
+//             */
+//            case SOCMessage.SETSPECIALITEM:
+//                SOCGame game = getGame( ((SOCSetSpecialItem) mes).getGameName() );  // NOTE: message.getGame() returns the name of the relevant game, not the game itself
+//                MessageHandler.handleSETSPECIALITEM((SOCSetSpecialItem) mes, game );      // TODO: This should not be a static method
+//                handlePutBrainQ((SOCSetSpecialItem) mes);
+//                break;
+//
+//            // These message types are handled entirely by SOCRobotBrain,
+//            // which will update game data and do any bot-specific tracking or actions needed:
+//
+//            case SOCMessage.ACCEPTOFFER:
+//            case SOCMessage.BANKTRADE:     // added 2021-01-20 for v2.5.00
+//            case SOCMessage.BOTGAMEDATACHECK:    // added 2021-09-30 for v2.5.00
+//            case SOCMessage.CANCELBUILDREQUEST:  // current player has cancelled an initial settlement
+//            case SOCMessage.CHOOSEPLAYER:  // server wants our player to choose to rob cloth or rob resources from victim
+//            case SOCMessage.CHOOSEPLAYERREQUEST:
+//            case SOCMessage.CLEAROFFER:
+//            case SOCMessage.DECLINEPLAYERREQUEST:
+//            case SOCMessage.DEVCARDACTION:  // either draw, play, or add to hand, or cannot play our requested dev card
+//            case SOCMessage.DICERESULT:
+//            case SOCMessage.DICERESULTRESOURCES:
+//            case SOCMessage.DISCARD:        // added 2021-11-26 for v2.5.00
+//            case SOCMessage.DISCARDREQUEST:
+//            case SOCMessage.GAMESTATS:
+//            case SOCMessage.MAKEOFFER:
+//            case SOCMessage.MOVEPIECE:   // move a previously placed ship; will update game data and player trackers
+//            case SOCMessage.MOVEROBBER:
+//            case SOCMessage.PLAYERELEMENT:
+//            case SOCMessage.PLAYERELEMENTS:  // apply multiple PLAYERELEMENT updates; added 2017-12-10 for v2.0.00
+//            case SOCMessage.PUTPIECE:
+//            case SOCMessage.REJECTOFFER:
+//            case SOCMessage.RESOURCECOUNT:
+//            case SOCMessage.ROBBERYRESULT:  // added 2021-01-05 for v2.5.00
+//            case SOCMessage.SIMPLEACTION:   // added 2013-09-04 for v1.1.19
+//            case SOCMessage.SIMPLEREQUEST:  // bot ignored these until 2015-10-10 for v2.0.00
+//            case SOCMessage.STARTGAME:  // added 2017-12-18 for v2.0.00 when gameState became a field of this message
+//            case SOCMessage.TIMINGPING:  // server's 1x/second timing ping
+//            case SOCMessage.TURN:
+//            case SOCMessage.UNDOPUTPIECE:   // added 2022-11-14 for v2.7.00
+//                handlePutBrainQ((SOCMessageForGame) mes);
+//                break;
+//
+//            // These message types are ignored by the robot client;
+//            // don't send them to SOCDisplaylessClient.handle:
+//
+//            case SOCMessage.BCASTTEXTMSG:
+//            case SOCMessage.CHANGEFACE:
+//            case SOCMessage.CHANNELMEMBERS:
+//            case SOCMessage.CHANNELS:        // If bot ever uses CHANNELS, update SOCChannels class javadoc
+//            case SOCMessage.CHANNELTEXTMSG:
+//            case SOCMessage.DELETECHANNEL:
+//            case SOCMessage.GAMES:
+//            case SOCMessage.GAMESERVERTEXT:  // SOCGameServerText contents are ignored by bots
+//                                             // (but not SOCGameTextMsg, which is used solely for debug commands)
+//            case SOCMessage.JOINCHANNEL:
+//            case SOCMessage.JOINCHANNELAUTH:
+//            case SOCMessage.LEAVECHANNEL:
+//            case SOCMessage.NEWCHANNEL:
+//            case SOCMessage.NEWGAME:
+//            case SOCMessage.SETSEATLOCK:
+//                break;  // ignore this message type
+//
+//            /**
+//             * Call {@link SOCDisplaylessClient.handle( SOCMessage, boolean )} for all other message types.
+//             * For types relevant to robots, updates game data from the message contents.
+//             */
+//            default:
+//                ((RobotMessageHandler) messageHandler).handle(mes, didDebugPrint );
+//            }
+//        }
+//        catch (Throwable e)
+//        {
+//            System.err.println("SOCRobotClient handle ERROR - " + e + " " + e.getMessage());
+//            e.printStackTrace();
+//            while (e.getCause() != null)
+//            {
+//                e = e.getCause();
+//                System.err.println(" -> nested: " + e.getClass());
+//                e.printStackTrace();
+//            }
+//            System.err.println("-- end stacktrace --");
+//            System.out.println("  For message: " + mes);
+//        }
+//    }
 
     /**
      * handle the admin ping message
      * @param mes  the message
      */
-    protected void handleADMINPING(SOCAdminPing mes)
-    {
-        D.ebugPrintlnINFO("*** Admin Ping message = " + mes);
-
-        SOCGame ga = games.get(mes.getGameName());
-
-        //
-        //  if the robot hears a PING and is in the game
-        //  where the admin is, then just say "OK".
-        //  otherwise, join the game that the admin is in
-        //
-        //  note: this is a hack because the bot never
-        //        leaves the game and the game must be
-        //        killed by the admin
-        //
-        if (ga != null)
-        {
-            sendText(ga, "OK");
-        }
-        else
-        {
-            put(SOCJoinGame.toCmd(nickname, password, SOCMessage.EMPTYSTR, mes.getGameName()));
-        }
-    }
+//    protected void handleADMINPING(SOCAdminPing mes)
+//    {
+//        D.ebugPrintlnINFO("*** Admin Ping message = " + mes);
+//
+//        SOCGame ga = games.get(mes.getGameName());
+//
+//        //
+//        //  if the robot hears a PING and is in the game
+//        //  where the admin is, then just say "OK".
+//        //  otherwise, join the game that the admin is in
+//        //
+//        //  note: this is a hack because the bot never
+//        //        leaves the game and the game must be
+//        //        killed by the admin
+//        //
+//        if (ga != null)
+//        {
+//            sendText(ga, "OK");
+//        }
+//        else
+//        {
+//            put(SOCJoinGame.toCmd(nickname, password, SOCMessage.EMPTYSTR, mes.getGameName()));
+//        }
+//    }
 
     /**
      * handle the admin reset message
      * @param mes  the message
      */
-    protected void handleADMINRESET(SOCAdminReset mes)
-    {
-        D.ebugPrintlnINFO("*** Admin Reset message = " + mes);
-        disconnectReconnect();
-    }
+//    protected void handleADMINRESET(SOCAdminReset mes)
+//    {
+//        D.ebugPrintlnINFO("*** Admin Reset message = " + mes);
+//        disconnectReconnect();
+//    }
 
     /**
      * handle the update robot params message
      * @param mes  the message
      */
-    protected void handleUPDATEROBOTPARAMS(SOCUpdateRobotParams mes)
-    {
-        currentRobotParameters = new SOCRobotParameters(mes.getRobotParameters());
-
-        if (! printedInitialWelcome)
-        {
-            // Needed only if server didn't send StatusMessage during initial connect.
-            // Server won't send status unless its Debug Mode is on.
-            System.err.println("Robot " + getNickname() + ": Authenticated to server.");
-            printedInitialWelcome = true;
-        }
-        if (D.ebugIsEnabled())
-            D.ebugPrintlnINFO("*** current robot parameters = " + currentRobotParameters);
-    }
+//    protected void handleUPDATEROBOTPARAMS(SOCUpdateRobotParams mes)
+//    {
+//        currentRobotParameters = new SOCRobotParameters(mes.getRobotParameters());
+//
+//        if (! printedInitialWelcome)
+//        {
+//            // Needed only if server didn't send StatusMessage during initial connect.
+//            // Server won't send status unless its Debug Mode is on.
+//            System.err.println("Robot " + getNickname() + ": Authenticated to server.");
+//            printedInitialWelcome = true;
+//        }
+//        if (D.ebugIsEnabled())
+//            D.ebugPrintlnINFO("*** current robot parameters = " + currentRobotParameters);
+//    }
 
     /**
      * handle the "join game request" message.
@@ -873,34 +892,34 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      *
      * @see #handleRESETBOARDAUTH(SOCResetBoardAuth)
      */
-    protected void handleBOTJOINGAMEREQUEST(SOCBotJoinGameRequest mes)
-    {
-        D.ebugPrintlnINFO("**** handleBOTJOINGAMEREQUEST ****");
-
-        final String gaName = mes.getGameName();
-
-        if ((testQuitAtJoinreqPercent != 0) && (new Random().nextInt(100) < testQuitAtJoinreqPercent))
-        {
-            System.err.println
-                (" -- " + nickname + " leaving at JoinGameRequest('" + gaName + "', " + mes.getPlayerNumber()
-                 + "): " + PROP_JSETTLERS_BOTS_TEST_QUIT_AT_JOINREQ);
-            put(new SOCLeaveAll().toCmd());
-
-            try { Thread.sleep(200); } catch (InterruptedException e) {}  // wait for send/receive
-            disconnect();
-            return;  // <--- Disconnected from server ---
-        }
-
-        final Map<String,SOCGameOption> gaOpts = mes.getOptions(knownOpts);
-        if (gaOpts != null)
-            gameOptions.put(gaName, new SOCGameOptionSet(gaOpts));
-
-        seatRequests.put(gaName, Integer.valueOf(mes.getPlayerNumber()));
-        if (put(SOCJoinGame.toCmd(nickname, password, SOCMessage.EMPTYSTR, gaName)))
-        {
-            D.ebugPrintlnINFO("**** sent SOCJoinGame ****");
-        }
-    }
+//    protected void handleBOTJOINGAMEREQUEST(SOCBotJoinGameRequest mes)
+//    {
+//        D.ebugPrintlnINFO("**** handleBOTJOINGAMEREQUEST ****");
+//
+//        final String gaName = mes.getGameName();
+//
+//        if ((testQuitAtJoinreqPercent != 0) && (new Random().nextInt(100) < testQuitAtJoinreqPercent))
+//        {
+//            System.err.println
+//                (" -- " + nickname + " leaving at JoinGameRequest('" + gaName + "', " + mes.getPlayerNumber()
+//                 + "): " + PROP_JSETTLERS_BOTS_TEST_QUIT_AT_JOINREQ);
+//            put(new SOCLeaveAll().toCmd());
+//
+//            try { Thread.sleep(200); } catch (InterruptedException e) {}  // wait for send/receive
+//            disconnect();
+//            return;  // <--- Disconnected from server ---
+//        }
+//
+//        final Map<String,SOCGameOption> gaOpts = mes.getOptions(knownOpts);
+//        if (gaOpts != null)
+//            gameOptions.put(gaName, new SOCGameOptionSet(gaOpts));
+//
+//        seatRequests.put(gaName, Integer.valueOf(mes.getPlayerNumber()));
+//        if (put(SOCJoinGame.toCmd(nickname, password, SOCMessage.EMPTYSTR, gaName)))
+//        {
+//            D.ebugPrintlnINFO("**** sent SOCJoinGame ****");
+//        }
+//    }
 
     /**
      * handle the "status message" message by printing it to System.err;
@@ -911,26 +930,26 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * @param mes  the message
      * @since 1.1.00
      */
-    @Override
-    protected void handleSTATUSMESSAGE(SOCStatusMessage mes)
-    {
-        int sv = mes.getStatusValue();
-        if (sv == SOCStatusMessage.SV_OK_DEBUG_MODE_ON)
-            sv = 0;
-        else if (sv == SOCStatusMessage.SV_SERVER_SHUTDOWN)
-        {
-            disconnect();
-            return;
-        }
-
-        if ((sv != 0) || ! printedInitialWelcome)
-        {
-            System.err.println("Robot " + getNickname() + ": Status "
-                + sv + " from server: " + mes.getStatus());
-            if (sv == 0)
-                printedInitialWelcome = true;
-        }
-    }
+//    @Override
+//    protected void handleSTATUSMESSAGE(SOCStatusMessage mes)
+//    {
+//        int sv = mes.getStatusValue();
+//        if (sv == SOCStatusMessage.SV_OK_DEBUG_MODE_ON)
+//            sv = 0;
+//        else if (sv == SOCStatusMessage.SV_SERVER_SHUTDOWN)
+//        {
+//            disconnect();
+//            return;
+//        }
+//
+//        if ((sv != 0) || ! printedInitialWelcome)
+//        {
+//            System.err.println("Robot " + getNickname() + ": Status "
+//                + sv + " from server: " + mes.getStatus());
+//            if (sv == 0)
+//                printedInitialWelcome = true;
+//        }
+//    }
 
     /**
      * handle the "join game authorization" message
@@ -938,75 +957,76 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * @param isPractice Is the server local for practice, or remote?
      * @throws IllegalStateException if board size {@link SOCGameOption} "_BHW" isn't defined (unlikely internal error)
      */
-    @Override
-    protected void handleJOINGAMEAUTH(SOCJoinGameAuth mes, final boolean isPractice)
-    {
-        gamesPlayed++;
+//    @Override
+//    protected void handleJOINGAMEAUTH(SOCJoinGameAuth mes, final boolean isPractice)
+//    {
+//        gamesPlayed++;
+//
+//        final String gaName = mes.getGameName();
+//
+//        final SOCGameOptionSet gameOpts = gameOptions.get(gaName);
+//        final int bh = mes.getBoardHeight(), bw = mes.getBoardWidth();
+//        if ((bh != 0) || (bw != 0))
+//        {
+//            // Encode board size to pass through game constructor.
+//            // gameOpts won't be null, because bh, bw are used only with SOCBoardLarge which requires a gameopt
+//            SOCGameOption opt = knownOpts.getKnownOption("_BHW", true);
+//            if (opt == null)
+//                throw new IllegalStateException("Internal error: Game opt _BHW not known");
+//            opt.setIntValue((bh << 8) | bw);
+//            gameOpts.put(opt);
+//        }
+//
+//        try
+//        {
+//            final SOCGame ga = new SOCGame(gaName, gameOpts, knownOpts);
+//            ga.isPractice = isPractice;
+//            ga.serverVersion = (isPractice) ? sLocalVersion : sVersion;
+//            games.put(gaName, ga);
+//
+//            CappedQueue<SOCMessage> brainQ = new CappedQueue<SOCMessage>();
+//            brainQs.put(gaName, brainQ);
+//
+//            SOCRobotBrain rb = createBrain(currentRobotParameters, ga, brainQ);
+//            robotBrains.put(gaName, rb);
+//        } catch (IllegalArgumentException e) {
+//            System.err.println
+//                ("Sync error: Bot " + nickname + " can't join game " + gaName + ": " + e.getMessage());
+//            brainQs.remove(gaName);
+//            leaveGame(gaName);
+//        }
+//    }
 
-        final String gaName = mes.getGameName();
-
-        final SOCGameOptionSet gameOpts = gameOptions.get(gaName);
-        final int bh = mes.getBoardHeight(), bw = mes.getBoardWidth();
-        if ((bh != 0) || (bw != 0))
-        {
-            // Encode board size to pass through game constructor.
-            // gameOpts won't be null, because bh, bw are used only with SOCBoardLarge which requires a gameopt
-            SOCGameOption opt = knownOpts.getKnownOption("_BHW", true);
-            if (opt == null)
-                throw new IllegalStateException("Internal error: Game opt _BHW not known");
-            opt.setIntValue((bh << 8) | bw);
-            gameOpts.put(opt);
-        }
-
-        try
-        {
-            final SOCGame ga = new SOCGame(gaName, gameOpts, knownOpts);
-            ga.isPractice = isPractice;
-            ga.serverVersion = (isPractice) ? sLocalVersion : sVersion;
-            games.put(gaName, ga);
-
-            CappedQueue<SOCMessage> brainQ = new CappedQueue<SOCMessage>();
-            brainQs.put(gaName, brainQ);
-
-            SOCRobotBrain rb = createBrain(currentRobotParameters, ga, brainQ);
-            robotBrains.put(gaName, rb);
-        } catch (IllegalArgumentException e) {
-            System.err.println
-                ("Sync error: Bot " + nickname + " can't join game " + gaName + ": " + e.getMessage());
-            brainQs.remove(gaName);
-            leaveGame(gaName);
-        }
-    }
 
     /**
      * handle the "game members" message, which indicates the entire game state has now been sent.
      * If we have a {@link #seatRequests} for this game, request to sit down now: send {@link SOCSitDown}.
      * @param mes  the message
      */
-    @Override
-    protected void handleGAMEMEMBERS(SOCGameMembers mes)
-    {
-        /**
-         * sit down to play
-         */
-        Integer pn = seatRequests.get(mes.getGameName());
-
-        try
-        {
-            //wait(Math.round(Math.random()*1000));
-        }
-        catch (Exception e)
-        {
-            ;
-        }
-
-        if (pn != null)
-        {
-            put(SOCSitDown.toCmd(mes.getGameName(), SOCMessage.EMPTYSTR, pn.intValue(), true));
-        } else {
-            System.err.println("** Cannot sit down: Assert failed: null pn for game " + mes.getGameName());
-        }
-    }
+//    @Override
+//    protected void handleGAMEMEMBERS(SOCGameMembers mes)
+//    {
+//        /**
+//         * sit down to play
+//         */
+//        Integer pn = seatRequests.get(mes.getGameName());
+//
+//        try
+//        {
+//            //wait(Math.round(Math.random()*1000));
+//        }
+//        catch (Exception e)
+//        {
+//            ;
+//        }
+//
+//        if (pn != null)
+//        {
+//            put(SOCSitDown.toCmd(mes.getGameName(), SOCMessage.EMPTYSTR, pn.intValue(), true));
+//        } else {
+//            System.err.println("** Cannot sit down: Assert failed: null pn for game " + mes.getGameName());
+//        }
+//    }
 
     /**
      * handle any per-game message that just needs to go into its game's {@link #brainQs}.
@@ -1014,22 +1034,22 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * @param mes  the message
      * @since 2.0.00
      */
-    protected void handlePutBrainQ(SOCMessageForGame mes)
-    {
-        CappedQueue<SOCMessage> brainQ = brainQs.get(mes.getGameName());
-
-        if (brainQ != null)
-        {
-            try
-            {
-                brainQ.put((SOCMessage)mes);
-            }
-            catch (CutoffExceededException exc)
-            {
-                D.ebugPrintlnINFO("CutoffExceededException" + exc);
-            }
-        }
-    }
+//    protected void handlePutBrainQ(SOCMessageForGame mes)
+//    {
+//        CappedQueue<SOCMessage> brainQ = brainQs.get(mes.getGameName());
+//
+//        if (brainQ != null)
+//        {
+//            try
+//            {
+//                brainQ.put((SOCMessage)mes);
+//            }
+//            catch (CutoffExceededException exc)
+//            {
+//                D.ebugPrintlnINFO("CutoffExceededException" + exc);
+//            }
+//        }
+//    }
 
     /**
      * Handle the "game text message" message, including
@@ -1037,353 +1057,355 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * the robot's nickname + ":".
      * @param mes  the message
      */
-    @Override
-    protected void handleGAMETEXTMSG(SOCGameTextMsg mes)
-    {
-        //D.ebugPrintln(mes.getNickname()+": "+mes.getText());
-        if (mes.getText().startsWith(nickname))
-        {
-            handleGAMETEXTMSG_debug(mes);
-        }
-    }
-
-    /**
-     * Handle debug text messages from players to the robot, which start with
-     * the robot's nickname + ":".
-     * @since 1.1.12
-     */
-    protected void handleGAMETEXTMSG_debug(SOCGameTextMsg mes)
-    {
-        final int nL = nickname.length();
-        try
-        {
-            if (mes.getText().charAt(nL) != ':')
-                return;
-        } catch (IndexOutOfBoundsException e) {
-            return;
-        }
-        final String gaName = mes.getGameName();
-        final String dcmd = mes.getText().substring(nL);
-
-        if (dcmd.startsWith(":debug-off"))
-        {
-            SOCGame ga = games.get(gaName);
-            SOCRobotBrain brain = robotBrains.get(gaName);
-
-            if (brain != null)
+//    @Override
+//    protected void handleGAMETEXTMSG(SOCGameTextMsg mes)
+//    {
+//        //D.ebugPrintln(mes.getNickname()+": "+mes.getText());
+//        if (mes.getText().startsWith(nickname))
+//        {
+//            handleGAMETEXTMSG_debug(mes);
+//        }
+//    }
+//
+//    /**
+//     * Handle debug text messages from players to the robot, which start with
+//     * the robot's nickname + ":".
+//     * @since 1.1.12
+//     */
+//    protected void handleGAMETEXTMSG_debug(SOCGameTextMsg mes)
+//    {
+//        final int nL = nickname.length();
+//        try
+//        {
+//            if (mes.getText().charAt(nL) != ':')
+//                return;
+//        } catch (IndexOutOfBoundsException e) {
+//            return;
+//        }
+//        final String gaName = mes.getGameName();
+//        final String dcmd = mes.getText().substring(nL);
+//
+//        if (dcmd.startsWith(":debug-off"))
+//        {
+//            SOCGame ga = games.get(gaName);
+//            SOCRobotBrain brain = robotBrains.get(gaName);
+//
+//            if (brain != null)
+//            {
+//                brain.turnOffDRecorder();
+//                sendText(ga, "Debug mode OFF");
+//            }
+//        }
+//
+//        else if (dcmd.startsWith(":debug-on"))
+//        {
+//            SOCGame ga = games.get(gaName);
+//            SOCRobotBrain brain = robotBrains.get(gaName);
+//
+//            if (brain != null)
+//            {
+//                brain.turnOnDRecorder();
+//                sendText(ga, "Debug mode ON");
+//            }
+//        }
+//
+//        else if (dcmd.startsWith(":current-plans") || dcmd.startsWith(":cp"))
+//        {
+//            sendRecordsText(gaName, CURRENT_PLANS, false);
+//        }
+//
+//        else if (dcmd.startsWith(":current-resources") || dcmd.startsWith(":cr"))
+//        {
+//            sendRecordsText(gaName, CURRENT_RESOURCES, false);
+//        }
+//
+//        else if (dcmd.startsWith(":last-plans") || dcmd.startsWith(":lp"))
+//        {
+//            sendRecordsText(gaName, CURRENT_PLANS, true);
+//        }
+//
+//        else if (dcmd.startsWith(":last-resources") || dcmd.startsWith(":lr"))
+//        {
+//            sendRecordsText(gaName, CURRENT_RESOURCES, true);
+//        }
+//
+//        else if (dcmd.startsWith(":last-move") || dcmd.startsWith(":lm"))
+//        {
+//            SOCRobotBrain brain = robotBrains.get(gaName);
+//
+//            if ((brain != null) && (brain.getOldDRecorder().isOn()))
+//            {
+//                SOCPossiblePiece lastMove = brain.getLastMove();
+//
+//                if (lastMove != null)
+//                {
+//                    String key = null;
+//
+//                    switch (lastMove.getType())
+//                    {
+//                    case SOCPossiblePiece.CARD:
+//                        key = "DEVCARD";
+//                        break;
+//
+//                    case SOCPossiblePiece.ROAD:
+//                        key = "ROAD" + lastMove.getCoordinates();
+//                        break;
+//
+//                    case SOCPossiblePiece.SETTLEMENT:
+//                        key = "SETTLEMENT" + lastMove.getCoordinates();
+//                        break;
+//
+//                    case SOCPossiblePiece.CITY:
+//                        key = "CITY" + lastMove.getCoordinates();
+//                        break;
+//
+//                    case SOCPossiblePiece.SHIP:
+//                        key = "SHIP" + lastMove.getCoordinates();
+//                        break;
+//                    }
+//
+//                    sendRecordsText(gaName, key, true);
+//                }
+//            } else {
+//                sendText(games.get(gaName), HINT_SEND_DEBUG_ON_FIRST);
+//            }
+//        }
+//
+//        else if (dcmd.startsWith(":consider-move ") || dcmd.startsWith(":cm "))
+//        {
+//            String[] tokens = dcmd.split(" ");  // ":consider-move road 154"
+//            final int L = tokens.length;
+//            String keytoken = (L > 2) ? tokens[L-2].trim() : "(missing)",
+//                   lasttoken = (L > 1) ? tokens[L-1].trim() : "(missing)",
+//                   key = null;
+//
+//            if (lasttoken.equals("card"))
+//                key = "DEVCARD";
+//            else if (keytoken.equals("road"))
+//                key = "ROAD" + lasttoken;
+//            else if (keytoken.equals("ship"))
+//                key = "SHIP" + lasttoken;
+//            else if (keytoken.equals("settlement"))
+//                key = "SETTLEMENT" + lasttoken;
+//            else if (keytoken.equals("city"))
+//                key = "CITY" + lasttoken;
+//
+//            final SOCGame ga = games.get(gaName);
+//            if (key == null)
+//            {
+//                sendText(ga, "Unknown :consider-move type: " + keytoken);
+//                return;
+//            }
+//
+//            sendRecordsText(gaName, key, true);
+//        }
+//
+//        else if (dcmd.startsWith(":last-target") || dcmd.startsWith(":lt"))
+//        {
+//            SOCRobotBrain brain = robotBrains.get(gaName);
+//
+//            if ((brain != null) && (brain.getDRecorder().isOn()))
+//            {
+//                SOCPossiblePiece lastTarget = brain.getLastTarget();
+//
+//                if (lastTarget != null)
+//                {
+//                    String key = null;
+//
+//                    switch (lastTarget.getType())
+//                    {
+//                    case SOCPossiblePiece.CARD:
+//                        key = "DEVCARD";
+//                        break;
+//
+//                    case SOCPossiblePiece.ROAD:
+//                        key = "ROAD" + lastTarget.getCoordinates();
+//                        break;
+//
+//                    case SOCPossiblePiece.SETTLEMENT:
+//                        key = "SETTLEMENT" + lastTarget.getCoordinates();
+//                        break;
+//
+//                    case SOCPossiblePiece.CITY:
+//                        key = "CITY" + lastTarget.getCoordinates();
+//                        break;
+//
+//                    case SOCPossiblePiece.SHIP:
+//                        key = "SHIP" + lastTarget.getCoordinates();
+//                        break;
+//                    }
+//
+//                    sendRecordsText(gaName, key, false);
+//                }
+//            } else {
+//                sendText(games.get(gaName), HINT_SEND_DEBUG_ON_FIRST);
+//            }
+//        }
+//
+//        else if (dcmd.startsWith(":consider-target ") || dcmd.startsWith(":ct "))
+//        {
+//            String[] tokens = dcmd.split(" ");  // ":consider-target road 154"
+//            final int L = tokens.length;
+//            String keytoken = (L > 2) ? tokens[L-2].trim() : "(missing)",
+//                   lasttoken = (L > 1) ? tokens[L-1].trim() : "(missing)",
+//                   key = null;
+//
+//            if (lasttoken.equals("card"))
+//                key = "DEVCARD";
+//            else if (keytoken.equals("road"))
+//                key = "ROAD" + lasttoken;
+//            else if (keytoken.equals("ship"))
+//                key = "SHIP" + lasttoken;
+//            else if (keytoken.equals("settlement"))
+//                key = "SETTLEMENT" + lasttoken;
+//            else if (keytoken.equals("city"))
+//                key = "CITY" + lasttoken;
+//
+//            final SOCGame ga = games.get(gaName);
+//            if (key == null)
+//            {
+//                sendText(ga, "Unknown :consider-target type: " + keytoken);
+//                return;
+//            }
+//
+//            sendRecordsText(gaName, key, false);
+//        }
+//
+//        else if (dcmd.startsWith(":print-vars") || dcmd.startsWith(":pv"))
+//        {
+//            // "prints" the results as series of SOCGameTextMsg to game
+//            debugPrintBrainStatus(gaName, true, true);
+//        }
+//
+//        else if (dcmd.startsWith(":stats"))
+//        {
+            void sendStats( SOCGame game )
             {
-                brain.turnOffDRecorder();
-                sendText(ga, "Debug mode OFF");
+                sendText( game, "Games played:" + gamesPlayed );
+                sendText( game, "Games finished:" + gamesFinished );
+                sendText( game, "Games won:" + gamesWon );
+                sendText( game, "Clean brain kills:" + cleanBrainKills );
+                sendText( game, "Brains running: " + robotBrains.size() );
+
+                Runtime rt = Runtime.getRuntime();
+                sendText( game, "Total Memory:" + rt.totalMemory() );
+                sendText( game, "Free Memory:" + rt.freeMemory() );
             }
-        }
-
-        else if (dcmd.startsWith(":debug-on"))
-        {
-            SOCGame ga = games.get(gaName);
-            SOCRobotBrain brain = robotBrains.get(gaName);
-
-            if (brain != null)
-            {
-                brain.turnOnDRecorder();
-                sendText(ga, "Debug mode ON");
-            }
-        }
-
-        else if (dcmd.startsWith(":current-plans") || dcmd.startsWith(":cp"))
-        {
-            sendRecordsText(gaName, CURRENT_PLANS, false);
-        }
-
-        else if (dcmd.startsWith(":current-resources") || dcmd.startsWith(":cr"))
-        {
-            sendRecordsText(gaName, CURRENT_RESOURCES, false);
-        }
-
-        else if (dcmd.startsWith(":last-plans") || dcmd.startsWith(":lp"))
-        {
-            sendRecordsText(gaName, CURRENT_PLANS, true);
-        }
-
-        else if (dcmd.startsWith(":last-resources") || dcmd.startsWith(":lr"))
-        {
-            sendRecordsText(gaName, CURRENT_RESOURCES, true);
-        }
-
-        else if (dcmd.startsWith(":last-move") || dcmd.startsWith(":lm"))
-        {
-            SOCRobotBrain brain = robotBrains.get(gaName);
-
-            if ((brain != null) && (brain.getOldDRecorder().isOn()))
-            {
-                SOCPossiblePiece lastMove = brain.getLastMove();
-
-                if (lastMove != null)
-                {
-                    String key = null;
-
-                    switch (lastMove.getType())
-                    {
-                    case SOCPossiblePiece.CARD:
-                        key = "DEVCARD";
-                        break;
-
-                    case SOCPossiblePiece.ROAD:
-                        key = "ROAD" + lastMove.getCoordinates();
-                        break;
-
-                    case SOCPossiblePiece.SETTLEMENT:
-                        key = "SETTLEMENT" + lastMove.getCoordinates();
-                        break;
-
-                    case SOCPossiblePiece.CITY:
-                        key = "CITY" + lastMove.getCoordinates();
-                        break;
-
-                    case SOCPossiblePiece.SHIP:
-                        key = "SHIP" + lastMove.getCoordinates();
-                        break;
-                    }
-
-                    sendRecordsText(gaName, key, true);
-                }
-            } else {
-                sendText(games.get(gaName), HINT_SEND_DEBUG_ON_FIRST);
-            }
-        }
-
-        else if (dcmd.startsWith(":consider-move ") || dcmd.startsWith(":cm "))
-        {
-            String[] tokens = dcmd.split(" ");  // ":consider-move road 154"
-            final int L = tokens.length;
-            String keytoken = (L > 2) ? tokens[L-2].trim() : "(missing)",
-                   lasttoken = (L > 1) ? tokens[L-1].trim() : "(missing)",
-                   key = null;
-
-            if (lasttoken.equals("card"))
-                key = "DEVCARD";
-            else if (keytoken.equals("road"))
-                key = "ROAD" + lasttoken;
-            else if (keytoken.equals("ship"))
-                key = "SHIP" + lasttoken;
-            else if (keytoken.equals("settlement"))
-                key = "SETTLEMENT" + lasttoken;
-            else if (keytoken.equals("city"))
-                key = "CITY" + lasttoken;
-
-            final SOCGame ga = games.get(gaName);
-            if (key == null)
-            {
-                sendText(ga, "Unknown :consider-move type: " + keytoken);
-                return;
-            }
-
-            sendRecordsText(gaName, key, true);
-        }
-
-        else if (dcmd.startsWith(":last-target") || dcmd.startsWith(":lt"))
-        {
-            SOCRobotBrain brain = robotBrains.get(gaName);
-
-            if ((brain != null) && (brain.getDRecorder().isOn()))
-            {
-                SOCPossiblePiece lastTarget = brain.getLastTarget();
-
-                if (lastTarget != null)
-                {
-                    String key = null;
-
-                    switch (lastTarget.getType())
-                    {
-                    case SOCPossiblePiece.CARD:
-                        key = "DEVCARD";
-                        break;
-
-                    case SOCPossiblePiece.ROAD:
-                        key = "ROAD" + lastTarget.getCoordinates();
-                        break;
-
-                    case SOCPossiblePiece.SETTLEMENT:
-                        key = "SETTLEMENT" + lastTarget.getCoordinates();
-                        break;
-
-                    case SOCPossiblePiece.CITY:
-                        key = "CITY" + lastTarget.getCoordinates();
-                        break;
-
-                    case SOCPossiblePiece.SHIP:
-                        key = "SHIP" + lastTarget.getCoordinates();
-                        break;
-                    }
-
-                    sendRecordsText(gaName, key, false);
-                }
-            } else {
-                sendText(games.get(gaName), HINT_SEND_DEBUG_ON_FIRST);
-            }
-        }
-
-        else if (dcmd.startsWith(":consider-target ") || dcmd.startsWith(":ct "))
-        {
-            String[] tokens = dcmd.split(" ");  // ":consider-target road 154"
-            final int L = tokens.length;
-            String keytoken = (L > 2) ? tokens[L-2].trim() : "(missing)",
-                   lasttoken = (L > 1) ? tokens[L-1].trim() : "(missing)",
-                   key = null;
-
-            if (lasttoken.equals("card"))
-                key = "DEVCARD";
-            else if (keytoken.equals("road"))
-                key = "ROAD" + lasttoken;
-            else if (keytoken.equals("ship"))
-                key = "SHIP" + lasttoken;
-            else if (keytoken.equals("settlement"))
-                key = "SETTLEMENT" + lasttoken;
-            else if (keytoken.equals("city"))
-                key = "CITY" + lasttoken;
-
-            final SOCGame ga = games.get(gaName);
-            if (key == null)
-            {
-                sendText(ga, "Unknown :consider-target type: " + keytoken);
-                return;
-            }
-
-            sendRecordsText(gaName, key, false);
-        }
-
-        else if (dcmd.startsWith(":print-vars") || dcmd.startsWith(":pv"))
-        {
-            // "prints" the results as series of SOCGameTextMsg to game
-            debugPrintBrainStatus(gaName, true, true);
-        }
-
-        else if (dcmd.startsWith(":stats"))
-        {
-            SOCGame ga = games.get(gaName);
-            sendText(ga, "Games played:" + gamesPlayed);
-            sendText(ga, "Games finished:" + gamesFinished);
-            sendText(ga, "Games won:" + gamesWon);
-            sendText(ga, "Clean brain kills:" + cleanBrainKills);
-            sendText(ga, "Brains running: " + robotBrains.size());
-
-            Runtime rt = Runtime.getRuntime();
-            sendText(ga, "Total Memory:" + rt.totalMemory());
-            sendText(ga, "Free Memory:" + rt.freeMemory());
-        }
-
-        else if (dcmd.startsWith(":gc"))
-        {
-            SOCGame ga = games.get(gaName);
-            Runtime rt = Runtime.getRuntime();
-            rt.gc();
-            sendText(ga, "Free Memory:" + rt.freeMemory());
-        }
-
-    }
+//        }
+//
+//        else if (dcmd.startsWith(":gc"))
+//        {
+//            SOCGame ga = games.get(gaName);
+//            Runtime rt = Runtime.getRuntime();
+//            rt.gc();
+//            sendText(ga, "Free Memory:" + rt.freeMemory());
+//        }
+//
+//    }
 
     /**
      * handle the "someone is sitting down" message
      * @param mes  the message
      */
-    @Override
-    protected SOCGame handleSITDOWN(SOCSitDown mes)
-    {
-        final String gaName = mes.getGameName();
-
-        /**
-         * tell the game that a player is sitting
-         */
-        final SOCGame ga = super.handleSITDOWN(mes);
-        if (ga == null)
-            return null;
-
-        /**
-         * let the robot brain find our player object if we sat down
-         */
-        final int pn = mes.getPlayerNumber();
-        if (nickname.equals(mes.getNickname()))
-        {
-            SOCRobotBrain brain = robotBrains.get(gaName);
-
-            if (brain.ourPlayerData != null)
-            {
-                if ((pn == brain.ourPlayerNumber) && nickname.equals(ga.getPlayer(pn).getName()))
-                    return ga;  // already sitting in this game at this position, OK (can happen during loadgame)
-
-                throw new IllegalStateException
-                    ("bot " + nickname + " game " + gaName
-                     + ": got sitdown(pn=" + pn + "), but already sitting at pn=" + brain.ourPlayerNumber);
-            }
-
-            /**
-             * retrieve the proper face for our strategy
-             */
-            int faceId;
-            switch (brain.getRobotParameters().getStrategyType())
-            {
-            case SOCRobotDM.SMART_STRATEGY:
-                faceId = -1;  // smarter robot face
-                break;
-
-            default:
-                faceId = 0;   // default robot face
-            }
-
-            brain.setOurPlayerData();
-            brain.start();
-
-            /**
-             * change our face to the robot face
-             */
-            put(new SOCChangeFace(ga.getName(), pn, faceId).toCmd());
-        }
-        else
-        {
-            /**
-             * add tracker for player in previously vacant seat
-             */
-            SOCRobotBrain brain = robotBrains.get(gaName);
-
-            if (brain != null)
-                brain.addPlayerTracker(pn);
-        }
-
-        return ga;
-    }
+//    @Override
+//    protected SOCGame handleSITDOWN(SOCSitDown mes)
+//    {
+//        final String gaName = mes.getGameName();
+//
+//        /**
+//         * tell the game that a player is sitting
+//         */
+//        final SOCGame ga = handleSITDOWN(mes);  //CIRCULAR!!
+//        if (ga == null)
+//            return null;
+//
+//        /**
+//         * let the robot brain find our player object if we sat down
+//         */
+//        final int pn = mes.getPlayerNumber();
+//        if (nickname.equals(mes.getNickname()))
+//        {
+//            SOCRobotBrain brain = robotBrains.get(gaName);
+//
+//            if (brain.ourPlayerData != null)
+//            {
+//                if ((pn == brain.ourPlayerNumber) && nickname.equals(ga.getPlayer(pn).getName()))
+//                    return ga;  // already sitting in this game at this position, OK (can happen during loadgame)
+//
+//                throw new IllegalStateException
+//                    ("bot " + nickname + " game " + gaName
+//                     + ": got sitdown(pn=" + pn + "), but already sitting at pn=" + brain.ourPlayerNumber);
+//            }
+//
+//            /**
+//             * retrieve the proper face for our strategy
+//             */
+//            int faceId;
+//            switch (brain.getRobotParameters().getStrategyType())
+//            {
+//            case SOCRobotDM.SMART_STRATEGY:
+//                faceId = -1;  // smarter robot face
+//                break;
+//
+//            default:
+//                faceId = 0;   // default robot face
+//            }
+//
+//            brain.setOurPlayerData();
+//            brain.start();
+//
+//            /**
+//             * change our face to the robot face
+//             */
+//            put(new SOCChangeFace(ga.getName(), pn, faceId).toCmd());
+//        }
+//        else
+//        {
+//            /**
+//             * add tracker for player in previously vacant seat
+//             */
+//            SOCRobotBrain brain = robotBrains.get(gaName);
+//
+//            if (brain != null)
+//                brain.addPlayerTracker(pn);
+//        }
+//
+//        return ga;
+//    }
 
     /**
      * handle the "delete game" message
      * @param mes  the message
      */
-    @Override
-    protected void handleDELETEGAME(SOCDeleteGame mes)
-    {
-        SOCRobotBrain brain = robotBrains.get(mes.getGameName());
-
-        if (brain != null)
-        {
-            SOCGame ga = games.get(mes.getGameName());
-
-            if (ga != null)
-            {
-                if (ga.getGameState() == SOCGame.OVER)
-                {
-                    gamesFinished++;
-
-                    if (ga.getPlayer(nickname).getTotalVP() >= ga.vp_winner)
-                    {
-                        gamesWon++;
-                        // TODO: should check actual winning player number (getCurrentPlayerNumber?)
-                    }
-                }
-
-                brain.kill();
-                robotBrains.remove(mes.getGameName());
-                brainQs.remove(mes.getGameName());
-                games.remove(mes.getGameName());
-            }
-        }
-    }
+//    @Override
+//    protected void handleDELETEGAME(SOCDeleteGame mes)
+//    {
+//        SOCRobotBrain brain = robotBrains.get(mes.getGameName());
+//
+//        if (brain != null)
+//        {
+//            SOCGame ga = games.get(mes.getGameName());
+//
+//            if (ga != null)
+//            {
+//                if (ga.getGameState() == SOCGame.OVER)
+//                {
+//                    gamesFinished++;
+//
+//                    if (ga.getPlayer(nickname).getTotalVP() >= ga.vp_winner)
+//                    {
+//                        gamesWon++;
+//                        // TODO: should check actual winning player number (getCurrentPlayerNumber?)
+//                    }
+//                }
+//
+//                brain.kill();
+//                robotBrains.remove(mes.getGameName());
+//                brainQs.remove(mes.getGameName());
+//                games.remove(mes.getGameName());
+//            }
+//        }
+//    }
 
     /**
      * Handle the "game state" message; instead of immediately updating state,
@@ -1391,49 +1413,49 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * Can be overridden by third-party bots.
      * @param mes  the message
      */
-    @Override
-    protected void handleGAMESTATE(SOCGameState mes)
-    {
-        SOCGame ga = games.get(mes.getGameName());
-
-        if (ga != null)
-        {
-            handlePutBrainQ(mes);
-        }
-    }
+//    @Override
+//    protected void handleGAMESTATE(SOCGameState mes)
+//    {
+//        SOCGame ga = games.get(mes.getGameName());
+//
+//        if (ga != null)
+//        {
+//            handlePutBrainQ(mes);
+//        }
+//    }
 
     /**
      * handle the "dismiss robot" message
      * @param mes  the message
      */
-    protected void handleROBOTDISMISS(SOCRobotDismiss mes)
-    {
-        SOCGame ga = games.get(mes.getGameName());
-        CappedQueue<SOCMessage> brainQ = brainQs.get(mes.getGameName());
-
-        if ((ga != null) && (brainQ != null))
-        {
-            try
-            {
-                brainQ.put(mes);
-            }
-            catch (CutoffExceededException exc)
-            {
-                D.ebugPrintlnINFO("CutoffExceededException" + exc);
-            }
-
-            /**
-             * if the brain isn't alive, then we need to leave
-             * the game here, instead of having the brain leave it
-             */
-            SOCRobotBrain brain = robotBrains.get(mes.getGameName());
-
-            if ((brain == null) || (! brain.isAlive()))
-            {
-                leaveGame(games.get(mes.getGameName()), "brain not alive in handleROBOTDISMISS", true, false);
-            }
-        }
-    }
+//    protected void handleROBOTDISMISS(SOCRobotDismiss mes)
+//    {
+//        SOCGame ga = games.get(mes.getGameName());
+//        CappedQueue<SOCMessage> brainQ = brainQs.get(mes.getGameName());
+//
+//        if ((ga != null) && (brainQ != null))
+//        {
+//            try
+//            {
+//                brainQ.put(mes);
+//            }
+//            catch (CutoffExceededException exc)
+//            {
+//                D.ebugPrintlnINFO("CutoffExceededException" + exc);
+//            }
+//
+//            /**
+//             * if the brain isn't alive, then we need to leave
+//             * the game here, instead of having the brain leave it
+//             */
+//            SOCRobotBrain brain = robotBrains.get(mes.getGameName());
+//
+//            if ((brain == null) || (! brain.isAlive()))
+//            {
+//                leaveGame(games.get(mes.getGameName()), "brain not alive in handleROBOTDISMISS", true, false);
+//            }
+//        }
+//    }
 
     /**
      * handle board reset
@@ -1451,22 +1473,27 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
      * @see #handleBOTJOINGAMEREQUEST(SOCBotJoinGameRequest)
      * @since 1.1.00
      */
-    @Override
-    protected void handleRESETBOARDAUTH(SOCResetBoardAuth mes)
-    {
-        D.ebugPrintlnINFO("**** handleRESETBOARDAUTH ****");
+//    @Override
+//    protected void handleRESETBOARDAUTH(SOCResetBoardAuth mes)
+//    {
+//        D.ebugPrintlnINFO("**** handleRESETBOARDAUTH ****");
+//
+//        String gname = mes.getGameName();
+//        SOCGame ga = games.get(gname);
+//        if (ga == null)
+//            return;  // Not one of our games
+//
+//        SOCRobotBrain brain = robotBrains.get(gname);
+//        if (brain != null)
+//            brain.kill();
+//        leaveGame(ga, "resetboardauth", false, false);  // Same as in handleROBOTDISMISS
+//        ga.destroyGame();
+//    }
 
-        String gname = mes.getGameName();
-        SOCGame ga = games.get(gname);
-        if (ga == null)
-            return;  // Not one of our games
+    /** end of handler code **/
 
-        SOCRobotBrain brain = robotBrains.get(gname);
-        if (brain != null)
-            brain.kill();
-        leaveGame(ga, "resetboardauth", false, false);  // Same as in handleROBOTDISMISS
-        ga.destroyGame();
-    }
+
+
 
     /**
      * Call sendText on each string element of a record
@@ -1610,4 +1637,8 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
         ex1.init();
     }
 
+    public boolean isLocal()
+    {
+        return null != sLocal;
+    }
 }
