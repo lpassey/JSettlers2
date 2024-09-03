@@ -21,8 +21,6 @@
  */
 package soc.client;
 
-import soc.baseclient.SOCDisplaylessPlayerClient;  // for javadocs only
-
 import java.util.List;
 import java.util.Map;
 
@@ -267,7 +265,7 @@ public interface PlayerClientListener
      * Display or format one type of a player's stats, such as resource trades.
      * Called at end of game or when the player uses the *STATS* command.
      * In client v2.7.00 and newer, is called after player data has been updated
-     * by {@link SOCDisplaylessPlayerClient#handlePLAYERSTATS(SOCPlayerStats, SOCGame, int)}.
+     * by {@link MessageHandler#handlePLAYERSTATS(SOCPlayerStats, SOCGame, int)}.
      * @param statsType  Type of statistics, such as {@link SOCPlayerStats#STYPE_TRADES}
      *     or {@link SOCPlayerStats#STYPE_RES_ROLL}.
      *     If type is unrecognized, do nothing.
@@ -618,7 +616,7 @@ public interface PlayerClientListener
      * If other game data messages are sent (resource gains/loss, etc), or other client code must update that data
      * based on info in the SOCSimpleRequest, this method will be called only after other game data is updated.
      * Some SimpleRequest {@code reqtype}s update the game data: Client must call
-     * {@link SOCDisplaylessPlayerClient#handleSIMPLEREQUEST(soc.message.SOCSimpleRequest, SOCGame)}
+     * {@link MessageHandler#handleSIMPLEREQUEST(soc.message.SOCSimpleRequest, SOCGame)}
      * to update game before calling this method.
      *
      * @param pn  The player number requesting or acting, or -1 if our own request was declined

@@ -45,7 +45,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
-import soc.baseclient.SOCDisplaylessPlayerClient;
+import soc.baseclient.MessageHandler;
 import soc.game.*;
 import soc.message.SOCBoardLayout;
 import soc.message.SOCBoardLayout2;
@@ -731,7 +731,7 @@ public class SavedGameModel
                  playingRoadBuildingCardForLastRoad);
             if (elements != null)
                 for (GEType elem : elements.keySet())
-                    SOCDisplaylessPlayerClient.handleGAMEELEMENT(ga, elem, elements.get(elem));
+                    MessageHandler.staticHandleGAMEELEMENT( ga, elem, elements.get( elem));
 
             boardInfo.loadInto(ga);
 
@@ -977,7 +977,7 @@ public class SavedGameModel
          */
 
         /**
-         * The details behind this player's {@link #getSpecialVP()} total,
+         * The details behind this player's {@link SOCPlayer#getSpecialVP()} total,
          * from {@link SOCPlayer#getSpecialVPInfo()}, or {@code null} if none.
          * Because game is saved at server, each {@link SOCPlayer.SpecialVPInfo#desc desc}
          * field will be an unlocalized i18n string key.
@@ -1176,8 +1176,8 @@ public class SavedGameModel
             // so they know their starting land areas and scenario events
             if (earlyElements != null)
                 for (final PEType et : earlyElements.keySet())
-                    SOCDisplaylessPlayerClient.handlePLAYERELEMENT
-                        (ga, pl, pn, SOCPlayerElement.SET, et, earlyElements.get(et), null);
+                    MessageHandler.staticHandlePLAYERELEMENT( ga, pl, pn, SOCPlayerElement.SET,
+                                                                   et, earlyElements.get(et), null);
 
             final SOCBoard b = ga.getBoard();
             final HashSet<Integer> psList = new HashSet<>(pl.getPotentialSettlements());
@@ -1204,8 +1204,8 @@ public class SavedGameModel
             // added as a side effect of putPieces
 
             for (final PEType et : elements.keySet())
-                SOCDisplaylessPlayerClient.handlePLAYERELEMENT
-                    (ga, pl, pn, SOCPlayerElement.SET, et, elements.get(et), null);
+                MessageHandler.staticHandlePLAYERELEMENT( ga, pl, pn, SOCPlayerElement.SET,
+                        et, elements.get(et), null);
             pl.setSpecialVPInfo(specialVPInfo);
         }
 
@@ -1596,13 +1596,13 @@ public class SavedGameModel
 
         void loadInto(final SOCGame ga)
         {
-            if (layout2 != null)
-                SOCDisplaylessPlayerClient.handleBOARDLAYOUT2(layout2, ga);
-            else if (layout1 != null)
-                SOCDisplaylessPlayerClient.handleBOARDLAYOUT(layout1, ga);
+//            if (layout2 != null)
+//                MessageHandler.handleBOARDLAYOUT2(layout2, ga);
+//            else if (layout1 != null)
+//                MessageHandler.handleBOARDLAYOUT(layout1, ga);
 
             for (final SOCPotentialSettlements potenMsg : playerPotentials)
-                SOCDisplaylessPlayerClient.handlePOTENTIALSETTLEMENTS(potenMsg, ga);
+                MessageHandler.staticHandlePOTENTIALSETTLEMENTS( potenMsg, ga );
         }
     }
 
