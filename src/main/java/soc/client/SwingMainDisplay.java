@@ -23,6 +23,7 @@
  **/
 package soc.client;
 
+import soc.baseclient.SOCBaseClient;
 import soc.game.*;
 import soc.message.*;
 import soc.util.SOCFeatureSet;
@@ -239,7 +240,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
     /**
      * The player interfaces for all the {@link SOCPlayerClient#games} we're playing.
-     * Accessed from GUI thread and network MessageHandler thread.
+     * Accessed from GUI thread and network PlayerMessageHandler thread.
      */
     protected final Map<String, SOCPlayerInterface> playerInterfaces = new Hashtable<String, SOCPlayerInterface>();
 
@@ -476,7 +477,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
     /**
      * The channels we've joined.
-     * Accessed from GUI thread and network MessageHandler thread.
+     * Accessed from GUI thread and network PlayerMessageHandler thread.
      */
     protected Hashtable<String, ChannelFrame> channels = new Hashtable<String, ChannelFrame>();
 
@@ -1395,7 +1396,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             }
 
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
-            client.tcpConnection.send( SOCJoinChannel.toCmd( client.nickname,
+            client.socketConnection.send( SOCJoinChannel.toCmd( client.getNickname(),
                     (client.isAuthenticated() ? "" : client.getPassword()), SOCMessage.EMPTYSTR, ch));
         }
         else
@@ -1419,7 +1420,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         // May set hint message if empty,
         // like NEED_NICKNAME_BEFORE_JOIN
         if (getValidNickname(false) == null)
-            return false;  // nickname field blank or invalid, client.nickname not set yet
+            return false;  // nickname field blank or invalid, client.getNickname() not set yet
 
         if (! client.isAuthenticated())
         {
@@ -1539,7 +1540,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 //            // So, it's OK to not check that here or in the dialog.
 //
 //            // Is the game over yet?
-//            if (pi.getGameName().getGameState() == SOCGame.OVER)
+//            if (pi.getGame().getGameState() == SOCGame.OVER)
 //            {
 //                // No point joining, just get options to start a new one.
 //                gameWithOptionsBeginSetup(true, false);
@@ -1559,7 +1560,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 // May set hint message if empty,
                 // like NEED_NICKNAME_BEFORE_JOIN
                 if (getValidNickname(false) == null)
-                    return true;  // nickname blank or invalid, client.nickname not set yet
+                    return true;  // nickname blank or invalid, client.getNickname() not set yet
 
                 if (! client.isAuthenticated())
                 {
@@ -1598,7 +1599,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
                 status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                client.tcpConnection.send( SOCJoinGame.toCmd( client.nickname,
+                client.socketConnection.send( SOCJoinGame.toCmd( client.getNickname(),
                         (client.isAuthenticated() ? "" : client.getPassword()), SOCMessage.EMPTYSTR, gm) );
             }
         }
@@ -1662,7 +1663,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
         if (! precheckOnly)
         {
-            client.nickname = n;
+            client.setNickname( n );
 //            if (client.practiceNickname == null)
 //                client.practiceNickname = n;
         }
@@ -1702,8 +1703,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
 
     /**
      * Validate and return the password textfield contents; may be 0-length, or {@code null} if invalid.
-     * Also set {@link #password} field to the value returned from this method.
-     * If {@link #gotPassword} already, return current password without checking textfield.
+     * Also set {@link SOCBaseClient#password} field to the value returned from this method.
+     * If {@link SOCBaseClient#isAuthenticated()} already, return current password without checking textfield.
      * If text is too long, sets status text and sets focus to password textfield.
      * @return  The trimmed password field text (may be ""), or {@code null} if invalid or too long
      * @see #readValidNicknameAndPassword()
@@ -1915,18 +1916,18 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
             //   If same version: Ask for i18n localized scenarios strings if available.
 
             if (cliVers != client.sVersion)
-                client.getGameMessageSender().put( new SOCScenarioInfo( changes, true).toCmd(), false );
+                client.getGameMessageSender().put( new SOCScenarioInfo( changes, true), false );
                 // if cli newer: specific scenario list and MARKER_ANY_CHANGED
                 // if srv newer: empty 'changes' list and MARKER_ANY_CHANGED
             else if (client.wantsI18nStrings(false ))
                 client.getGameMessageSender().put( new SOCLocalizedStrings( SOCLocalizedStrings.TYPE_SCENARIO,
-                        SOCLocalizedStrings.FLAG_REQ_ALL, (List<String>) null).toCmd(), false );
+                        SOCLocalizedStrings.FLAG_REQ_ALL, (List<String>) null), false );
         }
 
         opts.newGameWaitingForOpts = true;
         opts.askedDefaultsAlready = true;
         opts.askedDefaultsTime = System.currentTimeMillis();
-        client.getGameMessageSender().put( new SOCGameOptionGetDefaults(null).toCmd(), false );
+        client.getGameMessageSender().put( new SOCGameOptionGetDefaults(null), false );
 
         if (gameOptsDefsTask != null)
             gameOptsDefsTask.cancel();
@@ -1969,14 +1970,14 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 if (! readValidNicknameAndPassword())
                     return ngof;  // <--- Early return: Can't auth, so can't send SOCGameStats ---
 
-                client.tcpConnection.send( new SOCAuthRequest( SOCAuthRequest.ROLE_GAME_PLAYER, client.getNickname(),
+                client.socketConnection.send( new SOCAuthRequest( SOCAuthRequest.ROLE_GAME_PLAYER, client.getNickname(),
                         client.getPassword(), SOCAuthRequest.SCHEME_CLIENT_PLAINTEXT, "localhost"
                         /* client.getNet().getHost() */).toCmd());
 
                 // ideally we'd wait for auth success reply before sending SOCGameStats,
                 // but this is already a corner case
             }
-            client.tcpConnection.send(  new SOCGameStats(gaName, SOCGameStats.TYPE_TIMING, null).toCmd() );
+            client.socketConnection.send(  new SOCGameStats(gaName, SOCGameStats.TYPE_TIMING, null).toCmd() );
         }
         return ngof;
     }
@@ -1998,9 +1999,9 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         {
             final String pw = (client.isAuthenticated() ? "" : client.getPassword());  // after successful auth, don't need to send
             String askMsg = (client.sVersion >= SOCNewGameWithOptions.VERSION_FOR_NEWGAMEWITHOPTIONS)
-                ? SOCNewGameWithOptionsRequest.toCmd( client.nickname, pw, SOCMessage.EMPTYSTR, gmName, opts.getAll() )
-                : SOCJoinGame.toCmd( client.nickname, pw, SOCMessage.EMPTYSTR, gmName );
-            client.tcpConnection.send(  askMsg );
+                ? SOCNewGameWithOptionsRequest.toCmd( client.getNickname(), pw, SOCMessage.EMPTYSTR, gmName, opts.getAll() )
+                : SOCJoinGame.toCmd( client.getNickname(), pw, SOCMessage.EMPTYSTR, gmName );
+            client.socketConnection.send(  askMsg );
             System.out.flush();  // for debug print output (temporary)
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -2589,7 +2590,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
     {
         if (! doLocalCommand(ch, mes))
         {
-            client.tcpConnection.send(  new SOCChannelTextMsg( ch, client.nickname, mes).toCmd() );
+            client.socketConnection.send(  new SOCChannelTextMsg( ch, client.getNickname(), mes).toCmd() );
         }
     }
 
@@ -2896,7 +2897,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
                 SOCQuitAllConfirmDialog.createAndShow(piActive.getMainDisplay(), piActive);
                 return;
             }
-            md.getClient().tcpConnection.putLeaveAll();
+            md.getClient().socketConnection.putLeaveAll();
             System.exit(0);
         }
 
@@ -2919,7 +2920,7 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
      * Set up when sending {@link SOCGameOptionGetInfos GAMEOPTIONGETINFOS}.
      *<P>
      * When timer fires, assume no more options will be received. Call
-     * {@link MessageHandler#handleGAMEOPTIONINFO(SOCGameOptionInfo, boolean) handleGAMEOPTIONINFO("-",false)}
+     * {@link PlayerMessageHandler#handleGAMEOPTIONINFO(SOCGameOptionInfo, boolean) handleGAMEOPTIONINFO("-",false)}
      * to trigger end-of-list behavior at client.
      * @author jdmonin
      * @since 1.1.07
@@ -2942,8 +2943,8 @@ public class SwingMainDisplay extends JPanel implements MainDisplay
         {
             pcli.gameOptsTask = null;  // Clear reference to this soon-to-expire obj
             srvOpts.noMoreOptions(false);
-            pcli.getClient().getMessageHandler().handleGAMEOPTIONINFO
-                    (new SOCGameOptionInfo(new SOCGameOption("-", null), Version.versionNumber(), null), false);
+//            pcli.getClient().getMessageHandler().handleGAMEOPTIONINFO
+//                    (new SOCGameOptionInfo(new SOCGameOption("-", null), Version.versionNumber(), null), false);
         }
 
     }  // GameOptionsTimeoutTask

@@ -67,7 +67,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
-import soc.baseclient.TCPServerConnection;
+import soc.baseclient.SocketConnection;
 import soc.game.SOCGame;
 import soc.game.SOCGameOption;
 import soc.game.SOCGameOptionSet;
@@ -286,7 +286,7 @@ public class SwingServerMainDisplay extends SwingMainDisplay
 
     /**
      * The player interfaces for all the {@link SOCPlayerClient#games} we're playing.
-     * Accessed from GUI thread and network MessageHandler thread.
+     * Accessed from GUI thread and network PlayerMessageHandler thread.
      */
     // private final Map<String, SOCPlayerInterface> playerInterfaces = new Hashtable<String, SOCPlayerInterface>();
 
@@ -518,7 +518,7 @@ public class SwingServerMainDisplay extends SwingMainDisplay
 
     /**
      * The channels we've joined.
-     * Accessed from GUI thread and network MessageHandler thread.
+     * Accessed from GUI thread and network PlayerMessageHandler thread.
      */
 //    protected Hashtable<String, ChannelFrame> channels = new Hashtable<String, ChannelFrame>();
 
@@ -1659,7 +1659,7 @@ public class SwingServerMainDisplay extends SwingMainDisplay
 
                 status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                client.tcpConnection.send( SOCJoinGame.toCmd( client.getNickname(),
+                client.socketConnection.send( SOCJoinGame.toCmd( client.getNickname(),
                         (client.isAuthenticated()
                                 ? ""
                                 : client.getPassword()), SOCMessage.EMPTYSTR, gameName));
@@ -1975,22 +1975,20 @@ public class SwingServerMainDisplay extends SwingMainDisplay
             //   If same version: Ask for i18n localized scenarios strings if available.
 
             if (cliVers != client.sVersion)
-                client.getGameMessageSender().put
-                        (new SOCScenarioInfo(changes, true).toCmd(), false);
+                client.getGameMessageSender().put(new SOCScenarioInfo(changes, true),
+                                                  false);
                 // if cli newer: specific scenario list and MARKER_ANY_CHANGED
                 // if srv newer: empty 'changes' list and MARKER_ANY_CHANGED
             else if (client.wantsI18nStrings(false))
-                client.getGameMessageSender().put
-                        (new SOCLocalizedStrings
-                                        (SOCLocalizedStrings.TYPE_SCENARIO, SOCLocalizedStrings.FLAG_REQ_ALL,
-                                                (List<String>) null).toCmd(),
-                                false);
+                client.getGameMessageSender().put( new SOCLocalizedStrings( SOCLocalizedStrings.TYPE_SCENARIO,
+                                                      SOCLocalizedStrings.FLAG_REQ_ALL, (List<String>) null),
+                                        false);
         }
 
         opts.newGameWaitingForOpts = true;
         opts.askedDefaultsAlready = true;
         opts.askedDefaultsTime = System.currentTimeMillis();
-        client.getGameMessageSender().put(new SOCGameOptionGetDefaults(null).toCmd(), forPracticeServer);
+        client.getGameMessageSender().put(new SOCGameOptionGetDefaults(null), forPracticeServer);
 
         if (gameOptsDefsTask != null)
             gameOptsDefsTask.cancel();
@@ -2010,7 +2008,7 @@ public class SwingServerMainDisplay extends SwingMainDisplay
      *
      * @param gaName  Name of existing game, or {@code null} for a new game
      * @param gameOpts  Game's options, or {@code null} if server too old to support them
-     * @param forPracticeServer  True if game is on {@link ClientNetwork#practiceServer}, not a TCP server
+     * @param forPracticeServer  True if game is on {@link soc.baseclient.InProcessConnection}, not a TCP server
      * @return the new NGOF
      * @since 2.7.00
      */
@@ -2042,7 +2040,7 @@ public class SwingServerMainDisplay extends SwingMainDisplay
                 // but this is already a corner case
             }
 
-            client.tcpConnection.send(new SOCGameStats(gaName, SOCGameStats.TYPE_TIMING, null).toCmd());
+            client.socketConnection.send(new SOCGameStats(gaName, SOCGameStats.TYPE_TIMING, null).toCmd());
         }
 
         return ngof;
@@ -2075,7 +2073,7 @@ public class SwingServerMainDisplay extends SwingMainDisplay
                             (client.getNickname(), pw, SOCMessage.EMPTYSTR, gmName, opts.getAll())
                             : SOCJoinGame.toCmd
                             (client.getNickname(), pw, SOCMessage.EMPTYSTR, gmName);
-            client.tcpConnection.send( askMsg );
+            client.socketConnection.send( askMsg );
             System.out.flush();  // for debug print output (temporary)
             status.setText(client.strings.get("pcli.message.talkingtoserv"));  // "Talking to server..."
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -2777,15 +2775,15 @@ public class SwingServerMainDisplay extends SwingMainDisplay
             throws IllegalArgumentException, IllegalStateException
     {
 //        if (net.localTCPServer != null)
-        if (client.tcpConnection != null && client.tcpConnection.isConnected() )
+        if (client.socketConnection != null && client.socketConnection.isConnected() )
         {
-            throw new IllegalStateException("Already connected to " + client.tcpConnection.getHost());
+            throw new IllegalStateException("Already connected to " + client.socketConnection.getHost());
         }
-        if (client.tcpConnection == null)
+        if (client.socketConnection == null)
         {
-            client.tcpConnection = new TCPServerConnection( getClient() );
+            client.socketConnection = new SocketConnection( getClient() );
         }
-        // At this point we will have a tcpConnection, but it won't yet be connected
+        // At this point we will have a socketConnection, but it won't yet be connected
         if (tport < 1)
         {
             throw new IllegalArgumentException("Port must be positive: " + tport);
@@ -2886,8 +2884,13 @@ public class SwingServerMainDisplay extends SwingMainDisplay
 
         cardLayout.show(this, MESSAGE_PANEL);
 
+        // TODO: This should be the responsibility of the client calling connect. Be sure that it happens
+//        System.out.println(/*I*/"Connecting to " + hostString + ":" + port/*18N*/);  // I18N: Not localizing console output yet
+//        mainDisplay.setMessage( client.strings.get("pcli.message.connecting.serv") );  // "Connecting to server..."
+
+
         // Connect to it. Should throw an IllegalStateException if connection fails.
-        getClient().tcpConnection.connect(null, tport);
+        getClient().socketConnection.connect(null, tport);
 
         // Ensure we can't "connect" to another, too
         if (connectOrPracticePane != null)
@@ -3028,8 +3031,8 @@ public class SwingServerMainDisplay extends SwingMainDisplay
                 // Just quit. We might have never connected to anything.
                 // If it's only a practice game, there will be no human players
                 // so it's OK to just pull the rug out from under.
-                if (null != md.getClient().tcpConnection)
-                    md.getClient().tcpConnection.putLeaveAll();
+                if (null != md.getClient().socketConnection)
+                    md.getClient().socketConnection.putLeaveAll();
                 System.exit(0);
             }
         }
@@ -3054,7 +3057,7 @@ public class SwingServerMainDisplay extends SwingMainDisplay
      * Set up when sending {@link SOCGameOptionGetInfos GAMEOPTIONGETINFOS}.
      *<P>
      * When timer fires, assume no more options will be received. Call
-     * {@link MessageHandler#handleGAMEOPTIONINFO(SOCGameOptionInfo, boolean) handleGAMEOPTIONINFO("-",false)}
+     * {@link PlayerMessageHandler#handleGAMEOPTIONINFO(SOCGameOptionInfo, boolean) handleGAMEOPTIONINFO("-",false)}
      * to trigger end-of-list behavior at client.
      * @author jdmonin
      * @since 1.1.07
@@ -3078,8 +3081,8 @@ public class SwingServerMainDisplay extends SwingMainDisplay
         {
             pcli.gameOptsTask = null;  // Clear reference to this soon-to-expire obj
             srvOpts.noMoreOptions(false);
-            pcli.getClient().getMessageHandler().handleGAMEOPTIONINFO
-                    (new SOCGameOptionInfo(new SOCGameOption("-", null), Version.versionNumber(), null), false);
+//            pcli.getClient().getMessageHandler().handleGAMEOPTIONINFO(
+//                    new SOCGameOptionInfo(new SOCGameOption("-", null), Version.versionNumber(), null), false);
         }
 
     }  // GameOptionsTimeoutTask

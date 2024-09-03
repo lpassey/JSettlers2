@@ -233,7 +233,7 @@ import java.awt.event.KeyListener;
         pconn.add(L);
         conn_servport = new JTextField(20);
         {
-            String svp = Integer.toString( md.getClient().tcpConnection.getPort());
+            String svp = Integer.toString( md.getClient().socketConnection.getPort());
             conn_servport.setText(svp);
             conn_servport.setSelectionStart(0);
             conn_servport.setSelectionEnd(svp.length());
@@ -359,7 +359,7 @@ import java.awt.event.KeyListener;
             if (ptext.length() > 0)
                 srport = Integer.parseInt(ptext);
             else
-                srport = md.getClient().tcpConnection.getPort();  // text field is empty, use default (usually == SOC_PORT_DEFAULT)
+                srport = md.getClient().socketConnection.getPort();  // text field is empty, use default (usually == SOC_PORT_DEFAULT)
 
             if ((srport <= 0) || (srport > 65535))
                 srport = 0;  // TODO show error

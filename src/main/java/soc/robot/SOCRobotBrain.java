@@ -23,7 +23,9 @@
  **/
 package soc.robot;
 
+import soc.baseclient.MessageHandler;
 import soc.baseclient.SOCDisplaylessPlayerClient;
+import soc.client.PlayerMessageHandler;
 import soc.disableDebug.D;
 
 import soc.game.SOCBoard;
@@ -357,7 +359,7 @@ public class SOCRobotBrain extends Thread
      * Cleared at the start of each player's turn, and a few other places
      * if certain conditions arise, by calling {@link #resetBuildingPlan()}.
      * Set in {@link #planBuilding()}.
-     * When adding to a {@link #buildingPlan}, be sure to also set
+     * When adding to a {@link SOCBuildPlanStack#buildingPlan}, be sure to also set
      * {@link #negotiator}'s target piece.
      *<P>
      * {@link SOCRobotDM#buildingPlan} is the same Stack.
@@ -1380,7 +1382,7 @@ public class SOCRobotBrain extends Thread
 
                     else if (mesType == SOCMessage.STARTGAME)
                     {
-                        SOCDisplaylessPlayerClient.handleSTARTGAME_checkIsBotsOnly(game);
+                        MessageHandler.staticHandleSTARTGAME_checkIsBotsOnly( game);
                             // might set game.isBotsOnly
                         handleGAMESTATE(((SOCStartGame) mes).getGameState());
                             // clears waitingForGameState, updates oldGameState, calls ga.setGameState
@@ -1484,8 +1486,8 @@ public class SOCRobotBrain extends Thread
                         break;
 
                     case SOCMessage.DICERESULTRESOURCES:
-                        SOCDisplaylessPlayerClient.handleDICERESULTRESOURCES
-                            ((SOCDiceResultResources) mes, game, ourPlayerName, false);
+                        MessageHandler.staticHandleDICERESULTRESOURCES(
+                                (SOCDiceResultResources) mes, game, ourPlayerName, false);
                         isDataUpdateOnly = true;
                         break;
 
@@ -1512,7 +1514,7 @@ public class SOCRobotBrain extends Thread
                         break;
 
                     case SOCMessage.DISCARD:
-                        SOCDisplaylessPlayerClient.handleDISCARD((SOCDiscard) mes, game);
+                        MessageHandler.staticHandleDISCARD((SOCDiscard) mes, game);
                         isDataUpdateOnly = true;
                         break;
 
@@ -1544,7 +1546,7 @@ public class SOCRobotBrain extends Thread
                         break;
 
                     case SOCMessage.ACCEPTOFFER:
-                        SOCDisplaylessPlayerClient.handleACCEPTOFFER((SOCAcceptOffer) mes, game);
+                        MessageHandler.staticHandleACCEPTOFFER((SOCAcceptOffer) mes, game);
                             // use our thread to update game data
 
                         if (waitingForTradeResponse && (robotParameters.getTradeFlag() == 1))
@@ -1586,7 +1588,7 @@ public class SOCRobotBrain extends Thread
 
                     case SOCMessage.SIMPLEREQUEST:
                         // For any player's request, update game data in our thread
-                        SOCDisplaylessPlayerClient.handleSIMPLEREQUEST((SOCSimpleRequest) mes, game);
+                        PlayerMessageHandler.handleSIMPLEREQUEST( (SOCSimpleRequest) mes, game);
 
                         // Some request types are handled at the bottom of the loop body;
                         // search for SOCMessage.SIMPLEREQUEST
@@ -1612,7 +1614,7 @@ public class SOCRobotBrain extends Thread
 
                     case SOCMessage.SIMPLEACTION:
                         // For any player's action, update game data in our thread
-                        SOCDisplaylessPlayerClient.handleSIMPLEACTION((SOCSimpleAction) mes, game);
+                        MessageHandler.staticHandleSIMPLEACTION((SOCSimpleAction) mes, game);
                         if (((SOCSimpleAction) mes).getPlayerNumber() != ourPlayerNumber)
                             isDataUpdateOnly = true;
 
@@ -1786,7 +1788,7 @@ public class SOCRobotBrain extends Thread
 
                     if (mesType == SOCMessage.BANKTRADE)
                     {
-                        SOCDisplaylessPlayerClient.handleBANKTRADE((SOCBankTrade) mes, game);
+                        MessageHandler.staticHandleBANKTRADE((SOCBankTrade) mes, game);
                             // use our thread to update game data
 
                         if (waitingForTradeMsg)
@@ -2186,7 +2188,7 @@ public class SOCRobotBrain extends Thread
      * which has a Game State field. Clears {@link #waitingForGameState}
      * (unless {@code newState} is {@link SOCGame#LOADING} or {@link SOCGame#LOADING_RESUMING}),
      * updates {@link #oldGameState} if state value is actually changing, then calls
-     * {@link SOCDisplaylessPlayerClient#handleGAMESTATE(SOCGame, int)}.
+     * {@link MessageHandler#handleGAMESTATE(SOCGame, int)}.
      *<P>
      * When state moves from {@link SOCGame#ROLL_OR_CARD} to {@link SOCGame#PLAY1},
      * calls {@link #startTurnMainActions()}.
@@ -2207,7 +2209,7 @@ public class SOCRobotBrain extends Thread
         if (currGS != newState)
             oldGameState = currGS;  // if no actual change, don't overwrite previously known oldGameState
 
-        SOCDisplaylessPlayerClient.handleGAMESTATE(game, newState);
+        MessageHandler.staticHandleGAMESTATE(game, newState);
 
         if (newState == SOCGame.ROLL_OR_CARD)
         {
@@ -2653,7 +2655,7 @@ public class SOCRobotBrain extends Thread
 
     /**
      * Update game data and any bot tracking when a player has been robbed.
-     * Calls {@link SOCDisplaylessPlayerClient#handleROBBERYRESULT(SOCRobberyResult, SOCGame)}.
+     * Calls {@link MessageHandler#handleROBBERYRESULT(SOCRobberyResult, SOCGame)}.
      * Third-party bots can override if needed; if so, be sure to call {@code super.handleROBBERYRESULT(..)}.
      *
      * @param mes  Robbery result message
@@ -2661,7 +2663,7 @@ public class SOCRobotBrain extends Thread
      */
     protected void handleROBBERYRESULT(SOCRobberyResult mes)
     {
-        SOCDisplaylessPlayerClient.handleROBBERYRESULT(mes, game);
+        MessageHandler.staticHandleROBBERYRESULT(mes, game);
 
         // Basic robot brain doesn't do anything else with this message,
         // but a third-party bot might want to.
@@ -3417,7 +3419,7 @@ public class SOCRobotBrain extends Thread
             // fall through to default
 
         default:
-            SOCDisplaylessPlayerClient.handlePUTPIECE(mes, game);
+            MessageHandler.staticHandlePUTPIECE(mes, game);
             break;
         }
     }
@@ -3527,7 +3529,7 @@ public class SOCRobotBrain extends Thread
      */
     private void handleUNDOPUTPIECE(final SOCUndoPutPiece mes)
     {
-        SOCDisplaylessPlayerClient.handleUNDOPUTPIECE(mes, game);
+        MessageHandler.staticHandleUNDOPUTPIECE(mes, game);
         resetBuildingPlan();
     }
 
@@ -3808,7 +3810,7 @@ public class SOCRobotBrain extends Thread
     protected void handleDEVCARDACTION(SOCDevCardAction mes)
     {
         // if you change this method, consider changing SOCDisplaylessPlayerClient.handleDEVCARDACTION
-        // and soc.client.MessageHandler.handleDEVCARDACTION too
+        // and soc.client.PlayerMessageHandler.handleDEVCARDACTION too
 
         if (mes.getCardTypes() != null)
             return;  // <--- ignore: bots don't care about game-end VP card reveals ---
@@ -4199,39 +4201,39 @@ public class SOCRobotBrain extends Thread
         switch (etype)
         {
         case ROADS:
-            SOCDisplaylessPlayerClient.handlePLAYERELEMENT_numPieces
-                (pl, action, SOCPlayingPiece.ROAD, amount);
+            MessageHandler.staticHandlePLAYERELEMENT_numPieces(
+                    pl, action, SOCPlayingPiece.ROAD, amount);
             break;
 
         case SETTLEMENTS:
-            SOCDisplaylessPlayerClient.handlePLAYERELEMENT_numPieces
-                (pl, action, SOCPlayingPiece.SETTLEMENT, amount);
+            MessageHandler.staticHandlePLAYERELEMENT_numPieces(
+                pl, action, SOCPlayingPiece.SETTLEMENT, amount);
             break;
 
         case CITIES:
-            SOCDisplaylessPlayerClient.handlePLAYERELEMENT_numPieces
-                (pl, action, SOCPlayingPiece.CITY, amount);
+            MessageHandler.staticHandlePLAYERELEMENT_numPieces(
+                pl, action, SOCPlayingPiece.CITY, amount);
             break;
 
         case SHIPS:
-            SOCDisplaylessPlayerClient.handlePLAYERELEMENT_numPieces
-                (pl, action, SOCPlayingPiece.SHIP, amount);
+            MessageHandler.staticHandlePLAYERELEMENT_numPieces(
+                pl, action, SOCPlayingPiece.SHIP, amount);
             break;
 
         case NUMKNIGHTS:
             // PLAYERELEMENT(NUMKNIGHTS) is sent after a Soldier card is played.
-            SOCDisplaylessPlayerClient.handlePLAYERELEMENT_numKnights
-                (game, pl, action, amount);
+            MessageHandler.staticHandlePLAYERELEMENT_numKnights(
+                game, pl, action, amount);
             break;
 
         case CLAY:
-            handlePLAYERELEMENT_numRsrc
-                (pl, action, SOCResourceConstants.CLAY, "CLAY", amount);
+            handlePLAYERELEMENT_numRsrc(
+                pl, action, SOCResourceConstants.CLAY, "CLAY", amount);
             break;
 
         case ORE:
-            handlePLAYERELEMENT_numRsrc
-                (pl, action, SOCResourceConstants.ORE, "ORE", amount);
+            handlePLAYERELEMENT_numRsrc(
+                pl, action, SOCResourceConstants.ORE, "ORE", amount);
             break;
 
         case SHEEP:
@@ -4266,7 +4268,7 @@ public class SOCRobotBrain extends Thread
                 client.sendText(game, ">>> RESOURCE COUNT ERROR FOR PLAYER " + pl.getPlayerNumber()
                     + ": " + amount + " != " + pl.getResources().getTotal());
             }
-            SOCDisplaylessPlayerClient.handlePLAYERELEMENT_simple
+            MessageHandler.staticHandlePLAYERELEMENT_simple
                 (game, pl, pn, action, etype, amount, ourPlayerName);
             break;
 
@@ -4283,7 +4285,7 @@ public class SOCRobotBrain extends Thread
             // handle ASK_SPECIAL_BUILD, NUM_PICK_GOLD_HEX_RESOURCES, SCENARIO_CLOTH_COUNT, etc;
             // those are all self-contained informational fields that don't need any reaction from a bot.
 
-            SOCDisplaylessPlayerClient.handlePLAYERELEMENT_simple
+            MessageHandler.staticHandlePLAYERELEMENT_simple
                 (game, pl, pn, action, etype, amount, ourPlayerName);
             break;
 
@@ -5300,7 +5302,7 @@ public class SOCRobotBrain extends Thread
 
     /**
      * Handle the tracking of changing resources.
-     * Calls {@link SOCDisplaylessPlayerClient#handlePLAYERELEMENT_numRsrc(SOCPlayer, int, int, int)}.
+     * Calls {@link MessageHandler#handlePLAYERELEMENT_numRsrc(SOCPlayer, int, int, int)}.
      * Third-party bots can override this to
      * allow them to determine how accurately this is tracked
      * (full tracking of unknowns vs. cognitive modelling, etc).
@@ -5314,8 +5316,7 @@ public class SOCRobotBrain extends Thread
      */
     protected void handleResources(int action, SOCPlayer player, int resourceType, int amount)
     {
-        SOCDisplaylessPlayerClient.handlePLAYERELEMENT_numRsrc
-            (player, action, resourceType, amount);
+        MessageHandler.staticHandlePLAYERELEMENT_numRsrc( player, action, resourceType, amount );
     }
 
     /**

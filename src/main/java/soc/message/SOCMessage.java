@@ -20,6 +20,8 @@
  **/
 package soc.message;
 
+import soc.client.PlayerMessageHandler;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -65,7 +67,7 @@ import java.util.StringTokenizer;
  * parseDataStr is called from {@link #toMsg(String)} in this class.
  * Remote TCP clients receive data using {@link java.io.DataInputStream#readUTF()}.
  *<P>
- * The client receives messages in {@link soc.client.MessageHandler#handle(SOCMessage, boolean)}.
+ * The client receives messages in {@link PlayerMessageHandler#handle(SOCMessage, boolean)}.
  * The server receives messages in
  * {@link soc.server.SOCMessageDispatcher#dispatch(SOCMessage, soc.server.genericServer.Connection)}.
  *
@@ -108,11 +110,11 @@ import java.util.StringTokenizer;
  *      Set <tt>serialVersionUID</tt> to the version it's added in.
  *      for example, if adding for version 1.1.09:
  *      <code> private static final long serialVersionUID = 1109L;</code>
- * <LI> Add to the switch in {@link soc.client.MessageHandler#handle(SOCMessage, boolean)}
+ * <LI> Add to the switch in {@link PlayerMessageHandler#handle(SOCMessage, boolean)}
  *      and/or {@code SOCServerMessageHandler.dispatch} or its game type's {@code GameMessageHandler.dispatch}.
  *      Note the JSettlers version with a comment.
  *      <P>
- *      <em>Note:</em> Most things added to client {@code MessageHandler.handle} should also be added to
+ *      <em>Note:</em> Most things added to client {@code PlayerMessageHandler.handle} should also be added to
  *      {@link soc.baseclient.SOCDisplaylessPlayerClient#handle(SOCMessage)}. If robots
  *      should react, also add to {@link soc.robot.SOCRobotClient#handle(SOCMessage)}
  *      and maybe also {@link soc.robot.SOCRobotBrain#run()}.

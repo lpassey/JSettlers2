@@ -120,7 +120,7 @@ public class ServerGametypeInfo
      * Before v2.5.00 this field was {@code optionSet}.
      * @see #newGameOpts
      */
-    public SOCGameOptionSet knownOpts = null;
+    protected SOCGameOptionSet knownOpts = null;
 
     /**
      * Deep copy of {@link #knownOpts} for {@link NewGameOptionsFrame}

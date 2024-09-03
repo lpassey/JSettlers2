@@ -91,8 +91,8 @@ import java.awt.Frame;
     {
         // TODO: do we need to putLeaveAll to the practice server as well?
         // don't risk a NullPointerException
-        if (null != md.getClient().tcpConnection)
-            md.getClient().tcpConnection.putLeaveAll();
+        if (null != md.getClient().socketConnection)
+            md.getClient().socketConnection.putLeaveAll();
         System.exit(0);
     }
 
